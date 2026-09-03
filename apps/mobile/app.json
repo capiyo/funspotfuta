@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "Funspot",
+    "slug": "funspot-rn",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0B0F1A",
+    "splash": {
+      "backgroundColor": "#0B0F1A"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.funspot.app"
+    },
+    "android": {
+      "package": "com.funspot.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#0B0F1A"
+      }
+    }
+  }
+}
