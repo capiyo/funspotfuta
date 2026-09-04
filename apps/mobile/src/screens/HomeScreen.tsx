@@ -3,6 +3,11 @@
 // filter tabs. The "+create channel" tab press opens the same modal
 // (ChannelCreationModal) inline here via route params, matching the
 // bottom-nav "+" behaviour in RootNavigator.
+//
+// Verified in sync with upstream @ fe28d33 (2026-09-02) — see /SYNC.md.
+// home_page.dart changed upstream (UI only, zero endpoint diffs) since
+// this was written, but this screen was always a simplified original
+// rewrite, not a literal port, so nothing here needed updating.
 
 import { useCallback, useEffect, useState } from 'react';
 import { View, Text, ScrollView, Pressable, ActivityIndicator, StyleSheet } from 'react-native';

@@ -9,7 +9,9 @@
     "splash": {
       "backgroundColor": "#0B0F1A"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.funspot.app"
@@ -18,6 +20,11 @@
       "package": "com.funspot.app",
       "adaptiveIcon": {
         "backgroundColor": "#0B0F1A"
+      }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "4f4e3792-3b0c-49d7-99ff-fffa3ea288d3"
       }
     }
   }

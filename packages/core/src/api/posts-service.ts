@@ -4,6 +4,12 @@
 // vs React Native {uri,name,type} shapes differ, so each app supplies its
 // own createPost in apps/*/src/lib/api/posts-create.ts, reusing everything
 // else from this file.
+//
+// Verified in sync with upstream @ fe28d33 (2026-09-02) — see /SYNC.md.
+// toggleLikePost's endpoint/body/response contract (POST
+// /api/posts/:id/like, {user_id, user_name}, reads success/post.likes_count)
+// is unchanged from lib/pages/posts_page.dart's _toggleLike(), which is the
+// only thing ever ported from that file.
 
 import { Post, postFromJson } from '../types/post';
 
