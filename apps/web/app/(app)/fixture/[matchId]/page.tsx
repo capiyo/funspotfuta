@@ -1,10 +1,11 @@
 'use client';
 
-// New page (no direct Dart equivalent file — the original app spreads this
-// across VoteCastingModal, VotingBottomSheet, and inline home_page.dart
-// widgets) that pulls together the ported services for a single fixture:
-// channel vote, whole-match pledge/bet (bet-service.ts), per-market prop
-// bets (sub-fixture-votes-service.ts), and comments (comrade-service.ts).
+// Fixture detail — restyled to use the same component language as
+// PostCard/MatchCard: sections separated by spacing only (no borders, no
+// card backgrounds), inline vote pills matching PostCard's pill shape,
+// the pledge/bet section presenting bets as plain text rows rather than
+// bordered sub-cards, prop markets rendered as compact pill rows, and
+// the comments input styled like the inline comment field in MatchCard.
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
@@ -36,7 +37,9 @@ export default function FixtureDetailPage() {
   const [channelId, setChannelId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const [voteSelection, setVoteSelection] = useState<'home_team' | 'draw' | 'away_team' | null>(null);
+  const [voteSelection, setVoteSelection] = useState<
+    'home_team' | 'draw' | 'away_team' | null
+  >(null);
   const [voted, setVoted] = useState(false);
 
   const [openBets, setOpenBets] = useState<Bet[]>([]);
@@ -55,9 +58,13 @@ export default function FixtureDetailPage() {
       setLoading(true);
       const [fixtures, channels] = await Promise.all([
         getAllFixtures(),
-        userId && authToken ? getUserChannels(userId, authToken) : Promise.resolve([]),
+        userId && authToken
+          ? getUserChannels(userId, authToken)
+          : Promise.resolve([]),
       ]);
-      const f = fixtures.find((fx) => fx.matchId === matchId || fx.id === matchId) ?? null;
+      const f =
+        fixtures.find((fx) => fx.matchId === matchId || fx.id === matchId) ??
+        null;
       setFixture(f);
       const cid = channels[0]?.id ?? null;
       setChannelId(cid);
@@ -81,7 +88,13 @@ export default function FixtureDetailPage() {
   async function handleVote(sel: 'home_team' | 'draw' | 'away_team') {
     if (!fixture || !channelId || !userId || !authToken) return;
     setVoteSelection(sel);
-    const ok = await castVote({ channelId, fixtureId: fixture.matchId || fixture.id, userId, selection: sel, authToken });
+    const ok = await castVote({
+      channelId,
+      fixtureId: fixture.matchId || fixture.id,
+      userId,
+      selection: sel,
+      authToken,
+    });
     if (ok) setVoted(true);
   }
 
@@ -97,7 +110,7 @@ export default function FixtureDetailPage() {
       starterSelection: voteSelection,
       amount,
       channelId,
-      voteId: '', // server associates with the vote just cast, per the original flow
+      voteId: '',
       authToken: authToken ?? undefined,
     });
     setPlacingBet(false);
@@ -135,143 +148,194 @@ export default function FixtureDetailPage() {
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-funspot-green border-t-transparent" />
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-fan-primary border-t-transparent" />
       </div>
     );
   }
 
   if (!fixture) {
-    return <p className="py-16 text-center text-sm text-gray-500">Fixture not found.</p>;
+    return (
+      <p className="py-16 text-center text-fan-body text-fan-textTertiary">
+        Fixture not found.
+      </p>
+    );
   }
 
   return (
-    <div className="mx-auto max-w-md px-4 pt-6 pb-10">
-      <p className="mb-1 text-center text-xs text-gray-400">{fixture.league}</p>
-      <h1 className="mb-4 text-center text-lg font-bold text-white">
+    <div className="mx-auto max-w-md px-fan-lg pt-fan-xxl pb-10">
+      {/* Header — league label + matchup title + score, styled like a
+          PostCard header extended to page level */}
+      <p className="mb-fan-sm text-fan-tag font-bold uppercase tracking-[0.3px] text-fan-textTertiary">
+        {fixture.league}
+      </p>
+      <h1 className="mb-fan-sm font-condensed text-fan-headline text-fan-textPrimary">
         {fixture.homeTeam} vs {fixture.awayTeam}
       </h1>
       {hasScores(fixture) && (
-        <p className="mb-4 text-center text-2xl font-bold text-white">{scoreDisplay(fixture)}</p>
+        <p className="mb-fan-xxl font-condensed text-fan-scoreCompact font-bold text-fan-textPrimary">
+          {scoreDisplay(fixture)}
+        </p>
       )}
 
-      {/* Vote */}
-      <section className="mb-6">
-        <h2 className="mb-2 text-sm font-semibold text-gray-300">Vote</h2>
+      {/* Vote — pills in the same shape as PostCard's type tags, but
+          selectable. No card background. */}
+      <section className="mb-fan-xxl">
+        <h2 className="mb-fan-md text-fan-tag font-bold uppercase tracking-[0.3px] text-fan-textTertiary">
+          Vote
+        </h2>
         {voted ? (
-          <p className="text-sm text-funspot-green">✓ Vote recorded — you can now back it with a pledge below.</p>
+          <p className="text-fan-body text-fan-primary">
+            ✓ Vote recorded — back it with a pledge below.
+          </p>
         ) : (
-          <div className="grid grid-cols-3 gap-2">
+          <div className="flex flex-wrap gap-fan-sm">
             {(
               [
                 ['home_team', fixture.homeTeam],
                 ['draw', 'Draw'],
                 ['away_team', fixture.awayTeam],
               ] as const
-            ).map(([sel, label]) => (
-              <button
-                key={sel}
-                onClick={() => handleVote(sel)}
-                className={`truncate rounded-xl border py-2 text-xs font-medium ${
-                  voteSelection === sel
-                    ? 'border-funspot-green bg-funspot-green/20 text-funspot-green'
-                    : 'border-white/10 bg-white/5 text-gray-300'
-                }`}
-              >
-                {label}
-              </button>
-            ))}
+            ).map(([sel, label]) => {
+              const isActive = voteSelection === sel;
+              return (
+                <button
+                  key={sel}
+                  onClick={() => handleVote(sel)}
+                  className={`max-w-full truncate rounded-fan-pill px-fan-md py-fan-xs text-fan-tag font-semibold transition ${isActive
+                      ? 'bg-fan-primary text-fan-textInverse'
+                      : 'bg-fan-surfaceSunken text-fan-textSecondary'
+                    }`}
+                >
+                  {label}
+                </button>
+              );
+            })}
           </div>
         )}
       </section>
 
-      {/* Pledge / Bet */}
+      {/* Pledge / Bet — no bordered card. Rows are plain text, matching
+          how the Logs column shows sub-rows. */}
       {voteSelection && (
-        <section className="mb-6 rounded-2xl border border-white/10 bg-funspot-surface p-4">
-          <h2 className="mb-2 text-sm font-semibold text-gray-300">Back your vote with a pledge</h2>
-          <div className="mb-3 flex items-center gap-2">
+        <section className="mb-fan-xxl">
+          <h2 className="mb-fan-md text-fan-tag font-bold uppercase tracking-[0.3px] text-fan-textTertiary">
+            Back your vote
+          </h2>
+
+          <div className="mb-fan-base flex items-center gap-fan-md">
             <input
               type="number"
               min={1}
               value={pledgeAmount}
               onChange={(e) => setPledgeAmount(e.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-sm text-white outline-none focus:border-funspot-green"
+              className="w-full rounded-fan-pill border border-fan-border bg-fan-surfaceSunken px-fan-md py-fan-sm text-fan-body text-fan-textPrimary outline-none focus:border-fan-primary"
             />
             <button
               onClick={handlePlaceBet}
               disabled={placingBet}
-              className="whitespace-nowrap rounded-xl bg-funspot-green px-4 py-2 text-sm font-semibold text-black disabled:opacity-60"
+              className="whitespace-nowrap rounded-fan-pill bg-fan-primary px-fan-lg py-fan-sm text-fan-tag font-semibold text-fan-textInverse disabled:opacity-60"
             >
               {placingBet ? 'Placing…' : 'Pledge'}
             </button>
           </div>
 
           {openBets.length > 0 && (
-            <div className="mb-2">
-              <p className="mb-1 text-xs text-gray-400">Open bets waiting for a match</p>
-              <div className="space-y-1">
+            <div className="mb-fan-base">
+              <p className="mb-fan-xs text-fan-tag text-fan-textTertiary">
+                Open bets
+              </p>
+              <ul className="space-y-1">
                 {openBets.map((b) => (
-                  <div key={b.id} className="flex justify-between rounded-lg bg-black/20 px-2 py-1 text-xs text-gray-300">
-                    <span>{b.starterName}</span>
-                    <span>{b.starterAmount}</span>
-                  </div>
+                  <li
+                    key={b.id}
+                    className="flex justify-between text-fan-caption text-fan-textSecondary"
+                  >
+                    <span className="truncate">{b.starterName}</span>
+                    <span className="shrink-0 font-semibold text-fan-textPrimary">
+                      {b.starterAmount}
+                    </span>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
           )}
 
           {matchedBets.length > 0 && (
             <div>
-              <p className="mb-1 text-xs text-gray-400">Matched bets</p>
-              <div className="space-y-1">
+              <p className="mb-fan-xs text-fan-tag text-fan-textTertiary">
+                Matched bets
+              </p>
+              <ul className="space-y-1">
                 {matchedBets.map((b) => (
-                  <div key={b.id} className="flex justify-between rounded-lg bg-black/20 px-2 py-1 text-xs text-gray-300">
-                    <span>{b.starterName} vs {b.finisherName}</span>
-                    <span>{b.starterAmount + (b.finisherAmount ?? 0)}</span>
-                  </div>
+                  <li
+                    key={b.id}
+                    className="flex justify-between text-fan-caption text-fan-textSecondary"
+                  >
+                    <span className="truncate">
+                      {b.starterName} vs {b.finisherName}
+                    </span>
+                    <span className="shrink-0 font-semibold text-fan-textPrimary">
+                      {b.starterAmount + (b.finisherAmount ?? 0)}
+                    </span>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
           )}
         </section>
       )}
 
-      {/* Sub-fixture prop markets */}
+      {/* Prop markets — compact pill rows, no card backgrounds. */}
       {subFixtures.length > 0 && (
-        <section className="mb-6">
-          <h2 className="mb-2 text-sm font-semibold text-gray-300">Prop Markets</h2>
-          <div className="space-y-2">
+        <section className="mb-fan-xxl">
+          <h2 className="mb-fan-md text-fan-tag font-bold uppercase tracking-[0.3px] text-fan-textTertiary">
+            Prop Markets
+          </h2>
+          <div className="space-y-fan-base">
             {subFixtures.map((sf) => (
-              <SubFixtureCard key={sf.id} sf={sf} userId={userId} username={username} matchId={fixture.matchId || fixture.id} />
+              <SubFixtureRow
+                key={sf.id}
+                sf={sf}
+                userId={userId}
+                username={username}
+                matchId={fixture.matchId || fixture.id}
+              />
             ))}
           </div>
         </section>
       )}
 
-      {/* Comments */}
+      {/* Comments — input styled like MatchCard's inline comment row. */}
       <section>
-        <h2 className="mb-2 text-sm font-semibold text-gray-300">Comments</h2>
-        <div className="flex gap-2">
+        <h2 className="mb-fan-md text-fan-tag font-bold uppercase tracking-[0.3px] text-fan-textTertiary">
+          Comments
+        </h2>
+        <div className="flex items-center gap-fan-md rounded-fan-pill border border-fan-border bg-fan-surfaceSunken px-fan-md py-fan-xs">
           <input
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             placeholder="Say something…"
-            className="flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white outline-none focus:border-funspot-green"
+            className="flex-1 bg-transparent text-fan-body text-fan-textPrimary outline-none placeholder:text-fan-textTertiary"
           />
           <button
             onClick={handlePostComment}
             disabled={postingComment}
-            className="rounded-full bg-funspot-green px-4 py-2 text-sm font-semibold text-black disabled:opacity-60"
+            className="shrink-0 rounded-fan-pill bg-fan-primary px-fan-md py-fan-xs text-fan-tag font-semibold text-fan-textInverse disabled:opacity-60"
           >
             Post
           </button>
         </div>
-        {commentStatus && <p className="mt-2 text-xs text-gray-400">{commentStatus}</p>}
+        {commentStatus && (
+          <p className="mt-fan-sm text-fan-caption text-fan-textTertiary">
+            {commentStatus}
+          </p>
+        )}
       </section>
     </div>
   );
 }
 
-function SubFixtureCard({
+function SubFixtureRow({
   sf,
   userId,
   username,
@@ -303,23 +367,25 @@ function SubFixtureCard({
   }
 
   return (
-    <div className="rounded-xl border border-white/10 bg-funspot-surface p-3">
-      <p className="mb-2 text-xs font-medium text-white">{sf.question}</p>
+    <div>
+      <p className="mb-fan-sm text-fan-body text-fan-textPrimary">
+        {sf.question}
+      </p>
       {voted ? (
-        <p className="text-center text-xs text-funspot-green">✓ Voted</p>
+        <p className="text-fan-caption text-fan-primary">✓ Voted</p>
       ) : (
-        <div className="grid grid-cols-2 gap-2">
+        <div className="flex flex-wrap gap-fan-sm">
           <button
             disabled={voting}
             onClick={() => vote('a')}
-            className="rounded-lg border border-white/10 bg-white/5 py-1.5 text-xs text-gray-200 disabled:opacity-50"
+            className="rounded-fan-pill bg-fan-surfaceSunken px-fan-md py-fan-xs text-fan-tag font-semibold text-fan-textSecondary disabled:opacity-50"
           >
             {sf.optionA}
           </button>
           <button
             disabled={voting}
             onClick={() => vote('b')}
-            className="rounded-lg border border-white/10 bg-white/5 py-1.5 text-xs text-gray-200 disabled:opacity-50"
+            className="rounded-fan-pill bg-fan-surfaceSunken px-fan-md py-fan-xs text-fan-tag font-semibold text-fan-textSecondary disabled:opacity-50"
           >
             {sf.optionB}
           </button>

@@ -2,7 +2,7 @@
 // completed match with the extra scraper/commentary/lineups metadata that
 // live Fixtures don't carry) and HistoryQueryParams/HistoryService.
 
-import { Fixture } from '../types/fixture';
+import { Fixture, MatchOutcome } from '../types/fixture';
 
 function parseMongoDate(value: unknown): Date | null {
   if (value == null) return null;
@@ -169,11 +169,13 @@ export function historyResultDisplay(g: Pick<HistoryGame, 'homeScore' | 'awaySco
   return '🤝 Draw';
 }
 
-export function historyResultColorHex(g: Pick<HistoryGame, 'homeScore' | 'awayScore'>): string {
-  if (g.homeScore == null || g.awayScore == null) return '#9CA3AF';
-  if (g.homeScore > g.awayScore) return '#10B981';
-  if (g.awayScore > g.homeScore) return '#3B82F6';
-  return '#8B5CF6';
+// Semantic outcome (see MatchOutcome in types/fixture.ts) — the actual
+// color is theme-dependent, mapped by the UI layer.
+export function historyResultOutcome(g: Pick<HistoryGame, 'homeScore' | 'awayScore'>): MatchOutcome {
+  if (g.homeScore == null || g.awayScore == null) return 'unknown';
+  if (g.homeScore > g.awayScore) return 'home';
+  if (g.awayScore > g.homeScore) return 'away';
+  return 'draw';
 }
 
 export function historyGameToFixture(g: HistoryGame): Fixture {

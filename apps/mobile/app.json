@@ -6,6 +6,7 @@
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
     "backgroundColor": "#0B0F1A",
+    "icon": "./assets/icons/app_icon.png",
     "splash": {
       "backgroundColor": "#0B0F1A"
     },
@@ -19,6 +20,7 @@
     "android": {
       "package": "com.funspot.app",
       "adaptiveIcon": {
+        "foregroundImage": "./assets/icons/app_icon.png",
         "backgroundColor": "#0B0F1A"
       }
     },

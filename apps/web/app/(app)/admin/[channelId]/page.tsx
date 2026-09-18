@@ -61,52 +61,52 @@ export default function AdminDashboardPage() {
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-funspot-green border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-fan-pill border-2 border-fan-primary border-t-transparent" />
       </div>
     );
   }
 
   if (!detail) {
-    return <p className="py-16 text-center text-sm text-gray-500">Channel not found or you don&apos;t have access.</p>;
+    return <p className="py-16 text-center text-fan-body text-fan-textTertiary">Channel not found or you don&apos;t have access.</p>;
   }
 
   return (
-    <div className="mx-auto max-w-md px-4 pt-6 pb-10">
-      <h1 className="mb-1 text-lg font-bold text-white">Admin Dashboard</h1>
-      <p className="mb-4 text-xs text-gray-500">Channel {detail.channelId}</p>
+    <div className="mx-auto max-w-md px-fan-lg pt-fan-xxl pb-10">
+      <h1 className="mb-fan-sm font-condensed text-fan-headline text-fan-textPrimary">Admin Dashboard</h1>
+      <p className="mb-fan-lg text-fan-caption text-fan-textTertiary">Channel {detail.channelId}</p>
 
-      <div className="mb-6 grid grid-cols-3 gap-2">
-        <div className="rounded-xl border border-white/10 bg-funspot-surface p-3 text-center">
-          <p className="text-lg font-bold text-white">{detail.memberCount}</p>
-          <p className="text-[10px] text-gray-500">Members</p>
+      <div className="mb-fan-xxl grid grid-cols-3 gap-fan-md">
+        <div className="rounded-fan-lg border border-fan-border bg-fan-surface p-fan-base text-center">
+          <p className="font-condensed text-fan-statValue text-fan-textPrimary">{detail.memberCount}</p>
+          <p className="text-[10px] text-fan-textTertiary">Members</p>
         </div>
-        <div className="rounded-xl border border-white/10 bg-funspot-surface p-3 text-center">
-          <p className="text-lg font-bold text-white">{detail.totalMessages}</p>
-          <p className="text-[10px] text-gray-500">Messages</p>
+        <div className="rounded-fan-lg border border-fan-border bg-fan-surface p-fan-base text-center">
+          <p className="font-condensed text-fan-statValue text-fan-textPrimary">{detail.totalMessages}</p>
+          <p className="text-[10px] text-fan-textTertiary">Messages</p>
         </div>
-        <div className="rounded-xl border border-white/10 bg-funspot-surface p-3 text-center">
-          <p className="text-lg font-bold text-white">{detail.messagesThisWeek}</p>
-          <p className="text-[10px] text-gray-500">This week</p>
+        <div className="rounded-fan-lg border border-fan-border bg-fan-surface p-fan-base text-center">
+          <p className="font-condensed text-fan-statValue text-fan-textPrimary">{detail.messagesThisWeek}</p>
+          <p className="text-[10px] text-fan-textTertiary">This week</p>
         </div>
       </div>
 
       <button
         onClick={handleComputePayout}
         disabled={computingPayout}
-        className="mb-6 w-full rounded-xl bg-funspot-green py-2.5 text-sm font-semibold text-black disabled:opacity-60"
+        className="mb-fan-xxl w-full rounded-fan-lg bg-fan-primary py-fan-md text-fan-body font-semibold text-fan-textInverse disabled:opacity-60"
       >
         {computingPayout ? 'Computing…' : 'Compute Engagement Payout'}
       </button>
 
-      <p className="mb-2 text-xs text-gray-400">Members</p>
+      <p className="mb-fan-md text-fan-caption text-fan-textTertiary">Members</p>
       <div className="space-y-2">
         {detail.members.map((m) => (
-          <div key={m.userId} className="flex items-center justify-between rounded-xl border border-white/10 bg-funspot-surface px-3 py-2">
-            <span className="text-sm text-white">{m.username}</span>
+          <div key={m.userId} className="flex items-center justify-between rounded-fan-lg border border-fan-border bg-fan-surface px-fan-base py-fan-md">
+            <span className="text-fan-body text-fan-textPrimary">{m.username}</span>
             <button
               onClick={() => handleRemove(m.userId)}
               disabled={removingId === m.userId || m.userId === userId}
-              className="rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs font-semibold text-red-400 disabled:opacity-40"
+              className="rounded-fan-pill border border-fan-away/30 bg-fan-awayDim px-fan-base py-fan-sm text-fan-caption font-semibold text-fan-away disabled:opacity-40"
             >
               {removingId === m.userId ? '…' : 'Remove'}
             </button>

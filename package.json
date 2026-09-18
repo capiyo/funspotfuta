@@ -15,13 +15,12 @@
     "typecheck:core": "npm run typecheck --workspace=@funspot/core",
     "typecheck:web": "npm run typecheck --workspace=funspot-web 2>/dev/null || cd apps/web && npx tsc --noEmit",
     "dev:web": "npm run dev --workspace=funspot-web",
-    "dev:mobile": "npm run start --workspace=funspot-mobile",
-    "android": "expo run:android",
-    "ios": "expo run:ios"
+    "dev:mobile": "npm run start --workspace=funspot-mobile"
   },
   "dependencies": {
-    "expo": "~51.0.28",
-    "react": "18.2.0",
-    "react-native": "0.74.5"
+    "framer-motion": "^13.4.0"
+  },
+  "devDependencies": {
+    "turbo": "^2.10.13"
   }
 }

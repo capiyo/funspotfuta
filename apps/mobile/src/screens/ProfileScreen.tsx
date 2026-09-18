@@ -3,7 +3,7 @@
 import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Users, Trophy, History, Bell, ChevronRight } from 'lucide-react-native';
+import { Users, Trophy, Bell, ChevronRight } from 'lucide-react-native';
 import { useAuth } from '@/lib/auth/auth-context';
 import { WalletCard } from '@/components/WalletCard';
 import { colors } from '@/theme';
@@ -12,7 +12,6 @@ import { RootStackParamList } from '@/navigation/RootNavigator';
 const LINKS = [
   { route: 'Comrades' as const, label: 'Comrades', Icon: Users },
   { route: 'Leaderboard' as const, label: 'Leaderboard', Icon: Trophy },
-  { route: 'History' as const, label: 'Match History', Icon: History },
   { route: 'Notifications' as const, label: 'Notifications', Icon: Bell },
 ];
 

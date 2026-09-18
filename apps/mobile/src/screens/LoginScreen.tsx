@@ -2,12 +2,19 @@
 // (itself ported from lib/modals/login_modal.dart): phone -> check-user ->
 // pin-login / set-pin / register. Same API calls, native inputs/buttons
 // instead of web form elements.
+//
+// Design-system pass: this screen previously had real theme bugs from
+// the static shim — hardcoded 'white'/'#000'/'#f87171' and a literal
+// 'rgba(255,255,255,0.05)' input background that would have been
+// invisible in light mode. Now fully on useFanColors()/fanText()/
+// FAN_SPACING/FAN_RADIUS.
 
 import { useState } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
 import { useAuth } from '@/lib/auth/auth-context';
-import { checkUser, isUsernameTaken, pinLogin, setPin, registerUser } from '@funspot/core';
-import { colors } from '@/theme';
+import { checkUser, isUsernameTaken, pinLogin, setPin, registerUser, FanColorPalette, FAN_SPACING, FAN_RADIUS } from '@funspot/core';
+import { useFanColors } from '@/theme/use-fan-colors';
+import { fanText } from '@/theme/use-fan-typography';
 
 type Step = 'phone' | 'pin' | 'newPin' | 'username';
 
@@ -17,6 +24,8 @@ function toE164(raw: string): string {
 }
 
 export default function LoginScreen() {
+  const colors = useFanColors();
+  const styles = createStyles(colors);
   const { login } = useAuth();
 
   const [step, setStep] = useState<Step>('phone');
@@ -122,123 +131,118 @@ export default function LoginScreen() {
 
   return (
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <Text style={styles.title}>Funspot</Text>
-      <Text style={styles.subtitle}>Where Champions Are Crowned</Text>
+      <Text style={[fanText('scoreCompact', colors), { textAlign: 'center', marginBottom: FAN_SPACING.xs }]}>Funspot</Text>
+      <Text style={[fanText('body', colors), { textAlign: 'center', marginBottom: FAN_SPACING.xxxl }]}>
+        Where Champions Are Crowned
+      </Text>
 
       {step === 'phone' && (
         <View style={styles.form}>
-          <Text style={styles.label}>Phone number</Text>
+          <Text style={fanText('caption', colors)}>Phone number</Text>
           <TextInput
             value={phoneInput}
             onChangeText={setPhoneInput}
             placeholder="+254 7XX XXX XXX"
-            placeholderTextColor={colors.textMuted}
+            placeholderTextColor={colors.textTertiary}
             keyboardType="phone-pad"
-            style={styles.input}
+            style={[styles.input, fanText('title', colors)]}
           />
           <Pressable style={styles.button} disabled={loading} onPress={handlePhoneSubmit}>
-            <Text style={styles.buttonText}>{loading ? 'Checking…' : 'Continue'}</Text>
+            <Text style={fanText('button', colors)}>{loading ? 'CHECKING…' : 'CONTINUE'}</Text>
           </Pressable>
         </View>
       )}
 
       {step === 'pin' && (
         <View style={styles.form}>
-          <Text style={styles.helper}>Enter your 4-digit PIN for {verifiedPhone}</Text>
+          <Text style={[fanText('body', colors), { textAlign: 'center' }]}>Enter your 4-digit PIN for {verifiedPhone}</Text>
           <TextInput
             value={pin}
             onChangeText={(t) => setPinValue(t.replace(/\D/g, '').slice(0, 4))}
             placeholder="••••"
-            placeholderTextColor={colors.textMuted}
+            placeholderTextColor={colors.textTertiary}
             keyboardType="number-pad"
             secureTextEntry
             maxLength={4}
-            style={[styles.input, styles.pinInput]}
+            style={[styles.input, styles.pinInput, fanText('scoreDash', colors, colors.textPrimary)]}
           />
           <Pressable style={styles.button} disabled={loading} onPress={handlePinLogin}>
-            <Text style={styles.buttonText}>{loading ? 'Logging in…' : 'Log In'}</Text>
+            <Text style={fanText('button', colors)}>{loading ? 'LOGGING IN…' : 'LOG IN'}</Text>
           </Pressable>
           <Pressable onPress={() => setStep('phone')}>
-            <Text style={styles.linkText}>Use a different number</Text>
+            <Text style={[fanText('caption', colors), { textAlign: 'center' }]}>Use a different number</Text>
           </Pressable>
         </View>
       )}
 
       {step === 'newPin' && (
         <View style={styles.form}>
-          <Text style={styles.helper}>
+          <Text style={[fanText('body', colors), { textAlign: 'center' }]}>
             {existingUserId ? 'Set a 4-digit PIN for your account' : `Create a PIN for ${verifiedPhone}`}
           </Text>
           <TextInput
             value={pin}
             onChangeText={(t) => setPinValue(t.replace(/\D/g, '').slice(0, 4))}
             placeholder="New PIN"
-            placeholderTextColor={colors.textMuted}
+            placeholderTextColor={colors.textTertiary}
             keyboardType="number-pad"
             secureTextEntry
             maxLength={4}
-            style={[styles.input, styles.pinInput]}
+            style={[styles.input, styles.pinInput, fanText('scoreDash', colors, colors.textPrimary)]}
           />
           <TextInput
             value={pinConfirm}
             onChangeText={(t) => setPinConfirm(t.replace(/\D/g, '').slice(0, 4))}
             placeholder="Confirm PIN"
-            placeholderTextColor={colors.textMuted}
+            placeholderTextColor={colors.textTertiary}
             keyboardType="number-pad"
             secureTextEntry
             maxLength={4}
-            style={[styles.input, styles.pinInput]}
+            style={[styles.input, styles.pinInput, fanText('scoreDash', colors, colors.textPrimary)]}
           />
           <Pressable style={styles.button} disabled={loading} onPress={handleSetNewPin}>
-            <Text style={styles.buttonText}>{loading ? 'Please wait…' : 'Continue'}</Text>
+            <Text style={fanText('button', colors)}>{loading ? 'PLEASE WAIT…' : 'CONTINUE'}</Text>
           </Pressable>
           <Pressable onPress={() => setStep('phone')}>
-            <Text style={styles.linkText}>Use a different number</Text>
+            <Text style={[fanText('caption', colors), { textAlign: 'center' }]}>Use a different number</Text>
           </Pressable>
         </View>
       )}
 
       {step === 'username' && (
         <View style={styles.form}>
-          <Text style={styles.helper}>Pick a username</Text>
+          <Text style={[fanText('body', colors), { textAlign: 'center' }]}>Pick a username</Text>
           <TextInput
             value={usernameInput}
             onChangeText={setUsernameInput}
             placeholder="username"
-            placeholderTextColor={colors.textMuted}
-            style={styles.input}
+            placeholderTextColor={colors.textTertiary}
+            style={[styles.input, fanText('title', colors)]}
           />
           <Pressable style={styles.button} disabled={loading} onPress={handleRegister}>
-            <Text style={styles.buttonText}>{loading ? 'Creating account…' : 'Create Account'}</Text>
+            <Text style={fanText('button', colors)}>{loading ? 'CREATING ACCOUNT…' : 'CREATE ACCOUNT'}</Text>
           </Pressable>
         </View>
       )}
 
-      {error && <Text style={styles.error}>{error}</Text>}
+      {error && <Text style={[fanText('body', colors, colors.away), { textAlign: 'center', marginTop: FAN_SPACING.lg }]}>{error}</Text>}
     </KeyboardAvoidingView>
   );
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.bg, justifyContent: 'center', paddingHorizontal: 24 },
-  title: { color: 'white', fontSize: 28, fontWeight: '800', textAlign: 'center', marginBottom: 4 },
-  subtitle: { color: colors.textSecondary, fontSize: 13, textAlign: 'center', marginBottom: 32 },
-  form: { gap: 12 },
-  label: { color: colors.textSecondary, fontSize: 12 },
-  helper: { color: colors.textSecondary, fontSize: 13, textAlign: 'center' },
-  input: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: 'rgba(255,255,255,0.05)',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    color: 'white',
-    fontSize: 15,
-  },
-  pinInput: { textAlign: 'center', fontSize: 24, letterSpacing: 12 },
-  button: { backgroundColor: colors.green, borderRadius: 12, paddingVertical: 14, alignItems: 'center' },
-  buttonText: { color: '#000', fontWeight: '700', fontSize: 15 },
-  linkText: { color: colors.textMuted, fontSize: 12, textAlign: 'center' },
-  error: { color: '#f87171', fontSize: 13, textAlign: 'center', marginTop: 16 },
-});
+function createStyles(colors: FanColorPalette) {
+  return StyleSheet.create({
+    screen: { flex: 1, backgroundColor: colors.background, justifyContent: 'center', paddingHorizontal: FAN_SPACING.xxl },
+    form: { gap: FAN_SPACING.base },
+    input: {
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.inputSurface,
+      borderRadius: FAN_RADIUS.md,
+      paddingHorizontal: FAN_SPACING.lg,
+      paddingVertical: FAN_SPACING.base,
+    },
+    pinInput: { textAlign: 'center', letterSpacing: 12 },
+    button: { backgroundColor: colors.primary, borderRadius: FAN_RADIUS.md, paddingVertical: FAN_SPACING.base + 2, alignItems: 'center' },
+  });
+}

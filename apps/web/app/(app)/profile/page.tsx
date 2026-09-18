@@ -29,28 +29,28 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="mx-auto max-w-md px-6 pt-10">
-      <div className="mb-6 flex flex-col items-center">
-        <div className="mb-3 flex h-20 w-20 items-center justify-center rounded-full bg-funspot-green/20 text-2xl font-bold text-funspot-green">
+    <div className="mx-auto max-w-md px-fan-xxl pt-10">
+      <div className="mb-fan-xxl flex flex-col items-center">
+        <div className="mb-fan-base flex h-20 w-20 items-center justify-center rounded-fan-pill bg-fan-primary/20 text-2xl font-bold text-fan-primary">
           {(username ?? '?').charAt(0).toUpperCase()}
         </div>
-        <h1 className="text-lg font-bold text-white">{username}</h1>
-        {phone && <p className="text-sm text-gray-500">{phone}</p>}
-        <p className="mt-1 text-xs text-gray-600">ID: {userId}</p>
+        <h1 className="font-condensed text-fan-headline text-fan-textPrimary">{username}</h1>
+        {phone && <p className="text-fan-body text-fan-textTertiary">{phone}</p>}
+        <p className="mt-fan-sm text-fan-caption text-fan-textTertiary">ID: {userId}</p>
       </div>
 
-      <div className="mb-6 overflow-hidden rounded-2xl border border-white/10 bg-funspot-surface">
+      <div className="mb-fan-xxl overflow-hidden rounded-fan-xl border border-fan-border bg-fan-surface">
         {LINKS.map(({ href, label, Icon }, i) => (
           <Link
             key={href}
             href={href}
-            className={`flex items-center gap-3 px-4 py-3 text-sm text-white ${
-              i > 0 ? 'border-t border-white/5' : ''
+            className={`flex items-center gap-fan-base px-fan-lg py-fan-base text-fan-body text-fan-textPrimary ${
+              i > 0 ? '' : ''
             }`}
           >
-            <Icon size={18} className="text-funspot-green" />
+            <Icon size={18} className="text-fan-primary" />
             <span className="flex-1">{label}</span>
-            <ChevronRight size={16} className="text-gray-500" />
+            <ChevronRight size={16} className="text-fan-textTertiary" />
           </Link>
         ))}
       </div>
@@ -59,7 +59,7 @@ export default function ProfilePage() {
 
       <button
         onClick={handleLogout}
-        className="w-full rounded-xl border border-red-500/30 bg-red-500/10 py-3 text-sm font-semibold text-red-400"
+        className="w-full rounded-fan-lg border border-fan-away/30 bg-fan-awayDim py-fan-base text-fan-body font-semibold text-fan-away"
       >
         Log Out
       </button>

@@ -57,43 +57,43 @@ export default function NotificationsPage() {
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-funspot-green border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-fan-pill border-2 border-fan-primary border-t-transparent" />
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-md px-4 pt-6 pb-10">
-      <h1 className="mb-4 text-lg font-bold text-white">Notifications</h1>
+    <div className="mx-auto max-w-md px-fan-lg pt-fan-xxl pb-10">
+      <h1 className="mb-fan-lg font-condensed text-fan-headline text-fan-textPrimary">Notifications</h1>
 
       {summary && (
-        <div className="mb-6 grid grid-cols-2 gap-2">
-          <div className="rounded-xl border border-white/10 bg-funspot-surface p-3 text-center">
-            <p className="text-xl font-bold text-white">{summary.notifications}</p>
-            <p className="text-[11px] text-gray-500">Unread notifications</p>
+        <div className="mb-fan-xxl grid grid-cols-2 gap-fan-md">
+          <div className="rounded-fan-lg border border-fan-border bg-fan-surface p-fan-base text-center">
+            <p className="font-condensed text-fan-statValue text-fan-textPrimary">{summary.notifications}</p>
+            <p className="text-[11px] text-fan-textTertiary">Unread notifications</p>
           </div>
-          <div className="rounded-xl border border-white/10 bg-funspot-surface p-3 text-center">
-            <p className="text-xl font-bold text-white">{summary.comments}</p>
-            <p className="text-[11px] text-gray-500">Unread comments</p>
+          <div className="rounded-fan-lg border border-fan-border bg-fan-surface p-fan-base text-center">
+            <p className="font-condensed text-fan-statValue text-fan-textPrimary">{summary.comments}</p>
+            <p className="text-[11px] text-fan-textTertiary">Unread comments</p>
           </div>
         </div>
       )}
 
       {prefs && (
-        <div className="overflow-hidden rounded-2xl border border-white/10 bg-funspot-surface">
+        <div className="overflow-hidden rounded-fan-xl border border-fan-border bg-fan-surface">
           {(Object.keys(LABELS) as (keyof NotificationPreferences)[]).map((key, i) => (
             <div
               key={key}
-              className={`flex items-center justify-between px-4 py-3 ${i > 0 ? 'border-t border-white/5' : ''}`}
+              className={`flex items-center justify-between px-fan-lg py-fan-base ${i > 0 ? 'border-t border-fan-border/50' : ''}`}
             >
-              <span className="text-sm text-white">{LABELS[key]}</span>
+              <span className="text-fan-body text-fan-textPrimary">{LABELS[key]}</span>
               <button
                 onClick={() => toggle(key)}
                 disabled={saving}
-                className={`h-6 w-11 rounded-full transition ${prefs[key] ? 'bg-funspot-green' : 'bg-white/10'}`}
+                className={`h-6 w-11 rounded-fan-pill transition ${prefs[key] ? 'bg-fan-primary' : 'bg-fan-surfaceSunken'}`}
               >
                 <span
-                  className={`block h-5 w-5 rounded-full bg-white transition-transform ${
+                  className={`block h-5 w-5 rounded-fan-pill bg-white transition-transform ${
                     prefs[key] ? 'translate-x-5' : 'translate-x-0.5'
                   }`}
                 />

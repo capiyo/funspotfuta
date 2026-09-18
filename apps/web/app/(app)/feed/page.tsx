@@ -1,17 +1,20 @@
 'use client';
 
-// New UI (the original spreads this across posts_page.dart, 1000+ lines of
-// card-state/caching logic) on top of the fully-ported posts-service.ts:
-// paginated feed, create a post (caption + optional image), like toggle.
+// Same data flow as before (posts-service.ts: paginated feed, create post,
+// like toggle) — now rendering through the restyled <PostCard>, which adds
+// the follow button, media-type tag, and comment/repost/share footer row
+// that were missing from the old inline card markup.
 
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/lib/auth/auth-context';
-import { getPosts, toggleLikePost, Post, displayCaption, bestImageUrl, formattedDate, isLikedBy } from '@funspot/core';
+import { getPosts, toggleLikePost, Post, isLikedBy } from '@funspot/core';
 import { createPost } from '@/lib/api/posts-create';
-import { Heart } from 'lucide-react';
+import { useToast } from '@/lib/toast/toast-context';
+import { PostCard } from '@/components/PostCard';
 
 export default function FeedPage() {
   const { userId, username } = useAuth();
+  const toast = useToast();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -19,6 +22,7 @@ export default function FeedPage() {
   const [caption, setCaption] = useState('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [posting, setPosting] = useState(false);
+  const [lastViewedAt] = useState(() => Date.now() / 1000);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   async function loadPage(p: number, replace: boolean) {
@@ -72,31 +76,44 @@ export default function FeedPage() {
     }
   }
 
-  return (
-    <div className="mx-auto max-w-md px-4 pt-6 pb-10">
-      <h1 className="mb-4 text-lg font-bold text-white">Feed</h1>
+  function handleOpenComments(post: Post, index: number) {
+    // Wire this up to your existing PostComments modal/sheet.
+    console.log('open comments for', post.id, index);
+  }
 
-      <div className="mb-6 rounded-2xl border border-white/10 bg-funspot-surface p-3">
+  function handleRepost(_post: Post) {
+    toast.showInfo('Repost coming soon');
+  }
+
+  function handleShare(_post: Post) {
+    toast.showInfo('Share coming soon');
+  }
+
+  return (
+    <div className="mx-auto max-w-md px-fan-lg pt-fan-xxl pb-10">
+      <h1 className="mb-fan-lg font-condensed text-fan-headline text-fan-textPrimary">Feed</h1>
+
+      <div className="mb-fan-xxl rounded-fan-xl border border-fan-border bg-fan-surface p-fan-base">
         <textarea
           value={caption}
           onChange={(e) => setCaption(e.target.value)}
           placeholder={`What's on your mind, ${username ?? 'fan'}?`}
           rows={2}
-          className="w-full resize-none bg-transparent text-sm text-white outline-none placeholder:text-gray-500"
+          className="w-full resize-none bg-transparent text-fan-body text-fan-textPrimary outline-none placeholder:text-fan-textTertiary"
         />
-        {imageFile && <p className="mb-2 text-xs text-gray-400">📎 {imageFile.name}</p>}
+        {imageFile && <p className="mb-fan-md text-fan-caption text-fan-textTertiary">📎 {imageFile.name}</p>}
         <div className="flex items-center justify-between">
           <input
             ref={fileInputRef}
             type="file"
             accept="image/*"
             onChange={(e) => setImageFile(e.target.files?.[0] ?? null)}
-            className="text-xs text-gray-400"
+            className="text-fan-caption text-fan-textTertiary"
           />
           <button
             onClick={handlePost}
             disabled={posting || (!caption.trim() && !imageFile)}
-            className="rounded-full bg-funspot-green px-4 py-1.5 text-xs font-semibold text-black disabled:opacity-50"
+            className="rounded-fan-pill bg-fan-primary px-fan-lg py-fan-sm.5 text-fan-caption font-semibold text-fan-textInverse disabled:opacity-50"
           >
             {posting ? 'Posting…' : 'Post'}
           </button>
@@ -105,40 +122,32 @@ export default function FeedPage() {
 
       {loading ? (
         <div className="flex justify-center py-16">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-funspot-green border-t-transparent" />
+          <div className="h-8 w-8 animate-spin rounded-fan-pill border-2 border-fan-primary border-t-transparent" />
         </div>
       ) : posts.length === 0 ? (
-        <p className="py-16 text-center text-sm text-gray-500">No posts yet — be the first.</p>
+        <p className="py-16 text-center text-fan-body text-fan-textTertiary">No posts yet — be the first.</p>
       ) : (
         <>
-          <div className="space-y-4">
-            {posts.map((post, i) => {
-              const liked = userId ? isLikedBy(post, userId) : false;
-              const img = bestImageUrl(post);
-              return (
-                <div key={post.id ?? i} className="rounded-2xl border border-white/10 bg-funspot-surface p-3">
-                  <div className="mb-2 flex items-center justify-between">
-                    <span className="text-sm font-semibold text-white">{post.userName ?? 'Anonymous'}</span>
-                    <span className="text-[11px] text-gray-500">{formattedDate(post)}</span>
-                  </div>
-                  {displayCaption(post) && <p className="mb-2 text-sm text-gray-200">{displayCaption(post)}</p>}
-                  {img && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={img} alt="" className="mb-2 max-h-80 w-full rounded-xl object-cover" />
-                  )}
-                  <button onClick={() => handleLike(post, i)} className="flex items-center gap-1 text-xs">
-                    <Heart size={14} className={liked ? 'fill-red-500 text-red-500' : 'text-gray-400'} />
-                    <span className={liked ? 'text-red-400' : 'text-gray-400'}>{post.likesCount ?? 0}</span>
-                  </button>
-                </div>
-              );
-            })}
+          <div>
+            {posts.map((post, i) => (
+              <PostCard
+                key={post.id ?? i}
+                post={post}
+                index={i}
+                currentUserId={userId}
+                isNew={(post.timestamp ?? 0) > lastViewedAt}
+                onLike={handleLike}
+                onOpenComments={handleOpenComments}
+                onRepost={handleRepost}
+                onShare={handleShare}
+              />
+            ))}
           </div>
 
           {hasMore && (
             <button
               onClick={handleLoadMore}
-              className="mt-4 w-full rounded-xl border border-white/10 bg-white/5 py-2.5 text-sm text-gray-300"
+              className="mt-fan-lg w-full rounded-fan-lg border border-fan-border bg-fan-surfaceSunken py-fan-md text-fan-body text-fan-textSecondary"
             >
               Load more
             </button>

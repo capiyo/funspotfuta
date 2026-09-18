@@ -1,3 +1,4 @@
+import type { ReplyData } from '@funspot/core';
 'use client';
 
 // Wraps lib/api/websocket-service.ts for a single channel(+fixture) room,
@@ -68,8 +69,19 @@ export function useChannelChat(params: {
       unsubStatus();
     };
   }, [channelId, fixtureId, userId, username, authToken, appendMessage]);
-
   const send = useCallback(
+    async (
+      text: string,
+      selection: string = '',
+      extras: {
+        replyTo?: ReplyData | null;
+        imageUrl?: string | null;
+        videoUrl?: string | null;
+        videoThumbnailUrl?: string | null;
+        isImage?: boolean;
+        isVideo?: boolean;
+      } = {},
+    ) => {
     async (text: string, selection: string = '') => {
       if (!channelId || !userId || !username || !authToken || !text.trim()) return;
       const messageId = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;

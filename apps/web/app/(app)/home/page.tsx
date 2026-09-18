@@ -1,110 +1,485 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { Fixture, getAllFixtures, getUserChannels, Channel } from '@funspot/core';
+// Rebuilt to match the real web architecture: WebNavbar + WebSidebar +
+// MainContentColumns showing Arena / Feed / Logs as three simultaneous
+// columns.
+//
+// ArenaColumn now owns the vote/pledge/sub-fixtures modal and opens it
+// via MatchCard's `onOpenVoteModal` prop. Watch / chat still navigate as
+// before — the modal is only for vote-related actions.
+//
+// LogsColumn renders through <HistoryCard>, adapter imported from
+// app/(app)/history/page.
+
+import { useCallback, useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import {
+  Fixture,
+  getAllFixtures,
+  getUserChannels,
+  Channel,
+  getPosts,
+  toggleLikePost,
+  Post,
+  displayCaption,
+  bestImageUrl,
+  formattedDate,
+  isLikedBy,
+  postTypeDisplay,
+  followUser,
+  fetchHistoryGames,
+  scoreDisplay,
+  HistoryGame,
+  castVote,
+  createBetWithVoteId,
+  getOpenBets,
+  getChannelBettors,
+  getSubFixtures,
+} from '@funspot/core';
+import {
+  fetchVoters,
+  fetchPledges,
+  fetchSubFixtures,
+  fetchSubFixturePledges,
+  fetchBets,
+  fetchBalance,
+  topUp,
+  withdraw,
+  getSavedPhone,
+  savePhone,
+  getUserPhone,
+  placeSubFixturePledge,
+  matchSubFixturePledge,
+  matchMainPledge,
+} from '@/lib/api/vote-modal-shims';
 import { useAuth } from '@/lib/auth/auth-context';
 import { MatchCard } from '@/components/MatchCard';
-import Link from 'next/link';
-import { Newspaper } from 'lucide-react';
+import { HistoryCard } from '@/components/HistoryCard';
+import { WebNavbar } from '@/components/WebNavbar';
+import { WebSidebar } from '@/components/WebSidebar';
+import { MainContentColumns } from '@/components/MainContentColumns';
+import { ChannelCreationModal } from '@/components/ChannelCreationModal';
+import { FloatingPillTabs } from '@/components/FloatingPillTabs';
+import { createPost } from '@/lib/api/posts-create';
+import { toCardData } from '@/app/(app)/history/page';
+import { SwipeableVotePledgeModal } from '@/components/actionsModal';
 
+// ── Service shims for the modal ─────────────────────────────────
+// The modal takes Promise-returning fetchers so it stays decoupled from
+// @funspot/core. These wrap the REST endpoints the RN Arena tab already
+// uses, so both platforms share the same backend contract.
+
+// ── Page ────────────────────────────────────────────────────────
 export default function HomePage() {
-  const { userId, authToken, username } = useAuth();
-  const [fixtures, setFixtures] = useState<Fixture[]>([]);
+  const { userId, authToken } = useAuth();
   const [channels, setChannels] = useState<Channel[]>([]);
   const [activeChannelId, setActiveChannelId] = useState<string | undefined>();
-  const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'live' | 'upcoming' | 'completed'>('all');
+  const [showCreateChannel, setShowCreateChannel] = useState(false);
+  const [mobileTab, setMobileTab] = useState<'arena' | 'feed' | 'logs'>('arena');
 
   useEffect(() => {
-    (async () => {
-      setLoading(true);
-      const [f, c] = await Promise.all([
-        getAllFixtures(),
-        userId && authToken ? getUserChannels(userId, authToken) : Promise.resolve([]),
-      ]);
-      setFixtures(f);
+    if (!userId || !authToken) return;
+    getUserChannels(userId, authToken).then((c) => {
       setChannels(c);
-      setActiveChannelId(c[0]?.id);
-      setLoading(false);
-    })();
+      setActiveChannelId((prev) => prev ?? c[0]?.id);
+    });
   }, [userId, authToken]);
 
-  const filtered = fixtures.filter((f) => {
-    if (filter === 'all') return true;
-    if (filter === 'live') return f.isLive || f.status === 'live';
-    if (filter === 'upcoming') return f.status === 'upcoming' || f.status === 'soon';
-    if (filter === 'completed') return f.status === 'completed';
-    return true;
-  });
+  return (
+    <div className="flex h-screen flex-col bg-fan-background">
+      <WebNavbar
+        channels={channels}
+        activeChannelId={activeChannelId}
+        onSelectChannel={setActiveChannelId}
+        onCreateChannel={() => setShowCreateChannel(true)}
+      />
+      {/* Desktop: 3 simultaneous columns */}
+      <div className="hidden flex-1 overflow-hidden md:flex">
+        <WebSidebar />
+        <MainContentColumns
+          arena={<ArenaColumn channelId={activeChannelId} />}
+          feed={<FeedColumn />}
+          logs={<LogsColumn />}
+        />
+      </div>
+      {/* Mobile: single active tab + floating pill nav */}
+      <div className="flex flex-1 flex-col overflow-hidden md:hidden">
+        <div className="flex-1 overflow-y-auto pb-20">
+          {mobileTab === 'arena' && <ArenaColumn channelId={activeChannelId} />}
+          {mobileTab === 'feed' && <FeedColumn />}
+          {mobileTab === 'logs' && <LogsColumn />}
+        </div>
+        <FloatingPillTabs active={mobileTab} onChange={setMobileTab} />
+      </div>
+      {showCreateChannel && (
+        <ChannelCreationModal
+          onClose={() => {
+            setShowCreateChannel(false);
+            if (userId && authToken) getUserChannels(userId, authToken).then(setChannels);
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+function Spinner() {
+  return (
+    <div className="flex justify-center py-fan-xxl">
+      <div className="h-6 w-6 animate-spin rounded-fan-pill border-2 border-fan-primary border-t-transparent" />
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// ARENA — fixtures + vote modal
+// ---------------------------------------------------------------------------
+function ArenaColumn({ channelId }: { channelId?: string }) {
+  const { userId, username, authToken, isLoggedIn } = useAuth();
+  const [fixtures, setFixtures] = useState<Fixture[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [modalFixture, setModalFixture] = useState<Fixture | null>(null);
+
+  useEffect(() => {
+    setLoading(true);
+    getAllFixtures().then((f) => {
+      setFixtures(f);
+      setLoading(false);
+    });
+  }, []);
+
+  if (loading) return <Spinner />;
+  if (fixtures.length === 0) {
+    return (
+      <p className="px-fan-lg py-fan-xxl text-center text-fan-body text-fan-textTertiary">
+        No fixtures right now.
+      </p>
+    );
+  }
 
   return (
-    <div className="mx-auto max-w-md px-4 pt-6">
-      <header className="mb-4 flex items-center justify-between">
-        <div>
-          <p className="text-xs text-gray-400">Welcome back</p>
-          <h1 className="text-lg font-bold text-white">{username ?? 'Fan'} 👋</h1>
-        </div>
-        <Link
-          href="/feed"
-          className="flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-gray-300"
-        >
-          <Newspaper size={14} /> Feed
-        </Link>
-      </header>
+    <div className="px-fan-base">
+      {fixtures.map((f) => (
+        <MatchCard
+          key={f.id || f.matchId}
+          fixture={f}
+          channelId={channelId}
+          onOpenVoteModal={setModalFixture}
+        />
+      ))}
 
-      {channels.length > 0 && (
-        <div className="mb-3 flex items-center gap-2 overflow-x-auto pb-1">
-          {channels.map((c) => (
-            <button
-              key={c.id}
-              onClick={() => setActiveChannelId(c.id)}
-              className={`whitespace-nowrap rounded-full px-3 py-1 text-xs font-medium ${
-                activeChannelId === c.id
-                  ? 'bg-funspot-green text-black'
-                  : 'bg-white/5 text-gray-300 border border-white/10'
-              }`}
-            >
-              {c.name}
-            </button>
-          ))}
-          {activeChannelId && channels.find((c) => c.id === activeChannelId)?.created_by === userId && (
-            <Link
-              href={`/admin/${activeChannelId}`}
-              className="whitespace-nowrap rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-gray-400"
-            >
-              ⚙ Admin
-            </Link>
+      {modalFixture && (
+        <SwipeableVotePledgeModal
+          fixture={modalFixture}
+          userId={userId ?? ''}
+          username={username ?? ''}
+          authToken={authToken}
+          isLoggedIn={!!isLoggedIn}
+          hasUserVoted={(modalFixture.voters ?? []).some(
+            (v) => v.userId === userId,
           )}
-        </div>
+          userVoteSelection={
+            (modalFixture.voters ?? []).find((v) => v.userId === userId)
+              ?.selection
+          }
+          channelId={channelId ?? ''}
+          showPledgesTab
+          showSubFixturesTab
+          showBetsTab
+          onClose={() => setModalFixture(null)}
+          onVote={async (sel) => {
+            if (!channelId || !userId || !authToken) return false;
+            const ok = await castVote({
+              channelId,
+              fixtureId: modalFixture.matchId || modalFixture.id,
+              userId,
+              selection: sel === 'home' ? 'home_team' : 'away_team',
+              authToken,
+            });
+            if (ok) {
+              // Refetch so the card shows "✓ Vote recorded" without us
+              // having to hand-build a Voter object.
+              const fresh = await getAllFixtures();
+              setFixtures(fresh);
+            }
+            return ok;
+          }}
+          onPledge={async (sel, amount) => {
+            if (!channelId || !userId || !username) return false;
+            const r = await createBetWithVoteId({
+              fixtureId: modalFixture.matchId || modalFixture.id,
+              starterId: userId,
+              starterName: username,
+              starterSelection:
+                sel === 'home' ? 'home_team' : 'away_team',
+              amount,
+              channelId,
+              voteId: '',
+              authToken: authToken ?? undefined,
+            });
+            return r?.success !== false;
+          }}
+          onShowJoinGroups={() => {
+            /* route to /channels or whatever the join-groups flow is */
+          }}
+          fetchVoters={fetchVoters}
+          fetchPledges={fetchPledges}
+          fetchSubFixtures={fetchSubFixtures}
+          fetchSubFixturePledges={fetchSubFixturePledges}
+          fetchBets={fetchBets}
+          fetchBalance={fetchBalance}
+          topUp={topUp}
+          withdraw={withdraw}
+          getSavedPhone={getSavedPhone}
+          savePhone={savePhone}
+          getUserPhone={getUserPhone}
+          placeSubFixturePledge={placeSubFixturePledge}
+          matchSubFixturePledge={matchSubFixturePledge}
+          matchMainPledge={matchMainPledge}
+        />
       )}
+    </div>
+  );
+}
 
-      <div className="mb-4 flex gap-2">
-        {(['all', 'live', 'upcoming', 'completed'] as const).map((f) => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            className={`rounded-full px-3 py-1 text-xs font-medium capitalize ${
-              filter === f ? 'bg-white text-black' : 'bg-white/5 text-gray-400'
-            }`}
-          >
-            {f}
-          </button>
-        ))}
+// ---------------------------------------------------------------------------
+// FEED — unchanged
+// ---------------------------------------------------------------------------
+function FeedColumn() {
+  const { userId, username } = useAuth();
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [caption, setCaption] = useState('');
+  const [followingIds, setFollowingIds] = useState<Set<string>>(new Set());
+  const [posting, setPosting] = useState(false);
+
+  async function handleFollow(post: Post) {
+    if (!userId || !post.userId) return;
+    setFollowingIds((prev) => new Set(prev).add(post.userId!));
+    await followUser(userId, post.userId);
+  }
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    const result = await getPosts({ page: 1, limit: 15 });
+    setPosts(result.posts);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  async function handlePost() {
+    if (!userId || !username || !caption.trim()) return;
+    setPosting(true);
+    try {
+      await createPost({ userId, userName: username, caption: caption.trim() });
+      setCaption('');
+      await load();
+    } finally {
+      setPosting(false);
+    }
+  }
+
+  async function handleLike(post: Post, index: number) {
+    if (!userId || !username || !post.id) return;
+    const wasLiked = isLikedBy(post, userId);
+    setPosts((prev) =>
+      prev.map((p, i) =>
+        i === index
+          ? { ...p, likesCount: (p.likesCount ?? 0) + (wasLiked ? -1 : 1) }
+          : p,
+      ),
+    );
+    await toggleLikePost(post.id, userId, username);
+  }
+
+  return (
+    <div className="px-fan-base">
+      <div className="bg-fan-background py-fan-base">
+        <textarea
+          value={caption}
+          onChange={(e) => setCaption(e.target.value)}
+          placeholder="What's on your mind?"
+          rows={2}
+          className="w-full resize-none bg-transparent text-fan-body text-fan-textPrimary outline-none placeholder:text-fan-textTertiary"
+        />
+        <button
+          onClick={handlePost}
+          disabled={posting || !caption.trim()}
+          className="mt-fan-sm rounded-fan-pill bg-fan-primary px-fan-base py-fan-sm text-fan-button tracking-[0.4px] text-fan-textInverse disabled:opacity-50"
+        >
+          {posting ? 'POSTING…' : 'POST'}
+        </button>
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-16">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-funspot-green border-t-transparent" />
-        </div>
-      ) : filtered.length === 0 ? (
-        <p className="py-16 text-center text-sm text-gray-500">No fixtures right now — check back soon.</p>
+        <Spinner />
+      ) : posts.length === 0 ? (
+        <p className="py-fan-xxl text-center text-fan-body text-fan-textTertiary">
+          No posts yet.
+        </p>
       ) : (
-        <div className="space-y-3">
-          {filtered.map((fixture) => (
-            <MatchCard key={fixture.id || fixture.matchId} fixture={fixture} channelId={activeChannelId} />
-          ))}
+        <div>
+          {posts.map((post, i) => {
+            const liked = userId ? isLikedBy(post, userId) : false;
+            const img = bestImageUrl(post);
+            return (
+              <div key={post.id ?? i} className="bg-fan-background py-fan-base">
+                <div className="mb-fan-sm flex items-center justify-between">
+                  <div className="flex items-center gap-fan-sm">
+                    <span className="text-fan-body font-semibold text-fan-textPrimary">
+                      {post.userName ?? 'Anonymous'}
+                    </span>
+                    <span className="text-fan-caption text-fan-textTertiary">
+                      {formattedDate(post)}
+                    </span>
+                    <span className="text-fan-caption text-fan-textTertiary">
+                      {postTypeDisplay(post)}
+                    </span>
+                  </div>
+                  {post.userId &&
+                    post.userId !== userId &&
+                    !followingIds.has(post.userId) && (
+                      <button
+                        onClick={() => handleFollow(post)}
+                        className="text-fan-caption text-fan-primary"
+                      >
+                        follow
+                      </button>
+                    )}
+                </div>
+                {displayCaption(post) && (
+                  <p className="mb-fan-sm text-fan-body text-fan-textSecondary">
+                    {displayCaption(post)}
+                  </p>
+                )}
+                {img && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={img}
+                    alt=""
+                    className="mb-fan-sm max-h-40 w-full rounded-fan-md object-cover"
+                  />
+                )}
+                <div className="flex items-center gap-fan-base">
+                  <button
+                    onClick={() => handleLike(post, i)}
+                    className={`text-fan-caption ${liked ? 'text-fan-away' : 'text-fan-textTertiary'
+                      }`}
+                  >
+                    {liked ? '❤' : '🤍'} {post.likesCount ?? 0}
+                  </button>
+                  <span className="text-fan-caption text-fan-textTertiary">
+                    💬 {post.commentsCount ?? 0}
+                  </span>
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
+    </div>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// LOGS — unchanged
+// ---------------------------------------------------------------------------
+function LogsColumn() {
+  const router = useRouter();
+  const [tab, setTab] = useState<'history' | 'live'>('history');
+  const [games, setGames] = useState<HistoryGame[]>([]);
+  const [liveFixtures, setLiveFixtures] = useState<Fixture[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setLoading(true);
+    if (tab === 'history') {
+      fetchHistoryGames({ limit: 20 }).then((g) => {
+        setGames(g);
+        setLoading(false);
+      });
+    } else {
+      getAllFixtures().then((f) => {
+        setLiveFixtures(f.filter((x) => x.isLive || x.status === 'live'));
+        setLoading(false);
+      });
+    }
+  }, [tab]);
+
+  return (
+    <div>
+      <div className="flex gap-fan-lg px-fan-base pb-fan-sm">
+        <button
+          onClick={() => setTab('history')}
+          className={`text-fan-body ${tab === 'history'
+              ? 'font-semibold text-fan-textPrimary'
+              : 'text-fan-textTertiary'
+            }`}
+        >
+          History {games.length > 0 ? games.length : ''}
+        </button>
+        <button
+          onClick={() => setTab('live')}
+          className={`text-fan-body ${tab === 'live'
+              ? 'font-semibold text-fan-textPrimary'
+              : 'text-fan-textTertiary'
+            }`}
+        >
+          Live {liveFixtures.length > 0 ? liveFixtures.length : ''}
+        </button>
+      </div>
+
+      <div className="px-fan-base">
+        {loading ? (
+          <Spinner />
+        ) : tab === 'history' ? (
+          games.length === 0 ? (
+            <p className="py-fan-xxl text-center text-fan-body text-fan-textTertiary">
+              No history yet.
+            </p>
+          ) : (
+            games.map((g) => (
+              <HistoryCard
+                key={g.id}
+                data={toCardData(g, { canComment: true })}
+                onOpen={() => router.push(`/fixture/${g.id}#chat`)}
+                onOpenResults={() => router.push(`/fixture/${g.id}`)}
+                onOpenChat={() => router.push(`/fixture/${g.id}#chat`)}
+                onSubmitComment={() => {
+                  /* wire to your existing comment mutation */
+                }}
+              />
+            ))
+          )
+        ) : liveFixtures.length === 0 ? (
+          <p className="py-fan-xxl text-center text-fan-body text-fan-textTertiary">
+            No live matches right now.
+          </p>
+        ) : (
+          liveFixtures.map((f) => (
+            <div key={f.id} className="bg-fan-background py-fan-base">
+              <div className="mb-fan-sm flex items-center justify-between text-fan-caption text-fan-textTertiary">
+                <span>{f.league}</span>
+                <span className="text-fan-away">🔴 LIVE</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="flex-1 truncate text-fan-body font-medium text-fan-textPrimary">
+                  {f.homeTeam}
+                </span>
+                <span className="font-condensed px-fan-md text-fan-votePct text-fan-textPrimary">
+                  {scoreDisplay(f) || 'vs'}
+                </span>
+                <span className="flex-1 truncate text-right text-fan-body font-medium text-fan-textPrimary">
+                  {f.awayTeam}
+                </span>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 }

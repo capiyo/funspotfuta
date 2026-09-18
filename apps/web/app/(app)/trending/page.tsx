@@ -61,43 +61,43 @@ export default function TrendingPage() {
   }
 
   return (
-    <div className="mx-auto max-w-md px-4 pt-6">
-      <h1 className="mb-4 text-lg font-bold text-white">🔥 Trending Markets</h1>
+    <div className="mx-auto max-w-md px-fan-lg pt-fan-xxl">
+      <h1 className="mb-fan-lg font-condensed text-fan-headline text-fan-textPrimary">🔥 Trending Markets</h1>
 
       {loading ? (
         <div className="flex justify-center py-16">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-funspot-green border-t-transparent" />
+          <div className="h-8 w-8 animate-spin rounded-fan-pill border-2 border-fan-primary border-t-transparent" />
         </div>
       ) : items.length === 0 ? (
-        <p className="py-16 text-center text-sm text-gray-500">No trending markets right now.</p>
+        <p className="py-16 text-center text-fan-body text-fan-textTertiary">No trending markets right now.</p>
       ) : (
         <div className="space-y-3">
           {items.map((item, i) => {
             const id = item.sub_fixture_id ?? item.id ?? String(i);
             const voted = votedIds.has(id);
             return (
-              <div key={id} className="rounded-2xl border border-white/10 bg-funspot-surface p-4">
-                <p className="mb-1 text-sm font-semibold text-white">
+              <div key={id} className="rounded-fan-xl border border-fan-border bg-fan-surface p-fan-lg">
+                <p className="mb-fan-sm text-fan-body font-semibold text-fan-textPrimary">
                   {item.question ?? 'Untitled market'}
                 </p>
-                <p className="mb-3 text-[11px] text-gray-500">
+                <p className="mb-fan-base text-[11px] text-fan-textTertiary">
                   {item.total_votes ?? 0} votes
                 </p>
                 {voted ? (
-                  <p className="text-center text-xs font-medium text-funspot-green">✓ Vote recorded</p>
+                  <p className="text-center text-fan-caption font-medium text-fan-primary">✓ Vote recorded</p>
                 ) : (
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-fan-md">
                     <button
                       disabled={voting === id}
                       onClick={() => handleVote(item, 'a')}
-                      className="rounded-xl border border-white/10 bg-white/5 py-2 text-xs font-medium text-gray-200 hover:border-funspot-green disabled:opacity-50"
+                      className="rounded-fan-lg border border-fan-border bg-fan-surfaceSunken py-fan-md text-fan-caption font-medium text-fan-textSecondary hover:border-fan-primary disabled:opacity-50"
                     >
                       {item.option_a ?? item.optionA ?? 'Option A'}
                     </button>
                     <button
                       disabled={voting === id}
                       onClick={() => handleVote(item, 'b')}
-                      className="rounded-xl border border-white/10 bg-white/5 py-2 text-xs font-medium text-gray-200 hover:border-funspot-green disabled:opacity-50"
+                      className="rounded-fan-lg border border-fan-border bg-fan-surfaceSunken py-fan-md text-fan-caption font-medium text-fan-textSecondary hover:border-fan-primary disabled:opacity-50"
                     >
                       {item.option_b ?? item.optionB ?? 'Option B'}
                     </button>

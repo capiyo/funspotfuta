@@ -20,8 +20,6 @@ import { ChannelCreationModal } from '@/components/ChannelCreationModal';
 import { colors } from '@/theme';
 import { RootStackParamList } from '@/navigation/RootNavigator';
 
-type Filter = 'all' | 'live' | 'upcoming' | 'completed';
-
 export default function HomeScreen() {
   const { userId, authToken, username } = useAuth();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -31,7 +29,6 @@ export default function HomeScreen() {
   const [channels, setChannels] = useState<Channel[]>([]);
   const [activeChannelId, setActiveChannelId] = useState<string | undefined>();
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<Filter>('all');
   const [showCreateChannel, setShowCreateChannel] = useState(false);
 
   const load = useCallback(async () => {
@@ -58,14 +55,6 @@ export default function HomeScreen() {
       }
     }, [route.params, navigation])
   );
-
-  const filtered = fixtures.filter((f) => {
-    if (filter === 'all') return true;
-    if (filter === 'live') return f.isLive || f.status === 'live';
-    if (filter === 'upcoming') return f.status === 'upcoming' || f.status === 'soon';
-    if (filter === 'completed') return f.status === 'completed';
-    return true;
-  });
 
   const activeChannel = channels.find((c) => c.id === activeChannelId);
 
@@ -101,20 +90,12 @@ export default function HomeScreen() {
           </ScrollView>
         )}
 
-        <View style={styles.filterRow}>
-          {(['all', 'live', 'upcoming', 'completed'] as const).map((f) => (
-            <Pressable key={f} onPress={() => setFilter(f)} style={[styles.filterChip, filter === f && styles.filterChipActive]}>
-              <Text style={[styles.filterText, filter === f && styles.filterTextActive]}>{f}</Text>
-            </Pressable>
-          ))}
-        </View>
-
         {loading ? (
           <ActivityIndicator color={colors.green} style={{ marginTop: 40 }} />
-        ) : filtered.length === 0 ? (
+        ) : fixtures.length === 0 ? (
           <Text style={styles.empty}>No fixtures right now — check back soon.</Text>
         ) : (
-          filtered.map((fixture) => (
+          fixtures.map((fixture) => (
             <MatchCard key={fixture.id || fixture.matchId} fixture={fixture} channelId={activeChannelId} />
           ))
         )}
@@ -145,10 +126,5 @@ const styles = StyleSheet.create({
   chipActive: { backgroundColor: colors.green, borderColor: colors.green },
   chipText: { color: '#d1d5db', fontSize: 11, fontWeight: '600' },
   chipTextActive: { color: '#000' },
-  filterRow: { flexDirection: 'row', gap: 8, marginBottom: 16 },
-  filterChip: { borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6, backgroundColor: 'rgba(255,255,255,0.05)' },
-  filterChipActive: { backgroundColor: 'white' },
-  filterText: { color: colors.textMuted, fontSize: 11, textTransform: 'capitalize' },
-  filterTextActive: { color: '#000' },
   empty: { color: colors.textMuted, fontSize: 13, textAlign: 'center', marginTop: 48 },
 });

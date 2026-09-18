@@ -1,14 +1,36 @@
-// RN port of funspot-next/app/(app)/feed/page.tsx.
+// RN "Feed" tab. Corrected against real screenshots of the live app:
+// posts have NO border and NO shadow — background matches the screen
+// background, list items separated by a hairline bottom border, not a
+// boxed container. FAN_SPACING/FAN_RADIUS for layout, fanText() for
+// every text role.
 
 import { useEffect, useState } from 'react';
 import { View, Text, TextInput, Pressable, Image, ScrollView, ActivityIndicator, StyleSheet } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '@/lib/auth/auth-context';
-import { getPosts, toggleLikePost, Post, displayCaption, bestImageUrl, formattedDate, isLikedBy } from '@funspot/core';
+import {
+  getPosts,
+  toggleLikePost,
+  Post,
+  displayCaption,
+  bestImageUrl,
+  formattedDate,
+  isLikedBy,
+  postTypeDisplay,
+  followUser,
+  FanColorPalette,
+  FAN_SPACING,
+  FAN_RADIUS,
+} from '@funspot/core';
 import { createPost } from '@/lib/api/posts-create';
-import { colors } from '@/theme';
+import { useFanColors } from '@/theme/use-fan-colors';
+import { AppHeader } from '@/components/AppHeader';
+import { fanText } from '@/theme/use-fan-typography';
 
 export default function FeedScreen() {
+  const colors = useFanColors();
+  const styles = createStyles(colors);
+
   const { userId, username } = useAuth();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
@@ -17,6 +39,13 @@ export default function FeedScreen() {
   const [caption, setCaption] = useState('');
   const [image, setImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
   const [posting, setPosting] = useState(false);
+  const [followingIds, setFollowingIds] = useState<Set<string>>(new Set());
+
+  async function handleFollow(post: Post) {
+    if (!userId || !post.userId) return;
+    setFollowingIds((prev) => new Set(prev).add(post.userId!));
+    await followUser(userId, post.userId);
+  }
 
   async function loadPage(p: number, replace: boolean) {
     const result = await getPosts({ page: p, limit: 10 });
@@ -27,6 +56,7 @@ export default function FeedScreen() {
   useEffect(() => {
     setLoading(true);
     loadPage(1, true).finally(() => setLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function handlePickImage() {
@@ -70,31 +100,33 @@ export default function FeedScreen() {
   }
 
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      <AppHeader />
+      <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <View style={styles.composer}>
         <TextInput
           value={caption}
           onChangeText={setCaption}
           placeholder={`What's on your mind, ${username ?? 'fan'}?`}
-          placeholderTextColor={colors.textMuted}
+          placeholderTextColor={colors.textTertiary}
           multiline
-          style={styles.composerInput}
+          style={[fanText('body', colors), styles.composerInput]}
         />
-        {image && <Text style={styles.pickedFile}>📎 {image.fileName ?? 'image'}</Text>}
+        {image && <Text style={[fanText('caption', colors), { marginBottom: FAN_SPACING.md }]}>📎 {image.fileName ?? 'image'}</Text>}
         <View style={styles.composerRow}>
           <Pressable onPress={handlePickImage}>
-            <Text style={{ color: '#d1d5db' }}>📷 Add image</Text>
+            <Text style={fanText('body', colors, colors.textSecondary)}>📷 Add image</Text>
           </Pressable>
           <Pressable style={styles.postButton} disabled={posting || (!caption.trim() && !image)} onPress={handlePost}>
-            <Text style={styles.postButtonText}>{posting ? 'Posting…' : 'Post'}</Text>
+            <Text style={[fanText('button', colors), { letterSpacing: 0.4 }]}>{posting ? 'POSTING…' : 'POST'}</Text>
           </Pressable>
         </View>
       </View>
 
       {loading ? (
-        <ActivityIndicator color={colors.green} style={{ marginTop: 40 }} />
+        <ActivityIndicator color={colors.primary} style={{ marginTop: FAN_SPACING.xxxl }} />
       ) : posts.length === 0 ? (
-        <Text style={styles.empty}>No posts yet — be the first.</Text>
+        <Text style={[fanText('body', colors), styles.empty]}>No posts yet — be the first.</Text>
       ) : (
         <>
           {posts.map((post, i) => {
@@ -103,14 +135,29 @@ export default function FeedScreen() {
             return (
               <View key={post.id ?? i} style={styles.postCard}>
                 <View style={styles.postHeader}>
-                  <Text style={styles.postUser}>{post.userName ?? 'Anonymous'}</Text>
-                  <Text style={styles.postDate}>{formattedDate(post)}</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: FAN_SPACING.sm }}>
+                    <Text style={fanText('body', colors, colors.textPrimary)}>{post.userName ?? 'Anonymous'}</Text>
+                    <Text style={fanText('caption', colors)}>{formattedDate(post)}</Text>
+                    <Text style={fanText('caption', colors)}>{postTypeDisplay(post)}</Text>
+                  </View>
+                  {post.userId && post.userId !== userId && !followingIds.has(post.userId) && (
+                    <Pressable onPress={() => handleFollow(post)}>
+                      <Text style={fanText('caption', colors, colors.primary)}>follow</Text>
+                    </Pressable>
+                  )}
                 </View>
-                {displayCaption(post) ? <Text style={styles.postCaption}>{displayCaption(post)}</Text> : null}
+                {displayCaption(post) ? (
+                  <Text style={[fanText('body', colors), { marginBottom: FAN_SPACING.md }]}>{displayCaption(post)}</Text>
+                ) : null}
                 {img && <Image source={{ uri: img }} style={styles.postImage} />}
-                <Pressable style={styles.likeRow} onPress={() => handleLike(post, i)}>
-                  <Text style={{ color: liked ? '#f87171' : colors.textMuted }}>{liked ? '❤️' : '🤍'} {post.likesCount ?? 0}</Text>
-                </Pressable>
+                <View style={{ flexDirection: 'row', gap: FAN_SPACING.base }}>
+                  <Pressable onPress={() => handleLike(post, i)}>
+                    <Text style={fanText('caption', colors, liked ? colors.away : colors.textTertiary)}>
+                      {liked ? '❤️' : '🤍'} {post.likesCount ?? 0}
+                    </Text>
+                  </Pressable>
+                  <Text style={fanText('caption', colors)}>💬 {post.commentsCount ?? 0}</Text>
+                </View>
               </View>
             );
           })}
@@ -123,31 +170,52 @@ export default function FeedScreen() {
                 loadPage(next, false);
               }}
             >
-              <Text style={{ color: '#d1d5db' }}>Load more</Text>
+              <Text style={fanText('title', colors, colors.textSecondary)}>Load more</Text>
             </Pressable>
           )}
         </>
       )}
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.bg },
-  content: { padding: 16, paddingBottom: 32 },
-  composer: { borderRadius: 16, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, padding: 12, marginBottom: 16 },
-  composerInput: { color: 'white', fontSize: 14, minHeight: 44 },
-  pickedFile: { color: colors.textMuted, fontSize: 11, marginBottom: 8 },
-  composerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 },
-  postButton: { backgroundColor: colors.green, borderRadius: 999, paddingHorizontal: 16, paddingVertical: 6 },
-  postButtonText: { color: '#000', fontWeight: '700', fontSize: 12 },
-  empty: { color: colors.textMuted, textAlign: 'center', marginTop: 48 },
-  postCard: { borderRadius: 16, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, padding: 12, marginBottom: 12 },
-  postHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
-  postUser: { color: 'white', fontSize: 13, fontWeight: '700' },
-  postDate: { color: colors.textMuted, fontSize: 11 },
-  postCaption: { color: '#e5e7eb', fontSize: 13, marginBottom: 8 },
-  postImage: { width: '100%', height: 220, borderRadius: 12, marginBottom: 8 },
-  likeRow: { flexDirection: 'row' },
-  loadMore: { borderRadius: 12, borderWidth: 1, borderColor: colors.border, backgroundColor: 'rgba(255,255,255,0.05)', paddingVertical: 12, alignItems: 'center', marginTop: 8 },
-});
+function createStyles(colors: FanColorPalette) {
+  return StyleSheet.create({
+    screen: { flex: 1, backgroundColor: colors.background },
+    content: { padding: FAN_SPACING.lg, paddingBottom: FAN_SPACING.xxxl },
+    composer: {
+      backgroundColor: colors.background,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: colors.border,
+      paddingVertical: FAN_SPACING.base,
+    },
+    composerInput: { minHeight: 44 },
+    composerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: FAN_SPACING.md },
+    postButton: {
+      backgroundColor: colors.primary,
+      borderRadius: FAN_RADIUS.pill,
+      paddingHorizontal: FAN_SPACING.lg,
+      paddingVertical: FAN_SPACING.md,
+    },
+    empty: { textAlign: 'center', marginTop: FAN_SPACING.xxxl },
+    postCard: {
+      backgroundColor: colors.background,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: colors.border,
+      paddingVertical: FAN_SPACING.base,
+    },
+    postHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: FAN_SPACING.md },
+    postImage: { width: '100%', height: 220, borderRadius: FAN_RADIUS.md, marginBottom: FAN_SPACING.md },
+    likeRow: { flexDirection: 'row' },
+    loadMore: {
+      borderRadius: FAN_RADIUS.md,
+      borderWidth: 1,
+      borderColor: colors.border,
+      backgroundColor: colors.surfaceSunken,
+      paddingVertical: FAN_SPACING.base,
+      alignItems: 'center',
+      marginTop: FAN_SPACING.md,
+    },
+  });
+}

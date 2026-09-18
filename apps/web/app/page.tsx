@@ -16,8 +16,8 @@ export default function RootPage() {
   }, [isInitialized, isLoggedIn, router]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-funspot-bg">
-      <div className="h-10 w-10 animate-spin rounded-full border-2 border-funspot-green border-t-transparent" />
+    <div className="flex min-h-screen items-center justify-center bg-fan-background">
+      <div className="h-10 w-10 animate-spin rounded-full border-2 border-fan-primary border-t-transparent" />
     </div>
   );
 }

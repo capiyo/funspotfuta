@@ -332,6 +332,92 @@ class WebSocketService {
     this.isConnecting = false;
     this.joinedRoomsSet.clear();
   }
+
+  // ── Room helpers (named, channel+fixture) ────────────────────────
+  joinChannelFixtureRoom(channelId: string, fixtureId?: string | null) {
+    this.joinRoom(this.roomIdFor(channelId, fixtureId));
+  }
+
+  leaveChannelFixtureRoom(channelId: string, fixtureId?: string | null) {
+    this.leaveRoom(this.roomIdFor(channelId, fixtureId));
+  }
+
+  // ── Reliable chat send ───────────────────────────────────────────
+  // Hands the message to the socket if connected. If not, queues it (via
+  // this.send's existing messageQueue) and waits — up to 3s — for the
+  // socket to come up before giving up. If it times out, tries one
+  // reconnect attempt via onReconnectAttempt and waits again briefly.
+  async sendChatMessageReliable(params: {
+    message: string;
+    selection: string;
+    username: string;
+    messageId: string;
+    channelId: string;
+    fixtureId?: string | null;
+    replyTo?: Record<string, any> | null;
+    imageUrl?: string | null;
+    videoUrl?: string | null;
+    videoThumbnailUrl?: string | null;
+    isImage?: boolean;
+    isVideo?: boolean;
+    tempId?: string;
+    onReconnectAttempt?: () => Promise<void> | void;
+  }): Promise<boolean> {
+    if (this.isConnected) {
+      this.sendChatMessage(params);
+      return true;
+    }
+
+    // Wait a bit for a pending connect to finish.
+    const firstWait = await this.waitForConnection(3000);
+    if (firstWait) {
+      this.sendChatMessage(params);
+      return true;
+    }
+
+    // Try one reconnect attempt.
+    if (params.onReconnectAttempt) {
+      try {
+        await params.onReconnectAttempt();
+      } catch {
+        /* ignore */
+      }
+    }
+
+    const secondWait = await this.waitForConnection(2000);
+    if (secondWait) {
+      this.sendChatMessage(params);
+      return true;
+    }
+
+    return false;
+  }
+
+  // Resolves true as soon as isConnected flips to true, or false after
+  // `timeoutMs`. Cleans up its own listeners.
+  private waitForConnection(timeoutMs: number): Promise<boolean> {
+    if (this.isConnected) return Promise.resolve(true);
+
+    return new Promise((resolve) => {
+      let done = false;
+
+      const unsubscribe = this.onConnectionStatus((connected) => {
+        if (!done && connected) {
+          done = true;
+          unsubscribe();
+          clearTimeout(timer);
+          resolve(true);
+        }
+      });
+
+      const timer = setTimeout(() => {
+        if (done) return;
+        done = true;
+        unsubscribe();
+        resolve(false);
+      }, timeoutMs);
+    });
+  }
 }
 
 export const webSocketService = WebSocketService.instance;

@@ -81,44 +81,44 @@ export default function ComradesPage() {
   }
 
   return (
-    <div className="mx-auto max-w-md px-4 pt-6 pb-10">
-      <h1 className="mb-1 text-lg font-bold text-white">Comrades</h1>
+    <div className="mx-auto max-w-md px-fan-lg pt-fan-xxl pb-10">
+      <h1 className="mb-fan-sm font-condensed text-fan-headline text-fan-textPrimary">Comrades</h1>
       {stats && (
-        <p className="mb-4 text-xs text-gray-500">
+        <p className="mb-fan-lg text-fan-caption text-fan-textTertiary">
           {stats.count}/{stats.max_comrades} · {stats.remaining} remaining
         </p>
       )}
 
-      <div className="mb-6 flex gap-2">
+      <div className="mb-fan-xxl flex gap-fan-md">
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
           placeholder="Search by username…"
-          className="flex-1 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-sm text-white outline-none focus:border-funspot-green"
+          className="flex-1 rounded-fan-pill border border-fan-border bg-fan-surfaceSunken px-fan-lg py-fan-md text-fan-body text-fan-textPrimary outline-none focus:border-fan-primary"
         />
         <button
           onClick={handleSearch}
           disabled={searching}
-          className="rounded-full bg-funspot-green px-4 py-2 text-sm font-semibold text-black disabled:opacity-60"
+          className="rounded-fan-pill bg-fan-primary px-fan-lg py-fan-md text-fan-body font-semibold text-fan-textInverse disabled:opacity-60"
         >
           {searching ? '…' : 'Search'}
         </button>
       </div>
 
       {results.length > 0 && (
-        <div className="mb-6">
-          <p className="mb-2 text-xs text-gray-400">Results</p>
+        <div className="mb-fan-xxl">
+          <p className="mb-fan-md text-fan-caption text-fan-textTertiary">Results</p>
           <div className="space-y-2">
             {results.map((r) => {
               const id = r.id ?? r._id;
               return (
-                <div key={id} className="flex items-center justify-between rounded-xl border border-white/10 bg-funspot-surface px-3 py-2">
-                  <span className="text-sm text-white">{r.username}</span>
+                <div key={id} className="flex items-center justify-between rounded-fan-lg border border-fan-border bg-fan-surface px-fan-base py-fan-md">
+                  <span className="text-fan-body text-fan-textPrimary">{r.username}</span>
                   <button
                     onClick={() => handleAdd(r)}
                     disabled={busyId === id}
-                    className="rounded-full bg-funspot-green px-3 py-1 text-xs font-semibold text-black disabled:opacity-60"
+                    className="rounded-fan-pill bg-fan-primary px-fan-base py-fan-sm text-fan-caption font-semibold text-fan-textInverse disabled:opacity-60"
                   >
                     Add
                   </button>
@@ -129,27 +129,27 @@ export default function ComradesPage() {
         </div>
       )}
 
-      <p className="mb-2 text-xs text-gray-400">Your comrades</p>
+      <p className="mb-fan-md text-fan-caption text-fan-textTertiary">Your comrades</p>
       {loading ? (
         <div className="flex justify-center py-10">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-funspot-green border-t-transparent" />
+          <div className="h-8 w-8 animate-spin rounded-fan-pill border-2 border-fan-primary border-t-transparent" />
         </div>
       ) : comrades.length === 0 ? (
-        <p className="py-10 text-center text-sm text-gray-500">No comrades yet — search above to add some.</p>
+        <p className="py-10 text-center text-fan-body text-fan-textTertiary">No comrades yet — search above to add some.</p>
       ) : (
         <div className="space-y-2">
           {comrades.map((c) => {
             const id = c.comrade_id ?? c.id;
             return (
-              <div key={id} className="flex items-center justify-between rounded-xl border border-white/10 bg-funspot-surface px-3 py-2">
+              <div key={id} className="flex items-center justify-between rounded-fan-lg border border-fan-border bg-fan-surface px-fan-base py-fan-md">
                 <div>
-                  <p className="text-sm text-white">{c.comrade_username ?? c.username}</p>
-                  {c.comrade_nickname && <p className="text-[11px] text-gray-500">{c.comrade_nickname}</p>}
+                  <p className="text-fan-body text-fan-textPrimary">{c.comrade_username ?? c.username}</p>
+                  {c.comrade_nickname && <p className="text-[11px] text-fan-textTertiary">{c.comrade_nickname}</p>}
                 </div>
                 <button
                   onClick={() => handleRemove(id)}
                   disabled={busyId === id}
-                  className="rounded-full border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs font-semibold text-red-400 disabled:opacity-60"
+                  className="rounded-fan-pill border border-fan-away/30 bg-fan-awayDim px-fan-base py-fan-sm text-fan-caption font-semibold text-fan-away disabled:opacity-60"
                 >
                   Remove
                 </button>

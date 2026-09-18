@@ -52,21 +52,21 @@ export default function LeaderboardPage() {
 
   if (channels.length === 0 && !loading) {
     return (
-      <div className="mx-auto flex min-h-[70vh] max-w-md flex-col items-center justify-center px-6 text-center">
-        <p className="text-sm text-gray-400">Join or create a channel to see its leaderboard.</p>
+      <div className="mx-auto flex min-h-[70vh] max-w-md flex-col items-center justify-center px-fan-xxl text-center">
+        <p className="text-fan-body text-fan-textTertiary">Join or create a channel to see its leaderboard.</p>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto max-w-md px-4 pt-6">
-      <h1 className="mb-4 text-lg font-bold text-white">🏆 Leaderboard</h1>
+    <div className="mx-auto max-w-md px-fan-lg pt-fan-xxl">
+      <h1 className="mb-fan-lg font-condensed text-fan-headline text-fan-textPrimary">🏆 Leaderboard</h1>
 
       {channels.length > 0 && (
         <select
           value={activeChannelId ?? ''}
           onChange={(e) => setActiveChannelId(e.target.value)}
-          className="mb-4 w-full rounded-lg border border-white/10 bg-funspot-surface px-3 py-2 text-sm text-white"
+          className="mb-fan-lg w-full rounded-fan-md border border-fan-border bg-fan-surface px-fan-base py-fan-md text-fan-body text-fan-textPrimary"
         >
           {channels.map((c) => (
             <option key={c.id} value={c.id}>
@@ -78,31 +78,31 @@ export default function LeaderboardPage() {
 
       {loading ? (
         <div className="flex justify-center py-16">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-funspot-green border-t-transparent" />
+          <div className="h-8 w-8 animate-spin rounded-fan-pill border-2 border-fan-primary border-t-transparent" />
         </div>
       ) : rows.length === 0 ? (
-        <p className="py-16 text-center text-sm text-gray-500">No leaderboard data yet.</p>
+        <p className="py-16 text-center text-fan-body text-fan-textTertiary">No leaderboard data yet.</p>
       ) : (
         <div className="space-y-2">
           {rows.map((row, i) => (
             <div
               key={row.id}
-              className={`flex items-center gap-3 rounded-xl border px-3 py-2.5 ${
+              className={`flex items-center gap-fan-base rounded-fan-lg border px-fan-base py-fan-md ${
                 row.id === userId
-                  ? 'border-funspot-green/50 bg-funspot-green/10'
-                  : 'border-white/10 bg-funspot-surface'
+                  ? 'border-fan-primary/50 bg-fan-primary/10'
+                  : 'border-fan-border bg-fan-surface'
               }`}
             >
-              <span className="w-8 text-center text-sm font-bold text-gray-400">
+              <span className="w-8 text-center text-fan-body font-bold text-fan-textTertiary">
                 {MEDAL[i] ?? `#${row.rank || i + 1}`}
               </span>
               <div className="flex-1">
-                <p className="text-sm font-medium text-white">{row.username}</p>
-                <p className="text-[11px] text-gray-500">
+                <p className="text-fan-body font-medium text-fan-textPrimary">{row.username}</p>
+                <p className="text-[11px] text-fan-textTertiary">
                   {row.correctVotes}/{row.totalVotes} correct · {row.accuracyPercentage.toFixed(0)}% accuracy
                 </p>
               </div>
-              <span className="text-sm font-bold text-funspot-green">{row.totalPoints} pts</span>
+              <span className="text-fan-body font-bold text-fan-primary">{row.totalPoints} pts</span>
             </div>
           ))}
         </div>

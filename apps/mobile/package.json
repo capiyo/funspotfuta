@@ -1,8 +1,8 @@
 {
-  "name": "funspot-mobile",
+  "name": "funspot",
   "version": "0.1.0",
   "private": true,
-  "main":"index.js",
+  "main": "index.js",
   "scripts": {
     "start": "expo start",
     "android": "expo run:android",
@@ -15,6 +15,10 @@
     "expo": "~51.0.0",
     "expo-image-picker": "~15.0.0",
     "expo-status-bar": "~1.12.0",
+    "expo-font": "~12.0.0",
+    "expo-splash-screen": "~0.27.0",
+    "@expo-google-fonts/dm-sans": "^0.2.3",
+    "@expo-google-fonts/saira-condensed": "^0.2.3",
     "@react-native-picker/picker": "2.7.5",
     "react": "18.2.0",
     "react-native": "0.74.5",

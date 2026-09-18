@@ -1,46 +1,46 @@
-// Root navigation. Mirrors the app's real shape: a login gate
-// (app_shell.dart's isLoggedIn check), then a 5-tab bottom nav
-// (bottom_navigation.dart: Home, Trending, +Create, Chat, Profile) with
-// stack screens layered on top for things reached via in-page links rather
-// than tabs (fixture detail, comrades, leaderboard, history, notifications,
-// admin) — same navigation shape as the web port's /profile links.
+// RN navigation. The original app has TWO different bottom navs depending
+// on platform: home_page_web.dart (web) uses no bottom nav at all — see
+// apps/web's navbar+sidebar+3-column layout — while home_page.dart
+// (mobile) uses a 3-item nav: Arena (fixtures), Feed (posts), Logs
+// (history) — NOT the 5-item Home/Trending/+/Chat/Profile nav from the
+// separate, seemingly-unused bottom_navigation.dart widget this file
+// used to port. Profile/Comrades/Leaderboard/Admin/Notifications are
+// reached via a header menu button (matching home_page.dart's
+// _showTelegramMenu), not tabs. Chat is opened by tapping a channel
+// chip in the header, not a tab either.
 
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Home, TrendingUp, MessageCircle, User, Plus } from 'lucide-react-native';
-import { Pressable, View } from 'react-native';
 import { useAuth } from '@/lib/auth/auth-context';
-import { colors } from '@/theme';
+import { useFanColors } from '@/theme/use-fan-colors';
+import { FloatingPillTabBar } from '@/components/FloatingPillTabBar';
 
 import LoginScreen from '@/screens/LoginScreen';
-import HomeScreen from '@/screens/HomeScreen';
-import TrendingScreen from '@/screens/TrendingScreen';
-import ChatScreen from '@/screens/ChatScreen';
-import ProfileScreen from '@/screens/ProfileScreen';
-import FixtureDetailScreen from '@/screens/FixtureDetailScreen';
+import ArenaScreen from '@/screens/ArenaScreen';
 import FeedScreen from '@/screens/FeedScreen';
+import LogsScreen from '@/screens/LogsScreen';
+import ChatScreen from '@/screens/ChatScreen';
+import FixtureDetailScreen from '@/screens/FixtureDetailScreen';
 import ComradesScreen from '@/screens/ComradesScreen';
 import LeaderboardScreen from '@/screens/LeaderboardScreen';
-import HistoryScreen from '@/screens/HistoryScreen';
 import NotificationsScreen from '@/screens/NotificationsScreen';
 import AdminScreen from '@/screens/AdminScreen';
+import ProfileScreen from '@/screens/ProfileScreen';
 
 export type RootStackParamList = {
   Tabs: undefined;
   FixtureDetail: { matchId: string };
-  Feed: undefined;
+  Chat: { channelId?: string };
   Comrades: undefined;
   Leaderboard: undefined;
-  History: undefined;
   Notifications: undefined;
   Admin: { channelId: string };
+  Profile: undefined;
 };
 export type TabParamList = {
-  Home: undefined;
-  Trending: undefined;
-  CreateChannel: undefined;
-  Chat: undefined;
-  Profile: undefined;
+  Arena: undefined;
+  Feed: undefined;
+  Logs: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -49,85 +49,36 @@ const Tab = createBottomTabNavigator<TabParamList>();
 function Tabs() {
   return (
     <Tab.Navigator
-      screenOptions={{
-        headerStyle: { backgroundColor: colors.bg },
-        headerTintColor: colors.textPrimary,
-        headerShadowVisible: false,
-        tabBarStyle: { backgroundColor: '#000000f2', borderTopColor: 'rgba(255,255,255,0.05)' },
-        tabBarActiveTintColor: colors.green,
-        tabBarInactiveTintColor: '#4b5563',
-        tabBarLabelStyle: { fontSize: 10 },
-      }}
+      tabBar={(props) => <FloatingPillTabBar {...props} />}
+      screenOptions={{ headerShown: false }}
     >
-      <Tab.Screen name="Home" component={HomeScreen} options={{ tabBarIcon: ({ color, size }) => <Home color={color} size={size} /> }} />
-      <Tab.Screen
-        name="Trending"
-        component={TrendingScreen}
-        options={{ tabBarIcon: ({ color, size }) => <TrendingUp color={color} size={size} /> }}
-      />
-      {/* Center "+" button — matches the gradient FAB in bottom_navigation.dart.
-          Actual channel-creation UI lives inline on Home, same as the web port. */}
-      <Tab.Screen
-        name="CreateChannel"
-        component={HomeScreen}
-        options={{
-          tabBarLabel: () => null,
-          tabBarIcon: () => (
-            <View
-              style={{
-                height: 48,
-                width: 48,
-                borderRadius: 24,
-                backgroundColor: colors.green,
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginBottom: 18,
-              }}
-            >
-              <Plus color="white" size={24} />
-            </View>
-          ),
-        }}
-        listeners={({ navigation }) => ({
-          tabPress: (e) => {
-            e.preventDefault();
-            navigation.navigate('Home', { openCreateChannel: true } as never);
-          },
-        })}
-      />
-      <Tab.Screen
-        name="Chat"
-        component={ChatScreen}
-        options={{ tabBarIcon: ({ color, size }) => <MessageCircle color={color} size={size} /> }}
-      />
-      <Tab.Screen
-        name="Profile"
-        component={ProfileScreen}
-        options={{ tabBarIcon: ({ color, size }) => <User color={color} size={size} /> }}
-      />
+      <Tab.Screen name="Arena" component={ArenaScreen} />
+      <Tab.Screen name="Feed" component={FeedScreen} />
+      <Tab.Screen name="Logs" component={LogsScreen} />
     </Tab.Navigator>
   );
 }
 
 export default function RootNavigator() {
   const { isInitialized, isLoggedIn } = useAuth();
+  const colors = useFanColors();
 
-  if (!isInitialized) return null; // splash screen covers this in practice
+  if (!isInitialized) return null;
 
   return (
-    <Stack.Navigator screenOptions={{ headerStyle: { backgroundColor: colors.bg }, headerTintColor: colors.textPrimary }}>
+    <Stack.Navigator screenOptions={{ headerStyle: { backgroundColor: colors.surfaceElevated }, headerTintColor: colors.textPrimary }}>
       {!isLoggedIn ? (
         <Stack.Screen name="Tabs" component={LoginScreen as any} options={{ headerShown: false }} />
       ) : (
         <>
           <Stack.Screen name="Tabs" component={Tabs} options={{ headerShown: false }} />
           <Stack.Screen name="FixtureDetail" component={FixtureDetailScreen} options={{ title: 'Match' }} />
-          <Stack.Screen name="Feed" component={FeedScreen} options={{ title: 'Feed' }} />
+          <Stack.Screen name="Chat" component={ChatScreen} options={{ title: 'Chat' }} />
           <Stack.Screen name="Comrades" component={ComradesScreen} options={{ title: 'Comrades' }} />
           <Stack.Screen name="Leaderboard" component={LeaderboardScreen} options={{ title: 'Leaderboard' }} />
-          <Stack.Screen name="History" component={HistoryScreen} options={{ title: 'Match History' }} />
           <Stack.Screen name="Notifications" component={NotificationsScreen} options={{ title: 'Notifications' }} />
           <Stack.Screen name="Admin" component={AdminScreen} options={{ title: 'Admin Dashboard' }} />
+          <Stack.Screen name="Profile" component={ProfileScreen} options={{ title: 'Profile' }} />
         </>
       )}
     </Stack.Navigator>

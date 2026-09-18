@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "65345d5a-f777-44c0-80cf-9d3a7459c8d6"
+      }
+    },
+    "android": {
+      "package": "com.capiyo.funspotmonorepo"
+    }
+  }
+}

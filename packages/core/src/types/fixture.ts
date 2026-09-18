@@ -371,14 +371,20 @@ export function winner(f: Fixture): string {
   return 'Unknown';
 }
 
-// Colors ported from GameExtension.winnerColor (hex values preserved exactly)
-export function winnerColorHex(f: Fixture): string {
+// Semantic outcome, not a hardcoded hex — the real colors
+// (FanColors.primary/scoreAway/draw) are theme-dependent (light vs
+// dark), so the UI layer maps this to an actual color via the shared
+// theme tokens in theme.ts. An earlier version of this function baked
+// in hardcoded hex values from the wrong palette; this replaces it.
+export type MatchOutcome = 'home' | 'away' | 'draw' | 'unknown';
+
+export function winnerOutcome(f: Fixture): MatchOutcome {
   if (hasScores(f)) {
-    if (f.homeScore! > f.awayScore!) return '#10B981';
-    if (f.awayScore! > f.homeScore!) return '#3B82F6';
-    return '#8B5CF6';
+    if (f.homeScore! > f.awayScore!) return 'home';
+    if (f.awayScore! > f.homeScore!) return 'away';
+    return 'draw';
   }
-  return '#9CA3AF'; // Colors.grey
+  return 'unknown';
 }
 
 export function getFormattedMinuteDisplay(f: Fixture): string {

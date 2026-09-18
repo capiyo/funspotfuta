@@ -53,42 +53,42 @@ export function WalletCard() {
   }
 
   return (
-    <div className="mb-6 rounded-2xl border border-white/10 bg-funspot-surface p-4">
-      <p className="text-xs text-gray-400">Balance</p>
-      <p className="mb-4 text-2xl font-bold text-white">
+    <div className="mb-fan-xxl rounded-fan-xl border border-fan-border bg-fan-surface p-fan-lg">
+      <p className="text-fan-caption text-fan-textTertiary">Balance</p>
+      <p className="mb-fan-lg font-condensed text-fan-scoreCompact text-fan-textPrimary">
         {balance == null ? '—' : `KES ${balance.toLocaleString()}`}
       </p>
 
-      <div className="mb-3 grid grid-cols-2 gap-2">
+      <div className="mb-fan-base grid grid-cols-2 gap-fan-md">
         <input
           type="number"
           min={1}
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           placeholder="Amount (KES)"
-          className="rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-sm text-white outline-none focus:border-funspot-green"
+          className="rounded-fan-lg border border-fan-border bg-fan-inputSurface px-fan-base py-fan-md text-fan-body text-fan-textPrimary outline-none focus:border-fan-primary"
         />
         <input
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
           placeholder="07XXXXXXXX"
-          className="rounded-xl border border-white/10 bg-black/30 px-3 py-2 text-sm text-white outline-none focus:border-funspot-green"
+          className="rounded-fan-lg border border-fan-border bg-fan-inputSurface px-fan-base py-fan-md text-fan-body text-fan-textPrimary outline-none focus:border-fan-primary"
         />
       </div>
       <button
         onClick={handleTopUp}
         disabled={submitting}
-        className="w-full rounded-xl bg-funspot-green py-2.5 text-sm font-semibold text-black disabled:opacity-60"
+        className="w-full rounded-fan-lg bg-fan-primary py-fan-md text-fan-body font-semibold text-fan-textInverse disabled:opacity-60"
       >
         {submitting ? 'Processing…' : 'Top Up via M-Pesa'}
       </button>
-      {status && <p className="mt-2 text-center text-xs text-gray-400">{status}</p>}
+      {status && <p className="mt-fan-md text-center text-fan-caption text-fan-textTertiary">{status}</p>}
 
       {transactions.length > 0 && (
-        <div className="mt-4 space-y-1">
-          <p className="mb-1 text-xs text-gray-400">Recent transactions</p>
+        <div className="mt-fan-lg space-y-1">
+          <p className="mb-fan-sm text-fan-caption text-fan-textTertiary">Recent transactions</p>
           {transactions.map((t) => (
-            <div key={t.id} className="flex justify-between rounded-lg bg-black/20 px-2 py-1 text-xs text-gray-300">
+            <div key={t.id} className="flex justify-between rounded-fan-md bg-fan-surfaceSunken px-fan-md py-fan-sm text-fan-caption text-fan-textSecondary">
               <span className="capitalize">{t.type} · {t.status}</span>
               <span>KES {t.amount}</span>
             </div>
