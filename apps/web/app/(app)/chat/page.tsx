@@ -1,17 +1,19 @@
 'use client';
 
-// Visual port of the Flutter ChatScreen. Wires the carousel header,
-// message bubbles (own/incoming/commentary/reply), reply indicator,
+// Visual port of the Flutter ChatScreen — as a MODAL.
+// Wires the carousel header, message bubbles, reply indicator,
 // attachment menu, and vote-gated input bar to useChannelChat().
 // Presentation only — the hook owns socket, history, optimistic send,
 // commentary, and typing.
+//
+// This is a modal: it takes `fixture` + `channelId` + `onClose` from the
+// parent (Arena / MatchCard tap), instead of being a /chat route.
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useToast } from '@/lib/toast/toast-context';
 import {
   getUserChannels,
-  getAllFixtures,
   castVote,
   createBetWithVoteId,
   Channel,
@@ -39,13 +41,18 @@ import { Image as ImageIcon, Paperclip, Send, Lock, X } from 'lucide-react';
 import { SwipeableVotePledgeModal } from '@/components/actionsModal';
 import { AftermatchReviewModal } from '@/components/aftermatchModal';
 
-export default function ChatPage() {
+interface ChatModalProps {
+  fixture: Fixture;
+  channelId: string;
+  onClose: () => void;
+}
+
+export function ChatModal({ fixture, channelId, onClose }: ChatModalProps) {
   const { userId, username, authToken, isLoggedIn } = useAuth();
   const toast = useToast();
 
   const [channels, setChannels] = useState<Channel[]>([]);
-  const [activeChannelId, setActiveChannelId] = useState<string | null>(null);
-  const [activeFixture, setActiveFixture] = useState<Fixture | null>(null);
+  const [activeChannelId, setActiveChannelId] = useState<string>(channelId);
   const [draft, setDraft] = useState('');
   const [replyTo, setReplyTo] = useState<ChatMessage | null>(null);
   const [showAttachMenu, setShowAttachMenu] = useState(false);
@@ -55,31 +62,21 @@ export default function ChatPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // ── Channels ─────────────────────────────────────────────────
+  // Sync prop changes (parent may switch channel while modal is open)
+  useEffect(() => {
+    setActiveChannelId(channelId);
+  }, [channelId]);
+
+  // ── Channels (for the picker) ────────────────────────────────
   useEffect(() => {
     if (!userId || !authToken) return;
     getUserChannels(userId, authToken).then((c) => {
       setChannels(c);
-      setActiveChannelId((prev) => prev ?? c[0]?.id ?? null);
+      setActiveChannelId((prev) => prev ?? c[0]?.id ?? '');
     });
   }, [userId, authToken]);
 
-  // ── Fixture for the active channel ───────────────────────────
-  useEffect(() => {
-    if (!activeChannelId) return;
-    getAllFixtures().then((all) => {
-      const live = all.find(
-        (f) =>
-          f.status === 'live' ||
-          f.status === 'half_time' ||
-          f.status === 'upcoming' ||
-          f.status === 'soon',
-      );
-      setActiveFixture(live ?? all[0] ?? null);
-    });
-  }, [activeChannelId]);
-
-  const fixtureId = activeFixture?.matchId ?? activeFixture?.id ?? null;
+  const fixtureId = fixture.matchId ?? fixture.id;
 
   const {
     messages,
@@ -105,20 +102,18 @@ export default function ChatPage() {
 
   // ── Vote gate (upcoming/soon only) ───────────────────────────
   const requiresVote =
-    !!activeFixture &&
-    (activeFixture.status === 'upcoming' || activeFixture.status === 'soon') &&
-    activeFixture.availableForVoting;
+    (fixture.status === 'upcoming' || fixture.status === 'soon') &&
+    fixture.availableForVoting;
 
   const hasVoted = useMemo(() => {
-    if (!activeFixture || !userId) return false;
-    return (activeFixture.voters ?? []).some((v) => v.userId === userId);
-  }, [activeFixture, userId]);
+    if (!userId) return false;
+    return (fixture.voters ?? []).some((v) => v.userId === userId);
+  }, [fixture, userId]);
 
   const voteGateActive = requiresVote && !hasVoted;
 
   const isCompleted =
-    activeFixture?.status === 'completed' ||
-    activeFixture?.status === 'finished';
+    fixture.status === 'completed' || fixture.status === 'finished';
 
   // ── Handlers ─────────────────────────────────────────────────
   async function handleSend() {
@@ -157,214 +152,209 @@ export default function ChatPage() {
     }
   }
 
-  // ── Vote button routing ─────────────────────────────────────
   function openVoteOrReview() {
     if (isCompleted) setReviewModalOpen(true);
     else setVoteModalOpen(true);
   }
 
-  // ── Empty ────────────────────────────────────────────────────
+  // ── Empty channel state ─────────────────────────────────────
   if (channels.length === 0) {
     return (
-      <div className="mx-auto flex min-h-[70vh] max-w-md items-center justify-center px-fan-xxl text-center">
-        <p className="text-fan-body text-fan-textTertiary">
-          Join or create a channel to start chatting.
-        </p>
-      </div>
+      <ModalShell onClose={onClose}>
+        <div className="flex flex-1 items-center justify-center px-fan-xxl text-center">
+          <p className="text-fan-body text-fan-textTertiary">
+            Join or create a channel to start chatting.
+          </p>
+        </div>
+      </ModalShell>
     );
   }
 
   return (
-    <div className="mx-auto flex h-[calc(100vh-4rem)] max-w-md flex-col bg-fan-background">
-      {/* Top bar */}
-      <div className="flex items-center gap-fan-sm px-fan-lg pt-fan-md pb-fan-sm">
-        <select
-          value={activeChannelId ?? ''}
-          onChange={(e) => setActiveChannelId(e.target.value)}
-          className="flex-1 rounded-fan-md border border-fan-border bg-fan-surface px-fan-base py-fan-xs text-fan-caption text-fan-textPrimary"
-        >
-          {channels.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
-          ))}
-        </select>
-        <span
-          className={`text-fan-tag ${connected ? 'text-fan-primary' : 'text-fan-textTertiary'
-            }`}
-        >
-          {connected ? '● live' : '○ connecting…'}
-        </span>
-      </div>
-
-      {/* Carousel header */}
-      {activeFixture && (
-        <CarouselHeader fixture={activeFixture} onOpenVote={openVoteOrReview} />
-      )}
-
-      {/* Messages */}
-      <div
-        ref={scrollRef}
-        className="flex-1 space-y-2 overflow-y-auto px-fan-sm py-fan-sm"
-      >
-        {loadingHistory ? (
-          <p className="py-fan-xxl text-center text-fan-caption text-fan-textTertiary">
-            Loading messages…
-          </p>
-        ) : messages.length === 0 ? (
-          <p className="py-fan-xxl text-center text-fan-caption text-fan-textTertiary">
-            No messages yet — say something.
-          </p>
-        ) : (
-          messages.map((m) => (
-            <MessageBubble
-              key={m.id}
-              message={m}
-              isMe={m.userId === userId}
-              onLongPress={() => setReplyTo(m)}
-            />
-          ))
-        )}
-      </div>
-
-      {/* Reply indicator */}
-      {replyTo && (
-        <div className="mx-fan-md mb-fan-xs flex items-center gap-fan-sm rounded-fan-md border-[0.5px] border-fan-primary/25 bg-fan-primaryDim px-fan-sm py-fan-xs">
-          <span className="text-[14px] text-fan-primary">↩</span>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-fan-tag font-semibold text-fan-primary">
-              Replying to{' '}
-              {replyTo.userId === userId ? 'yourself' : replyTo.username}
-            </p>
-            <p className="truncate text-fan-tag italic text-fan-textTertiary">
-              {replyTo.text || (replyTo.isImage ? '📷 Image' : 'Media')}
-            </p>
-          </div>
-          <button
-            onClick={() => setReplyTo(null)}
-            className="rounded-full bg-fan-surfaceSunken p-1"
-            aria-label="Cancel reply"
+    <ModalShell onClose={onClose}>
+      <div className="flex h-full flex-col bg-fan-background">
+        {/* Top bar */}
+        <div className="flex items-center gap-fan-sm px-fan-lg pt-fan-md pb-fan-sm">
+          <select
+            value={activeChannelId ?? ''}
+            onChange={(e) => setActiveChannelId(e.target.value)}
+            className="flex-1 rounded-fan-md border border-fan-border bg-fan-surface px-fan-base py-fan-xs text-fan-caption text-fan-textPrimary"
           >
-            <X size={12} className="text-fan-textTertiary" />
-          </button>
-        </div>
-      )}
-
-      {/* Input bar */}
-      <div className="border-t-[0.5px] border-fan-border/20 px-fan-sm pt-fan-sm pb-fan-md">
-        <div className="flex items-end gap-fan-xs">
-          {/* Vote pill */}
-          <button
-            onClick={openVoteOrReview}
-            className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-[0.5px] ${voteGateActive
-                ? 'border-fan-draw/40 bg-fan-draw/10 text-fan-draw'
-                : 'border-fan-border/30 bg-fan-surfaceSunken text-fan-primary'
+            {channels.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+          <span
+            className={`text-fan-tag ${connected ? 'text-fan-primary' : 'text-fan-textTertiary'
               }`}
-            aria-label="Vote"
           >
-            {voteGateActive ? '⚠' : '🗳'}
-          </button>
+            {connected ? '● live' : '○ connecting…'}
+          </span>
+        </div>
 
-          {/* Attachment */}
-          {isLoggedIn && !voteGateActive && (
-            <button
-              onClick={() => setShowAttachMenu((v) => !v)}
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-fan-surfaceSunken text-fan-textTertiary"
-              aria-label="Attach"
-            >
-              <Paperclip size={16} />
-            </button>
+        {/* Carousel header */}
+        <CarouselHeader fixture={fixture} onOpenVote={openVoteOrReview} />
+
+        {/* Messages */}
+        <div
+          ref={scrollRef}
+          className="flex-1 space-y-2 overflow-y-auto px-fan-sm py-fan-sm"
+        >
+          {loadingHistory ? (
+            <p className="py-fan-xxl text-center text-fan-caption text-fan-textTertiary">
+              Loading messages…
+            </p>
+          ) : messages.length === 0 ? (
+            <p className="py-fan-xxl text-center text-fan-caption text-fan-textTertiary">
+              No messages yet — say something.
+            </p>
+          ) : (
+            messages.map((m) => (
+              <MessageBubble
+                key={m.id}
+                message={m}
+                isMe={m.userId === userId}
+                onLongPress={() => setReplyTo(m)}
+              />
+            ))
           )}
+        </div>
 
-          {/* Field or vote-gate */}
-          {voteGateActive ? (
+        {/* Reply indicator */}
+        {replyTo && (
+          <div className="mx-fan-md mb-fan-xs flex items-center gap-fan-sm rounded-fan-md border-[0.5px] border-fan-primary/25 bg-fan-primaryDim px-fan-sm py-fan-xs">
+            <span className="text-[14px] text-fan-primary">↩</span>
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-fan-tag font-semibold text-fan-primary">
+                Replying to{' '}
+                {replyTo.userId === userId ? 'yourself' : replyTo.username}
+              </p>
+              <p className="truncate text-fan-tag italic text-fan-textTertiary">
+                {replyTo.text || (replyTo.isImage ? '📷 Image' : 'Media')}
+              </p>
+            </div>
+            <button
+              onClick={() => setReplyTo(null)}
+              className="rounded-full bg-fan-surfaceSunken p-1"
+              aria-label="Cancel reply"
+            >
+              <X size={12} className="text-fan-textTertiary" />
+            </button>
+          </div>
+        )}
+
+        {/* Input bar */}
+        <div className="border-t-[0.5px] border-fan-border/20 px-fan-sm pt-fan-sm pb-fan-md">
+          <div className="flex items-end gap-fan-xs">
             <button
               onClick={openVoteOrReview}
-              className="flex flex-1 items-center justify-center gap-fan-xs rounded-fan-md border-[0.5px] border-fan-draw/25 bg-fan-surfaceSunken py-fan-sm"
+              className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-[0.5px] ${voteGateActive
+                  ? 'border-fan-draw/40 bg-fan-draw/10 text-fan-draw'
+                  : 'border-fan-border/30 bg-fan-surfaceSunken text-fan-primary'
+                }`}
+              aria-label="Vote"
             >
-              <Lock size={12} className="text-fan-draw" />
-              <span className="text-fan-caption font-medium text-fan-draw">
-                {activeFixture?.status === 'soon'
-                  ? 'Vote before game starts 💬'
-                  : 'Vote to chat 💬'}
-              </span>
+              {voteGateActive ? '⚠' : '🗳'}
             </button>
-          ) : (
-            <input
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleSend();
-              }}
-              placeholder={
-                !isLoggedIn
-                  ? 'Log in to chat'
-                  : uploadingImage
-                    ? 'Uploading…'
-                    : 'Type a message…'
-              }
-              disabled={!isLoggedIn}
-              className="flex-1 rounded-fan-md border-[0.5px] border-fan-border bg-fan-surfaceSunken px-fan-md py-fan-xs text-fan-caption text-fan-textPrimary outline-none focus:border-fan-primary disabled:opacity-60"
-            />
-          )}
 
-          {/* Send */}
-          {isLoggedIn && !voteGateActive && draft.trim().length > 0 && (
-            <button
-              onClick={handleSend}
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-fan-primary"
-              aria-label="Send"
-            >
-              <Send size={16} />
-            </button>
+            {isLoggedIn && !voteGateActive && (
+              <button
+                onClick={() => setShowAttachMenu((v) => !v)}
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-fan-surfaceSunken text-fan-textTertiary"
+                aria-label="Attach"
+              >
+                <Paperclip size={16} />
+              </button>
+            )}
+
+            {voteGateActive ? (
+              <button
+                onClick={openVoteOrReview}
+                className="flex flex-1 items-center justify-center gap-fan-xs rounded-fan-md border-[0.5px] border-fan-draw/25 bg-fan-surfaceSunken py-fan-sm"
+              >
+                <Lock size={12} className="text-fan-draw" />
+                <span className="text-fan-caption font-medium text-fan-draw">
+                  {fixture.status === 'soon'
+                    ? 'Vote before game starts 💬'
+                    : 'Vote to chat 💬'}
+                </span>
+              </button>
+            ) : (
+              <input
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSend();
+                }}
+                placeholder={
+                  !isLoggedIn
+                    ? 'Log in to chat'
+                    : uploadingImage
+                      ? 'Uploading…'
+                      : 'Type a message…'
+                }
+                disabled={!isLoggedIn}
+                className="flex-1 rounded-fan-md border-[0.5px] border-fan-border bg-fan-surfaceSunken px-fan-md py-fan-xs text-fan-caption text-fan-textPrimary outline-none focus:border-fan-primary disabled:opacity-60"
+              />
+            )}
+
+            {isLoggedIn && !voteGateActive && draft.trim().length > 0 && (
+              <button
+                onClick={handleSend}
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-fan-primary"
+                aria-label="Send"
+              >
+                <Send size={16} />
+              </button>
+            )}
+          </div>
+
+          {showAttachMenu && isLoggedIn && (
+            <div className="mt-fan-sm flex gap-fan-md">
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImagePick}
+                className="hidden"
+              />
+              <button
+                onClick={() => {
+                  setShowAttachMenu(false);
+                  fileInputRef.current?.click();
+                }}
+                className="flex items-center gap-fan-xs rounded-fan-pill bg-fan-primaryDim px-fan-md py-fan-xs text-fan-tag font-semibold text-fan-primary"
+              >
+                <ImageIcon size={14} />
+                Image
+              </button>
+              <button
+                onClick={() => {
+                  setShowAttachMenu(false);
+                  toast.showInfo('Video coming soon');
+                }}
+                className="flex items-center gap-fan-xs rounded-fan-pill bg-fan-draw/10 px-fan-md py-fan-xs text-fan-tag font-semibold text-fan-draw"
+              >
+                🎥 Video
+              </button>
+            </div>
           )}
         </div>
-
-        {/* Attachment menu */}
-        {showAttachMenu && isLoggedIn && (
-          <div className="mt-fan-sm flex gap-fan-md">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*"
-              onChange={handleImagePick}
-              className="hidden"
-            />
-            <button
-              onClick={() => {
-                setShowAttachMenu(false);
-                fileInputRef.current?.click();
-              }}
-              className="flex items-center gap-fan-xs rounded-fan-pill bg-fan-primaryDim px-fan-md py-fan-xs text-fan-tag font-semibold text-fan-primary"
-            >
-              <ImageIcon size={14} />
-              Image
-            </button>
-            <button
-              onClick={() => {
-                setShowAttachMenu(false);
-                toast.showInfo('Video coming soon');
-              }}
-              className="flex items-center gap-fan-xs rounded-fan-pill bg-fan-draw/10 px-fan-md py-fan-xs text-fan-tag font-semibold text-fan-draw"
-            >
-              🎥 Video
-            </button>
-          </div>
-        )}
       </div>
 
       {/* Vote modal */}
-      {voteModalOpen && activeFixture && activeChannelId && (
+      {voteModalOpen && activeChannelId && (
         <SwipeableVotePledgeModal
-          fixture={activeFixture}
+          fixture={fixture}
           userId={userId ?? ''}
           username={username ?? ''}
           authToken={authToken}
           isLoggedIn={!!isLoggedIn}
           hasUserVoted={hasVoted}
           userVoteSelection={
-            activeFixture.voters?.find((v) => v.userId === userId)?.selection ??
-            null
+            fixture.voters?.find((v) => v.userId === userId)?.selection ?? null
           }
           channelId={activeChannelId}
           showPledgesTab
@@ -375,7 +365,7 @@ export default function ChatPage() {
             if (!activeChannelId || !userId || !authToken) return false;
             const ok = await castVote({
               channelId: activeChannelId,
-              fixtureId: activeFixture.matchId || activeFixture.id,
+              fixtureId,
               userId,
               selection: sel === 'home' ? 'home_team' : 'away_team',
               authToken,
@@ -385,7 +375,7 @@ export default function ChatPage() {
           onPledge={async (sel, amount) => {
             if (!activeChannelId || !userId || !username) return false;
             const r = await createBetWithVoteId({
-              fixtureId: activeFixture.matchId || activeFixture.id,
+              fixtureId,
               starterId: userId,
               starterName: username,
               starterSelection: sel === 'home' ? 'home_team' : 'away_team',
@@ -415,9 +405,9 @@ export default function ChatPage() {
       )}
 
       {/* Aftermatch review modal */}
-      {reviewModalOpen && activeFixture && activeChannelId && (
+      {reviewModalOpen && activeChannelId && (
         <AftermatchReviewModal
-          fixture={activeFixture}
+          fixture={fixture}
           userId={userId ?? ''}
           username={username ?? ''}
           authToken={authToken}
@@ -426,6 +416,45 @@ export default function ChatPage() {
           onClose={() => setReviewModalOpen(false)}
         />
       )}
+    </ModalShell>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────
+// Modal shell — backdrop + sheet + X button
+// ─────────────────────────────────────────────────────────────
+function ModalShell({
+  children,
+  onClose,
+}: {
+  children: React.ReactNode;
+  onClose: () => void;
+}) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 sm:items-center"
+      onClick={onClose}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="relative flex h-[80vh] w-full max-w-md flex-col overflow-hidden rounded-t-[18px] bg-fan-background shadow-2xl sm:h-[78vh] sm:rounded-fan-lg"
+      >
+        {/* Header with close button */}
+        <div className="flex items-center justify-between border-b-[0.5px] border-fan-border/20 px-fan-lg py-fan-sm">
+          <p className="font-condensed text-fan-body font-semibold text-fan-textPrimary">
+            Chat
+          </p>
+          <button
+            onClick={onClose}
+            aria-label="Close chat"
+            className="rounded-full bg-fan-surfaceSunken p-1.5 text-fan-textSecondary"
+          >
+            <X size={14} />
+          </button>
+        </div>
+
+        {children}
+      </div>
     </div>
   );
 }

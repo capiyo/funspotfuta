@@ -11,10 +11,12 @@
   },
   "dependencies": {
     "@funspot/core": "*",
+    "firebase": "^11.2.0",
+    "framer-motion": "^13.4.4",
+    "lucide-react": "^0.383.0",
     "next": "14.2.35",
     "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "lucide-react": "^0.383.0"
+    "react-dom": "18.2.0"
   },
   "devDependencies": {
     "@types/node": "^20.14.0",

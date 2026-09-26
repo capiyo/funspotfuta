@@ -9,16 +9,15 @@
   "overrides": {
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "@types/react": "~18.2.79"
+    "@types/react": "~18.2.79",
+    "react-native": "0.74.5",
+    "react-native-svg": "15.2.0"
   },
   "scripts": {
     "typecheck:core": "npm run typecheck --workspace=@funspot/core",
     "typecheck:web": "npm run typecheck --workspace=funspot-web 2>/dev/null || cd apps/web && npx tsc --noEmit",
     "dev:web": "npm run dev --workspace=funspot-web",
     "dev:mobile": "npm run start --workspace=funspot-mobile"
-  },
-  "dependencies": {
-    "framer-motion": "^13.4.0"
   },
   "devDependencies": {
     "turbo": "^2.10.13"

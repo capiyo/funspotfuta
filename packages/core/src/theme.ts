@@ -202,6 +202,14 @@ export const FAN_TYPOGRAPHY: Record<string, FanTextStyle> = {
   statDelta: { fontFamily: 'sans', fontSize: 19, fontWeight: '300', letterSpacing: 0.3, lineHeight: 1.2, colorKey: 'textPrimary' },
   votePct: { fontFamily: 'condensed', fontSize: 16, fontWeight: '600', letterSpacing: 0, lineHeight: 1.0, colorKey: 'textPrimary' },
   competition: { fontFamily: 'sans', fontSize: 9, fontWeight: '600', letterSpacing: 1.4, colorKey: 'textTertiary' },
+
+  // --- Added to close the two gaps every screen was independently
+  // patching with different raw numbers (see PostCard.avatarText,
+  // HistoryCard.miniStyles.initial/.role). Nothing else should ever
+  // define fontSize/fontWeight outside this file again — if a new
+  // gap shows up, add a role here, not a local override.
+  badge: { fontFamily: 'sans', fontSize: 12, fontWeight: '700', letterSpacing: 0, colorKey: 'primary' }, // single-glyph avatar/initial badges
+  microLabel: { fontFamily: 'sans', fontSize: 7, fontWeight: '500', letterSpacing: 0.3, colorKey: 'textTertiary' }, // lowercase status words (voted/commented/fan)
 };
 
 // FanShadows — exact blur/offset/opacity per role, per theme. Dark mode
@@ -267,17 +275,6 @@ export interface FanDecoration {
   backgroundColorKey: keyof FanColorPalette;
 }
 
-// 'flatListItem' — added after comparing against real screenshots of the
-// live app (Arena/Feed/Logs columns): fixture/post/history cards in the
-// actual product have NO border and NO shadow. Background is
-// 'background', not 'surface' — since dark mode is flat (surface ===
-// background already), this makes the "card" visually merge with the
-// page; separation between list items comes from padding/margin and a
-// hairline divider (applied by the caller, typically border-b at very
-// low alpha), not a boxed container. The 'card'/'fixtureCard'/
-// 'postCard'/'elevatedCard' roles below are kept for surfaces that
-// genuinely are boxed off (modals, dropdown menus) — but the Arena/Feed/
-// Logs list items should use 'flatListItem', not those.
 export function fanDecoration(
   role: 'card' | 'fixtureCard' | 'elevatedCard' | 'postCard' | 'statChip' | 'flatListItem',
   isDark: boolean,
@@ -306,7 +303,7 @@ export function fanDecoration(
       return {
         radius: FAN_RADIUS.lg,
         borderWidth: isLive ? 1.4 : 1,
-        borderColorKey: isLive ? 'live' : 'border', // live gets alpha applied by the caller
+        borderColorKey: isLive ? 'live' : 'border',
         shadow: fanShadow(isLive ? 'glow' : 'card', isDark),
         backgroundColorKey: 'surface',
       };

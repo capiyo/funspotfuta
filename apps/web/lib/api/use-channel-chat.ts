@@ -36,7 +36,11 @@ export function useChannelChat(params: {
   const appendMessage = useCallback((msg: ChatMessage) => {
     if (seenIds.current.has(msg.id)) return;
     seenIds.current.add(msg.id);
-    setMessages((prev) => [...prev, msg].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime()));
+    setMessages((prev) =>
+      [...prev, msg].sort(
+        (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
+      ),
+    );
   }, []);
 
   useEffect(() => {
@@ -45,21 +49,34 @@ export function useChannelChat(params: {
 
     (async () => {
       setLoadingHistory(true);
-      const history = await getMessages(channelId, authToken, { fixtureId: fixtureId ?? undefined });
+      const history = await getMessages(channelId, authToken, {
+        fixtureId: fixtureId ?? undefined,
+      });
       if (cancelled) return;
       const parsed = history.map(chatMessageFromJson);
       parsed.forEach((m) => seenIds.current.add(m.id));
-      setMessages(parsed.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime()));
+      setMessages(
+        parsed.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime()),
+      );
       setLoadingHistory(false);
     })();
 
-    webSocketService.connect({ userId, username, authToken, channelId, fixtureId });
+    webSocketService.connect({
+      userId,
+      username,
+      authToken,
+      channelId,
+      fixtureId,
+    });
     const unsubStatus = webSocketService.onConnectionStatus(setConnected);
 
-    const onChatMessage = (payload: Record<string, any>) => appendMessage(chatMessageFromJson(payload));
+    const onChatMessage = (payload: Record<string, any>) =>
+      appendMessage(chatMessageFromJson(payload));
     webSocketService.on('chat.message', onChatMessage);
 
-    const roomId = fixtureId ? `${channelId}_${fixtureId}` : `${channelId}_overall`;
+    const roomId = fixtureId
+      ? `${channelId}_${fixtureId}`
+      : `${channelId}_overall`;
     webSocketService.joinRoom(roomId);
 
     return () => {
@@ -69,6 +86,7 @@ export function useChannelChat(params: {
       unsubStatus();
     };
   }, [channelId, fixtureId, userId, username, authToken, appendMessage]);
+
   const send = useCallback(
     async (
       text: string,
@@ -82,9 +100,12 @@ export function useChannelChat(params: {
         isVideo?: boolean;
       } = {},
     ) => {
-    async (text: string, selection: string = '') => {
-      if (!channelId || !userId || !username || !authToken || !text.trim()) return;
-      const messageId = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+      if (!channelId || !userId || !username || !authToken) return;
+      if (!text.trim()) return;
+
+      const messageId = `${Date.now()}_${Math.random()
+        .toString(36)
+        .slice(2, 8)}`;
 
       // Optimistic local echo, mirroring the pending-message UX in ChatScreen.
       appendMessage({
@@ -99,18 +120,18 @@ export function useChannelChat(params: {
         timestamp: new Date(),
         status: 'pending',
         isSeen: false,
-        replyTo: null,
-        imageUrl: null,
+        replyTo: extras.replyTo ?? null,
+        imageUrl: extras.imageUrl ?? null,
         imagePublicId: null,
         imageCaption: null,
-        videoUrl: null,
+        videoUrl: extras.videoUrl ?? null,
         videoPublicId: null,
-        videoThumbnailUrl: null,
+        videoThumbnailUrl: extras.videoThumbnailUrl ?? null,
         videoCaption: null,
         videoDuration: null,
         videoSize: null,
-        isImage: false,
-        isVideo: false,
+        isImage: extras.isImage ?? false,
+        isVideo: extras.isVideo ?? false,
         isCommentary: false,
         commentaryType: null,
         seq: 0,
@@ -135,10 +156,17 @@ export function useChannelChat(params: {
         });
       } else {
         // Fallback to REST when the socket isn't up yet.
-        await sendMessageRest({ channelId, fixtureId, senderId: userId, senderName: username, text, authToken });
+        await sendMessageRest({
+          channelId,
+          fixtureId,
+          senderId: userId,
+          senderName: username,
+          text,
+          authToken,
+        });
       }
     },
-    [channelId, fixtureId, userId, username, authToken, connected, appendMessage]
+    [channelId, fixtureId, userId, username, authToken, connected, appendMessage],
   );
 
   const sendImage = useCallback(
@@ -146,10 +174,18 @@ export function useChannelChat(params: {
       if (!channelId || !userId || !username || !authToken) return;
       setUploadingImage(true);
       try {
-        const imageUrl = await uploadChatImage({ file, fileName: file.name, userId, authToken, caption });
+        const imageUrl = await uploadChatImage({
+          file,
+          fileName: file.name,
+          userId,
+          authToken,
+          caption,
+        });
         if (!imageUrl) return;
 
-        const tempId = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+        const tempId = `${Date.now()}_${Math.random()
+          .toString(36)
+          .slice(2, 8)}`;
         appendMessage({
           id: tempId,
           tempId,
@@ -204,7 +240,7 @@ export function useChannelChat(params: {
         setUploadingImage(false);
       }
     },
-    [channelId, fixtureId, userId, username, authToken, appendMessage]
+    [channelId, fixtureId, userId, username, authToken, appendMessage],
   );
 
   return { messages, connected, loadingHistory, uploadingImage, send, sendImage };

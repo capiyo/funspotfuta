@@ -4,9 +4,10 @@
 // MainContentColumns showing Arena / Feed / Logs as three simultaneous
 // columns.
 //
-// ArenaColumn now owns the vote/pledge/sub-fixtures modal and opens it
-// via MatchCard's `onOpenVoteModal` prop. Watch / chat still navigate as
-// before — the modal is only for vote-related actions.
+// ArenaColumn owns the vote/pledge/sub-fixtures modal AND the chat modal.
+//   • MatchCard body tap / 💬 pill → ChatModal
+//   • 👥 votes pill → SwipeableVotePledgeModal (live / upcoming) or
+//                     AftermatchReviewModal (completed)
 //
 // LogsColumn renders through <HistoryCard>, adapter imported from
 // app/(app)/history/page.
@@ -32,9 +33,6 @@ import {
   HistoryGame,
   castVote,
   createBetWithVoteId,
-  getOpenBets,
-  getChannelBettors,
-  getSubFixtures,
 } from '@funspot/core';
 import {
   fetchVoters,
@@ -63,11 +61,7 @@ import { FloatingPillTabs } from '@/components/FloatingPillTabs';
 import { createPost } from '@/lib/api/posts-create';
 import { toCardData } from '@/app/(app)/history/page';
 import { SwipeableVotePledgeModal } from '@/components/actionsModal';
-
-// ── Service shims for the modal ─────────────────────────────────
-// The modal takes Promise-returning fetchers so it stays decoupled from
-// @funspot/core. These wrap the REST endpoints the RN Arena tab already
-// uses, so both platforms share the same backend contract.
+import { ChatModal } from '../chat/page';
 
 // ── Page ────────────────────────────────────────────────────────
 export default function HomePage() {
@@ -115,7 +109,8 @@ export default function HomePage() {
         <ChannelCreationModal
           onClose={() => {
             setShowCreateChannel(false);
-            if (userId && authToken) getUserChannels(userId, authToken).then(setChannels);
+            if (userId && authToken)
+              getUserChannels(userId, authToken).then(setChannels);
           }}
         />
       )}
@@ -132,13 +127,14 @@ function Spinner() {
 }
 
 // ---------------------------------------------------------------------------
-// ARENA — fixtures + vote modal
+// ARENA — fixtures + vote modal + chat modal
 // ---------------------------------------------------------------------------
 function ArenaColumn({ channelId }: { channelId?: string }) {
   const { userId, username, authToken, isLoggedIn } = useAuth();
   const [fixtures, setFixtures] = useState<Fixture[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalFixture, setModalFixture] = useState<Fixture | null>(null);
+  const [chatFixture, setChatFixture] = useState<Fixture | null>(null);
 
   useEffect(() => {
     setLoading(true);
@@ -164,10 +160,13 @@ function ArenaColumn({ channelId }: { channelId?: string }) {
           key={f.id || f.matchId}
           fixture={f}
           channelId={channelId}
+          onOpen={setChatFixture}
+          onChatClick={() => setChatFixture(f)}
           onOpenVoteModal={setModalFixture}
         />
       ))}
 
+      {/* Vote / pledge / sub-fixtures modal */}
       {modalFixture && (
         <SwipeableVotePledgeModal
           fixture={modalFixture}
@@ -197,8 +196,6 @@ function ArenaColumn({ channelId }: { channelId?: string }) {
               authToken,
             });
             if (ok) {
-              // Refetch so the card shows "✓ Vote recorded" without us
-              // having to hand-build a Voter object.
               const fresh = await getAllFixtures();
               setFixtures(fresh);
             }
@@ -236,6 +233,15 @@ function ArenaColumn({ channelId }: { channelId?: string }) {
           placeSubFixturePledge={placeSubFixturePledge}
           matchSubFixturePledge={matchSubFixturePledge}
           matchMainPledge={matchMainPledge}
+        />
+      )}
+
+      {/* Chat modal — card body tap or 💬 pill */}
+      {chatFixture && channelId && (
+        <ChatModal
+          fixture={chatFixture}
+          channelId={channelId}
+          onClose={() => setChatFixture(null)}
         />
       )}
     </div>

@@ -4,7 +4,10 @@
 // can see packages/core (a workspace package, not something installed
 // into node_modules) and the hoisted node_modules at the repo root.
 const { getDefaultConfig } = require('expo/metro-config');
+
 const path = require('path');
+/*npx expo prebuild --platform android --clean
+cd android && ./ gradlew clean assembleRelease*/
 
 const projectRoot = __dirname;
 const workspaceRoot = path.resolve(projectRoot, '../..');

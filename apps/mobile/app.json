@@ -15,10 +15,10 @@
     ],
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.funspot.app"
+      "bundleIdentifier": "com.tech.Funzy"
     },
     "android": {
-      "package": "com.funspot.app",
+      "package": "com.tech.Funzy",
       "adaptiveIcon": {
         "foregroundImage": "./assets/icons/app_icon.png",
         "backgroundColor": "#0B0F1A"

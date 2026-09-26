@@ -1,18 +1,23 @@
 'use client';
 
-// Arena match card — reworked to use the same visual language as PostCard:
-// avatar header row (league initial + league name + pills + inline action),
-// scoreboard as the "media" block, a fan-zone caption indented under the
-// avatar, the 3-voter row indented, an inline comment prompt, and the
-// shared FooterPill primitive.
+// Arena match card.
 //
-// The 👥 votes FooterPill and the 3-voter row both fire `onOpenVoteModal(fixture)`
-// so the parent can render <SwipeableVotePledgeModal> for that fixture.
+// Behaviors:
+//   • Card body tap  → onOpen() — parent renders ChatModal over the list
+//   • 👥 votes pill  → onOpenVoteModal(fixture) — live/upcoming
+//                    → onOpenResults(fixture)   — completed (aftermatch)
+//   • ♡ likes pill   → onLike() — posts a like to backend
+//   • 💬 comments    → onOpenChat() — same as card body
+//   • Inline text input → onSubmitComment(text) on Enter — posts a
+//                        fixture comment without opening chat
+//   • 3-voter row    → onOpenVoteModal(fixture)
 //
-// The empty caption fallback now picks a phrase from HINT_TEXTS seeded off
-// the fixture id, so each card shows a different line instead of the same
-// one repeated everywhere. Same fixture → same phrase, no jitter on render.
+// Chat input gating (matches Flutter):
+//   - requires login
+//   - for upcoming/soon: requires a vote first
+//   - completed matches: always open
 
+import { useState } from 'react';
 import {
   Fixture,
   scoreDisplay,
@@ -46,8 +51,6 @@ function initials(name: string): string {
   return name.slice(0, 2).toUpperCase();
 }
 
-// Deterministic "fan" fillers — seeded off the fixture id so the same
-// fixture always shows the same fillers.
 const SAMPLE_FAN_NAMES = [
   '⚡ LightningBolt',
   '🔥 FireStriker',
@@ -64,8 +67,6 @@ const SAMPLE_FAN_NAMES = [
   '📊 AnalystPro',
 ];
 
-// Empty-caption phrases. One is picked per fixture (seeded, stable) so a
-// list of matches doesn't read as the same sentence repeated N times.
 const HINT_TEXTS = [
   'Say something about this match 💬',
   'Who takes this one? 🎯',
@@ -154,9 +155,14 @@ export function MatchCard({
   liveCommentary,
   commentsCount = 0,
   likesCount = 0,
+  liked = false,
+  onOpen,
   onWatchClick,
   onChatClick,
   onOpenVoteModal,
+  onOpenResults,
+  onLike,
+  onSubmitComment,
 }: {
   fixture: Fixture;
   channelId?: string;
@@ -164,21 +170,63 @@ export function MatchCard({
   liveCommentary?: LiveCommentaryEntry;
   commentsCount?: number;
   likesCount?: number;
+  liked?: boolean;
+  onOpen?: (fixture: Fixture) => void;
   onWatchClick?: () => void;
   onChatClick?: () => void;
-  /** Fires when the user taps the votes pill or the 3-voter row. Parent
-   *  owns the modal instance and passes the fixture back in. */
   onOpenVoteModal?: (fixture: Fixture) => void;
+  onOpenResults?: (fixture: Fixture) => void;
+  onLike?: (fixture: Fixture) => void;
+  onSubmitComment?: (fixture: Fixture, text: string) => void;
 }) {
   const { userId, isLoggedIn } = useAuth();
+  const [draft, setDraft] = useState('');
 
   const badge = formatDate(fixture.date);
   const isLive = badge === 'LIVE';
+  const isCompleted =
+    fixture.status === 'completed' || fixture.status === 'finished';
+  const requiresVote =
+    fixture.status === 'upcoming' || fixture.status === 'soon';
   const hasVoted = fixture.voters.some((v) => v.userId === userId);
 
+  const canChat = isLoggedIn && (isCompleted || hasVoted || !requiresVote);
+  const chatLockReason = !isLoggedIn
+    ? 'Log in to comment'
+    : requiresVote && !hasVoted
+      ? 'Vote to chat 💬'
+      : 'Write a comment...';
+
+  function stop(e: React.MouseEvent) {
+    e.stopPropagation();
+  }
+
+  function handleVotePill() {
+    if (isCompleted) onOpenResults?.(fixture);
+    else onOpenVoteModal?.(fixture);
+  }
+
+  function submitComment() {
+    const text = draft.trim();
+    if (!text || !canChat) return;
+    onSubmitComment?.(fixture, text);
+    setDraft('');
+  }
+
   return (
-    <div className="bg-fan-background px-fan-md py-fan-lg">
-      {/* Header — same shape as PostCard */}
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => onOpen?.(fixture)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onOpen?.(fixture);
+        }
+      }}
+      className="flex w-full cursor-pointer flex-col bg-fan-background px-fan-md py-fan-lg outline-none focus-visible:ring-2 focus-visible:ring-fan-primary/50"
+    >
+      {/* Header */}
       <div className="flex items-center gap-fan-sm">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden">
           <span className="text-fan-tag font-bold text-fan-primary">
@@ -202,15 +250,19 @@ export function MatchCard({
             </span>
           )}
 
-          {fixture.status === 'completed' && (
+          {isCompleted && (
             <span className="rounded-fan-pill bg-fan-primaryDim px-fan-sm py-[1px] text-fan-tag font-bold text-fan-primary">
               FT
             </span>
           )}
 
-          {onWatchClick && !isLive && fixture.status !== 'completed' && (
+          {onWatchClick && !isLive && !isCompleted && (
             <button
-              onClick={onWatchClick}
+              type="button"
+              onClick={(e) => {
+                stop(e);
+                onWatchClick();
+              }}
               className="text-fan-tag font-semibold text-fan-primary"
             >
               watch
@@ -219,8 +271,7 @@ export function MatchCard({
         </div>
       </div>
 
-      {/* Caption line — smaller / italic / tertiary when it's the empty
-          fallback so it reads as a hint, not as content. */}
+      {/* Caption */}
       <p className="mt-fan-sm pl-[40px] text-fan-body italic leading-snug text-fan-textTertiary">
         {isLive && liveCommentary
           ? liveCommentary.text
@@ -229,8 +280,7 @@ export function MatchCard({
             : hintFor(fixture)}
       </p>
 
-      {/* Scoreboard — plays the role of PostCard's media block. Full width,
-          no border, no pill backgrounds. */}
+      {/* Scoreboard */}
       <div className="mt-fan-sm flex items-center justify-center gap-fan-md">
         <span className="flex-1 truncate text-right text-fan-caption font-medium text-fan-textPrimary">
           {fixture.homeTeam}
@@ -248,8 +298,6 @@ export function MatchCard({
         </span>
       </div>
 
-      {/* Live commentary minute / result line — indented, same as PostCard's
-          caption continuation. */}
       {isLive && liveCommentary && (
         <p className="mt-fan-xs pl-[40px] text-fan-tag text-fan-textTertiary">
           {liveCommentary.minute}&apos;
@@ -257,7 +305,7 @@ export function MatchCard({
         </p>
       )}
 
-      {fixture.status === 'completed' ? (
+      {isCompleted ? (
         <p className="mt-fan-xs pl-[40px] text-fan-caption text-fan-textSecondary">
           Winner: {fixtureWinner(fixture)}
         </p>
@@ -267,16 +315,18 @@ export function MatchCard({
         </p>
       ) : null}
 
-      {/* 3-voter row — indented under the avatar. Whole row is tappable and
-          opens the vote modal. */}
+      {/* 3-voter row */}
       <div
         role="button"
         tabIndex={0}
-        onClick={() => onOpenVoteModal?.(fixture)}
+        onClick={(e) => {
+          stop(e);
+          handleVotePill();
+        }}
         onKeyDown={(e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            onOpenVoteModal?.(fixture);
+            handleVotePill();
           }
         }}
         className="mt-fan-sm flex cursor-pointer gap-fan-md pl-[40px] outline-none focus-visible:ring-2 focus-visible:ring-fan-primary/50"
@@ -319,35 +369,51 @@ export function MatchCard({
         })}
       </div>
 
-      {/* Inline comment prompt — indented like PostCard's footer. */}
-      <button
-        type="button"
-        onClick={onChatClick}
-        disabled={!isLoggedIn}
-        className="mt-fan-md flex w-full items-center gap-fan-sm pl-[40px] text-left disabled:opacity-60"
+      {/* Inline comment input — does NOT open chat. Posts a comment on submit. */}
+      <div
+        onClick={stop}
+        className="mt-fan-md pl-[40px]"
       >
-        <span className="shrink-0 text-fan-tag text-fan-textTertiary">
-          {isLoggedIn ? '💬' : '🔒'}
-        </span>
-        <span className="truncate text-fan-body italic text-fan-textTertiary">
-          {isLoggedIn ? 'Write a comment...' : 'Log in to comment'}
-        </span>
-      </button>
+        <input
+          type="text"
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              submitComment();
+            }
+          }}
+          disabled={!canChat}
+          placeholder={chatLockReason}
+          className={`w-full bg-transparent pb-[6px] text-fan-body outline-none placeholder:text-fan-textTertiary/60 ${canChat
+              ? 'text-fan-textPrimary'
+              : 'italic text-fan-textTertiary/60'
+            }`}
+        />
+      </div>
 
-      {/* Footer — shared FooterPill primitive, indented like PostCard's.
-          👥 votes pill opens the vote/pledge/sub-fixtures modal. */}
+      {/* Footer */}
       <div className="mt-fan-sm flex items-center gap-fan-md pl-[40px]">
         <FooterPill
           icon={<span>👥</span>}
           label={fixture.votes}
           ariaLabel={`${fixture.votes} votes`}
-          onClick={() => onOpenVoteModal?.(fixture)}
+          onClick={() => handleVotePill()}
         />
-        <FooterPill icon={<span>♡</span>} label={likesCount} />
+        <FooterPill
+          icon={<span>{liked ? '❤' : '♡'}</span>}
+          label={likesCount}
+          active={liked}
+          activeColor="text-fan-away"
+          ariaLabel={`${likesCount} likes`}
+          onClick={() => onLike?.(fixture)}
+        />
         <FooterPill
           icon={<span>💬</span>}
           label={commentsCount}
-          onClick={onChatClick}
+          ariaLabel={`${commentsCount} comments`}
+          onClick={() => onChatClick?.()}
         />
         {isLive && (
           <span className="ml-auto rounded-fan-pill bg-fan-awayDim px-fan-sm py-[1px] text-fan-tag font-bold text-fan-live">

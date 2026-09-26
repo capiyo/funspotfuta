@@ -1,8 +1,13 @@
-// Ported from funspot/lib/services/notification_service.dart — the parts
-// that are plain REST and don't depend on an FCM device token: unread
-// summary, mark-read, and notification preferences. FCM token registration
-// (registerToken, handleComradeNotification's local push display, badge
-// stream plumbing) is NOT ported — see README's Web Push note.
+
+// packages/core/src/api/notification-service.ts
+//
+// Ported from funspot/lib/services/notification_service.dart. Originally
+// only the plain-REST parts were ported (unread summary, mark-read,
+// preferences) — FCM token registration was intentionally left out,
+// per the old header note. That gap is now closed: registerToken is
+// added below, matching the Dart implementation's request/response
+// shape exactly (user_id/fcm_token/platform body, {success: bool} reply,
+// 200 or 201 both treated as success).
 //
 // Note ported verbatim from the original source: the unread-summary route
 // is flagged there as possibly not existing on the backend yet ("Add that
@@ -65,6 +70,39 @@ export async function fetchTruePendingJoinCount(adminChannelIds: string[], authT
     }
   }
   return total;
+}
+
+// ─── Token registration ─────────────────────────────────────────────────────
+// POST /api/notifications/register-token
+// Ported from NotificationService.registerToken in notification_service.dart.
+// Body: { user_id, fcm_token, platform }. Success requires status 200/201
+// AND body.success === true — matches the Dart check exactly.
+export async function registerToken(p: {
+  userId: string;
+  fcmToken: string;
+  platform: 'ios' | 'android' | 'web';
+  authToken?: string;
+}): Promise<boolean> {
+  try {
+    const res = await withTimeout(
+      fetch(`${API_BASE_URL}/notifications/register-token`, {
+        method: 'POST',
+        headers: jsonHeaders(p.authToken),
+        body: JSON.stringify({
+          user_id: p.userId,
+          fcm_token: p.fcmToken,
+          platform: p.platform,
+        }),
+      }),
+      10000
+    );
+    if (res.status !== 200 && res.status !== 201) return false;
+    const data = await res.json();
+    return data.success === true;
+  } catch (e) {
+    console.error('registerToken failed:', e);
+    return false;
+  }
 }
 
 // POST /api/notifications/send

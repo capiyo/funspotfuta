@@ -66,6 +66,12 @@ export interface B2CResult {
   success: boolean;
   message?: string;
   transactionId?: string;
+  /**
+   * Post-withdrawal balance as returned by the B2C endpoint. Present
+   * only on success when the server includes `new_balance` in its
+   * response. Matches the Flutter B2CResult.newBalance field.
+   */
+  newBalance?: number;
 }
 export interface AdminPayoutResult {
   success: boolean;
@@ -85,6 +91,76 @@ export interface PaymentTransaction {
   [key: string]: any;
 }
 
+// ── Display helpers ─────────────────────────────────────────────────
+// Ported from the Flutter PaymentTransaction computed getters
+// (statusDisplay / typeDisplay / statusColor). The RN model keeps the
+// raw `[key: string]: any` index signature, so any additional backend
+// fields survive untouched — these helpers only cover what the Flutter
+// source exposed as getters.
+
+export function transactionStatusDisplay(tx: PaymentTransaction): string {
+  switch (tx.status) {
+    case 'pending':
+      return '⏳ Pending';
+    case 'processing':
+      return '🔄 Processing';
+    case 'completed':
+      return '✅ Completed';
+    case 'failed':
+      return '❌ Failed';
+    case 'cancelled':
+      return '🚫 Cancelled';
+    case 'refunded':
+      return '↩️ Refunded';
+    default:
+      return tx.status;
+  }
+}
+
+export function transactionTypeDisplay(tx: PaymentTransaction): string {
+  switch (tx.type) {
+    case 'deposit':
+      return '💰 Deposit';
+    case 'withdrawal':
+      return '🏦 Withdrawal';
+    case 'pledge':
+      return '🎯 Pledge';
+    case 'payout':
+      return '🏆 Payout';
+    case 'refund':
+      return '↩️ Refund';
+    case 'fee':
+      return '💸 Fee';
+    default:
+      return tx.type;
+  }
+}
+
+/**
+ * Hex color string for a transaction status. These are the same values
+ * the Flutter PaymentTransaction.statusColor getter returns, kept as
+ * raw hex because they're status colors, not theme colors, and aren't
+ * part of the FanColorPalette token set.
+ */
+export function transactionStatusColor(tx: PaymentTransaction): string {
+  switch (tx.status) {
+    case 'pending':
+      return '#FFA726';
+    case 'processing':
+      return '#42A5F5';
+    case 'completed':
+      return '#66BB6A';
+    case 'failed':
+      return '#EF5350';
+    case 'cancelled':
+      return '#78909C';
+    case 'refunded':
+      return '#AB47BC';
+    default:
+      return '#9E9E9E';
+  }
+}
+
 function paymentTransactionFromJson(json: any): PaymentTransaction {
   return {
     id: (json._id ?? json.id ?? '').toString(),
@@ -98,8 +174,14 @@ function paymentTransactionFromJson(json: any): PaymentTransaction {
 
 function stkStatusFromJson(json: any): STKStatusResult {
   const status = (json.status ?? 'pending').toString().toLowerCase();
+  // Normalizes to one of the four known values. Unknown server-side
+  // statuses (e.g. 'expired', 'timeout') become 'pending' — the polling
+  // loop keeps polling until MAX_POLLING_ATTEMPTS in that case, which
+  // matches the Flutter behavior of falling through to its timeout.
   const normalized: STKStatusResult['status'] =
-    status === 'completed' || status === 'failed' || status === 'cancelled' ? (status as any) : 'pending';
+    status === 'completed' || status === 'failed' || status === 'cancelled'
+      ? (status as any)
+      : 'pending';
   return {
     status: normalized,
     message: json.message,
@@ -244,7 +326,15 @@ export async function initiateB2CPayment(p: InitiateB2CPaymentParams): Promise<B
       REQUEST_TIMEOUT_MS
     );
     const data = await res.json().catch(() => ({}));
-    if (res.ok && data.success) return { success: true, transactionId: data.transaction_id?.toString() };
+    if (res.ok && data.success) {
+      return {
+        success: true,
+        transactionId: data.transaction_id?.toString(),
+        newBalance:
+          data.new_balance != null ? Number(data.new_balance) : undefined,
+        message: data.message,
+      };
+    }
     return { success: false, message: data.message ?? 'B2C payment failed' };
   } catch (e: any) {
     return { success: false, message: `Network error: ${e?.message ?? e}` };
@@ -277,7 +367,7 @@ export async function computeAdminPayout(channelId: string, authToken?: string):
 }
 
 // ---------------------------------------------------------------------------
-// BALANCE / TRANSACTIONS
+// BALANCE
 // ---------------------------------------------------------------------------
 
 // GET /api/auth/user/id/:userId -> user.balance
@@ -295,21 +385,87 @@ export async function getUserBalance(userId: string, authToken?: string, forceRe
   }
 }
 
-async function getUserPhone(userId: string, authToken?: string): Promise<string> {
+// ---------------------------------------------------------------------------
+// PHONE PERSISTENCE
+// Ported from the Flutter profile modal's _saveTopUpPhone / _saveWithdrawPhone
+// and _fetchSavedPhones. The two endpoints store the last phone the user
+// used for that flow so the dialogs can pre-fill it next time.
+// ---------------------------------------------------------------------------
+
+export type SavedPhoneKind = 'topup' | 'withdraw';
+
+// GET /api/auth/user/:userId/topup-phone  or  /withdraw-phone
+export async function getSavedPhone(
+  userId: string,
+  kind: SavedPhoneKind,
+  authToken?: string
+): Promise<string | null> {
   try {
-    const saved = await fetchWithTimeout(
-      `${API_BASE_URL}/auth/user/${userId}/topup-phone`,
+    const res = await fetchWithTimeout(
+      `${API_BASE_URL}/auth/user/${userId}/${kind}-phone`,
       { headers: buildHeaders(authToken) },
       5000
     );
-    if (saved.ok) {
-      const data = await saved.json();
-      const phone = data.success === true ? data.phone?.toString() : null;
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (data.success === true) {
+      const phone = data.phone?.toString();
       if (phone && isValidPhoneNumber(phone)) return phone;
     }
+    return null;
   } catch {
-    /* fall through to profile lookup */
+    return null;
   }
+}
+
+// POST /api/auth/user/:userId/topup-phone  or  /withdraw-phone
+export async function savePhone(
+  userId: string,
+  kind: SavedPhoneKind,
+  phone: string,
+  authToken?: string
+): Promise<boolean> {
+  try {
+    const res = await fetchWithTimeout(
+      `${API_BASE_URL}/auth/user/${userId}/${kind}-phone`,
+      {
+        method: 'POST',
+        headers: buildHeaders(authToken),
+        body: JSON.stringify({ phone }),
+      },
+      5000
+    );
+    if (!res.ok) return false;
+    const data = await res.json();
+    return data.success === true;
+  } catch {
+    return false;
+  }
+}
+
+// Kept for API-shape compatibility with existing callers that pass a
+// single kind to a function returning { topup, withdraw } — the profile
+// modal fetches both via two parallel getSavedPhone() calls now.
+export async function getSavedPhones(
+  userId: string,
+  authToken?: string
+): Promise<{ topup: string | null; withdraw: string | null }> {
+  const [topup, withdraw] = await Promise.all([
+    getSavedPhone(userId, 'topup', authToken),
+    getSavedPhone(userId, 'withdraw', authToken),
+  ]);
+  return { topup, withdraw };
+}
+
+// ---------------------------------------------------------------------------
+// USER PHONE (fallback when no saved phone exists for a flow)
+// ---------------------------------------------------------------------------
+
+// GET /api/auth/user/id/:userId -> user.phone, with the topup-phone
+// endpoint tried first (matching the Flutter _getUserPhone fallback chain).
+export async function getUserPhone(userId: string, authToken?: string): Promise<string> {
+  const saved = await getSavedPhone(userId, 'topup', authToken);
+  if (saved) return saved;
 
   try {
     const res = await fetchWithTimeout(
@@ -329,6 +485,10 @@ async function getUserPhone(userId: string, authToken?: string): Promise<string>
   }
   return '';
 }
+
+// ---------------------------------------------------------------------------
+// TRANSACTION HISTORY
+// ---------------------------------------------------------------------------
 
 export interface TransactionHistoryResult {
   success: boolean;

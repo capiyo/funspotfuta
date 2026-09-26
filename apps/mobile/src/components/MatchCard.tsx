@@ -1,24 +1,31 @@
-// RN "Arena" card — React Native port of the finalized web MatchCard.
+// components/MatchCard.tsx
 //
-// Behaviour:
-//  - No border / shadow — blends into the screen background.
-//  - Compact team row: avatar+name — score — name+avatar.
-//  - Live commentary block replaces the "Fan zone" placeholder when live.
-//  - "🔴 ON AIR" / "▶ watch" row — watch navigates to FixtureDetail.
-//  - 3 voters laid out horizontally as mini cards (real voters if any,
-//    otherwise 3 deterministic fan fillers).
-//  - The 👥 votes footer pill — and the voters row itself — call
-//    `onOpenVoteModal(fixture)`, so the parent can render
-//    <SwipeableVotePledgeModal> with that fixture.
-//  - 💬 comment prompt and 💬 footer pill both navigate to Chat.
+//   league (white)                            Live | kickoff        <- date untouched
+//   Home  (H)      2 : 1      (A)  Away            <- lives in ui/Scoreline (not included)
+//   [icon] one random comment (or live commentary)  <- reference style for all other text
+//   news / lineups  (green link)                    <- NEW: opens MatchDetailsModal
+//   (A) Kim      (B) Otieno    (C) Amina           <- lives in ui/Voterstack (not included)
+//   Arsenal      Draw          Chelsea
+//   vote  heart  comment   |   Add a comment…      <- footer, untouched
 //
-// Watch != vote: `▶ watch` stays a route to the fixture detail screen,
-// the vote modal is opened only by the vote-related affordances.
+// STYLE PASS: every in-card text uses the same small caption font/family
+// and colors.textSecondary color as the comment-preview line, EXCEPT:
+//   - the league label, which keeps its own size/weight and is forced white
+//   - the footer action row (ActionButton/Input) — left exactly as-is
+//   - the kickoff date label — left exactly as-is
+//   - the new news/lineups link — same caption font, but colored
+//     colors.primary so it reads as tappable
 
-import { useMemo } from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useMemo, useState } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  Check,
+  Heart,
+  Lock,
+  MessageCircle,
+  Radio,
+  Vote,
+} from 'lucide-react-native';
 import {
   Fixture,
   scoreDisplay,
@@ -26,98 +33,40 @@ import {
   winnerOutcome,
   winner as fixtureWinner,
   outcomeColor,
-  FanColorPalette,
   FAN_SPACING,
-  FAN_RADIUS,
 } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
+import { useLoginModal } from '../modals/Login-modal-context';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
-import { RootStackParamList } from '@/navigation/RootNavigator';
+import { ICON, PRESSED_OPACITY } from '@/theme/layout';
+import { FeedItem } from './ui/FeedItem';
+import { LiveBadge } from './ui/LiveBadge';
+import { ActionButton } from './ui/ActionButton';
+import { Input } from './ui/input';
+import { ScoreLine } from './ui/Scoreline';
+import { VoterList } from './ui/Voterstack';
 
-function formatDate(dateString: string): string {
-  try {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffHours = (date.getTime() - now.getTime()) / 36e5;
+// Same color as the comment-preview line, reused everywhere the rest
+// of the card's text matches it.
+const COMMENT_STYLE_COLOR = (colors: ReturnType<typeof useFanColors>) =>
+  colors.textSecondary;
 
-    if (diffHours <= 2 && diffHours >= -2) return 'LIVE';
-    if (date.getTime() > now.getTime()) return `In ${Math.round(diffHours)}h`;
-    return `${date.getHours().toString().padStart(2, '0')}:${date
-      .getMinutes()
-      .toString()
-      .padStart(2, '0')}`;
-  } catch {
-    return 'TBD';
-  }
+function kickoffLabel(dateString: string): string {
+  const d = new Date(dateString);
+  if (Number.isNaN(d.getTime())) return 'TBD';
+  const mins = Math.round((d.getTime() - Date.now()) / 60000);
+  if (mins > 0 && mins < 60) return `In ${mins}m`;
+  if (mins >= 60 && mins < 24 * 60) return `In ${Math.round(mins / 60)}h`;
+  return d.toLocaleString(undefined, {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 }
 
-function initials(name: string): string {
-  const parts = name.trim().split(' ').filter(Boolean);
-  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
-  return name.slice(0, 2).toUpperCase();
-}
-
-// Extracts a leading emoji from a username so the voter avatar can show
-// the icon glyph, falling back to plain initials for names with no emoji.
-const EMOJI_RE = /^(\p{Extended_Pictographic}\uFE0F?)\s*/u;
-function splitFanName(username: string): { icon: string; name: string } {
-  const match = username.match(EMOJI_RE);
-  if (match) {
-    return {
-      icon: match[1],
-      name: username.slice(match[0].length).trim() || username,
-    };
-  }
-  return { icon: '', name: username };
-}
-
-// Deterministic fillers, seeded off the fixture id — same fixture always
-// shows the same 3 fillers, no reshuffling on re-render.
-const SAMPLE_FAN_NAMES = [
-  '⚡ LightningBolt',
-  '🔥 FireStriker',
-  '🛡️ DefenseWall',
-  '🎯 Sniper',
-  '💪 PowerShot',
-  '✨ MagicFeet',
-  '🏃 SpeedDemon',
-  '🧠 TacticalGenius',
-  '🌟 StarPlayer',
-  '🎭 FalseNine',
-  '🎪 CircusSave',
-  '🏆 ChampionMind',
-  '📊 AnalystPro',
-];
-
-function seededHash(seed: string): number {
-  let h = 0;
-  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) | 0;
-  return Math.abs(h);
-}
-
-interface DisplayVoter {
-  userId: string;
-  userName: string;
-  selection: 'home_team' | 'away_team' | 'draw' | string;
-}
-
-function fillVotersTo3(fixture: Fixture): DisplayVoter[] {
-  const real: DisplayVoter[] = fixture.voters ?? [];
-  if (real.length > 0) return real.slice(0, 3);
-
-  const seed = fixture.matchId || fixture.id;
-  const base = seededHash(seed);
-  const picks = ['home_team', 'away_team', 'draw'] as const;
-
-  return Array.from({ length: 3 }, (_, i) => ({
-    userId: `mock_${seed}_${i}`,
-    userName: SAMPLE_FAN_NAMES[(base + i * 7) % SAMPLE_FAN_NAMES.length],
-    selection: picks[(base + i * 13) % picks.length],
-  }));
-}
-
-function pickOutcome(selection: string): 'home' | 'away' | 'draw' {
+function pickKind(selection: string): 'home' | 'away' | 'draw' {
   if (selection === 'home_team') return 'home';
   if (selection === 'away_team') return 'away';
   return 'draw';
@@ -136,498 +85,331 @@ export interface LiveCommentaryEntry {
 
 export function MatchCard({
   fixture,
-  channelId,
+  comments,
   latestComment,
   liveCommentary,
-  commentsCount = 0,
+  commentsCount,
   likesCount = 0,
+  liked = false,
   onOpenVoteModal,
+  onOpenResults,
+  onChatClick,
+  onLike,
+  onSubmitComment,
+  onOpenLineups,
 }: {
   fixture: Fixture;
   channelId?: string;
+  /** Real comments on this match. The preview line shows one AT RANDOM. */
+  comments?: LatestComment[];
+  /** Fallback when only one comment is known. */
   latestComment?: LatestComment;
   liveCommentary?: LiveCommentaryEntry;
   commentsCount?: number;
   likesCount?: number;
-  /** Called when the user taps the votes pill or the voters row. The
-   *  parent owns the modal instance and passes the fixture back in. */
+  liked?: boolean;
+  onOpen?: (fixture: Fixture) => void;
   onOpenVoteModal?: (fixture: Fixture) => void;
+  onOpenResults?: (fixture: Fixture) => void;
+  onChatClick?: (fixture: Fixture) => void;
+  onLike?: (fixture: Fixture) => void;
+  onSubmitComment?: (fixture: Fixture, text: string) => void;
+  /**
+   * Opens the match details modal. The label above the voters list
+   * ("news" for upcoming, "lineups" for soon/live) taps into this.
+   */
+  onOpenLineups?: (fixture: Fixture) => void;
 }) {
   const colors = useFanColors();
-  const styles = useMemo(() => createStyles(colors), [colors]);
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { userId, isLoggedIn } = useAuth();
+  const { requireLogin } = useLoginModal();
+  const [draft, setDraft] = useState('');
 
-  const badge = formatDate(fixture.date);
-  const isLive = badge === 'LIVE';
-  const hasVoted = (fixture.voters ?? []).some((v) => v.userId === userId);
-  const matchId = fixture.matchId || fixture.id;
+  // Random pick, fixed for this card's lifetime. Re-picking on every render
+  // would make the line flicker on each keystroke in the comment box.
+  const [seed] = useState(() => Math.random());
+  const pool = comments?.length
+    ? comments
+    : latestComment
+      ? [latestComment]
+      : [];
+  const preview = pool.length ? pool[Math.floor(seed * pool.length)] : null;
 
-  function openMatchDetail() {
-    navigation.navigate('FixtureDetail', { matchId });
+  const isLive = !!fixture.isLive || fixture.status === 'live';
+  const isCompleted =
+    fixture.status === 'completed' || fixture.status === 'finished';
+  const requiresVote =
+    fixture.status === 'upcoming' || fixture.status === 'soon';
+  const voters = fixture.voters ?? [];
+  const hasVoted = voters.some((v) => v.userId === userId);
+
+  const canChat = isLoggedIn && (isCompleted || hasVoted || !requiresVote);
+  const placeholder = !isLoggedIn
+    ? 'Log in to comment'
+    : requiresVote && !hasVoted
+      ? 'Vote to comment'
+      : 'Add a comment…';
+
+  const outcome = isCompleted ? winnerOutcome(fixture) : null;
+
+  // ── Lineups / news label ─────────────────────────────────────
+  // Mirrors the Flutter _buildMatchCard pill's branching:
+  //   live                 → 'lineups'  (opens MatchDetailsModal)
+  //   upcoming / soon      → 'news'     (opens MatchDetailsModal)
+  //   completed / finished → hidden     (no equivalent in Flutter pill)
+  const lineupsLabel: string | null = isCompleted
+    ? null
+    : isLive
+      ? 'lineups'
+      : 'news';
+
+  const voterItems = useMemo(
+    () =>
+      voters.slice(0, 3).map((v) => {
+        const kind = pickKind(v.selection);
+        return {
+          id: v.userId,
+          name: v.userName,
+          team:
+            kind === 'home'
+              ? fixture.homeTeam
+              : kind === 'away'
+                ? fixture.awayTeam
+                : 'Draw',
+          color: outcomeColor(kind, colors),
+        };
+      }),
+    [voters, fixture.homeTeam, fixture.awayTeam, colors],
+  );
+
+  // ── Gated handlers ─────────────────────────────────────────
+  function handleChat() {
+    if (!isLoggedIn) return requireLogin(handleChat);
+    onChatClick?.(fixture);
   }
-
-  function openChat() {
-    navigation.navigate(
-      'Chat',
-      { channelId, fixtureId: matchId } as never,
-    );
+  function handleVote() {
+    if (!isLoggedIn) return requireLogin(handleVote);
+    if (isCompleted) onOpenResults?.(fixture);
+    else onOpenVoteModal?.(fixture);
   }
-
-  function openVoteModal() {
-    onOpenVoteModal?.(fixture);
+  function handleLike() {
+    if (!isLoggedIn) return requireLogin(handleLike);
+    onLike?.(fixture);
+  }
+  function handleSubmit() {
+    if (!isLoggedIn) return requireLogin(handleSubmit);
+    const text = draft.trim();
+    if (!text) return;
+    onSubmitComment?.(fixture, text);
+    setDraft('');
+  }
+  function handleLineups() {
+    if (!isLoggedIn) return requireLogin(handleLineups);
+    onOpenLineups?.(fixture);
   }
 
   return (
-    <View style={styles.card}>
-      {/* Header: league icon + name, LIVE/date pill */}
-      <View style={styles.headerRow}>
-        <View style={styles.leagueRow}>
-          <View style={styles.leagueIcon}>
-            <Text style={fanText('tag', colors, colors.primary)}>
-              {(fixture.league || '?').charAt(0).toUpperCase()}
-            </Text>
-          </View>
-          <Text
-            style={[
-              fanText('competition', colors, colors.textSecondary),
-              { textTransform: 'uppercase' },
-            ]}
-            numberOfLines={1}
-          >
-            {fixture.league || 'Unknown League'}
-          </Text>
-        </View>
+    <FeedItem colors={colors}>
+      {/* Meta */}
+      <View style={styles.metaRow}>
+        {/* League: kept its own size/weight, forced white per request. */}
+        <Text
+          style={[fanText('competition', colors, '#FFFFFF'), styles.grow]}
+          numberOfLines={1}
+        >
+          {fixture.league || 'Unknown league'}
+        </Text>
         {isLive ? (
-          <View style={[styles.badge, { backgroundColor: colors.awayDim }]}>
-            <View style={styles.liveDot} />
-            <Text style={fanText('tag', colors, colors.live)}>LIVE</Text>
-          </View>
+          <LiveBadge colors={colors} />
         ) : (
+          // Date — left untouched.
           <Text style={fanText('tag', colors, colors.textTertiary)}>
-            {badge}
+            {kickoffLabel(fixture.date)}
           </Text>
         )}
       </View>
 
-      {/* Compact team row */}
-      <View style={styles.teamsRow}>
-        <View style={styles.teamSideLeft}>
-          <Text
-            style={[
-              fanText('caption', colors, colors.textPrimary),
-              { fontWeight: '600', flexShrink: 1 },
-            ]}
-            numberOfLines={1}
-          >
-            {fixture.homeTeam}
-          </Text>
-          <View
-            style={[styles.teamAvatar, { borderColor: `${colors.primary}40` }]}
-          >
-            <Text style={fanText('tag', colors, colors.primary)}>
-              {initials(fixture.homeTeam)[0]}
-            </Text>
-          </View>
-        </View>
+      {/* Scoreboard: the whole row opens chat. */}
+      <Pressable
+        onPress={handleChat}
+        style={({ pressed }) => pressed && { opacity: PRESSED_OPACITY }}
+      >
+        <ScoreLine
+          colors={colors}
+          crests
+          homeTeam={fixture.homeTeam}
+          awayTeam={fixture.awayTeam}
+          center={hasScores(fixture) ? scoreDisplay(fixture) : 'vs'}
+          homeWon={outcome === 'home'}
+          awayWon={outcome === 'away'}
+        />
+      </Pressable>
 
-        <Text
-          style={[
-            fanText('title', colors, outcomeColor(winnerOutcome(fixture), colors)),
-            { fontWeight: '700', marginHorizontal: FAN_SPACING.sm },
-          ]}
-        >
-          {hasScores(fixture) ? scoreDisplay(fixture) : 'vs'}
-        </Text>
-
-        <View style={styles.teamSideRight}>
-          <View
-            style={[
-              styles.teamAvatar,
-              { borderColor: `${colors.scoreAway}40` },
-            ]}
-          >
-            <Text style={fanText('tag', colors, colors.scoreAway)}>
-              {initials(fixture.awayTeam)[0]}
+      {/* Live commentary, else one random comment — this is the reference style */}
+      <View style={styles.lineRow}>
+        {isLive && liveCommentary ? (
+          <>
+            <Radio size={ICON.sm} color={colors.live} />
+            <Text
+              style={[
+                fanText('caption', colors, COMMENT_STYLE_COLOR(colors)),
+                styles.grow,
+              ]}
+              numberOfLines={1}
+            >
+              {liveCommentary.text}
             </Text>
-          </View>
-          <Text
-            style={[
-              fanText('caption', colors, colors.textPrimary),
-              { fontWeight: '600', flexShrink: 1 },
-            ]}
-            numberOfLines={1}
-          >
-            {fixture.awayTeam}
-          </Text>
-        </View>
+            <Text style={fanText('tag', colors, colors.textTertiary)}>
+              {liveCommentary.minute}&apos;
+            </Text>
+          </>
+        ) : (
+          <>
+            <MessageCircle size={ICON.sm} color={colors.textTertiary} />
+            <Text
+              style={[
+                fanText('caption', colors, COMMENT_STYLE_COLOR(colors)),
+                styles.grow,
+              ]}
+              numberOfLines={1}
+            >
+              {preview
+                ? `${preview.username}: ${preview.comment}`
+                : 'Be the first to comment on this match'}
+            </Text>
+          </>
+        )}
       </View>
 
-      {/* Live commentary or fan-zone preview */}
-      <View style={styles.commentaryRow}>
-        <Text
-          style={[
-            fanText('tag', colors, colors.textTertiary),
-            { marginTop: 1 },
+      {/* News / lineups link — same caption font as the preview line,
+          but in colors.primary (the green used on the avatar ring) so
+          it reads as an actionable link, not muted metadata. Taps
+          through to onOpenLineups → MatchDetailsModal. */}
+      {lineupsLabel ? (
+        <Pressable
+          onPress={handleLineups}
+          hitSlop={8}
+          style={({ pressed }) => [
+            styles.lineRow,
+            pressed && { opacity: PRESSED_OPACITY },
           ]}
         >
-          ⓘ
-        </Text>
-        <View style={{ flex: 1, marginLeft: FAN_SPACING.sm }}>
-          {isLive && liveCommentary ? (
-            <>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  gap: FAN_SPACING.sm,
-                }}
-              >
-                <Text
-                  style={[
-                    fanText('caption', colors, colors.textPrimary),
-                    { flex: 1 },
-                  ]}
-                >
-                  {liveCommentary.text}
-                </Text>
-                <Text style={fanText('tag', colors, colors.textTertiary)}>
-                  {liveCommentary.minute}&apos;
-                </Text>
-              </View>
-              {liveCommentary.timestamp && (
-                <Text
-                  style={[
-                    fanText('tag', colors, colors.textTertiary),
-                    { marginTop: FAN_SPACING.xs },
-                  ]}
-                >
-                  {liveCommentary.timestamp}
-                </Text>
-              )}
-            </>
-          ) : (
-            <>
-              <Text style={fanText('tag', colors, colors.textSecondary)}>
-                Fan zone
-              </Text>
-              <Text
-                style={[
-                  fanText('caption', colors, colors.textTertiary),
-                  { fontStyle: 'italic' },
-                ]}
-                numberOfLines={1}
-              >
-                {latestComment
-                  ? `${latestComment.username}: ${latestComment.comment}`
-                  : 'Say something about this match 💬'}
-              </Text>
-            </>
-          )}
-        </View>
-      </View>
-
-      {/* ON AIR / watch row */}
-      {isLive && (
-        <View style={styles.onAirRow}>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: FAN_SPACING.xs,
-            }}
+          <Text
+            style={[
+              fanText('caption', colors, colors.primary),
+              styles.lineupsText,
+            ]}
           >
-            <View style={styles.onAirDot} />
-            <Text style={fanText('tag', colors, colors.away)}>ON AIR</Text>
-          </View>
-          <Pressable onPress={openMatchDetail}>
-            <Text style={fanText('tag', colors, colors.primary)}>▶ watch</Text>
-          </Pressable>
-        </View>
-      )}
+            {lineupsLabel}
+          </Text>
+        </Pressable>
+      ) : null}
 
-      {/* Result / vote-recorded state */}
-      {fixture.status === 'completed' ? (
-        <Text
-          style={[
-            fanText('caption', colors, colors.textSecondary),
-            { textAlign: 'center', marginBottom: FAN_SPACING.base },
-          ]}
-        >
+      {/* Result / vote state — same caption style as the comment preview */}
+      {isCompleted ? (
+        <Text style={fanText('caption', colors, COMMENT_STYLE_COLOR(colors))}>
           Winner: {fixtureWinner(fixture)}
         </Text>
       ) : hasVoted ? (
-        <Text
-          style={[
-            fanText('caption', colors, colors.primary),
-            { textAlign: 'center', marginBottom: FAN_SPACING.base },
-          ]}
-        >
-          ✓ Vote recorded
-        </Text>
-      ) : null}
-
-      {/* 3 voters — whole row opens the vote modal */}
-      <Pressable
-        onPress={openVoteModal}
-        style={({ pressed }) => [
-          styles.votersRow,
-          pressed && { opacity: 0.75 },
-        ]}
-        hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-      >
-        {fillVotersTo3(fixture).map((v) => {
-          const { icon, name } = splitFanName(v.userName);
-          const pickColor = outcomeColor(pickOutcome(v.selection), colors);
-          const pickLabel =
-            v.selection === 'home_team'
-              ? fixture.homeTeam
-              : v.selection === 'away_team'
-                ? fixture.awayTeam
-                : 'draw';
-          return (
-            <View key={v.userId} style={styles.voterItem}>
-              <View style={styles.voterAvatar}>
-                {icon ? (
-                  <Text style={fanText('body', colors)}>{icon}</Text>
-                ) : (
-                  <Text style={fanText('tag', colors, colors.primary)}>
-                    {initials(name)}
-                  </Text>
-                )}
-              </View>
-              <Text
-                style={[
-                  fanText('tag', colors, colors.textPrimary),
-                  { fontWeight: '600' },
-                ]}
-                numberOfLines={1}
-              >
-                {name}
-              </Text>
-              <Text style={fanText('tag', colors, colors.textTertiary)}>
-                fan
-              </Text>
-              <Text
-                style={[
-                  fanText('tag', colors, pickColor),
-                  { fontWeight: '700' },
-                ]}
-                numberOfLines={1}
-              >
-                {pickLabel}
-              </Text>
-            </View>
-          );
-        })}
-      </Pressable>
-
-      {/* Comment prompt */}
-      <Pressable
-        onPress={openChat}
-        disabled={!isLoggedIn}
-        style={styles.commentPrompt}
-      >
-        <Text style={fanText('tag', colors, colors.textTertiary)}>
-          {isLoggedIn ? '💬' : '🔒'}
-        </Text>
-        <Text
-          style={[
-            fanText('caption', colors, colors.textTertiary),
-            { fontStyle: 'italic', marginLeft: FAN_SPACING.sm },
-          ]}
-          numberOfLines={1}
-        >
-          {isLoggedIn ? 'Write a comment...' : 'Log in to comment'}
-        </Text>
-      </Pressable>
-
-      {/* Footer icon row */}
-      <View style={styles.footerRow}>
-        {/* 👥 votes — opens the modal */}
-        <Pressable
-          onPress={openVoteModal}
-          style={({ pressed }) => [
-            styles.footerItem,
-            pressed && { opacity: 0.7 },
-          ]}
-          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-        >
-          <Text style={fanText('tag', colors, colors.textTertiary)}>👥</Text>
-          <Text style={fanText('tag', colors, colors.textTertiary)}>
-            {fixture.votes}
-          </Text>
-          <Text
-            style={[
-              fanText('tag', colors, colors.textTertiary),
-              { marginLeft: 2 },
-            ]}
-          >
-            ›
-          </Text>
-        </Pressable>
-
-        {/* ♡ likes — informational only for now */}
-        <View style={styles.footerItem}>
-          <Text style={fanText('tag', colors, colors.textTertiary)}>♡</Text>
-          <Text style={fanText('tag', colors, colors.textTertiary)}>
-            {likesCount}
+        <View style={styles.lineRow}>
+          <Check size={ICON.sm} color={colors.primary} />
+          <Text style={fanText('caption', colors, COMMENT_STYLE_COLOR(colors))}>
+            Vote recorded
           </Text>
         </View>
+      ) : null}
 
-        {/* 💬 comments — opens chat */}
-        <Pressable
-          onPress={openChat}
-          style={({ pressed }) => [
-            styles.footerItem,
-            pressed && { opacity: 0.7 },
-          ]}
-          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-        >
-          <Text style={fanText('tag', colors, colors.textTertiary)}>💬</Text>
-          <Text style={fanText('tag', colors, colors.textTertiary)}>
-            {commentsCount}
-          </Text>
-        </Pressable>
+      {/* Up to 3 real voters */}
+      <VoterList
+        colors={colors}
+        voters={voterItems}
+        emptyLabel={
+          isCompleted ? 'No votes were cast' : 'Be the first to call it'
+        }
+        onPress={handleVote}
+      />
 
-        <View style={{ flex: 1 }} />
+      {/* Footer — left exactly as-is per request */}
+      <View style={styles.bottomRow}>
+        <View style={styles.half}>
+          <ActionButton
+            icon={Vote}
+            label={isCompleted ? 'Results' : 'Vote'}
+            count={fixture.votes}
+            colors={colors}
+            onPress={handleVote}
+          />
+          <ActionButton
+            icon={Heart}
+            label={liked ? 'Unlike' : 'Like'}
+            count={likesCount}
+            active={liked}
+            activeColor={colors.away}
+            colors={colors}
+            onPress={handleLike}
+          />
+          <ActionButton
+            icon={MessageCircle}
+            label="Comments"
+            count={commentsCount ?? pool.length}
+            colors={colors}
+            onPress={handleChat}
+          />
+        </View>
 
-        {isLive ? (
-          <View style={[styles.badge, { backgroundColor: colors.awayDim }]}>
-            <Text style={fanText('tag', colors, colors.live)}>live</Text>
-          </View>
-        ) : (
-          <Text style={fanText('tag', colors, colors.textTertiary)}>
-            {fixture.date}
-          </Text>
-        )}
+        <View style={[styles.half, styles.inputHalf]}>
+          {!canChat && <Lock size={ICON.sm} color={colors.textTertiary} />}
+          <Input
+            style={[
+              styles.grow,
+              styles.noBorderInput,
+              fanText('caption', colors, colors.textSecondary),
+            ]}
+            colors={colors}
+            variant="inline"
+            value={draft}
+            onChangeText={setDraft}
+            editable={canChat}
+            placeholder={placeholder}
+            onSubmitEditing={handleSubmit}
+            returnKeyType="send"
+          />
+        </View>
       </View>
-    </View>
+    </FeedItem>
   );
 }
 
-function createStyles(colors: FanColorPalette) {
-  return StyleSheet.create({
-    card: {
-      backgroundColor: colors.background,
-      paddingHorizontal: FAN_SPACING.md,
-      paddingVertical: FAN_SPACING.lg,
-    },
-    headerRow: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: FAN_SPACING.base,
-    },
-    leagueRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: FAN_SPACING.sm,
-      flex: 1,
-      marginRight: FAN_SPACING.sm,
-    },
-    leagueIcon: {
-      width: 24,
-      height: 24,
-      borderRadius: 12,
-      backgroundColor: colors.surfaceSunken,
-      borderWidth: 1,
-      borderColor: colors.border,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    badge: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: FAN_SPACING.xs,
-      borderRadius: FAN_RADIUS.pill,
-      paddingHorizontal: FAN_SPACING.sm,
-      paddingVertical: 1,
-    },
-    liveDot: {
-      width: 6,
-      height: 6,
-      borderRadius: 3,
-      backgroundColor: colors.live,
-    },
-    onAirDot: {
-      width: 6,
-      height: 6,
-      borderRadius: 3,
-      backgroundColor: colors.live,
-    },
-    teamsRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginBottom: FAN_SPACING.base,
-    },
-    teamSideLeft: {
-      flex: 1,
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'flex-end',
-      gap: FAN_SPACING.sm,
-    },
-    teamSideRight: {
-      flex: 1,
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: FAN_SPACING.sm,
-    },
-    teamAvatar: {
-      width: 24,
-      height: 24,
-      borderRadius: 12,
-      backgroundColor: colors.surfaceSunken,
-      borderWidth: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    commentaryRow: {
-      flexDirection: 'row',
-      alignItems: 'flex-start',
-      marginBottom: FAN_SPACING.base,
-    },
-    onAirRow: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: FAN_SPACING.base,
-    },
-    votersRow: {
-      flexDirection: 'row',
-      gap: FAN_SPACING.md,
-      marginBottom: FAN_SPACING.base,
-    },
-    voterItem: { flex: 1, alignItems: 'center', minWidth: 0 },
-    voterAvatar: {
-      width: 32,
-      height: 32,
-      borderRadius: 16,
-      backgroundColor: colors.primaryMuted,
-      borderWidth: 1,
-      borderColor: `${colors.primary}4D`,
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginBottom: FAN_SPACING.xs,
-    },
-    commentPrompt: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginBottom: FAN_SPACING.base,
-      paddingVertical: FAN_SPACING.sm,
-    },
-    footerRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: FAN_SPACING.lg,
-    },
-    footerItem: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: FAN_SPACING.xs,
-    },
-  });
-}
+const styles = StyleSheet.create({
+  grow: { flex: 1 },
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  lineRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: FAN_SPACING.sm,
+  },
+  bottomRow: { flexDirection: 'row', alignItems: 'center' },
+  // Two equal columns: the input starts at the centre and runs to the right edge.
+  half: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: FAN_SPACING.base,
+  },
+  inputHalf: { gap: FAN_SPACING.sm },
+  // No line/border under the input — just fades into the card background.
+  noBorderInput: {
+    borderWidth: 0,
+    borderBottomWidth: 0,
+    borderColor: 'transparent',
+    backgroundColor: 'transparent',
+  },
+  // Underline is the only decoration that makes a single lowercase word
+  // read as a link rather than as muted metadata. Remove this line if you
+  // prefer a bare colored word.
+  lineupsText: { textDecorationLine: 'underline' },
+});

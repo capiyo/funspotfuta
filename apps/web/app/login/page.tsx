@@ -1,18 +1,7 @@
+// apps/web/components/LoginModal.tsx
 'use client';
 
-// Ported from funspot/lib/modals/login_modal.dart's backend-driven PIN flow:
-//   1. enter phone -> check-user
-//   2a. existing user with a PIN -> pin-login
-//   2b. existing user without a PIN -> set-pin
-//   2c. new number -> pick a username -> register
-// The original also offers Firebase Phone-Auth OTP verification as an
-// alternative first step for brand-new numbers (see
-// lib/services/firebase_auth_service.dart) — that needs the project's live
-// Firebase reCAPTCHA/SMS setup, so it's flagged in the README as follow-up
-// rather than stubbed here.
-
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth/auth-context';
 import { checkUser, isUsernameTaken, pinLogin, setPin, registerUser } from '@funspot/core';
 
@@ -23,9 +12,14 @@ function toE164(raw: string): string {
   return digits.startsWith('+') ? digits : `+${digits}`;
 }
 
-export default function LoginPage() {
+interface LoginModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onLoginSuccess?: (userId: string, username: string) => void;
+}
+
+export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginModalProps) {
   const { login } = useAuth();
-  const router = useRouter();
 
   const [step, setStep] = useState<Step>('phone');
   const [phoneInput, setPhoneInput] = useState('');
@@ -38,9 +32,25 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
 
+  if (!isOpen) return null;
+
+  function resetAndClose() {
+    setStep('phone');
+    setPhoneInput('');
+    setVerifiedPhone('');
+    setExistingUserId(null);
+    setPinValue('');
+    setPinConfirm('');
+    setUsernameInput('');
+    setError(null);
+    setInfo(null);
+    onClose();
+  }
+
   async function performLogin(userId: string, username: string, token: string, phone: string) {
     await login(userId, username, token, { phone });
-    router.replace('/home');
+    onLoginSuccess?.(userId, username);
+    resetAndClose();
   }
 
   async function handlePhoneSubmit() {
@@ -59,11 +69,9 @@ export default function LoginPage() {
       setExistingUserId(user.id ?? null);
       setStep('pin');
     } else if (user) {
-      // Exists but no PIN yet
       setExistingUserId(user.id ?? null);
       setStep('newPin');
     } else {
-      // Brand new number
       setExistingUserId(null);
       setStep('newPin');
     }
@@ -136,8 +144,16 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-fan-background px-fan-xxl">
-      <div className="w-full max-w-sm">
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 sm:items-center"
+      onClick={resetAndClose}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-sm rounded-t-fan-xl bg-fan-background px-fan-xxl pb-fan-xxl pt-fan-lg sm:rounded-fan-xl"
+      >
+        <div className="mx-auto mb-fan-lg h-1 w-10 rounded-full bg-fan-border sm:hidden" />
+
         <h1 className="mb-fan-sm text-center font-condensed text-fan-headline text-fan-textPrimary">Funspot</h1>
         <p className="mb-fan-xxxl text-center text-fan-body text-fan-textTertiary">Where Champions Are Crowned</p>
 

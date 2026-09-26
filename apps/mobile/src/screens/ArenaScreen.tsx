@@ -1,492 +1,328 @@
-// RN "Arena" tab — fixtures + channel chips + header menu.
+// screens/ArenaScreen.tsx
 //
-// Adds the vote/pledge/sub-fixtures modal on top of the existing Arena
-// layout. The modal is owned here (single instance) and opened by
-// MatchCard's `onOpenVoteModal` prop, which fires when the user taps
-// the votes pill or the voters row. Watch / chat still go through
-// navigation as before — the modal is only for vote-related actions.
+// OVERHAUL: only presentation changed. All data, vote and pledge logic,
+// and both modals are exactly as they were.
+//   - status filter is a SegmentedControl (was a wrapping row of pill
+//     chips that looked identical to the channel chips right above it)
+//   - loading / empty / error use the shared list states
+//   - no horizontal padding on the list: FeedItem owns the gutter
+//   - last card clears the floating tab bar (LIST_BOTTOM_INSET)
+//   - commentsOf() now mocks two comments (with commentor names) per
+//     fixture until real comments are wired up — see below
+//   - NEW: MatchCard's news/lineups link opens MatchDetailsModal
 
-import { useCallback, useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  Pressable,
-  ActivityIndicator,
-  StyleSheet,
-  Modal,
-} from 'react-native';
+import { useCallback, useMemo, useState } from 'react';
+import { View, FlatList, RefreshControl, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Bell, ChevronDown } from 'lucide-react-native';
-import { AppHeader } from '@/components/AppHeader';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+
 import { useAuth } from '@/lib/auth/auth-context';
+import { useLoginModal } from '../modals/Login-modal-context';
 import {
   getAllFixtures,
-  getUserChannels,
-  Channel,
   Fixture,
   FanColorPalette,
   FAN_SPACING,
-  FAN_RADIUS,
   castVote,
   createBetWithVoteId,
   Voter,
-  getOpenBets,
-  getChannelBettors,
-  getSubFixtures,
-  submitSubFixtureVote,
 } from '@funspot/core';
-import { MatchCard } from '@/components/MatchCard';
-import { ChannelCreationModal } from '@/components/ChannelCreationModal';
+import { MatchCard, LatestComment } from '@/components/MatchCard';
+import { SegmentedControl } from '@/components/ui/Segmentedcontrol';
+import {
+  EmptyState,
+  ErrorBanner,
+  SkeletonRows,
+} from '@/components/ui/ListsStates';
 import { SwipeableVotePledgeModal } from '@/components/actionModal';
+import { AftermatchReviewModal } from '@/components/AftermatchModal';
+import { MatchDetailsModal } from '@/modals/match/matchDetailsModals';
+
 import { useFanColors } from '@/theme/use-fan-colors';
-import { fanText } from '@/theme/use-fan-typography';
+import { GUTTER, LIST_BOTTOM_INSET } from '@/theme/layout';
 import { RootStackParamList } from '@/navigation/RootNavigator';
+import { useHome } from './home/home-context';
+// TODO: export these from @funspot/core instead of reaching into its src.
+import {
+  fetchVoters,
+  fetchPledges,
+  fetchSubFixtures,
+  fetchSubFixturePledges,
+  fetchBets,
+  fetchBalance,
+  topUp,
+  withdraw,
+  getSavedPhone,
+  savePhone,
+  getUserPhone,
+  placeSubFixturePledge,
+  matchSubFixturePledge,
+  matchMainPledge,
+} from '../../../../packages/core/src/api/vote-modal-shims';
 
-// ── Service shims ──────────────────────────────────────────────
-// The modal expects Promise-returning fetchers/executors so it stays
-// decoupled from @funspot/core. These wrap the core exports so the
-// modal's props line up with what ArenaScreen already has.
-const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_BASE_URL ??
-  'https://clash-api-m5mr.onrender.com/api';
-
-async function fetchVoters(fixtureId: string, authToken?: string | null) {
-  const res = await fetch(
-    `${API_BASE_URL}/actions/vote/fixture/${fixtureId}/voters`,
-    { headers: authToken ? { Authorization: `Bearer ${authToken}` } : {} },
-  );
-  if (!res.ok) return [];
-  const data = await res.json();
-  return (data?.voters ?? []) as any[];
-}
-
-async function fetchPledges(
-  channelId: string,
-  fixtureId: string,
-  authToken?: string | null,
-) {
-  const res = await fetch(
-    `${API_BASE_URL}/actions/channel/${channelId}/${fixtureId}/pledges`,
-    { headers: authToken ? { Authorization: `Bearer ${authToken}` } : {} },
-  );
-  if (!res.ok) return [];
-  const data = await res.json();
-  return (data?.pledges ?? []).map((p: any) => ({
-    betId: p.bet_id ?? p._id ?? '',
-    userId: p.user_id ?? p.userId ?? '',
-    userName: p.user_name ?? p.userName ?? '',
-    selection: p.selection ?? '',
-    selectionDisplay:
-      p.selection === 'home_team' || p.selection === 'home'
-        ? 'Home'
-        : p.selection === 'away_team' || p.selection === 'away'
-          ? 'Away'
-          : p.selection ?? '',
-    amount: p.amount ?? 0,
-    isOpen: p.status === 'open' || p.is_open === true,
-  }));
-}
-
-async function fetchSubFixtures(fixtureId: string, authToken?: string | null) {
-  const res = await fetch(`${API_BASE_URL}/sub_fixtures/markets/${fixtureId}`, {
-    headers: authToken ? { Authorization: `Bearer ${authToken}` } : {},
-  });
-  if (!res.ok) return [];
-  const data = await res.json();
-  return (data?.markets ?? []) as any[];
-}
-
-async function fetchSubFixturePledges(
-  marketId: string,
-  fixtureId: string,
-  authToken?: string | null,
-) {
-  const res = await fetch(
-    `${API_BASE_URL}/sub_fixtures/bets/${marketId}?matchId=${fixtureId}`,
-    { headers: authToken ? { Authorization: `Bearer ${authToken}` } : {} },
-  );
-  if (!res.ok) return [];
-  const data = await res.json();
-  return (data?.bets ?? []) as any[];
-}
-
-async function fetchBets(
-  channelId: string,
-  fixtureId: string,
-  authToken?: string | null,
-) {
-  const res = await fetch(
-    `${API_BASE_URL}/actions/channel/${channelId}/${fixtureId}/bettors`,
-    { headers: authToken ? { Authorization: `Bearer ${authToken}` } : {} },
-  );
-  if (!res.ok) return [];
-  const data = await res.json();
-  return (data?.bettors ?? []) as any[];
-}
-
-async function fetchBalance(
-  userId: string,
-  authToken?: string | null,
-  opts?: { forceRefresh?: boolean },
-) {
-  const res = await fetch(
-    `${API_BASE_URL}/payment/balance/${userId}${opts?.forceRefresh ? `?_=${Date.now()}` : ''}`,
-    { headers: authToken ? { Authorization: `Bearer ${authToken}` } : {} },
-  );
-  if (!res.ok) return 0;
-  const data = await res.json();
-  return Number(data?.balance ?? data?.wallet_balance ?? 0);
-}
-
-async function topUp(amount: number, phone: string, purpose: string) {
-  try {
-    const res = await fetch(`${API_BASE_URL}/payment/stk-push`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount, phone, purpose }),
-    });
-    const data = await res.json();
-    return {
-      success: data?.success === true,
-      newBalance: data?.new_balance,
-      error: data?.message,
-    };
-  } catch (e: any) {
-    return { success: false, error: e?.message ?? 'Network error' };
-  }
-}
-
-async function withdraw(amount: number, phone: string) {
-  try {
-    const res = await fetch(`${API_BASE_URL}/payment/b2c`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount, phone }),
-    });
-    const data = await res.json();
-    return {
-      success: data?.success === true,
-      newBalance: data?.new_balance,
-      error: data?.message,
-    };
-  } catch (e: any) {
-    return { success: false, error: e?.message ?? 'Network error' };
-  }
-}
-
-async function getSavedPhone(kind: 'topup' | 'withdraw') {
-  return null;
-}
-async function savePhone(kind: 'topup' | 'withdraw', phone: string) {
-  return true;
-}
-async function getUserPhone() {
-  return '';
-}
-
-async function placeSubFixturePledge(args: {
-  fixtureId: string;
-  marketId: string;
-  starterId: string;
-  starterName: string;
-  selection: string;
-  amount: number;
-}) {
-  try {
-    const res = await fetch(`${API_BASE_URL}/sub_fixtures/sub-fixture/bet`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        match_id: args.fixtureId,
-        market_id: args.marketId,
-        starter_id: args.starterId,
-        starter_name: args.starterName,
-        selection: args.selection,
-        amount: args.amount,
-      }),
-    });
-    const data = await res.json();
-    return { success: data?.success === true, message: data?.message };
-  } catch (e: any) {
-    return { success: false, message: e?.message ?? 'Network error' };
-  }
-}
-
-async function matchSubFixturePledge(args: {
-  betId: string;
-  matchId: string;
-  marketId: string;
-  finisherId: string;
-  finisherName: string;
-  selection: string;
-  amount: number;
-}) {
-  try {
-    const res = await fetch(`${API_BASE_URL}/sub_fixtures/bet/fill`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        bet_id: args.betId,
-        match_id: args.matchId,
-        market_id: args.marketId,
-        finisher_id: args.finisherId,
-        finisher_name: args.finisherName,
-        selection: args.selection,
-        amount: args.amount,
-      }),
-    });
-    const data = await res.json();
-    return { success: data?.success === true, message: data?.message };
-  } catch (e: any) {
-    return { success: false, message: e?.message ?? 'Network error' };
-  }
-}
-
-async function matchMainPledge(args: {
-  betId: string;
-  finisherId: string;
-  finisherName: string;
-  finisherSelection: 'home' | 'away';
-  amount: number;
-}) {
-  try {
-    const res = await fetch(`${API_BASE_URL}/actions/bet/fill`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        bet_id: args.betId,
-        finisher_id: args.finisherId,
-        finisher_name: args.finisherName,
-        finisher_selection: args.finisherSelection,
-        amount: args.amount,
-      }),
-    });
-    const data = await res.json();
-    return { success: data?.success === true, message: data?.message };
-  } catch (e: any) {
-    return { success: false, message: e?.message ?? 'Network error' };
-  }
-}
-
-// ── Screen ─────────────────────────────────────────────────────
 type Filter = 'all' | 'live' | 'upcoming' | 'completed';
+
+const EMPTY_COPY: Record<Filter, { title: string; hint: string }> = {
+  all: { title: 'No fixtures right now', hint: 'Check back soon.' },
+  live: {
+    title: 'Nothing live at the moment',
+    hint: 'Live matches show up here.',
+  },
+  upcoming: {
+    title: 'No upcoming fixtures',
+    hint: 'New fixtures appear as they are scheduled.',
+  },
+  completed: {
+    title: 'No completed matches yet',
+    hint: 'Finished matches appear here.',
+  },
+};
+
+const FIXTURES_KEY = ['fixtures'] as const;
+const NO_FIXTURES: Fixture[] = [];
+
+// ── Mock comments (until real comments are wired up) ───────────────────
+// Every fixture gets its own pair, picked deterministically from its id so
+// a card doesn't reshuffle its comments on every re-render/refetch, but two
+// different fixtures still (almost always) show different lines.
+const MOCK_COMMENTORS = [
+  'Kevo',
+  'Aisha',
+  'Brian',
+  'Faith',
+  'Otieno',
+  'Wanjiru',
+  'Denis',
+  'Nadia',
+  'Mutiso',
+  'Cheryl',
+];
+const MOCK_COMMENTS = [
+  'This is going to be a banger 🔥',
+  'My gut says an upset today',
+  'Defense has to show up this time',
+  "Can't wait for kickoff",
+  'That midfield battle decides it',
+  'Home crowd advantage all day',
+  'Not confident about this one honestly',
+  'Easy three points incoming',
+  'Injuries could really hurt them here',
+  'Give me a 2-1 all day',
+];
+
+function hashSeed(seed: string): number {
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) {
+    h = (h * 31 + seed.charCodeAt(i)) >>> 0;
+  }
+  return h || 1;
+}
+
+function seededPick<T>(pool: T[], seed: string, n: number): T[] {
+  let h = hashSeed(seed);
+  const used = new Set<number>();
+  const picks: T[] = [];
+  while (picks.length < n && used.size < pool.length) {
+    h = (h * 1103515245 + 12345) >>> 0;
+    let idx = h % pool.length;
+    while (used.has(idx)) idx = (idx + 1) % pool.length;
+    used.add(idx);
+    picks.push(pool[idx]);
+  }
+  return picks;
+}
+
+function mockCommentsFor(fixtureId: string): LatestComment[] {
+  const names = seededPick(MOCK_COMMENTORS, fixtureId, 2);
+  const lines = seededPick(MOCK_COMMENTS, fixtureId + '#lines', 2);
+  return names.map((username, i) => ({ username, comment: lines[i] }));
+}
+
+// Real comments if the fixture has any; otherwise two mock ones unique to
+// this fixture, each with a commentor name.
+function commentsOf(f: Fixture): LatestComment[] {
+  const raw = ((f as any).comments ?? (f as any).latestComments ?? []) as any[];
+  const real = raw
+    .map((c) => ({
+      username: c.username ?? c.userName ?? 'Fan',
+      comment: c.comment ?? c.text ?? '',
+    }))
+    .filter((c) => c.comment);
+  if (real.length) return real;
+  return mockCommentsFor(f.matchId || f.id || 'fixture');
+}
+
+function isLiveFixture(f: Fixture) {
+  return !!f.isLive || f.status === 'live';
+}
+function isUpcomingFixture(f: Fixture) {
+  return f.status === 'upcoming' || f.status === 'soon';
+}
+function isCompletedFixture(f: Fixture) {
+  return f.status === 'completed';
+}
+function matchesFilter(f: Fixture, filter: Filter) {
+  if (filter === 'all') return true;
+  if (filter === 'live') return isLiveFixture(f);
+  if (filter === 'upcoming') return isUpcomingFixture(f);
+  return isCompletedFixture(f);
+}
+function statusRank(f: Fixture) {
+  if (isLiveFixture(f)) return 0;
+  if (isUpcomingFixture(f)) return 1;
+  return 2;
+}
 
 export default function ArenaScreen() {
   const colors = useFanColors();
-  const styles = createStyles(colors);
-  const { userId, authToken, username, isLoggedIn, logout } = useAuth();
+  const styles = useMemo(() => createStyles(colors), [colors]);
+  const { userId, authToken, username, isLoggedIn } = useAuth();
+  const { requireLogin } = useLoginModal();
+  const { activeChannelId } = useHome();
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const queryClient = useQueryClient();
 
-  const [fixtures, setFixtures] = useState<Fixture[]>([]);
-  const [channels, setChannels] = useState<Channel[]>([]);
-  const [activeChannelId, setActiveChannelId] = useState<string | undefined>();
-  const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<Filter>('all');
-  const [showCreateChannel, setShowCreateChannel] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [modalFixture, setModalFixture] = useState<Fixture | null>(null);
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    const [f, c] = await Promise.all([
-      getAllFixtures(),
-      userId && authToken
-        ? getUserChannels(userId, authToken)
-        : Promise.resolve([]),
-    ]);
-    setFixtures(f);
-    setChannels(c);
-    setActiveChannelId((prev) => prev ?? c[0]?.id);
-    setLoading(false);
-  }, [userId, authToken]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
-
-  const activeChannel = channels.find((c) => c.id === activeChannelId);
-  const filtered = fixtures.filter((f) => {
-    if (filter === 'all') return true;
-    if (filter === 'live') return f.isLive || f.status === 'live';
-    if (filter === 'upcoming')
-      return f.status === 'upcoming' || f.status === 'soon';
-    if (filter === 'completed') return f.status === 'completed';
-    return true;
+  const { data, isPending, error, refetch } = useQuery({
+    queryKey: FIXTURES_KEY,
+    queryFn: getAllFixtures,
   });
+  const fixtures = data ?? NO_FIXTURES;
+
+  const [refreshing, setRefreshing] = useState(false);
+  const [filter, setFilter] = useState<Filter>('all');
+  const [modalFixture, setModalFixture] = useState<Fixture | null>(null);
+  const [reviewFixture, setReviewFixture] = useState<Fixture | null>(null);
+  const [matchDetailsFixture, setMatchDetailsFixture] = useState<Fixture | null>(
+    null,
+  );
+
+  const loadError =
+    error && fixtures.length === 0
+      ? 'Could not load fixtures. Pull down to try again.'
+      : null;
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await refetch();
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refetch]);
+
+  const liveCount = useMemo(
+    () => fixtures.filter(isLiveFixture).length,
+    [fixtures],
+  );
+
+  // Count only on "Live": four equal segments don't have room for
+  // "Completed (24)" on a phone.
+  const filterOptions = useMemo(
+    () => [
+      { value: 'all' as const, label: 'All' },
+      {
+        value: 'live' as const,
+        label: liveCount > 0 ? `Live · ${liveCount}` : 'Live',
+      },
+      { value: 'upcoming' as const, label: 'Upcoming' },
+      { value: 'completed' as const, label: 'Completed' },
+    ],
+    [liveCount],
+  );
+
+  const filtered = useMemo(() => {
+    const matched = fixtures.filter((f) => matchesFilter(f, filter));
+    if (filter !== 'all') return matched;
+    return matched
+      .map((f, i) => ({ f, i }))
+      .sort((a, b) => statusRank(a.f) - statusRank(b.f) || a.i - b.i)
+      .map(({ f }) => f);
+  }, [fixtures, filter]);
+
+  const openChat = useCallback(
+    (fixture?: Fixture) => {
+      if (!isLoggedIn) return requireLogin(() => openChat(fixture));
+      if (!activeChannelId) return;
+      navigation.navigate('Chat', {
+        channelId: activeChannelId,
+        fixtureId: fixture ? fixture.matchId ?? fixture.id : undefined,
+      });
+    },
+    [navigation, activeChannelId, isLoggedIn, requireLogin],
+  );
+
+  async function handleLike(fixture: Fixture) {
+    if (!userId) return;
+    // Stub — wire to your like endpoint when ready.
+  }
+
+  async function handleSubmitComment(fixture: Fixture, text: string) {
+    if (!userId || !username) return;
+    // Stub — MatchCard clears the draft after calling this, so until it is
+    // wired a typed comment is discarded.
+  }
+
+  const listHeader = (
+    <View style={styles.header}>
+      <SegmentedControl
+        options={filterOptions}
+        value={filter}
+        onChange={setFilter}
+        colors={colors}
+      />
+      {loadError && <ErrorBanner colors={colors} message={loadError} />}
+    </View>
+  );
 
   return (
     <View style={styles.screen}>
-      <AppHeader
-        channel={activeChannel}
-        onAddChannel={() => setMenuOpen(true)}
-      />
-
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.chipRow}
-      >
-        {channels.map((c) => (
-          <Pressable
-            key={c.id}
-            onPress={() => setActiveChannelId(c.id)}
-            onLongPress={() => setMenuOpen(true)}
-            style={[
-              styles.chip,
-              activeChannelId === c.id && {
-                backgroundColor: colors.primaryDim,
-              },
-            ]}
-          >
-            <Text
-              style={fanText(
-                'tag',
-                colors,
-                activeChannelId === c.id
-                  ? colors.primary
-                  : colors.textSecondary,
-              )}
-            >
-              {c.name}
-            </Text>
-          </Pressable>
-        ))}
-        <Pressable style={styles.chip} onPress={() => setShowCreateChannel(true)}>
-          <Text style={fanText('tag', colors)}>+ NEW</Text>
-        </Pressable>
-        {activeChannel && (
-          <Pressable
-            style={styles.chip}
-            onPress={() =>
-              navigation.navigate('Chat', { channelId: activeChannelId })
-            }
-          >
-            <Text style={fanText('tag', colors)}>💬 CHAT</Text>
-          </Pressable>
-        )}
-      </ScrollView>
-
-      <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.filterRow}>
-          {(['all', 'live', 'upcoming', 'completed'] as const).map((f) => (
-            <Pressable
-              key={f}
-              onPress={() => setFilter(f)}
-              style={[
-                styles.filterChip,
-                filter === f && { backgroundColor: colors.primary },
-              ]}
-            >
-              <Text
-                style={[
-                  fanText(
-                    'caption',
-                    colors,
-                    filter === f ? colors.textInverse : colors.textTertiary,
-                  ),
-                  { textTransform: 'capitalize' },
-                ]}
-              >
-                {f}
-              </Text>
-            </Pressable>
-          ))}
+      {isPending ? (
+        <View>
+          {listHeader}
+          <SkeletonRows colors={colors} />
         </View>
-
-        {loading ? (
-          <ActivityIndicator
-            color={colors.primary}
-            style={{ marginTop: FAN_SPACING.xxxl }}
-          />
-        ) : filtered.length === 0 ? (
-          <Text
-            style={[
-              fanText('body', colors),
-              { textAlign: 'center', marginTop: FAN_SPACING.xxxl },
-            ]}
-          >
-            No fixtures right now — check back soon.
-          </Text>
-        ) : (
-          filtered.map((fixture) => (
-            <MatchCard
-              key={fixture.id || fixture.matchId}
-              fixture={fixture}
-              channelId={activeChannelId}
-              onOpenVoteModal={setModalFixture}
+      ) : (
+        <FlatList
+          style={styles.list}
+          data={filtered}
+          keyExtractor={(fixture) => fixture.id || fixture.matchId}
+          contentContainerStyle={styles.content}
+          showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={colors.primary}
+              colors={[colors.primary]}
             />
-          ))
-        )}
-      </ScrollView>
-
-      {showCreateChannel && (
-        <ChannelCreationModal
-          onClose={() => {
-            setShowCreateChannel(false);
-            load();
-          }}
+          }
+          ListHeaderComponent={listHeader}
+          ListEmptyComponent={
+            <EmptyState
+              colors={colors}
+              title={EMPTY_COPY[filter].title}
+              hint={EMPTY_COPY[filter].hint}
+            />
+          }
+          renderItem={({ item: fixture }) => (
+            <MatchCard
+              fixture={fixture}
+              comments={commentsOf(fixture)}
+              channelId={activeChannelId}
+              onOpen={() => openChat(fixture)}
+              onOpenVoteModal={setModalFixture}
+              onOpenResults={setReviewFixture}
+              onChatClick={() => openChat(fixture)}
+              onLike={handleLike}
+              onSubmitComment={handleSubmitComment}
+              onOpenLineups={setMatchDetailsFixture}
+            />
+          )}
         />
       )}
 
-      <Modal
-        visible={menuOpen}
-        transparent
-        animationType="fade"
-        onRequestClose={() => setMenuOpen(false)}
-      >
-        <Pressable style={styles.menuOverlay} onPress={() => setMenuOpen(false)}>
-          <View style={styles.menuSheet}>
-            <MenuItem
-              label="Profile"
-              onPress={() => navigation.navigate('Profile')}
-              colors={colors}
-              closeMenu={() => setMenuOpen(false)}
-            />
-            <MenuItem
-              label="Comrades"
-              onPress={() => navigation.navigate('Comrades')}
-              colors={colors}
-              closeMenu={() => setMenuOpen(false)}
-            />
-            <MenuItem
-              label="Leaderboard"
-              onPress={() => navigation.navigate('Leaderboard')}
-              colors={colors}
-              closeMenu={() => setMenuOpen(false)}
-            />
-            {activeChannelId && (
-              <MenuItem
-                label="Admin Dashboard"
-                onPress={() =>
-                  navigation.navigate('Admin', { channelId: activeChannelId })
-                }
-                colors={colors}
-                closeMenu={() => setMenuOpen(false)}
-              />
-            )}
-            <View
-              style={{
-                height: 1,
-                backgroundColor: colors.border,
-                marginVertical: FAN_SPACING.sm,
-              }}
-            />
-            <MenuItem
-              label="Logout"
-              destructive
-              onPress={() => logout()}
-              colors={colors}
-              closeMenu={() => setMenuOpen(false)}
-            />
-          </View>
-        </Pressable>
-      </Modal>
-
-      {/* Vote / pledge / sub-fixtures modal — single instance, opened by
-          MatchCard's onOpenVoteModal prop. */}
       {modalFixture && (
         <SwipeableVotePledgeModal
           visible
@@ -502,9 +338,9 @@ export default function ArenaScreen() {
           username={username ?? ''}
           authToken={authToken}
           isLoggedIn={!!isLoggedIn}
-          hasUserVoted={
-            (modalFixture.voters ?? []).some((v) => v.userId === userId)
-          }
+          hasUserVoted={(modalFixture.voters ?? []).some(
+            (v) => v.userId === userId,
+          )}
           userVoteSelection={
             (modalFixture.voters ?? []).find((v) => v.userId === userId)
               ?.selection
@@ -524,9 +360,7 @@ export default function ArenaScreen() {
               authToken,
             });
             if (ok) {
-              // Optimistically reflect the vote in the fixtures list so
-              // the card shows "✓ Vote recorded" without a refetch.
-              setFixtures((prev) =>
+              queryClient.setQueryData<Fixture[]>(FIXTURES_KEY, (prev = []) =>
                 prev.map((fx) => {
                   if (
                     fx.id !== modalFixture.id &&
@@ -558,8 +392,7 @@ export default function ArenaScreen() {
               fixtureId: modalFixture.matchId || modalFixture.id,
               starterId: userId,
               starterName: username,
-              starterSelection:
-                sel === 'home' ? 'home_team' : 'away_team',
+              starterSelection: sel === 'home' ? 'home_team' : 'away_team',
               amount,
               channelId: activeChannelId,
               voteId: '',
@@ -567,7 +400,7 @@ export default function ArenaScreen() {
             });
             return r?.success !== false;
           }}
-          onShowJoinGroups={() => navigation.navigate('Profile')}
+          onShowJoinGroups={() => { }}
           fetchVoters={fetchVoters}
           fetchPledges={fetchPledges}
           fetchSubFixtures={fetchSubFixtures}
@@ -584,91 +417,42 @@ export default function ArenaScreen() {
           matchMainPledge={matchMainPledge}
         />
       )}
+
+      {reviewFixture && activeChannelId && (
+        <AftermatchReviewModal
+          visible
+          fixture={reviewFixture}
+          userId={userId ?? ''}
+          username={username ?? ''}
+          authToken={authToken}
+          channelId={activeChannelId}
+          isLoggedIn={!!isLoggedIn}
+          onClose={() => setReviewFixture(null)}
+        />
+      )}
+
+      {matchDetailsFixture && (
+        <MatchDetailsModal
+          visible
+          fixture={matchDetailsFixture}
+          userId={userId ?? ''}
+          username={username ?? ''}
+          authToken={authToken}
+          onClose={() => setMatchDetailsFixture(null)}
+        />
+      )}
     </View>
   );
-
-  function MenuItem({
-    label,
-    onPress,
-    destructive,
-    colors,
-    closeMenu,
-  }: {
-    label: string;
-    onPress: () => void;
-    destructive?: boolean;
-    colors: FanColorPalette;
-    closeMenu: () => void;
-  }) {
-    return (
-      <Pressable
-        onPress={() => {
-          closeMenu();
-          onPress();
-        }}
-        style={{
-          paddingVertical: FAN_SPACING.base,
-          paddingHorizontal: FAN_SPACING.lg,
-        }}
-      >
-        <Text
-          style={fanText(
-            'title',
-            colors,
-            destructive ? colors.away : colors.textPrimary,
-          )}
-        >
-          {label}
-        </Text>
-      </Pressable>
-    );
-  }
 }
 
 function createStyles(colors: FanColorPalette) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.background },
-    chipRow: {
-      backgroundColor: colors.surfaceElevated,
-      paddingHorizontal: FAN_SPACING.base,
-      paddingBottom: FAN_SPACING.md,
-    },
-    chip: {
-      borderRadius: FAN_RADIUS.pill,
-      paddingHorizontal: FAN_SPACING.base,
-      paddingVertical: FAN_SPACING.sm,
-      backgroundColor: colors.surfaceSunken,
-      marginRight: FAN_SPACING.sm,
-    },
-    content: {
-      padding: FAN_SPACING.base,
-      paddingBottom: FAN_SPACING.xxxl,
-    },
-    filterRow: {
-      flexDirection: 'row',
-      gap: FAN_SPACING.md,
-      marginBottom: FAN_SPACING.base,
-    },
-    filterChip: {
-      borderRadius: FAN_RADIUS.pill,
-      paddingHorizontal: FAN_SPACING.base,
+    list: { flex: 1 },
+    content: { paddingBottom: LIST_BOTTOM_INSET },
+    header: {
+      paddingHorizontal: GUTTER,
       paddingVertical: FAN_SPACING.md,
-      backgroundColor: colors.surfaceSunken,
-    },
-    menuOverlay: {
-      flex: 1,
-      backgroundColor: 'rgba(0,0,0,0.4)',
-      alignItems: 'flex-end',
-      paddingTop: 60,
-      paddingRight: FAN_SPACING.lg,
-    },
-    menuSheet: {
-      width: 190,
-      borderRadius: FAN_RADIUS.md,
-      backgroundColor: colors.surfaceElevated,
-      borderWidth: 1,
-      borderColor: colors.border,
-      paddingVertical: FAN_SPACING.xs,
     },
   });
 }

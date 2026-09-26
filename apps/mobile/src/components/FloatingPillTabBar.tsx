@@ -1,46 +1,60 @@
-// Custom tab bar replacing React Navigation's default flat bar — the
-// real app renders a floating, pill-shaped nav (semi-transparent dark
-// surface, rounded fully, centered with margin on all sides) where the
-// ACTIVE tab gets a colored pill background behind its icon+label,
-// inactive tabs are bare icon+label. Confirmed from screenshots of the
-// live app's Arena/Feed/Logs tabs — the previous version used React
-// Navigation's default flat, full-width bar with no active-state pill.
+// components/FloatingPillTabBar.tsx
+//
+// Custom floating pill nav — semi-transparent dark surface, rounded
+// fully, centered with margin on all sides. The ACTIVE tab gets a
+// colored pill background behind its icon+label, inactive tabs are
+// bare icon+label.
+//
+// LAYOUT FIX: previously took react-navigation's BottomTabBarProps and
+// called navigation.navigate(). HomeScreen no longer uses
+// Tab.Navigator (see HomeScreen.tsx's header comment for why — it was
+// the prime suspect for tab content rendering only in the bottom half
+// of the screen), so this now takes plain `active`/`onChange` props
+// instead. Visuals are unchanged.
 
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { Shield, Newspaper, History as HistoryIcon } from 'lucide-react-native';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
 import { FAN_SPACING, FAN_RADIUS, FanColorPalette } from '@funspot/core';
 
-const ICONS: Record<string, typeof Shield> = {
+export type TabName = 'Arena' | 'Feed' | 'Logs';
+const TABS: TabName[] = ['Arena', 'Feed', 'Logs'];
+
+const ICONS: Record<TabName, typeof Shield> = {
   Arena: Shield,
   Feed: Newspaper,
   Logs: HistoryIcon,
 };
 
-export function FloatingPillTabBar({ state, navigation }: BottomTabBarProps) {
+export function FloatingPillTabBar({
+  active,
+  onChange,
+}: {
+  active: TabName;
+  onChange: (tab: TabName) => void;
+}) {
   const colors = useFanColors();
   const styles = createStyles(colors);
 
   return (
     <View style={styles.wrap} pointerEvents="box-none">
       <View style={styles.pill}>
-        {state.routes.map((route, index) => {
-          const isActive = state.index === index;
-          const Icon = ICONS[route.name] ?? Shield;
+        {TABS.map((name) => {
+          const isActive = active === name;
+          const Icon = ICONS[name];
 
           return (
             <Pressable
-              key={route.key}
+              key={name}
               onPress={() => {
-                if (!isActive) navigation.navigate(route.name);
+                if (!isActive) onChange(name);
               }}
               style={[styles.item, isActive && styles.itemActive]}
             >
               <Icon size={16} color={isActive ? colors.textInverse : colors.textTertiary} />
               <Text style={fanText('tag', colors, isActive ? colors.textInverse : colors.textTertiary)}>
-                {route.name.toLowerCase()}
+                {name.toLowerCase()}
               </Text>
             </Pressable>
           );
