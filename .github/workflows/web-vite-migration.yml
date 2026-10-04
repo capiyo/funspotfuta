@@ -23,4 +23,4 @@ jobs:
         run: npm run build:web:vite
       - name: Type-check web workspace
         if: always()
-        run: npm run typecheck:web
+        run: npx tsc --noEmit -p apps/web/tsconfig.json
