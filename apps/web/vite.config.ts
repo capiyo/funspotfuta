@@ -8,14 +8,12 @@ const rootDir = path.dirname(fileURLToPath(import.meta.url));
 export default defineConfig({
   plugins: [react()],
   resolve: {
-    alias: {
-      '@': rootDir,
-    },
+    alias: [
+      { find: 'next/navigation', replacement: path.resolve(rootDir, 'src/next-navigation.tsx') },
+      { find: 'next/link', replacement: path.resolve(rootDir, 'src/next-link.tsx') },
+      { find: '@', replacement: rootDir },
+    ],
   },
-  server: {
-    host: '0.0.0.0',
-  },
-  preview: {
-    host: '0.0.0.0',
-  },
+  server: { host: '0.0.0.0' },
+  preview: { host: '0.0.0.0' },
 });
