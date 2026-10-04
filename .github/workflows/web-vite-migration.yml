@@ -22,4 +22,5 @@ jobs:
       - name: Build Vite web app
         run: npm run build:web:vite
       - name: Type-check web workspace
+        if: always()
         run: npm run typecheck:web
