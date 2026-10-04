@@ -1,11 +1,16 @@
 import { useCallback } from 'react';
-import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import {
+  useLocation,
+  useNavigate,
+  useParams as useRouterParams,
+  useSearchParams as useRouterSearchParams,
+} from 'react-router-dom';
 
 export function useRouter() {
   const navigate = useNavigate();
   return {
-    push: useCallback((to: string, options?: { scroll?: boolean }) => navigate(to), [navigate]),
-    replace: useCallback((to: string, options?: { scroll?: boolean }) => navigate(to, { replace: true }), [navigate]),
+    push: useCallback((to: string, _options?: { scroll?: boolean }) => navigate(to), [navigate]),
+    replace: useCallback((to: string, _options?: { scroll?: boolean }) => navigate(to, { replace: true }), [navigate]),
     back: useCallback(() => navigate(-1), [navigate]),
     forward: useCallback(() => navigate(1), [navigate]),
     refresh: useCallback(() => window.location.reload(), []),
@@ -18,18 +23,12 @@ export function usePathname() {
 }
 
 export function useSearchParams() {
-  return useSearchParamsSafe();
-}
-
-function useSearchParamsSafe() {
-  const [params] = useSearchParamsOriginal();
+  const [params] = useRouterSearchParams();
   return params;
 }
 
-import { useSearchParams as useSearchParamsOriginal } from 'react-router-dom';
-
-export function useParamsCompat<T extends Record<string, string | undefined> = Record<string, string | undefined>>() {
-  return useParams() as T;
+export function useParams<T extends Record<string, string | undefined> = Record<string, string | undefined>>() {
+  return useRouterParams() as T;
 }
 
 export function redirect(to: string): never {
