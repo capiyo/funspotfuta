@@ -21,7 +21,7 @@ The migration should be incremental. Preserve the existing mobile app, shared co
 funspot-monorepo/
 ├── apps/
 │   ├── mobile/       Expo + React Native (reference app; preserve)
-│   └── web/          React + Vite target (currently Next.js; migration pending)
+│   └── web/          Next.js today; React + Vite target
 ├── packages/
 │   ├── core/         Shared domain types and API client functions
 │   └── storage/      Shared storage utilities
