@@ -71,7 +71,7 @@ export function ChatRoute() {
                 <option value="">Select a fixture</option>
                 {fixtures.map((item) => {
                   const id = String(item.matchId ?? item.id);
-                  return <option key={id} value={id}>{item.homeTeam ?? item.homeTeamName ?? 'Home'} vs {item.awayTeam ?? item.awayTeamName ?? 'Away'}</option>;
+                  return <option key={id} value={id}>{item.homeTeam ?? 'Home'} vs {item.awayTeam ?? 'Away'}</option>;
                 })}
               </select>
             </label>
