@@ -21,7 +21,7 @@ import {
   getUserChannelsV2,
   getAllChannels,
   joinChannel,
-  Channel,
+  UserChannel,
   getPosts,
   toggleLikePost,
   Post,
