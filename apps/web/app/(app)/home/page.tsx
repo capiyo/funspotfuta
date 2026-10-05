@@ -137,6 +137,14 @@ export default function HomePage() {
         channels={channels}
         activeChannelId={activeChannelId}
         onSelectChannel={setActiveChannelId}
+        browseChannels={browseChannels.map((c) => ({
+          id: c.channelId,
+          name: c.name,
+          isAdmin: c.isAdmin,
+          members: c.members,
+        }))}
+        onJoinChannel={handleJoinChannel}
+        joiningChannelId={joiningChannelId}
         onCreateChannel={() => setShowCreateChannel(true)}
       />
       {/* Desktop: 3 simultaneous columns */}
