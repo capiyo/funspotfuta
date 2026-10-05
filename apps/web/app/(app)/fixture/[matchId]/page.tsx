@@ -12,7 +12,7 @@
 // element. No new dependencies and no data the API doesn't already return.
 
 import { useEffect, useRef, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/lib/auth/auth-context';
 import {
   getAllFixtures,
@@ -62,7 +62,7 @@ function voteOptions(fixture: Fixture): [Selection, string][] {
 
 export default function FixtureDetailPage() {
   const { matchId } = useParams<{ matchId: string }>();
-  const router = useRouter();
+  const navigate = useNavigate();
   const { userId, username, authToken } = useAuth();
   const toast = useToast();
 
@@ -267,7 +267,7 @@ export default function FixtureDetailPage() {
           pick another one.
         </p>
         <button
-          onClick={() => router.back()}
+          onClick={() => navigate(-1)}
           className="rounded-fan-pill bg-fan-primary px-fan-lg py-fan-sm text-fan-tag font-semibold text-fan-textInverse"
         >
           Go back
@@ -295,7 +295,7 @@ export default function FixtureDetailPage() {
       >
         <div className="mx-auto flex max-w-md items-center gap-fan-md px-fan-lg py-fan-sm">
           <button
-            onClick={() => router.back()}
+            onClick={() => navigate(-1)}
             aria-label="Go back"
             className="text-fan-body text-fan-textSecondary"
           >
@@ -316,7 +316,7 @@ export default function FixtureDetailPage() {
         {/* Hero */}
         <div className="mb-fan-md flex items-center justify-between">
           <button
-            onClick={() => router.back()}
+            onClick={() => navigate(-1)}
             aria-label="Go back"
             className="text-fan-body text-fan-textSecondary"
           >
