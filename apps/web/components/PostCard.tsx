@@ -1,9 +1,9 @@
 'use client';
 
 // Feed post card — restyled to match the Arena/Logs cards: avatar header
-// row, NEW + media-type pills, an inline "follow" link, caption, media,
-// and a footer icon row (like / comment / repost / share) instead of the
-// old bare heart-icon-only footer. Same fan-* typography tokens as every
+// row, NEW + media-type pills, caption, media, and a footer icon row
+// (like / comment / repost / share). Follow actions are not part of mobile
+// feed behavior. Same fan-* typography tokens as every
 // other card (text-fan-tag, text-fan-caption, text-fan-body) — no new
 // fonts introduced.
 // remove the local FooterPill definition, add this near the top:
