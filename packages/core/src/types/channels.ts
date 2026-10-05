@@ -171,6 +171,8 @@ export function memberAccuracyLabel(m: ChannelMember): string {
 // ============================================================================
 
 export interface Channel {
+    /** Legacy web compatibility alias for channelId. */
+    id: string;
     channelId: string;
     name: string;
     memberCount: number;
@@ -199,6 +201,7 @@ export function channelFromJson(json: Record<string, any>): Channel {
         const joinedAt = asDateTime(json.joinedAt ?? json.joined_at);
 
         return {
+            id: asString(json.channel_id ?? json.channelId),
             channelId: asString(json.channel_id ?? json.channelId),
             name: asString(json.name ?? json.channelName, 'Unknown Channel'),
             memberCount: asInt(json.member_count ?? json.memberCount),
@@ -235,6 +238,7 @@ export function channelFromJson(json: Record<string, any>): Channel {
 
 export function channelToJson(c: Channel): Record<string, any> {
     return {
+        id: c.channelId,
         channel_id: c.channelId,
         name: c.name,
         member_count: c.memberCount,
