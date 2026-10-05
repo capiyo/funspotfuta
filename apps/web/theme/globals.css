@@ -1,0 +1,128 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Exact values from funspot/lib/pages/fan_Funzy_design.dart's FanColors.
+   Light is the default (:root); dark applies automatically via
+   prefers-color-scheme, matching FanThemeController's OS-driven behavior
+   (no manual toggle in the original app).
+
+   PALETTE UPDATE: brand accents recolored from navy-slate to a green
+   family based on #01FF01. The dark card/home background remains the
+   original 0F1E27 — only bluish UI accents (borders, primary, text
+   tints, glow shadows) were swapped to green. */
+:root {
+  --fan-background: #ffffff;
+  --fan-background-tint: #f5f8fa;
+  --fan-surface: #ffffff;
+  --fan-surface-elevated: #ffffff;
+  --fan-surface-sunken: #edf2f5;
+  --fan-input-surface: #ffffff;
+
+  --fan-border: #ddeade;
+  --fan-border-active: #bfd9c0;
+  --fan-border-focus: #1f551f;
+
+  --fan-primary: #1f551f;
+  --fan-primary-dark: #143e14;
+  --fan-primary-muted: #e3efe3;
+  --fan-primary-dim: #f0f7f0;
+
+  --fan-secondary: #ffd9bd;
+  --fan-secondary-dim: #fff3ea;
+
+  --fan-draw: #c79000;
+  --fan-draw-dim: #fff6e0;
+
+  --fan-away: #d93025;
+  --fan-away-dim: #fdecea;
+  --fan-live: #d93025;
+
+  --fan-text-primary: #162b16;
+  --fan-text-secondary: #557d55;
+  --fan-text-tertiary: #96b096;
+  --fan-text-inverse: #ffffff;
+
+  --fan-score-away: #2b6cb0;
+  --fan-score-dash: #b7c4cc;
+
+  /* Exact FanShadows values (light) — computed from fan_Funzy_design.dart's
+     FanShadows getters. glow/button use primary at fixed alpha since the
+     color itself is theme-dependent. */
+  --fan-shadow-subtle: 0px 2px 8px 0px rgba(20, 48, 36, 0.03);
+  --fan-shadow-card: 0px 4px 16px 0px rgba(20, 48, 36, 0.05);
+  --fan-shadow-elevated: 0px 8px 24px 0px rgba(20, 48, 36, 0.08);
+  --fan-shadow-glow: 0px 0px 16px -4px rgba(31, 85, 31, 0.15);
+  --fan-shadow-button: 0px 4px 12px 0px rgba(31, 85, 31, 0.2);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Dark mode is flat in the original — background/surface/elevated/
+       sunken all resolve to the same value, no tiered card depth.
+       Background stays the original navy-slate 0F1E27 (UNCHANGED). */
+    --fan-background: #0f1e27;
+    --fan-background-tint: #0f1e27;
+    --fan-surface: #0f1e27;
+    --fan-surface-elevated: #0f1e27;
+    --fan-surface-sunken: #0f1e27;
+    --fan-input-surface: #192730;
+
+    --fan-border: #1d421d;
+    --fan-border-active: #2e5e2e;
+    --fan-border-focus: #4fd14f;
+
+    --fan-primary: #4fd14f;
+    --fan-primary-dark: #2e962e;
+    --fan-primary-muted: #163e16;
+    --fan-primary-dim: #103010;
+
+    --fan-secondary: #ff7a29;
+    --fan-secondary-dim: #3a2414;
+
+    --fan-draw: #ffc53d;
+    --fan-draw-dim: #352a0c;
+
+    --fan-away: #ff5a45;
+    --fan-away-dim: #391712;
+    --fan-live: #ff5a45;
+
+    --fan-text-primary: #f2f8f2;
+    --fan-text-secondary: #a9c4a9;
+    --fan-text-tertiary: #6e926e;
+    --fan-text-inverse: #ffffff;
+
+    --fan-score-away: #5fa8ff;
+    --fan-score-dash: #33495a;
+
+    /* Exact FanShadows values (dark) — lower-opacity black shadows,
+       glow/button switch to a colored glow around primary. */
+    --fan-shadow-subtle: 0px 3px 10px 0px rgba(0, 0, 0, 0.2);
+    --fan-shadow-card: 0px 6px 18px 0px rgba(0, 0, 0, 0.25);
+    --fan-shadow-elevated: 0px 10px 28px 0px rgba(0, 0, 0, 0.35);
+    --fan-shadow-glow: 0px 0px 22px -4px rgba(79, 209, 79, 0.33);
+    --fan-shadow-button: 0px 4px 12px 0px rgba(79, 209, 79, 0.33);
+  }
+}
+
+html,
+body {
+  background-color: var(--fan-background);
+  color: var(--fan-text-primary);
+  font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  scrollbar-width: none;
+  /* Firefox */
+  -ms-overflow-style: none;
+  /* IE/Edge legacy */
+}
+
+*::-webkit-scrollbar {
+  display: none;
+  /* Chrome, Safari, Edge (Chromium) */
+  width: 0;
+  height: 0;
+}
+
+.font-condensed {
+  font-family: 'Saira Condensed', ui-sans-serif, system-ui, sans-serif;
+}
