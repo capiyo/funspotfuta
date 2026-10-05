@@ -13,7 +13,7 @@
 // app/(app)/history/page.
 
 import { useCallback, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useNavigate } from 'react-router-dom';
 import {
   Fixture,
   getAllFixtures,
@@ -70,15 +70,6 @@ export default function HomePage() {
   const [activeChannelId, setActiveChannelId] = useState<string | undefined>();
   const [showCreateChannel, setShowCreateChannel] = useState(false);
   const [mobileTab, setMobileTab] = useState<'arena' | 'feed' | 'logs'>('arena');
-  const navbarChannels = channels.map((channel) => ({
-    id: channel.channelId,
-    name: channel.name,
-    isAdmin: channel.isAdmin,
-    members: channel.members.map((member) => ({
-      username: member.username,
-      seasonPoints: member.seasonPoints,
-    })),
-  }));
 
   useEffect(() => {
     if (!userId || !authToken) return;
@@ -91,7 +82,7 @@ export default function HomePage() {
   return (
     <div className="flex h-screen flex-col bg-fan-background">
       <WebNavbar
-        channels={navbarChannels}
+        channels={channels}
         activeChannelId={activeChannelId}
         onSelectChannel={setActiveChannelId}
         onCreateChannel={() => setShowCreateChannel(true)}
@@ -403,7 +394,7 @@ function FeedColumn() {
 // LOGS — unchanged
 // ---------------------------------------------------------------------------
 function LogsColumn() {
-  const router = useRouter();
+  const navigate = useNavigate();
   const [tab, setTab] = useState<'history' | 'live'>('history');
   const [games, setGames] = useState<HistoryGame[]>([]);
   const [liveFixtures, setLiveFixtures] = useState<Fixture[]>([]);
@@ -460,9 +451,9 @@ function LogsColumn() {
               <HistoryCard
                 key={g.id}
                 data={toCardData(g, { canComment: true })}
-                onOpen={() => router.push(`/fixture/${g.id}#chat`)}
-                onOpenResults={() => router.push(`/fixture/${g.id}`)}
-                onOpenChat={() => router.push(`/fixture/${g.id}#chat`)}
+                onOpen={() => navigate(`/fixture/${g.id}#chat`)}
+                onOpenResults={() => navigate(`/fixture/${g.id}`)}
+                onOpenChat={() => navigate(`/fixture/${g.id}#chat`)}
                 onSubmitComment={() => {
                   /* wire to your existing comment mutation */
                 }}
