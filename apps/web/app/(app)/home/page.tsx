@@ -225,9 +225,7 @@ function ArenaColumn({ channelId }: { channelId?: string }) {
             });
             return r?.success !== false;
           }}
-          onShowJoinGroups={() => {
-            /* route to /channels or whatever the join-groups flow is */
-          }}
+          onShowJoinGroups={() => {}}
           fetchVoters={fetchVoters}
           fetchPledges={fetchPledges}
           fetchSubFixtures={fetchSubFixtures}
