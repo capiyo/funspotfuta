@@ -92,7 +92,7 @@ export default function HomePage() {
       return;
     }
     try {
-      const joined = await getUserChannels(userId, authToken);
+      const joined = await getUserChannelsV2(userId, authToken);
       setChannels(joined);
       setActiveChannelId((prev) => prev && joined.some((c) => c.channelId === prev) ? prev : joined[0]?.channelId);
       if (joined.length < 3) {
