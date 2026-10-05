@@ -161,13 +161,6 @@ export function HistoryCard({
                 </p>
             )}
 
-            {/* ── Inline comment field (underline only) ───────────── */}
-            <InlineCommentField
-                enabled={canComment && !isPosting}
-                isPosting={isPosting}
-                onSubmit={(text) => onSubmitComment?.(id, text)}
-            />
-
             {/* ── Footer: 💬 count … Results / Chat ───────────────── */}
             <div className="mt-fan-sm flex items-center">
                 {commentCount > 0 && (
