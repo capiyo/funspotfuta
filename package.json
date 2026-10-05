@@ -15,7 +15,7 @@
   },
   "scripts": {
     "typecheck:core": "npm run typecheck --workspace=@funspot/core",
-    "typecheck:web": "npm run typecheck --workspace=funspot-web 2>/dev/null || cd apps/web && npx tsc --noEmit",
+    "typecheck:web": "npm run typecheck --workspace=funspot-web",
     "dev:web": "npm run dev --workspace=funspot-web",
     "dev:mobile": "npm run start --workspace=funspot",
     "typecheck:mobile": "npm run typecheck --workspace=funspot",
