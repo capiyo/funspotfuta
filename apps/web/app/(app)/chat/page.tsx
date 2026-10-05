@@ -181,7 +181,7 @@ export function ChatModal({ fixture, channelId, onClose }: ChatModalProps) {
             className="flex-1 rounded-fan-md border border-fan-border bg-fan-surface px-fan-base py-fan-xs text-fan-caption text-fan-textPrimary"
           >
             {channels.map((c) => (
-              <option key={c.id} value={c.id}>
+              <option key={c.channelId} value={c.channelId}>
                 {c.name}
               </option>
             ))}
