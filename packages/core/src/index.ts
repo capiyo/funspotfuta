@@ -49,4 +49,5 @@ export { chatMessageFromJson, chatMessageCommentary } from './types/chat-message
 export type { ChatMessage, ReplyData } from './types/chat-message';
 // Resolve legacy duplicate channel/admin exports explicitly.
 export { getUserChannels } from './api/channels-service';
-export { ChannelDetail, getChannelDetail, removeMember } from './api/admin-service';
+export type { ChannelDetail } from './api/admin-service';
+export { getChannelDetail, removeMember } from './api/admin-service';
