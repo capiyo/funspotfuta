@@ -8,13 +8,13 @@
 
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth/auth-context';
-import { getUserChannels, getChannelLeaderboard, getUserComrades, Channel, ComradeWithStats, comradeWithStatsFromChannelMember } from '@funspot/core';
+import { getUserChannels, getChannelLeaderboard, getUserComrades, ComradeWithStats, type ComradeChannel, comradeWithStatsFromChannelMember } from '@funspot/core';
 
 const MEDAL = ['🥇', '🥈', '🥉'];
 
 export default function LeaderboardPage() {
   const { userId, authToken } = useAuth();
-  const [channels, setChannels] = useState<Channel[]>([]);
+  const [channels, setChannels] = useState<ComradeChannel[]>([]);
   const [activeChannelId, setActiveChannelId] = useState<string | null>(null);
   const [rows, setRows] = useState<ComradeWithStats[]>([]);
   const [loading, setLoading] = useState(true);
