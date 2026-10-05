@@ -7,7 +7,7 @@ import { fanText } from '@/theme/use-fan-typography';
 import { FAN_SPACING, FAN_RADIUS, type FanColorPalette } from '@funspot/core';
 import { HomeProvider, useHome } from './home-context';
 import { AppHeader } from './appHeader';
-import { ArenaScreen } from '../ArenaScreen';
+import ArenaScreen from '../ArenaScreen';
 import FeedScreen from '../FeedScreen';
 import HistoryScreen from '../HistoryScreen';
 import { FloatingPillTabBar, type TabName } from '@/components/FloatingPillTabBar';
