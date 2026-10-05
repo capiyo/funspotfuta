@@ -309,7 +309,7 @@ function ChannelDisplay({
             onClick={() => onJoin?.(c.id)}
             disabled={joiningChannelId === c.id}
             className="ml-[3px] text-[12px] font-semibold leading-none text-fan-primary disabled:opacity-50"
-            aria-label={joiningChannelId === c.id ? `Joining undefined` : `Join undefined`}
+            aria-label={joiningChannelId === c.id ? `Joining ${c.name}` : `Join ${c.name}`}
           >
             {joiningChannelId === c.id ? '…' : '+'}
           </button>
