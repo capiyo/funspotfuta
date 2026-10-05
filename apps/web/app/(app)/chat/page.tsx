@@ -72,7 +72,7 @@ export function ChatModal({ fixture, channelId, onClose }: ChatModalProps) {
     if (!userId || !authToken) return;
     getUserChannels(userId, authToken).then((c) => {
       setChannels(c);
-      setActiveChannelId((prev) => prev ?? c[0]?.id ?? '');
+      setActiveChannelId((prev) => prev ?? c[0]?.channelId ?? '');
     });
   }, [userId, authToken]);
 
@@ -181,7 +181,7 @@ export function ChatModal({ fixture, channelId, onClose }: ChatModalProps) {
             className="flex-1 rounded-fan-md border border-fan-border bg-fan-surface px-fan-base py-fan-xs text-fan-caption text-fan-textPrimary"
           >
             {channels.map((c) => (
-              <option key={c.id} value={c.id}>
+              <option key={c.channelId} value={c.channelId}>
                 {c.name}
               </option>
             ))}
@@ -583,7 +583,7 @@ function MessageBubble({
           )}
 
           {hasMedia && message.imageUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
+            // eslint-disable-next-line 
             <img
               src={message.imageUrl}
               alt=""
