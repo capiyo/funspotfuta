@@ -63,10 +63,7 @@ export function hashCode(str: string): number {
 }
 
 // ── Adapter: HistoryGame → HistoryCardData ───────────────────────
-export function toCardData(
-  g: HistoryGame,
-  opts: { canComment: boolean } = { canComment: false },
-): HistoryCardData {
+export function toCardData(g: HistoryGame): HistoryCardData {
   
   const homeScore = g.homeScore ?? 0;
   const awayScore = g.awayScore ?? 0;
@@ -223,7 +220,6 @@ export function toCardData(
     latestComment: latest,
     commentCount:
       (g as unknown as { commentCount?: number }).commentCount ?? 0,
-    canComment: opts.canComment,
   };
 }
 
@@ -281,13 +277,10 @@ export default function HistoryPage() {
           {games.map((g) => (
             <HistoryCard
               key={g.id}
-              data={toCardData(g, { canComment: false })}
+              data={toCardData(g)}
               onOpen={() => openChat(g)}
               onOpenResults={() => openResults(g)}
               onOpenChat={() => openChat(g)}
-              onSubmitComment={() => { // Mobile has no History comment mutation.
-                /* No History comment mutation exists in mobile yet. */
-              }}
             />
           ))}
           {hasMore && (
