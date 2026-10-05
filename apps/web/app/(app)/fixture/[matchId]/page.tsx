@@ -205,34 +205,6 @@ export default function FixtureDetailPage() {
     }
   }
 
-  async function handlePostComment() {
-    if (!fixture || !userId || !username || !comment.trim()) return;
-    setPostingComment(true);
-    const result = await postComment({
-      userId,
-      username,
-      fixtureId: fixture.matchId || fixture.id,
-      comment: comment.trim(),
-      selection: voteSelection ?? '',
-      authToken: authToken ?? undefined,
-    });
-    setPostingComment(false);
-    setCommentStatus(result.message);
-    if (result.success) {
-      setComment('');
-      toast.showSuccess(result.message);
-    } else {
-      toast.showError(result.message);
-    }
-  }
-
-  function onCommentKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === 'Enter' && !postingComment) {
-      e.preventDefault();
-      handlePostComment();
-    }
-  }
-
   // ---------- Loading ----------
   if (loading) {
     return (
