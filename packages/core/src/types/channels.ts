@@ -292,6 +292,7 @@ export function getMember(c: Channel, userId: string): ChannelMember | undefined
 // used in _getChannelName and PendingRequestsModal.
 export function emptyChannel(): Channel {
     return {
+        id: '',
         channelId: '',
         name: 'Unknown',
         memberCount: 0,
