@@ -20,6 +20,11 @@ import { useAuth } from '@/lib/auth/auth-context';
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ?? 'https://clash-api-m5mr.onrender.com/api';
 
+// Mock fan/profile/channel fillers are opt-in and development-only.
+const ENABLE_MOCK_FANS =
+  process.env.NODE_ENV !== 'production' &&
+  process.env.NEXT_PUBLIC_ENABLE_MOCK_FANS === 'true';
+
 // ── Types ──────────────────────────────────────────────────────
 interface ChannelMember {
   userId: string;
@@ -598,19 +603,24 @@ export function WebSidebar() {
   // Load — mirrors _loadAllData / _loadMockData
   useEffect(() => {
     if (!userId) {
-      // Signed out — use mock data
-      setUserData({
-        userId: 'mock_user',
-        username: MOCK_PROFILE.username,
-        phone: MOCK_PROFILE.phone,
-        nickname: MOCK_PROFILE.nickname,
-        clubFan: MOCK_PROFILE.clubFan,
-        countryFan: MOCK_PROFILE.countryFan,
-        numberOfBets: 24,
-        balance: 0,
-      });
-      setChannels(MOCK_CHANNELS);
-      setChannelsAreMock(true);
+      if (ENABLE_MOCK_FANS) {
+        setUserData({
+          userId: 'mock_user',
+          username: MOCK_PROFILE.username,
+          phone: MOCK_PROFILE.phone,
+          nickname: MOCK_PROFILE.nickname,
+          clubFan: MOCK_PROFILE.clubFan,
+          countryFan: MOCK_PROFILE.countryFan,
+          numberOfBets: 24,
+          balance: 0,
+        });
+        setChannels(MOCK_CHANNELS);
+        setChannelsAreMock(true);
+      } else {
+        setUserData(null);
+        setChannels([]);
+        setChannelsAreMock(false);
+      }
       setBalance(0);
       setBalanceLoading(false);
       setLoading(false);
@@ -619,8 +629,7 @@ export function WebSidebar() {
       return;
     }
 
-    // Signed in — fetch real data, fall back to mock channels if the
-    // API returns nothing (or the fetch fails).
+    // Signed in — use real API data. Mock channels are opt-in for local dev only.
     setLoading(true);
     setChannelsLoading(true);
     setBalanceLoading(true);
@@ -630,7 +639,7 @@ export function WebSidebar() {
       fetchUserChannels(userId, authToken),
       fetchBalance(userId, authToken),
     ]).then(([profile, chans, bal]) => {
-      const usingMock = chans.length === 0;
+      const usingMock = ENABLE_MOCK_FANS && chans.length === 0;
       const finalChannels = usingMock ? MOCK_CHANNELS : chans;
 
       if (profile) {
