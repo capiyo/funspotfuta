@@ -70,19 +70,28 @@ export default function HomePage() {
   const [activeChannelId, setActiveChannelId] = useState<string | undefined>();
   const [showCreateChannel, setShowCreateChannel] = useState(false);
   const [mobileTab, setMobileTab] = useState<'arena' | 'feed' | 'logs'>('arena');
+  const navbarChannels = channels.map((channel) => ({
+    id: channel.channelId,
+    name: channel.name,
+    isAdmin: channel.isAdmin,
+    members: channel.members.map((member) => ({
+      username: member.username,
+      seasonPoints: member.seasonPoints,
+    })),
+  }));
 
   useEffect(() => {
     if (!userId || !authToken) return;
     getUserChannels(userId, authToken).then((c) => {
       setChannels(c);
-      setActiveChannelId((prev) => prev ?? c[0]?.id);
+      setActiveChannelId((prev) => prev ?? c[0]?.channelId);
     });
   }, [userId, authToken]);
 
   return (
     <div className="flex h-screen flex-col bg-fan-background">
       <WebNavbar
-        channels={channels}
+        channels={navbarChannels}
         activeChannelId={activeChannelId}
         onSelectChannel={setActiveChannelId}
         onCreateChannel={() => setShowCreateChannel(true)}
