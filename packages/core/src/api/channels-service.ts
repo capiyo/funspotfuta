@@ -1,3 +1,4 @@
+import { API_BASE, authHeaders } from './config';
 import {
   channelFromJson,
   channelMemberFromJson,
@@ -6,6 +7,41 @@ import {
 } from '../types/channels';
 import type { Channel, ChannelMember } from '../types/channels';
 
+function asString(value: any, fallback = ''): string {
+    if (value === null || value === undefined) return fallback;
+    if (typeof value === 'string') return value;
+    if (typeof value === 'object') {
+        if ('$oid' in value) return value['$oid']?.toString() ?? fallback;
+        if ('$date' in value) {
+            const d = value['$date'];
+            if (d && typeof d === 'object' && '$numberLong' in d) {
+                const millis = parseInt(d['$numberLong'], 10);
+                if (!Number.isNaN(millis)) return new Date(millis).toISOString();
+            }
+            return d?.toString() ?? fallback;
+        }
+        return String(value);
+    }
+    return String(value);
+}
+function asInt(value: any, fallback = 0): number {
+    if (value === null || value === undefined) return fallback;
+    if (typeof value === 'number') return Math.trunc(value);
+    if (typeof value === 'string') { const n = parseInt(value, 10); return Number.isNaN(n) ? fallback : n; }
+    if (typeof value === 'object') {
+        if ('$numberInt' in value) { const n = parseInt(value['$numberInt'], 10); return Number.isNaN(n) ? fallback : n; }
+        if ('$numberLong' in value) { const n = parseInt(value['$numberLong'], 10); return Number.isNaN(n) ? fallback : n; }
+    }
+    return fallback;
+}
+function asDateTime(value: any): Date | null {
+    if (value === null || value === undefined) return null;
+    const s = asString(value);
+    if (!s) return null;
+    const d = new Date(s);
+    return Number.isNaN(d.getTime()) ? null : d;
+}
+
 // ============================================================================
 // API CALLS
 // ============================================================================
@@ -13,7 +49,7 @@ import type { Channel, ChannelMember } from '../types/channels';
 // GET /api/channels/user/:userId — channels the user is a member of.
 export async function getUserChannels(userId: string, authToken?: string): Promise<Channel[]> {
     try {
-        const res = await fetch(`${API_BASE_URL}/channels/user/${userId}`, {
+        const res = await fetch(`${API_BASE}/channels/user/${userId}`, {
             headers: { 'Content-Type': 'application/json', ...authHeaders(authToken) },
         });
         if (!res.ok) return [];
@@ -31,7 +67,7 @@ export async function getUserChannels(userId: string, authToken?: string): Promi
 // out already-joined channels is left to the caller.
 export async function getAllChannels(authToken?: string): Promise<Channel[]> {
     try {
-        const res = await fetch(`${API_BASE_URL}/channels/all`, {
+        const res = await fetch(`${API_BASE}/channels/all`, {
             headers: { 'Content-Type': 'application/json', ...authHeaders(authToken) },
         });
         if (!res.ok) return [];
@@ -75,7 +111,7 @@ export async function getChannelDetail(
     authToken?: string,
 ): Promise<ChannelDetail | null> {
     try {
-        const res = await fetch(`${API_BASE_URL}/channels/${channelId}`, {
+        const res = await fetch(`${API_BASE}/channels/${channelId}`, {
             headers: { 'Content-Type': 'application/json', ...authHeaders(authToken) },
         });
         if (!res.ok) return null;
@@ -131,7 +167,7 @@ export async function removeMember(
     authToken: string,
 ): Promise<RemoveMemberResult> {
     try {
-        const res = await fetch(`${API_BASE_URL}/channels/members/remove`, {
+        const res = await fetch(`${API_BASE}/channels/members/remove`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -166,7 +202,7 @@ export async function addChannelMember(
     authToken: string,
 ): Promise<boolean> {
     try {
-        const res = await fetch(`${API_BASE_URL}/channels/members/add`, {
+        const res = await fetch(`${API_BASE}/channels/members/add`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
             body: JSON.stringify({
@@ -199,7 +235,7 @@ export async function requestJoinChannel(
     authToken: string,
 ): Promise<{ success: boolean; message?: string }> {
     try {
-        const res = await fetch(`${API_BASE_URL}/channels/request-join`, {
+        const res = await fetch(`${API_BASE}/channels/request-join`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
             body: JSON.stringify({
@@ -236,7 +272,7 @@ export async function getPendingJoinRequests(
     authToken: string,
 ): Promise<PendingJoinRequest[]> {
     try {
-        const res = await fetch(`${API_BASE_URL}/channels/${channelId}/pending-requests`, {
+        const res = await fetch(`${API_BASE}/channels/${channelId}/pending-requests`, {
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
         });
         if (!res.ok) return [];
@@ -261,7 +297,7 @@ export async function approveJoinRequest(
     authToken: string,
 ): Promise<boolean> {
     try {
-        const res = await fetch(`${API_BASE_URL}/channels/approve-request`, {
+        const res = await fetch(`${API_BASE}/channels/approve-request`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
             body: JSON.stringify({ channel_id: channelId, user_id: userId, username }),
@@ -280,7 +316,7 @@ export async function rejectJoinRequest(
     authToken: string,
 ): Promise<boolean> {
     try {
-        const res = await fetch(`${API_BASE_URL}/channels/reject-request`, {
+        const res = await fetch(`${API_BASE}/channels/reject-request`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
             body: JSON.stringify({ channel_id: channelId, user_id: userId }),
@@ -300,7 +336,7 @@ export async function rejectJoinRequest(
 // pairs, used to gate "already added" badges on comrade cards.
 export async function getComradesInGroups(userId: string, authToken: string): Promise<Set<string>> {
     try {
-        const res = await fetch(`${API_BASE_URL}/channels/comrades-in-groups/${userId}`, {
+        const res = await fetch(`${API_BASE}/channels/comrades-in-groups/${userId}`, {
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${authToken}` },
         });
         if (!res.ok) return new Set();
