@@ -9,7 +9,7 @@
 // This is a modal: it takes `fixture` + `channelId` + `onClose` from the
 // parent (Arena / MatchCard tap), instead of being a /chat route.
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useToast } from '@/lib/toast/toast-context';
 import {
