@@ -8,9 +8,7 @@
 //                    → onOpenResults(fixture)   — completed (aftermatch)
 //   • ♡ likes pill   → onLike() — posts a like to backend
 //   • 💬 comments    → onOpenChat() — same as card body
-//   • Inline text input → onSubmitComment(text) on Enter — posts a
-//                        fixture comment without opening chat
-//   • 3-voter row    → onOpenVoteModal(fixture)
+// //   • 3-voter row    → onOpenVoteModal(fixture)
 //
 // Chat input gating (matches Flutter):
 //   - requires login
@@ -162,7 +160,6 @@ export function MatchCard({
   onOpenVoteModal,
   onOpenResults,
   onLike,
-  onSubmitComment,
 }: {
   fixture: Fixture;
   channelId?: string;
