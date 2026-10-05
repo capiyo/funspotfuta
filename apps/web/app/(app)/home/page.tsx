@@ -14,6 +14,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSearchParams } from 'react-router-dom';
 import {
   Fixture,
   getAllFixtures,
@@ -69,7 +70,16 @@ export default function HomePage() {
   const [channels, setChannels] = useState<Channel[]>([]);
   const [activeChannelId, setActiveChannelId] = useState<string | undefined>();
   const [showCreateChannel, setShowCreateChannel] = useState(false);
-  const [mobileTab, setMobileTab] = useState<'arena' | 'feed' | 'logs'>('arena');
+  const [searchParams] = useSearchParams();
+  const requestedTab = searchParams.get('tab');
+  const initialTab = requestedTab === 'feed' || requestedTab === 'logs' ? requestedTab : 'arena';
+  const [mobileTab, setMobileTab] = useState<'arena' | 'feed' | 'logs'>(initialTab);
+
+  useEffect(() => {
+    if (requestedTab === 'arena' || requestedTab === 'feed' || requestedTab === 'logs') {
+      setMobileTab(requestedTab);
+    }
+  }, [requestedTab]);
 
   useEffect(() => {
     if (!userId || !authToken) return;
