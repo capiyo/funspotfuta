@@ -219,6 +219,7 @@ export function channelFromJson(json: Record<string, any>): Channel {
     } catch (e) {
         console.warn('⚠️ channelFromJson failed, returning safe fallback:', e, json);
         return {
+            id: asString(json.channel_id ?? json.channelId),
             channelId: asString(json.channel_id ?? json.channelId),
             name: 'Unknown Channel',
             memberCount: 0,
