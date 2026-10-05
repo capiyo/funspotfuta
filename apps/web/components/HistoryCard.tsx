@@ -39,8 +39,6 @@ export interface HistoryCardData {
     people?: VoterMini[];
     latestComment?: { username: string; text: string } | null;
     commentCount?: number;
-    canComment?: boolean;
-    isPosting?: boolean;
 }
 
 interface HistoryCardProps {
@@ -48,7 +46,6 @@ interface HistoryCardProps {
     onOpen?: (id: string) => void;
     onOpenResults?: (id: string) => void;
     onOpenChat?: (id: string) => void;
-    onSubmitComment?: (id: string, text: string) => void;
 }
 
 const PICK_COLOR: Record<VoterMini['pickKind'], string> = {
@@ -63,7 +60,6 @@ export function HistoryCard({
     onOpen,
     onOpenResults,
     onOpenChat,
-    onSubmitComment,
 }: HistoryCardProps) {
     const {
         id,
@@ -76,8 +72,6 @@ export function HistoryCard({
         people = [],
         latestComment,
         commentCount = 0,
-        canComment = false,
-        isPosting = false,
     } = data;
 
     const matchup = `${homeTeam} vs ${awayTeam}`;
@@ -257,51 +251,3 @@ function MiniPersonColumn({ person }: { person: VoterMini }) {
     );
 }
 
-// ─────────────────────────────────────────────────────────────
-// InlineCommentField — underline-only input, mirrors _SpeechBubbleInput
-// ─────────────────────────────────────────────────────────────
-function InlineCommentField({
-    enabled,
-    isPosting,
-    onSubmit,
-}: {
-    enabled: boolean;
-    isPosting: boolean;
-    onSubmit: (text: string) => void;
-}) {
-    return (
-        <div
-            className={`mt-fan-sm pb-[6px] transition-colors ${enabled
-                    ? ''
-                    : ''
-                }`}
-            onClick={(e) => e.stopPropagation()}
-        >
-            <input
-                type="text"
-                disabled={!enabled}
-                placeholder={enabled ? 'Write a comment…' : 'Log in to comment'}
-                className={`w-full bg-transparent text-fan-body outline-none placeholder:text-fan-textTertiary/60 ${enabled
-                        ? 'text-fan-textPrimary'
-                        : 'italic text-fan-textTertiary/60'
-                    }`}
-                onKeyDown={(e) => {
-                    if (e.key === 'Enter') {
-                        const value = (
-                            e.target as HTMLInputElement
-                        ).value.trim();
-                        if (value && enabled && !isPosting) {
-                            onSubmit(value);
-                            (e.target as HTMLInputElement).value = '';
-                        }
-                    }
-                }}
-            />
-            {isPosting && (
-                <div className="mt-[6px] flex justify-center">
-                    <div className="h-3 w-3 animate-spin rounded-full border-[1.5px] border-fan-primary border-t-transparent" />
-                </div>
-            )}
-        </div>
-    );
-}
