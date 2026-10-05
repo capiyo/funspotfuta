@@ -3,8 +3,8 @@
 // Same history-service.ts data layer as before, now rendering through
 // <HistoryCard> (restyled to match the Flutter HistoryPage / "Logs"
 // screenshot: no card container, no dividers, plane-emoji header,
-// centred score, 3-person row, inline comment field, footer links).
-// Adds the History | Live sub-tab — Live reuses getAllFixtures().
+// centred score, 3-person row, and footer links).
+// The web History page follows mobile: no Live tab and no comment mutation.
 //
 // The people row in <HistoryCard> mirrors the Flutter 4-tier fallback:
 //   1. voters
