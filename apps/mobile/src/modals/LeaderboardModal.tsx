@@ -48,7 +48,7 @@ import {
   FAN_SPACING,
   FAN_RADIUS,
   Fixture,
-  Channel,
+  ComradeChannel,
   ComradeWithStats,
   comradeWithStatsFromChannelMember,
   getUserChannels,
@@ -147,7 +147,7 @@ export default function LeaderboardScreen({
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { userId, authToken } = useAuth();
 
-  const [channels, setChannels] = useState<Channel[]>([]);
+  const [channels, setChannels] = useState<ComradeChannel[]>([]);
   const [activeChannelId, setActiveChannelId] = useState<string | null>(
     channelId ?? null,
   );
