@@ -599,7 +599,17 @@ export function WebSidebar() {
   // Load — mirrors _loadAllData / _loadMockData
   useEffect(() => {
     if (!userId) {
-      // Signed out — use mock data
+      if (!ENABLE_MOCK_FANS) {
+        setUserData(null);
+        setChannels([]);
+        setChannelsAreMock(false);
+        setBalance(0);
+        setBalanceLoading(false);
+        setLoading(false);
+        setChannelsLoading(false);
+        return;
+      }
+      // Signed out — development-only mock data
       setUserData({
         userId: 'mock_user',
         username: MOCK_PROFILE.username,
@@ -631,7 +641,7 @@ export function WebSidebar() {
       fetchUserChannels(userId, authToken),
       fetchBalance(userId, authToken),
     ]).then(([profile, chans, bal]) => {
-      const usingMock = chans.length === 0;
+      const usingMock = ENABLE_MOCK_FANS && chans.length === 0;
       const finalChannels = usingMock ? MOCK_CHANNELS : chans;
 
       if (profile) {
