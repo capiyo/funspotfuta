@@ -1,6 +1,6 @@
-# Funspot — Next.js Port
+# Funspot — React Web
 
-This is a **Next.js 14 (App Router, TypeScript, Tailwind)** port of the
+This is a **React + Vite + TypeScript + Tailwind** port of the
 [capiyo/funspot](https://github.com/capiyo/funspot) Flutter app — "a war zone
 for fans: create channels, vote on matches, earn."
 
@@ -35,18 +35,18 @@ notification preferences, and an admin dashboard.
 | `lib/services/toast_helper.dart` | `lib/toast/toast-context.tsx` |
 | REST subset of `lib/services/notification_service.dart` (unread summary, mark-read, preferences — not FCM registration) | `lib/api/notification-service.ts` + `app/(app)/notifications/page.tsx` |
 | `lib/modals/Funzy/leaderboard.dart` (ComradeWithStats + data layer) | `lib/types/leaderboard.ts` + `app/(app)/leaderboard/page.tsx` |
-| Admin-only endpoints from `lib/modals/homepage/admin_dashboard.dart` (channel detail/stats, member removal, payment visibility flag — payout itself reuses `payment-service.ts`) | `lib/api/admin-service.ts` + `app/(app)/admin/[channelId]/page.tsx` |
+| Admin-only endpoints from `lib/modals/homepage/admin_dashboard.dart` (channel detail/stats, member removal, payment visibility flag — payout itself reuses `payment-service.ts`) | `lib/api/admin-service.ts` + `web routes/admin` |
 | `lib/pages/bottom_navigation.dart` | `components/BottomNav.tsx` |
 | `lib/widgets/match_card.dart` | `components/MatchCard.tsx` |
 | `lib/modals/homepage/channel_creation.dart` (simplified) | `components/ChannelCreationModal.tsx` |
-| `lib/screens/home_page.dart` (fixture feed, simplified) | `app/(app)/home/page.tsx` |
-| New: fixture detail page (vote + pledge/bet + prop markets + comments + toasts) | `app/(app)/fixture/[matchId]/page.tsx` |
-| New: live channel chat UI, now with image sending | `app/(app)/chat/page.tsx` |
-| New: trending prop markets UI | `app/(app)/trending/page.tsx` |
+| `lib/screens/home_page.dart` (fixture feed, simplified) | `web routes/home` |
+| New: fixture detail page (vote + pledge/bet + prop markets + comments + toasts) | `web routes/fixture` |
+| New: live channel chat UI, now with image sending | `web routes/chat` |
+| New: trending prop markets UI | `web routes/trending` |
 | New: wallet UI (M-Pesa top-up, transactions) | `components/WalletCard.tsx` (in `/profile`) |
-| New: comrades (friends) UI | `app/(app)/comrades/page.tsx` |
-| New: match history UI | `app/(app)/history/page.tsx` |
-| New: posts feed UI (create/like/paginate) | `app/(app)/feed/page.tsx` |
+| New: comrades (friends) UI | `web routes/comrades` |
+| New: match history UI | `web routes/history` |
+| New: posts feed UI (create/like/paginate) | `web routes/feed` |
 
 All of the above hit the **real production API** — there is no mock data.
 
