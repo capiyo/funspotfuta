@@ -29,37 +29,41 @@ const PAGE_SIZE = 20;
 
 type Tab = 'history' | 'live';
 
-// People shown on history cards come only from backend-provided voters,
-// pledges, or comments. Do not invent fan identities when the backend has none.
-function toCardData(
-  g: HistoryGame,
-  opts: { canComment: boolean } = { canComment: false },
-): HistoryCardData {
-  const raw = g as unknown as {
-    dateIso?: string;
-    lastActivity?: string;
-    voters?: Array<{ id: string; name: string; selection: string }>;
-    pledges?: Array<{ userId?: string; userName?: string; selection?: string }>;
-    comments?: Array<{ id?: string; userId?: string; username?: string; selection?: string }>;
-    latestComment?: { username: string; text: string } | null;
-    unread?: boolean;
-    commentCount?: number;
-  };
-  const pickKind = (selection?: string): 'home' | 'away' | 'draw' =>
-    selection === 'home_team' || selection === 'home' ? 'home' :
-    selection === 'away_team' || selection === 'away' ? 'away' : 'draw';
-  const label = (kind: 'home' | 'away' | 'draw') => kind === 'home' ? g.homeTeam : kind === 'away' ? g.awayTeam : 'Draw';
+// Backend-provided people are preferred. When the history API fails or returns
+// no usable people data, retain the existing deterministic mock presentation as
+// a visual fallback; never send these mock identities back to the backend.
+const SAMPLE_USERNAMES = [
+  '⚽ GoalMachine', '🔥 FireStriker', '🛡️ DefenseWall', '🎯 Sniper',
+  '💪 PowerShot', '✨ MagicFeet', '🏃 SpeedDemon', '🧠 TacticalGenius',
+  '🌟 StarPlayer', '🎭 FalseNine', '⚡ LightningBolt', '🎨 Playmaker',
+  '🔒 CleanSheet', '🎪 CircusSave', '🏆 ChampionMind', '📊 AnalystPro',
+];
+function seededRandom(seed: number) { let s = (seed >>> 0) || 1; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 0xffffffff; }; }
+function hashCode(str: string) { let h = 0; for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) | 0; return h; }
+function fallbackPeople(g: HistoryGame, people: VoterMini[]): VoterMini[] {
+  if (people.length >= 3) return people;
+  const rand = seededRandom(hashCode(g.id));
+  const picks: Array<'home' | 'away' | 'draw'> = ['home', 'away', 'draw'];
+  const result = [...people];
+  while (result.length < 3) {
+    const kind = picks[Math.floor(rand() * picks.length)];
+    result.push({ id: `mock-${g.id}-${result.length}`, name: SAMPLE_USERNAMES[Math.floor(rand() * SAMPLE_USERNAMES.length)], role: 'fan', pick: kind === 'home' ? g.homeTeam : kind === 'away' ? g.awayTeam : 'Draw', pickKind: kind });
+  }
+  return result;
+}
+
+function toCardData(g: HistoryGame, opts: { canComment: boolean } = { canComment: false }): HistoryCardData {
+  const raw = g as unknown as { dateIso?: string; lastActivity?: string; voters?: Array<{ id: string; name: string; selection: string }>; pledges?: Array<{ userId?: string; userName?: string; selection?: string }>; comments?: Array<{ id?: string; userId?: string; username?: string; selection?: string }>; latestComment?: { username: string; text: string } | null; unread?: boolean; commentCount?: number };
+  const pickKind = (s?: string): 'home' | 'away' | 'draw' => s === 'home_team' || s === 'home' ? 'home' : s === 'away_team' || s === 'away' ? 'away' : 'draw';
+  const label = (k: 'home' | 'away' | 'draw') => k === 'home' ? g.homeTeam : k === 'away' ? g.awayTeam : 'Draw';
   const people: VoterMini[] = [];
   for (const v of (raw.voters ?? []).slice(0, 3)) people.push({ id: v.id, name: v.name, role: 'voted', pick: label(pickKind(v.selection)), pickKind: pickKind(v.selection) });
   if (!people.length) for (const p of (raw.pledges ?? []).slice(0, 3)) people.push({ id: p.userId ?? `pledge-${people.length}`, name: p.userName ?? 'Fan', role: 'pledged', pick: label(pickKind(p.selection)), pickKind: pickKind(p.selection) });
-  if (!people.length) for (const c of (raw.comments ?? []).slice(0, 3)) people.push({ id: c.id ?? c.userId ?? `comment-${people.length}`, name: c.username ?? 'Anonymous', role: 'commented', pick: label(pickKind(c.selection)), pickKind: pickKind(c.selection) });
-  const rawDate = raw.dateIso ?? raw.lastActivity;
-  const then = rawDate ? new Date(rawDate).getTime() : NaN;
-  const mins = Number.isNaN(then) ? NaN : Math.floor((Date.now() - then) / 60000);
+  if (!people.length) for (const cm of (raw.comments ?? []).slice(0, 3)) people.push({ id: cm.id ?? cm.userId ?? `comment-${people.length}`, name: cm.username ?? 'Anonymous', role: 'commented', pick: label(pickKind(cm.selection)), pickKind: pickKind(cm.selection) });
+  const rawDate = raw.dateIso ?? raw.lastActivity; const then = rawDate ? new Date(rawDate).getTime() : NaN; const mins = Number.isNaN(then) ? NaN : Math.floor((Date.now() - then) / 60000);
   const timeAgo = Number.isNaN(mins) ? '—' : mins < 1 ? 'now' : mins < 60 ? `${mins}m` : mins < 1440 ? `${Math.floor(mins / 60)}h` : mins < 10080 ? (Math.floor(mins / 1440) === 1 ? 'Yesterday' : `${Math.floor(mins / 1440)}d`) : new Date(then).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-  return { id: g.id, homeTeam: g.homeTeam, awayTeam: g.awayTeam, homeScore: g.homeScore ?? 0, awayScore: g.awayScore ?? 0, timeAgo, unread: raw.unread, people, latestComment: raw.latestComment ?? null, commentCount: raw.commentCount ?? 0, canComment: opts.canComment };
+  return { id: g.id, homeTeam: g.homeTeam, awayTeam: g.awayTeam, homeScore: g.homeScore ?? 0, awayScore: g.awayScore ?? 0, timeAgo, unread: raw.unread, people: fallbackPeople(g, people), latestComment: raw.latestComment ?? null, commentCount: raw.commentCount ?? 0, canComment: opts.canComment };
 }
-
 export default function HistoryPage() {
   const router = useRouter();
   const [tab, setTab] = useState<Tab>('history');
