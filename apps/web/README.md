@@ -1,12 +1,12 @@
-# FunspotFuta Web
+# FunspotFuta Web — React
 
-The web application is the React/Next.js implementation of FunspotFuta.
+The web application is the React/React implementation of FunspotFuta.
 
 It lives at `apps/web` in the monorepo and shares platform-independent API and domain logic with the mobile app through `@funspot/core`.
 
 ## Stack
 
-- Next.js 14 App Router
+- React 14 App Router
 - React
 - TypeScript
 - Tailwind CSS
@@ -35,7 +35,7 @@ The mobile app remains the behavioral reference for parity. During the final mon
 
 ```
 apps/web/
-├── app/                    # Next.js routes and layouts
+├── app/                    # React routes and layouts
 ├── components/             # Reusable web UI
 ├── lib/
 │   ├── api/                # Web API hooks/services
@@ -43,7 +43,7 @@ apps/web/
 │   ├── theme/              # Web theme helpers
 │   └── ...                 # Other web-only utilities
 ├── public/
-├── next.config.mjs
+├── vite.config.ts
 ├── package.json
 └── tsconfig.json
 ```
