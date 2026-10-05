@@ -13,7 +13,7 @@ import { useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useToast } from '@/lib/toast/toast-context';
 import {
-  getUserChannels,
+  getUserChannelsV2,
   castVote,
   createBetWithVoteId,
   Channel,
