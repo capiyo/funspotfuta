@@ -145,7 +145,7 @@ export function ChatModal({ fixture, channelId, onClose }: ChatModalProps) {
     await send(text, '', { replyTo: replyPayload });
   }
 
-  async function handleImagePick(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleImagePick(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     e.target.value = '';
     if (!file) return;
