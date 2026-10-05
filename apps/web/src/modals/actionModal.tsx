@@ -24,7 +24,7 @@ import {
 } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Fixture, Voter, Bet } from '@funspot/core';
-import { FooterPill } from './FooterPill';
+import { FooterPill } from '@/components/FooterPill';
 
 // ── Types (mirror the Dart models) ──────────────────────────────
 type Selection = 'home' | 'away';
