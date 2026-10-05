@@ -400,7 +400,20 @@ function FeedColumn() {
           : p,
       ),
     );
-    await toggleLikePost(post.id, userId, username);
+    try {
+      const result = await toggleLikePost(post.id, userId, username);
+      if (result.success && result.likesCount != null) {
+        setPosts((prev) => prev.map((p) => (p.id === post.id ? { ...p, likesCount: result.likesCount! } : p)));
+      }
+    } catch {
+      // Match mobile: restore authoritative backend state after an optimistic failure.
+      try {
+        const fresh = await getPosts({ page: 1, limit: 15 });
+        setPosts(fresh.posts);
+      } catch {
+        // Keep the optimistic state if recovery also fails.
+      }
+    }
   }
 
   return (
