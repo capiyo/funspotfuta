@@ -58,6 +58,7 @@ export function ChatModal({ fixture, channelId, onClose }: ChatModalProps) {
   const [showAttachMenu, setShowAttachMenu] = useState(false);
   const [voteModalOpen, setVoteModalOpen] = useState(false);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [showVoters, setShowVoters] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -102,8 +103,7 @@ export function ChatModal({ fixture, channelId, onClose }: ChatModalProps) {
 
   // ── Vote gate (upcoming/soon only) ───────────────────────────
   const requiresVote =
-    (fixture.status === 'upcoming' || fixture.status === 'soon') &&
-    fixture.availableForVoting;
+    (fixture.status === 'upcoming' || fixture.status === 'soon') && !!fixtureId;
 
   const hasVoted = useMemo(() => {
     if (!userId) return false;
@@ -196,6 +196,22 @@ export function ChatModal({ fixture, channelId, onClose }: ChatModalProps) {
 
         {/* Carousel header */}
         <CarouselHeader fixture={fixture} onOpenVote={openVoteOrReview} />
+
+        {/* Vote stats / quick-vote strip — mirrors mobile */}
+        <VoteStrip
+          fixture={fixture}
+          userId={userId}
+          onQuickVote={async (selection) => {
+            if (!activeChannelId || !userId || !authToken || hasVoted) return;
+            try {
+              await castVote({ channelId: activeChannelId, fixtureId, userId, selection, authToken });
+            } catch {
+              toast.showError('Failed to cast vote');
+            }
+          }}
+          onPressTotals={() => setShowVoters((v) => !v)}
+        />
+        {showVoters && <VotersPanel fixtureId={fixtureId} userId={userId} />}
 
         {/* Messages */}
         <div
@@ -630,3 +646,36 @@ function timeAgo(date: Date): string {
     day: 'numeric',
   });
 }
+function VoteStrip({
+  fixture, userId, onQuickVote, onPressTotals,
+}: {
+  fixture: Fixture;
+  userId: string | null;
+  onQuickVote: (selection: 'home_team' | 'away_team' | 'draw') => void;
+  onPressTotals: () => void;
+}) {
+  const voters = fixture.voters ?? [];
+  const home = voters.filter((v) => v.selection === 'home_team').length;
+  const draw = voters.filter((v) => v.selection === 'draw').length;
+  const away = voters.filter((v) => v.selection === 'away_team').length;
+  const total = home + draw + away;
+  if (!total) return <div className="mx-fan-sm mb-fan-xs flex gap-fan-xs rounded-fan-md bg-fan-surface p-fan-xs">
+    {([['home_team', fixture.homeTeam], ['draw', 'Draw'], ['away_team', fixture.awayTeam]] as const).map(([sel,label]) => <button key={sel} disabled={voters.some(v => v.userId === userId)} onClick={() => onQuickVote(sel)} className="flex-1 truncate rounded-fan-pill bg-fan-surfaceSunken px-fan-sm py-fan-xs text-fan-tag text-fan-textSecondary">{label}</button>)}
+  </div>;
+  return <button onClick={onPressTotals} className="mx-fan-sm mb-fan-xs flex h-10 w-[calc(100%-1rem)] gap-1 rounded-fan-md bg-fan-surface p-fan-xs">
+    <span style={{flex: Math.max(home,.001)}} className="rounded-fan-pill bg-fan-primary" />
+    <span style={{flex: Math.max(draw,.001)}} className="rounded-fan-pill bg-fan-draw" />
+    <span style={{flex: Math.max(away,.001)}} className="rounded-fan-pill bg-fan-away" />
+    <span className="px-fan-xs text-fan-tag text-fan-textPrimary">{total}</span>
+  </button>;
+}
+
+function VotersPanel({ fixtureId, userId }: { fixtureId: string; userId: string | null }) {
+  const [voters, setVoters] = useState<{userId:string; username:string; selection:string}[]>([]);
+  useEffect(() => { let cancelled=false; fetchVoters(fixtureId).then((v:any) => { if (!cancelled && Array.isArray(v)) setVoters(v); }); return () => { cancelled=true; }; }, [fixtureId]);
+  return <div className="mx-fan-sm mb-fan-xs rounded-fan-md bg-fan-surface p-fan-sm">
+    <div className="mb-fan-xs flex justify-between text-fan-body text-fan-textPrimary"><span>Votes ({voters.length})</span></div>
+    {voters.length === 0 ? <p className="text-fan-caption text-fan-textTertiary">No votes yet</p> : voters.map(v => <div key={v.userId} className="flex justify-between py-1 text-fan-caption"><span className="text-fan-textPrimary">{v.userId === userId ? 'You' : v.username}</span><span className="text-fan-textTertiary">{v.selection}</span></div>)}
+  </div>;
+}
+
