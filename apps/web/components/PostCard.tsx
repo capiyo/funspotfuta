@@ -6,7 +6,6 @@
 // feed behavior. Same fan-* typography tokens as every
 // other card (text-fan-tag, text-fan-caption, text-fan-body) — no new
 // fonts introduced.
-// remove the local FooterPill definition, add this near the top:
 import { FooterPill } from './FooterPill';
 
 
