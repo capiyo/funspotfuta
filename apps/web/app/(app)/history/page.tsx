@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 'use client';
 
 // Same history-service.ts data layer as before, now rendering through
@@ -10,7 +11,7 @@
 //   1. voters
 //   2. pledges
 //   3. comments
-//   4. deterministic mock "fan" fillers (seeded off fixture id)
+//   4. deterministic mock "fan" fillers (development only; never sent to the backend)
 // so the row is never empty — same behaviour as _buildTopThreeForHistoryItem.
 
 import { useEffect, useState } from 'react';
@@ -182,8 +183,8 @@ export function toCardData(g: HistoryGame): HistoryCardData {
     }
   }
 
-  // Tier 4 — top up to 3 with deterministic mocks
-  if (people.length < 3) {
+  // Tier 4 — presentation-only mock fillers, development builds only.
+  if (import.meta.env.DEV && people.length < 3) {
     const rand = seededRandom(hashCode(g.id));
     const picks: Array<'home' | 'away' | 'draw'> = ['home', 'away', 'draw'];
     const needed = 3 - people.length;
