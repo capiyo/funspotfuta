@@ -23,7 +23,7 @@ export default function LeaderboardPage() {
     if (!userId || !authToken) return;
     getUserChannels(userId, authToken).then((c) => {
       setChannels(c);
-      setActiveChannelId((prev) => prev ?? c[0]?.id ?? null);
+      setActiveChannelId((prev) => prev ?? c[0]?.channelId ?? null);
     });
   }, [userId, authToken]);
 
@@ -69,7 +69,7 @@ export default function LeaderboardPage() {
           className="mb-fan-lg w-full rounded-fan-md border border-fan-border bg-fan-surface px-fan-base py-fan-md text-fan-body text-fan-textPrimary"
         >
           {channels.map((c) => (
-            <option key={c.id} value={c.id}>
+            <option key={c.channelId} value={c.channelId}>
               {c.name}
             </option>
           ))}
