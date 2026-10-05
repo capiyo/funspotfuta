@@ -2,17 +2,17 @@ import { BrowserRouter, Navigate, Route, Routes, useNavigate } from 'react-route
 import { AuthProvider, useAuth } from '@/lib/auth/auth-context';
 import { ToastProvider } from '@/lib/toast/toast-context';
 import { QueryProvider } from './QueryProvider';
-import LoginScreen from '@/screens/LoginScreen';
-import HomeScreen from '@/screens/home/HomeScreen';
-import FeedScreen from '@/screens/FeedScreen';
-import TrendingScreen from '@/screens/TrendingScreen';
-import FixtureDetailScreen from '@/screens/FixtureDetailScreen';
-import HistoryScreen from '@/screens/HistoryScreen';
-import ProfileModal from '@/modals/profile/ProfileModal';
-import ComradesModal from '@/modals/ComradesModal';
-import LeaderboardModal from '@/modals/LeaderboardModal';
-import NotificationsModal from '@/modals/NotificationsModal';
-import AdminModal from '@/modals/AdminModal';
+import LoginScreen from '@/src/screens/LoginScreen';
+import HomeScreen from '@/src/screens/home/HomeScreen';
+import FeedScreen from '@/src/screens/FeedScreen';
+import TrendingScreen from '@/src/screens/TrendingScreen';
+import FixtureDetailScreen from '@/src/screens/FixtureDetailScreen';
+import HistoryScreen from '@/src/screens/HistoryScreen';
+import ProfileModal from '@/src/modals/profile/ProfileModal';
+import ComradesModal from '@/src/modals/ComradesModal';
+import LeaderboardModal from '@/src/modals/LeaderboardModal';
+import NotificationsModal from '@/src/modals/NotificationsModal';
+import AdminModal from '@/src/modals/AdminModal';
 
 const Loading=()=> <div className="flex min-h-screen items-center justify-center bg-fan-background"><div className="h-10 w-10 animate-spin rounded-full border-2 border-fan-primary border-t-transparent"/></div>;
 function LoginRoute(){const nav=useNavigate();const {isInitialized,isLoggedIn}=useAuth();if(!isInitialized)return <Loading/>;if(isLoggedIn)return <Navigate to="/home" replace/>;return <LoginScreen isOpen onClose={()=>nav('/')} onLoginSuccess={()=>nav('/home',{replace:true})}/>;}
