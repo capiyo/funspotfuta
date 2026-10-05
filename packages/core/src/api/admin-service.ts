@@ -4,6 +4,8 @@
 // and member removal. AppCache (RAM/local caching layer) is not ported —
 // same reasoning as the other local-cache files noted in the README.
 
+import type { ChannelMember } from './channels-service';
+
 const API = 'https://clash-api-m5mr.onrender.com/api';
 
 function headers(authToken?: string): HeadersInit {
@@ -21,12 +23,6 @@ export async function checkPaymentVisibility(authToken?: string): Promise<boolea
     console.error('checkPaymentVisibility failed:', e);
     return true;
   }
-}
-
-export interface ChannelMember {
-  userId: string;
-  username: string;
-  [key: string]: any;
 }
 
 export interface ChannelDetail {
