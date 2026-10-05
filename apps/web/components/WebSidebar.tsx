@@ -18,7 +18,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/auth/auth-context';
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? 'https://clash-api-m5mr.onrender.com/api';
+  import.meta.env.VITE_API_BASE_URL ?? 'https://clash-api-m5mr.onrender.com/api';
 
 // ── Types ──────────────────────────────────────────────────────
 interface ChannelMember {
@@ -75,6 +75,7 @@ function mockMembers(count: number, prefix: string): ChannelMember[] {
   });
 }
 
+const ENABLE_MOCK_FANS = import.meta.env.DEV && import.meta.env.VITE_ENABLE_MOCK_FANS === 'true';
 const MOCK_CHANNELS: Channel[] = [
   { name: 'Premier League', memberCount: 15, season: '3', isAdmin: true, members: mockMembers(15, 'pl') },
   { name: 'World Cup Warriors', memberCount: 15, season: '1', isAdmin: false, members: mockMembers(15, 'wc') },
