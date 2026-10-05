@@ -27,6 +27,43 @@ import { HistoryCard, HistoryCardData, VoterMini } from '../../../components/His
 
 const PAGE_SIZE = 20;
 
+const MOCK_COMMENTORS = [
+  'Kevo', 'Aisha', 'Brian', 'Faith', 'Otieno',
+  'Wanjiru', 'Denis', 'Nadia', 'Mutiso', 'Cheryl',
+];
+const MOCK_COMMENTS = [
+  'What a match that was',
+  'Saw that result coming honestly',
+  'Ref had a shocker today',
+  'That comeback was unreal',
+  'Told you they had this',
+  'Rough one to watch as a fan',
+  'Man of the match no debate',
+  'Deserved the win in the end',
+  'That second half was rough',
+  'Book the final ticket already',
+];
+
+function seededPick<T>(pool: T[], seed: string, n: number): T[] {
+  let h = hashCode(seed) >>> 0 || 1;
+  const used = new Set<number>();
+  const picks: T[] = [];
+  while (picks.length < n && used.size < pool.length) {
+    h = (h * 1103515245 + 12345) >>> 0;
+    let idx = h % pool.length;
+    while (used.has(idx)) idx = (idx + 1) % pool.length;
+    used.add(idx);
+    picks.push(pool[idx]);
+  }
+  return picks;
+}
+
+function mockCommentsFor(gameId: string) {
+  const names = seededPick(MOCK_COMMENTORS, gameId, 2);
+  const lines = seededPick(MOCK_COMMENTS, gameId + '#lines', 2);
+  return names.map((username, i) => ({ username, text: lines[i] }));
+}
+
 type Tab = 'history' | 'live';
 
 // Backend-provided people are preferred. When the history API fails or returns
@@ -62,7 +99,15 @@ function toCardData(g: HistoryGame, opts: { canComment: boolean } = { canComment
   if (!people.length) for (const cm of (raw.comments ?? []).slice(0, 3)) people.push({ id: cm.id ?? cm.userId ?? `comment-${people.length}`, name: cm.username ?? 'Anonymous', role: 'commented', pick: label(pickKind(cm.selection)), pickKind: pickKind(cm.selection) });
   const rawDate = raw.dateIso ?? raw.lastActivity; const then = rawDate ? new Date(rawDate).getTime() : NaN; const mins = Number.isNaN(then) ? NaN : Math.floor((Date.now() - then) / 60000);
   const timeAgo = Number.isNaN(mins) ? '—' : mins < 1 ? 'now' : mins < 60 ? `${mins}m` : mins < 1440 ? `${Math.floor(mins / 60)}h` : mins < 10080 ? (Math.floor(mins / 1440) === 1 ? 'Yesterday' : `${Math.floor(mins / 1440)}d`) : new Date(then).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-  return { id: g.id, homeTeam: g.homeTeam, awayTeam: g.awayTeam, homeScore: g.homeScore ?? 0, awayScore: g.awayScore ?? 0, timeAgo, unread: raw.unread, people: fallbackPeople(g, people), latestComment: raw.latestComment ?? null, commentCount: raw.commentCount ?? 0, canComment: opts.canComment };
+  const realComments = (raw.comments ?? [])
+    .map((comment) => ({
+      username: comment.username ?? 'Fan',
+      text: (comment as { text?: string }).text ?? '',
+    }))
+    .filter((comment) => comment.text);
+  const latestComment = raw.latestComment ?? realComments[0] ?? mockCommentsFor(g.id)[0] ?? null;
+  const commentCount = raw.commentCount ?? (realComments.length || 2);
+  return { id: g.id, homeTeam: g.homeTeam, awayTeam: g.awayTeam, homeScore: g.homeScore ?? 0, awayScore: g.awayScore ?? 0, timeAgo, unread: raw.unread, people: fallbackPeople(g, people), latestComment, commentCount, canComment: opts.canComment };
 }
 export default function HistoryPage() {
   const router = useRouter();
@@ -73,18 +118,24 @@ export default function HistoryPage() {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   // Live tab state
   const [liveFixtures, setLiveFixtures] = useState<Fixture[]>([]);
   const [liveLoading, setLiveLoading] = useState(false);
 
   async function loadPage(skip: number, replace: boolean) {
-    const page = await fetchHistoryGames({
-      limit: PAGE_SIZE,
-      skip,
-    });
-    setHasMore(page.length === PAGE_SIZE);
-    setGames((prev) => (replace ? page : [...prev, ...page]));
+    setLoadError(null);
+    try {
+      const page = await fetchHistoryGames({
+        limit: PAGE_SIZE,
+        skip,
+      });
+      setHasMore(page.length === PAGE_SIZE);
+      setGames((prev) => (replace ? page : [...prev, ...page]));
+    } catch {
+      setLoadError('Could not load history. Your saved fallback presentation is still available when data is present.');
+    }
   }
 
   useEffect(() => {
@@ -154,6 +205,19 @@ export default function HistoryPage() {
           {loading ? (
             <div className="flex justify-center py-16">
               <div className="h-8 w-8 animate-spin rounded-fan-pill border-2 border-fan-primary border-t-transparent" />
+            </div>
+          ) : loadError && games.length === 0 ? (
+            <div className="py-16 text-center">
+              <p className="text-fan-body text-fan-textSecondary">{loadError}</p>
+              <button
+                onClick={() => {
+                  setLoading(true);
+                  loadPage(0, true).finally(() => setLoading(false));
+                }}
+                className="mt-fan-md rounded-fan-pill bg-fan-primary px-fan-lg py-fan-sm text-fan-caption font-semibold text-fan-textInverse"
+              >
+                Retry
+              </button>
             </div>
           ) : games.length === 0 ? (
             <p className="py-16 text-center text-fan-body text-fan-textTertiary">
