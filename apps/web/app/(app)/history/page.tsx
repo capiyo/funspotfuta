@@ -281,7 +281,7 @@ export default function HistoryPage() {
           {games.map((g) => (
             <HistoryCard
               key={g.id}
-              data={toCardData(g, { canComment: true })}
+              data={toCardData(g, { canComment: false })}
               onOpen={() => openChat(g)}
               onOpenResults={() => openResults(g)}
               onOpenChat={() => openChat(g)}
