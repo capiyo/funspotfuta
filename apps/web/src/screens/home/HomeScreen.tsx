@@ -56,12 +56,12 @@ import { HistoryCard } from '@/components/HistoryCard';
 import { WebNavbar } from '@/components/WebNavbar';
 import { WebSidebar } from '@/components/WebSidebar';
 import { MainContentColumns } from '@/components/MainContentColumns';
-import { ChannelCreationModal } from '@/modals/ChannelCreationModal';
+import { ChannelCreationModal } from '@/src/modals/ChannelCreationModal';
 import { FloatingPillTabs } from '@/components/FloatingPillTabs';
 import { createPost } from '@/lib/api/posts-create';
-import { toCardData } from '@/screens/HistoryScreen';
-import { SwipeableVotePledgeModal } from '@/modals/actionModal';
-import { ChatModal } from '@/screens/ChatsScreen';
+import { toCardData } from '@/src/screens/HistoryScreen';
+import { SwipeableVotePledgeModal } from '@/src/modals/actionModal';
+import { ChatModal } from '@/src/screens/ChatsScreen';
 
 // ── Page ────────────────────────────────────────────────────────
 export default function HomePage() {
