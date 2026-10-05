@@ -61,7 +61,7 @@ function voteOptions(fixture: Fixture): [Selection, string][] {
 }
 
 export default function FixtureDetailPage() {
-  const { matchId } = useParams<{ matchId: string }>();
+  const { matchId = '' } = useParams<{ matchId: string }>();
   const navigate = useNavigate();
   const { userId, username, authToken } = useAuth();
   const toast = useToast();
