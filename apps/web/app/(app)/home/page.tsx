@@ -91,15 +91,25 @@ export default function HomePage() {
       setActiveChannelId(undefined);
       return;
     }
-    const joined = await getUserChannels(userId, authToken);
-    setChannels(joined);
-    setActiveChannelId((prev) => prev ?? joined[0]?.channelId);
-    if (joined.length < 3) {
-      const all = await getAllChannels(authToken);
-      const joinedIds = new Set(joined.map((c) => c.channelId));
-      setBrowseChannels(all.filter((c) => !joinedIds.has(c.channelId)));
-    } else {
-      setBrowseChannels([]);
+    try {
+      const joined = await getUserChannels(userId, authToken);
+      setChannels(joined);
+      setActiveChannelId((prev) => prev ?? joined[0]?.channelId);
+      if (joined.length < 3) {
+        try {
+          const all = await getAllChannels(authToken);
+          const joinedIds = new Set(joined.map((c) => c.channelId));
+          setBrowseChannels(all.filter((c) => !joinedIds.has(c.channelId)));
+        } catch (error) {
+          console.error('Failed to load browsable channels', error);
+          // Keep the last known browse list rather than replacing it with fake data.
+        }
+      } else {
+        setBrowseChannels([]);
+      }
+    } catch (error) {
+      console.error('Failed to reload joined channels', error);
+      // Preserve the last known channels, matching mobile home-context behavior.
     }
   }, [userId, authToken]);
 
