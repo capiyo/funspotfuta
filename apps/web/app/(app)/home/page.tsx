@@ -13,7 +13,7 @@
 // app/(app)/history/page.
 
 import { useCallback, useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useNavigate } from 'react-router-dom';
 import {
   Fixture,
   getAllFixtures,
@@ -75,7 +75,7 @@ export default function HomePage() {
     if (!userId || !authToken) return;
     getUserChannels(userId, authToken).then((c) => {
       setChannels(c);
-      setActiveChannelId((prev) => prev ?? c[0]?.id);
+      setActiveChannelId((prev) => prev ?? c[0]?.channelId);
     });
   }, [userId, authToken]);
 
@@ -394,7 +394,7 @@ function FeedColumn() {
 // LOGS — unchanged
 // ---------------------------------------------------------------------------
 function LogsColumn() {
-  const router = useRouter();
+  const navigate = useNavigate();
   const [tab, setTab] = useState<'history' | 'live'>('history');
   const [games, setGames] = useState<HistoryGame[]>([]);
   const [liveFixtures, setLiveFixtures] = useState<Fixture[]>([]);
@@ -451,9 +451,9 @@ function LogsColumn() {
               <HistoryCard
                 key={g.id}
                 data={toCardData(g, { canComment: true })}
-                onOpen={() => router.push(`/fixture/${g.id}#chat`)}
-                onOpenResults={() => router.push(`/fixture/${g.id}`)}
-                onOpenChat={() => router.push(`/fixture/${g.id}#chat`)}
+                onOpen={() => navigate(`/fixture/${g.id}#chat`)}
+                onOpenResults={() => navigate(`/fixture/${g.id}`)}
+                onOpenChat={() => navigate(`/fixture/${g.id}#chat`)}
                 onSubmitComment={() => {
                   /* wire to your existing comment mutation */
                 }}
