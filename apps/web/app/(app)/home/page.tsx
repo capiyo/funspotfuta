@@ -73,7 +73,7 @@ export default function HomePage() {
   const [browseChannels, setBrowseChannels] = useState<Channel[]>([]);
   const [joiningChannelId, setJoiningChannelId] = useState<string | undefined>();
   const [showCreateChannel, setShowCreateChannel] = useState(false);
-  const [searchParams] = useSearchParams();
+  const searchParams = useSearchParams();
   const requestedTab = searchParams.get('tab');
   const initialTab = requestedTab === 'feed' || requestedTab === 'logs' ? requestedTab : 'arena';
   const [mobileTab, setMobileTab] = useState<'arena' | 'feed' | 'logs'>(initialTab);
