@@ -160,9 +160,9 @@ export default function FeedPage() {
                 currentUserId={userId}
                 isNew={(post.timestamp ?? 0) > lastViewedAt}
                 onLike={handleLike}
-                onOpenComments={handleOpenComments}
-                onRepost={handleRepost}
-                onShare={handleShare}
+                onOpenComments={() => {}}
+                onRepost={() => {}}
+                onShare={() => {}}
               />
             ))}
           </div>
