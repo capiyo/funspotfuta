@@ -23,7 +23,7 @@ import {
     useState,
     ReactNode,
 } from 'react';
-import { Channel, getUserChannels, getAllChannels, joinChannel as joinChannelApi } from '@funspot/core/src/api/channels-service';
+import { getUserChannels, getAllChannels, joinChannel as joinChannelApi, type Channel } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
 
 export const MAX_CHANNELS = 3;
