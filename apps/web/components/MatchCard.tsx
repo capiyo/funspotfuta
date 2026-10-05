@@ -177,16 +177,13 @@ export function MatchCard({
   onOpenResults?: (fixture: Fixture) => void;
   onLike?: (fixture: Fixture) => void;
 }) {
-  const { userId, isLoggedIn } = useAuth();
+  const { userId } = useAuth();
 
   const badge = formatDate(fixture.date);
   const isLive = badge === 'LIVE';
   const isCompleted =
     fixture.status === 'completed' || fixture.status === 'finished';
-  const requiresVote =
-    fixture.status === 'upcoming' || fixture.status === 'soon';
   const hasVoted = fixture.voters.some((v) => v.userId === userId);
-
 
   function stop(e: React.MouseEvent) {
     e.stopPropagation();
