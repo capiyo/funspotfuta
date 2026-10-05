@@ -19,6 +19,8 @@ import {
   Fixture,
   getAllFixtures,
   getUserChannels,
+  getAllChannels,
+  joinChannel,
   Channel,
   getPosts,
   toggleLikePost,
@@ -68,6 +70,8 @@ export default function HomePage() {
   const { userId, authToken } = useAuth();
   const [channels, setChannels] = useState<Channel[]>([]);
   const [activeChannelId, setActiveChannelId] = useState<string | undefined>();
+  const [browseChannels, setBrowseChannels] = useState<Channel[]>([]);
+  const [joiningChannelId, setJoiningChannelId] = useState<string | undefined>();
   const [showCreateChannel, setShowCreateChannel] = useState(false);
   const [searchParams] = useSearchParams();
   const requestedTab = searchParams.get('tab');
@@ -80,13 +84,42 @@ export default function HomePage() {
     }
   }, [requestedTab]);
 
-  useEffect(() => {
-    if (!userId || !authToken) return;
-    getUserChannels(userId, authToken).then((c) => {
-      setChannels(c);
-      setActiveChannelId((prev) => prev ?? c[0]?.id);
-    });
+  const reloadChannels = useCallback(async () => {
+    if (!userId || !authToken) {
+      setChannels([]);
+      setBrowseChannels([]);
+      setActiveChannelId(undefined);
+      return;
+    }
+    const joined = await getUserChannels(userId, authToken);
+    setChannels(joined);
+    setActiveChannelId((prev) => prev ?? joined[0]?.channelId);
+    if (joined.length < 3) {
+      const all = await getAllChannels(authToken);
+      const joinedIds = new Set(joined.map((c) => c.channelId));
+      setBrowseChannels(all.filter((c) => !joinedIds.has(c.channelId)));
+    } else {
+      setBrowseChannels([]);
+    }
   }, [userId, authToken]);
+
+  useEffect(() => {
+    void reloadChannels();
+  }, [reloadChannels]);
+
+  async function handleJoinChannel(channelId: string) {
+    if (!userId || !username || !authToken || joiningChannelId) return;
+    setJoiningChannelId(channelId);
+    try {
+      const ok = await joinChannel(channelId, { userId, username }, authToken);
+      if (ok) {
+        setActiveChannelId(channelId);
+        await reloadChannels();
+      }
+    } finally {
+      setJoiningChannelId(undefined);
+    }
+  }
 
   return (
     <div className="flex h-screen flex-col bg-fan-background">
@@ -118,8 +151,7 @@ export default function HomePage() {
         <ChannelCreationModal
           onClose={() => {
             setShowCreateChannel(false);
-            if (userId && authToken)
-              getUserChannels(userId, authToken).then(setChannels);
+            void reloadChannels();
           }}
         />
       )}
