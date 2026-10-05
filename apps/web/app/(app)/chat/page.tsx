@@ -71,10 +71,14 @@ export function ChatModal({ fixture, channelId, onClose }: ChatModalProps) {
   // ── Channels (for the picker) ────────────────────────────────
   useEffect(() => {
     if (!userId || !authToken) return;
-    getUserChannels(userId, authToken).then((c) => {
-      setChannels(c);
-      setActiveChannelId((prev) => prev ?? c[0]?.channelId ?? '');
-    });
+    getUserChannels(userId, authToken)
+      .then((c) => {
+        setChannels(c);
+        setActiveChannelId((prev) => prev ?? c[0]?.channelId ?? '');
+      })
+      .catch((error) => {
+        console.error('Failed to load chat channels', error);
+      });
   }, [userId, authToken]);
 
   const fixtureId = fixture.matchId ?? fixture.id;
