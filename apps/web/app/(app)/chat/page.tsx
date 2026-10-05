@@ -16,7 +16,7 @@ import {
   getUserChannelsV2,
   castVote,
   createBetWithVoteId,
-  Channel,
+  UserChannel,
   Fixture,
   ChatMessage,
 } from '@funspot/core';
