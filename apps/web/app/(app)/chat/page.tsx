@@ -583,7 +583,7 @@ function MessageBubble({
           )}
 
           {hasMedia && message.imageUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
+            // eslint-disable-next-line 
             <img
               src={message.imageUrl}
               alt=""
