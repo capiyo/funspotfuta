@@ -165,6 +165,7 @@ function ArenaColumn({ channelId }: { channelId?: string }) {
   const { userId, username, authToken, isLoggedIn } = useAuth();
   const [fixtures, setFixtures] = useState<Fixture[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [modalFixture, setModalFixture] = useState<Fixture | null>(null);
   const [chatFixture, setChatFixture] = useState<Fixture | null>(null);
   const [filter, setFilter] = useState<ArenaFilter>('all');
@@ -181,13 +182,34 @@ function ArenaColumn({ channelId }: { channelId?: string }) {
 
   useEffect(() => {
     setLoading(true);
-    getAllFixtures().then((f) => {
-      setFixtures(f);
-      setLoading(false);
-    });
+    setLoadError(false);
+    getAllFixtures()
+      .then((f) => setFixtures(f))
+      .catch(() => setLoadError(true))
+      .finally(() => setLoading(false));
   }, []);
 
   if (loading) return <Spinner />;
+  if (loadError && fixtures.length === 0) {
+    return (
+      <div className="px-fan-lg py-fan-xxl text-center">
+        <p className="text-fan-body text-fan-textTertiary">Could not load fixtures. Try again.</p>
+        <button
+          onClick={() => {
+            setLoading(true);
+            setLoadError(false);
+            getAllFixtures()
+              .then((f) => setFixtures(f))
+              .catch(() => setLoadError(true))
+              .finally(() => setLoading(false));
+          }}
+          className="mt-fan-md rounded-fan-pill bg-fan-primary px-fan-lg py-fan-sm text-fan-caption font-semibold text-fan-textInverse"
+        >
+          Try again
+        </button>
+      </div>
+    );
+  }
   if (fixtures.length === 0) {
     return (
       <p className="px-fan-lg py-fan-xxl text-center text-fan-body text-fan-textTertiary">
