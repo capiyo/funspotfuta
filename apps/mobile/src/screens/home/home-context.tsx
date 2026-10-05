@@ -1,18 +1,21 @@
-// lib/home/home-context.tsx
+// screens/home/home-context.tsx
 //
-// Shared home state — joined channels (for the tabs/chips), browsable
-// channels (not-yet-joined, shown so the user can join), plus the active
-// channel selection used by Arena/Feed/Logs.
+// Shared home state: joined channels, browsable channels, active channel,
+// active tab, and header visibility driven by scroll direction.
 //
-// Mirrors home_page.dart's two-track channel loading:
-//   - _loadUserChannels / _refreshChannelsInBackground -> reloadChannels()
-//   - _fetchAllChannelsForBrowsing -> reloadBrowsableChannels()
-//   - _maybeFetchAllChannelsForBrowsing -> the effect below that re-runs
-//     browsable-fetch whenever login state or joined-channel count changes
-//   - _joinChannelDirectly -> joinChannel()
+// Lists wire up with one hook:
+//   const { scrollProps, topInset } = useHomeList();
 //
-// Channel identity is `channelId` (matches UserChannel.channelId in
-// user_channel.dart) — there is no separate `id` field.
+// Changes in this version:
+//   - loadingChannels / loadingAllChannels use isLoading (pending AND fetching).
+//     isPending is true forever for a disabled query (guest / not signed in),
+//     which kept skeletons on screen permanently.
+//   - query keys and empty arrays are stable, so callbacks don't re-create on
+//     every render.
+//   - the context value is memoized, so scroll-driven headerVisible changes
+//     don't re-render every consumer needlessly (still re-renders on
+//     headerVisible itself; that's expected).
+//   - startup prefetch lives in QueryProvider (runs right after cache restore).
 
 import {
     createContext,
@@ -20,13 +23,63 @@ import {
     useContext,
     useEffect,
     useMemo,
+    useRef,
     useState,
     ReactNode,
 } from 'react';
-import { Channel, getUserChannels, getAllChannels, joinChannel as joinChannelApi } from '@funspot/core/src/api/channels-service';
+import type { NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+    Channel,
+    getUserChannels,
+    getAllChannels,
+    joinChannel as joinChannelApi,
+} from '@funspot/core/src/api/channels-service';
+import { mobileStorage } from '@funspot/storage';
 import { useAuth } from '@/lib/auth/auth-context';
+import { useHeaderInset } from './header-inset';
+import type { TabName } from '@/components/FloatingPillTabBar';
 
 export const MAX_CHANNELS = 3;
+
+// Minimum accumulated scroll distance (px) before the header reacts.
+const SCROLL_THRESHOLD = 6;
+
+const ACTIVE_CHANNEL_KEY = 'home.activeChannelId';
+const ACTIVE_TAB_KEY = 'home.activeTab';
+
+const NO_CHANNELS: Channel[] = [];
+
+function readStoredActiveChannelId(): string | undefined {
+    return (mobileStorage.getItem(ACTIVE_CHANNEL_KEY) as string | null) ?? undefined;
+}
+
+function writeStoredActiveChannelId(id: string | undefined) {
+    if (id) mobileStorage.setItem(ACTIVE_CHANNEL_KEY, id);
+    else mobileStorage.removeItem(ACTIVE_CHANNEL_KEY);
+}
+
+function readStoredActiveTab(): TabName {
+    const raw = mobileStorage.getItem(ACTIVE_TAB_KEY) as string | null;
+    if (raw === 'Chats' || raw === 'Feed') return raw;
+    return 'Chats';
+}
+
+function writeStoredActiveTab(tab: TabName) {
+    mobileStorage.setItem(ACTIVE_TAB_KEY, tab);
+}
+
+type ScrollEvent = NativeSyntheticEvent<NativeScrollEvent>;
+
+/** Spread onto a FlatList / ScrollView / SectionList. */
+export type HomeScrollProps = {
+    onScroll: (e: ScrollEvent) => void;
+    onScrollBeginDrag: (e: ScrollEvent) => void;
+    onScrollEndDrag: (e: ScrollEvent) => void;
+    onMomentumScrollBegin: (e: ScrollEvent) => void;
+    onMomentumScrollEnd: (e: ScrollEvent) => void;
+    scrollEventThrottle: number;
+};
 
 type HomeCtx = {
     channels: Channel[];
@@ -44,13 +97,33 @@ type HomeCtx = {
     joinChannel: (channel: Channel) => Promise<void>;
 
     reloadChannels: () => Promise<void>;
+
+    /** Currently visible tab; screens may gate queries on it. */
+    activeTab: TabName;
+    /** Switch tabs; synchronously shows the header. */
+    setActiveTab: (tab: TabName) => void;
+
+    headerVisible: boolean;
+    /** Legacy entry point; prefer spreading `scrollProps` onto the list. */
+    reportScroll: (offsetY: number) => void;
+    scrollProps: HomeScrollProps;
+    resetHeaderOnTabChange: () => void;
+};
+
+const noopScrollProps: HomeScrollProps = {
+    onScroll: () => { },
+    onScrollBeginDrag: () => { },
+    onScrollEndDrag: () => { },
+    onMomentumScrollBegin: () => { },
+    onMomentumScrollEnd: () => { },
+    scrollEventThrottle: 16,
 };
 
 const Ctx = createContext<HomeCtx>({
-    channels: [],
+    channels: NO_CHANNELS,
     loadingChannels: false,
     isAdminOfAnyChannel: false,
-    allChannels: [],
+    allChannels: NO_CHANNELS,
     loadingAllChannels: false,
     activeChannel: undefined,
     activeChannelId: undefined,
@@ -58,77 +131,74 @@ const Ctx = createContext<HomeCtx>({
     joiningChannelIds: new Set(),
     joinChannel: async () => { },
     reloadChannels: async () => { },
+    activeTab: 'Chats',
+    setActiveTab: () => { },
+    headerVisible: true,
+    reportScroll: () => { },
+    scrollProps: noopScrollProps,
+    resetHeaderOnTabChange: () => { },
 });
 
 export function HomeProvider({ children }: { children: ReactNode }) {
     const { userId, username, authToken, isLoggedIn } = useAuth();
+    const queryClient = useQueryClient();
 
-    const [channels, setChannels] = useState<Channel[]>([]);
-    const [loadingChannels, setLoadingChannels] = useState(false);
-    const [activeChannelId, setActiveChannelId] = useState<string | undefined>();
-
-    const [allChannels, setAllChannels] = useState<Channel[]>([]);
-    const [loadingAllChannels, setLoadingAllChannels] = useState(false);
-
-    const [joiningChannelIds, setJoiningChannelIds] = useState<Set<string>>(new Set());
+    const channelsKey = useMemo(() => ['channels', userId] as const, [userId]);
+    const browsableKey = useMemo(() => ['channels', 'browsable'] as const, []);
 
     // ── joined channels ──────────────────────────────────────────
-    const reloadChannels = useCallback(async () => {
-        if (!userId || !authToken) {
-            setChannels([]);
-            setActiveChannelId(undefined);
-            return;
-        }
-        setLoadingChannels(true);
-        try {
-            const list = await getUserChannels(userId, authToken);
-            setChannels(list);
-            setActiveChannelId((prev) => prev ?? list[0]?.channelId);
-        } catch (e) {
-            console.error('reloadChannels failed:', e);
-            // keep whatever was already in state rather than wiping it
-        } finally {
-            setLoadingChannels(false);
-        }
-    }, [userId, authToken]);
+    const channelsQuery = useQuery({
+        queryKey: channelsKey,
+        queryFn: () => getUserChannels(userId!, authToken!),
+        enabled: !!userId && !!authToken,
+        staleTime: 5 * 60 * 1000,
+        placeholderData: (prev) => prev,
+    });
 
-    useEffect(() => {
-        void reloadChannels();
-    }, [reloadChannels]);
+    const channels = channelsQuery.data ?? NO_CHANNELS;
 
     // ── browsable channels (not joined yet) ──────────────────────
-    // Mirrors _maybeFetchAllChannelsForBrowsing: fetch while logged out,
-    // or logged in with room left (< MAX_CHANNELS); clear once full.
-    const reloadBrowsableChannels = useCallback(async () => {
-        const needsBrowsing = !isLoggedIn || channels.length < MAX_CHANNELS;
-        if (!needsBrowsing) {
-            setAllChannels([]);
-            setLoadingAllChannels(false);
-            return;
-        }
+    const needsBrowsing = !isLoggedIn || channels.length < MAX_CHANNELS;
 
-        setLoadingAllChannels(true);
-        try {
+    const browsableQuery = useQuery({
+        queryKey: browsableKey,
+        queryFn: async () => {
             const fetched = await getAllChannels(authToken ?? undefined);
             const joinedIds = new Set(channels.map((c) => c.channelId));
-            setAllChannels(fetched.filter((c) => !joinedIds.has(c.channelId)));
-        } catch (e) {
-            console.error('reloadBrowsableChannels failed:', e);
-        } finally {
-            setLoadingAllChannels(false);
-        }
-    }, [isLoggedIn, authToken, channels]);
+            return fetched.filter((c) => !joinedIds.has(c.channelId));
+        },
+        enabled: needsBrowsing,
+        placeholderData: (prev) => prev,
+    });
+
+    const allChannels = needsBrowsing ? browsableQuery.data ?? NO_CHANNELS : NO_CHANNELS;
+
+    // ── active channel (persisted) ───────────────────────────────
+    const [activeChannelId, setActiveChannelIdState] = useState<string | undefined>(
+        () => readStoredActiveChannelId(),
+    );
+
+    const setActiveChannelId = useCallback((id: string) => {
+        setActiveChannelIdState(id);
+        writeStoredActiveChannelId(id);
+    }, []);
 
     useEffect(() => {
-        void reloadBrowsableChannels();
-        // channels.length (not the array identity) is what should
-        // re-trigger this, same as Dart re-checking after join count changes
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isLoggedIn, channels.length]);
+        if (!activeChannelId && channels[0]?.channelId) {
+            setActiveChannelId(channels[0].channelId);
+        }
+    }, [activeChannelId, channels, setActiveChannelId]);
+
+    useEffect(() => {
+        if (!userId && !isLoggedIn) {
+            setActiveChannelIdState(undefined);
+            writeStoredActiveChannelId(undefined);
+        }
+    }, [userId, isLoggedIn]);
 
     // ── join a browsable channel directly ────────────────────────
-    // Mirrors _joinChannelDirectly: direct add (not a request-to-join),
-    // then revalidate both joined and browsable lists.
+    const [joiningChannelIds, setJoiningChannelIds] = useState<Set<string>>(new Set());
+
     const joinChannel = useCallback(
         async (channel: Channel) => {
             if (!isLoggedIn || !userId || !authToken) return;
@@ -137,11 +207,16 @@ export function HomeProvider({ children }: { children: ReactNode }) {
 
             setJoiningChannelIds((prev) => new Set(prev).add(channel.channelId));
             try {
-                await joinChannelApi(channel.channelId, { userId, username: username ?? '' }, authToken);
+                await joinChannelApi(
+                    channel.channelId,
+                    { userId, username: username ?? '' },
+                    authToken,
+                );
                 setActiveChannelId(channel.channelId);
-                await reloadChannels();
-                // reloadBrowsableChannels re-runs automatically via the
-                // channels.length effect above once reloadChannels resolves
+                await Promise.all([
+                    queryClient.invalidateQueries({ queryKey: channelsKey }),
+                    queryClient.invalidateQueries({ queryKey: browsableKey }),
+                ]);
             } catch (e) {
                 console.error('joinChannel failed:', e);
             } finally {
@@ -152,8 +227,23 @@ export function HomeProvider({ children }: { children: ReactNode }) {
                 });
             }
         },
-        [isLoggedIn, userId, username, authToken, channels.length, joiningChannelIds, reloadChannels],
+        [
+            isLoggedIn,
+            userId,
+            username,
+            authToken,
+            channels.length,
+            joiningChannelIds,
+            queryClient,
+            channelsKey,
+            browsableKey,
+            setActiveChannelId,
+        ],
     );
+
+    const reloadChannels = useCallback(async () => {
+        await queryClient.invalidateQueries({ queryKey: channelsKey });
+    }, [queryClient, channelsKey]);
 
     const activeChannel = useMemo(
         () => channels.find((c) => c.channelId === activeChannelId),
@@ -165,25 +255,132 @@ export function HomeProvider({ children }: { children: ReactNode }) {
         [channels],
     );
 
-    return (
-        <Ctx.Provider
-            value={{
-                channels,
-                loadingChannels,
-                isAdminOfAnyChannel,
-                allChannels,
-                loadingAllChannels,
-                activeChannel,
-                activeChannelId,
-                setActiveChannelId,
-                joiningChannelIds,
-                joinChannel,
-                reloadChannels,
-            }}
-        >
-            {children}
-        </Ctx.Provider>
+    // ── header/chip-row visibility, driven by USER scrolling ─────
+    const [headerVisible, setHeaderVisible] = useState(true);
+    const lastScrollY = useRef(0);
+    const dragging = useRef(false);
+    const momentum = useRef(false);
+    const gestureAware = useRef(false);
+
+    const reportScroll = useCallback((offsetY: number) => {
+        if (offsetY <= 0) {
+            setHeaderVisible(true);
+            lastScrollY.current = 0;
+            return;
+        }
+
+        const userDriven = !gestureAware.current || dragging.current || momentum.current;
+        if (!userDriven) {
+            lastScrollY.current = offsetY;
+            return;
+        }
+
+        const diff = offsetY - lastScrollY.current;
+        if (diff > SCROLL_THRESHOLD) {
+            setHeaderVisible(false);
+            lastScrollY.current = offsetY;
+        } else if (diff < -SCROLL_THRESHOLD) {
+            setHeaderVisible(true);
+            lastScrollY.current = offsetY;
+        }
+    }, []);
+
+    const resetHeaderOnTabChange = useCallback(() => {
+        lastScrollY.current = 0;
+        dragging.current = false;
+        momentum.current = false;
+        setHeaderVisible(true);
+    }, []);
+
+    // ── active tab (persisted) ───────────────────────────────────
+    const [activeTab, setActiveTabState] = useState<TabName>(() => readStoredActiveTab());
+
+    const setActiveTab = useCallback((tab: TabName) => {
+        setActiveTabState((prev) => {
+            if (prev === tab) return prev;
+            writeStoredActiveTab(tab);
+            return tab;
+        });
+        resetHeaderOnTabChange();
+    }, [resetHeaderOnTabChange]);
+
+    const scrollProps = useMemo<HomeScrollProps>(
+        () => ({
+            onScroll: (e) => reportScroll(e.nativeEvent.contentOffset.y),
+            onScrollBeginDrag: (e) => {
+                gestureAware.current = true;
+                dragging.current = true;
+                lastScrollY.current = Math.max(0, e.nativeEvent.contentOffset.y);
+            },
+            onScrollEndDrag: () => {
+                dragging.current = false;
+            },
+            onMomentumScrollBegin: () => {
+                momentum.current = true;
+            },
+            onMomentumScrollEnd: () => {
+                momentum.current = false;
+            },
+            scrollEventThrottle: 16,
+        }),
+        [reportScroll],
     );
+
+    const loadingChannels = channelsQuery.isLoading;
+    const loadingAllChannels = browsableQuery.isLoading && needsBrowsing;
+
+    const value = useMemo<HomeCtx>(
+        () => ({
+            channels,
+            loadingChannels,
+            isAdminOfAnyChannel,
+            allChannels,
+            loadingAllChannels,
+            activeChannel,
+            activeChannelId,
+            setActiveChannelId,
+            joiningChannelIds,
+            joinChannel,
+            reloadChannels,
+            activeTab,
+            setActiveTab,
+            headerVisible,
+            reportScroll,
+            scrollProps,
+            resetHeaderOnTabChange,
+        }),
+        [
+            channels,
+            loadingChannels,
+            isAdminOfAnyChannel,
+            allChannels,
+            loadingAllChannels,
+            activeChannel,
+            activeChannelId,
+            setActiveChannelId,
+            joiningChannelIds,
+            joinChannel,
+            reloadChannels,
+            activeTab,
+            setActiveTab,
+            headerVisible,
+            reportScroll,
+            scrollProps,
+            resetHeaderOnTabChange,
+        ],
+    );
+
+    return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 
 export const useHome = () => useContext(Ctx);
+
+/**
+ * One hook for Chats / Feed lists: scroll handlers that drive the header,
+ * plus the top padding (header height) so content starts below the overlay.
+ */
+export function useHomeList() {
+    const { scrollProps } = useHome();
+    const topInset = useHeaderInset();
+    return { scrollProps, topInset };
+}

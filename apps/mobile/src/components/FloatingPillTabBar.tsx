@@ -5,26 +5,24 @@
 // colored pill background behind its icon+label, inactive tabs are
 // bare icon+label.
 //
-// LAYOUT FIX: previously took react-navigation's BottomTabBarProps and
-// called navigation.navigate(). HomeScreen no longer uses
-// Tab.Navigator (see HomeScreen.tsx's header comment for why — it was
-// the prime suspect for tab content rendering only in the bottom half
-// of the screen), so this now takes plain `active`/`onChange` props
-// instead. Visuals are unchanged.
+// TWO TABS: Chats and Feed. Logs (HistoryScreen) has been folded out.
+// Arena has been renamed to Chats since the screen is now channel-first.
+//
+// LAYOUT FIX (unchanged from prior version): HomeScreen doesn't use
+// Tab.Navigator, so this takes plain `active`/`onChange` props.
 
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { Shield, Newspaper, History as HistoryIcon } from 'lucide-react-native';
+import { MessageCircle, Newspaper } from 'lucide-react-native';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
 import { FAN_SPACING, FAN_RADIUS, FanColorPalette } from '@funspot/core';
 
-export type TabName = 'Arena' | 'Feed' | 'Logs';
-const TABS: TabName[] = ['Arena', 'Feed', 'Logs'];
+export type TabName = 'Chats' | 'Feed';
+const TABS: TabName[] = ['Chats', 'Feed'];
 
-const ICONS: Record<TabName, typeof Shield> = {
-  Arena: Shield,
+const ICONS: Record<TabName, typeof MessageCircle> = {
+  Chats: MessageCircle,
   Feed: Newspaper,
-  Logs: HistoryIcon,
 };
 
 export function FloatingPillTabBar({
@@ -79,8 +77,6 @@ function createStyles(colors: FanColorPalette) {
       borderRadius: FAN_RADIUS.pill,
       padding: FAN_SPACING.xs,
       gap: FAN_SPACING.xs,
-      // Android needs elevation for the floating pill to read above
-      // scrolled content; iOS uses the shadow* props.
       elevation: 6,
       shadowColor: '#000',
       shadowOpacity: 0.25,

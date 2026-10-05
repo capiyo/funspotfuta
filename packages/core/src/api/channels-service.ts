@@ -6,6 +6,11 @@
 // Keeps Dart's defensive parsing (individual field coercion, Mongo Extended
 // JSON handling, fallback-on-parse-failure) and its exact field names —
 // notably `channelId`, not `id`.
+//
+// ADDED (for the admin dashboard port):
+//   - ChannelDetail interface (channel + activity stats)
+//   - getChannelDetail(channelId, authToken?)
+//   - removeMember(channelId, targetUserId, removedByUserId, authToken)
 
 const API_BASE_URL = 'https://clash-api-m5mr.onrender.com/api';
 
@@ -330,6 +335,119 @@ export async function getAllChannels(authToken?: string): Promise<Channel[]> {
     } catch (e) {
         console.error('getAllChannels failed:', e);
         return [];
+    }
+}
+
+// ============================================================================
+// CHANNEL DETAIL (admin dashboard)
+// ============================================================================
+//
+// GET /api/channels/:channelId — returns the channel document plus its
+// activity block. The Flutter admin_dashboard_modal.dart reads:
+//   channel['member_count']
+//   channel['activity']['total_messages']
+//   channel['activity']['messages_this_week']
+//   channel['activity']['total_votes']
+//   channel['members']
+// This flattens those into a single object so callers don't have to
+// walk into `activity.*` themselves.
+
+export interface ChannelDetail {
+    channelId: string;
+    name: string;
+    memberCount: number;
+    totalMessages: number;
+    messagesThisWeek: number;
+    totalVotes: number;
+    totalLikes: number;
+    balance: number;
+    members: ChannelMember[];
+}
+
+export async function getChannelDetail(
+    channelId: string,
+    authToken?: string,
+): Promise<ChannelDetail | null> {
+    try {
+        const res = await fetch(`${API_BASE_URL}/channels/${channelId}`, {
+            headers: { 'Content-Type': 'application/json', ...authHeaders(authToken) },
+        });
+        if (!res.ok) return null;
+        const data = await res.json();
+        const channel = data.channel;
+        if (!channel) return null;
+
+        const activity = channel.activity ?? {};
+        const membersData: any[] = Array.isArray(channel.members) ? channel.members : [];
+        const members: ChannelMember[] = membersData
+            .filter((m) => m && typeof m === 'object')
+            .map((m) => channelMemberFromJson(m));
+
+        return {
+            channelId: asString(channel.channel_id ?? channel.channelId ?? channelId),
+            name: asString(channel.name, 'Unknown Channel'),
+            memberCount: asInt(
+                channel.member_count ?? channel.memberCount,
+                members.length,
+            ),
+            totalMessages: asInt(activity.total_messages ?? activity.totalMessages),
+            messagesThisWeek: asInt(
+                activity.messages_this_week ?? activity.messagesThisWeek,
+            ),
+            totalVotes: asInt(activity.total_votes ?? activity.totalVotes),
+            totalLikes: asInt(activity.total_likes ?? activity.totalLikes),
+            balance: Number(channel.balance ?? 0) || 0,
+            members,
+        };
+    } catch (e) {
+        console.error('getChannelDetail failed:', e);
+        return null;
+    }
+}
+
+// ============================================================================
+// REMOVE MEMBER (admin)
+// ============================================================================
+//
+// POST /api/channels/members/remove — matches _removeMember in
+// admin_dashboard_modal.dart. Admin-only endpoint; the backend deducts
+// 30 points from the target as an anti-hopping measure.
+
+export interface RemoveMemberResult {
+    success: boolean;
+    message?: string;
+}
+
+export async function removeMember(
+    channelId: string,
+    targetUserId: string,
+    removedByUserId: string,
+    authToken: string,
+): Promise<RemoveMemberResult> {
+    try {
+        const res = await fetch(`${API_BASE_URL}/channels/members/remove`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${authToken}`,
+            },
+            body: JSON.stringify({
+                channel_id: channelId,
+                user_id: targetUserId,
+                removed_by: removedByUserId,
+            }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+            return {
+                success: false,
+                message: data?.message ?? `Failed to remove member (${res.status})`,
+            };
+        }
+        return { success: true, message: data?.message };
+    } catch (e: any) {
+        console.error('removeMember failed:', e);
+        return { success: false, message: e?.message ?? 'Network error' };
     }
 }
 

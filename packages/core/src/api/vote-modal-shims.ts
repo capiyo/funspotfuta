@@ -1,154 +1,415 @@
-// apps/web/lib/api/vote-modal-shims.ts
-// Extracted from app/(app)/home/page.tsx so ChatPage (and anything else
-// that opens SwipeableVotePledgeModal) can reuse the same fetchers.
-import { API_BASE as API_BASE_URL } from './config';
+// packages/core/src/api/vote-modal-shims.ts
+//
+// Rewritten against the Flutter app (fixture_page.dart / payment_service.dart),
+// which is the source of truth for endpoints and payloads.
+//
+// What was wrong with the previous version:
+//   - fetchBalance called /payment/balance/:id (does not exist). Flutter reads
+//     GET /auth/user/id/:id -> user.balance. Every failure became 0.
+//   - topUp / withdraw hit /payment/stk-push and /payment/b2c with no user id,
+//     no auth header, and no waiting for the STK result. They are now thin
+//     wrappers over payment-service.ts (initiateSTKPush / initiateB2CPayment).
+//   - getSavedPhone / savePhone / getUserPhone were stubs returning ''. An empty
+//     phone made the dialog's submit return silently, which is why "add money"
+//     and "withdraw" appeared to do nothing.
+//   - fetchPledges read p.user_id / p.amount / p.bet_id; the API returns
+//     starter_id / starter_amount / _id, so every pledge showed zero and no
+//     pledge was ever "yours".
+//   - fetchBets returned raw snake_case rows; the modal reads camelCase.
+//   - Sub-fixture pledge and match calls used paths that differ from
+//     sub-fixture-service.ts. They now reuse that file.
+//   - No call sent the auth token. Every call here does.
+//   - Failures are THROWN (not turned into [] / 0) so the modal can show why.
+//
+// All user-scoped functions take userId / authToken explicitly. ArenaScreen
+// binds them (see modalApi there).
+
+import { bettorFromOpenBet } from '../types/fixture';
+import { initiateSTKPush, initiateB2CPayment } from './payment-service';
+import {
+  getMarketBets,
+  placeSubFixtureBet,
+  fillSubFixtureBet,
+} from './sub-fixture-service';
+
+export const API_BASE_URL = 'https://clash-api-m5mr.onrender.com/api';
+
+type Token = string | null | undefined;
+
+// ── Local types (mirror the modal's prop types) ─────────────────────
+
+export interface SubFixtureMarket {
+  id: string;
+  matchId: string;
+  marketType: string;
+  options: string[];
+  line?: number;
+  status: string;
+  lockAt?: string;
+  pledgeCounts: Record<string, number>;
+  pledgeTotals: Record<string, number>;
+  result?: string;
+  isVisible: boolean;
+}
+
+export interface SubFixturePledge {
+  id: string;
+  userId: string;
+  userName: string;
+  selection: string;
+  amount: number;
+  status: string;
+  selectionColor?: string;
+}
+
+export interface Bettor {
+  betId: string;
+  userId: string;
+  userName: string;
+  selection: string;
+  selectionDisplay: string;
+  amount: number;
+  isOpen: boolean;
+}
+
+export type PayResult = {
+  success: boolean;
+  newBalance?: number;
+  error?: string;
+  message?: string;
+};
+
+// ── Helpers ─────────────────────────────────────────────────────────
+
+function authHeader(authToken?: Token): Record<string, string> {
+  return authToken ? { Authorization: `Bearer ${authToken}` } : {};
+}
+
+function jsonHeaders(authToken?: Token): Record<string, string> {
+  return {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+    ...authHeader(authToken),
+  };
+}
+
+// Render free instances cold-start slowly; a short timeout turns that into a
+// fake "0 balance" / failed action.
+async function fetchT(url: string, init: RequestInit = {}, ms = 45_000): Promise<Response> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), ms);
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } catch (e: any) {
+    if (e?.name === 'AbortError') {
+      throw new Error('Request timed out. The server may be waking up, try again.');
+    }
+    throw new Error(`Network error: ${e?.message ?? e}`);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/** GET json. 404 -> null (treated as "nothing there yet"); other failures throw. */
+async function getJson(url: string, authToken?: Token, ms?: number): Promise<any | null> {
+  const res = await fetchT(url, { headers: jsonHeaders(authToken) }, ms);
+  if (res.status === 404) return null;
+  if (res.status === 401 || res.status === 403) {
+    throw new Error('Session expired, please sign in again');
+  }
+  if (!res.ok) throw new Error(`Server error: ${res.status}`);
+  return res.json();
+}
+
+const str = (v: any): string => (v == null ? '' : String(v));
+const num = (v: any): number => {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : 0;
+};
+
+// Mongo extended JSON: { $oid: '...' }
+function oid(v: any): string {
+  if (v == null) return '';
+  if (typeof v === 'string') return v;
+  if (typeof v === 'object' && v.$oid) return String(v.$oid);
+  return String(v);
+}
+
+// Mongo extended JSON dates: { $date: '...' } | { $date: { $numberLong } } | ISO string
+function parseDate(v: any): Date | undefined {
+  if (v == null) return undefined;
+  let d: Date;
+  if (typeof v === 'object' && '$date' in v) {
+    const inner = v.$date;
+    d = new Date(inner?.$numberLong != null ? Number(inner.$numberLong) : inner);
+  } else {
+    d = new Date(v);
+  }
+  return Number.isNaN(d.getTime()) ? undefined : d;
+}
+
+// ── Voters ──────────────────────────────────────────────────────────
+// GET /actions/vote/fixture/:fixtureId/voters -> { voters: [{ userId, userName, selection, votedAt }] }
 
 export async function fetchVoters(
   fixtureId: string,
-  authToken?: string | null,
-) {
-  const res = await fetch(
-    `${API_BASE_URL}/actions/vote/fixture/${fixtureId}/voters`,
-    { headers: authToken ? { Authorization: `Bearer ${authToken}` } : {} },
-  );
-  if (!res.ok) return [];
-  const data = await res.json();
-  return (data?.voters ?? []) as any[];
+  authToken?: Token,
+): Promise<any[]> {
+  const data = await getJson(`${API_BASE_URL}/actions/vote/fixture/${fixtureId}/voters`, authToken);
+  const list: any[] = data?.voters ?? [];
+  return list.map((v) => ({
+    ...v,
+    userId: str(v.userId ?? v.user_id),
+    userName: str(v.userName ?? v.user_name ?? v.username ?? 'Anonymous'),
+    selection: str(v.selection),
+    isComrade: v.isComrade ?? v.is_comrade ?? false,
+  }));
 }
+
+// ── Pledges (main fixture) ──────────────────────────────────────────
+// GET /actions/channel/:channelId/:fixtureId/pledges -> { pledges: [...], count }
+// Rows are open bets: starter_id, starter_name, starter_selection, starter_amount, _id
 
 export async function fetchPledges(
   channelId: string,
   fixtureId: string,
-  authToken?: string | null,
-) {
-  const res = await fetch(
+  authToken?: Token,
+): Promise<Bettor[]> {
+  const data = await getJson(
     `${API_BASE_URL}/actions/channel/${channelId}/${fixtureId}/pledges`,
-    { headers: authToken ? { Authorization: `Bearer ${authToken}` } : {} },
+    authToken,
   );
-  if (!res.ok) return [];
-  const data = await res.json();
-  return (data?.pledges ?? []).map((p: any) => ({
-    betId: p.bet_id ?? p._id ?? '',
-    userId: p.user_id ?? p.userId ?? '',
-    userName: p.user_name ?? p.userName ?? '',
-    selection: p.selection ?? '',
-    selectionDisplay:
-      p.selection === 'home_team' || p.selection === 'home'
-        ? 'Home'
-        : p.selection === 'away_team' || p.selection === 'away'
-          ? 'Away'
-          : p.selection ?? '',
-    amount: p.amount ?? 0,
-    isOpen: p.status === 'open' || p.is_open === true,
-  }));
+  const list: any[] = data?.pledges ?? [];
+  return list.map((row): Bettor => {
+    const b = bettorFromOpenBet(row);
+    return {
+      betId: b.betId,
+      userId: b.userId,
+      userName: b.userName,
+      selection: b.selection,
+      selectionDisplay:
+        b.selection === 'home_team' ? 'Home' : b.selection === 'away_team' ? 'Away' : b.selection,
+      amount: b.amount,
+      isOpen: true,
+    };
+  });
 }
+
+// ── Sub-fixture markets ─────────────────────────────────────────────
+// NOTE: this list endpoint is the one I could not verify against the Flutter
+// source. Field names are read tolerantly (snake_case or camelCase).
 
 export async function fetchSubFixtures(
   fixtureId: string,
-  authToken?: string | null,
-) {
-  const res = await fetch(`${API_BASE_URL}/sub_fixtures/markets/${fixtureId}`, {
-    headers: authToken ? { Authorization: `Bearer ${authToken}` } : {},
-  });
-  if (!res.ok) return [];
-  const data = await res.json();
-  return (data?.markets ?? []) as any[];
+  authToken?: Token,
+): Promise<SubFixtureMarket[]> {
+  const data = await getJson(`${API_BASE_URL}/sub_fixtures/markets/${fixtureId}`, authToken);
+  const list: any[] = Array.isArray(data) ? data : data?.markets ?? [];
+  return list.map((m): SubFixtureMarket => ({
+    id: str(m.market_id ?? m.id ?? oid(m._id)),
+    matchId: str(m.match_id ?? m.matchId ?? fixtureId),
+    marketType: str(m.market_type ?? m.marketType ?? m.type),
+    options: m.options ?? [],
+    line: m.line ?? undefined,
+    status: str(m.status ?? 'open'),
+    lockAt: m.lock_at ?? m.lockAt ?? undefined,
+    pledgeCounts: m.pledge_counts ?? m.pledgeCounts ?? {},
+    pledgeTotals: m.pledge_totals ?? m.pledgeTotals ?? {},
+    result: m.result ?? undefined,
+    isVisible: m.is_visible ?? m.isVisible ?? true,
+  }));
 }
+
+// ── Sub-fixture pledges ─────────────────────────────────────────────
+// Reuses sub-fixture-service.getMarketBets:
+//   GET /sub_fixtures/sub-fixture/bets/market/:matchId/:marketId
 
 export async function fetchSubFixturePledges(
   marketId: string,
   fixtureId: string,
-  authToken?: string | null,
-) {
-  const res = await fetch(
-    `${API_BASE_URL}/sub_fixtures/bets/${marketId}?matchId=${fixtureId}`,
-    { headers: authToken ? { Authorization: `Bearer ${authToken}` } : {} },
-  );
-  if (!res.ok) return [];
-  const data = await res.json();
-  return (data?.bets ?? []) as any[];
+  authToken?: Token,
+): Promise<SubFixturePledge[]> {
+  return getMarketBets(fixtureId, marketId, authToken ?? undefined);
 }
+
+// ── Bets (matched bets list) ────────────────────────────────────────
+// GET /actions/channel/:channelId/:fixtureId/bettors -> { bettors: [...] }
+// Flutter keeps only rows that have a finisher (matched bets).
 
 export async function fetchBets(
   channelId: string,
   fixtureId: string,
-  authToken?: string | null,
-) {
-  const res = await fetch(
+  authToken?: Token,
+): Promise<any[]> {
+  const data = await getJson(
     `${API_BASE_URL}/actions/channel/${channelId}/${fixtureId}/bettors`,
-    { headers: authToken ? { Authorization: `Bearer ${authToken}` } : {} },
+    authToken,
   );
-  if (!res.ok) return [];
-  const data = await res.json();
-  return (data?.bettors ?? []) as any[];
+  const list: any[] = data?.bettors ?? [];
+  return list
+    .filter((b) => b?.finisher_id != null && str(b.finisher_id) !== '')
+    .map((b) => {
+      const starterAmount = num(b.starter_amount);
+      const finisherAmount = num(b.finisher_amount);
+      return {
+        id: oid(b._id ?? b.id),
+        starterId: str(b.starter_id),
+        starterName: str(b.starter_name),
+        starterSelection: str(b.starter_selection),
+        starterAmount,
+        finisherId: str(b.finisher_id),
+        finisherName: str(b.finisher_name),
+        finisherSelection: str(b.finisher_selection),
+        finisherAmount,
+        totalPot: starterAmount + finisherAmount,
+        status: str(b.status ?? 'matched'),
+        createdAt: parseDate(b.created_at),
+      };
+    });
 }
+
+// ── Balance ─────────────────────────────────────────────────────────
+// GET /auth/user/id/:id -> { success, user: { balance } }
+// THROWS on any failure so the modal can show the reason instead of "KES 0.00".
 
 export async function fetchBalance(
   userId: string,
-  authToken?: string | null,
+  authToken?: Token,
   opts?: { forceRefresh?: boolean },
-) {
-  const res = await fetch(
-    `${API_BASE_URL}/payment/balance/${userId}${opts?.forceRefresh ? `?_=${Date.now()}` : ''
-    }`,
-    { headers: authToken ? { Authorization: `Bearer ${authToken}` } : {} },
-  );
-  if (!res.ok) return 0;
+): Promise<number> {
+  if (!userId || userId === 'guest') throw new Error('Not signed in');
+  // Cache-busting via query param (custom Cache-Control headers trigger a CORS
+  // preflight on Expo web).
+  const url = `${API_BASE_URL}/auth/user/id/${userId}${opts?.forceRefresh ? `?_=${Date.now()}` : ''}`;
+  const res = await fetchT(url, { headers: jsonHeaders(authToken) });
+  if (res.status === 401 || res.status === 403) {
+    throw new Error('Session expired, please sign in again');
+  }
+  if (!res.ok) throw new Error(`Server error: ${res.status}`);
   const data = await res.json();
-  return Number(data?.balance ?? data?.wallet_balance ?? 0);
+  if (data?.success !== true) throw new Error(data?.message ?? 'Could not load balance');
+  const b = Number(data?.user?.balance);
+  if (!Number.isFinite(b)) throw new Error('Balance missing from server response');
+  return b;
 }
 
-export async function topUp(
-  amount: number,
+// ── Top-up (M-Pesa STK push) ────────────────────────────────────────
+// payment-service.initiateSTKPush does the real work, including waiting for the
+// STK result (up to ~3 minutes), like Flutter's PaymentService.
+
+export async function topUp(args: {
+  userId: string;
+  username: string;
+  authToken?: Token;
+  amount: number;
+  phone: string;
+  purpose: string;
+}): Promise<PayResult> {
+  try {
+    const r: any = await initiateSTKPush({
+      userId: args.userId,
+      username: args.username,
+      amount: args.amount,
+      phoneNumber: args.phone,
+      authToken: args.authToken ?? undefined,
+      purpose: args.purpose,
+    });
+    const ok = (r?.success ?? r?.isSuccess) === true;
+    return {
+      success: ok,
+      newBalance: r?.newBalance != null ? Number(r.newBalance) : undefined,
+      error: ok ? undefined : r?.error ?? r?.message ?? 'Payment failed',
+      message: r?.message,
+    };
+  } catch (e: any) {
+    return { success: false, error: e?.message ?? 'Network error' };
+  }
+}
+
+// ── Withdraw (M-Pesa B2C) ───────────────────────────────────────────
+// Flutter sends channelId '' for user withdrawals.
+
+export async function withdraw(args: {
+  userId: string;
+  username: string;
+  authToken?: Token;
+  amount: number;
+  phone: string;
+}): Promise<PayResult> {
+  try {
+    const r: any = await initiateB2CPayment({
+      userId: args.userId,
+      username: args.username,
+      channelId: '',
+      amount: args.amount,
+      phoneNumber: args.phone,
+      authToken: args.authToken ?? undefined,
+      remarks: 'User withdrawal',
+      occasion: 'Withdrawal',
+    });
+    const ok = (r?.success ?? r?.isSuccess) === true;
+    return {
+      success: ok,
+      newBalance: r?.newBalance != null ? Number(r.newBalance) : undefined,
+      error: ok ? undefined : r?.error ?? r?.message ?? 'Withdrawal failed',
+      message: r?.message,
+    };
+  } catch (e: any) {
+    return { success: false, error: e?.message ?? 'Network error' };
+  }
+}
+
+// ── Phone helpers ───────────────────────────────────────────────────
+// GET/POST /auth/user/:userId/{topup|withdraw}-phone ; GET /auth/user/id/:id -> user.phone
+
+export async function getSavedPhone(
+  userId: string,
+  kind: 'topup' | 'withdraw',
+  authToken?: Token,
+): Promise<string | null> {
+  if (!userId) return null;
+  try {
+    const data = await getJson(`${API_BASE_URL}/auth/user/${userId}/${kind}-phone`, authToken, 8_000);
+    const phone = data?.success === true ? str(data?.phone) : '';
+    return phone || null;
+  } catch {
+    return null; // non-fatal: the dialog falls back to the profile phone
+  }
+}
+
+export async function savePhone(
+  userId: string,
+  kind: 'topup' | 'withdraw',
   phone: string,
-  purpose: string,
-) {
+  authToken?: Token,
+): Promise<boolean> {
+  if (!userId) return false;
   try {
-    const res = await fetch(`${API_BASE_URL}/payment/stk-push`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount, phone, purpose }),
-    });
+    const res = await fetchT(
+      `${API_BASE_URL}/auth/user/${userId}/${kind}-phone`,
+      { method: 'POST', headers: jsonHeaders(authToken), body: JSON.stringify({ phone }) },
+      8_000,
+    );
+    if (!res.ok) return false;
     const data = await res.json();
-    return {
-      success: data?.success === true,
-      newBalance: data?.new_balance,
-      error: data?.message,
-    };
-  } catch (e: any) {
-    return { success: false, error: e?.message ?? 'Network error' };
+    return data?.success === true;
+  } catch {
+    return false;
   }
 }
 
-export async function withdraw(amount: number, phone: string) {
+export async function getUserPhone(userId: string, authToken?: Token): Promise<string> {
+  if (!userId) return '';
   try {
-    const res = await fetch(`${API_BASE_URL}/payment/b2c`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ amount, phone }),
-    });
-    const data = await res.json();
-    return {
-      success: data?.success === true,
-      newBalance: data?.new_balance,
-      error: data?.message,
-    };
-  } catch (e: any) {
-    return { success: false, error: e?.message ?? 'Network error' };
+    const data = await getJson(`${API_BASE_URL}/auth/user/id/${userId}`, authToken, 10_000);
+    return data?.success === true ? str(data?.user?.phone) : '';
+  } catch {
+    return '';
   }
 }
 
-export async function getSavedPhone(_kind: 'topup' | 'withdraw') {
-  return null;
-}
-
-export async function savePhone(_kind: 'topup' | 'withdraw', _phone: string) {
-  return true;
-}
-
-export async function getUserPhone() {
-  return '';
-}
+// ── Place / match sub-fixture pledge ────────────────────────────────
+// Reuse sub-fixture-service so the paths match the Rust routes exactly.
 
 export async function placeSubFixturePledge(args: {
   fixtureId: string;
@@ -157,25 +418,18 @@ export async function placeSubFixturePledge(args: {
   starterName: string;
   selection: string;
   amount: number;
-}) {
-  try {
-    const res = await fetch(`${API_BASE_URL}/sub_fixtures/sub-fixture/bet`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        match_id: args.fixtureId,
-        market_id: args.marketId,
-        starter_id: args.starterId,
-        starter_name: args.starterName,
-        selection: args.selection,
-        amount: args.amount,
-      }),
-    });
-    const data = await res.json();
-    return { success: data?.success === true, message: data?.message };
-  } catch (e: any) {
-    return { success: false, message: e?.message ?? 'Network error' };
-  }
+  authToken?: Token;
+}): Promise<{ success: boolean; message?: string }> {
+  const data = await placeSubFixtureBet({
+    matchId: args.fixtureId,
+    marketId: args.marketId,
+    userId: args.starterId,
+    userName: args.starterName,
+    selection: args.selection,
+    amount: args.amount,
+    authToken: args.authToken ?? undefined,
+  });
+  return { success: data?.success === true, message: data?.message };
 }
 
 export async function matchSubFixturePledge(args: {
@@ -186,56 +440,29 @@ export async function matchSubFixturePledge(args: {
   finisherName: string;
   selection: string;
   amount: number;
-}) {
-  try {
-    const res = await fetch(`${API_BASE_URL}/sub_fixtures/bet/fill`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        bet_id: args.betId,
-        match_id: args.matchId,
-        market_id: args.marketId,
-        finisher_id: args.finisherId,
-        finisher_name: args.finisherName,
-        selection: args.selection,
-        amount: args.amount,
-      }),
-    });
-    const data = await res.json();
-    return { success: data?.success === true, message: data?.message };
-  } catch (e: any) {
-    return { success: false, message: e?.message ?? 'Network error' };
-  }
+  authToken?: Token;
+}): Promise<{ success: boolean; message?: string }> {
+  const data = await fillSubFixtureBet({
+    betId: args.betId,
+    matchId: args.matchId,
+    marketId: args.marketId,
+    finisherId: args.finisherId,
+    finisherName: args.finisherName,
+    selection: args.selection,
+    amount: args.amount,
+    authToken: args.authToken ?? undefined,
+  });
+  return { success: data?.success === true, message: data?.message };
 }
 
-export async function matchMainPledge(args: {
-  betId: string;
-  finisherId: string;
-  finisherName: string;
-  finisherSelection: 'home' | 'away';
-  amount: number;
-}) {
-  try {
-    const res = await fetch(`${API_BASE_URL}/actions/bet/fill`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        bet_id: args.betId,
-        finisher_id: args.finisherId,
-        finisher_name: args.finisherName,
-        finisher_selection: args.finisherSelection,
-        amount: args.amount,
-      }),
-    });
-    const data = await res.json();
-    return { success: data?.success === true, message: data?.message };
-  } catch (e: any) {
-    return { success: false, message: e?.message ?? 'Network error' };
-  }
-}
+// ── Match a main-fixture pledge ─────────────────────────────────────
+// Lives in vote-actions.ts now (voting, pledging and matching are in one file).
+// Re-exported so existing importers keep working.
+
+export { matchMainPledge } from './vote-actions';
 
 // ─────────────────────────────────────────────────────────────
-//  ARCHIVE — activity history for a single user
+//  ARCHIVE — activity history for a single user (unchanged)
 // ─────────────────────────────────────────────────────────────
 
 export interface ArchiveActivityDto {
@@ -276,9 +503,7 @@ export async function fetchUserActivityHistory(
     const res = await fetch(
       `${API_BASE_URL}/archive/user/${encodeURIComponent(userId)}`,
       {
-        headers: authToken
-          ? { Authorization: `Bearer ${authToken}` }
-          : {},
+        headers: authHeader(authToken),
         signal: controller.signal,
       },
     );

@@ -8,6 +8,7 @@ export * from './types/betting';
 export * from './types/chat-message';
 export * from './types/post';
 export * from './types/leaderboard';
+export * from './types/channels';
 export * from './theme';
 
 export * from './api/config';
@@ -27,8 +28,12 @@ export * from './api/admin-service';
 export * from './api/posts-service';
 export * from './api/websocket-service';
 export * from './api/profile-service';
-export { createAppQueryClient } from './queryClient';
+
+// Was './queryClient' — the file is under api/, so the path must match.
+export { createAppQueryClient, PERSIST_OPTIONS } from './queryClient';
+
 export { useFixtures, useHistoryGames } from './queries/useFixtures';
+
 export type {
     AftermatchData,
     AftermatchVoter,

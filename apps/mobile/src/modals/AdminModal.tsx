@@ -1,26 +1,36 @@
-// RN port of funspot-next/app/(app)/admin/[channelId]/page.tsx — as a MODAL.
+// modals/AdminModal.tsx
 //
-// SCOPED to your RN app's single-channel architecture. The Flutter
-// AdminDashboardModal supports multiple admin channels via a horizontal
-// switcher; this file keeps the single `channelId` prop your existing
-// screen already uses.
+// Faithful RN port of funspot/lib/.../admin_dashboard_modal.dart
+// (AdminDashboardModal). Scoped to the app's single-channel architecture —
+// the Dart source's horizontal channel switcher is not ported.
 //
-// Ported from Flutter:
-//   - Payout banner (auto-fetched on mount, tap to re-fetch)
-//   - Member removal confirmation dialog (30-point warning)
-//   - Per-member stat grid (points, votes + accuracy, messages)
+// Preserved from Dart:
+//   - Payout banner (loading / no-payout retry / active)
+//   - Stats grid — Messages / Weekly / Members / Votes
+//   - Members list with per-member stat rows
 //   - Role pill + accuracy bar
+//   - Remove-member confirmation with the 30-point warning
 //   - Admin / member empty states
 //   - Pull-to-refresh
 //
-// Deliberately NOT ported (each is its own subsystem, none is core
-// to the admin dashboard surface):
+// Deliberately NOT ported (each is its own subsystem):
 //   - Load funds (STK push) / Withdraw funds (B2C)
 //   - Share channel sheet
 //   - Multi-channel switcher
 //   - Clipboard-on-handle
-//   - Search / filter members (dead code in the Flutter source — the
-//     search field is never rendered in the build tree)
+//   - Search / filter members
+//
+// Colors from useFanColors(). Spacing from FAN_SPACING. Radius from
+// FAN_RADIUS. Text from fanText(). Copy from Dart verbatim.
+//
+// Palette mapping (Dart → FanColorPalette):
+//   FanColors.secondary (admin amber)     → colors.draw
+//   FanColors.primary   (member emerald)  → colors.primary
+//   FanColors.away      (danger red)      → colors.away
+//   FanColors.textMuted                   → colors.textTertiary
+//   FanColors.background                  → colors.background
+//   FanColors.surface                     → colors.surface
+//   FanColors.border                      → colors.border
 
 import { useCallback, useEffect, useState } from 'react';
 import {
@@ -43,6 +53,7 @@ import {
   AlertTriangle,
   Award,
   Wallet,
+  Vote,
 } from 'lucide-react-native';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useToast } from '@/lib/toast/toast-context';
@@ -51,18 +62,21 @@ import {
   removeMember,
   computeAdminPayout,
   ChannelDetail,
+  ChannelMember,
   AdminPayoutResult,
+  FanColorPalette,
+  FAN_SPACING,
+  FAN_RADIUS,
 } from '@funspot/core';
-import { colors } from '@/theme';
+import { useFanColors } from '@/theme/use-fan-colors';
+import { fanText } from '@/theme/use-fan-typography';
+import { ICON, PRESSED_OPACITY } from '@/theme/layout';
 
-// ── Rank palette (not in the design tokens — admin/member accents) ──
-const ADMIN_ACCENT = '#F59E0B'; // amber — matches Flutter FanColors.secondary
-const MEMBER_ACCENT = '#10B981'; // emerald — matches Flutter FanColors.primary
-const DANGER = '#EF4444';
+// ─────────────────────────────────────────────────────────────────
+//  Helpers — ChannelMember fields are snake_case on the wire, camel
+//  after parsing. Read both defensively.
+// ─────────────────────────────────────────────────────────────────
 
-// ── Member shape helpers ─────────────────────────────────────────
-// ChannelDetail.members is typed { userId, username, [key: string]: any }.
-// The Rust backend returns snake_case; we accept both spellings.
 function readNumber(m: any, camel: string, snake: string): number {
   const v = m?.[camel] ?? m?.[snake];
   return typeof v === 'number' ? v : Number(v ?? 0) || 0;
@@ -72,7 +86,8 @@ function readString(m: any, camel: string, snake: string): string {
   return v == null ? '' : String(v);
 }
 function memberIsAdmin(m: any): boolean {
-  return String(m?.role ?? '').toLowerCase() === 'admin';
+  const role = String(m?.role ?? '').toLowerCase();
+  return role === 'admin' || role === 'owner';
 }
 function memberAccuracy(m: any): number {
   const total = readNumber(m, 'totalVotes', 'total_votes');
@@ -80,10 +95,26 @@ function memberAccuracy(m: any): number {
   const correct = readNumber(m, 'correctVotes', 'correct_votes');
   return (correct / total) * 100;
 }
+function relativeTime(iso: string): string {
+  const t = new Date(iso).getTime();
+  if (Number.isNaN(t)) return '';
+  const diff = Date.now() - t;
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  if (days < 7) return `${days}d ago`;
+  return new Date(iso).toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric',
+  });
+}
 
 // ─────────────────────────────────────────────────────────────────
 
-export default function AdminScreen({
+export default function AdminModal({
   visible,
   channelId,
   onClose,
@@ -92,6 +123,8 @@ export default function AdminScreen({
   channelId: string;
   onClose: () => void;
 }) {
+  const colors = useFanColors();
+  const styles = createStyles(colors);
   const { userId, authToken } = useAuth();
   const toast = useToast();
 
@@ -129,8 +162,8 @@ export default function AdminScreen({
 
   useEffect(() => {
     if (!visible || !channelId) return;
-    refresh(true);
-    fetchPayout();
+    void refresh(true);
+    void fetchPayout();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible, channelId]);
 
@@ -154,12 +187,7 @@ export default function AdminScreen({
     setConfirmTarget(null);
     setRemovingId(targetId);
 
-    const result = await removeMember(
-      channelId,
-      targetId,
-      userId,
-      authToken,
-    );
+    const result = await removeMember(channelId, targetId, userId, authToken);
     setRemovingId(null);
 
     if (result.success) {
@@ -169,8 +197,6 @@ export default function AdminScreen({
       toast.showError(result.message ?? 'Failed to remove member');
     }
   }
-
-  // ─────────────────────────────────────────────────────────────
 
   const members = detail?.members ?? [];
 
@@ -184,38 +210,64 @@ export default function AdminScreen({
         statusBarTranslucent
       >
         <Pressable style={styles.backdrop} onPress={onClose}>
-          <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
+          <Pressable style={styles.sheet} onPress={() => { }}>
             <View style={styles.handleWrap}>
-              <View style={styles.handle} />
+              <View
+                style={[styles.handle, { backgroundColor: colors.border }]}
+              />
             </View>
 
             {/* Header */}
             <View style={styles.headerRow}>
-              <View style={styles.headerIcon}>
-                <ShieldAlert size={16} color={ADMIN_ACCENT} />
+              <View
+                style={[styles.headerIcon, { backgroundColor: colors.drawDim }]}
+              >
+                <ShieldAlert size={ICON.md} color={colors.draw} />
               </View>
               <View style={styles.headerTextWrap}>
-                <Text style={styles.headerTitle}>Admin Dashboard</Text>
+                <Text style={fanText('title', colors, colors.textPrimary)}>
+                  Admin Dashboard
+                </Text>
                 {detail && (
-                  <Text style={styles.headerSub}>
+                  <Text
+                    style={[
+                      fanText('tag', colors, colors.textTertiary),
+                      { marginTop: 1 },
+                    ]}
+                  >
                     {members.length} member{members.length === 1 ? '' : 's'}
                   </Text>
                 )}
               </View>
-              <Pressable onPress={onClose} hitSlop={8} style={styles.closeBtn}>
-                <X size={14} color={colors.textMuted} />
+              <Pressable
+                onPress={onClose}
+                hitSlop={8}
+                style={({ pressed }) => [
+                  styles.closeBtn,
+                  pressed && { opacity: PRESSED_OPACITY },
+                ]}
+              >
+                <X size={14} color={colors.textTertiary} />
               </Pressable>
             </View>
 
             {/* Content */}
             {loading ? (
               <View style={styles.center}>
-                <ActivityIndicator color={colors.green} />
+                <ActivityIndicator color={colors.primary} />
               </View>
             ) : !detail ? (
               <View style={styles.center}>
-                <ShieldAlert size={36} color={colors.textMuted} />
-                <Text style={[styles.empty, { marginTop: 12 }]}>
+                <ShieldAlert size={36} color={colors.textTertiary} />
+                <Text
+                  style={[
+                    fanText('caption', colors, colors.textTertiary),
+                    {
+                      marginTop: FAN_SPACING.base,
+                      textAlign: 'center',
+                    },
+                  ]}
+                >
                   You are not an admin of this channel, or it no longer exists.
                 </Text>
               </View>
@@ -227,56 +279,94 @@ export default function AdminScreen({
                   <RefreshControl
                     refreshing={refreshing}
                     onRefresh={handlePullRefresh}
-                    tintColor={colors.green}
-                    colors={[colors.green]}
+                    tintColor={colors.primary}
+                    colors={[colors.primary]}
                   />
                 }
               >
                 {/* Payout banner */}
                 <PayoutBanner
+                  colors={colors}
+                  styles={styles}
                   loading={loadingPayout}
                   payout={payout}
                   onPress={fetchPayout}
                 />
 
-                {/* Stats trio */}
+                {/* Stats grid — 4 tiles matching Dart */}
                 <View style={styles.statsRow}>
                   <StatCard
-                    icon={<Users size={16} color={colors.green} />}
-                    value={detail.memberCount}
-                    label="Members"
-                  />
-                  <StatCard
+                    colors={colors}
+                    styles={styles}
                     icon={
-                      <MessageSquare size={16} color={colors.green} />
+                      <MessageSquare size={ICON.md} color={colors.primary} />
                     }
                     value={detail.totalMessages}
                     label="Messages"
                   />
                   <StatCard
-                    icon={<TrendingUp size={16} color={colors.green} />}
+                    colors={colors}
+                    styles={styles}
+                    icon={<TrendingUp size={ICON.md} color={colors.secondary} />}
                     value={detail.messagesThisWeek}
-                    label="This week"
+                    label="Weekly"
+                  />
+                  <StatCard
+                    colors={colors}
+                    styles={styles}
+                    icon={<Users size={ICON.md} color={colors.textPrimary} />}
+                    value={detail.memberCount}
+                    label="Members"
+                  />
+                  <StatCard
+                    colors={colors}
+                    styles={styles}
+                    icon={<Vote size={ICON.md} color={colors.draw} />}
+                    value={detail.totalMessages}
+                    label="Votes"
                   />
                 </View>
 
-                {/* Members */}
+                {/* Members header */}
                 <View style={styles.sectionHeader}>
-                  <Users size={14} color={colors.green} />
-                  <Text style={styles.sectionLabel}>MEMBERS</Text>
-                  <Text style={styles.sectionCount}>
+                  <Users size={14} color={colors.primary} />
+                  <Text
+                    style={[
+                      fanText('tag', colors, colors.textSecondary),
+                      { letterSpacing: 1 },
+                    ]}
+                  >
+                    MEMBERS
+                  </Text>
+                  <Text
+                    style={[
+                      fanText('tag', colors, colors.textTertiary),
+                      { marginLeft: 'auto' },
+                    ]}
+                  >
                     {members.length} total
                   </Text>
                 </View>
 
+                {/* Members list */}
                 {members.length === 0 ? (
-                  <Text style={[styles.empty, { marginTop: 24 }]}>
+                  <Text
+                    style={[
+                      fanText('caption', colors, colors.textTertiary),
+                      {
+                        textAlign: 'center',
+                        marginTop: FAN_SPACING.xxl,
+                      },
+                    ]}
+                  >
                     No members found.
                   </Text>
                 ) : (
                   members.map((m) => (
                     <MemberCard
                       key={m.userId}
+                      colors={colors}
+                      styles={styles}
                       member={m}
                       isCurrentUser={m.userId === userId}
                       isRemoving={removingId === m.userId}
@@ -292,7 +382,7 @@ export default function AdminScreen({
         </Pressable>
       </Modal>
 
-      {/* Removal confirmation — nested modal so it stacks above the sheet */}
+      {/* Removal confirmation — nested modal */}
       <Modal
         visible={!!confirmTarget}
         transparent
@@ -304,20 +394,47 @@ export default function AdminScreen({
           style={styles.confirmBackdrop}
           onPress={() => setConfirmTarget(null)}
         >
-          <Pressable
-            style={styles.confirmCard}
-            onPress={(e) => e.stopPropagation()}
-          >
-            <View style={styles.confirmIconWrap}>
-              <AlertTriangle size={28} color={DANGER} />
+          <Pressable style={styles.confirmCard} onPress={() => { }}>
+            <View
+              style={[
+                styles.confirmIconWrap,
+                { backgroundColor: colors.awayDim },
+              ]}
+            >
+              <AlertTriangle size={28} color={colors.away} />
             </View>
-            <Text style={styles.confirmTitle}>Remove Member</Text>
-            <Text style={styles.confirmBody}>
+            <Text
+              style={[
+                fanText('headline', colors, colors.textPrimary),
+                { marginBottom: FAN_SPACING.sm },
+              ]}
+            >
+              Remove Member
+            </Text>
+            <Text
+              style={[
+                fanText('body', colors, colors.textSecondary),
+                { textAlign: 'center', marginBottom: FAN_SPACING.base },
+              ]}
+            >
               Remove {confirmTarget?.username} from the channel?
             </Text>
-            <View style={styles.confirmWarning}>
-              <AlertTriangle size={14} color={DANGER} />
-              <Text style={styles.confirmWarningText}>
+            <View
+              style={[
+                styles.confirmWarning,
+                {
+                  borderColor: colors.awayDim,
+                  backgroundColor: colors.awayDim,
+                },
+              ]}
+            >
+              <AlertTriangle size={14} color={colors.away} />
+              <Text
+                style={[
+                  fanText('tag', colors, colors.textTertiary),
+                  { flex: 1, lineHeight: 14 },
+                ]}
+              >
                 ⚠️ This member will lose 30 points for leaving the channel.
                 This helps prevent channel hopping.
               </Text>
@@ -325,15 +442,27 @@ export default function AdminScreen({
             <View style={styles.confirmActions}>
               <Pressable
                 onPress={() => setConfirmTarget(null)}
-                style={[styles.confirmBtn, styles.confirmCancel]}
+                style={({ pressed }) => [
+                  styles.confirmBtn,
+                  { borderWidth: 1, borderColor: colors.border },
+                  pressed && { opacity: PRESSED_OPACITY },
+                ]}
               >
-                <Text style={styles.confirmCancelText}>Cancel</Text>
+                <Text style={fanText('body', colors, colors.textPrimary)}>
+                  Cancel
+                </Text>
               </Pressable>
               <Pressable
                 onPress={confirmRemove}
-                style={[styles.confirmBtn, styles.confirmRemove]}
+                style={({ pressed }) => [
+                  styles.confirmBtn,
+                  { backgroundColor: colors.away },
+                  pressed && { opacity: PRESSED_OPACITY },
+                ]}
               >
-                <Text style={styles.confirmRemoveText}>Remove</Text>
+                <Text style={fanText('body', colors, colors.background)}>
+                  Remove
+                </Text>
               </Pressable>
             </View>
           </Pressable>
@@ -348,10 +477,14 @@ export default function AdminScreen({
 // ═══════════════════════════════════════════════════════════════
 
 function PayoutBanner({
+  colors,
+  styles,
   loading,
   payout,
   onPress,
 }: {
+  colors: FanColorPalette;
+  styles: ReturnType<typeof createStyles>;
   loading: boolean;
   payout: AdminPayoutResult | null;
   onPress: () => void;
@@ -359,18 +492,36 @@ function PayoutBanner({
   if (loading) {
     return (
       <View style={styles.payoutCard}>
-        <ActivityIndicator size="small" color={ADMIN_ACCENT} />
-        <Text style={styles.payoutSub}>Checking payout…</Text>
+        <ActivityIndicator size="small" color={colors.draw} />
+        <Text
+          style={[
+            fanText('caption', colors, colors.textTertiary),
+            { marginLeft: FAN_SPACING.md },
+          ]}
+        >
+          Checking payout…
+        </Text>
       </View>
     );
   }
 
-  // No payout yet (or last fetch failed) — offer a tap-to-retry card
+  // No payout yet — offer a tap-to-retry card
   if (!payout || !payout.success) {
     return (
-      <Pressable onPress={onPress} style={styles.payoutCard}>
-        <RefreshCw size={16} color={colors.textMuted} />
-        <Text style={styles.payoutSub}>
+      <Pressable
+        onPress={onPress}
+        style={({ pressed }) => [
+          styles.payoutCard,
+          pressed && { opacity: PRESSED_OPACITY },
+        ]}
+      >
+        <RefreshCw size={ICON.md} color={colors.textTertiary} />
+        <Text
+          style={[
+            fanText('caption', colors, colors.textTertiary),
+            { marginLeft: FAN_SPACING.md, flex: 1 },
+          ]}
+        >
           {payout?.message ?? 'Tap to check your payout'}
         </Text>
       </Pressable>
@@ -385,28 +536,47 @@ function PayoutBanner({
       : `Status: ${payout.status}`;
 
   return (
-    <Pressable onPress={onPress} style={styles.payoutCardActive}>
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => [
+        styles.payoutCardActive,
+        pressed && { opacity: PRESSED_OPACITY },
+      ]}
+    >
       {isBonus ? (
-        <Award size={20} color={ADMIN_ACCENT} />
+        <Award size={20} color={colors.draw} />
       ) : (
-        <Wallet size={20} color={ADMIN_ACCENT} />
+        <Wallet size={20} color={colors.draw} />
       )}
-      <View style={{ flex: 1 }}>
-        <Text style={styles.payoutTitle}>
+      <View style={{ flex: 1, marginLeft: FAN_SPACING.md }}>
+        <Text style={fanText('caption', colors, colors.textPrimary)}>
           {isBonus ? '🎉 Welcome bonus earned!' : 'Engagement payout'}
         </Text>
-        <Text style={styles.payoutSub}>{statusLine}</Text>
+        <Text
+          style={[
+            fanText('tag', colors, colors.textTertiary),
+            { marginTop: 1 },
+          ]}
+        >
+          {statusLine}
+        </Text>
       </View>
-      <Text style={styles.payoutAmount}>KES {amount.toFixed(2)}</Text>
+      <Text style={[fanText('statValue', colors, colors.draw), { fontSize: 16 }]}>
+        KES {amount.toFixed(2)}
+      </Text>
     </Pressable>
   );
 }
 
 function StatCard({
+  colors,
+  styles,
   icon,
   value,
   label,
 }: {
+  colors: FanColorPalette;
+  styles: ReturnType<typeof createStyles>;
   icon: React.ReactNode;
   value: number;
   label: string;
@@ -414,25 +584,41 @@ function StatCard({
   return (
     <View style={styles.statCard}>
       {icon}
-      <Text style={styles.statNumber}>{value}</Text>
-      <Text style={styles.statLabel}>{label}</Text>
+      <Text
+        style={[
+          fanText('statValue', colors, colors.textPrimary),
+          { marginTop: FAN_SPACING.sm },
+        ]}
+      >
+        {value}
+      </Text>
+      <Text
+        style={[fanText('tag', colors, colors.textTertiary), { marginTop: 2 }]}
+      >
+        {label}
+      </Text>
     </View>
   );
 }
 
 function MemberCard({
+  colors,
+  styles,
   member,
   isCurrentUser,
   isRemoving,
   onRequestRemove,
 }: {
-  member: any;
+  colors: FanColorPalette;
+  styles: ReturnType<typeof createStyles>;
+  member: ChannelMember | any;
   isCurrentUser: boolean;
   isRemoving: boolean;
   onRequestRemove: () => void;
 }) {
   const isAdmin = memberIsAdmin(member);
-  const accent = isAdmin ? ADMIN_ACCENT : MEMBER_ACCENT;
+  const accent = isAdmin ? colors.draw : colors.primary;
+  const accentDim = isAdmin ? colors.drawDim : colors.primaryDim;
   const accuracy = memberAccuracy(member);
   const points = readNumber(member, 'seasonPoints', 'season_points');
   const totalVotes = readNumber(member, 'totalVotes', 'total_votes');
@@ -444,22 +630,21 @@ function MemberCard({
     <View style={styles.memberCard}>
       {/* Header row */}
       <View style={styles.memberHeader}>
-        <View
-          style={[
-            styles.memberAvatar,
-            { backgroundColor: withAlpha(accent, 0.12) },
-          ]}
-        >
-          <Text style={[styles.memberAvatarText, { color: accent }]}>
+        <View style={[styles.memberAvatar, { backgroundColor: accentDim }]}>
+          <Text style={[fanText('title', colors, accent), { fontSize: 14 }]}>
             {(member.username?.[0] ?? '?').toUpperCase()}
           </Text>
         </View>
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, marginLeft: FAN_SPACING.md }}>
           <View style={styles.memberNameRow}>
             <Text
               style={[
-                styles.memberName,
-                { color: isCurrentUser ? MEMBER_ACCENT : '#FFFFFF' },
+                fanText(
+                  'caption',
+                  colors,
+                  isCurrentUser ? colors.primary : colors.textPrimary,
+                ),
+                { fontWeight: '600', flexShrink: 1 },
               ]}
               numberOfLines={1}
             >
@@ -467,19 +652,24 @@ function MemberCard({
             </Text>
             {isAdmin && (
               <View
-                style={[
-                  styles.adminPill,
-                  { backgroundColor: withAlpha(ADMIN_ACCENT, 0.12) },
-                ]}
+                style={[styles.adminPill, { backgroundColor: colors.drawDim }]}
               >
-                <Text style={[styles.adminPillText, { color: ADMIN_ACCENT }]}>
+                <Text
+                  style={[fanText('tag', colors, colors.draw), { fontSize: 7 }]}
+                >
                   admin
                 </Text>
               </View>
             )}
           </View>
           {!!joinedAt && (
-            <Text style={styles.memberSub} numberOfLines={1}>
+            <Text
+              style={[
+                fanText('tag', colors, colors.textTertiary),
+                { fontSize: 9, marginTop: 1 },
+              ]}
+              numberOfLines={1}
+            >
               joined {relativeTime(joinedAt)}
             </Text>
           )}
@@ -489,45 +679,66 @@ function MemberCard({
             onPress={onRequestRemove}
             disabled={isRemoving}
             hitSlop={6}
-            style={[
+            style={({ pressed }) => [
               styles.removeIconBtn,
-              { backgroundColor: withAlpha(DANGER, 0.1) },
+              { backgroundColor: colors.awayDim },
+              pressed && { opacity: PRESSED_OPACITY },
             ]}
           >
             {isRemoving ? (
-              <ActivityIndicator size="small" color={DANGER} />
+              <ActivityIndicator size="small" color={colors.away} />
             ) : (
-              <X size={14} color={DANGER} />
+              <X size={14} color={colors.away} />
             )}
           </Pressable>
         )}
       </View>
 
-      {/* Stat grid */}
+      {/* Stat rows */}
       <View style={styles.statGrid}>
         <StatRow
+          colors={colors}
+          styles={styles}
           label="Points"
           trailing={
-            <Text style={[styles.memberStatValue, { color: accent }]}>
+            <Text
+              style={[
+                fanText('caption', colors, accent),
+                { fontWeight: '700' },
+              ]}
+            >
               {points}
             </Text>
           }
         />
         <StatRow
+          colors={colors}
+          styles={styles}
           label="Votes"
           trailing={
             <View style={styles.inlineRow}>
-              <Text style={styles.memberStatValue}>{totalVotes}</Text>
-              <Text style={styles.memberStatMuted}>
+              <Text style={fanText('caption', colors, colors.textPrimary)}>
+                {totalVotes}
+              </Text>
+              <Text
+                style={[
+                  fanText('tag', colors, colors.textTertiary),
+                  { marginLeft: FAN_SPACING.sm },
+                ]}
+              >
                 {accuracy.toFixed(0)}% correct
               </Text>
             </View>
           }
         />
         <StatRow
+          colors={colors}
+          styles={styles}
           label="Messages"
           trailing={
-            <Text style={styles.memberStatValue}>{msgCount}</Text>
+            <Text style={fanText('caption', colors, colors.textPrimary)}>
+              {msgCount}
+            </Text>
           }
         />
       </View>
@@ -535,11 +746,15 @@ function MemberCard({
       {/* Role pill + accuracy bar */}
       <View style={styles.memberFooter}>
         <View style={[styles.rolePill, { backgroundColor: accent }]}>
-          <Text style={styles.rolePillText}>
+          <Text
+            style={[fanText('tag', colors, colors.background), { fontSize: 8 }]}
+          >
             {isAdmin ? 'ADMIN' : 'MEMBER'}
           </Text>
         </View>
-        <View style={styles.accuracyTrack}>
+        <View
+          style={[styles.accuracyTrack, { backgroundColor: colors.border }]}
+        >
           <View
             style={[
               styles.accuracyFill,
@@ -556,336 +771,245 @@ function MemberCard({
 }
 
 function StatRow({
+  colors,
+  styles,
   label,
   trailing,
 }: {
+  colors: FanColorPalette;
+  styles: ReturnType<typeof createStyles>;
   label: string;
   trailing: React.ReactNode;
 }) {
   return (
     <View style={styles.memberStatRow}>
-      <Text style={styles.memberStatLabel}>{label}</Text>
+      <Text style={fanText('tag', colors, colors.textTertiary)}>{label}</Text>
       {trailing}
     </View>
   );
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  HELPERS
-// ═══════════════════════════════════════════════════════════════
-
-function withAlpha(hex: string, alpha: number): string {
-  const c = hex.replace('#', '');
-  if (c.length !== 6) return hex;
-  const r = parseInt(c.substring(0, 2), 16);
-  const g = parseInt(c.substring(2, 4), 16);
-  const b = parseInt(c.substring(4, 6), 16);
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-}
-
-function relativeTime(iso: string): string {
-  const t = new Date(iso).getTime();
-  if (Number.isNaN(t)) return '';
-  const diff = Date.now() - t;
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return 'just now';
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  const days = Math.floor(hrs / 24);
-  if (days < 7) return `${days}d ago`;
-  return new Date(iso).toLocaleDateString(undefined, {
-    month: 'short',
-    day: 'numeric',
-  });
-}
-
-// ═══════════════════════════════════════════════════════════════
 //  STYLES
 // ═══════════════════════════════════════════════════════════════
 
-const styles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'flex-end',
-  },
-  sheet: {
-    maxHeight: '85%',
-    borderTopLeftRadius: 18,
-    borderTopRightRadius: 18,
-    backgroundColor: colors.bg,
-    overflow: 'hidden',
-  },
-  handleWrap: { alignItems: 'center', paddingTop: 8, paddingBottom: 4 },
-  handle: {
-    width: 32,
-    height: 3,
-    borderRadius: 2,
-    backgroundColor: 'rgba(255,255,255,0.15)',
-  },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-  },
-  headerIcon: {
-    width: 32,
-    height: 32,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: withAlpha(ADMIN_ACCENT, 0.12),
-  },
-  headerTextWrap: { flex: 1, marginLeft: 10 },
-  headerTitle: { color: 'white', fontSize: 15, fontWeight: '700' },
-  headerSub: { color: colors.textMuted, fontSize: 10, marginTop: 1 },
-  closeBtn: {
-    borderRadius: 999,
-    padding: 6,
-    backgroundColor: 'rgba(255,255,255,0.06)',
-  },
-  screen: { backgroundColor: colors.bg },
-  content: { padding: 16, paddingBottom: 32 },
-  center: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 60,
-    paddingHorizontal: 24,
-  },
-  empty: {
-    color: colors.textMuted,
-    fontSize: 12,
-    textAlign: 'center',
-  },
+function createStyles(colors: FanColorPalette) {
+  return StyleSheet.create({
+    backdrop: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      justifyContent: 'flex-end',
+    },
+    sheet: {
+      maxHeight: '85%',
+      borderTopLeftRadius: FAN_RADIUS.xl,
+      borderTopRightRadius: FAN_RADIUS.xl,
+      backgroundColor: colors.background,
+      overflow: 'hidden',
+    },
+    handleWrap: {
+      alignItems: 'center',
+      paddingTop: FAN_SPACING.md,
+      paddingBottom: FAN_SPACING.sm,
+    },
+    handle: { width: 32, height: 3, borderRadius: 2 },
 
-  // ── Payout banner ────────────────────────────────────
-  payoutCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    marginBottom: 14,
-  },
-  payoutCardActive: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: withAlpha(ADMIN_ACCENT, 0.25),
-    backgroundColor: withAlpha(ADMIN_ACCENT, 0.08),
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    marginBottom: 14,
-  },
-  payoutTitle: { color: 'white', fontSize: 12, fontWeight: '600' },
-  payoutSub: { color: colors.textMuted, fontSize: 10, marginTop: 1 },
-  payoutAmount: {
-    color: ADMIN_ACCENT,
-    fontSize: 16,
-    fontWeight: '700',
-  },
+    // ── Header ──────────────────────────────────────────
+    headerRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: FAN_SPACING.lg,
+      paddingVertical: FAN_SPACING.md,
+    },
+    headerIcon: {
+      width: 32,
+      height: 32,
+      borderRadius: FAN_RADIUS.md,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    headerTextWrap: { flex: 1, marginLeft: FAN_SPACING.md },
+    closeBtn: {
+      borderRadius: 999,
+      padding: FAN_SPACING.md,
+      backgroundColor: colors.inputSurface,
+    },
 
-  // ── Stats trio (outer summary tiles) ─────────────────
-  statsRow: { flexDirection: 'row', gap: 8, marginBottom: 16 },
-  statCard: {
-    flex: 1,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    paddingVertical: 12,
-    paddingHorizontal: 8,
-    alignItems: 'center',
-    gap: 4,
-  },
-  statNumber: { color: 'white', fontSize: 18, fontWeight: '800' },
-  statLabel: { color: colors.textMuted, fontSize: 10 },
+    // ── Scroll view ─────────────────────────────────────
+    screen: { backgroundColor: colors.background },
+    content: {
+      padding: FAN_SPACING.lg,
+      paddingBottom: FAN_SPACING.xxxl,
+    },
+    center: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 60,
+      paddingHorizontal: FAN_SPACING.xxl,
+    },
 
-  // ── Members section ──────────────────────────────────
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 10,
-  },
-  sectionLabel: {
-    color: colors.textMuted,
-    fontSize: 11,
-    letterSpacing: 1,
-    fontWeight: '600',
-  },
-  sectionCount: {
-    color: colors.textMuted,
-    fontSize: 10,
-    marginLeft: 'auto',
-  },
+    // ── Payout banner ───────────────────────────────────
+    payoutCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderRadius: FAN_RADIUS.md,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.border,
+      backgroundColor: colors.surface,
+      paddingHorizontal: FAN_SPACING.base,
+      paddingVertical: FAN_SPACING.base,
+      marginBottom: FAN_SPACING.base,
+    },
+    payoutCardActive: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderRadius: FAN_RADIUS.md,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.draw,
+      backgroundColor: colors.drawDim,
+      paddingHorizontal: FAN_SPACING.base,
+      paddingVertical: FAN_SPACING.base,
+      marginBottom: FAN_SPACING.base,
+    },
 
-  // ── Member card ──────────────────────────────────────
-  memberCard: {
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.surface,
-    padding: 12,
-    marginBottom: 8,
-  },
-  memberHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  memberAvatar: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  memberAvatarText: { fontSize: 14, fontWeight: '700' },
-  memberNameRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  memberName: { fontSize: 12, fontWeight: '600', flexShrink: 1 },
-  memberSub: { color: colors.textMuted, fontSize: 9, marginTop: 1 },
-  adminPill: {
-    paddingHorizontal: 5,
-    paddingVertical: 1,
-    borderRadius: 8,
-  },
-  adminPillText: { fontSize: 7, fontWeight: '700', letterSpacing: 0.3 },
-  removeIconBtn: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+    // ── Stat grid (4 tiles) ─────────────────────────────
+    statsRow: {
+      flexDirection: 'row',
+      gap: FAN_SPACING.sm,
+      marginBottom: FAN_SPACING.lg,
+    },
+    statCard: {
+      flex: 1,
+      borderRadius: FAN_RADIUS.md,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.border,
+      backgroundColor: colors.surface,
+      paddingVertical: FAN_SPACING.base,
+      paddingHorizontal: FAN_SPACING.sm,
+      alignItems: 'center',
+      gap: FAN_SPACING.xs,
+    },
 
-  // ── Member stat grid (renamed to avoid collision with the
-  //    outer stats-row style block above) ────────────────
-  statGrid: { marginTop: 10 },
-  memberStatRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 2,
-  },
-  memberStatLabel: { color: colors.textMuted, fontSize: 9 },
-  memberStatValue: { color: 'white', fontSize: 10, fontWeight: '600' },
-  memberStatMuted: { color: colors.textMuted, fontSize: 9, marginLeft: 6 },
-  inlineRow: { flexDirection: 'row', alignItems: 'center' },
+    // ── Section header ──────────────────────────────────
+    sectionHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: FAN_SPACING.md,
+      marginBottom: FAN_SPACING.md,
+    },
 
-  memberFooter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginTop: 10,
-  },
-  rolePill: {
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 10,
-  },
-  rolePillText: {
-    color: 'white',
-    fontSize: 8,
-    fontWeight: '700',
-    letterSpacing: 0.4,
-  },
-  accuracyTrack: {
-    flex: 1,
-    height: 4,
-    borderRadius: 3,
-    backgroundColor: colors.border,
-    overflow: 'hidden',
-  },
-  accuracyFill: { height: 4, borderRadius: 3 },
+    // ── Member card ─────────────────────────────────────
+    memberCard: {
+      borderRadius: FAN_RADIUS.md,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.border,
+      backgroundColor: colors.surface,
+      padding: FAN_SPACING.base,
+      marginBottom: FAN_SPACING.md,
+    },
+    memberHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    memberAvatar: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    memberNameRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: FAN_SPACING.sm,
+    },
+    adminPill: {
+      paddingHorizontal: 5,
+      paddingVertical: 1,
+      borderRadius: FAN_RADIUS.sm,
+    },
+    removeIconBtn: {
+      width: 28,
+      height: 28,
+      borderRadius: 14,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
 
-  // ── Confirmation modal ───────────────────────────────
-  confirmBackdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-  },
-  confirmCard: {
-    width: '100%',
-    maxWidth: 380,
-    borderRadius: 16,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    padding: 20,
-    alignItems: 'center',
-  },
-  confirmIconWrap: {
-    width: 56,
-    height: 56,
-    borderRadius: 28,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: withAlpha(DANGER, 0.15),
-    marginBottom: 12,
-  },
-  confirmTitle: {
-    color: 'white',
-    fontSize: 18,
-    fontWeight: '700',
-    marginBottom: 6,
-  },
-  confirmBody: {
-    color: colors.textMuted,
-    fontSize: 13,
-    textAlign: 'center',
-    marginBottom: 14,
-  },
-  confirmWarning: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 8,
-    padding: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: withAlpha(DANGER, 0.25),
-    backgroundColor: withAlpha(DANGER, 0.08),
-    marginBottom: 16,
-  },
-  confirmWarningText: {
-    color: colors.textMuted,
-    fontSize: 10,
-    flex: 1,
-    lineHeight: 14,
-  },
-  confirmActions: {
-    flexDirection: 'row',
-    gap: 10,
-    alignSelf: 'stretch',
-  },
-  confirmBtn: {
-    flex: 1,
-    height: 44,
-    borderRadius: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  confirmCancel: {
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  confirmCancelText: { color: 'white', fontSize: 14, fontWeight: '600' },
-  confirmRemove: {
-    backgroundColor: DANGER,
-  },
-  confirmRemoveText: { color: 'white', fontSize: 14, fontWeight: '700' },
-});
+    statGrid: { marginTop: FAN_SPACING.md },
+    memberStatRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingVertical: 2,
+    },
+    inlineRow: { flexDirection: 'row', alignItems: 'center' },
+
+    memberFooter: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: FAN_SPACING.md,
+      marginTop: FAN_SPACING.md,
+    },
+    rolePill: {
+      paddingHorizontal: FAN_SPACING.md,
+      paddingVertical: 3,
+      borderRadius: FAN_RADIUS.md,
+    },
+    accuracyTrack: {
+      flex: 1,
+      height: 4,
+      borderRadius: 3,
+      overflow: 'hidden',
+    },
+    accuracyFill: { height: 4, borderRadius: 3 },
+
+    // ── Confirmation modal ──────────────────────────────
+    confirmBackdrop: {
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.6)',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: FAN_SPACING.xxl,
+    },
+    confirmCard: {
+      width: '100%',
+      maxWidth: 380,
+      borderRadius: FAN_RADIUS.lg,
+      backgroundColor: colors.surface,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.border,
+      padding: FAN_SPACING.xl,
+      alignItems: 'center',
+    },
+    confirmIconWrap: {
+      width: 56,
+      height: 56,
+      borderRadius: 28,
+      alignItems: 'center',
+      justifyContent: 'center',
+      marginBottom: FAN_SPACING.base,
+    },
+    confirmWarning: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      gap: FAN_SPACING.md,
+      padding: FAN_SPACING.md,
+      borderRadius: FAN_RADIUS.md,
+      borderWidth: StyleSheet.hairlineWidth,
+      marginBottom: FAN_SPACING.lg,
+    },
+    confirmActions: {
+      flexDirection: 'row',
+      gap: FAN_SPACING.md,
+      alignSelf: 'stretch',
+    },
+    confirmBtn: {
+      flex: 1,
+      height: 44,
+      borderRadius: FAN_RADIUS.pill,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+  });
+}

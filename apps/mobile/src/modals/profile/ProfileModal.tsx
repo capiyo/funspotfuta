@@ -66,8 +66,8 @@ import {
   UsersCollectionSnapshot,
   EMPTY_USERS_COLLECTION_SNAPSHOT,
   userDataFromJson,
-} from '../../../../../packages/core/src/types/';
-import { DepositDialog, WithdrawDialog } from './ProfileModal/PaymentDialogs';
+} from './types';
+import { DepositDialog, WithdrawDialog } from './paymentsDialogs';
 import { ChannelLeaderboard } from './ChannelLeaderboard';
 
 type FanColors = ReturnType<typeof useFanColors>;

@@ -2,8 +2,12 @@
 // Icon + optional count. Replaces FooterPill in PostCard AND the three
 // emoji footer items in MatchCard, so every card's footer is the same
 // component with the same icons, sizes and pressed state.
+//
+// When `onPress` is undefined the button renders as a static View:
+// no Pressable, no pressed opacity, no button a11y role. Used for
+// display-only counts like the Comments pill on MatchCard.
 
-import { Pressable, Text } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 import type { LucideIcon } from 'lucide-react-native';
 import { FanColorPalette, FAN_SPACING } from '@funspot/core';
 import { fanText } from '@/theme/use-fan-typography';
@@ -29,6 +33,34 @@ export function ActionButton({
 }) {
     const color = active ? activeColor ?? colors.primary : colors.textSecondary;
 
+    const content = (
+        <>
+            <Icon size={ICON.sm} color={color} fill={active ? color : 'none'} />
+            {count !== undefined && (
+                <Text style={fanText('caption', colors, color)}>{count}</Text>
+            )}
+        </>
+    );
+
+    const baseStyle = {
+        flexDirection: 'row' as const,
+        alignItems: 'center' as const,
+        gap: FAN_SPACING.xs,
+    };
+
+    // Display-only: no touch target, no pressed state, no button role.
+    if (!onPress) {
+        return (
+            <View
+                style={baseStyle}
+                accessibilityRole="text"
+                accessibilityLabel={`${label}${count !== undefined ? `: ${count}` : ''}`}
+            >
+                {content}
+            </View>
+        );
+    }
+
     return (
         <Pressable
             onPress={onPress}
@@ -36,16 +68,11 @@ export function ActionButton({
             accessibilityRole="button"
             accessibilityLabel={label}
             style={({ pressed }) => ({
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: FAN_SPACING.xs,
+                ...baseStyle,
                 opacity: pressed ? PRESSED_OPACITY : 1,
             })}
         >
-            <Icon size={ICON.sm} color={color} fill={active ? color : 'none'} />
-            {count !== undefined && (
-                <Text style={fanText('caption', colors, color)}>{count}</Text>
-            )}
+            {content}
         </Pressable>
     );
 }

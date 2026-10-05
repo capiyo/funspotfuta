@@ -3,6 +3,7 @@
 // channel voting, fixture comments, and the comrades (friends) graph.
 
 import { API_BASE, authHeaders } from './config';
+import { type Channel, channelFromJson } from '../types/channels';
 
 function headers(authToken?: string | null): HeadersInit {
   return authToken ? { Authorization: `Bearer ${authToken}` } : {};
@@ -153,12 +154,14 @@ export async function getComradesWhoVotedOnFixture(
 // ---------------------------------------------------------------------------
 // CHANNELS
 // ---------------------------------------------------------------------------
-
-export interface Channel {
-  id: string;
-  name: string;
-  [key: string]: any;
-}
+//
+// `Channel` used to be a loose local interface here ({ id, name, [key: string]: any }).
+// That was a stray duplicate of the canonical, fully-parsed Channel type in
+// types/channel.ts (channelId, memberCount, members: ChannelMember[], isAdmin
+// derived from members, etc.) — the shape every other screen (ComradeListModal,
+// AppHeader/useHome) actually expects. Now importing that type directly instead
+// of redeclaring it, so `Channel` means the same thing everywhere `@funspot/core`
+// exports it.
 
 // GET /api/channels/user/:userId/count
 export async function getUserChannelCount(userId: string, authToken?: string): Promise<number> {
@@ -181,7 +184,12 @@ export async function getUserChannels(userId: string, authToken: string): Promis
     });
     if (!res.ok) return [];
     const data = await res.json();
-    return Array.isArray(data) ? data : data.channels ?? [];
+    const raw: any[] = Array.isArray(data) ? data : data.channels ?? [];
+    // Parse through channelFromJson rather than casting the raw (snake_case,
+    // unparsed-dates, isAdmin-not-derived) response as Channel — the function's
+    // return type now claims the canonical shape, so it needs to actually
+    // produce it.
+    return raw.filter((c) => c && typeof c === 'object').map((c) => channelFromJson(c));
   } catch (e) {
     console.error('getUserChannels failed:', e);
     return [];

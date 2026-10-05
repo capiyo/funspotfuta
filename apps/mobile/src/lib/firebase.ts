@@ -1,5 +1,5 @@
 // apps/mobile/lib/firebase.ts
-import { Platform } from 'react-native';
+import { Platform, PermissionsAndroid } from 'react-native';
 import { getAuth } from '@react-native-firebase/auth';
 import {
     getMessaging,
@@ -7,7 +7,6 @@ import {
     getToken,
     onMessage,
     setBackgroundMessageHandler,
-    AuthorizationStatus,
 } from '@react-native-firebase/messaging';
 
 // No initializeApp() call needed — @react-native-firebase auto-configures
@@ -17,20 +16,21 @@ import {
 export const firebaseAuth = getAuth();
 export const firebaseMessaging = getMessaging();
 
+// Values of messaging.AuthorizationStatus. The modular API only exports
+// AuthorizationStatus as a type, so we compare against the numeric values.
+const AUTHORIZED = 1;
+const PROVISIONAL = 2;
+
 export async function requestNotificationPermission(): Promise<boolean> {
     if (Platform.OS === 'android' && Platform.Version >= 33) {
-        const { PermissionsAndroid } = require('react-native');
         const granted = await PermissionsAndroid.request(
-            PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
+            PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
         );
         if (granted !== PermissionsAndroid.RESULTS.GRANTED) return false;
     }
 
     const authStatus = await requestPermission(firebaseMessaging);
-    return (
-        authStatus === AuthorizationStatus.AUTHORIZED ||
-        authStatus === AuthorizationStatus.PROVISIONAL
-    );
+    return authStatus === AUTHORIZED || authStatus === PROVISIONAL;
 }
 
 export async function requestFcmToken(): Promise<string | null> {

@@ -43,7 +43,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { AuthProvider } from '@/lib/auth/auth-context';
 import { LoginModalProvider } from './src/modals/Login-modal-context';
 import { ToastProvider } from '@/lib/toast/toast-context';
-import { QueryProvider } from './QueryProvider';
+import  {QueryProvider}  from './QueryProvider';
 import RootNavigator from '@/navigation/RootNavigator';
 import { useFanColors } from '@/theme/use-fan-colors';
 
@@ -52,6 +52,10 @@ SplashScreen.preventAutoHideAsync();
 export default function App() {
   const colors = useFanColors();
   const [cacheReady, setCacheReady] = useState(false);
+
+  // Stable reference so QueryProvider's rehydration effect doesn't
+  // re-subscribe on every App re-render (theme change, font load, etc.)
+  const handleCacheReady = useCallback(() => setCacheReady(true), []);
 
   const [fontsLoaded] = useFonts({
     DMSans_400Regular,
@@ -89,7 +93,7 @@ export default function App() {
         <AuthProvider>
           <LoginModalProvider>
             <ToastProvider>
-              <QueryProvider onReady={() => setCacheReady(true)}>
+              <QueryProvider onReady={handleCacheReady}>
                 {appReady ? (
                   <View style={{ flex: 1, backgroundColor: colors.background }}>
                     <NavigationContainer theme={navTheme}>
