@@ -6,8 +6,7 @@
 // they aren't on the 5-item bottom nav (matching the original app, which
 // reaches them via in-page buttons rather than tabs).
 
-import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+import { Link, useNavigate } from 'react-router-dom';
 import { Users, Trophy, History, Bell, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/lib/auth/auth-context';
 import { WalletCard } from '@/components/WalletCard';
@@ -21,11 +20,11 @@ const LINKS = [
 
 export default function ProfilePage() {
   const { username, phone, userId, logout } = useAuth();
-  const router = useRouter();
+  const navigate = useNavigate();
 
   async function handleLogout() {
     await logout();
-    router.replace('/login');
+    navigate('/login', { replace: true });
   }
 
   return (
