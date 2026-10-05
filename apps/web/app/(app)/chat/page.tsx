@@ -71,7 +71,7 @@ export function ChatModal({ fixture, channelId, onClose }: ChatModalProps) {
   // ── Channels (for the picker) ────────────────────────────────
   useEffect(() => {
     if (!userId || !authToken) return;
-    getUserChannels(userId, authToken)
+    getUserChannelsV2(userId, authToken)
       .then((c) => {
         setChannels(c);
         setActiveChannelId((prev) => prev && c.some((channel) => channel.channelId === prev) ? prev : c[0]?.channelId ?? '');
