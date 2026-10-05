@@ -2,7 +2,7 @@
   "name": "@funspot/core",
   "version": "0.1.0",
   "private": true,
-  "description": "Platform-agnostic Funspot domain layer — types + API client functions, shared by apps/web (Next.js) and apps/mobile (Expo). No React, no DOM, no RN-specific APIs — just TypeScript and fetch, so it works unmodified on both platforms.",
+  "description": "Platform-agnostic Funspot domain layer — types + API client functions, shared by apps/web (React) and apps/mobile (Expo). No React, no DOM, no RN-specific APIs — just TypeScript and fetch, so it works unmodified on both platforms.",
   "main": "src/index.ts",
   "types": "src/index.ts",
   "scripts": {
