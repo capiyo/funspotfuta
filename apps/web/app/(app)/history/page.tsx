@@ -14,7 +14,7 @@
 // so the row is never empty — same behaviour as _buildTopThreeForHistoryItem.
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useNavigate } from 'react-router-dom';
 import {
   fetchHistoryGames,
   getAllFixtures,
@@ -234,7 +234,7 @@ export function toCardData(
 }
 
 export default function HistoryPage() {
-  const router = useRouter();
+  const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>('history');
 
   // History tab state
@@ -286,11 +286,11 @@ export default function HistoryPage() {
   }
 
   function openResults(game: HistoryGame) {
-    router.push(`/fixture/${game.id}`);
+    navigate(`/fixture/${game.id}`);
   }
 
   function openChat(game: HistoryGame) {
-    router.push(`/fixture/${game.id}#chat`);
+    navigate(`/fixture/${game.id}#chat`);
   }
 
   return (
@@ -376,7 +376,7 @@ export default function HistoryPage() {
         liveFixtures.map((f) => (
           <button
             key={f.matchId || f.id}
-            onClick={() => router.push(`/fixture/${f.matchId || f.id}`)}
+            onClick={() => navigate(`/fixture/${f.matchId || f.id}`)}
             className="mb-fan-md flex w-full items-center justify-between rounded-fan-xl bg-fan-surface p-fan-lg text-left shadow-lg shadow-black/10 ring-1 ring-fan-border/[0.06]"
           >
             <div className="min-w-0">
