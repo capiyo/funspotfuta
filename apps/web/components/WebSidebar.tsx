@@ -18,12 +18,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/auth/auth-context';
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? 'https://clash-api-m5mr.onrender.com/api';
-
-// Mock fan/profile/channel fillers are opt-in and development-only.
-const ENABLE_MOCK_FANS =
-  process.env.NODE_ENV !== 'production' &&
-  process.env.NEXT_PUBLIC_ENABLE_MOCK_FANS === 'true';
+  import.meta.env.VITE_API_BASE_URL ?? 'https://clash-api-m5mr.onrender.com/api';
 
 // ── Types ──────────────────────────────────────────────────────
 interface ChannelMember {
@@ -80,6 +75,7 @@ function mockMembers(count: number, prefix: string): ChannelMember[] {
   });
 }
 
+const ENABLE_MOCK_FANS = import.meta.env.DEV && import.meta.env.VITE_ENABLE_MOCK_FANS === 'true';
 const MOCK_CHANNELS: Channel[] = [
   { name: 'Premier League', memberCount: 15, season: '3', isAdmin: true, members: mockMembers(15, 'pl') },
   { name: 'World Cup Warriors', memberCount: 15, season: '1', isAdmin: false, members: mockMembers(15, 'wc') },
@@ -603,24 +599,29 @@ export function WebSidebar() {
   // Load — mirrors _loadAllData / _loadMockData
   useEffect(() => {
     if (!userId) {
-      if (ENABLE_MOCK_FANS) {
-        setUserData({
-          userId: 'mock_user',
-          username: MOCK_PROFILE.username,
-          phone: MOCK_PROFILE.phone,
-          nickname: MOCK_PROFILE.nickname,
-          clubFan: MOCK_PROFILE.clubFan,
-          countryFan: MOCK_PROFILE.countryFan,
-          numberOfBets: 24,
-          balance: 0,
-        });
-        setChannels(MOCK_CHANNELS);
-        setChannelsAreMock(true);
-      } else {
+      if (!ENABLE_MOCK_FANS) {
         setUserData(null);
         setChannels([]);
         setChannelsAreMock(false);
+        setBalance(0);
+        setBalanceLoading(false);
+        setLoading(false);
+        setChannelsLoading(false);
+        return;
       }
+      // Signed out — development-only mock data
+      setUserData({
+        userId: 'mock_user',
+        username: MOCK_PROFILE.username,
+        phone: MOCK_PROFILE.phone,
+        nickname: MOCK_PROFILE.nickname,
+        clubFan: MOCK_PROFILE.clubFan,
+        countryFan: MOCK_PROFILE.countryFan,
+        numberOfBets: 24,
+        balance: 0,
+      });
+      setChannels(MOCK_CHANNELS);
+      setChannelsAreMock(true);
       setBalance(0);
       setBalanceLoading(false);
       setLoading(false);
@@ -629,7 +630,8 @@ export function WebSidebar() {
       return;
     }
 
-    // Signed in — use real API data. Mock channels are opt-in for local dev only.
+    // Signed in — fetch real data, fall back to mock channels if the
+    // API returns nothing (or the fetch fails).
     setLoading(true);
     setChannelsLoading(true);
     setBalanceLoading(true);
