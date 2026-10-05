@@ -169,6 +169,7 @@ function ArenaColumn({ channelId }: { channelId?: string }) {
   const [modalFixture, setModalFixture] = useState<Fixture | null>(null);
   const [chatFixture, setChatFixture] = useState<Fixture | null>(null);
   const [filter, setFilter] = useState<ArenaFilter>('all');
+  const [refreshing, setRefreshing] = useState(false);
 
   const liveCount = useMemo(() => fixtures.filter(arenaIsLive).length, [fixtures]);
   const filteredFixtures = useMemo(() => {
@@ -210,6 +211,19 @@ function ArenaColumn({ channelId }: { channelId?: string }) {
       </div>
     );
   }
+  async function refreshFixtures() {
+    setRefreshing(true);
+    try {
+      const fresh = await getAllFixtures();
+      setFixtures(fresh);
+      setLoadError(false);
+    } catch {
+      setLoadError(true);
+    } finally {
+      setRefreshing(false);
+    }
+  }
+
   if (fixtures.length === 0) {
     return (
       <p className="px-fan-lg py-fan-xxl text-center text-fan-body text-fan-textTertiary">
@@ -220,7 +234,7 @@ function ArenaColumn({ channelId }: { channelId?: string }) {
 
   return (
     <div className="px-fan-base">
-      <div className="mb-fan-sm flex overflow-x-auto px-fan-sm py-fan-sm">
+      <div className="mb-fan-sm flex items-center gap-fan-sm overflow-x-auto px-fan-sm py-fan-sm">
         {[
           ['all', 'All'],
           ['live', liveCount > 0 ? `Live · ${liveCount}` : 'Live'],
@@ -239,6 +253,13 @@ function ArenaColumn({ channelId }: { channelId?: string }) {
             {label}
           </button>
         ))}
+        <button
+          onClick={refreshFixtures}
+          disabled={refreshing}
+          className="shrink-0 rounded-fan-pill bg-fan-surface px-fan-md py-fan-sm text-fan-caption text-fan-textSecondary disabled:opacity-50"
+        >
+          {refreshing ? 'Refreshing…' : 'Refresh'}
+        </button>
       </div>
 
       {filteredFixtures.length === 0 ? (
