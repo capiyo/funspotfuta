@@ -23,6 +23,7 @@ export {
   searchPotentialComrades,
   getComradesWhoVotedOnFixture,
   getUserChannelCount,
+  getUserChannels,
   createChannel,
   getChannel,
   getChannelLeaderboard,
@@ -47,7 +48,40 @@ export type {
   SendChannelMessageParams,
   PostCommentParams,
 } from './api/comrade-service';
-export * from './api/channels-service';
+export {
+  getUserChannels as getUserChannelsV2,
+  getAllChannels,
+  joinChannel,
+  addChannelMember,
+  requestJoinChannel,
+  getPendingJoinRequests,
+  approveJoinRequest,
+  rejectJoinRequest,
+  getComradesInGroups,
+  channelFromJson,
+  channelToJson,
+  channelIsMember,
+  channelIsPending,
+  channelIsActiveMember,
+  channelIsInactive,
+  isUserAdmin,
+  adminMembers,
+  regularMembers,
+  getMember,
+  emptyChannel,
+  memberIsAdmin,
+  memberIsModerator,
+  memberIsMember,
+  memberIsOwner,
+  memberVoteAccuracy,
+  memberAccuracyLabel,
+} from './api/channels-service';
+export type {
+  Channel,
+  ChannelMember,
+  PendingJoinRequest,
+} from './api/channels-service';
+export type { Channel as UserChannel, ChannelMember as UserChannelMember } from './api/channels-service';
 
 export * from './api/bet-service';
 export * from './api/sub-fixture-service';
