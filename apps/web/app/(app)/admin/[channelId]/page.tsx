@@ -7,13 +7,13 @@
 // member list + removal, and admin payout compute.
 
 import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams } from 'react-router-dom';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useToast } from '@/lib/toast/toast-context';
 import { getChannelDetail, removeMember, ChannelDetail, computeAdminPayout } from '@funspot/core';
 
 export default function AdminDashboardPage() {
-  const { channelId } = useParams<{ channelId: string }>();
+  const { channelId = '' } = useParams<{ channelId: string }>();
   const { userId, authToken } = useAuth();
   const toast = useToast();
 
