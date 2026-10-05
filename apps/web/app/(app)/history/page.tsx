@@ -285,7 +285,7 @@ export default function HistoryPage() {
               onOpen={() => openChat(g)}
               onOpenResults={() => openResults(g)}
               onOpenChat={() => openChat(g)}
-              onSubmitComment={() => {
+              onSubmitComment={() => { // Mobile has no History comment mutation.
                 /* No History comment mutation exists in mobile yet. */
               }}
             />
