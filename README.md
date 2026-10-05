@@ -7,7 +7,7 @@ A TypeScript monorepo containing the FunspotFuta web application, React Native m
 ```
 funspotfuta/
 ├── apps/
-│   ├── web/                 # Next.js 14 / React / TypeScript / Tailwind
+│   ├── web/                 # React 18 + Vite / React / TypeScript / Tailwind
 │   └── mobile/              # Expo / React Native
 ├── packages/
 │   └── core/                # Shared types, API services, and domain logic
@@ -37,7 +37,7 @@ The React web application lives in `apps/web`.
 
 It uses:
 
-- Next.js 14 App Router
+- React 18 + Vite App Router
 - React + TypeScript
 - Tailwind CSS
 - TanStack Query
