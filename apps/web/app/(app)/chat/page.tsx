@@ -73,7 +73,7 @@ export function ChatModal({ fixture, channelId, onClose }: ChatModalProps) {
     if (!userId || !authToken) return;
     getUserChannels(userId, authToken).then((c) => {
       setChannels(c);
-      setActiveChannelId((prev) => prev ?? c[0]?.id ?? '');
+      setActiveChannelId((prev) => prev ?? c[0]?.channelId ?? '');
     });
   }, [userId, authToken]);
 
