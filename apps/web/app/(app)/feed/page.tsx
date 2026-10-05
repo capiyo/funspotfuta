@@ -9,14 +9,13 @@ import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/lib/auth/auth-context';
 import { getPosts, toggleLikePost, Post, isLikedBy } from '@funspot/core';
 import { createPost } from '@/lib/api/posts-create';
-import { useToast } from '@/lib/toast/toast-context';
 import { PostCard } from '@/components/PostCard';
 
 export default function FeedPage() {
   const { userId, username } = useAuth();
-  const toast = useToast();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [caption, setCaption] = useState('');
@@ -29,17 +28,41 @@ export default function FeedPage() {
     const result = await getPosts({ page: p, limit: 10 });
     setHasMore(result.posts.length === 10);
     setPosts((prev) => (replace ? result.posts : [...prev, ...result.posts]));
+    setLoadError(false);
   }
 
   useEffect(() => {
     setLoading(true);
-    loadPage(1, true).finally(() => setLoading(false));
+    loadPage(1, true)
+      .catch((error) => {
+        console.error('Failed to load feed', error);
+        setLoadError(true);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   async function handleLoadMore() {
     const next = page + 1;
-    setPage(next);
-    await loadPage(next, false);
+    try {
+      await loadPage(next, false);
+      setPage(next);
+    } catch (error) {
+      console.error('Failed to load more feed posts', error);
+      setLoadError(true);
+    }
+  }
+
+  async function handleRetry() {
+    setLoading(true);
+    try {
+      await loadPage(1, true);
+      setPage(1);
+    } catch (error) {
+      console.error('Failed to retry feed load', error);
+      setLoadError(true);
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handlePost() {
@@ -70,24 +93,19 @@ export default function FeedPage() {
           : p
       )
     );
-    const result = await toggleLikePost(post.id, userId, username);
-    if (result.success && result.likesCount != null) {
-      setPosts((prev) => prev.map((p, i) => (i === index ? { ...p, likesCount: result.likesCount! } : p)));
+    try {
+      const result = await toggleLikePost(post.id, userId, username);
+      if (result.success && result.likesCount != null) {
+        setPosts((prev) => prev.map((p) => (p.id === post.id ? { ...p, likesCount: result.likesCount! } : p)));
+      }
+    } catch {
+      // Match mobile: restore authoritative backend state if the optimistic like fails.
+      await loadPage(page, true).catch((error) => console.error('Failed to refresh feed after like error', error));
     }
   }
 
-  function handleOpenComments(post: Post, index: number) {
-    // Wire this up to your existing PostComments modal/sheet.
-    console.log('open comments for', post.id, index);
-  }
-
-  function handleRepost(_post: Post) {
-    toast.showInfo('Repost coming soon');
-  }
-
-  function handleShare(_post: Post) {
-    toast.showInfo('Share coming soon');
-  }
+  // These actions are intentionally no-ops, matching FeedScreen/PostCard on mobile.
+  // Do not imply backend support until the mobile implementation adds it.
 
   return (
     <div className="mx-auto max-w-md px-fan-lg pt-fan-xxl pb-10">
@@ -124,6 +142,11 @@ export default function FeedPage() {
         <div className="flex justify-center py-16">
           <div className="h-8 w-8 animate-spin rounded-fan-pill border-2 border-fan-primary border-t-transparent" />
         </div>
+      ) : loadError && posts.length === 0 ? (
+        <div className="py-16 text-center">
+          <p className="text-fan-body text-fan-textSecondary">Couldn’t load the feed. Check your connection and try again.</p>
+          <button onClick={handleRetry} className="mt-fan-md rounded-fan-pill border border-fan-border px-fan-lg py-fan-sm text-fan-body font-semibold text-fan-primary">Try again</button>
+        </div>
       ) : posts.length === 0 ? (
         <p className="py-16 text-center text-fan-body text-fan-textTertiary">No posts yet — be the first.</p>
       ) : (
@@ -137,9 +160,9 @@ export default function FeedPage() {
                 currentUserId={userId}
                 isNew={(post.timestamp ?? 0) > lastViewedAt}
                 onLike={handleLike}
-                onOpenComments={handleOpenComments}
-                onRepost={handleRepost}
-                onShare={handleShare}
+                onOpenComments={() => {}}
+                onRepost={() => {}}
+                onShare={() => {}}
               />
             ))}
           </div>

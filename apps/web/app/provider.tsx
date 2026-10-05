@@ -6,7 +6,7 @@ import { createAppQueryClient } from '@funspot/core';
 import { webStorage } from '@funspot/storage';
 
 export function QueryProvider({ children }: { children: React.ReactNode }) {
-    const [queryClient] = useState(() => createAppQueryClient(webStorage));
+    const [{ queryClient }] = useState(() => createAppQueryClient(webStorage));
 
     return (
         <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>

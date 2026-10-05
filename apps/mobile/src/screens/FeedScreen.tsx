@@ -92,9 +92,8 @@ export default function FeedScreen() {
         image: image
           ? {
             uri: image.uri,
-            fileName: image.fileName,
-            mimeType: image.mimeType,
-            fileSize: image.fileSize,
+            name: image.fileName ?? 'image.jpg',
+            type: image.mimeType ?? 'image/jpeg',
           }
           : undefined,
       });

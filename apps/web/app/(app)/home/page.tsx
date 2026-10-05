@@ -12,13 +12,16 @@
 // LogsColumn renders through <HistoryCard>, adapter imported from
 // app/(app)/history/page.
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import {
   Fixture,
   getAllFixtures,
-  getUserChannels,
-  Channel,
+  getUserChannelsV2,
+  getAllChannels,
+  joinChannel,
+  UserChannel,
   getPosts,
   toggleLikePost,
   Post,
@@ -27,7 +30,6 @@ import {
   formattedDate,
   isLikedBy,
   postTypeDisplay,
-  followUser,
   fetchHistoryGames,
   scoreDisplay,
   HistoryGame,
@@ -65,26 +67,89 @@ import { ChatModal } from '../chat/page';
 
 // ── Page ────────────────────────────────────────────────────────
 export default function HomePage() {
-  const { userId, authToken } = useAuth();
-  const [channels, setChannels] = useState<Channel[]>([]);
+  const { userId, username, authToken } = useAuth();
+  const [channels, setChannels] = useState<UserChannel[]>([]);
   const [activeChannelId, setActiveChannelId] = useState<string | undefined>();
+  const [browseChannels, setBrowseChannels] = useState<UserChannel[]>([]);
+  const [joiningChannelId, setJoiningChannelId] = useState<string | undefined>();
   const [showCreateChannel, setShowCreateChannel] = useState(false);
-  const [mobileTab, setMobileTab] = useState<'arena' | 'feed' | 'logs'>('arena');
+  const searchParams = useSearchParams();
+  const requestedTab = searchParams.get('tab');
+  const initialTab = requestedTab === 'feed' || requestedTab === 'logs' ? requestedTab : 'arena';
+  const [mobileTab, setMobileTab] = useState<'arena' | 'feed' | 'logs'>(initialTab);
 
   useEffect(() => {
-    if (!userId || !authToken) return;
-    getUserChannels(userId, authToken).then((c) => {
-      setChannels(c);
-      setActiveChannelId((prev) => prev ?? c[0]?.id);
-    });
+    if (requestedTab === 'arena' || requestedTab === 'feed' || requestedTab === 'logs') {
+      setMobileTab(requestedTab);
+    }
+  }, [requestedTab]);
+
+  const reloadChannels = useCallback(async () => {
+    if (!userId || !authToken) {
+      setChannels([]);
+      setBrowseChannels([]);
+      setActiveChannelId(undefined);
+      return;
+    }
+    try {
+      const joined = await getUserChannelsV2(userId, authToken);
+      setChannels(joined);
+      setActiveChannelId((prev) => prev && joined.some((c) => c.channelId === prev) ? prev : joined[0]?.channelId);
+      if (joined.length < 3) {
+        try {
+          const all = await getAllChannels(authToken);
+          const joinedIds = new Set(joined.map((c) => c.channelId));
+          setBrowseChannels(all.filter((c) => !joinedIds.has(c.channelId)));
+        } catch (error) {
+          console.error('Failed to load browsable channels', error);
+          // Keep the last known browse list rather than replacing it with fake data.
+        }
+      } else {
+        setBrowseChannels([]);
+      }
+    } catch (error) {
+      console.error('Failed to reload joined channels', error);
+      // Preserve the last known channels, matching mobile home-context behavior.
+    }
   }, [userId, authToken]);
+
+  useEffect(() => {
+    void reloadChannels();
+  }, [reloadChannels]);
+
+  async function handleJoinChannel(channelId: string) {
+    if (!userId || !username || !authToken || joiningChannelId) return;
+    setJoiningChannelId(channelId);
+    try {
+      const ok = await joinChannel(channelId, { userId, username }, authToken);
+      if (ok) {
+        setActiveChannelId(channelId);
+        await reloadChannels();
+      }
+    } finally {
+      setJoiningChannelId(undefined);
+    }
+  }
 
   return (
     <div className="flex h-screen flex-col bg-fan-background">
       <WebNavbar
-        channels={channels}
+        channels={channels.map((c) => ({
+          id: c.channelId,
+          name: c.name,
+          isAdmin: c.isAdmin,
+          members: c.members,
+        }))}
         activeChannelId={activeChannelId}
         onSelectChannel={setActiveChannelId}
+        browseChannels={browseChannels.map((c) => ({
+          id: c.channelId,
+          name: c.name,
+          isAdmin: c.isAdmin,
+          members: c.members,
+        }))}
+        onJoinChannel={handleJoinChannel}
+        joiningChannelId={joiningChannelId}
         onCreateChannel={() => setShowCreateChannel(true)}
       />
       {/* Desktop: 3 simultaneous columns */}
@@ -109,8 +174,7 @@ export default function HomePage() {
         <ChannelCreationModal
           onClose={() => {
             setShowCreateChannel(false);
-            if (userId && authToken)
-              getUserChannels(userId, authToken).then(setChannels);
+            void reloadChannels();
           }}
         />
       )}
@@ -129,22 +193,92 @@ function Spinner() {
 // ---------------------------------------------------------------------------
 // ARENA — fixtures + vote modal + chat modal
 // ---------------------------------------------------------------------------
+type ArenaFilter = 'all' | 'live' | 'upcoming' | 'completed';
+
+function arenaIsLive(f: Fixture) {
+  return !!f.isLive || f.status === 'live';
+}
+function arenaIsUpcoming(f: Fixture) {
+  return f.status === 'upcoming' || f.status === 'soon';
+}
+function arenaIsCompleted(f: Fixture) {
+  return f.status === 'completed';
+}
+function arenaMatchesFilter(f: Fixture, filter: ArenaFilter) {
+  if (filter === 'all') return true;
+  if (filter === 'live') return arenaIsLive(f);
+  if (filter === 'upcoming') return arenaIsUpcoming(f);
+  return arenaIsCompleted(f);
+}
+function arenaStatusRank(f: Fixture) {
+  if (arenaIsLive(f)) return 0;
+  if (arenaIsUpcoming(f)) return 1;
+  return 2;
+}
+
 function ArenaColumn({ channelId }: { channelId?: string }) {
   const { userId, username, authToken, isLoggedIn } = useAuth();
   const [fixtures, setFixtures] = useState<Fixture[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [modalFixture, setModalFixture] = useState<Fixture | null>(null);
   const [chatFixture, setChatFixture] = useState<Fixture | null>(null);
+  const [filter, setFilter] = useState<ArenaFilter>('all');
+  const [refreshing, setRefreshing] = useState(false);
+
+  const liveCount = useMemo(() => fixtures.filter(arenaIsLive).length, [fixtures]);
+  const filteredFixtures = useMemo(() => {
+    const matched = fixtures.filter((f) => arenaMatchesFilter(f, filter));
+    if (filter !== 'all') return matched;
+    return matched
+      .map((f, i) => ({ f, i }))
+      .sort((a, b) => arenaStatusRank(a.f) - arenaStatusRank(b.f) || a.i - b.i)
+      .map(({ f }) => f);
+  }, [fixtures, filter]);
 
   useEffect(() => {
     setLoading(true);
-    getAllFixtures().then((f) => {
-      setFixtures(f);
-      setLoading(false);
-    });
+    setLoadError(false);
+    getAllFixtures()
+      .then((f) => setFixtures(f))
+      .catch(() => setLoadError(true))
+      .finally(() => setLoading(false));
   }, []);
 
   if (loading) return <Spinner />;
+  if (loadError && fixtures.length === 0) {
+    return (
+      <div className="px-fan-lg py-fan-xxl text-center">
+        <p className="text-fan-body text-fan-textTertiary">Could not load fixtures. Try again.</p>
+        <button
+          onClick={() => {
+            setLoading(true);
+            setLoadError(false);
+            getAllFixtures()
+              .then((f) => setFixtures(f))
+              .catch(() => setLoadError(true))
+              .finally(() => setLoading(false));
+          }}
+          className="mt-fan-md rounded-fan-pill bg-fan-primary px-fan-lg py-fan-sm text-fan-caption font-semibold text-fan-textInverse"
+        >
+          Try again
+        </button>
+      </div>
+    );
+  }
+  async function refreshFixtures() {
+    setRefreshing(true);
+    try {
+      const fresh = await getAllFixtures();
+      setFixtures(fresh);
+      setLoadError(false);
+    } catch {
+      setLoadError(true);
+    } finally {
+      setRefreshing(false);
+    }
+  }
+
   if (fixtures.length === 0) {
     return (
       <p className="px-fan-lg py-fan-xxl text-center text-fan-body text-fan-textTertiary">
@@ -155,7 +289,39 @@ function ArenaColumn({ channelId }: { channelId?: string }) {
 
   return (
     <div className="px-fan-base">
-      {fixtures.map((f) => (
+      <div className="mb-fan-sm flex items-center gap-fan-sm overflow-x-auto px-fan-sm py-fan-sm">
+        {[
+          ['all', 'All'],
+          ['live', liveCount > 0 ? `Live · ${liveCount}` : 'Live'],
+          ['upcoming', 'Upcoming'],
+          ['completed', 'Completed'],
+        ].map(([value, label]) => (
+          <button
+            key={value}
+            onClick={() => setFilter(value as ArenaFilter)}
+            className={`shrink-0 rounded-fan-pill px-fan-md py-fan-sm text-fan-caption font-medium ${
+              filter === value
+                ? 'bg-fan-primary text-fan-textInverse'
+                : 'bg-fan-surface text-fan-textSecondary'
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+        <button
+          onClick={refreshFixtures}
+          disabled={refreshing}
+          className="shrink-0 rounded-fan-pill bg-fan-surface px-fan-md py-fan-sm text-fan-caption text-fan-textSecondary disabled:opacity-50"
+        >
+          {refreshing ? 'Refreshing…' : 'Refresh'}
+        </button>
+      </div>
+
+      {filteredFixtures.length === 0 ? (
+        <p className="px-fan-lg py-fan-xxl text-center text-fan-body text-fan-textTertiary">
+          {filter === 'live' ? 'Nothing live at the moment.' : filter === 'upcoming' ? 'No upcoming fixtures.' : filter === 'completed' ? 'No completed matches yet.' : 'No fixtures right now.'}
+        </p>
+      ) : filteredFixtures.map((f) => (
         <MatchCard
           key={f.id || f.matchId}
           fixture={f}
@@ -216,9 +382,7 @@ function ArenaColumn({ channelId }: { channelId?: string }) {
             });
             return r?.success !== false;
           }}
-          onShowJoinGroups={() => {
-            /* route to /channels or whatever the join-groups flow is */
-          }}
+          onShowJoinGroups={() => {}}
           fetchVoters={fetchVoters}
           fetchPledges={fetchPledges}
           fetchSubFixtures={fetchSubFixtures}
@@ -256,14 +420,7 @@ function FeedColumn() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [caption, setCaption] = useState('');
-  const [followingIds, setFollowingIds] = useState<Set<string>>(new Set());
   const [posting, setPosting] = useState(false);
-
-  async function handleFollow(post: Post) {
-    if (!userId || !post.userId) return;
-    setFollowingIds((prev) => new Set(prev).add(post.userId!));
-    await followUser(userId, post.userId);
-  }
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -298,7 +455,20 @@ function FeedColumn() {
           : p,
       ),
     );
-    await toggleLikePost(post.id, userId, username);
+    try {
+      const result = await toggleLikePost(post.id, userId, username);
+      if (result.success && result.likesCount != null) {
+        setPosts((prev) => prev.map((p) => (p.id === post.id ? { ...p, likesCount: result.likesCount! } : p)));
+      }
+    } catch {
+      // Match mobile: restore authoritative backend state after an optimistic failure.
+      try {
+        const fresh = await getPosts({ page: 1, limit: 15 });
+        setPosts(fresh.posts);
+      } catch {
+        // Keep the optimistic state if recovery also fails.
+      }
+    }
   }
 
   return (
@@ -345,16 +515,7 @@ function FeedColumn() {
                       {postTypeDisplay(post)}
                     </span>
                   </div>
-                  {post.userId &&
-                    post.userId !== userId &&
-                    !followingIds.has(post.userId) && (
-                      <button
-                        onClick={() => handleFollow(post)}
-                        className="text-fan-caption text-fan-primary"
-                      >
-                        follow
-                      </button>
-                    )}
+
                 </div>
                 {displayCaption(post) && (
                   <p className="mb-fan-sm text-fan-body text-fan-textSecondary">
@@ -450,13 +611,10 @@ function LogsColumn() {
             games.map((g) => (
               <HistoryCard
                 key={g.id}
-                data={toCardData(g, { canComment: true })}
+                data={toCardData(g)}
                 onOpen={() => router.push(`/fixture/${g.id}#chat`)}
                 onOpenResults={() => router.push(`/fixture/${g.id}`)}
                 onOpenChat={() => router.push(`/fixture/${g.id}#chat`)}
-                onSubmitComment={() => {
-                  /* wire to your existing comment mutation */
-                }}
               />
             ))
           )

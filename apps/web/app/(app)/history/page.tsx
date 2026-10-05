@@ -1,33 +1,28 @@
+/// <reference types="vite/client" />
 'use client';
 
 // Same history-service.ts data layer as before, now rendering through
 // <HistoryCard> (restyled to match the Flutter HistoryPage / "Logs"
 // screenshot: no card container, no dividers, plane-emoji header,
-// centred score, 3-person row, inline comment field, footer links).
-// Adds the History | Live sub-tab — Live reuses getAllFixtures().
+// centred score, 3-person row, and footer links).
+// The web History page follows mobile: no Live tab and no comment mutation.
 //
 // The people row in <HistoryCard> mirrors the Flutter 4-tier fallback:
 //   1. voters
 //   2. pledges
 //   3. comments
-//   4. deterministic mock "fan" fillers (seeded off fixture id)
+//   4. deterministic mock "fan" fillers (development only; never sent to the backend)
 // so the row is never empty — same behaviour as _buildTopThreeForHistoryItem.
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   fetchHistoryGames,
-  getAllFixtures,
-  hasScores,
-  scoreDisplay,
-  Fixture,
   HistoryGame,
 } from '@funspot/core';
 import { HistoryCard, HistoryCardData, VoterMini } from '../../../components/HistoryCard';
 
 const PAGE_SIZE = 20;
-
-type Tab = 'history' | 'live';
 
 // ── Mock filler pool (mirrors Flutter's _sampleUsernames) ────────
 export const SAMPLE_USERNAMES = [
@@ -69,10 +64,7 @@ export function hashCode(str: string): number {
 }
 
 // ── Adapter: HistoryGame → HistoryCardData ───────────────────────
-export function toCardData(
-  g: HistoryGame,
-  opts: { canComment: boolean } = { canComment: false },
-): HistoryCardData {
+export function toCardData(g: HistoryGame): HistoryCardData {
   
   const homeScore = g.homeScore ?? 0;
   const awayScore = g.awayScore ?? 0;
@@ -191,8 +183,8 @@ export function toCardData(
     }
   }
 
-  // Tier 4 — top up to 3 with deterministic mocks
-  if (people.length < 3) {
+  // Tier 4 — presentation-only mock fillers, development builds only.
+  if (import.meta.env.DEV && people.length < 3) {
     const rand = seededRandom(hashCode(g.id));
     const picks: Array<'home' | 'away' | 'draw'> = ['home', 'away', 'draw'];
     const needed = 3 - people.length;
@@ -229,55 +221,31 @@ export function toCardData(
     latestComment: latest,
     commentCount:
       (g as unknown as { commentCount?: number }).commentCount ?? 0,
-    canComment: opts.canComment,
   };
 }
 
 export default function HistoryPage() {
   const router = useRouter();
-  const [tab, setTab] = useState<Tab>('history');
-
-  // History tab state
+  // History state
   const [games, setGames] = useState<HistoryGame[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-  const [league, setLeague] = useState('');
-
-  // Live tab state
-  const [liveFixtures, setLiveFixtures] = useState<Fixture[]>([]);
-  const [liveLoading, setLiveLoading] = useState(false);
 
   async function loadPage(skip: number, replace: boolean) {
     const page = await fetchHistoryGames({
       limit: PAGE_SIZE,
       skip,
-      league: league || undefined,
     });
     setHasMore(page.length === PAGE_SIZE);
     setGames((prev) => (replace ? page : [...prev, ...page]));
   }
 
   useEffect(() => {
-    if (tab !== 'history') return;
     setLoading(true);
     loadPage(0, true).finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [league, tab]);
-
-  useEffect(() => {
-    if (tab !== 'live') return;
-    setLiveLoading(true);
-    getAllFixtures()
-      .then((all) =>
-        setLiveFixtures(
-          all.filter(
-            (f) => f.status === 'live' || f.status === 'half_time',
-          ),
-        ),
-      )
-      .finally(() => setLiveLoading(false));
-  }, [tab]);
+  }, []);
 
   async function handleLoadMore() {
     setLoadingMore(true);
@@ -299,102 +267,29 @@ export default function HistoryPage() {
         Match History
       </h1>
 
-      {/* History | Live sub-tabs */}
-      <div className="mb-fan-lg flex rounded-fan-pill bg-fan-surfaceSunken p-fan-xs">
-        {(
-          [
-            ['history', 'History'],
-            ['live', 'Live'],
-          ] as const
-        ).map(([key, label]) => (
-          <button
-            key={key}
-            onClick={() => setTab(key)}
-            className={`flex-1 rounded-fan-pill py-fan-sm text-fan-caption font-semibold transition ${tab === key
-                ? 'bg-fan-primary text-fan-textInverse'
-                : 'text-fan-textSecondary'
-              }`}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-
-      {tab === 'history' ? (
-        <>
-          <input
-            value={league}
-            onChange={(e) => setLeague(e.target.value)}
-            placeholder="Filter by league…"
-            className="mb-fan-lg w-full rounded-fan-pill border border-fan-border bg-fan-inputSurface px-fan-lg py-fan-md text-fan-body text-fan-textPrimary outline-none focus:border-fan-borderFocus"
-          />
-
-          {loading ? (
-            <div className="flex justify-center py-16">
-              <div className="h-8 w-8 animate-spin rounded-fan-pill border-2 border-fan-primary border-t-transparent" />
-            </div>
-          ) : games.length === 0 ? (
-            <p className="py-16 text-center text-fan-body text-fan-textTertiary">
-              No history found.
-            </p>
-          ) : (
-            <>
-              {games.map((g) => (
-                <HistoryCard
-                  key={g.id}
-                  data={toCardData(g, { canComment: true })}
-                  onOpen={() => openChat(g)}
-                  onOpenResults={() => openResults(g)}
-                  onOpenChat={() => openChat(g)}
-                  onSubmitComment={() => {
-                    /* wire to your existing comment mutation */
-                  }}
-                />
-              ))}
-
-              {hasMore && (
-                <button
-                  onClick={handleLoadMore}
-                  disabled={loadingMore}
-                  className="mt-fan-md w-full rounded-fan-lg border border-fan-border bg-fan-surfaceSunken py-fan-md text-fan-body text-fan-textSecondary disabled:opacity-60"
-                >
-                  {loadingMore ? 'Loading…' : 'Load more'}
-                </button>
-              )}
-            </>
-          )}
-        </>
-      ) : liveLoading ? (
+      {loading ? (
         <div className="flex justify-center py-16">
           <div className="h-8 w-8 animate-spin rounded-fan-pill border-2 border-fan-primary border-t-transparent" />
         </div>
-      ) : liveFixtures.length === 0 ? (
-        <p className="py-16 text-center text-fan-body text-fan-textTertiary">
-          Nothing live right now.
-        </p>
+      ) : games.length === 0 ? (
+        <p className="py-16 text-center text-fan-body text-fan-textTertiary">No history found.</p>
       ) : (
-        liveFixtures.map((f) => (
-          <button
-            key={f.matchId || f.id}
-            onClick={() => router.push(`/fixture/${f.matchId || f.id}`)}
-            className="mb-fan-md flex w-full items-center justify-between rounded-fan-xl bg-fan-surface p-fan-lg text-left shadow-lg shadow-black/10 ring-1 ring-fan-border/[0.06]"
-          >
-            <div className="min-w-0">
-              <p className="mb-fan-xs flex items-center gap-fan-xs text-fan-tag font-bold text-fan-away">
-                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-fan-live" />
-                LIVE · {f.league}
-              </p>
-              <p className="truncate text-fan-title text-fan-textPrimary">
-                {f.homeTeam} vs {f.awayTeam}
-              </p>
-            </div>
-            {hasScores(f) && (
-              <span className="font-condensed text-fan-scoreCompact font-bold text-fan-textPrimary">
-                {scoreDisplay(f)}
-              </span>
-            )}
-          </button>
-        ))
+        <>
+          {games.map((g) => (
+            <HistoryCard
+              key={g.id}
+              data={toCardData(g)}
+              onOpen={() => openChat(g)}
+              onOpenResults={() => openResults(g)}
+              onOpenChat={() => openChat(g)}
+            />
+          ))}
+          {hasMore && (
+            <button onClick={handleLoadMore} disabled={loadingMore} className="mt-fan-md w-full rounded-fan-lg border border-fan-border bg-fan-surfaceSunken py-fan-md text-fan-body text-fan-textSecondary disabled:opacity-60">
+              {loadingMore ? 'Loading…' : 'Load more'}
+            </button>
+          )}
+        </>
       )}
     </div>
   );

@@ -58,7 +58,7 @@ import {
   getAllFixtures,
   castVote,
   createBetWithVoteId,
-  Channel,
+  ComradeChannel,
   Fixture,
   ChatMessage,
   ReplyData,
@@ -130,7 +130,7 @@ export default function ChatScreen() {
   const toast = useToast();
   const queryClient = useQueryClient();
 
-  const [channels, setChannels] = useState<Channel[]>([]);
+  const [channels, setChannels] = useState<ComradeChannel[]>([]);
   const [activeChannelId, setActiveChannelId] = useState<string | null>(
     routeChannelId ?? null,
   );

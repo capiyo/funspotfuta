@@ -7,7 +7,6 @@ import {
     getToken,
     onMessage,
     setBackgroundMessageHandler,
-    AuthorizationStatus,
 } from '@react-native-firebase/messaging';
 
 // No initializeApp() call needed — @react-native-firebase auto-configures
@@ -28,8 +27,8 @@ export async function requestNotificationPermission(): Promise<boolean> {
 
     const authStatus = await requestPermission(firebaseMessaging);
     return (
-        authStatus === AuthorizationStatus.AUTHORIZED ||
-        authStatus === AuthorizationStatus.PROVISIONAL
+        authStatus === 1 ||
+        authStatus === 2
     );
 }
 

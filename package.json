@@ -15,9 +15,14 @@
   },
   "scripts": {
     "typecheck:core": "npm run typecheck --workspace=@funspot/core",
-    "typecheck:web": "npm run typecheck --workspace=funspot-web 2>/dev/null || cd apps/web && npx tsc --noEmit",
+    "typecheck:web": "npm run typecheck --workspace=funspot-web",
+    "typecheck:mobile": "npm run typecheck --workspace=funspot",
+    "typecheck:all": "npm run typecheck:core && npm run typecheck:web && npm run typecheck:mobile",
     "dev:web": "npm run dev --workspace=funspot-web",
-    "dev:mobile": "npm run start --workspace=funspot-mobile"
+    "dev:mobile": "npm run start --workspace=funspot",
+    "dev:web:vite": "npm run dev:vite --workspace=funspot-web",
+    "build:web:vite": "npm run build:vite --workspace=funspot-web",
+    "preview:web:vite": "npm run preview:vite --workspace=funspot-web"
   },
   "devDependencies": {
     "turbo": "^2.10.13"

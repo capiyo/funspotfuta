@@ -29,8 +29,11 @@ export interface NavbarChannel {
 
 export function WebNavbar({
   channels = [],
+  browseChannels = [],
   activeChannelId,
   onSelectChannel,
+  onJoinChannel,
+  joiningChannelId,
   onCreateChannel,
   notificationCount = 0,
   onNotificationTap,
@@ -40,8 +43,11 @@ export function WebNavbar({
   country,
 }: {
   channels?: NavbarChannel[];
+  browseChannels?: NavbarChannel[];
   activeChannelId?: string;
   onSelectChannel?: (id: string) => void;
+  onJoinChannel?: (id: string) => void;
+  joiningChannelId?: string;
   onCreateChannel?: () => void;
   notificationCount?: number;
   onNotificationTap?: () => void;
@@ -87,7 +93,9 @@ export function WebNavbar({
         channels={channels}
         activeChannelId={activeChannelId}
         onSelect={onSelectChannel}
-        onJoin={(id) => onSelectChannel?.(id)}
+        onJoin={(id) => onJoinChannel?.(id)}
+        browseChannels={browseChannels}
+        joiningChannelId={joiningChannelId}
       />
 
       <div className="flex-1" />
@@ -230,12 +238,16 @@ function ChannelDisplay({
   activeChannelId,
   onSelect,
   onJoin,
+  browseChannels,
+  joiningChannelId,
 }: {
   isLoggedIn: boolean;
   channels: NavbarChannel[];
   activeChannelId?: string;
   onSelect?: (id: string) => void;
   onJoin?: (id: string) => void;
+  browseChannels?: NavbarChannel[];
+  joiningChannelId?: string;
 }) {
   if (!isLoggedIn) {
     return (
@@ -290,6 +302,19 @@ function ChannelDisplay({
           +{channels.length - 3}
         </span>
       )}
+      {browseChannels?.slice(0, 3).map((c) => (
+        <div key={c.id} className="mr-2 flex items-center">
+          <span className="text-[12px] leading-none text-fan-textSecondary">{c.name}</span>
+          <button
+            onClick={() => onJoin?.(c.id)}
+            disabled={joiningChannelId === c.id}
+            className="ml-[3px] text-[12px] font-semibold leading-none text-fan-primary disabled:opacity-50"
+            aria-label={joiningChannelId === c.id ? `Joining ${c.name}` : `Join ${c.name}`}
+          >
+            {joiningChannelId === c.id ? '…' : '+'}
+          </button>
+        </div>
+      ))}
     </div>
   );
 }

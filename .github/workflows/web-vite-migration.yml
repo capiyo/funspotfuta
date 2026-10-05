@@ -1,0 +1,26 @@
+name: Web Vite migration check
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [feat/react-web-mobile-parity]
+
+jobs:
+  web-vite:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install workspace dependencies
+        run: npm install
+      - name: Build Vite web app
+        run: npm run build:web:vite
+      - name: Type-check web workspace
+        if: always()
+        run: npx tsc --noEmit -p apps/web/tsconfig.json

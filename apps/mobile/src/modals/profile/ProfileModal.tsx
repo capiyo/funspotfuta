@@ -60,17 +60,36 @@ import {
   type ChannelMember,
 } from '@funspot/core';
 //import type { Channel } from '@funspot/core';       // ← what I wrote
-import type { Channel as UserChannel } from '@funspot/core/src/api/channels-service';
-import {
-  UserData,
-  UsersCollectionSnapshot,
-  EMPTY_USERS_COLLECTION_SNAPSHOT,
-  userDataFromJson,
-} from '../../../../../packages/core/src/types/';
-import { DepositDialog, WithdrawDialog } from './ProfileModal/PaymentDialogs';
+import type { UserProfile as UserData } from '@funspot/core';
+import { DepositDialog, WithdrawDialog } from './paymentsDialogs';
 import { ChannelLeaderboard } from './ChannelLeaderboard';
 
 type FanColors = ReturnType<typeof useFanColors>;
+
+type UsersCollectionSnapshot = {
+  phone: string;
+  balance: number;
+  totalVotes: number;
+};
+
+const EMPTY_USERS_COLLECTION_SNAPSHOT: UsersCollectionSnapshot = {
+  phone: '',
+  balance: 0,
+  totalVotes: 0,
+};
+
+function userDataFromJson(json: any): UserData {
+  return {
+    userId: String(json.user_id ?? json.userId ?? ''),
+    username: String(json.username ?? ''),
+    phone: String(json.phone ?? ''),
+    nickname: String(json.nickname ?? ''),
+    clubFan: String(json.club_fan ?? json.clubFan ?? ''),
+    countryFan: String(json.country_fan ?? json.countryFan ?? ''),
+    numberOfBets: Number(json.number_of_bets ?? json.numberOfBets ?? 0),
+    balance: Number(json.balance ?? 0),
+  };
+}
 
 const API_BASE = 'https://clash-api-m5mr.onrender.com/api';
 const TIMEOUT_MS = 15000;

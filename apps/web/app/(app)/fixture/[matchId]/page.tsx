@@ -27,7 +27,6 @@ import {
   Bet,
   getSubFixtures,
   submitSubFixtureVote,
-  postComment,
   castVote,
 } from '@funspot/core';
 import { useToast } from '@/lib/toast/toast-context';
@@ -35,7 +34,6 @@ import { useToast } from '@/lib/toast/toast-context';
 type Selection = 'home_team' | 'draw' | 'away_team';
 
 const QUICK_AMOUNTS = [50, 100, 200, 500];
-const COMMENT_LIMIT = 240;
 
 function initials(name: string) {
   return name
@@ -83,9 +81,6 @@ export default function FixtureDetailPage() {
 
   const [subFixtures, setSubFixtures] = useState<SubFixture[]>([]);
 
-  const [comment, setComment] = useState('');
-  const [postingComment, setPostingComment] = useState(false);
-  const [commentStatus, setCommentStatus] = useState<string | null>(null);
 
   const [showStickyHeader, setShowStickyHeader] = useState(false);
   const [pledgeInView, setPledgeInView] = useState(true);
@@ -104,7 +99,7 @@ export default function FixtureDetailPage() {
         fixtures.find((fx) => fx.matchId === matchId || fx.id === matchId) ??
         null;
       setFixture(f);
-      const cid = channels[0]?.id ?? null;
+      const cid = channels[0]?.channelId ?? null;
       setChannelId(cid);
 
       if (f) {
@@ -207,34 +202,6 @@ export default function FixtureDetailPage() {
       setMatchedBets(matched);
     } else {
       toast.showError(result?.message ?? 'Could not place that bet.');
-    }
-  }
-
-  async function handlePostComment() {
-    if (!fixture || !userId || !username || !comment.trim()) return;
-    setPostingComment(true);
-    const result = await postComment({
-      userId,
-      username,
-      fixtureId: fixture.matchId || fixture.id,
-      comment: comment.trim(),
-      selection: voteSelection ?? '',
-      authToken: authToken ?? undefined,
-    });
-    setPostingComment(false);
-    setCommentStatus(result.message);
-    if (result.success) {
-      setComment('');
-      toast.showSuccess(result.message);
-    } else {
-      toast.showError(result.message);
-    }
-  }
-
-  function onCommentKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === 'Enter' && !postingComment) {
-      e.preventDefault();
-      handlePostComment();
     }
   }
 
@@ -534,37 +501,14 @@ export default function FixtureDetailPage() {
           </section>
         )}
 
-        {/* Comments */}
+        {/* Comments are display-only; mobile has no fixture comment mutation. */}
         <section>
           <h2 className="mb-fan-md text-fan-tag font-bold uppercase tracking-[0.3px] text-fan-textTertiary">
             Comments
           </h2>
-          <div className="flex items-center gap-fan-md rounded-fan-pill border border-fan-border bg-fan-surfaceSunken px-fan-md py-fan-xs">
-            <input
-              value={comment}
-              onChange={(e) => setComment(e.target.value.slice(0, COMMENT_LIMIT))}
-              onKeyDown={onCommentKeyDown}
-              placeholder="Say something…"
-              className="flex-1 bg-transparent text-fan-body text-fan-textPrimary outline-none placeholder:text-fan-textTertiary"
-            />
-            <button
-              onClick={handlePostComment}
-              disabled={postingComment || !comment.trim()}
-              className="shrink-0 rounded-fan-pill bg-fan-primary px-fan-md py-fan-xs text-fan-tag font-semibold text-fan-textInverse disabled:opacity-60"
-            >
-              Post
-            </button>
-          </div>
-          <div className="mt-fan-sm flex items-center justify-between">
-            {commentStatus ? (
-              <p className="text-fan-caption text-fan-textTertiary">{commentStatus}</p>
-            ) : (
-              <span />
-            )}
-            <p className="text-fan-caption text-fan-textTertiary">
-              {comment.length}/{COMMENT_LIMIT}
-            </p>
-          </div>
+          <p className="text-fan-caption text-fan-textTertiary">
+            Comments are currently read-only.
+          </p>
         </section>
       </div>
 
