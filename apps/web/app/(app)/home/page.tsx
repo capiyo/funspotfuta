@@ -615,7 +615,6 @@ function LogsColumn() {
                 onOpen={() => router.push(`/fixture/${g.id}#chat`)}
                 onOpenResults={() => router.push(`/fixture/${g.id}`)}
                 onOpenChat={() => router.push(`/fixture/${g.id}#chat`)}
-                onSubmitComment={() => { /* Mobile has no Home history comment mutation. */ }}
               />
             ))
           )
