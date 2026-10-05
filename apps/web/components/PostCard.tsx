@@ -9,7 +9,7 @@
 // remove the local FooterPill definition, add this near the top:
 import { FooterPill } from './FooterPill';
 
-import { useState } from 'react';
+
 import {
     Post,
     displayCaption,
@@ -17,7 +17,6 @@ import {
     formattedDate,
     isLikedBy,
     postTypeDisplay,
-    followUser,
 } from '@funspot/core';
 import { Heart, MessageCircle, Repeat2, Share2 } from 'lucide-react';
 import { SmartMedia } from './SmartMedia';
@@ -61,9 +60,6 @@ export function PostCard({
     onRepost?: (post: Post) => void;
     onShare?: (post: Post) => void;
 }) {
-    const [following, setFollowing] = useState(false);
-    const [followBusy, setFollowBusy] = useState(false);
-
     const liked = currentUserId ? isLikedBy(post, currentUserId) : false;
     const caption = displayCaption(post);
     const isOwnPost = currentUserId != null && post.userId === currentUserId;
@@ -72,20 +68,6 @@ export function PostCard({
     // Video takes priority over image, same as Dart's _buildMediaContent
     const hasVideo = Boolean(post.videoUrl);
     const img = hasVideo ? null : bestImageUrl(post);
-
-    async function handleFollow() {
-        if (!post.userId || followBusy) return;
-        setFollowBusy(true);
-        setFollowing(true); // optimistic
-        try {
-           // const ok = await followUser(post.userId);
-           // if (!ok) setFollowing(false);
-        } catch {
-            setFollowing(false);
-        } finally {
-            setFollowBusy(false);
-        }
-    }
 
     return (
         <div className="bg-fan-background px-fan-md py-fan-lg">
@@ -121,15 +103,6 @@ export function PostCard({
                         </span>
                     )}
 
-                    {!isOwnPost && !following && (
-                        <button
-                            onClick={handleFollow}
-                            disabled={followBusy}
-                            className="text-fan-tag font-semibold text-fan-primary disabled:opacity-50"
-                        >
-                            follow
-                        </button>
-                    )}
                 </div>
             </div>
 
