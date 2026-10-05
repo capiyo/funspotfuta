@@ -25,6 +25,7 @@ import {
   winner as fixtureWinner,
 } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
+import type { MouseEvent } from 'react';
 import { FooterPill } from './FooterPill';
 
 function formatDate(dateString: string): string {
@@ -185,7 +186,7 @@ export function MatchCard({
     fixture.status === 'completed' || fixture.status === 'finished';
   const hasVoted = fixture.voters.some((v) => v.userId === userId);
 
-  function stop(e: React.MouseEvent) {
+  function stop(e: MouseEvent) {
     e.stopPropagation();
   }
 
