@@ -48,8 +48,8 @@ export function App() {
     <Route path="/comrades" element={<Protected><ComradesPage /></Protected>} />
     <Route path="/fixture/:matchId" element={<Protected><FixtureDetailPage /></Protected>} />
     <Route path="/chat" element={<Protected><ChatRoute /></Protected>} />
-    <Route path="/arena" element={<Navigate to="/home" replace />} />
-    <Route path="/logs" element={<Navigate to="/home" replace />} />
+    <Route path="/arena" element={<Navigate to="/home?tab=arena" replace />} />
+    <Route path="/logs" element={<Navigate to="/home?tab=logs" replace />} />
     <Route path="/history" element={<Protected><HistoryPage /></Protected>} />
     <Route path="/leaderboard" element={<Protected><LeaderboardPage /></Protected>} />
     <Route path="/notifications" element={<Protected><NotificationsPage /></Protected>} />
