@@ -67,7 +67,7 @@ import { ChatModal } from '../chat/page';
 
 // ── Page ────────────────────────────────────────────────────────
 export default function HomePage() {
-  const { userId, authToken } = useAuth();
+  const { userId, username, authToken } = useAuth();
   const [channels, setChannels] = useState<Channel[]>([]);
   const [activeChannelId, setActiveChannelId] = useState<string | undefined>();
   const [browseChannels, setBrowseChannels] = useState<Channel[]>([]);
@@ -94,7 +94,7 @@ export default function HomePage() {
     try {
       const joined = await getUserChannels(userId, authToken);
       setChannels(joined);
-      setActiveChannelId((prev) => prev ?? joined[0]?.channelId);
+      setActiveChannelId((prev) => prev && joined.some((c) => c.channelId === prev) ? prev : joined[0]?.channelId);
       if (joined.length < 3) {
         try {
           const all = await getAllChannels(authToken);
