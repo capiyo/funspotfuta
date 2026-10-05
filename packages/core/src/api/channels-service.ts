@@ -7,6 +7,9 @@ import {
 } from '../types/channels';
 import type { Channel, ChannelMember } from '../types/channels';
 
+// Backward-compatible type exports for mobile consumers that import the legacy path.
+export type { Channel, ChannelMember } from '../types/channels';
+
 function asString(value: any, fallback = ''): string {
     if (value === null || value === undefined) return fallback;
     if (typeof value === 'string') return value;
