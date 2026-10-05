@@ -18,7 +18,7 @@ import { useSearchParams } from 'next/navigation';
 import {
   Fixture,
   getAllFixtures,
-  getUserChannels,
+  getUserChannelsV2,
   getAllChannels,
   joinChannel,
   Channel,
