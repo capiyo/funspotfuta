@@ -14,35 +14,7 @@ export * from './api/config';
 export * from './api/auth-service';
 export * from './api/database-service';
 export * from './api/comrade-service';
-export {
-  getUserChannels as getUserChannelsV2,
-  getAllChannels,
-  joinChannel,
-  addChannelMember,
-  requestJoinChannel,
-  getPendingJoinRequests,
-  approveJoinRequest,
-  rejectJoinRequest,
-  getComradesInGroups,
-  channelFromJson,
-  channelToJson,
-  channelIsMember,
-  channelIsPending,
-  channelIsActiveMember,
-  channelIsInactive,
-  isUserAdmin,
-  adminMembers,
-  regularMembers,
-  getMember,
-  emptyChannel,
-  memberIsAdmin,
-  memberIsModerator,
-  memberIsMember,
-  memberIsOwner,
-  memberVoteAccuracy,
-  memberAccuracyLabel,
-} from './api/channels-service';
-export type { Channel as UserChannel, ChannelMember as UserChannelMember, PendingJoinRequest } from './api/channels-service';
+export * from './api/channels-service';
 
 export * from './api/bet-service';
 export * from './api/sub-fixture-service';
