@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { getAllFixtures, getUserChannels, type Fixture, type Channel } from '@funspot/core';
+import { getAllFixtures, getUserChannels, type Fixture, type ComradeChannel } from '@funspot/core';
 import { useAuth } from '../lib/auth/auth-context';
 import { ChatModal } from '../app/(app)/chat/page';
 
@@ -11,7 +11,7 @@ export function ChatRoute() {
   const routeChannelId = searchParams.get('channelId') ?? '';
   const routeFixtureId = searchParams.get('fixtureId') ?? '';
   const [fixtures, setFixtures] = useState<Fixture[]>([]);
-  const [channels, setChannels] = useState<Channel[]>([]);
+  const [channels, setChannels] = useState<ComradeChannel[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
 
