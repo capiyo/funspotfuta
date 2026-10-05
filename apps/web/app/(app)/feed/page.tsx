@@ -9,12 +9,10 @@ import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/lib/auth/auth-context';
 import { getPosts, toggleLikePost, Post, isLikedBy } from '@funspot/core';
 import { createPost } from '@/lib/api/posts-create';
-import { useToast } from '@/lib/toast/toast-context';
 import { PostCard } from '@/components/PostCard';
 
 export default function FeedPage() {
   const { userId, username } = useAuth();
-  const toast = useToast();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
@@ -95,24 +93,19 @@ export default function FeedPage() {
           : p
       )
     );
-    const result = await toggleLikePost(post.id, userId, username);
-    if (result.success && result.likesCount != null) {
-      setPosts((prev) => prev.map((p, i) => (i === index ? { ...p, likesCount: result.likesCount! } : p)));
+    try {
+      const result = await toggleLikePost(post.id, userId, username);
+      if (result.success && result.likesCount != null) {
+        setPosts((prev) => prev.map((p) => (p.id === post.id ? { ...p, likesCount: result.likesCount! } : p)));
+      }
+    } catch {
+      // Match mobile: restore authoritative backend state if the optimistic like fails.
+      await loadPage(page, true).catch((error) => console.error('Failed to refresh feed after like error', error));
     }
   }
 
-  function handleOpenComments(post: Post, index: number) {
-    // Wire this up to your existing PostComments modal/sheet.
-    console.log('open comments for', post.id, index);
-  }
-
-  function handleRepost(_post: Post) {
-    toast.showInfo('Repost coming soon');
-  }
-
-  function handleShare(_post: Post) {
-    toast.showInfo('Share coming soon');
-  }
+  // These actions are intentionally no-ops, matching FeedScreen/PostCard on mobile.
+  // Do not imply backend support until the mobile implementation adds it.
 
   return (
     <div className="mx-auto max-w-md px-fan-lg pt-fan-xxl pb-10">
