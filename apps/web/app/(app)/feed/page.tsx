@@ -17,6 +17,7 @@ export default function FeedPage() {
   const toast = useToast();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [caption, setCaption] = useState('');
@@ -29,17 +30,41 @@ export default function FeedPage() {
     const result = await getPosts({ page: p, limit: 10 });
     setHasMore(result.posts.length === 10);
     setPosts((prev) => (replace ? result.posts : [...prev, ...result.posts]));
+    setLoadError(false);
   }
 
   useEffect(() => {
     setLoading(true);
-    loadPage(1, true).finally(() => setLoading(false));
+    loadPage(1, true)
+      .catch((error) => {
+        console.error('Failed to load feed', error);
+        setLoadError(true);
+      })
+      .finally(() => setLoading(false));
   }, []);
 
   async function handleLoadMore() {
     const next = page + 1;
-    setPage(next);
-    await loadPage(next, false);
+    try {
+      await loadPage(next, false);
+      setPage(next);
+    } catch (error) {
+      console.error('Failed to load more feed posts', error);
+      setLoadError(true);
+    }
+  }
+
+  async function handleRetry() {
+    setLoading(true);
+    try {
+      await loadPage(1, true);
+      setPage(1);
+    } catch (error) {
+      console.error('Failed to retry feed load', error);
+      setLoadError(true);
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function handlePost() {
@@ -123,6 +148,11 @@ export default function FeedPage() {
       {loading ? (
         <div className="flex justify-center py-16">
           <div className="h-8 w-8 animate-spin rounded-fan-pill border-2 border-fan-primary border-t-transparent" />
+        </div>
+      ) : loadError && posts.length === 0 ? (
+        <div className="py-16 text-center">
+          <p className="text-fan-body text-fan-textSecondary">Couldn’t load the feed. Check your connection and try again.</p>
+          <button onClick={handleRetry} className="mt-fan-md rounded-fan-pill border border-fan-border px-fan-lg py-fan-sm text-fan-body font-semibold text-fan-primary">Try again</button>
         </div>
       ) : posts.length === 0 ? (
         <p className="py-16 text-center text-fan-body text-fan-textTertiary">No posts yet — be the first.</p>
