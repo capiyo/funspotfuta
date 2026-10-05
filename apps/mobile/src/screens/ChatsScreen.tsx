@@ -217,7 +217,7 @@ export default function ChatsScreen() {
     queryKey: FIXTURES_KEY,
     queryFn: getAllFixtures,
     placeholderData: keepPreviousData,
-    enabled: activeTab === 'Chats',
+    enabled: activeTab === 'Arena',
   });
   const fixtures = data ?? NO_FIXTURES;
 
