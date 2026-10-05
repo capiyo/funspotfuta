@@ -28,7 +28,6 @@ import {
   formattedDate,
   isLikedBy,
   postTypeDisplay,
-  followUser,
   fetchHistoryGames,
   scoreDisplay,
   HistoryGame,
@@ -266,14 +265,7 @@ function FeedColumn() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [caption, setCaption] = useState('');
-  const [followingIds, setFollowingIds] = useState<Set<string>>(new Set());
   const [posting, setPosting] = useState(false);
-
-  async function handleFollow(post: Post) {
-    if (!userId || !post.userId) return;
-    setFollowingIds((prev) => new Set(prev).add(post.userId!));
-    await followUser(userId, post.userId);
-  }
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -355,16 +347,7 @@ function FeedColumn() {
                       {postTypeDisplay(post)}
                     </span>
                   </div>
-                  {post.userId &&
-                    post.userId !== userId &&
-                    !followingIds.has(post.userId) && (
-                      <button
-                        onClick={() => handleFollow(post)}
-                        className="text-fan-caption text-fan-primary"
-                      >
-                        follow
-                      </button>
-                    )}
+
                 </div>
                 {displayCaption(post) && (
                   <p className="mb-fan-sm text-fan-body text-fan-textSecondary">
