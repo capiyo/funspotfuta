@@ -12,7 +12,7 @@
 // LogsColumn renders through <HistoryCard>, adapter imported from
 // app/(app)/history/page.
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSearchParams } from 'react-router-dom';
 import {
@@ -138,12 +138,46 @@ function Spinner() {
 // ---------------------------------------------------------------------------
 // ARENA — fixtures + vote modal + chat modal
 // ---------------------------------------------------------------------------
+type ArenaFilter = 'all' | 'live' | 'upcoming' | 'completed';
+
+function arenaIsLive(f: Fixture) {
+  return !!f.isLive || f.status === 'live';
+}
+function arenaIsUpcoming(f: Fixture) {
+  return f.status === 'upcoming' || f.status === 'soon';
+}
+function arenaIsCompleted(f: Fixture) {
+  return f.status === 'completed' || f.status === 'finished';
+}
+function arenaMatchesFilter(f: Fixture, filter: ArenaFilter) {
+  if (filter === 'all') return true;
+  if (filter === 'live') return arenaIsLive(f);
+  if (filter === 'upcoming') return arenaIsUpcoming(f);
+  return arenaIsCompleted(f);
+}
+function arenaStatusRank(f: Fixture) {
+  if (arenaIsLive(f)) return 0;
+  if (arenaIsUpcoming(f)) return 1;
+  return 2;
+}
+
 function ArenaColumn({ channelId }: { channelId?: string }) {
   const { userId, username, authToken, isLoggedIn } = useAuth();
   const [fixtures, setFixtures] = useState<Fixture[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalFixture, setModalFixture] = useState<Fixture | null>(null);
   const [chatFixture, setChatFixture] = useState<Fixture | null>(null);
+  const [filter, setFilter] = useState<ArenaFilter>('all');
+
+  const liveCount = useMemo(() => fixtures.filter(arenaIsLive).length, [fixtures]);
+  const filteredFixtures = useMemo(() => {
+    const matched = fixtures.filter((f) => arenaMatchesFilter(f, filter));
+    if (filter !== 'all') return matched;
+    return matched
+      .map((f, i) => ({ f, i }))
+      .sort((a, b) => arenaStatusRank(a.f) - arenaStatusRank(b.f) || a.i - b.i)
+      .map(({ f }) => f);
+  }, [fixtures, filter]);
 
   useEffect(() => {
     setLoading(true);
@@ -164,7 +198,32 @@ function ArenaColumn({ channelId }: { channelId?: string }) {
 
   return (
     <div className="px-fan-base">
-      {fixtures.map((f) => (
+      <div className="mb-fan-sm flex overflow-x-auto px-fan-sm py-fan-sm">
+        {[
+          ['all', 'All'],
+          ['live', liveCount > 0 ? `Live · ${liveCount}` : 'Live'],
+          ['upcoming', 'Upcoming'],
+          ['completed', 'Completed'],
+        ].map(([value, label]) => (
+          <button
+            key={value}
+            onClick={() => setFilter(value as ArenaFilter)}
+            className={`shrink-0 rounded-fan-pill px-fan-md py-fan-sm text-fan-caption font-medium ${
+              filter === value
+                ? 'bg-fan-primary text-fan-textInverse'
+                : 'bg-fan-surface text-fan-textSecondary'
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {filteredFixtures.length === 0 ? (
+        <p className="px-fan-lg py-fan-xxl text-center text-fan-body text-fan-textTertiary">
+          {filter === 'live' ? 'Nothing live at the moment.' : filter === 'upcoming' ? 'No upcoming fixtures.' : filter === 'completed' ? 'No completed matches yet.' : 'No fixtures right now.'}
+        </p>
+      ) : filteredFixtures.map((f) => (
         <MatchCard
           key={f.id || f.matchId}
           fixture={f}
