@@ -23,7 +23,7 @@ import {
   Fixture,
   HistoryGame,
 } from '@funspot/core';
-import { HistoryCard, HistoryCardData, VoterMini } from '../../../components/HistoryCard';
+import { HistoryCard, HistoryCardData, VoterMini } from '@/components/HistoryCard';
 
 const PAGE_SIZE = 20;
 
