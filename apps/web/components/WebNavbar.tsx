@@ -21,7 +21,7 @@ import {
 import { useAuth } from '@/lib/auth/auth-context';
 
 export interface NavbarChannel {
-  id: string;
+  channelId: string;
   name: string;
   isAdmin?: boolean;
   members?: { username: string; seasonPoints: number }[];
