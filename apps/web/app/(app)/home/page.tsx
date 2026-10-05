@@ -147,7 +147,7 @@ function arenaIsUpcoming(f: Fixture) {
   return f.status === 'upcoming' || f.status === 'soon';
 }
 function arenaIsCompleted(f: Fixture) {
-  return f.status === 'completed' || f.status === 'finished';
+  return f.status === 'completed';
 }
 function arenaMatchesFilter(f: Fixture, filter: ArenaFilter) {
   if (filter === 'all') return true;
