@@ -27,8 +27,6 @@ import { HistoryCard, HistoryCardData, VoterMini } from '../../../components/His
 
 const PAGE_SIZE = 20;
 
-type Tab = 'history' | 'live';
-
 // ── Mock filler pool (mirrors Flutter's _sampleUsernames) ────────
 export const SAMPLE_USERNAMES = [
   '⚽ GoalMachine',
