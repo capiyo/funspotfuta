@@ -51,7 +51,7 @@ export function ChatModal({ fixture, channelId, onClose }: ChatModalProps) {
   const { userId, username, authToken, isLoggedIn } = useAuth();
   const toast = useToast();
 
-  const [channels, setChannels] = useState<Channel[]>([]);
+  const [channels, setChannels] = useState<UserChannel[]>([]);
   const [activeChannelId, setActiveChannelId] = useState<string>(channelId);
   const [draft, setDraft] = useState('');
   const [replyTo, setReplyTo] = useState<ChatMessage | null>(null);
