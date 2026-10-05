@@ -1,5 +1,7 @@
 import type { SimplifiedPlayer } from '@funspot/core/src/types/matchDetails';
 
+export type { SimplifiedPlayer };
+
 export const NEUTRAL_GAP_FRACTION = 0.09;
 export interface PitchPosition { x: number; y: number; }
 
