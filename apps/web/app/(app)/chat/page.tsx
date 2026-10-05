@@ -74,7 +74,7 @@ export function ChatModal({ fixture, channelId, onClose }: ChatModalProps) {
     getUserChannels(userId, authToken)
       .then((c) => {
         setChannels(c);
-        setActiveChannelId((prev) => prev ?? c[0]?.channelId ?? '');
+        setActiveChannelId((prev) => prev && c.some((channel) => channel.channelId === prev) ? prev : c[0]?.channelId ?? '');
       })
       .catch((error) => {
         console.error('Failed to load chat channels', error);
