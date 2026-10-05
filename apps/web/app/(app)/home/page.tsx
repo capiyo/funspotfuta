@@ -70,7 +70,7 @@ export default function HomePage() {
   const { userId, username, authToken } = useAuth();
   const [channels, setChannels] = useState<UserChannel[]>([]);
   const [activeChannelId, setActiveChannelId] = useState<string | undefined>();
-  const [browseChannels, setBrowseChannels] = useState<Channel[]>([]);
+  const [browseChannels, setBrowseChannels] = useState<UserChannel[]>([]);
   const [joiningChannelId, setJoiningChannelId] = useState<string | undefined>();
   const [showCreateChannel, setShowCreateChannel] = useState(false);
   const searchParams = useSearchParams();
@@ -134,7 +134,12 @@ export default function HomePage() {
   return (
     <div className="flex h-screen flex-col bg-fan-background">
       <WebNavbar
-        channels={channels}
+        channels={channels.map((c) => ({
+          id: c.channelId,
+          name: c.name,
+          isAdmin: c.isAdmin,
+          members: c.members,
+        }))}
         activeChannelId={activeChannelId}
         onSelectChannel={setActiveChannelId}
         browseChannels={browseChannels.map((c) => ({
