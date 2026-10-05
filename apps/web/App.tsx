@@ -17,7 +17,14 @@ import NotificationsPage from '@/app/(app)/notifications/page';
 import AdminDashboardPage from '@/app/(app)/admin/[channelId]/page';
 
 function LoginRoute() {
-  return <LoginModal isOpen onClose={() => window.history.back()} onLoginSuccess={() => undefined} />;
+  const navigate = useNavigate();
+  return (
+    <LoginModal
+      isOpen
+      onClose={() => navigate('/', { replace: true })}
+      onLoginSuccess={() => navigate('/home', { replace: true })}
+    />
+  );
 }
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
