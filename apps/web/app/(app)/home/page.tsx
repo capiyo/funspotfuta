@@ -606,13 +606,11 @@ function LogsColumn() {
             games.map((g) => (
               <HistoryCard
                 key={g.id}
-                data={toCardData(g, { canComment: true })}
+                data={toCardData(g, { canComment: false })}
                 onOpen={() => router.push(`/fixture/${g.id}#chat`)}
                 onOpenResults={() => router.push(`/fixture/${g.id}`)}
                 onOpenChat={() => router.push(`/fixture/${g.id}#chat`)}
-                onSubmitComment={() => {
-                  /* wire to your existing comment mutation */
-                }}
+                onSubmitComment={() => {}}
               />
             ))
           )
