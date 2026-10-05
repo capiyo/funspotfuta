@@ -17,7 +17,6 @@
 //   - for upcoming/soon: requires a vote first
 //   - completed matches: always open
 
-import { useState } from 'react';
 import {
   Fixture,
   scoreDisplay,
@@ -177,10 +176,8 @@ export function MatchCard({
   onOpenVoteModal?: (fixture: Fixture) => void;
   onOpenResults?: (fixture: Fixture) => void;
   onLike?: (fixture: Fixture) => void;
-  onSubmitComment?: (fixture: Fixture, text: string) => void;
 }) {
   const { userId, isLoggedIn } = useAuth();
-  const [draft, setDraft] = useState('');
 
   const badge = formatDate(fixture.date);
   const isLive = badge === 'LIVE';
@@ -190,12 +187,6 @@ export function MatchCard({
     fixture.status === 'upcoming' || fixture.status === 'soon';
   const hasVoted = fixture.voters.some((v) => v.userId === userId);
 
-  const canChat = isLoggedIn && (isCompleted || hasVoted || !requiresVote);
-  const chatLockReason = !isLoggedIn
-    ? 'Log in to comment'
-    : requiresVote && !hasVoted
-      ? 'Vote to chat 💬'
-      : 'Write a comment...';
 
   function stop(e: React.MouseEvent) {
     e.stopPropagation();
@@ -206,12 +197,6 @@ export function MatchCard({
     else onOpenVoteModal?.(fixture);
   }
 
-  function submitComment() {
-    const text = draft.trim();
-    if (!text || !canChat) return;
-    onSubmitComment?.(fixture, text);
-    setDraft('');
-  }
 
   return (
     <div
@@ -369,29 +354,6 @@ export function MatchCard({
         })}
       </div>
 
-      {/* Inline comment input — does NOT open chat. Posts a comment on submit. */}
-      <div
-        onClick={stop}
-        className="mt-fan-md pl-[40px]"
-      >
-        <input
-          type="text"
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') {
-              e.preventDefault();
-              submitComment();
-            }
-          }}
-          disabled={!canChat}
-          placeholder={chatLockReason}
-          className={`w-full bg-transparent pb-[6px] text-fan-body outline-none placeholder:text-fan-textTertiary/60 ${canChat
-              ? 'text-fan-textPrimary'
-              : 'italic text-fan-textTertiary/60'
-            }`}
-        />
-      </div>
 
       {/* Footer */}
       <div className="mt-fan-sm flex items-center gap-fan-md pl-[40px]">
