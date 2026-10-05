@@ -27,88 +27,212 @@ import { HistoryCard, HistoryCardData, VoterMini } from '../../../components/His
 
 const PAGE_SIZE = 20;
 
-const MOCK_COMMENTORS = [
-  'Kevo', 'Aisha', 'Brian', 'Faith', 'Otieno',
-  'Wanjiru', 'Denis', 'Nadia', 'Mutiso', 'Cheryl',
-];
-const MOCK_COMMENTS = [
-  'What a match that was',
-  'Saw that result coming honestly',
-  'Ref had a shocker today',
-  'That comeback was unreal',
-  'Told you they had this',
-  'Rough one to watch as a fan',
-  'Man of the match no debate',
-  'Deserved the win in the end',
-  'That second half was rough',
-  'Book the final ticket already',
-];
-
-function seededPick<T>(pool: T[], seed: string, n: number): T[] {
-  let h = hashCode(seed) >>> 0 || 1;
-  const used = new Set<number>();
-  const picks: T[] = [];
-  while (picks.length < n && used.size < pool.length) {
-    h = (h * 1103515245 + 12345) >>> 0;
-    let idx = h % pool.length;
-    while (used.has(idx)) idx = (idx + 1) % pool.length;
-    used.add(idx);
-    picks.push(pool[idx]);
-  }
-  return picks;
-}
-
-function mockCommentsFor(gameId: string) {
-  const names = seededPick(MOCK_COMMENTORS, gameId, 2);
-  const lines = seededPick(MOCK_COMMENTS, gameId + '#lines', 2);
-  return names.map((username, i) => ({ username, text: lines[i] }));
-}
-
 type Tab = 'history' | 'live';
 
-// Backend-provided people are preferred. When the history API fails or returns
-// no usable people data, retain the existing deterministic mock presentation as
-// a visual fallback; never send these mock identities back to the backend.
-const SAMPLE_USERNAMES = [
-  '⚽ GoalMachine', '🔥 FireStriker', '🛡️ DefenseWall', '🎯 Sniper',
-  '💪 PowerShot', '✨ MagicFeet', '🏃 SpeedDemon', '🧠 TacticalGenius',
-  '🌟 StarPlayer', '🎭 FalseNine', '⚡ LightningBolt', '🎨 Playmaker',
-  '🔒 CleanSheet', '🎪 CircusSave', '🏆 ChampionMind', '📊 AnalystPro',
+// ── Mock filler pool (mirrors Flutter's _sampleUsernames) ────────
+export const SAMPLE_USERNAMES = [
+  '⚽ GoalMachine',
+  '🔥 FireStriker',
+  '🛡️ DefenseWall',
+  '🎯 Sniper',
+  '💪 PowerShot',
+  '✨ MagicFeet',
+  '🏃 SpeedDemon',
+  '🧠 TacticalGenius',
+  '🌟 StarPlayer',
+  '🎭 FalseNine',
+  '⚡ LightningBolt',
+  '🎨 Playmaker',
+  '🔒 CleanSheet',
+  '🎪 CircusSave',
+  '🏆 ChampionMind',
+  '📊 AnalystPro',
 ];
-function seededRandom(seed: number) { let s = (seed >>> 0) || 1; return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 0xffffffff; }; }
-function hashCode(str: string) { let h = 0; for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) | 0; return h; }
-function fallbackPeople(g: HistoryGame, people: VoterMini[]): VoterMini[] {
-  if (people.length >= 3) return people;
-  const rand = seededRandom(hashCode(g.id));
-  const picks: Array<'home' | 'away' | 'draw'> = ['home', 'away', 'draw'];
-  const result = [...people];
-  while (result.length < 3) {
-    const kind = picks[Math.floor(rand() * picks.length)];
-    result.push({ id: `mock-${g.id}-${result.length}`, name: SAMPLE_USERNAMES[Math.floor(rand() * SAMPLE_USERNAMES.length)], role: 'fan', pick: kind === 'home' ? g.homeTeam : kind === 'away' ? g.awayTeam : 'Draw', pickKind: kind });
-  }
-  return result;
+
+// Deterministic PRNG — same input → same sequence of numbers.
+// Mirrors Flutter's `Random(fixtureId.hashCode)` so the same fixture
+// always shows the same three mock people across renders.
+export function seededRandom(seed: number) {
+  let s = (seed >>> 0) || 1;
+  return () => {
+    s = (s * 1664525 + 1013904223) >>> 0;
+    return s / 0xffffffff;
+  };
 }
 
-function toCardData(g: HistoryGame, opts: { canComment: boolean } = { canComment: false }): HistoryCardData {
-  const raw = g as unknown as { dateIso?: string; lastActivity?: string; voters?: Array<{ id: string; name: string; selection: string }>; pledges?: Array<{ userId?: string; userName?: string; selection?: string }>; comments?: Array<{ id?: string; userId?: string; username?: string; selection?: string }>; latestComment?: { username: string; text: string } | null; unread?: boolean; commentCount?: number };
-  const pickKind = (s?: string): 'home' | 'away' | 'draw' => s === 'home_team' || s === 'home' ? 'home' : s === 'away_team' || s === 'away' ? 'away' : 'draw';
-  const label = (k: 'home' | 'away' | 'draw') => k === 'home' ? g.homeTeam : k === 'away' ? g.awayTeam : 'Draw';
-  const people: VoterMini[] = [];
-  for (const v of (raw.voters ?? []).slice(0, 3)) people.push({ id: v.id, name: v.name, role: 'voted', pick: label(pickKind(v.selection)), pickKind: pickKind(v.selection) });
-  if (!people.length) for (const p of (raw.pledges ?? []).slice(0, 3)) people.push({ id: p.userId ?? `pledge-${people.length}`, name: p.userName ?? 'Fan', role: 'pledged', pick: label(pickKind(p.selection)), pickKind: pickKind(p.selection) });
-  if (!people.length) for (const cm of (raw.comments ?? []).slice(0, 3)) people.push({ id: cm.id ?? cm.userId ?? `comment-${people.length}`, name: cm.username ?? 'Anonymous', role: 'commented', pick: label(pickKind(cm.selection)), pickKind: pickKind(cm.selection) });
-  const rawDate = raw.dateIso ?? raw.lastActivity; const then = rawDate ? new Date(rawDate).getTime() : NaN; const mins = Number.isNaN(then) ? NaN : Math.floor((Date.now() - then) / 60000);
-  const timeAgo = Number.isNaN(mins) ? '—' : mins < 1 ? 'now' : mins < 60 ? `${mins}m` : mins < 1440 ? `${Math.floor(mins / 60)}h` : mins < 10080 ? (Math.floor(mins / 1440) === 1 ? 'Yesterday' : `${Math.floor(mins / 1440)}d`) : new Date(then).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-  const realComments = (raw.comments ?? [])
-    .map((comment) => ({
-      username: comment.username ?? 'Fan',
-      text: (comment as { text?: string }).text ?? '',
-    }))
-    .filter((comment) => comment.text);
-  const latestComment = raw.latestComment ?? realComments[0] ?? mockCommentsFor(g.id)[0] ?? null;
-  const commentCount = raw.commentCount ?? (realComments.length || 2);
-  return { id: g.id, homeTeam: g.homeTeam, awayTeam: g.awayTeam, homeScore: g.homeScore ?? 0, awayScore: g.awayScore ?? 0, timeAgo, unread: raw.unread, people: fallbackPeople(g, people), latestComment, commentCount, canComment: opts.canComment };
+export function hashCode(str: string): number {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) {
+    h = (h * 31 + str.charCodeAt(i)) | 0;
+  }
+  return h;
 }
+
+// ── Adapter: HistoryGame → HistoryCardData ───────────────────────
+export function toCardData(
+  g: HistoryGame,
+  opts: { canComment: boolean } = { canComment: false },
+): HistoryCardData {
+  
+  const homeScore = g.homeScore ?? 0;
+  const awayScore = g.awayScore ?? 0;
+
+  // Relative-time string
+  const timeAgo = (() => {
+    const raw =
+      (g as unknown as { dateIso?: string; lastActivity?: string }).dateIso ??
+      (g as unknown as { lastActivity?: string }).lastActivity;
+    if (!raw) return '—';
+    const then = new Date(raw).getTime();
+    if (Number.isNaN(then)) return '—';
+    const diffMs = Date.now() - then;
+    const mins = Math.floor(diffMs / 60000);
+    if (mins < 1) return 'now';
+    if (mins < 60) return `${mins}m`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h`;
+    const days = Math.floor(hrs / 24);
+    if (days === 1) return 'Yesterday';
+    if (days < 7) return `${days}d`;
+    return new Date(then).toLocaleDateString(undefined, {
+      month: 'short',
+      day: 'numeric',
+    });
+  })();
+
+  // ── People row — Flutter's 4-tier fallback ─────────────────────
+  const voters =
+    (
+      g as unknown as {
+        voters?: Array<{
+          id: string;
+          name: string;
+          selection: 'home_team' | 'away_team' | 'draw' | string;
+        }>;
+      }
+    ).voters ?? [];
+
+  const pledges =
+    (
+      g as unknown as {
+        pledges?: Array<{
+          userId?: string;
+          userName?: string;
+          selection?: string;
+        }>;
+      }
+    ).pledges ?? [];
+
+  const commentsList =
+    (
+      g as unknown as {
+        comments?: Array<{
+          id?: string;
+          userId?: string;
+          username?: string;
+          selection?: string;
+        }>;
+      }
+    ).comments ?? [];
+
+  const pickKindOf = (
+    selection: string | undefined,
+  ): 'home' | 'away' | 'draw' =>
+    selection === 'home_team' || selection === 'home'
+      ? 'home'
+      : selection === 'away_team' || selection === 'away'
+        ? 'away'
+        : 'draw';
+
+  const pickLabelOf = (kind: 'home' | 'away' | 'draw') =>
+    kind === 'home' ? g.homeTeam : kind === 'away' ? g.awayTeam : 'Draw';
+
+  const people: VoterMini[] = [];
+
+  // Tier 1 — voters
+  if (voters.length > 0) {
+    for (const v of voters.slice(0, 3)) {
+      const kind = pickKindOf(v.selection);
+      people.push({
+        id: v.id,
+        name: v.name,
+        role: 'voted',
+        pick: pickLabelOf(kind),
+        pickKind: kind,
+      });
+    }
+  }
+
+  // Tier 2 — pledges
+  if (people.length === 0 && pledges.length > 0) {
+    for (const p of pledges.slice(0, 3)) {
+      const kind = pickKindOf(p.selection);
+      people.push({
+        id: p.userId ?? `pledge-${people.length}`,
+        name: p.userName ?? 'Fan',
+        role: 'pledged',
+        pick: pickLabelOf(kind),
+        pickKind: kind,
+      });
+    }
+  }
+
+  // Tier 3 — comments
+  if (people.length === 0 && commentsList.length > 0) {
+    for (const c of commentsList.slice(0, 3)) {
+      const kind = pickKindOf(c.selection);
+      people.push({
+        id: c.id ?? c.userId ?? `comment-${people.length}`,
+        name: c.username ?? 'Anonymous',
+        role: 'commented',
+        pick: pickLabelOf(kind),
+        pickKind: kind,
+      });
+    }
+  }
+
+  // Tier 4 — top up to 3 with deterministic mocks
+  if (people.length < 3) {
+    const rand = seededRandom(hashCode(g.id));
+    const picks: Array<'home' | 'away' | 'draw'> = ['home', 'away', 'draw'];
+    const needed = 3 - people.length;
+    for (let i = 0; i < needed; i++) {
+      const name =
+        SAMPLE_USERNAMES[Math.floor(rand() * SAMPLE_USERNAMES.length)];
+      const kind = picks[Math.floor(rand() * picks.length)];
+      people.push({
+        id: `mock-${g.id}-${i}`,
+        name,
+        role: 'fan',
+        pick: pickLabelOf(kind),
+        pickKind: kind,
+      });
+    }
+  }
+
+  const latest =
+    (
+      g as unknown as {
+        latestComment?: { username: string; text: string } | null;
+      }
+    ).latestComment ?? null;
+
+  return {
+    id: g.id,
+    homeTeam: g.homeTeam,
+    awayTeam: g.awayTeam,
+    homeScore,
+    awayScore,
+    timeAgo,
+    unread: (g as unknown as { unread?: boolean }).unread,
+    people,
+    latestComment: latest,
+    commentCount:
+      (g as unknown as { commentCount?: number }).commentCount ?? 0,
+    canComment: opts.canComment,
+  };
+}
+
 export default function HistoryPage() {
   const router = useRouter();
   const [tab, setTab] = useState<Tab>('history');
@@ -118,24 +242,20 @@ export default function HistoryPage() {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const [league, setLeague] = useState('');
 
   // Live tab state
   const [liveFixtures, setLiveFixtures] = useState<Fixture[]>([]);
   const [liveLoading, setLiveLoading] = useState(false);
 
   async function loadPage(skip: number, replace: boolean) {
-    setLoadError(null);
-    try {
-      const page = await fetchHistoryGames({
-        limit: PAGE_SIZE,
-        skip,
-      });
-      setHasMore(page.length === PAGE_SIZE);
-      setGames((prev) => (replace ? page : [...prev, ...page]));
-    } catch {
-      setLoadError('Could not load history. Your saved fallback presentation is still available when data is present.');
-    }
+    const page = await fetchHistoryGames({
+      limit: PAGE_SIZE,
+      skip,
+      league: league || undefined,
+    });
+    setHasMore(page.length === PAGE_SIZE);
+    setGames((prev) => (replace ? page : [...prev, ...page]));
   }
 
   useEffect(() => {
@@ -143,7 +263,7 @@ export default function HistoryPage() {
     setLoading(true);
     loadPage(0, true).finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tab]);
+  }, [league, tab]);
 
   useEffect(() => {
     if (tab !== 'live') return;
@@ -202,22 +322,16 @@ export default function HistoryPage() {
 
       {tab === 'history' ? (
         <>
+          <input
+            value={league}
+            onChange={(e) => setLeague(e.target.value)}
+            placeholder="Filter by league…"
+            className="mb-fan-lg w-full rounded-fan-pill border border-fan-border bg-fan-inputSurface px-fan-lg py-fan-md text-fan-body text-fan-textPrimary outline-none focus:border-fan-borderFocus"
+          />
+
           {loading ? (
             <div className="flex justify-center py-16">
               <div className="h-8 w-8 animate-spin rounded-fan-pill border-2 border-fan-primary border-t-transparent" />
-            </div>
-          ) : loadError && games.length === 0 ? (
-            <div className="py-16 text-center">
-              <p className="text-fan-body text-fan-textSecondary">{loadError}</p>
-              <button
-                onClick={() => {
-                  setLoading(true);
-                  loadPage(0, true).finally(() => setLoading(false));
-                }}
-                className="mt-fan-md rounded-fan-pill bg-fan-primary px-fan-lg py-fan-sm text-fan-caption font-semibold text-fan-textInverse"
-              >
-                Retry
-              </button>
             </div>
           ) : games.length === 0 ? (
             <p className="py-16 text-center text-fan-body text-fan-textTertiary">
@@ -229,9 +343,12 @@ export default function HistoryPage() {
                 <HistoryCard
                   key={g.id}
                   data={toCardData(g, { canComment: true })}
+                  onOpen={() => openChat(g)}
                   onOpenResults={() => openResults(g)}
                   onOpenChat={() => openChat(g)}
-                  onSubmitComment={() => {}}
+                  onSubmitComment={() => {
+                    /* wire to your existing comment mutation */
+                  }}
                 />
               ))}
 
