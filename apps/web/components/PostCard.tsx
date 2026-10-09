@@ -1,5 +1,3 @@
-'use client';
-
 // Feed post card — restyled to match the Arena/Logs cards: avatar header
 // row, NEW + media-type pills, an inline "follow" link, caption, media,
 // and a footer icon row (like / comment / repost / share) instead of the
