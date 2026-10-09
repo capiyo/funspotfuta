@@ -1,8 +1,12 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { UserRound, MessageCircle, Newspaper, History } from 'lucide-react';
 import { AuthProvider, useAuth } from '@/lib/auth/auth-context';
 import { ToastProvider } from '@/lib/toast/toast-context';
 import { QueryProvider } from './QueryProvider';
+import { onForegroundMessage } from '@/lib/firebase';
+import { registerToken } from '@funspot/core';
+import { requestFcmToken } from '@/lib/firebase';
 import HomeScreen from '@/src/screens/home/HomeScreen';
 import FeedScreen from '@/src/screens/FeedScreen';
 import TrendingScreen from '@/src/screens/TrendingScreen';
@@ -85,7 +89,21 @@ function AppRoutes() {
   </>;
 }
 
+function ForegroundNotifications() {
+  const { isLoggedIn } = useAuth();
+  const toast = useToast();
+  useEffect(() => {
+    if (!isLoggedIn) return;
+    return onForegroundMessage((payload) => {
+      const title = payload?.notification?.title ?? 'New notification';
+      const body = payload?.notification?.body;
+      toast.showInfo(body ? `${title}: ${body}` : title);
+    });
+  }, [isLoggedIn]);
+  return null;
+}
+
 function App() {
-  return <AuthProvider><ToastProvider><QueryProvider><BrowserRouter><AppRoutes /></BrowserRouter></QueryProvider></ToastProvider></AuthProvider>;
+  return <AuthProvider><ToastProvider><QueryProvider><BrowserRouter><ForegroundNotifications /><AppRoutes /></BrowserRouter></QueryProvider></ToastProvider></AuthProvider>;
 }
 export default App;
