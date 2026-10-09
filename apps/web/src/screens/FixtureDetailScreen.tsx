@@ -172,21 +172,27 @@ export default function FixtureDetailPage() {
   }, [voted]);
 
   async function handleVote(sel: Selection) {
-    if (!fixture || !channelId || !userId || !authToken) return;
+    if (!fixture || !channelId || !userId || !authToken || votePending) return;
     setVoteSelection(sel);
     setVotePending(true);
-    const ok = await castVote({
-      channelId,
-      fixtureId: fixture.matchId || fixture.id,
-      userId,
-      selection: sel,
-      authToken,
-    });
-    setVotePending(false);
-    if (ok) {
-      setVoted(true);
-    } else {
+    try {
+      const ok = await castVote({
+        channelId,
+        fixtureId: fixture.matchId || fixture.id,
+        userId,
+        selection: sel,
+        authToken,
+      });
+      if (ok) {
+        setVoted(true);
+      } else {
+        toast.showError('Could not record your vote — try again.');
+      }
+    } catch (error) {
+      console.error('Could not record fixture vote', error);
       toast.showError('Could not record your vote — try again.');
+    } finally {
+      setVotePending(false);
     }
   }
 
@@ -199,48 +205,61 @@ export default function FixtureDetailPage() {
     }
     setBetError(null);
     setPlacingBet(true);
-    const result = await createBetWithVoteId({
-      fixtureId: fixture.matchId || fixture.id,
-      starterId: userId,
-      starterName: username,
-      starterSelection: voteSelection,
-      amount,
-      channelId,
-      voteId: '',
-      authToken: authToken ?? undefined,
-    });
-    setPlacingBet(false);
-    if (result?.success !== false) {
-      toast.showSuccess('Bet placed.');
-      const [open, matched] = await Promise.all([
-        getOpenBets(channelId, fixture.matchId || fixture.id, authToken ?? undefined),
-        getChannelBettors(channelId, fixture.matchId || fixture.id, authToken ?? undefined),
-      ]);
-      setOpenBets(open);
-      setMatchedBets(matched);
-    } else {
-      toast.showError(result?.message ?? 'Could not place that bet.');
+    try {
+      const result = await createBetWithVoteId({
+        fixtureId: fixture.matchId || fixture.id,
+        starterId: userId,
+        starterName: username,
+        starterSelection: voteSelection,
+        amount,
+        channelId,
+        voteId: '',
+        authToken: authToken ?? undefined,
+      });
+      if (result?.success !== false) {
+        toast.showSuccess('Bet placed.');
+        const [open, matched] = await Promise.all([
+          getOpenBets(channelId, fixture.matchId || fixture.id, authToken ?? undefined),
+          getChannelBettors(channelId, fixture.matchId || fixture.id, authToken ?? undefined),
+        ]);
+        setOpenBets(open);
+        setMatchedBets(matched);
+      } else {
+        toast.showError(result?.message ?? 'Could not place that bet.');
+      }
+    } catch (error) {
+      console.error('Could not place fixture bet', error);
+      toast.showError('Could not place that bet. Please try again.');
+    } finally {
+      setPlacingBet(false);
     }
   }
 
   async function handlePostComment() {
     if (!fixture || !userId || !username || !comment.trim()) return;
     setPostingComment(true);
-    const result = await postComment({
-      userId,
-      username,
-      fixtureId: fixture.matchId || fixture.id,
-      comment: comment.trim(),
-      selection: voteSelection ?? '',
-      authToken: authToken ?? undefined,
-    });
-    setPostingComment(false);
-    setCommentStatus(result.message);
-    if (result.success) {
-      setComment('');
-      toast.showSuccess(result.message);
-    } else {
-      toast.showError(result.message);
+    try {
+      const result = await postComment({
+        userId,
+        username,
+        fixtureId: fixture.matchId || fixture.id,
+        comment: comment.trim(),
+        selection: voteSelection ?? '',
+        authToken: authToken ?? undefined,
+      });
+      setCommentStatus(result.message);
+      if (result.success) {
+        setComment('');
+        toast.showSuccess(result.message);
+      } else {
+        toast.showError(result.message);
+      }
+    } catch (error) {
+      console.error('Could not post fixture comment', error);
+      setCommentStatus('Could not post your comment. Please try again.');
+      toast.showError('Could not post your comment. Please try again.');
+    } finally {
+      setPostingComment(false);
     }
   }
 
