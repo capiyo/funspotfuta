@@ -1,5 +1,3 @@
-'use client';
-
 // Simplified port of funspot/lib/modals/homepage/channel_creation.dart —
 // the original (1049 lines) also handles searching/inviting comrades inline;
 // that piece depends on comrade_service.dart's search endpoint and is left
