@@ -108,9 +108,9 @@ export default function ComradesPage() {
     if (busyId) return;
     setBusyId(comradeId);
     try {
-      const result = await removeComrade(userId, comradeId, authToken);
-      if (result?.success === false) {
-        toast.showError(result.message ?? 'Could not remove this comrade.');
+      const removed = await removeComrade(userId, comradeId, authToken);
+      if (!removed) {
+        toast.showError('Could not remove this comrade.');
         return;
       }
       toast.showSuccess('Comrade removed');
