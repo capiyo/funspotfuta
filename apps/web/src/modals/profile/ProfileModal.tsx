@@ -6,9 +6,12 @@
 // they aren't on the 5-item bottom nav (matching the original app, which
 // reaches them via in-page buttons rather than tabs).
 
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Users, Trophy, History, Bell, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/lib/auth/auth-context';
+import { useToast } from '@/lib/toast/toast-context';
+import { getProfile, saveProfile, type UserProfile } from '@funspot/core';
 import { WalletCard } from '@/components/WalletCard';
 
 const LINKS = [
@@ -19,8 +22,56 @@ const LINKS = [
 ] as const;
 
 export default function ProfilePage() {
-  const { username, phone, userId, logout } = useAuth();
+  const { username, phone, userId, authToken, logout } = useAuth();
   const navigate = useNavigate();
+  const toast = useToast();
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [nickname, setNickname] = useState('');
+  const [clubFan, setClubFan] = useState('');
+  const [countryFan, setCountryFan] = useState('');
+  const [savingProfile, setSavingProfile] = useState(false);
+
+  useEffect(() => {
+    let mounted = true;
+    if (!userId) { setProfileLoading(false); return; }
+    setProfileLoading(true);
+    getProfile(userId, authToken ?? undefined)
+      .then((result) => {
+        if (!mounted) return;
+        setProfile(result);
+        setNickname(result?.nickname ?? '');
+        setClubFan(result?.clubFan ?? '');
+        setCountryFan(result?.countryFan ?? '');
+      })
+      .finally(() => { if (mounted) setProfileLoading(false); });
+    return () => { mounted = false; };
+  }, [userId, authToken]);
+
+  async function handleSaveProfile() {
+    if (!userId) return;
+    if (!nickname.trim() || !clubFan.trim() || !countryFan.trim()) {
+      toast.showError('Nickname, favorite club and country are required.');
+      return;
+    }
+    setSavingProfile(true);
+    try {
+      const ok = await saveProfile({ userId, nickname: nickname.trim(), clubFan: clubFan.trim(), countryFan: countryFan.trim(), authToken: authToken ?? undefined });
+      if (!ok) {
+        toast.showError('Could not save your profile. Please try again.');
+        return;
+      }
+      setProfile((current) => current ? { ...current, nickname: nickname.trim(), clubFan: clubFan.trim(), countryFan: countryFan.trim() } : { userId, username: username ?? '', phone: phone ?? '', nickname: nickname.trim(), clubFan: clubFan.trim(), countryFan: countryFan.trim(), numberOfBets: 0, balance: 0 });
+      setEditingProfile(false);
+      toast.showSuccess('Profile saved.');
+    } catch (error) {
+      console.error('Could not save profile:', error);
+      toast.showError('Could not save your profile. Please try again.');
+    } finally {
+      setSavingProfile(false);
+    }
+  }
 
   async function handleLogout() {
     await logout();
@@ -37,6 +88,34 @@ export default function ProfilePage() {
         {phone && <p className="text-fan-body text-fan-textTertiary">{phone}</p>}
         <p className="mt-fan-sm text-fan-caption text-fan-textTertiary">ID: {userId}</p>
       </div>
+
+      <section className="mb-fan-xxl rounded-fan-xl border border-fan-border bg-fan-surface p-fan-lg">
+        <div className="mb-fan-md flex items-center justify-between">
+          <h2 className="font-semibold text-fan-body text-fan-textPrimary">Fan profile</h2>
+          {!editingProfile && <button onClick={() => setEditingProfile(true)} className="text-fan-caption font-semibold text-fan-primary">Edit</button>}
+        </div>
+        {profileLoading ? (
+          <p className="text-fan-caption text-fan-textTertiary">Loading profile…</p>
+        ) : editingProfile ? (
+          <div className="space-y-fan-md">
+            <label className="block text-fan-caption text-fan-textSecondary">Nickname<input value={nickname} onChange={(event) => setNickname(event.target.value)} className="mt-fan-xs w-full rounded-fan-md border border-fan-border bg-fan-surfaceSunken px-fan-md py-fan-sm text-fan-body text-fan-textPrimary" /></label>
+            <label className="block text-fan-caption text-fan-textSecondary">Favorite club<input value={clubFan} onChange={(event) => setClubFan(event.target.value)} className="mt-fan-xs w-full rounded-fan-md border border-fan-border bg-fan-surfaceSunken px-fan-md py-fan-sm text-fan-body text-fan-textPrimary" /></label>
+            <label className="block text-fan-caption text-fan-textSecondary">Country<input value={countryFan} onChange={(event) => setCountryFan(event.target.value)} className="mt-fan-xs w-full rounded-fan-md border border-fan-border bg-fan-surfaceSunken px-fan-md py-fan-sm text-fan-body text-fan-textPrimary" /></label>
+            <div className="flex gap-fan-sm">
+              <button onClick={handleSaveProfile} disabled={savingProfile} className="flex-1 rounded-fan-lg bg-fan-primary py-fan-sm text-fan-caption font-semibold text-fan-textInverse disabled:opacity-50">{savingProfile ? 'Saving…' : 'Save profile'}</button>
+              <button onClick={() => { setNickname(profile?.nickname ?? ''); setClubFan(profile?.clubFan ?? ''); setCountryFan(profile?.countryFan ?? ''); setEditingProfile(false); }} disabled={savingProfile} className="rounded-fan-lg border border-fan-border px-fan-lg py-fan-sm text-fan-caption text-fan-textSecondary">Cancel</button>
+            </div>
+          </div>
+        ) : profile && (profile.nickname || profile.clubFan || profile.countryFan) ? (
+          <div className="grid grid-cols-1 gap-fan-sm text-fan-body">
+            <p className="text-fan-textSecondary">Nickname: <span className="text-fan-textPrimary">{profile.nickname || '—'}</span></p>
+            <p className="text-fan-textSecondary">Favorite club: <span className="text-fan-textPrimary">{profile.clubFan || '—'}</span></p>
+            <p className="text-fan-textSecondary">Country: <span className="text-fan-textPrimary">{profile.countryFan || '—'}</span></p>
+          </div>
+        ) : (
+          <p className="text-fan-caption text-fan-textTertiary">Complete your fan profile with a nickname, favorite club and country.</p>
+        )}
+      </section>
 
       <div className="mb-fan-xxl overflow-hidden rounded-fan-xl border border-fan-border bg-fan-surface">
         {LINKS.map(({ href, label, Icon }, i) => (
