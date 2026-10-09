@@ -83,6 +83,7 @@ export default function HomePage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedTab = searchParams.get('tab');
   const activeSection = requestedTab === 'feed' || requestedTab === 'logs' ? requestedTab : 'chats';
+  const activeChannel = channels.find((channel) => channel.channelId === activeChannelId);
 
   async function handleJoinChannel(channel: Channel) {
     if (!isLoggedIn || !userId || !authToken) {
@@ -148,6 +149,9 @@ export default function HomePage() {
                 {channels.map((channel) => <option key={channel.channelId} value={channel.channelId}>{channel.name}</option>)}
               </select>
             </label>
+          )}
+          {activeChannel?.isAdmin && (
+            <button onClick={() => navigate(`/admin/${encodeURIComponent(activeChannel.channelId)}`)} className="shrink-0 rounded-fan-pill border border-fan-primary/40 bg-fan-primaryDim px-fan-base py-fan-sm text-fan-caption font-semibold text-fan-primary">Admin</button>
           )}
           <button onClick={() => setShowBrowseChannels(true)} className="shrink-0 rounded-fan-pill border border-fan-border px-fan-base py-fan-sm text-fan-caption font-semibold text-fan-textSecondary">Browse</button>
           <button onClick={() => isLoggedIn ? setShowCreateChannel(true) : navigate(`/login?next=${encodeURIComponent('/home?tab=chats')}`)} className="shrink-0 rounded-fan-pill bg-fan-primary px-fan-base py-fan-sm text-fan-caption font-semibold text-fan-textInverse">+ Create channel</button>
