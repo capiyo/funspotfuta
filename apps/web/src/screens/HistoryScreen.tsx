@@ -242,6 +242,8 @@ export default function HistoryPage() {
   const [games, setGames] = useState<HistoryGame[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [historyError, setHistoryError] = useState(false);
+  const [liveError, setLiveError] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const [league, setLeague] = useState('');
 
@@ -262,13 +264,17 @@ export default function HistoryPage() {
   useEffect(() => {
     if (tab !== 'history') return;
     setLoading(true);
-    loadPage(0, true).finally(() => setLoading(false));
+    setHistoryError(false);
+    loadPage(0, true)
+      .catch(() => setHistoryError(true))
+      .finally(() => setLoading(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [league, tab]);
 
   useEffect(() => {
     if (tab !== 'live') return;
     setLiveLoading(true);
+    setLiveError(false);
     getAllFixtures()
       .then((all) =>
         setLiveFixtures(
@@ -277,13 +283,19 @@ export default function HistoryPage() {
           ),
         ),
       )
+      .catch(() => { setLiveFixtures([]); setLiveError(true); })
       .finally(() => setLiveLoading(false));
   }, [tab]);
 
   async function handleLoadMore() {
     setLoadingMore(true);
-    await loadPage(games.length, false);
-    setLoadingMore(false);
+    try {
+      await loadPage(games.length, false);
+    } catch {
+      setHistoryError(true);
+    } finally {
+      setLoadingMore(false);
+    }
   }
 
   function openResults(game: HistoryGame) {
