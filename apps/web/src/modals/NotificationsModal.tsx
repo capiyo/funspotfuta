@@ -28,36 +28,74 @@ export default function NotificationsPage() {
   const [summary, setSummary] = useState<UnreadSummary | null>(null);
   const [prefs, setPrefs] = useState<NotificationPreferences | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (!userId) return;
+    let mounted = true;
+    if (!userId) {
+      setLoading(false);
+      return () => { mounted = false; };
+    }
     (async () => {
       setLoading(true);
-      const [s, p] = await Promise.all([
-        fetchUnreadSummary(userId, authToken ?? undefined),
-        getNotificationPreferences(userId),
-      ]);
-      setSummary(s);
-      setPrefs(p);
-      setLoading(false);
+      setLoadError(false);
+      try {
+        const [s, p] = await Promise.all([
+          fetchUnreadSummary(userId, authToken ?? undefined),
+          getNotificationPreferences(userId),
+        ]);
+        if (!mounted) return;
+        setSummary(s);
+        setPrefs(p);
+      } catch (error) {
+        console.error('Could not load notification settings', error);
+        if (mounted) {
+          setLoadError(true);
+          toast.showError('Could not load notification settings. Please try again.');
+        }
+      } finally {
+        if (mounted) setLoading(false);
+      }
     })();
+    return () => { mounted = false; };
   }, [userId, authToken]);
 
   async function toggle(key: keyof NotificationPreferences) {
     if (!prefs || !userId) return;
+    if (saving) return;
+    const previous = prefs;
     const next = { ...prefs, [key]: !prefs[key] };
     setPrefs(next);
     setSaving(true);
-    const ok = await updateNotificationPreferences(userId, next, authToken ?? undefined);
-    setSaving(false);
-    if (!ok) toast.showError('Failed to save preference');
+    try {
+      const ok = await updateNotificationPreferences(userId, next, authToken ?? undefined);
+      if (!ok) {
+        setPrefs(previous);
+        toast.showError('Failed to save preference');
+      }
+    } catch (error) {
+      console.error('Could not update notification preference', error);
+      setPrefs(previous);
+      toast.showError('Failed to save preference. Please try again.');
+    } finally {
+      setSaving(false);
+    }
   }
 
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-fan-pill border-2 border-fan-primary border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <div className="mx-auto max-w-md px-fan-lg pt-fan-xxl pb-10 text-center">
+        <p className="mb-fan-md text-fan-body text-fan-textTertiary">Could not load notification settings.</p>
+        <button onClick={() => window.location.reload()} className="underline text-fan-body text-fan-primary">Try again</button>
       </div>
     );
   }
