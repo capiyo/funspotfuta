@@ -79,7 +79,7 @@ export default function HomePage() {
   }, [userId, authToken]);
 
   return (
-    <div className="flex h-screen flex-col bg-fan-background">
+    <div className="flex min-h-[calc(100vh-3.5rem)] flex-col bg-fan-background">
       {/* Desktop: 3 simultaneous columns */}
       <div className="hidden flex-1 overflow-hidden md:flex">
         <WebSidebar />
