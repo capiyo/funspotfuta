@@ -7,6 +7,7 @@
 
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth/auth-context';
+import { useToast } from '@/lib/toast/toast-context';
 import {
   getUserComrades,
   getComradeStats,
@@ -18,6 +19,7 @@ import {
 
 export default function ComradesPage() {
   const { userId, username, authToken } = useAuth();
+  const toast = useToast();
   const [comrades, setComrades] = useState<Record<string, any>[]>([]);
   const [stats, setStats] = useState<ComradeStats | null>(null);
   const [query, setQuery] = useState('');
@@ -27,15 +29,24 @@ export default function ComradesPage() {
   const [busyId, setBusyId] = useState<string | null>(null);
 
   async function refresh() {
-    if (!userId) return;
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
-    const [list, s] = await Promise.all([
-      getUserComrades(userId, authToken ?? undefined),
-      getComradeStats(userId, authToken ?? undefined),
-    ]);
-    setComrades(list);
-    setStats(s);
-    setLoading(false);
+    try {
+      const [list, s] = await Promise.all([
+        getUserComrades(userId, authToken ?? undefined),
+        getComradeStats(userId, authToken ?? undefined),
+      ]);
+      setComrades(list);
+      setStats(s);
+    } catch (error) {
+      console.error('Could not load comrades', error);
+      toast.showError('Could not load comrades. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
@@ -49,35 +60,67 @@ export default function ComradesPage() {
       return;
     }
     setSearching(true);
-    const found = await searchPotentialComrades(query.trim(), userId, authToken ?? undefined);
-    setResults(found);
-    setSearching(false);
+    try {
+      const found = await searchPotentialComrades(query.trim(), userId, authToken ?? undefined);
+      setResults(found);
+      if (found.length === 0) toast.showInfo('No matching users found.');
+    } catch (error) {
+      console.error('Could not search comrades', error);
+      toast.showError('Search failed. Please try again.');
+    } finally {
+      setSearching(false);
+    }
   }
 
   async function handleAdd(candidate: Record<string, any>) {
     if (!userId || !username || !authToken) return;
-    setBusyId(candidate.id ?? candidate._id);
-    await addComrade({
-      userId,
-      comradeId: candidate.id ?? candidate._id,
-      username,
-      comradeUsername: candidate.username ?? 'Unknown',
-      comradeNickname: candidate.nickname ?? candidate.username ?? 'Unknown',
-      comradeClub: candidate.club ?? '',
-      comradeCountry: candidate.country ?? '',
-      authToken,
-    });
-    setBusyId(null);
-    setResults((prev) => prev.filter((r) => (r.id ?? r._id) !== (candidate.id ?? candidate._id)));
-    refresh();
+    const candidateId = candidate.id ?? candidate._id;
+    if (!candidateId || busyId) return;
+    setBusyId(candidateId);
+    try {
+      const result = await addComrade({
+        userId,
+        comradeId: candidateId,
+        username,
+        comradeUsername: candidate.username ?? 'Unknown',
+        comradeNickname: candidate.nickname ?? candidate.username ?? 'Unknown',
+        comradeClub: candidate.club ?? '',
+        comradeCountry: candidate.country ?? '',
+        authToken,
+      });
+      if (result?.success === false) {
+        toast.showError(result.message ?? 'Could not add this comrade.');
+        return;
+      }
+      setResults((prev) => prev.filter((r) => (r.id ?? r._id) !== candidateId));
+      toast.showSuccess('Comrade added');
+      await refresh();
+    } catch (error) {
+      console.error('Could not add comrade', error);
+      toast.showError('Could not add this comrade. Please try again.');
+    } finally {
+      setBusyId(null);
+    }
   }
 
   async function handleRemove(comradeId: string) {
     if (!userId || !authToken) return;
+    if (busyId) return;
     setBusyId(comradeId);
-    await removeComrade(userId, comradeId, authToken);
-    setBusyId(null);
-    refresh();
+    try {
+      const result = await removeComrade(userId, comradeId, authToken);
+      if (result?.success === false) {
+        toast.showError(result.message ?? 'Could not remove this comrade.');
+        return;
+      }
+      toast.showSuccess('Comrade removed');
+      await refresh();
+    } catch (error) {
+      console.error('Could not remove comrade', error);
+      toast.showError('Could not remove this comrade. Please try again.');
+    } finally {
+      setBusyId(null);
+    }
   }
 
   return (
