@@ -1,5 +1,3 @@
-'use client';
-
 // Rebuilt to match the real web architecture: WebNavbar + WebSidebar +
 // MainContentColumns showing Arena / Feed / Logs as three simultaneous
 // columns.
