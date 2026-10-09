@@ -96,7 +96,10 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="mx-auto max-w-md px-fan-lg pt-fan-xxl pb-10">
-      <h1 className="mb-fan-sm font-condensed text-fan-headline text-fan-textPrimary">Admin Dashboard</h1>
+      <div className="mb-fan-sm flex items-center justify-between gap-fan-md">
+        <h1 className="font-condensed text-fan-headline text-fan-textPrimary">Admin Dashboard</h1>
+        <button onClick={() => void refresh()} disabled={loading} className="rounded-fan-pill border border-fan-border px-fan-md py-fan-sm text-fan-caption text-fan-textSecondary disabled:opacity-50">Refresh</button>
+      </div>
       <p className="mb-fan-lg text-fan-caption text-fan-textTertiary">Channel {detail.channelId}</p>
 
       <div className="mb-fan-xxl grid grid-cols-3 gap-fan-md">
