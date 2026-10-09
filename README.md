@@ -77,7 +77,7 @@ Remaining integration work must be validated against the deployed environment:
 - **Phone verification / OTP:** the real Firebase Phone Auth and reCAPTCHA flow is implemented. Verify SMS delivery, authorized domains, and error/fallback behavior on the deployed HTTPS origin.
 - **Push notifications:** browser token registration, background service-worker notifications, and foreground toast feedback are wired. Verify permissions, Firebase configuration, token registration and delivery against the live backend.
 - **Offline behavior:** browser query persistence is enabled for data accessed through TanStack Query. Review other direct-fetch screens for cache coverage and add retry/synchronization only where the mobile behavior requires it.
-- **Profile parity:** the web profile currently has the account summary, wallet, navigation links and logout; mobile profile editing and viewing other members still need parity work.
+- **Profile parity:** the web profile now has the account summary, wallet, navigation links, logout and editing for nickname/favorite club/country; viewing other members still needs parity work.
 - **Messaging parity:** web chat opens as a modal while mobile uses a dedicated screen. Keep browser interactions and keyboard/media handling usable without changing backend contracts.
 
 Do not report Firebase, push delivery, or authenticated end-to-end flows as verified until tested against the actual deployed browser origin and backend. Mock/filler fan data remains development-only.
