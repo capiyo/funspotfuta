@@ -44,6 +44,7 @@ import {
 import { useAuth } from '@/lib/auth/auth-context';
 import { useToast } from '@/lib/toast/toast-context';
 import { MatchCard } from '@/components/MatchCard';
+import { MatchDetailsModal } from '@/src/modals/match/MatchDetailsModal';
 import { ChannelCreationModal } from '@/src/modals/ChannelCreationModal';
 import { SwipeableVotePledgeModal } from '@/src/modals/actionModal';
 import { ChatModal } from '@/src/screens/ChatsScreen';
@@ -210,6 +211,7 @@ function ArenaColumn({ channelId }: { channelId?: string }) {
   const [filter, setFilter] = useState<'all' | 'live' | 'upcoming' | 'completed'>('all');
   const [modalFixture, setModalFixture] = useState<Fixture | null>(null);
   const [chatFixture, setChatFixture] = useState<Fixture | null>(null);
+  const [detailsFixture, setDetailsFixture] = useState<Fixture | null>(null);
   const isLiveFixture = (fixture: Fixture) => !!fixture.isLive || fixture.status === 'live';
   const isUpcomingFixture = (fixture: Fixture) => fixture.status === 'upcoming' || fixture.status === 'soon';
   const isCompletedFixture = (fixture: Fixture) => fixture.status === 'completed' || fixture.status === 'finished';
@@ -255,6 +257,7 @@ function ArenaColumn({ channelId }: { channelId?: string }) {
           channelId={channelId}
           onOpen={setChatFixture}
           onChatClick={() => setChatFixture(f)}
+          onOpenDetails={setDetailsFixture}
           onOpenVoteModal={setModalFixture}
         />
       ))}
@@ -335,6 +338,17 @@ function ArenaColumn({ channelId }: { channelId?: string }) {
           fixture={chatFixture}
           channelId={channelId}
           onClose={() => setChatFixture(null)}
+        />
+      )}
+
+      {detailsFixture && (
+        <MatchDetailsModal
+          visible
+          fixture={detailsFixture}
+          userId={userId ?? undefined}
+          username={username ?? undefined}
+          authToken={authToken}
+          onClose={() => setDetailsFixture(null)}
         />
       )}
     </div>
