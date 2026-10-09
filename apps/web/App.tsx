@@ -76,6 +76,7 @@ function AppRoutes() {
       <Route path="/chat" element={<Navigate to="/home?tab=chats" replace />} />
       <Route path="/history" element={<Protected><HistoryScreen /></Protected>} />
       <Route path="/profile" element={<Protected><ProfileModal /></Protected>} />
+      <Route path="/profile/:profileId" element={<Protected><ProfileModal /></Protected>} />
       <Route path="/comrades" element={<Protected><ComradesModal /></Protected>} />
       <Route path="/leaderboard" element={<Protected><LeaderboardModal visible onClose={() => {}} /></Protected>} />
       <Route path="/notifications" element={<Protected><NotificationsModal /></Protected>} />
