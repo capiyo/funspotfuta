@@ -63,7 +63,8 @@ import HistoryScreen from '../HistoryScreen';
 
 // ── Page ────────────────────────────────────────────────────────
 export default function HomePage() {
-  const { userId, authToken } = useAuth();
+  const { userId, authToken, isLoggedIn } = useAuth();
+  const navigate = useNavigate();
   const [channels, setChannels] = useState<Channel[]>([]);
   const [activeChannelId, setActiveChannelId] = useState<string | undefined>();
   const [showCreateChannel, setShowCreateChannel] = useState(false);
@@ -81,7 +82,20 @@ export default function HomePage() {
 
   return (
     <div className="flex min-h-[calc(100vh-3.5rem)] flex-col bg-fan-background">
-      {/* Chats and Feed are sections of one shared Home page on every viewport. */}
+      {activeSection === 'chats' && (
+        <div className="flex items-center gap-fan-sm border-b border-fan-border/60 px-fan-base py-fan-sm">
+          {channels.length > 0 && (
+            <label className="flex min-w-0 flex-1 items-center gap-fan-sm text-fan-caption text-fan-textTertiary">
+              Channel
+              <select aria-label="Active channel" value={activeChannelId ?? ''} onChange={(event) => setActiveChannelId(event.target.value)} className="min-w-0 flex-1 rounded-fan-md border border-fan-border bg-fan-surface px-fan-md py-fan-sm text-fan-body text-fan-textPrimary">
+                {channels.map((channel) => <option key={channel.channelId} value={channel.channelId}>{channel.name}</option>)}
+              </select>
+            </label>
+          )}
+          <button onClick={() => isLoggedIn ? setShowCreateChannel(true) : navigate(`/login?next=${encodeURIComponent('/home?tab=chats')}`)} className="shrink-0 rounded-fan-pill bg-fan-primary px-fan-base py-fan-sm text-fan-caption font-semibold text-fan-textInverse">+ Create channel</button>
+        </div>
+      )}
+      {/* Chats, Feed and Logs follow the mobile Home tabs. */}
       <div className="flex flex-1 flex-col overflow-y-auto">
         {activeSection === 'chats' ? <ArenaColumn channelId={activeChannelId} /> : activeSection === 'feed' ? <FeedScreen /> : <HistoryScreen />}
       </div>
@@ -90,7 +104,10 @@ export default function HomePage() {
           onClose={() => {
             setShowCreateChannel(false);
             if (userId && authToken)
-              getUserChannels(userId, authToken).then(setChannels);
+              getUserChannels(userId, authToken).then((nextChannels) => {
+                setChannels(nextChannels);
+                setActiveChannelId((prev) => prev ?? nextChannels[0]?.channelId);
+              });
           }}
         />
       )}
