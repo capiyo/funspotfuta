@@ -13,6 +13,7 @@
 // app/(app)/history/page.
 
 import { useCallback, useEffect, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Fixture,
@@ -128,20 +129,16 @@ function Spinner() {
 // ---------------------------------------------------------------------------
 function ArenaColumn({ channelId }: { channelId?: string }) {
   const { userId, username, authToken, isLoggedIn } = useAuth();
-  const [fixtures, setFixtures] = useState<Fixture[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const { data: fixtures = [], isPending: loading, isError } = useQuery({
+    queryKey: ['fixtures'],
+    queryFn: getAllFixtures,
+  });
   const [modalFixture, setModalFixture] = useState<Fixture | null>(null);
   const [chatFixture, setChatFixture] = useState<Fixture | null>(null);
 
-  useEffect(() => {
-    setLoading(true);
-    getAllFixtures().then((f) => {
-      setFixtures(f);
-      setLoading(false);
-    });
-  }, []);
-
   if (loading) return <Spinner />;
+  if (isError) return <p role="alert" className="px-fan-lg py-fan-xxl text-center text-fan-body text-fan-textTertiary">Could not load fixtures. Please retry.</p>;
   if (fixtures.length === 0) {
     return (
       <p className="px-fan-lg py-fan-xxl text-center text-fan-body text-fan-textTertiary">
@@ -194,7 +191,7 @@ function ArenaColumn({ channelId }: { channelId?: string }) {
             });
             if (ok) {
               const fresh = await getAllFixtures();
-              setFixtures(fresh);
+              queryClient.setQueryData(['fixtures'], fresh);
             }
             return ok;
           }}
