@@ -1,5 +1,3 @@
-'use client';
-
 // Web port of modals/Funzy/swipeable_aftermatch_review_modal.dart.
 // Data comes from useAftermatch(fixture, channelId, authToken); the modal
 // is presentation + local filter/tab state only.
