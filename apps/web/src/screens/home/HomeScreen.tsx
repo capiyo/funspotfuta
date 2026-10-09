@@ -13,7 +13,7 @@
 // app/(app)/history/page.
 
 import { useCallback, useEffect, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Fixture,
   getAllFixtures,
