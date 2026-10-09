@@ -1,9 +1,15 @@
-import { useState } from 'react';
-import { QueryClientProvider } from '@tanstack/react-query';
+import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { createAppQueryClient } from '@funspot/core';
 import { webStorage } from '@funspot/storage';
 
+// Share one persisted client across the browser app, matching the mobile
+// provider's cache restore behavior while using browser-compatible storage.
+const { queryClient, persistOptions } = createAppQueryClient(webStorage);
+
 export function QueryProvider({ children }: { children: React.ReactNode }) {
-  const [queryClient] = useState(() => createAppQueryClient(webStorage).queryClient);
-  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+  return (
+    <PersistQueryClientProvider client={queryClient} persistOptions={persistOptions}>
+      {children}
+    </PersistQueryClientProvider>
+  );
 }
