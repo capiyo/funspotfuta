@@ -55,6 +55,7 @@ export function ChatModal({ fixture, channelId, onClose }: ChatModalProps) {
   const [activeChannelId, setActiveChannelId] = useState<string>(channelId);
   const [draft, setDraft] = useState('');
   const [replyTo, setReplyTo] = useState<ChatMessage | null>(null);
+  const [messageOptions, setMessageOptions] = useState<ChatMessage | null>(null);
   const [showAttachMenu, setShowAttachMenu] = useState(false);
   const [voteModalOpen, setVoteModalOpen] = useState(false);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
@@ -239,7 +240,7 @@ export function ChatModal({ fixture, channelId, onClose }: ChatModalProps) {
                 key={m.id}
                 message={m}
                 isMe={m.userId === userId}
-                onLongPress={() => setReplyTo(m)}
+                onLongPress={() => setMessageOptions(m)}
                 onOpenImage={() => { if (m.imageUrl) setViewingImageUrl(m.imageUrl); }}
               />
             ))
@@ -252,6 +253,34 @@ export function ChatModal({ fixture, channelId, onClose }: ChatModalProps) {
               ? `${typingUsers[0]} is typing…`
               : `${typingUsers.slice(0, 2).join(', ')} are typing…`}
           </p>
+        )}
+
+        {messageOptions && (
+          <div className="mx-fan-md mb-fan-xs flex items-center gap-fan-sm rounded-fan-md border border-fan-border bg-fan-surface p-fan-sm">
+            <p className="min-w-0 flex-1 truncate text-fan-tag text-fan-textSecondary">{messageOptions.text || (messageOptions.isImage ? '📷 Image' : 'Media')}</p>
+            <button
+              type="button"
+              onClick={async () => {
+                const textToCopy = messageOptions.text || messageOptions.imageUrl || messageOptions.videoUrl || '';
+                try {
+                  if (!navigator.clipboard?.writeText) throw new Error('Clipboard unavailable');
+                  await navigator.clipboard.writeText(textToCopy);
+                  toast.showSuccess('Copied');
+                } catch {
+                  toast.showError('Could not copy this message.');
+                } finally {
+                  setMessageOptions(null);
+                }
+              }}
+              className="rounded-fan-pill border border-fan-border px-fan-md py-fan-xs text-fan-tag font-semibold text-fan-textSecondary"
+            >Copy</button>
+            <button
+              type="button"
+              onClick={() => { setReplyTo(messageOptions); setMessageOptions(null); }}
+              className="rounded-fan-pill bg-fan-primaryDim px-fan-md py-fan-xs text-fan-tag font-semibold text-fan-primary"
+            >Reply</button>
+            <button type="button" aria-label="Close message options" onClick={() => setMessageOptions(null)} className="rounded-full p-1 text-fan-textTertiary"><X size={12} /></button>
+          </div>
         )}
 
         {/* Reply indicator */}
