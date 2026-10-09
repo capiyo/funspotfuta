@@ -92,8 +92,10 @@ export function ChatModal({ fixture, channelId, onClose }: ChatModalProps) {
     loadingHistory,
     historyError,
     uploadingImage,
+    typingUsers,
     send,
     sendImage,
+    sendTyping,
   } = useChannelChat({
     channelId: activeChannelId,
     fixtureId,
@@ -242,6 +244,14 @@ export function ChatModal({ fixture, channelId, onClose }: ChatModalProps) {
           )}
         </div>
 
+        {typingUsers.length > 0 && (
+          <p aria-live="polite" className="px-fan-lg pb-fan-xs text-fan-tag italic text-fan-textTertiary">
+            {typingUsers.length === 1
+              ? `${typingUsers[0]} is typing…`
+              : `${typingUsers.slice(0, 2).join(', ')} are typing…`}
+          </p>
+        )}
+
         {/* Reply indicator */}
         {replyTo && (
           <div className="mx-fan-md mb-fan-xs flex items-center gap-fan-sm rounded-fan-md border-[0.5px] border-fan-primary/25 bg-fan-primaryDim px-fan-sm py-fan-xs">
@@ -304,7 +314,10 @@ export function ChatModal({ fixture, channelId, onClose }: ChatModalProps) {
             ) : (
               <input
                 value={draft}
-                onChange={(e) => setDraft(e.target.value)}
+                onChange={(e) => {
+                  setDraft(e.target.value);
+                  if (e.target.value.trim()) sendTyping();
+                }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') handleSend();
                 }}
