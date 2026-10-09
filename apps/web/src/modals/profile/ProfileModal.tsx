@@ -1,5 +1,3 @@
-'use client';
-
 // Corresponds to the "Profile" tab. Session display + logout are wired
 // against the ported AuthProvider; wallet is real (payment-service.ts);
 // comrades/leaderboard/history now have real pages, linked below since
