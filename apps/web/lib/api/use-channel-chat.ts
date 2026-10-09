@@ -170,7 +170,7 @@ export function useChannelChat(params: {
         });
       } else {
         // Fallback to REST when the socket isn't up yet.
-        await sendMessageRest({
+        const sent = await sendMessageRest({
           channelId,
           fixtureId,
           senderId: userId,
@@ -178,6 +178,12 @@ export function useChannelChat(params: {
           text,
           authToken,
         });
+        if (!sent) {
+          setMessages((prev) => prev.map((message) =>
+            message.id === messageId ? { ...message, status: 'failed', isPending: false } : message,
+          ));
+          throw new Error('Message was not accepted by the server.');
+        }
       }
     },
     [channelId, fixtureId, userId, username, authToken, connected, appendMessage],
@@ -238,7 +244,7 @@ export function useChannelChat(params: {
 
         // Persist via the media/reply-capable path (image_url + is_image),
         // matching sendChannelMessage in api_services.dart.
-        await sendChannelMessage({
+        const sent = await sendChannelMessage({
           channelId,
           userId,
           username,
@@ -250,6 +256,12 @@ export function useChannelChat(params: {
           authToken,
           tempId,
         });
+        if (sent === false) {
+          setMessages((prev) => prev.map((message) =>
+            message.id === tempId ? { ...message, status: 'failed', isPending: false } : message,
+          ));
+          throw new Error('Image message was not accepted by the server.');
+        }
       } finally {
         setUploadingImage(false);
       }
