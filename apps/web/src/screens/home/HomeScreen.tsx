@@ -114,11 +114,27 @@ export default function HomePage() {
   }
 
   useEffect(() => {
-    if (!userId || !authToken) return;
-    getUserChannels(userId, authToken).then((c) => {
-      setChannels(c);
-      setActiveChannelId((prev) => prev ?? c[0]?.channelId);
-    });
+    if (!userId || !authToken) {
+      setChannels([]);
+      setActiveChannelId(undefined);
+      return;
+    }
+    let cancelled = false;
+    getUserChannels(userId, authToken)
+      .then((nextChannels) => {
+        if (cancelled) return;
+        setChannels(nextChannels);
+        setActiveChannelId((prev) =>
+          prev && nextChannels.some((channel) => channel.channelId === prev)
+            ? prev
+            : nextChannels[0]?.channelId,
+        );
+      })
+      .catch((error) => {
+        console.error('Could not load home channels', error);
+        if (!cancelled) toast.showError('Could not load your channels. Please try again.');
+      });
+    return () => { cancelled = true; };
   }, [userId, authToken]);
 
   return (
