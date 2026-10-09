@@ -53,7 +53,6 @@ import {
 import { useAuth } from '@/lib/auth/auth-context';
 import { MatchCard } from '@/components/MatchCard';
 import { HistoryCard } from '@/components/HistoryCard';
-import { WebNavbar } from '@/components/WebNavbar';
 import { WebSidebar } from '@/components/WebSidebar';
 import { MainContentColumns } from '@/components/MainContentColumns';
 import { ChannelCreationModal } from '@/src/modals/ChannelCreationModal';
@@ -81,12 +80,6 @@ export default function HomePage() {
 
   return (
     <div className="flex h-screen flex-col bg-fan-background">
-      <WebNavbar
-        channels={channels}
-        activeChannelId={activeChannelId}
-        onSelectChannel={setActiveChannelId}
-        onCreateChannel={() => setShowCreateChannel(true)}
-      />
       {/* Desktop: 3 simultaneous columns */}
       <div className="hidden flex-1 overflow-hidden md:flex">
         <WebSidebar />
