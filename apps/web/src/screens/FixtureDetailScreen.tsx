@@ -69,6 +69,7 @@ export default function FixtureDetailPage() {
   const [fixture, setFixture] = useState<Fixture | null>(null);
   const [channelId, setChannelId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   const [voteSelection, setVoteSelection] = useState<Selection | null>(null);
   const [voted, setVoted] = useState(false);
@@ -92,35 +93,47 @@ export default function FixtureDetailPage() {
   const pledgeSectionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    let mounted = true;
     (async () => {
       setLoading(true);
-      const [fixtures, channels] = await Promise.all([
-        getAllFixtures(),
-        userId && authToken
-          ? getUserChannels(userId, authToken)
-          : Promise.resolve([]),
-      ]);
-      const f =
-        fixtures.find((fx) => fx.matchId === matchId || fx.id === matchId) ??
-        null;
-      setFixture(f);
-      const cid = channels[0]?.id ?? null;
-      setChannelId(cid);
+      setLoadError(null);
+      try {
+        const [fixtures, channels] = await Promise.all([
+          getAllFixtures(),
+          userId && authToken
+            ? getUserChannels(userId, authToken)
+            : Promise.resolve([]),
+        ]);
+        if (!mounted) return;
+        const found =
+          fixtures.find((fx) => fx.matchId === matchId || fx.id === matchId) ??
+          null;
+        setFixture(found);
+        const cid = channels[0]?.channelId ?? channels[0]?.id ?? null;
+        setChannelId(cid);
 
-      if (f) {
-        const subs = await getSubFixtures(f.matchId || f.id);
-        setSubFixtures(subs);
-        if (cid) {
-          const [open, matched] = await Promise.all([
-            getOpenBets(cid, f.matchId || f.id, authToken ?? undefined),
-            getChannelBettors(cid, f.matchId || f.id, authToken ?? undefined),
-          ]);
-          setOpenBets(open);
-          setMatchedBets(matched);
+        if (found) {
+          const subs = await getSubFixtures(found.matchId || found.id);
+          if (!mounted) return;
+          setSubFixtures(subs);
+          if (cid) {
+            const [open, matched] = await Promise.all([
+              getOpenBets(cid, found.matchId || found.id, authToken ?? undefined),
+              getChannelBettors(cid, found.matchId || found.id, authToken ?? undefined),
+            ]);
+            if (!mounted) return;
+            setOpenBets(open);
+            setMatchedBets(matched);
+          }
         }
+      } catch (error) {
+        console.error('Could not load fixture details:', error);
+        if (mounted) setLoadError('Some fixture details could not be loaded. Please try again.');
+      } finally {
+        if (mounted) setLoading(false);
       }
-      setLoading(false);
     })();
+    return () => { mounted = false; };
   }, [matchId, userId, authToken]);
 
   // Compact header appears once the hero has scrolled past.
@@ -263,8 +276,7 @@ export default function FixtureDetailPage() {
           Fixture not found
         </p>
         <p className="mb-fan-lg text-fan-body text-fan-textTertiary">
-          This match may have been removed, or the link is off. Head back and
-          pick another one.
+          {loadError ?? 'This match may have been removed, or the link is off. Head back and pick another one.'}
         </p>
         <button
           onClick={() => navigate(-1)}
