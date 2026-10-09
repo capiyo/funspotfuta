@@ -1,5 +1,3 @@
-'use client';
-
 // New UI, functionally ported from the core data flows of
 // lib/modals/homepage/admin_dashboard.dart (2,284 lines — the original also
 // includes an in-dashboard payments UI, which is already covered by the
