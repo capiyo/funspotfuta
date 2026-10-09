@@ -149,7 +149,7 @@ export default function ProfilePage() {
             <p className="text-fan-textSecondary">Favorite club: <span className="text-fan-textPrimary">{profile.clubFan || '—'}</span></p>
             <p className="text-fan-textSecondary">Country: <span className="text-fan-textPrimary">{profile.countryFan || '—'}</span></p>
           </div>
-        : (
+        ) : (
           <p className="text-fan-caption text-fan-textTertiary">{isOwnProfile ? 'Complete your fan profile with a nickname, favorite club and country.' : 'This user has not shared fan profile details.'}</p>
         )}
       </section>
