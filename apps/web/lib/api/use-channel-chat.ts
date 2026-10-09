@@ -32,6 +32,8 @@ export function useChannelChat(params: {
   const [loadingHistory, setLoadingHistory] = useState(true);
   const [historyError, setHistoryError] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [typingUsers, setTypingUsers] = useState<string[]>([]);
+  const typingStopRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const seenIds = useRef(new Set<string>());
 
   const appendMessage = useCallback((msg: ChatMessage) => {
@@ -80,7 +82,17 @@ export function useChannelChat(params: {
 
     const onChatMessage = (payload: Record<string, any>) =>
       appendMessage(chatMessageFromJson(payload));
+    const onTyping = (payload: Record<string, any>) => {
+      const fromUserId = payload.userId ?? payload.fromUserId;
+      if (!fromUserId || fromUserId === userId) return;
+      const name = typeof payload.username === 'string' ? payload.username : 'Someone';
+      setTypingUsers((previous) => payload.isTyping
+        ? (previous.includes(name) ? previous : [...previous, name])
+        : previous.filter((item) => item !== name),
+      );
+    };
     webSocketService.on('chat.message', onChatMessage);
+    webSocketService.on('typing', onTyping);
 
     const roomId = fixtureId
       ? `${channelId}_${fixtureId}`
@@ -90,7 +102,9 @@ export function useChannelChat(params: {
     return () => {
       cancelled = true;
       webSocketService.off('chat.message', onChatMessage);
+      webSocketService.off('typing', onTyping);
       webSocketService.leaveRoom(roomId);
+      if (typingStopRef.current) clearTimeout(typingStopRef.current);
       // Match the mobile chat lifecycle: mark the channel/fixture read when
       // leaving the conversation. This uses the existing backend endpoint.
       void fetch(
@@ -269,5 +283,14 @@ export function useChannelChat(params: {
     [channelId, fixtureId, userId, username, authToken, appendMessage],
   );
 
-  return { messages, connected, loadingHistory, historyError, uploadingImage, send, sendImage };
+  const sendTyping = useCallback(() => {
+    if (!username) return;
+    webSocketService.send('typing', { isTyping: true, username });
+    if (typingStopRef.current) clearTimeout(typingStopRef.current);
+    typingStopRef.current = setTimeout(() => {
+      webSocketService.send('typing', { isTyping: false, username });
+    }, 2000);
+  }, [username]);
+
+  return { messages, connected, loadingHistory, historyError, uploadingImage, typingUsers, send, sendImage, sendTyping };
 }
