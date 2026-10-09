@@ -1,5 +1,3 @@
-'use client';
-
 // Ported 1:1 from lib/WebView/Hompage/web_profile_panel.dart.
 // Width 280, FanColors.surfaceElevated background, mock preview when no
 // userId, balance card, info-row stat chips, channel tabs, and
