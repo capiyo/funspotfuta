@@ -58,6 +58,7 @@ export function ChatModal({ fixture, channelId, onClose }: ChatModalProps) {
   const [showAttachMenu, setShowAttachMenu] = useState(false);
   const [voteModalOpen, setVoteModalOpen] = useState(false);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [viewingImageUrl, setViewingImageUrl] = useState<string | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -239,6 +240,7 @@ export function ChatModal({ fixture, channelId, onClose }: ChatModalProps) {
                 message={m}
                 isMe={m.userId === userId}
                 onLongPress={() => setReplyTo(m)}
+                onOpenImage={() => { if (m.imageUrl) setViewingImageUrl(m.imageUrl); }}
               />
             ))
           )}
@@ -376,6 +378,15 @@ export function ChatModal({ fixture, channelId, onClose }: ChatModalProps) {
           )}
         </div>
       </div>
+
+      {viewingImageUrl && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/90 p-fan-lg" onClick={() => setViewingImageUrl(null)}>
+          <button type="button" aria-label="Close image viewer" onClick={() => setViewingImageUrl(null)} className="absolute right-4 top-4 rounded-full bg-black/60 p-3 text-white">
+            <X size={20} />
+          </button>
+          <img src={viewingImageUrl} alt="Chat attachment enlarged" onClick={(event) => event.stopPropagation()} className="max-h-[90vh] max-w-full rounded-fan-md object-contain" />
+        </div>
+      )}
 
       {/* Vote modal */}
       {voteModalOpen && activeChannelId && (
@@ -544,10 +555,12 @@ function MessageBubble({
   message,
   isMe,
   onLongPress,
+  onOpenImage,
 }: {
   message: ChatMessage;
   isMe: boolean;
   onLongPress: () => void;
+  onOpenImage: () => void;
 }) {
   const isCommentary = message.isCommentary;
   const effectiveIsMe = isCommentary ? false : isMe;
