@@ -7,7 +7,7 @@
 
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth/auth-context';
-import { getUserBalance, getTransactionHistory, initiateSTKPush, initiateB2CPayment, savePhone, PaymentTransaction } from '@funspot/core';
+import { getUserBalance, getTransactionHistory, getSavedPhone, initiateSTKPush, initiateB2CPayment, savePhone, PaymentTransaction } from '@funspot/core';
 
 export function WalletCard() {
   const { userId, username, authToken } = useAuth();
@@ -39,9 +39,16 @@ export function WalletCard() {
   }
 
   useEffect(() => {
-    refresh();
+    let mounted = true;
+    void refresh();
+    if (userId) {
+      getSavedPhone(userId, 'topup', authToken ?? undefined)
+        .then((saved) => { if (mounted && saved) setPhone(saved); })
+        .catch((error) => console.warn('Could not load saved top-up phone', error));
+    }
+    return () => { mounted = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userId]);
+  }, [userId, authToken]);
 
   async function handleTopUp() {
     if (!userId || !username) return;
