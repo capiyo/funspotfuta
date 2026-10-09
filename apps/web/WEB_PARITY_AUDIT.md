@@ -9,7 +9,7 @@ This is a page-by-page source review, not a claim of live browser/backend accept
 
 | Web route/screen | Mobile reference | Review result |
 |---|---|---|
-| `/`, `/home?tab=chats` | `screens/home/HomeScreen.tsx`, `screens/ChatsScreen.tsx` | Web Home has a Chats/Arena section, API-backed fixtures, channel selection, channel creation access, vote/pledge and chat modals. Mobile's animated overlay header, browse/join channel flow and floating-tab presentation are not identical. |
+| `/`, `/home?tab=chats` | `screens/home/HomeScreen.tsx`, `screens/ChatsScreen.tsx` | Web Home has a Chats/Arena section, API-backed fixtures, channel selection, channel browse/join and creation flows, vote/pledge and chat modals. Mobile's animated overlay header and floating-tab presentation are not identical. |
 | `/home?tab=feed`, `/feed` | `screens/FeedScreen.tsx` | Uses persisted infinite-query data, paged loading, create-post and optimistic like flows; follow calls the shared API; sharing uses browser share/clipboard where available. Comments and repost are placeholders in both current implementations. |
 | `/home?tab=logs`, `/history`, `/logs` | `screens/HistoryScreen.tsx`, `modals/HistoryModal.tsx` | Logs tab is now reachable from Home. History/live loading failures are handled; deterministic filler fans only render in development. The web History UI is richer than the basic mobile Home Logs list. |
 | `/login` | `modals/LoginModal.tsx` | Browser Firebase phone OTP + reCAPTCHA is implemented, with the existing PIN fallback and existing core registration/login endpoints retained. Real SMS delivery still requires browser-authorized Firebase domains/configuration and must be tested on the deployed HTTPS origin. |
