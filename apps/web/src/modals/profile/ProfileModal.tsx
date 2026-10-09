@@ -143,14 +143,16 @@ export default function ProfilePage() {
               <button onClick={() => { setNickname(profile?.nickname ?? ''); setClubFan(profile?.clubFan ?? ''); setCountryFan(profile?.countryFan ?? ''); setEditingProfile(false); }} disabled={savingProfile} className="rounded-fan-lg border border-fan-border px-fan-lg py-fan-sm text-fan-caption text-fan-textSecondary">Cancel</button>
             </div>
           </div>
-        ) : profile && (profile.nickname || profile.clubFan || profile.countryFan) ? (
-          <div className="grid grid-cols-1 gap-fan-sm text-fan-body">
-            <p className="text-fan-textSecondary">Nickname: <span className="text-fan-textPrimary">{profile.nickname || '—'}</span></p>
-            <p className="text-fan-textSecondary">Favorite club: <span className="text-fan-textPrimary">{profile.clubFan || '—'}</span></p>
-            <p className="text-fan-textSecondary">Country: <span className="text-fan-textPrimary">{profile.countryFan || '—'}</span></p>
-          </div>
         ) : (
-          <p className="text-fan-caption text-fan-textTertiary">{isOwnProfile ? 'Complete your fan profile with a nickname, favorite club and country.' : 'This user has not shared fan profile details.'}</p>
+          profile && (profile.nickname || profile.clubFan || profile.countryFan) ? (
+            <div className="grid grid-cols-1 gap-fan-sm text-fan-body">
+              <p className="text-fan-textSecondary">Nickname: <span className="text-fan-textPrimary">{profile.nickname || '—'}</span></p>
+              <p className="text-fan-textSecondary">Favorite club: <span className="text-fan-textPrimary">{profile.clubFan || '—'}</span></p>
+              <p className="text-fan-textSecondary">Country: <span className="text-fan-textPrimary">{profile.countryFan || '—'}</span></p>
+            </div>
+          ) : (
+            <p className="text-fan-caption text-fan-textTertiary">{isOwnProfile ? 'Complete your fan profile with a nickname, favorite club and country.' : 'This user has not shared fan profile details.'}</p>
+          )
         )}
       </section>
 
