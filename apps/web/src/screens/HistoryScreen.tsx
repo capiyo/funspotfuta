@@ -191,8 +191,9 @@ export function toCardData(
     }
   }
 
-  // Tier 4 — top up to 3 with deterministic mocks
-  if (people.length < 3) {
+  // Tier 4 — deterministic mock fillers are development-only; never present
+  // fabricated fans as real people in production.
+  if (import.meta.env.DEV && people.length < 3) {
     const rand = seededRandom(hashCode(g.id));
     const picks: Array<'home' | 'away' | 'draw'> = ['home', 'away', 'draw'];
     const needed = 3 - people.length;
