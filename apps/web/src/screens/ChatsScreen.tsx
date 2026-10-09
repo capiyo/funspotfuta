@@ -682,6 +682,9 @@ function MessageBubble({
               {message.text}
             </p>
           )}
+          {message.status === 'failed' && (
+            <p role="alert" className="mt-1 text-fan-tag font-semibold text-fan-away">Failed to send</p>
+          )}
 
           <p className="mt-[2px] text-right text-fan-tag text-fan-textTertiary">
             {timeAgo(message.timestamp)}
