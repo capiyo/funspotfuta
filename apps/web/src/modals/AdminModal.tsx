@@ -172,7 +172,8 @@ export default function AdminDashboardPage() {
                 <span className="text-fan-body text-fan-textPrimary">{m.username}</span>
                 {String(m.role ?? '').toLowerCase() === 'admin' || String(m.role ?? '').toLowerCase() === 'owner' ? <span className="rounded-fan-pill bg-fan-primary/10 px-fan-sm py-0.5 text-[10px] font-semibold uppercase text-fan-primary">Admin</span> : null}
               </div>
-              <p className="mt-1 text-[11px] text-fan-textTertiary">{Number(m.totalVotes ?? 0) || 0} votes · {Number(m.correctVotes ?? 0) || 0} correct</p>
+              <p className="mt-1 text-[11px] text-fan-textTertiary">{m.seasonPoints} season points · {m.totalVotes} votes · {m.correctVotes} correct · {m.msgCount} messages</p>
+              <p className="mt-1 text-[10px] text-fan-textTertiary">{m.totalVotes > 0 ? `${Math.round((m.correctVotes / m.totalVotes) * 100)}% vote accuracy` : 'No votes recorded'}</p>
               <div className="mt-1.5 h-1.5 overflow-hidden rounded-fan-pill bg-fan-surfaceSunken">
                 <div className="h-full rounded-fan-pill bg-fan-primary" style={{ width: `${Math.max(0, Math.min(100, (m.totalVotes > 0 ? (m.correctVotes / m.totalVotes) * 100 : 0)))}%` }} />
               </div>
