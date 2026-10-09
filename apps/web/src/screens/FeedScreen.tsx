@@ -91,8 +91,6 @@ export default function FeedPage() {
 
   return (
     <div className="mx-auto max-w-md px-fan-lg pt-fan-xxl pb-10">
-      <h1 className="mb-fan-lg font-condensed text-fan-headline text-fan-textPrimary">Feed</h1>
-
       <div className="mb-fan-xxl rounded-fan-xl border border-fan-border bg-fan-surface p-fan-base">
         <textarea
           value={caption}
