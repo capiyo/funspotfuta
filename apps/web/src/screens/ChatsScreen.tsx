@@ -542,7 +542,8 @@ function CarouselHeader({
   fixture: Fixture;
   onOpenVote: () => void;
 }) {
-  const isLive = fixture.status === 'live' || fixture.status === 'half_time';
+  const isHalfTime = fixture.status === 'half_time';
+  const isLive = fixture.status === 'live' || isHalfTime;
   const completed =
     fixture.status === 'completed' || fixture.status === 'finished';
   const homeScore = fixture.homeScore ?? 0;
@@ -558,7 +559,7 @@ function CarouselHeader({
               : 'bg-fan-surfaceSunken text-fan-textTertiary'
           }`}
       >
-        {isLive ? '● LIVE' : completed ? 'FT' : 'SOON'}
+        {isHalfTime ? 'HT' : isLive ? '● LIVE' : completed ? 'FT' : 'SOON'}
       </span>
       <span className="shrink-0 rounded-fan-sm bg-fan-primaryDim px-1.5 py-[1px] text-fan-caption font-bold text-fan-primary">
         {homeScore} - {awayScore}
