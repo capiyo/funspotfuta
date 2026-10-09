@@ -58,6 +58,7 @@ import { createPost } from '@/lib/api/posts-create';
 import { toCardData } from '@/src/screens/HistoryScreen';
 import { SwipeableVotePledgeModal } from '@/src/modals/actionModal';
 import { ChatModal } from '@/src/screens/ChatsScreen';
+import FeedScreen from '../FeedScreen';
 
 // ── Page ────────────────────────────────────────────────────────
 export default function HomePage() {
@@ -82,7 +83,7 @@ export default function HomePage() {
     <div className="flex min-h-[calc(100vh-3.5rem)] flex-col bg-fan-background">
       {/* Chats and Feed are sections of one shared Home page on every viewport. */}
       <div className="flex flex-1 flex-col overflow-y-auto">
-        {activeSection === 'chats' ? <ArenaColumn channelId={activeChannelId} /> : <FeedColumn />}
+        {activeSection === 'chats' ? <ArenaColumn channelId={activeChannelId} /> : <FeedScreen />}
       </div>
       {showCreateChannel && (
         <ChannelCreationModal
