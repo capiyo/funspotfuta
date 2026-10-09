@@ -54,15 +54,19 @@ From the monorepo root, run `npm run typecheck` for workspace typechecking.
 
 ## Remaining parity/integration areas
 
-These are requirements to implement and validate, not permanent exclusions:
+The current pass has added the browser Firebase Phone Auth flow (OTP with the existing PIN fallback), FCM token registration and foreground/background notification handling, persisted query-cache restoration, and persisted feed/fixture queries.
 
-1. **Firebase Phone Auth OTP:** browser phone verification must use Firebase's actual verification flow, including reCAPTCHA and configured SMS delivery. The current phone/PIN flow should not imply that an unverified number has been verified.
-2. **FCM / Web Push:** implement permission and subscription handling, service-worker/browser delivery, and provider configuration. Porting notification records or UI alone does not mean push delivery works.
-3. **Offline cache and queue:** reproduce the intended offline experience with browser-compatible storage (for example, IndexedDB) and retry/synchronization behavior where needed; do not try to use mobile SQLite directly in the browser.
-4. **Video in chat:** support choosing, uploading, sending, and rendering video messages with browser-compatible media/file handling while keeping existing API/storage contracts.
-5. **Admin payments UI:** match the mobile admin dashboard's payment-related UI and states, reusing `payment-service.ts` and other shared services rather than duplicating payment logic.
+Still to validate or complete:
 
-A feature is complete only after its web interaction is implemented and tested, and any required external configuration or backend support is confirmed. Clearly document configuration blockers instead of silently downgrading the behavior.
+1. **Firebase Phone Auth:** verify reCAPTCHA, SMS delivery, authorized domains, OTP failure behavior and PIN fallback on the deployed HTTPS origin.
+2. **FCM / Web Push:** confirm permission, browser token registration and real delivery with the deployed Firebase configuration and backend.
+3. **Offline coverage:** Feed and fixture queries use the persisted cache. Review the remaining direct-fetch screens for cache behavior and add synchronization/retry where the mobile experience requires it.
+4. **Profile parity:** mobile profile editing (nickname, favorite club, country) and viewing other members are not yet represented by the web profile page.
+5. **Messaging navigation parity:** web chat is a modal; mobile chat is a dedicated stack screen. Review browser back/keyboard behavior and preserve the existing image-message API contract.
+
+The current mobile chat screen also marks video upload/playback as not ported, so that is not considered mobile parity in this pass. The current mobile AdminModal likewise deliberately excludes deposit/withdraw controls; profile wallet flows remain available.
+
+A feature is complete only after its interaction is implemented and tested, and any required external configuration or backend support is confirmed. Clearly document deployment blockers instead of silently downgrading behavior.
 
 ## Architecture
 
