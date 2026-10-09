@@ -19,6 +19,8 @@ import {
   Fixture,
   getAllFixtures,
   getUserChannels,
+  getAllChannels,
+  joinChannel as joinChannelApi,
   Channel,
   getPosts,
   toggleLikePost,
@@ -52,6 +54,7 @@ import {
   matchMainPledge,
 } from '@/lib/api/vote-modal-shims';
 import { useAuth } from '@/lib/auth/auth-context';
+import { useToast } from '@/lib/toast/toast-context';
 import { MatchCard } from '@/components/MatchCard';
 import { HistoryCard } from '@/components/HistoryCard';
 import { ChannelCreationModal } from '@/src/modals/ChannelCreationModal';
@@ -64,14 +67,51 @@ import HistoryScreen from '../HistoryScreen';
 
 // ── Page ────────────────────────────────────────────────────────
 export default function HomePage() {
-  const { userId, authToken, isLoggedIn } = useAuth();
+  const { userId, username, authToken, isLoggedIn } = useAuth();
   const navigate = useNavigate();
+  const toast = useToast();
   const [channels, setChannels] = useState<Channel[]>([]);
   const [activeChannelId, setActiveChannelId] = useState<string | undefined>();
   const [showCreateChannel, setShowCreateChannel] = useState(false);
+  const [showBrowseChannels, setShowBrowseChannels] = useState(false);
+  const [joiningChannelId, setJoiningChannelId] = useState<string | null>(null);
+  const { data: allChannels = [], isPending: loadingAllChannels } = useQuery({
+    queryKey: ['channels'],
+    queryFn: () => getAllChannels(authToken ?? undefined),
+    enabled: showBrowseChannels,
+  });
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedTab = searchParams.get('tab');
   const activeSection = requestedTab === 'feed' || requestedTab === 'logs' ? requestedTab : 'chats';
+
+  async function handleJoinChannel(channel: Channel) {
+    if (!isLoggedIn || !userId || !authToken) {
+      navigate(`/login?next=${encodeURIComponent('/home?tab=chats')}`);
+      return;
+    }
+    if (channels.length >= 3) {
+      toast.showInfo('You can join up to 3 channels.');
+      return;
+    }
+    setJoiningChannelId(channel.channelId);
+    try {
+      const joined = await joinChannelApi(channel.channelId, { userId, username: username ?? '' }, authToken);
+      if (!joined) {
+        toast.showError('Could not join this channel. Please try again.');
+        return;
+      }
+      const nextChannels = await getUserChannels(userId, authToken);
+      setChannels(nextChannels);
+      setActiveChannelId(channel.channelId);
+      setShowBrowseChannels(false);
+      toast.showSuccess(`Joined ${channel.name}.`);
+    } catch (error) {
+      console.error('Could not join channel:', error);
+      toast.showError('Could not join this channel. Please try again.');
+    } finally {
+      setJoiningChannelId(null);
+    }
+  }
 
   useEffect(() => {
     if (!userId || !authToken) return;
@@ -93,6 +133,7 @@ export default function HomePage() {
               </select>
             </label>
           )}
+          <button onClick={() => setShowBrowseChannels(true)} className="shrink-0 rounded-fan-pill border border-fan-border px-fan-base py-fan-sm text-fan-caption font-semibold text-fan-textSecondary">Browse</button>
           <button onClick={() => isLoggedIn ? setShowCreateChannel(true) : navigate(`/login?next=${encodeURIComponent('/home?tab=chats')}`)} className="shrink-0 rounded-fan-pill bg-fan-primary px-fan-base py-fan-sm text-fan-caption font-semibold text-fan-textInverse">+ Create channel</button>
         </div>
       )}
@@ -100,6 +141,33 @@ export default function HomePage() {
       <div className="flex flex-1 flex-col overflow-y-auto">
         {activeSection === 'chats' ? <ArenaColumn channelId={activeChannelId} /> : activeSection === 'feed' ? <FeedScreen /> : <HistoryScreen />}
       </div>
+      {showBrowseChannels && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 sm:items-center" onClick={() => setShowBrowseChannels(false)}>
+          <section role="dialog" aria-modal="true" aria-labelledby="browse-channels-title" className="max-h-[85vh] w-full max-w-md overflow-y-auto rounded-t-fan-xl border border-fan-border bg-fan-background p-fan-lg sm:rounded-fan-xl" onClick={(event) => event.stopPropagation()}>
+            <div className="mb-fan-lg flex items-center justify-between">
+              <h2 id="browse-channels-title" className="font-condensed text-fan-headline text-fan-textPrimary">Browse channels</h2>
+              <button onClick={() => setShowBrowseChannels(false)} className="rounded-fan-pill px-fan-md py-fan-xs text-fan-caption text-fan-textTertiary">Close</button>
+            </div>
+            {channels.length >= 3 && <p className="mb-fan-md text-fan-caption text-fan-away">You have reached the 3-channel limit.</p>}
+            {loadingAllChannels ? <Spinner /> : allChannels.filter((channel) => !channels.some((joined) => joined.channelId === channel.channelId)).length === 0 ? (
+              <p className="py-fan-xl text-center text-fan-body text-fan-textTertiary">No channels available to join.</p>
+            ) : (
+              <div className="space-y-fan-sm">
+                {allChannels.filter((channel) => !channels.some((joined) => joined.channelId === channel.channelId)).map((channel) => (
+                  <div key={channel.channelId} className="flex items-center gap-fan-md rounded-fan-lg border border-fan-border bg-fan-surface p-fan-md">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-fan-body font-semibold text-fan-textPrimary">{channel.name}</p>
+                      <p className="text-fan-caption text-fan-textTertiary">{channel.memberCount ?? channel.members?.length ?? 0} members</p>
+                    </div>
+                    <button onClick={() => void handleJoinChannel(channel)} disabled={!isLoggedIn || channels.length >= 3 || joiningChannelId === channel.channelId} className="rounded-fan-pill bg-fan-primary px-fan-base py-fan-sm text-fan-caption font-semibold text-fan-textInverse disabled:opacity-50">{joiningChannelId === channel.channelId ? 'Joining…' : 'Join'}</button>
+                  </div>
+                ))}
+              </div>
+            )}
+            {!isLoggedIn && <button onClick={() => navigate(`/login?next=${encodeURIComponent('/home?tab=chats')}`)} className="mt-fan-lg w-full rounded-fan-lg border border-fan-border py-fan-sm text-fan-caption text-fan-textSecondary">Sign in to join a channel</button>}
+          </section>
+        </div>
+      )}
       {showCreateChannel && (
         <ChannelCreationModal
           onClose={() => {
