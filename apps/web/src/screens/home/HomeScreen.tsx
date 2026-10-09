@@ -218,26 +218,43 @@ function Spinner() {
 function ArenaColumn({ channelId }: { channelId?: string }) {
   const { userId, username, authToken, isLoggedIn } = useAuth();
   const queryClient = useQueryClient();
-  const { data: fixtures = [], isPending: loading, isError } = useQuery({
+  const { data: fixtures = [], isPending: loading, isError, refetch, isFetching } = useQuery({
     queryKey: ['fixtures'],
     queryFn: getAllFixtures,
   });
+  const [filter, setFilter] = useState<'all' | 'live' | 'upcoming' | 'completed'>('all');
   const [modalFixture, setModalFixture] = useState<Fixture | null>(null);
   const [chatFixture, setChatFixture] = useState<Fixture | null>(null);
+  const isLiveFixture = (fixture: Fixture) => !!fixture.isLive || fixture.status === 'live';
+  const isUpcomingFixture = (fixture: Fixture) => fixture.status === 'upcoming' || fixture.status === 'soon';
+  const isCompletedFixture = (fixture: Fixture) => fixture.status === 'completed' || fixture.status === 'finished';
+  const filteredFixtures = fixtures
+    .filter((fixture) => filter === 'all' || (filter === 'live' && isLiveFixture(fixture)) || (filter === 'upcoming' && isUpcomingFixture(fixture)) || (filter === 'completed' && isCompletedFixture(fixture)))
+    .sort((a, b) => (isLiveFixture(a) ? 0 : isUpcomingFixture(a) ? 1 : 2) - (isLiveFixture(b) ? 0 : isUpcomingFixture(b) ? 1 : 2));
 
   if (loading) return <Spinner />;
-  if (isError) return <p role="alert" className="px-fan-lg py-fan-xxl text-center text-fan-body text-fan-textTertiary">Could not load fixtures. Please retry.</p>;
-  if (fixtures.length === 0) {
-    return (
-      <p className="px-fan-lg py-fan-xxl text-center text-fan-body text-fan-textTertiary">
-        No fixtures right now.
-      </p>
-    );
-  }
+  if (isError) return (
+    <div role="alert" className="px-fan-lg py-fan-xxl text-center text-fan-body text-fan-textTertiary">
+      <p>Could not load fixtures.</p>
+      <button type="button" onClick={() => void refetch()} disabled={isFetching} className="mt-fan-md underline disabled:opacity-50">{isFetching ? 'Retrying…' : 'Try again'}</button>
+    </div>
+  );
 
   return (
     <div className="px-fan-base">
-      {fixtures.map((f) => (
+      <div role="group" aria-label="Filter fixtures" className="mb-fan-md flex gap-fan-xs overflow-x-auto py-fan-sm">
+        {([
+          ['all', 'All'],
+          ['live', 'Live'],
+          ['upcoming', 'Upcoming'],
+          ['completed', 'Completed'],
+        ] as const).map(([value, label]) => (
+          <button key={value} type="button" onClick={() => setFilter(value)} aria-pressed={filter === value} className={`shrink-0 rounded-fan-pill px-fan-base py-fan-sm text-fan-caption font-semibold ${filter === value ? 'bg-fan-primary text-fan-textInverse' : 'border border-fan-border text-fan-textSecondary'}`}>{label}</button>
+        ))}
+      </div>
+      {filteredFixtures.length === 0 ? (
+        <p className="py-fan-xxl text-center text-fan-body text-fan-textTertiary">{fixtures.length === 0 ? 'No fixtures right now.' : filter === 'live' ? 'Nothing live at the moment.' : filter === 'upcoming' ? 'No upcoming fixtures.' : filter === 'completed' ? 'No completed matches yet.' : 'No fixtures match this filter.'}</p>
+      ) : filteredFixtures.map((f) => (
         <MatchCard
           key={f.id || f.matchId}
           fixture={f}
