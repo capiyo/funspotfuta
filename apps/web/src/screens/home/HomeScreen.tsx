@@ -213,6 +213,7 @@ function ArenaColumn({ channelId }: { channelId?: string }) {
   const isLiveFixture = (fixture: Fixture) => !!fixture.isLive || fixture.status === 'live';
   const isUpcomingFixture = (fixture: Fixture) => fixture.status === 'upcoming' || fixture.status === 'soon';
   const isCompletedFixture = (fixture: Fixture) => fixture.status === 'completed' || fixture.status === 'finished';
+  const liveCount = fixtures.filter(isLiveFixture).length;
   const filteredFixtures = fixtures
     .filter((fixture) => filter === 'all' || (filter === 'live' && isLiveFixture(fixture)) || (filter === 'upcoming' && isUpcomingFixture(fixture)) || (filter === 'completed' && isCompletedFixture(fixture)))
     .sort((a, b) => (isLiveFixture(a) ? 0 : isUpcomingFixture(a) ? 1 : 2) - (isLiveFixture(b) ? 0 : isUpcomingFixture(b) ? 1 : 2));
@@ -237,7 +238,7 @@ function ArenaColumn({ channelId }: { channelId?: string }) {
         <div role="group" aria-label="Filter fixtures" className="flex min-w-0 gap-fan-xs overflow-x-auto py-fan-sm">
           {([
             ['all', 'All'],
-            ['live', 'Live'],
+            ['live', liveCount > 0 ? `Live · ${liveCount}` : 'Live'],
             ['upcoming', 'Upcoming'],
             ['completed', 'Completed'],
           ] as const).map(([value, label]) => (
