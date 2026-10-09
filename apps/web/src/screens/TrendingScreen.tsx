@@ -1,5 +1,3 @@
-'use client';
-
 // Wired to GET /api/votes/stats/sub-fixtures/trending — real trending
 // prop-bet markets (first goal / first corner / first yellow / etc), with
 // voting via submitSubFixtureVote. The original app's "War Zone" trending
