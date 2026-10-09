@@ -1,5 +1,3 @@
-'use client';
-
 // Arena match card.
 //
 // Behaviors:
