@@ -7,11 +7,9 @@
 // reaches them via in-page buttons rather than tabs).
 
 import { useEffect, useState } from 'react';
-import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Users, Trophy, History, Bell, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/lib/auth/auth-context';
-import { useToast } from '@/lib/toast/toast-context';
 import { useToast } from '@/lib/toast/toast-context';
 import { getProfile, saveProfile, type UserProfile } from '@funspot/core';
 import { WalletCard } from '@/components/WalletCard';
@@ -34,6 +32,7 @@ export default function ProfilePage() {
   const [clubFan, setClubFan] = useState('');
   const [countryFan, setCountryFan] = useState('');
   const [savingProfile, setSavingProfile] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -76,8 +75,17 @@ export default function ProfilePage() {
   }
 
   async function handleLogout() {
-    await logout();
-    navigate('/login', { replace: true });
+    if (loggingOut) return;
+    setLoggingOut(true);
+    try {
+      await logout();
+      navigate('/login', { replace: true });
+    } catch (error) {
+      console.error('Logout failed:', error);
+      toast.showError('Could not log out. Please try again.');
+    } finally {
+      setLoggingOut(false);
+    }
   }
 
   return (
