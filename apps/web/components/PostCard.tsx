@@ -74,14 +74,13 @@ export function PostCard({
     const img = hasVideo ? null : bestImageUrl(post);
 
     async function handleFollow() {
-        if (!post.userId || followBusy) return;
+        if (!currentUserId || !post.userId || followBusy) return;
         setFollowBusy(true);
-        setFollowing(true); // optimistic
         try {
-           // const ok = await followUser(post.userId);
-           // if (!ok) setFollowing(false);
+            const ok = await followUser(currentUserId, post.userId);
+            if (ok) setFollowing(true);
         } catch {
-            setFollowing(false);
+            // Keep the follow action available when the request fails.
         } finally {
             setFollowBusy(false);
         }
