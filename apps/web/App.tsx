@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { UserRound, MessageCircle, Newspaper, History } from 'lucide-react';
 import { AuthProvider, useAuth } from '@/lib/auth/auth-context';
-import { ToastProvider } from '@/lib/toast/toast-context';
+import { ToastProvider, useToast } from '@/lib/toast/toast-context';
 import { QueryProvider } from './QueryProvider';
 import { onForegroundMessage } from '@/lib/firebase';
 import HomeScreen from '@/src/screens/home/HomeScreen';
