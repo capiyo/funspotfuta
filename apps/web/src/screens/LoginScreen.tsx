@@ -55,11 +55,17 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
     setUsernameInput('');
     setError(null);
     setInfo(null);
+    try { recaptchaRef.current?.clear(); } catch { /* verifier may already be cleared */ }
+    recaptchaRef.current = null;
     onClose();
   }
 
   async function performLogin(userId: string, username: string, token: string, phone: string) {
-    await login(userId, username, token, { phone });
+    const saved = await login(userId, username, token, { phone });
+    if (!saved) {
+      setError('Login failed. Please try again.');
+      return;
+    }
     onLoginSuccess?.(userId, username);
     resetAndClose();
   }
@@ -117,7 +123,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
 
   async function handleVerifyOtp() {
     setError(null);
-    if (!/^\\d{6}$/.test(otp)) {
+    if (!/^\d{6}$/.test(otp)) {
       setError('Enter the 6-digit verification code');
       return;
     }
@@ -253,7 +259,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
         {step === 'otp' && (
           <div className="space-y-3">
             <p className="text-center text-fan-body text-fan-textTertiary">Enter the verification code sent to {verifiedPhone}</p>
-            <input value={otp} onChange={(e) => setOtp(e.target.value.replace(/\\D/g, '').slice(0, 6))} placeholder="6-digit code" inputMode="numeric" maxLength={6} className="w-full rounded-fan-lg border border-fan-border bg-fan-surfaceSunken px-fan-lg py-fan-base text-center text-2xl tracking-[0.5em] text-fan-textPrimary outline-none focus:border-fan-primary" />
+            <input value={otp} onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))} placeholder="6-digit code" inputMode="numeric" maxLength={6} className="w-full rounded-fan-lg border border-fan-border bg-fan-surfaceSunken px-fan-lg py-fan-base text-center text-2xl tracking-[0.5em] text-fan-textPrimary outline-none focus:border-fan-primary" />
             <button onClick={handleVerifyOtp} disabled={loading} className="w-full rounded-fan-lg bg-fan-primary py-fan-base font-semibold text-fan-textInverse disabled:opacity-60">{loading ? 'Verifying…' : 'Verify phone'}</button>
             <button onClick={() => { setStep('phone'); setConfirmation(null); setError(null); }} className="w-full text-center text-fan-caption text-fan-textTertiary">Use a different number</button>
           </div>
