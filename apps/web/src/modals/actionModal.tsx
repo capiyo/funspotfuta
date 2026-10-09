@@ -1,5 +1,3 @@
-'use client';
-
 // Port of modals/Funzy/swipeable_vote_pledge_modal.dart — REDESIGN v4.
 //
 // Same architecture as the Dart file:
