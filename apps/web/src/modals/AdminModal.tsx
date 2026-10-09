@@ -128,8 +128,8 @@ export default function AdminDashboardPage() {
           <p className="text-fan-caption text-fan-textTertiary">Checking payout status…</p>
         ) : payout?.success ? (
           <>
-            <p className="font-condensed text-fan-statValue text-fan-textPrimary">KES {payout.amount.toLocaleString()}</p>
-            <p className="text-fan-caption text-fan-textTertiary">{payout.payoutType.replace(/_/g, ' ')} · {payout.status} · {payout.computedAt.toLocaleString()}</p>
+            <p className="font-condensed text-fan-statValue text-fan-textPrimary">KES {(payout.amount ?? 0).toLocaleString()}</p>
+            <p className="text-fan-caption text-fan-textTertiary">{(payout.payoutType ?? 'engagement_rate').replace(/_/g, ' ')} · {payout.status ?? 'pending'} · {payout.computedAt?.toLocaleString() ?? 'Recently computed'}</p>
           </>
         ) : (
           <p className="text-fan-caption text-fan-textTertiary">{payout?.message ?? 'No payout has been computed yet.'}</p>
