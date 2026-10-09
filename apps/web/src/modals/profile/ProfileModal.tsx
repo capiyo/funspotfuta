@@ -27,6 +27,8 @@ export default function ProfilePage() {
   const toast = useToast();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [profileLoading, setProfileLoading] = useState(true);
+  const [profileError, setProfileError] = useState(false);
+  const [profileRetry, setProfileRetry] = useState(0);
   const [editingProfile, setEditingProfile] = useState(false);
   const [nickname, setNickname] = useState('');
   const [clubFan, setClubFan] = useState('');
@@ -38,6 +40,7 @@ export default function ProfilePage() {
     let mounted = true;
     if (!userId) { setProfileLoading(false); return; }
     setProfileLoading(true);
+    setProfileError(false);
     getProfile(userId, authToken ?? undefined)
       .then((result) => {
         if (!mounted) return;
@@ -46,9 +49,16 @@ export default function ProfilePage() {
         setClubFan(result?.clubFan ?? '');
         setCountryFan(result?.countryFan ?? '');
       })
+      .catch((error) => {
+        console.error('Could not load profile', error);
+        if (mounted) {
+          setProfileError(true);
+          toast.showError('Could not load your profile. Please try again.');
+        }
+      })
       .finally(() => { if (mounted) setProfileLoading(false); });
     return () => { mounted = false; };
-  }, [userId, authToken]);
+  }, [userId, authToken, profileRetry]);
 
   async function handleSaveProfile() {
     if (!userId) return;
@@ -98,6 +108,15 @@ export default function ProfilePage() {
         {phone && <p className="text-fan-body text-fan-textTertiary">{phone}</p>}
         <p className="mt-fan-sm text-fan-caption text-fan-textTertiary">ID: {userId}</p>
       </div>
+
+      {profileLoading ? (
+        <p role="status" className="mb-fan-lg text-center text-fan-caption text-fan-textTertiary">Loading profile…</p>
+      ) : profileError ? (
+        <div role="alert" className="mb-fan-lg rounded-fan-lg border border-fan-border bg-fan-surface p-fan-lg text-center">
+          <p className="mb-fan-md text-fan-caption text-fan-textTertiary">Your profile details could not be loaded.</p>
+          <button onClick={() => setProfileRetry((value) => value + 1)} className="rounded-fan-pill border border-fan-border px-fan-lg py-fan-sm text-fan-caption font-semibold text-fan-textSecondary">Try again</button>
+        </div>
+      ) : null}
 
       <section className="mb-fan-xxl rounded-fan-xl border border-fan-border bg-fan-surface p-fan-lg">
         <div className="mb-fan-md flex items-center justify-between">
