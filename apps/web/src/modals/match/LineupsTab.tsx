@@ -1,4 +1,3 @@
-'use client';
 // Web port of RN src/modals/match/lineupsTab.tsx.
 
 import { useState } from 'react';
