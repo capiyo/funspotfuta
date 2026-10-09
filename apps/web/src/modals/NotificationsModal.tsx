@@ -1,5 +1,3 @@
-'use client';
-
 // New UI on top of notification-service.ts: real unread counts and real
 // preference toggles (vote/like/comment alerts) against the live backend.
 // Browser token registration runs after login; firebase-messaging-sw.js handles
