@@ -24,9 +24,16 @@ export default function AdminDashboardPage() {
 
   async function refresh() {
     setLoading(true);
-    const d = await getChannelDetail(channelId, authToken ?? undefined);
-    setDetail(d);
-    setLoading(false);
+    try {
+      const d = await getChannelDetail(channelId, authToken ?? undefined);
+      setDetail(d);
+    } catch (error) {
+      console.error('Could not load admin dashboard', error);
+      setDetail(null);
+      toast.showError('Could not load channel admin details. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
@@ -35,26 +42,43 @@ export default function AdminDashboardPage() {
   }, [channelId]);
 
   async function handleRemove(memberId: string) {
-    if (!userId || !authToken) return;
+    if (!userId || !authToken || removingId) return;
+    const member = detail?.members.find((item) => item.userId === memberId);
+    const name = member?.username ?? 'this member';
+    if (!window.confirm(`Remove ${name} from this channel? This may affect their channel points (30-point warning).`)) return;
+
     setRemovingId(memberId);
-    const result = await removeMember(channelId, memberId, userId, authToken);
-    setRemovingId(null);
-    if (result.success) {
-      toast.showSuccess('Member removed');
-      refresh();
-    } else {
-      toast.showError(result.message ?? 'Failed to remove member');
+    try {
+      const result = await removeMember(channelId, memberId, userId, authToken);
+      if (result.success) {
+        toast.showSuccess('Member removed');
+        await refresh();
+      } else {
+        toast.showError(result.message ?? 'Failed to remove member');
+      }
+    } catch (error) {
+      console.error('Could not remove channel member', error);
+      toast.showError('Could not remove this member. Please try again.');
+    } finally {
+      setRemovingId(null);
     }
   }
 
   async function handleComputePayout() {
+    if (computingPayout) return;
     setComputingPayout(true);
-    const result = await computeAdminPayout(channelId, authToken ?? undefined);
-    setComputingPayout(false);
-    if (result.success) {
-      toast.showSuccess(`Payout computed: KES ${result.amount} (${result.status})`);
-    } else {
-      toast.showError(result.message ?? 'Failed to compute payout');
+    try {
+      const result = await computeAdminPayout(channelId, authToken ?? undefined);
+      if (result.success) {
+        toast.showSuccess(`Payout computed: KES ${result.amount} (${result.status})`);
+      } else {
+        toast.showError(result.message ?? 'Failed to compute payout');
+      }
+    } catch (error) {
+      console.error('Could not compute admin payout', error);
+      toast.showError('Could not compute payout. Please try again.');
+    } finally {
+      setComputingPayout(false);
     }
   }
 
