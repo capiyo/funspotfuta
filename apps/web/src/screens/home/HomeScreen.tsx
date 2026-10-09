@@ -233,7 +233,7 @@ function ArenaColumn({ channelId }: { channelId?: string }) {
     .sort((a, b) => (isLiveFixture(a) ? 0 : isUpcomingFixture(a) ? 1 : 2) - (isLiveFixture(b) ? 0 : isUpcomingFixture(b) ? 1 : 2));
 
   if (loading) return <Spinner />;
-  if (isError) return (
+  if (isError && fixtures.length === 0) return (
     <div role="alert" className="px-fan-lg py-fan-xxl text-center text-fan-body text-fan-textTertiary">
       <p>Could not load fixtures.</p>
       <button type="button" onClick={() => void refetch()} disabled={isFetching} className="mt-fan-md underline disabled:opacity-50">{isFetching ? 'Retrying…' : 'Try again'}</button>
@@ -242,15 +242,24 @@ function ArenaColumn({ channelId }: { channelId?: string }) {
 
   return (
     <div className="px-fan-base">
-      <div role="group" aria-label="Filter fixtures" className="mb-fan-md flex gap-fan-xs overflow-x-auto py-fan-sm">
-        {([
-          ['all', 'All'],
-          ['live', 'Live'],
-          ['upcoming', 'Upcoming'],
-          ['completed', 'Completed'],
-        ] as const).map(([value, label]) => (
-          <button key={value} type="button" onClick={() => setFilter(value)} aria-pressed={filter === value} className={`shrink-0 rounded-fan-pill px-fan-base py-fan-sm text-fan-caption font-semibold ${filter === value ? 'bg-fan-primary text-fan-textInverse' : 'border border-fan-border text-fan-textSecondary'}`}>{label}</button>
-        ))}
+      {isError && (
+        <div role="alert" className="mb-fan-md flex items-center justify-between gap-fan-md rounded-fan-lg border border-fan-border bg-fan-surface p-fan-md text-fan-caption text-fan-textTertiary">
+          <span>Could not refresh fixtures. Showing the last available data.</span>
+          <button type="button" onClick={() => void refetch()} disabled={isFetching} className="shrink-0 underline disabled:opacity-50">{isFetching ? 'Retrying…' : 'Retry'}</button>
+        </div>
+      )}
+      <div className="mb-fan-md flex items-center justify-between gap-fan-sm">
+        <div role="group" aria-label="Filter fixtures" className="flex min-w-0 gap-fan-xs overflow-x-auto py-fan-sm">
+          {([
+            ['all', 'All'],
+            ['live', 'Live'],
+            ['upcoming', 'Upcoming'],
+            ['completed', 'Completed'],
+          ] as const).map(([value, label]) => (
+            <button key={value} type="button" onClick={() => setFilter(value)} aria-pressed={filter === value} className={`shrink-0 rounded-fan-pill px-fan-base py-fan-sm text-fan-caption font-semibold ${filter === value ? 'bg-fan-primary text-fan-textInverse' : 'border border-fan-border text-fan-textSecondary'}`}>{label}</button>
+          ))}
+        </div>
+        <button type="button" onClick={() => void refetch()} disabled={isFetching} className="shrink-0 rounded-fan-pill border border-fan-border px-fan-base py-fan-sm text-fan-caption text-fan-textSecondary disabled:opacity-50">{isFetching ? 'Refreshing…' : 'Refresh'}</button>
       </div>
       {filteredFixtures.length === 0 ? (
         <p className="py-fan-xxl text-center text-fan-body text-fan-textTertiary">{fixtures.length === 0 ? 'No fixtures right now.' : filter === 'live' ? 'Nothing live at the moment.' : filter === 'upcoming' ? 'No upcoming fixtures.' : filter === 'completed' ? 'No completed matches yet.' : 'No fixtures match this filter.'}</p>
