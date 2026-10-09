@@ -59,6 +59,7 @@ import { toCardData } from '@/src/screens/HistoryScreen';
 import { SwipeableVotePledgeModal } from '@/src/modals/actionModal';
 import { ChatModal } from '@/src/screens/ChatsScreen';
 import FeedScreen from '../FeedScreen';
+import HistoryScreen from '../HistoryScreen';
 
 // ── Page ────────────────────────────────────────────────────────
 export default function HomePage() {
@@ -67,9 +68,8 @@ export default function HomePage() {
   const [activeChannelId, setActiveChannelId] = useState<string | undefined>();
   const [showCreateChannel, setShowCreateChannel] = useState(false);
   const [searchParams, setSearchParams] = useSearchParams();
-  const selectedTab = searchParams.get('tab') === 'feed' ? 'feed' : 'chats';
-  const activeSection = selectedTab === 'feed' ? 'feed' : 'chats';
-  const setActiveSection = (tab: 'chats' | 'feed') => setSearchParams({ tab }, { replace: false });
+  const requestedTab = searchParams.get('tab');
+  const activeSection = requestedTab === 'feed' || requestedTab === 'logs' ? requestedTab : 'chats';
 
   useEffect(() => {
     if (!userId || !authToken) return;
@@ -83,7 +83,7 @@ export default function HomePage() {
     <div className="flex min-h-[calc(100vh-3.5rem)] flex-col bg-fan-background">
       {/* Chats and Feed are sections of one shared Home page on every viewport. */}
       <div className="flex flex-1 flex-col overflow-y-auto">
-        {activeSection === 'chats' ? <ArenaColumn channelId={activeChannelId} /> : <FeedScreen />}
+        {activeSection === 'chats' ? <ArenaColumn channelId={activeChannelId} /> : activeSection === 'feed' ? <FeedScreen /> : <HistoryScreen />}
       </div>
       {showCreateChannel && (
         <ChannelCreationModal
