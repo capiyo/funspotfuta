@@ -176,13 +176,19 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
       return;
     }
     setLoading(true);
-    const res = await pinLogin(verifiedPhone, pin);
-    setLoading(false);
-    if (res.ok && res.token && res.user) {
-      setInfo(`Welcome back, ${res.user.username}! 🎉`);
-      await performLogin(res.user.id, res.user.username, res.token, verifiedPhone);
-    } else {
-      setError(res.message ?? 'Incorrect PIN');
+    try {
+      const res = await pinLogin(verifiedPhone, pin);
+      if (res.ok && res.token && res.user) {
+        setInfo(`Welcome back, ${res.user.username}! 🎉`);
+        await performLogin(res.user.id, res.user.username, res.token, verifiedPhone);
+      } else {
+        setError(res.message ?? 'Incorrect PIN');
+      }
+    } catch (error) {
+      console.error('PIN login failed:', error);
+      setError('Could not log in. Please check your connection and try again.');
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -196,19 +202,25 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
       setError('PINs do not match');
       return;
     }
-    if (existingUserId) {
-      setLoading(true);
+    if (!existingUserId) {
+      setPendingPin(pin);
+      setStep('username');
+      return;
+    }
+    setLoading(true);
+    try {
       const res = await setPin(existingUserId, pin);
-      setLoading(false);
       if (res.ok && res.token) {
         const uname = res.user?.username ?? 'User';
         await performLogin(existingUserId, uname, res.token, verifiedPhone);
       } else {
         setError(res.message ?? 'Failed to set PIN');
       }
-    } else {
-      setPendingPin(pin);
-      setStep('username');
+    } catch (error) {
+      console.error('Set PIN failed:', error);
+      setError('Could not save your PIN. Please try again.');
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -220,19 +232,24 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
       return;
     }
     setLoading(true);
-    const taken = await isUsernameTaken(name);
-    if (taken) {
+    try {
+      const taken = await isUsernameTaken(name);
+      if (taken) {
+        setError('Username already taken');
+        return;
+      }
+      const res = await registerUser(name, verifiedPhone, pendingPin ?? undefined);
+      if (res.ok && res.token && res.user) {
+        setInfo(`Welcome to Funspot, ${name}! 🎉`);
+        await performLogin(res.user.id, name, res.token, verifiedPhone);
+      } else {
+        setError(res.message ?? 'Registration failed');
+      }
+    } catch (error) {
+      console.error('Account registration failed:', error);
+      setError('Could not create your account. Please try again.');
+    } finally {
       setLoading(false);
-      setError('Username already taken');
-      return;
-    }
-    const res = await registerUser(name, verifiedPhone, pendingPin ?? undefined);
-    setLoading(false);
-    if (res.ok && res.token && res.user) {
-      setInfo(`Welcome to Funspot, ${name}! 🎉`);
-      await performLogin(res.user.id, name, res.token, verifiedPhone);
-    } else {
-      setError(res.message ?? 'Registration failed');
     }
   }
 
