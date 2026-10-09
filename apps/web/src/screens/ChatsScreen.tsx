@@ -38,8 +38,8 @@ import {
 } from '@/lib/api/vote-modal-shims';
 import { useChannelChat } from '@/lib/api/use-channel-chat';
 import { Image as ImageIcon, Paperclip, Send, Lock, X } from 'lucide-react';
-import { SwipeableVotePledgeModal } from '@/components/actionsModal';
-import { AftermatchReviewModal } from '@/components/aftermatchModal';
+import { SwipeableVotePledgeModal } from '@/src/modals/actionModal';
+import { AftermatchReviewModal } from '@/src/modals/AftermatchModal';
 
 interface ChatModalProps {
   fixture: Fixture;
