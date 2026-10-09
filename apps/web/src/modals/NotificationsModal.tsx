@@ -2,8 +2,10 @@
 
 // New UI on top of notification-service.ts: real unread counts and real
 // preference toggles (vote/like/comment alerts) against the live backend.
-// Actual push delivery (FCM in the original app) is not wired here — see
-// README's Web Push note; this page covers the data half of the feature.
+// Browser token registration runs after login; firebase-messaging-sw.js handles
+// background notifications and App.tsx surfaces foreground messages. This page
+// owns unread summaries and preference controls. Delivery still depends on the
+// deployed Firebase configuration, browser permission and backend registration.
 
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/auth/auth-context';
