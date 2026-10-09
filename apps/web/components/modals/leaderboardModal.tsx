@@ -1,5 +1,3 @@
-'use client';
-
 // Web port of RN src/modals/LeaderboardModal.tsx.
 //  - LEADERBOARD tab: champion card (rank 1) + member cards (rank 2+)
 //  - VOTES tab (only when a `fixture` is passed): vote summary bar, All/Home/Draw/Away
