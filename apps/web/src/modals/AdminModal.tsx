@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useToast } from '@/lib/toast/toast-context';
-import { getChannelDetail, removeMember, ChannelDetail, computeAdminPayout } from '@funspot/core';
+import { getChannelDetail, removeMember, ChannelDetail, computeAdminPayout, AdminPayoutResult } from '@funspot/core';
 
 export default function AdminDashboardPage() {
   const { channelId = '' } = useParams<{ channelId: string }>();
@@ -21,6 +21,8 @@ export default function AdminDashboardPage() {
   const [loading, setLoading] = useState(true);
   const [removingId, setRemovingId] = useState<string | null>(null);
   const [computingPayout, setComputingPayout] = useState(false);
+  const [payout, setPayout] = useState<AdminPayoutResult | null>(null);
+  const [loadingPayout, setLoadingPayout] = useState(false);
 
   async function refresh() {
     setLoading(true);
@@ -36,8 +38,22 @@ export default function AdminDashboardPage() {
     }
   }
 
+  async function refreshPayout() {
+    setLoadingPayout(true);
+    try {
+      const result = await computeAdminPayout(channelId, authToken ?? undefined);
+      setPayout(result);
+    } catch (error) {
+      console.error('Could not load admin payout', error);
+      setPayout({ success: false, message: 'Could not load payout status.' });
+    } finally {
+      setLoadingPayout(false);
+    }
+  }
+
   useEffect(() => {
-    refresh();
+    void refresh();
+    void refreshPayout();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [channelId]);
 
@@ -69,6 +85,7 @@ export default function AdminDashboardPage() {
     setComputingPayout(true);
     try {
       const result = await computeAdminPayout(channelId, authToken ?? undefined);
+      setPayout(result);
       if (result.success) {
         toast.showSuccess(`Payout computed: KES ${result.amount} (${result.status})`);
       } else {
@@ -102,7 +119,24 @@ export default function AdminDashboardPage() {
       </div>
       <p className="mb-fan-lg text-fan-caption text-fan-textTertiary">Channel {detail.channelId}</p>
 
-      <div className="mb-fan-xxl grid grid-cols-3 gap-fan-md">
+      <section aria-label="Admin payout status" className="mb-fan-lg rounded-fan-xl border border-fan-border bg-fan-surface p-fan-lg">
+        <div className="mb-fan-sm flex items-center justify-between gap-fan-md">
+          <h2 className="text-fan-body font-semibold text-fan-textPrimary">Engagement payout</h2>
+          <button onClick={() => void refreshPayout()} disabled={loadingPayout} className="rounded-fan-pill border border-fan-border px-fan-md py-fan-xs text-fan-caption text-fan-textSecondary disabled:opacity-50">{loadingPayout ? 'Checking…' : 'Refresh'}</button>
+        </div>
+        {loadingPayout ? (
+          <p className="text-fan-caption text-fan-textTertiary">Checking payout status…</p>
+        ) : payout?.success ? (
+          <>
+            <p className="font-condensed text-fan-statValue text-fan-textPrimary">KES {payout.amount.toLocaleString()}</p>
+            <p className="text-fan-caption text-fan-textTertiary">{payout.payoutType.replace(/_/g, ' ')} · {payout.status} · {payout.computedAt.toLocaleString()}</p>
+          </>
+        ) : (
+          <p className="text-fan-caption text-fan-textTertiary">{payout?.message ?? 'No payout has been computed yet.'}</p>
+        )}
+      </section>
+
+      <div className="mb-fan-xxl grid grid-cols-2 gap-fan-md">
         <div className="rounded-fan-lg border border-fan-border bg-fan-surface p-fan-base text-center">
           <p className="font-condensed text-fan-statValue text-fan-textPrimary">{detail.memberCount}</p>
           <p className="text-[10px] text-fan-textTertiary">Members</p>
@@ -114,6 +148,10 @@ export default function AdminDashboardPage() {
         <div className="rounded-fan-lg border border-fan-border bg-fan-surface p-fan-base text-center">
           <p className="font-condensed text-fan-statValue text-fan-textPrimary">{detail.messagesThisWeek}</p>
           <p className="text-[10px] text-fan-textTertiary">This week</p>
+        </div>
+        <div className="rounded-fan-lg border border-fan-border bg-fan-surface p-fan-base text-center">
+          <p className="font-condensed text-fan-statValue text-fan-textPrimary">{detail.members.reduce((total, member) => total + (Number(member.totalVotes ?? 0) || 0), 0)}</p>
+          <p className="text-[10px] text-fan-textTertiary">Votes</p>
         </div>
       </div>
 
@@ -128,8 +166,17 @@ export default function AdminDashboardPage() {
       <p className="mb-fan-md text-fan-caption text-fan-textTertiary">Members</p>
       <div className="space-y-2">
         {detail.members.map((m) => (
-          <div key={m.userId} className="flex items-center justify-between rounded-fan-lg border border-fan-border bg-fan-surface px-fan-base py-fan-md">
-            <span className="text-fan-body text-fan-textPrimary">{m.username}</span>
+          <div key={m.userId} className="flex items-center justify-between gap-fan-md rounded-fan-lg border border-fan-border bg-fan-surface px-fan-base py-fan-md">
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-fan-sm">
+                <span className="text-fan-body text-fan-textPrimary">{m.username}</span>
+                {String(m.role ?? '').toLowerCase() === 'admin' || String(m.role ?? '').toLowerCase() === 'owner' ? <span className="rounded-fan-pill bg-fan-primary/10 px-fan-sm py-0.5 text-[10px] font-semibold uppercase text-fan-primary">Admin</span> : null}
+              </div>
+              <p className="mt-1 text-[11px] text-fan-textTertiary">{Number(m.totalVotes ?? 0) || 0} votes · {Number(m.correctVotes ?? 0) || 0} correct</p>
+              <div className="mt-1.5 h-1.5 overflow-hidden rounded-fan-pill bg-fan-surfaceSunken">
+                <div className="h-full rounded-fan-pill bg-fan-primary" style={{ width: `${Math.max(0, Math.min(100, Number(m.memberVoteAccuracy ?? 0) || 0))}%` }} />
+              </div>
+            </div>
             <button
               onClick={() => handleRemove(m.userId)}
               disabled={removingId === m.userId || m.userId === userId}
