@@ -13,7 +13,7 @@
 // app/(app)/history/page.
 
 import { useCallback, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import {
   Fixture,
   getAllFixtures,
@@ -53,10 +53,7 @@ import {
 import { useAuth } from '@/lib/auth/auth-context';
 import { MatchCard } from '@/components/MatchCard';
 import { HistoryCard } from '@/components/HistoryCard';
-import { WebSidebar } from '@/components/WebSidebar';
-import { MainContentColumns } from '@/components/MainContentColumns';
 import { ChannelCreationModal } from '@/src/modals/ChannelCreationModal';
-import { FloatingPillTabs } from '@/components/FloatingPillTabs';
 import { createPost } from '@/lib/api/posts-create';
 import { toCardData } from '@/src/screens/HistoryScreen';
 import { SwipeableVotePledgeModal } from '@/src/modals/actionModal';
@@ -68,7 +65,10 @@ export default function HomePage() {
   const [channels, setChannels] = useState<Channel[]>([]);
   const [activeChannelId, setActiveChannelId] = useState<string | undefined>();
   const [showCreateChannel, setShowCreateChannel] = useState(false);
-  const [mobileTab, setMobileTab] = useState<'arena' | 'feed' | 'logs'>('arena');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const selectedTab = searchParams.get('tab') === 'feed' ? 'feed' : 'chats';
+  const activeSection = selectedTab === 'feed' ? 'feed' : 'chats';
+  const setActiveSection = (tab: 'chats' | 'feed') => setSearchParams({ tab }, { replace: false });
 
   useEffect(() => {
     if (!userId || !authToken) return;
@@ -80,23 +80,9 @@ export default function HomePage() {
 
   return (
     <div className="flex min-h-[calc(100vh-3.5rem)] flex-col bg-fan-background">
-      {/* Desktop: 3 simultaneous columns */}
-      <div className="hidden flex-1 overflow-hidden md:flex">
-        <WebSidebar />
-        <MainContentColumns
-          arena={<ArenaColumn channelId={activeChannelId} />}
-          feed={<FeedColumn />}
-          logs={<LogsColumn />}
-        />
-      </div>
-      {/* Mobile: single active tab + floating pill nav */}
-      <div className="flex flex-1 flex-col overflow-hidden md:hidden">
-        <div className="flex-1 overflow-y-auto pb-20">
-          {mobileTab === 'arena' && <ArenaColumn channelId={activeChannelId} />}
-          {mobileTab === 'feed' && <FeedColumn />}
-          {mobileTab === 'logs' && <LogsColumn />}
-        </div>
-        <FloatingPillTabs active={mobileTab} onChange={setMobileTab} />
+      {/* Chats and Feed are sections of one shared Home page on every viewport. */}
+      <div className="flex flex-1 flex-col overflow-y-auto">
+        {activeSection === 'chats' ? <ArenaColumn channelId={activeChannelId} /> : <FeedColumn />}
       </div>
       {showCreateChannel && (
         <ChannelCreationModal
