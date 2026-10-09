@@ -174,7 +174,7 @@ export default function AdminDashboardPage() {
               </div>
               <p className="mt-1 text-[11px] text-fan-textTertiary">{Number(m.totalVotes ?? 0) || 0} votes · {Number(m.correctVotes ?? 0) || 0} correct</p>
               <div className="mt-1.5 h-1.5 overflow-hidden rounded-fan-pill bg-fan-surfaceSunken">
-                <div className="h-full rounded-fan-pill bg-fan-primary" style={{ width: `${Math.max(0, Math.min(100, Number(m.memberVoteAccuracy ?? 0) || 0))}%` }} />
+                <div className="h-full rounded-fan-pill bg-fan-primary" style={{ width: `${Math.max(0, Math.min(100, (m.totalVotes > 0 ? (m.correctVotes / m.totalVotes) * 100 : 0)))}%` }} />
               </div>
             </div>
             <button
