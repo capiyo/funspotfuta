@@ -1,5 +1,3 @@
-'use client';
-
 // New UI (no single Dart file equivalent — the original spreads this across
 // wallet/topup modals) wired to the ported payment-service.ts: shows real
 // balance, lets the user top up via M-Pesa STK push against the live
