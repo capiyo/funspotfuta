@@ -1,4 +1,3 @@
-'use client';
 // Web port of RN src/modals/match/matchDetailsModals.tsx.
 // Lineups and statistics load independently, each with the same two-tier fallback
 // URLs as RN. The STATS tab only appears once valid statistics exist.
