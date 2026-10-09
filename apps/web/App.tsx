@@ -23,13 +23,13 @@ function SiteNavbar() {
   const location = useLocation();
   const items = [
     { label: 'Profile', path: '/profile', Icon: UserRound, protected: true },
-    { label: 'Chats', path: '/chat', Icon: MessageCircle, protected: true },
-    { label: 'Feed', path: '/feed', Icon: Newspaper, protected: false },
+    { label: 'Chats', path: '/home', Icon: MessageCircle, protected: false },
+    { label: 'Feed', path: '/home', Icon: Newspaper, protected: false },
   ];
   return (
     <nav aria-label="Main navigation" className="sticky top-0 z-40 flex h-14 shrink-0 items-center gap-2 border-b border-fan-border/60 bg-fan-surfaceElevated px-4">
       {items.map(({ label, path, Icon, protected: needsLogin }) => {
-        const active = location.pathname === path || (label === 'Chats' && location.pathname === '/home' && new URLSearchParams(location.search).get('tab') === 'chats');
+        const active = label === 'Profile' ? location.pathname === '/profile' : location.pathname === path;
         return <button key={path} aria-label={label} title={label} onClick={() => navigate(needsLogin && !isLoggedIn ? `/login?next=${encodeURIComponent(path)}` : path)} className={`flex h-10 items-center gap-2 rounded-lg px-3 text-sm transition-colors ${active ? 'bg-fan-primaryDim text-fan-primary' : 'text-fan-textSecondary hover:bg-fan-surfaceSunken hover:text-fan-textPrimary'}`}>
           <Icon size={18} aria-hidden="true" />
           <span>{label}</span>
@@ -67,10 +67,10 @@ function AppRoutes() {
       <Route path="/" element={<Navigate to="/home" replace />} />
       <Route path="/home" element={<HomeScreen />} />
       <Route path="/login" element={<LoginRoute />} />
-      <Route path="/feed" element={<FeedScreen />} />
+      <Route path="/feed" element={<Navigate to="/home" replace />} />
       <Route path="/trending" element={<TrendingScreen />} />
       <Route path="/fixture/:matchId" element={<FixtureDetailScreen />} />
-      <Route path="/chat" element={<Protected><Navigate to="/home?tab=arena" replace /></Protected>} />
+      <Route path="/chat" element={<Navigate to="/home" replace />} />
       <Route path="/history" element={<Protected><HistoryScreen /></Protected>} />
       <Route path="/profile" element={<Protected><ProfileModal /></Protected>} />
       <Route path="/comrades" element={<Protected><ComradesModal /></Protected>} />
