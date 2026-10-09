@@ -6,6 +6,7 @@
 // that were missing from the old inline card markup.
 
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/auth/auth-context';
 import { getPosts, toggleLikePost, Post, isLikedBy } from '@funspot/core';
 import { createPost } from '@/lib/api/posts-create';
@@ -13,7 +14,8 @@ import { useToast } from '@/lib/toast/toast-context';
 import { PostCard } from '@/components/PostCard';
 
 export default function FeedPage() {
-  const { userId, username } = useAuth();
+  const { userId, username, isLoggedIn } = useAuth();
+  const navigate = useNavigate();
   const toast = useToast();
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
@@ -23,26 +25,41 @@ export default function FeedPage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [posting, setPosting] = useState(false);
   const [lastViewedAt] = useState(() => Date.now() / 1000);
+  const [loadError, setLoadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   async function loadPage(p: number, replace: boolean) {
-    const result = await getPosts({ page: p, limit: 10 });
-    setHasMore(result.posts.length === 10);
-    setPosts((prev) => (replace ? result.posts : [...prev, ...result.posts]));
+    try {
+      const result = await getPosts({ page: p, limit: 10 });
+      setHasMore(result.posts.length === 10);
+      setPosts((prev) => (replace ? result.posts : [...prev, ...result.posts]));
+      setLoadError(null);
+    } catch (error) {
+      setLoadError('Could not load posts. Please try again.');
+      throw error;
+    }
   }
 
   useEffect(() => {
     setLoading(true);
-    loadPage(1, true).finally(() => setLoading(false));
+    loadPage(1, true).catch(() => undefined).finally(() => setLoading(false));
   }, []);
 
   async function handleLoadMore() {
     const next = page + 1;
     setPage(next);
-    await loadPage(next, false);
+    try {
+      await loadPage(next, false);
+    } catch {
+      setPage((current) => Math.max(1, current - 1));
+    }
   }
 
   async function handlePost() {
+    if (!isLoggedIn) {
+      navigate(`/login?next=${encodeURIComponent('/home?tab=feed')}`);
+      return;
+    }
     if (!userId || !username) return;
     if (!caption.trim() && !imageFile) return;
     setPosting(true);
@@ -55,12 +72,17 @@ export default function FeedPage() {
       await loadPage(1, true);
     } catch (e) {
       console.error(e);
+      toast.showInfo('Could not publish your post. Please try again.');
     } finally {
       setPosting(false);
     }
   }
 
   async function handleLike(post: Post, index: number) {
+    if (!isLoggedIn) {
+      navigate(`/login?next=${encodeURIComponent('/home?tab=feed')}`);
+      return;
+    }
     if (!userId || !username || !post.id) return;
     const wasLiked = isLikedBy(post, userId);
     setPosts((prev) =>
@@ -91,6 +113,7 @@ export default function FeedPage() {
 
   return (
     <div className="mx-auto max-w-md px-fan-lg pt-fan-xxl pb-10">
+      {loadError && <div role="alert" className="mb-fan-lg rounded-fan-lg bg-fan-surfaceSunken p-fan-md text-fan-caption text-fan-away">{loadError} <button className="ml-2 underline" onClick={() => { setLoading(true); loadPage(1, true).catch(() => undefined).finally(() => setLoading(false)); }}>Retry</button></div>}
       <div className="mb-fan-xxl rounded-fan-xl border border-fan-border bg-fan-surface p-fan-base">
         <textarea
           value={caption}
