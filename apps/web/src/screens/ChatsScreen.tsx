@@ -1,5 +1,3 @@
-'use client';
-
 // Visual port of the Flutter ChatScreen — as a MODAL.
 // Wires the carousel header, message bubbles, reply indicator,
 // attachment menu, and vote-gated input bar to useChannelChat().
