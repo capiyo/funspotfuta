@@ -19,13 +19,16 @@ funspotfuta/
 
 The web app is a standard React single-page application built with Vite and React Router. It is not a Next.js application and does not use Next.js `page.tsx` or `layout.tsx` conventions.
 
-Web route-level components live in `apps/web/src/screens/`; overlays live in `apps/web/src/modals/`; reusable web components live in `apps/web/components/`. See [apps/web/README.md](apps/web/README.md).
+- Route-level screens: `apps/web/src/screens/`
+- Modals and overlays: `apps/web/src/modals/`
+- Reusable UI: `apps/web/components/`
+- Browser-specific services and helpers: `apps/web/lib/`
 
-The mobile app is the behavioral reference for web parity. Keep browser-specific UI and runtime behavior in the web workspace while reusing shared domain/API logic from `packages/core`.
+The completed mobile app is the behavioral reference for web parity. Web should preserve the same user-facing features and flow, using browser-native implementations where mobile APIs cannot run in a browser.
 
-## Shared core
+## Shared core and API contracts
 
-`packages/core` contains platform-independent API services, shared data types, match/fixture models, channel and chat models, and other domain services. Keep backend endpoints, authentication flow, and API shapes stable during parity work.
+`packages/core` contains platform-independent API services, shared data types, match/fixture models, channel and chat models, and other domain services. Keep backend endpoints, authentication flow, and API shapes stable during parity work. Reuse shared services rather than duplicating domain logic.
 
 ## Getting started
 
@@ -49,9 +52,9 @@ cd apps/mobile
 npm run start
 ```
 
-## Typechecking
+## Typechecking and build
 
-Run the root workspace check:
+From the repository root:
 
 ```bash
 npm run typecheck
@@ -65,9 +68,22 @@ npm run typecheck
 npm run build
 ```
 
+## Web parity requirements
+
+The goal is feature and behavior parity with mobile, not to mark browser-different features as permanently out of scope. The following areas need browser-specific implementation and real environment/backend configuration as applicable:
+
+- **Phone verification / OTP:** use the intended Firebase Phone Auth verification flow in the browser, including reCAPTCHA and configured SMS delivery. Do not silently treat entering a phone number as proof of ownership.
+- **Push notifications:** implement browser push permission/subscription and delivery (Web Push or supported Firebase Messaging), with HTTPS/service-worker and provider configuration where required. Shared notification data alone is not delivery.
+- **Offline behavior:** preserve the user-visible offline/cache/queue behavior where required, using browser-appropriate persistence such as IndexedDB rather than trying to run mobile SQLite directly.
+- **Chat video:** support selecting, uploading, sending, and rendering video messages with browser-compatible media/file handling and the existing API/storage contracts.
+- **Admin payments:** bring the mobile admin payment UI and its states/actions to web parity, reusing shared payment services such as `payment-service.ts` instead of duplicating business logic.
+
+These are parity tasks and integration dependencies, not features to dismiss as unsupported. Never report them as complete until the browser flow is implemented and validated against the available backend/configuration. Keep mock/filler fan data development-only; production behavior should use real service responses.
+
 ## Architecture decisions
 
 - **React-only web:** use React Router and Vite; do not add Next.js route files or dependencies.
-- **Mobile as reference:** implement equivalent web screens and flows based on the existing mobile behavior.
+- **Mobile as behavior reference:** match its screens, state transitions, error handling, and user-visible outcomes.
 - **Shared domain logic:** keep reusable API and domain logic in `packages/core`.
-- **Web-owned query client:** the web app owns its TanStack Query `QueryClient`.
+- **Browser-native adapters:** use browser APIs for web-only runtime needs while preserving the intended feature behavior.
+- **Stable contracts:** do not change backend endpoints, authentication flow, or API shapes as a shortcut to parity.
