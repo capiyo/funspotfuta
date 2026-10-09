@@ -61,8 +61,8 @@ Still to validate or complete:
 1. **Firebase Phone Auth:** verify reCAPTCHA, SMS delivery, authorized domains, OTP failure behavior and PIN fallback on the deployed HTTPS origin.
 2. **FCM / Web Push:** confirm permission, browser token registration and real delivery with the deployed Firebase configuration and backend.
 3. **Offline coverage:** Feed and fixture queries use the persisted cache. Review the remaining direct-fetch screens for cache behavior and add synchronization/retry where the mobile experience requires it.
-4. **Profile parity:** mobile-aligned profile editing (nickname, favorite club, country) is now present; viewing other members is not yet represented by the web profile page.
-5. **Messaging navigation parity:** web chat is a modal; mobile chat is a dedicated stack screen. Review browser back/keyboard behavior and preserve the existing image-message API contract.
+4. **Profile parity:** own-profile editing, wallet top-up/withdrawal, and read-only member profiles are wired. Continue validating public profile fields against real backend responses.
+5. **Messaging navigation parity:** web chat remains a responsive modal rather than a dedicated route. Typing indicators, read receipts, copy/reply actions, image viewing, and send-failure feedback are implemented; verify keyboard and browser-back behavior in a real browser.
 
 The current mobile chat screen also marks video upload/playback as not ported, so that is not considered mobile parity in this pass. The current mobile AdminModal likewise deliberately excludes deposit/withdraw controls; profile wallet flows remain available.
 
