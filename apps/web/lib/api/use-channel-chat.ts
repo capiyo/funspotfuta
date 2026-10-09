@@ -91,6 +91,12 @@ export function useChannelChat(params: {
       cancelled = true;
       webSocketService.off('chat.message', onChatMessage);
       webSocketService.leaveRoom(roomId);
+      // Match the mobile chat lifecycle: mark the channel/fixture read when
+      // leaving the conversation. This uses the existing backend endpoint.
+      void fetch(
+        `https://clash-api-m5mr.onrender.com/api/channels/${channelId}/fixtures/${fixtureId ?? 'overall'}/read/${userId}`,
+        { method: 'PUT', headers: { Authorization: `Bearer ${authToken}` } },
+      ).catch(() => { /* read receipts must not block closing the chat */ });
       unsubStatus();
     };
   }, [channelId, fixtureId, userId, username, authToken, appendMessage]);
