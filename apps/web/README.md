@@ -1,10 +1,11 @@
 # FunspotFuta Web — React + Vite
 
-The web application is a plain React SPA built with Vite and TypeScript. It does not use Next.js or the Next.js App Router. Mobile remains the behavioral reference for web parity.
+The web application is a React single-page app built with Vite, React Router, and TypeScript. It does not use Next.js or the Next.js App Router. The completed mobile app is the behavioral reference: the web app should match its user-visible features, state transitions, validation, error handling, and outcomes.
 
 ## Stack
 
-- React 18, React DOM, and React Router
+- React 18 and React DOM
+- React Router
 - Vite and TypeScript
 - Tailwind CSS
 - TanStack Query
@@ -17,10 +18,10 @@ The web application is a plain React SPA built with Vite and TypeScript. It does
 - `src/screens/` — route-level screens
 - `src/modals/` — modal and overlay components
 - `components/` — reusable web UI
-- `lib/` — web API helpers and platform-specific utilities
+- `lib/` — web API helpers and browser-specific adapters
 - `theme/` — global stylesheet and theme resources
 
-The old Next.js `app/` route tree is obsolete and is not part of the React app. Do not add `page.tsx`, `layout.tsx`, or Next.js routing conventions here.
+The old Next.js `app/` route tree is obsolete. Do not add `page.tsx`, `layout.tsx`, or Next.js routing conventions here.
 
 ## Run locally
 
@@ -43,14 +44,26 @@ npm run build
 
 From the monorepo root, run `npm run typecheck` for workspace typechecking.
 
-## Shared core and API contracts
+## Parity rules
 
-Prefer shared types and services from `@funspot/core` for domain/API behavior. Preserve backend endpoints, authentication flow, and API shapes when implementing web parity. The web app owns its TanStack Query client.
+- Use the mobile implementation as the behavioral reference, not as a reason to leave web features incomplete.
+- Reuse shared types and services from `@funspot/core`; preserve backend endpoints, authentication flow, and API shapes.
+- Implement browser-specific behavior with browser APIs and adapters rather than copying mobile-only APIs literally.
+- Do not fake successful verification, push delivery, uploads, payments, or persistence when the corresponding integration is not configured.
+- Mock/filler fan data must be development-only and must not appear as production data.
 
-## Platform-specific behavior
+## Remaining parity/integration areas
 
-Browser routing, theme behavior, media handling, and UI primitives belong in `apps/web`; shared domain and API logic belongs in `packages/core`. Use `apps/mobile` as the behavior reference without coupling the two platforms' UI runtimes.
+These are requirements to implement and validate, not permanent exclusions:
 
-## Scope notes
+1. **Firebase Phone Auth OTP:** browser phone verification must use Firebase's actual verification flow, including reCAPTCHA and configured SMS delivery. The current phone/PIN flow should not imply that an unverified number has been verified.
+2. **FCM / Web Push:** implement permission and subscription handling, service-worker/browser delivery, and provider configuration. Porting notification records or UI alone does not mean push delivery works.
+3. **Offline cache and queue:** reproduce the intended offline experience with browser-compatible storage (for example, IndexedDB) and retry/synchronization behavior where needed; do not try to use mobile SQLite directly in the browser.
+4. **Video in chat:** support choosing, uploading, sending, and rendering video messages with browser-compatible media/file handling while keeping existing API/storage contracts.
+5. **Admin payments UI:** match the mobile admin dashboard's payment-related UI and states, reusing `payment-service.ts` and other shared services rather than duplicating payment logic.
 
-Some mobile-specific capabilities—such as offline SQLite/cache infrastructure, FCM delivery, and mobile background upload flows—need browser-specific implementations and should not be represented as completed merely because shared domain services exist.
+A feature is complete only after its web interaction is implemented and tested, and any required external configuration or backend support is confirmed. Clearly document configuration blockers instead of silently downgrading the behavior.
+
+## Architecture
+
+The web workspace owns its TanStack Query client. Keep React components and browser-specific runtime behavior in `apps/web`, and shared domain/API logic in `packages/core`. Match mobile behavior while keeping each platform's UI/runtime independent.
