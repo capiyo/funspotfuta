@@ -70,15 +70,17 @@ npm run build
 
 ## Web parity requirements
 
-The goal is feature and behavior parity with mobile, not to mark browser-different features as permanently out of scope. The following areas need browser-specific implementation and real environment/backend configuration as applicable:
+The web implementation has been reviewed against the current mobile app. The current pass adds browser Firebase Phone Auth (OTP + PIN fallback), FCM token registration/foreground feedback, persisted query-cache restoration, persisted feed pagination, and persisted fixture queries.
 
-- **Phone verification / OTP:** use the intended Firebase Phone Auth verification flow in the browser, including reCAPTCHA and configured SMS delivery. Do not silently treat entering a phone number as proof of ownership.
-- **Push notifications:** implement browser push permission/subscription and delivery (Web Push or supported Firebase Messaging), with HTTPS/service-worker and provider configuration where required. Shared notification data alone is not delivery.
-- **Offline behavior:** preserve the user-visible offline/cache/queue behavior where required, using browser-appropriate persistence such as IndexedDB rather than trying to run mobile SQLite directly.
-- **Chat video:** support selecting, uploading, sending, and rendering video messages with browser-compatible media/file handling and the existing API/storage contracts.
-- **Admin payments:** bring the mobile admin payment UI and its states/actions to web parity, reusing shared payment services such as `payment-service.ts` instead of duplicating business logic.
+Remaining integration work must be validated against the deployed environment:
 
-These are parity tasks and integration dependencies, not features to dismiss as unsupported. Never report them as complete until the browser flow is implemented and validated against the available backend/configuration. Keep mock/filler fan data development-only; production behavior should use real service responses.
+- **Phone verification / OTP:** the real Firebase Phone Auth and reCAPTCHA flow is implemented. Verify SMS delivery, authorized domains, and error/fallback behavior on the deployed HTTPS origin.
+- **Push notifications:** browser token registration, background service-worker notifications, and foreground toast feedback are wired. Verify permissions, Firebase configuration, token registration and delivery against the live backend.
+- **Offline behavior:** browser query persistence is enabled for data accessed through TanStack Query. Review other direct-fetch screens for cache coverage and add retry/synchronization only where the mobile behavior requires it.
+- **Profile parity:** the web profile currently has the account summary, wallet, navigation links and logout; mobile profile editing and viewing other members still need parity work.
+- **Messaging parity:** web chat opens as a modal while mobile uses a dedicated screen. Keep browser interactions and keyboard/media handling usable without changing backend contracts.
+
+Do not report Firebase, push delivery, or authenticated end-to-end flows as verified until tested against the actual deployed browser origin and backend. Mock/filler fan data remains development-only.
 
 ## Architecture decisions
 
