@@ -30,6 +30,7 @@ export function useChannelChat(params: {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [connected, setConnected] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(true);
+  const [historyError, setHistoryError] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const seenIds = useRef(new Set<string>());
 
@@ -49,16 +50,23 @@ export function useChannelChat(params: {
 
     (async () => {
       setLoadingHistory(true);
-      const history = await getMessages(channelId, authToken, {
-        fixtureId: fixtureId ?? undefined,
-      });
-      if (cancelled) return;
-      const parsed = history.map(chatMessageFromJson);
-      parsed.forEach((m) => seenIds.current.add(m.id));
-      setMessages(
-        parsed.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime()),
-      );
-      setLoadingHistory(false);
+      setHistoryError(false);
+      try {
+        const history = await getMessages(channelId, authToken, {
+          fixtureId: fixtureId ?? undefined,
+        });
+        if (cancelled) return;
+        const parsed = history.map(chatMessageFromJson);
+        parsed.forEach((m) => seenIds.current.add(m.id));
+        setMessages(
+          parsed.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime()),
+        );
+      } catch (error) {
+        console.error('Could not load chat history', error);
+        if (!cancelled) setHistoryError(true);
+      } finally {
+        if (!cancelled) setLoadingHistory(false);
+      }
     })();
 
     webSocketService.connect({
@@ -243,5 +251,5 @@ export function useChannelChat(params: {
     [channelId, fixtureId, userId, username, authToken, appendMessage],
   );
 
-  return { messages, connected, loadingHistory, uploadingImage, send, sendImage };
+  return { messages, connected, loadingHistory, historyError, uploadingImage, send, sendImage };
 }
