@@ -7,7 +7,7 @@
 // reaches them via in-page buttons rather than tabs).
 
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { Users, Trophy, History, Bell, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useToast } from '@/lib/toast/toast-context';
@@ -23,6 +23,9 @@ const LINKS = [
 
 export default function ProfilePage() {
   const { username, phone, userId, authToken, logout } = useAuth();
+  const { profileId } = useParams<{ profileId?: string }>();
+  const viewedUserId = profileId ?? userId;
+  const isOwnProfile = !profileId || profileId === userId;
   const navigate = useNavigate();
   const toast = useToast();
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -38,10 +41,11 @@ export default function ProfilePage() {
 
   useEffect(() => {
     let mounted = true;
-    if (!userId) { setProfileLoading(false); return; }
+    if (!viewedUserId) { setProfileLoading(false); return; }
     setProfileLoading(true);
     setProfileError(false);
-    getProfile(userId, authToken ?? undefined)
+    setProfile(null);
+    getProfile(viewedUserId, authToken ?? undefined)
       .then((result) => {
         if (!mounted) return;
         setProfile(result);
@@ -53,12 +57,12 @@ export default function ProfilePage() {
         console.error('Could not load profile', error);
         if (mounted) {
           setProfileError(true);
-          toast.showError('Could not load your profile. Please try again.');
+          toast.showError(isOwnProfile ? 'Could not load your profile. Please try again.' : 'Could not load this user profile. Please try again.');
         }
       })
       .finally(() => { if (mounted) setProfileLoading(false); });
     return () => { mounted = false; };
-  }, [userId, authToken, profileRetry]);
+  }, [viewedUserId, authToken, profileRetry]);
 
   async function handleSaveProfile() {
     if (!userId) return;
@@ -100,20 +104,24 @@ export default function ProfilePage() {
 
   return (
     <div className="mx-auto max-w-md px-fan-xxl pt-10">
+      {profileId && (
+        <button type="button" onClick={() => navigate(-1)} className="mb-fan-lg rounded-fan-pill border border-fan-border px-fan-md py-fan-sm text-fan-caption text-fan-textSecondary">← Back</button>
+      )}
       <div className="mb-fan-xxl flex flex-col items-center">
         <div className="mb-fan-base flex h-20 w-20 items-center justify-center rounded-fan-pill bg-fan-primary/20 text-2xl font-bold text-fan-primary">
-          {(username ?? '?').charAt(0).toUpperCase()}
+          {(profile?.nickname || profile?.username || username || '?').charAt(0).toUpperCase()}
         </div>
-        <h1 className="font-condensed text-fan-headline text-fan-textPrimary">{username}</h1>
-        {phone && <p className="text-fan-body text-fan-textTertiary">{phone}</p>}
-        <p className="mt-fan-sm text-fan-caption text-fan-textTertiary">ID: {userId}</p>
+        <h1 className="font-condensed text-fan-headline text-fan-textPrimary">{profile?.nickname || profile?.username || (isOwnProfile ? username : 'Fan profile')}</h1>
+        {isOwnProfile && phone && <p className="text-fan-body text-fan-textTertiary">{phone}</p>}
+        {isOwnProfile && <p className="mt-fan-sm text-fan-caption text-fan-textTertiary">ID: {userId}</p>}
+        {!isOwnProfile && profile?.username && <p className="text-fan-body text-fan-textTertiary">@{profile.username}</p>}
       </div>
 
       {profileLoading ? (
         <p role="status" className="mb-fan-lg text-center text-fan-caption text-fan-textTertiary">Loading profile…</p>
       ) : profileError ? (
         <div role="alert" className="mb-fan-lg rounded-fan-lg border border-fan-border bg-fan-surface p-fan-lg text-center">
-          <p className="mb-fan-md text-fan-caption text-fan-textTertiary">Your profile details could not be loaded.</p>
+          <p className="mb-fan-md text-fan-caption text-fan-textTertiary">{isOwnProfile ? 'Your profile details could not be loaded.' : 'This profile could not be loaded.'}</p>
           <button onClick={() => setProfileRetry((value) => value + 1)} className="rounded-fan-pill border border-fan-border px-fan-lg py-fan-sm text-fan-caption font-semibold text-fan-textSecondary">Try again</button>
         </div>
       ) : null}
@@ -121,7 +129,7 @@ export default function ProfilePage() {
       <section className="mb-fan-xxl rounded-fan-xl border border-fan-border bg-fan-surface p-fan-lg">
         <div className="mb-fan-md flex items-center justify-between">
           <h2 className="font-semibold text-fan-body text-fan-textPrimary">Fan profile</h2>
-          {!editingProfile && <button onClick={() => setEditingProfile(true)} className="text-fan-caption font-semibold text-fan-primary">Edit</button>}
+          {isOwnProfile && !editingProfile && <button onClick={() => setEditingProfile(true)} className="text-fan-caption font-semibold text-fan-primary">Edit</button>}
         </div>
         {profileLoading ? (
           <p className="text-fan-caption text-fan-textTertiary">Loading profile…</p>
@@ -141,11 +149,19 @@ export default function ProfilePage() {
             <p className="text-fan-textSecondary">Favorite club: <span className="text-fan-textPrimary">{profile.clubFan || '—'}</span></p>
             <p className="text-fan-textSecondary">Country: <span className="text-fan-textPrimary">{profile.countryFan || '—'}</span></p>
           </div>
+        ) : profile && (profile.nickname || profile.clubFan || profile.countryFan) ? (
+          <div className="grid grid-cols-1 gap-fan-sm text-fan-body">
+            <p className="text-fan-textSecondary">Nickname: <span className="text-fan-textPrimary">{profile.nickname || '—'}</span></p>
+            <p className="text-fan-textSecondary">Favorite club: <span className="text-fan-textPrimary">{profile.clubFan || '—'}</span></p>
+            <p className="text-fan-textSecondary">Country: <span className="text-fan-textPrimary">{profile.countryFan || '—'}</span></p>
+          </div>
         ) : (
-          <p className="text-fan-caption text-fan-textTertiary">Complete your fan profile with a nickname, favorite club and country.</p>
+          <p className="text-fan-caption text-fan-textTertiary">{isOwnProfile ? 'Complete your fan profile with a nickname, favorite club and country.' : 'This user has not shared fan profile details.'}</p>
         )}
       </section>
 
+      {isOwnProfile && (
+        <>
       <div className="mb-fan-xxl overflow-hidden rounded-fan-xl border border-fan-border bg-fan-surface">
         {LINKS.map(({ href, label, Icon }, i) => (
           <Link
@@ -169,8 +185,10 @@ export default function ProfilePage() {
         disabled={loggingOut}
         className="w-full rounded-fan-lg border border-fan-away/30 bg-fan-awayDim py-fan-base text-fan-body font-semibold text-fan-away"
       >
-        Log Out
+        {loggingOut ? 'Logging out…' : 'Log Out'}
       </button>
+        </>
+      )}
     </div>
   );
 }
