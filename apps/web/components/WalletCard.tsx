@@ -17,15 +17,24 @@ export function WalletCard() {
   const [phone, setPhone] = useState('');
   const [status, setStatus] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   async function refresh() {
-    if (!userId) return;
-    const [bal, history] = await Promise.all([
-      getUserBalance(userId, authToken ?? undefined, true),
-      getTransactionHistory({ userId, authToken: authToken ?? undefined, limit: 10 }),
-    ]);
-    setBalance(bal);
-    if (history.success) setTransactions(history.transactions);
+    if (!userId || refreshing) return;
+    setRefreshing(true);
+    try {
+      const [bal, history] = await Promise.all([
+        getUserBalance(userId, authToken ?? undefined, true),
+        getTransactionHistory({ userId, authToken: authToken ?? undefined, limit: 10 }),
+      ]);
+      setBalance(bal);
+      if (history.success) setTransactions(history.transactions);
+    } catch (error) {
+      console.error('Could not refresh wallet', error);
+      setStatus('Could not refresh wallet details. Please try again.');
+    } finally {
+      setRefreshing(false);
+    }
   }
 
   useEffect(() => {
@@ -37,19 +46,26 @@ export function WalletCard() {
     if (!userId || !username) return;
     const amt = Number(amount);
     if (!amt || amt <= 0) return;
+    if (submitting) return;
     setSubmitting(true);
     setStatus('Sending M-Pesa prompt…');
-    const result = await initiateSTKPush({
-      userId,
-      username,
-      amount: amt,
-      phoneNumber: phone || undefined,
-      authToken: authToken ?? undefined,
-      purpose: 'Top up balance',
-    });
-    setSubmitting(false);
-    setStatus(result.message ?? (result.success ? 'Payment completed' : 'Payment failed'));
-    if (result.success) refresh();
+    try {
+      const result = await initiateSTKPush({
+        userId,
+        username,
+        amount: amt,
+        phoneNumber: phone || undefined,
+        authToken: authToken ?? undefined,
+        purpose: 'Top up balance',
+      });
+      setStatus(result.message ?? (result.success ? 'Payment completed' : 'Payment failed'));
+      if (result.success) await refresh();
+    } catch (error) {
+      console.error('Could not initiate M-Pesa top up', error);
+      setStatus('Could not start payment. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
