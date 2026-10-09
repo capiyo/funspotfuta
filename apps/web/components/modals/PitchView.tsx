@@ -1,4 +1,3 @@
-'use client';
 // Web port of RN src/modals/match/pitchView.tsx. react-native-svg -> inline <svg>;
 // onLayout -> ResizeObserver; absolute-positioned player dots over the SVG.
 
