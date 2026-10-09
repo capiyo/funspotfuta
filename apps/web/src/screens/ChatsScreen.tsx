@@ -70,10 +70,18 @@ export function ChatModal({ fixture, channelId, onClose }: ChatModalProps) {
   // ── Channels (for the picker) ────────────────────────────────
   useEffect(() => {
     if (!userId || !authToken) return;
-    getUserChannels(userId, authToken).then((c) => {
-      setChannels(c);
-      setActiveChannelId((prev) => prev ?? c[0]?.channelId ?? '');
-    });
+    let cancelled = false;
+    getUserChannels(userId, authToken)
+      .then((c) => {
+        if (cancelled) return;
+        setChannels(c);
+        setActiveChannelId((prev) => prev || c[0]?.channelId || '');
+      })
+      .catch((error) => {
+        console.error('Could not load chat channels', error);
+        if (!cancelled) toast.showError('Could not load your channels. Please try again.');
+      });
+    return () => { cancelled = true; };
   }, [userId, authToken]);
 
   const fixtureId = fixture.matchId ?? fixture.id;
@@ -139,7 +147,14 @@ export function ChatModal({ fixture, channelId, onClose }: ChatModalProps) {
       : null;
 
     setReplyTo(null);
-    await send(text, '', { replyTo: replyPayload });
+    try {
+      await send(text, '', { replyTo: replyPayload });
+    } catch (error) {
+      console.error('Could not send chat message', error);
+      setDraft(text);
+      setReplyTo(replyTo);
+      toast.showError('Could not send your message. Please try again.');
+    }
   }
 
   async function handleImagePick(e: React.ChangeEvent<HTMLInputElement>) {
