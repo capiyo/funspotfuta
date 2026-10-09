@@ -23,6 +23,7 @@ import {
 // that has no fetchUserActivityHistory.
 import { fetchVoters, fetchUserActivityHistory } from '@funspot/core/src/api/vote-modal-shims';
 import { useAuth } from '@/lib/auth/auth-context';
+import { useNavigate } from 'react-router-dom';
 
 // ── helpers ────────────────────────────────────────────────────────────────
 const C = {
@@ -339,6 +340,7 @@ interface ArchiveActivity {
 }
 
 function ActivityHistorySheet({ params, onClose }: { params: ActivityHistoryParams; onClose: () => void }) {
+    const navigate = useNavigate();
     const [activities, setActivities] = useState<ArchiveActivity[]>([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState<'All' | 'Votes' | 'Comments' | 'Likes'>('All');
@@ -385,6 +387,7 @@ function ActivityHistorySheet({ params, onClose }: { params: ActivityHistoryPara
                     <p className="truncate text-fan-title text-fan-textPrimary">{params.displayName}</p>
                     <p className="truncate text-fan-caption text-fan-textTertiary">@{params.userName}{params.clubFan ? ` · ${params.clubFan}` : ''}</p>
                 </div>
+                <button type="button" onClick={() => navigate(`/profile/${encodeURIComponent(params.userId)}`)} className="shrink-0 rounded-fan-pill border border-fan-border px-fan-md py-fan-xs text-fan-caption font-semibold text-fan-primary">View profile</button>
                 <CloseBtn onClick={onClose} />
             </div>
             <div className="mb-3 flex gap-4">
