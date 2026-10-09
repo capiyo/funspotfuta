@@ -5,7 +5,8 @@ import { useRef, useState } from 'react';
 import { useAuth } from '@/lib/auth/auth-context';
 import { auth } from '@/lib/firebase';
 import { RecaptchaVerifier, signInWithPhoneNumber, signOut, type ConfirmationResult } from 'firebase/auth';
-import { checkUser, isUsernameTaken, pinLogin, setPin, registerUser } from '@funspot/core';
+import { checkUser, isUsernameTaken, pinLogin, setPin, registerUser, registerToken } from '@funspot/core';
+import { requestFcmToken } from '@/lib/firebase';
 
 type Step = 'phone' | 'otp' | 'pin' | 'newPin' | 'username';
 
@@ -65,6 +66,13 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }: LoginMod
     if (!saved) {
       setError('Login failed. Please try again.');
       return;
+    }
+    try {
+      const fcmToken = await requestFcmToken();
+      if (fcmToken) await registerToken({ userId, fcmToken, platform: 'web', authToken: token });
+    } catch (notificationError) {
+      // Notification permission/configuration must not block a successful login.
+      console.warn('Web push registration was skipped:', notificationError);
     }
     onLoginSuccess?.(userId, username);
     resetAndClose();
