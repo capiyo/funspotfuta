@@ -25,6 +25,7 @@ export default function FeedPage() {
     data,
     isPending,
     isError,
+    isFetching,
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
@@ -155,6 +156,18 @@ export default function FeedPage() {
 
   return (
     <div className="mx-auto max-w-md px-fan-lg pt-fan-xxl pb-10">
+      <div className="mb-fan-md flex items-center justify-between gap-fan-md">
+        <h1 className="font-condensed text-fan-headline text-fan-textPrimary">Feed</h1>
+        <button
+          type="button"
+          onClick={() => void refetch()}
+          disabled={isFetching}
+          aria-label="Refresh feed"
+          className="rounded-fan-pill border border-fan-border px-fan-base py-fan-sm text-fan-caption font-semibold text-fan-textSecondary disabled:opacity-50"
+        >
+          {isFetching ? 'Refreshing…' : 'Refresh'}
+        </button>
+      </div>
       <div className="mb-fan-xxl rounded-fan-xl border border-fan-border bg-fan-surface p-fan-base">
         <textarea
           value={caption}
