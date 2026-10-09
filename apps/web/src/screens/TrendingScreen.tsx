@@ -7,8 +7,10 @@
 // core (data + voting), not a pixel port of that animation layer.
 
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/lib/auth/auth-context';
 import { getTrendingSubFixtures, submitSubFixtureVote } from '@funspot/core';
+import { useToast } from '@/lib/toast/toast-context';
 
 interface TrendingItem {
   sub_fixture_id?: string;
@@ -25,22 +27,35 @@ interface TrendingItem {
 }
 
 export default function TrendingPage() {
-  const { userId, username } = useAuth();
+  const { userId, username, isLoggedIn } = useAuth();
+  const navigate = useNavigate();
+  const toast = useToast();
   const [items, setItems] = useState<TrendingItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [votedIds, setVotedIds] = useState<Set<string>>(new Set());
   const [voting, setVoting] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState(false);
 
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const data = await getTrendingSubFixtures(20);
-      setItems(data);
-      setLoading(false);
+      try {
+        const data = await getTrendingSubFixtures(20);
+        setItems(data);
+      } catch {
+        setItems([]);
+        setLoadError(true);
+      } finally {
+        setLoading(false);
+      }
     })();
   }, []);
 
   async function handleVote(item: TrendingItem, selection: 'a' | 'b') {
+    if (!isLoggedIn) {
+      navigate(`/login?next=${encodeURIComponent('/trending')}`);
+      return;
+    }
     if (!userId || !username) return;
     const id = item.sub_fixture_id ?? item.id ?? '';
     setVoting(id);
@@ -55,6 +70,7 @@ export default function TrendingPage() {
       setVotedIds((prev) => new Set(prev).add(id));
     } catch (e) {
       console.error(e);
+      toast.showError('Could not record your vote. Please try again.');
     } finally {
       setVoting(null);
     }
@@ -69,7 +85,7 @@ export default function TrendingPage() {
           <div className="h-8 w-8 animate-spin rounded-fan-pill border-2 border-fan-primary border-t-transparent" />
         </div>
       ) : items.length === 0 ? (
-        <p className="py-16 text-center text-fan-body text-fan-textTertiary">No trending markets right now.</p>
+        <p className="py-16 text-center text-fan-body text-fan-textTertiary">{loadError ? 'Could not load trending markets. Please try again later.' : 'No trending markets right now.'}</p>
       ) : (
         <div className="space-y-3">
           {items.map((item, i) => {
