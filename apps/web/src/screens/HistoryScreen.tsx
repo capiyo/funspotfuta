@@ -1,5 +1,3 @@
-'use client';
-
 // Same history-service.ts data layer as before, now rendering through
 // <HistoryCard> (restyled to match the Flutter HistoryPage / "Logs"
 // screenshot: no card container, no dividers, plane-emoji header,
