@@ -11,8 +11,16 @@ import { requestFcmToken } from '@/lib/firebase';
 type Step = 'phone' | 'otp' | 'pin' | 'newPin' | 'username';
 
 function toE164(raw: string): string {
-  const digits = raw.replace(/[^\d+]/g, '');
-  return digits.startsWith('+') ? digits : `+${digits}`;
+  const cleaned = raw.trim().replace(/[\s().-]/g, '');
+  if (cleaned.startsWith('+')) return `+${cleaned.slice(1).replace(/\D/g, '')}`;
+
+  const digits = cleaned.replace(/\D/g, '');
+  // Match the mobile app's Kenya-first phone entry for common local formats.
+  // Explicit international numbers can always be entered with a leading +.
+  if (digits.startsWith('254')) return `+${digits}`;
+  if (digits.startsWith('0') && digits.length === 10) return `+254${digits.slice(1)}`;
+  if (/^[17]\d{8}$/.test(digits)) return `+254${digits}`;
+  return `+${digits}`;
 }
 
 interface LoginModalProps {
