@@ -1,5 +1,3 @@
-'use client';
-
 // New UI (the original spreads this across ComradeModal in
 // leaderboard.dart and other Funzy/ modals) on top of the fully-ported
 // comrades endpoints in comrade-service.ts: list your comrades, search for
