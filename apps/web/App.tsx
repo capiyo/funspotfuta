@@ -5,8 +5,6 @@ import { AuthProvider, useAuth } from '@/lib/auth/auth-context';
 import { ToastProvider } from '@/lib/toast/toast-context';
 import { QueryProvider } from './QueryProvider';
 import { onForegroundMessage } from '@/lib/firebase';
-import { registerToken } from '@funspot/core';
-import { requestFcmToken } from '@/lib/firebase';
 import HomeScreen from '@/src/screens/home/HomeScreen';
 import FeedScreen from '@/src/screens/FeedScreen';
 import TrendingScreen from '@/src/screens/TrendingScreen';
