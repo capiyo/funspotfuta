@@ -7,9 +7,11 @@
 // reaches them via in-page buttons rather than tabs).
 
 import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Users, Trophy, History, Bell, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/lib/auth/auth-context';
+import { useToast } from '@/lib/toast/toast-context';
 import { useToast } from '@/lib/toast/toast-context';
 import { getProfile, saveProfile, type UserProfile } from '@funspot/core';
 import { WalletCard } from '@/components/WalletCard';
@@ -137,6 +139,7 @@ export default function ProfilePage() {
 
       <button
         onClick={handleLogout}
+        disabled={loggingOut}
         className="w-full rounded-fan-lg border border-fan-away/30 bg-fan-awayDim py-fan-base text-fan-body font-semibold text-fan-away"
       >
         Log Out
