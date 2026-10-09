@@ -37,6 +37,7 @@ export default function NotificationsPage() {
     let mounted = true;
     if (!userId) {
       setLoading(false);
+      setLoadError(true);
       return () => { mounted = false; };
     }
     (async () => {
