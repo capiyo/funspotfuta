@@ -82,6 +82,7 @@ export function ChatModal({ fixture, channelId, onClose }: ChatModalProps) {
     messages,
     connected,
     loadingHistory,
+    historyError,
     uploadingImage,
     send,
     sendImage,
@@ -205,6 +206,10 @@ export function ChatModal({ fixture, channelId, onClose }: ChatModalProps) {
           {loadingHistory ? (
             <p className="py-fan-xxl text-center text-fan-caption text-fan-textTertiary">
               Loading messages…
+            </p>
+          ) : historyError && messages.length === 0 ? (
+            <p role="alert" className="py-fan-xxl text-center text-fan-caption text-fan-textTertiary">
+              Could not load message history. Close and reopen the chat to retry.
             </p>
           ) : messages.length === 0 ? (
             <p className="py-fan-xxl text-center text-fan-caption text-fan-textTertiary">
