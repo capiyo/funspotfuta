@@ -1,5 +1,3 @@
-'use client';
-
 // Fixture detail — production pass.
 //
 // Keeps the existing fan-* design language (pill shapes, condensed display
