@@ -14,7 +14,37 @@ export * from './theme';
 export * from './api/config';
 export * from './api/auth-service';
 export * from './api/database-service';
-export {\n  \n} from './api/comrade-service';
+export {
+  AddComradeParams,
+  addComrade,
+  getUserComrades,
+  ComradeStats,
+  getComradeStats,
+  removeComrade,
+  areComrades,
+  getComradeDetails,
+  searchPotentialComrades,
+  getComradesWhoVotedOnFixture,
+  getUserChannelCount,
+  CreateChannelParams,
+  createChannel,
+  getChannel,
+  getChannelLeaderboard,
+  getChannelFixtures,
+  addMembersToChannel,
+  leaveChannel,
+  initializeFixtureChat,
+  SendMessageParams,
+  sendMessage,
+  getMessages,
+  CastVoteParams,
+  castVote,
+  SendChannelMessageParams,
+  sendChannelMessage,
+  getChannelMessages,
+  PostCommentParams,
+  postComment
+} from './api/comrade-service';
 export * from './api/channels-service';
 
 export * from './api/bet-service';
