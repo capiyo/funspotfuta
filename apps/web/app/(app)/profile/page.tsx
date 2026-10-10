@@ -42,7 +42,7 @@ export default function ProfilePage() {
         {LINKS.map(({ href, label, Icon }, i) => (
           <Link
             key={href}
-            href={href}
+            to={href}
             className={`flex items-center gap-fan-base px-fan-lg py-fan-base text-fan-body text-fan-textPrimary ${
               i > 0 ? '' : ''
             }`}
