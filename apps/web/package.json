@@ -16,7 +16,9 @@
     "react-dom": "18.2.0",
     "react-router-dom": "^6.28.1",
     "@funspot/storage": "*",
-    "firebase": "^11.0.2"
+    "firebase": "^11.0.2",
+    "@tanstack/react-query": "^5.103.1",
+    "@tanstack/react-query-persist-client": "^5.103.1"
   },
   "devDependencies": {
     "@types/node": "^20.14.0",
