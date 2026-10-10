@@ -1,96 +1,61 @@
-# Funspot — React Web
+# Funspot Web — React + Vite
 
-This is a **React + Vite + TypeScript + Tailwind** port of the
-[capiyo/funspot](https://github.com/capiyo/funspot) Flutter app — "a war zone
-for fans: create channels, vote on matches, earn."
+The web app is a **React + TypeScript + Vite** application. It does not use Next.js. It uses React Router for client-side routing, Tailwind CSS for styling, and the existing production API through shared services in `@funspot/core`.
 
-## Reality check on scope
+## Run locally
 
-The original Flutter app is **~96,000 lines of Dart across 100 files**,
-including a 4,584-line `main.dart` and a 6,643-line `home_page.dart`. That is
-not a weekend port. This is a **real, working port** — not a mockup — wired
-against the app's actual live backend
-(`https://clash-api-m5mr.onrender.com/api`), built up file-by-file. It now
-covers the full core loop: auth, voting, channels, whole-match pledges/bets,
-per-market prop bets, live chat (text + images), trending markets, M-Pesa
-top-ups, match history, leaderboard, comrades/friends, a posts feed,
-notification preferences, and an admin dashboard.
-
-## What's ported (real logic hitting the live API, not placeholders)
-
-| Original (Dart)                              | Ported to                              |
-|-----------------------------------------------|-----------------------------------------|
-| `lib/models/fixture_models.dart` (Fixture, Voter, Bettor, SubFixture, HistoryGame, HistoryService) | `lib/types/fixture.ts`, `lib/api/history-service.ts` |
-| `lib/models/{news,pledge,chats,archive,usermodels}.dart` | `lib/types/models.ts` |
-| `lib/models/chat_message.dart` (ReplyData + master ChatMessage) | `lib/types/chat-message.ts` |
-| `lib/models/post_models.dart` | `lib/types/post.ts` |
-| `lib/services/auth_service.dart` (supersedes `app_state.dart`, same state) | `lib/auth/auth-context.tsx` |
-| `lib/services/database_service.dart` | `lib/api/database-service.ts` |
-| `lib/modals/login_modal.dart` backend calls | `lib/api/auth-service.ts` + `app/login/page.tsx` |
-| `lib/services/comrade_service.dart` — **full port** (channels, fixture chat incl. media/reply-capable send, channel voting, comments, comrades graph) | `lib/api/comrade-service.ts` |
-| `lib/services/bet_service.dart` — **full port** | `lib/api/bet-service.ts`, `lib/api/sub-fixture-service.ts`, `lib/types/betting.ts` |
-| Sub-fixture voting, posts, followers, and chat-image-upload sections of `lib/services/api_services.dart` | `lib/api/sub-fixture-votes-service.ts`, `lib/api/posts-service.ts`, `lib/api/media-service.ts` |
-| `lib/services/web_soecket.dart` — multi-room WebSocket client | `lib/api/websocket-service.ts` + `lib/api/use-channel-chat.ts` |
-| `lib/services/payment_service.dart` — M-Pesa STK push, balance, transactions, B2C/admin payout | `lib/api/payment-service.ts` |
-| `lib/services/toast_helper.dart` | `lib/toast/toast-context.tsx` |
-| REST subset of `lib/services/notification_service.dart` (unread summary, mark-read, preferences — not FCM registration) | `lib/api/notification-service.ts` + `app/(app)/notifications/page.tsx` |
-| `lib/modals/Funzy/leaderboard.dart` (ComradeWithStats + data layer) | `lib/types/leaderboard.ts` + `app/(app)/leaderboard/page.tsx` |
-| Admin-only endpoints from `lib/modals/homepage/admin_dashboard.dart` (channel detail/stats, member removal, payment visibility flag — payout itself reuses `payment-service.ts`) | `lib/api/admin-service.ts` + `web routes/admin` |
-| `lib/pages/bottom_navigation.dart` | `components/BottomNav.tsx` |
-| `lib/widgets/match_card.dart` | `components/MatchCard.tsx` |
-| `lib/modals/homepage/channel_creation.dart` (simplified) | `components/ChannelCreationModal.tsx` |
-| `lib/screens/home_page.dart` (fixture feed, simplified) | `web routes/home` |
-| New: fixture detail page (vote + pledge/bet + prop markets + comments + toasts) | `web routes/fixture` |
-| New: live channel chat UI, now with image sending | `web routes/chat` |
-| New: trending prop markets UI | `web routes/trending` |
-| New: wallet UI (M-Pesa top-up, transactions) | `components/WalletCard.tsx` (in `/profile`) |
-| New: comrades (friends) UI | `web routes/comrades` |
-| New: match history UI | `web routes/history` |
-| New: posts feed UI (create/like/paginate) | `web routes/feed` |
-
-All of the above hit the **real production API** — there is no mock data.
-
-## What's intentionally not ported (with reasons)
-
-- **Firebase Phone-Auth OTP** (`firebase_auth_service.dart`) — needs the
-  project's live Firebase reCAPTCHA/SMS config in a browser; PIN-based
-  login/registration (backend-only) is fully wired instead. Firebase web
-  config is in `.env.example` for when this is added.
-- **FCM push notification delivery** (`notification_service.dart`'s token
-  registration, `local_notification_service.dart`,
-  `web_notification_service*.dart`) — the *data* half (unread counts,
-  preferences, mark-read) is ported and has a real page; actual push
-  delivery would need Web Push + a service worker + the project's FCM
-  server key (not public like the web config).
-- **Local SQLite caching / offline queue** (`local_database.dart`,
-  `comments_db_service.dart`, `upload_queue.dart`, `memory_manager.dart`,
-  admin dashboard's `AppCache`) — these existed for spotty mobile
-  connectivity offline-first; a browser tab re-fetches instead.
-- **Video in chat** (`uploadChatVideoWithThumbnail*` — several are
-  explicitly mobile-only background-upload variants in the original) —
-  chat image sending is ported; video is not.
-- **Admin dashboard's own in-page payments UI** — not duplicated; it calls
-  the same `payment-service.ts` functions already used by `/profile`'s
-  wallet, so the payout button on `/admin/[channelId]` reuses that.
-
-## Running it
+From the repository root:
 
 ```bash
 npm install
+npm run dev:web
+```
+
+Or from this directory:
+
+```bash
 npm run dev
 ```
 
-Open http://localhost:3000 — you'll land on `/login` (phone + PIN flow
-against the real backend), then `/home` once authenticated. From there:
-tap into a fixture for voting/pledges/prop-markets/comments, use the Chat
-(text + images) and Trending tabs, check Profile for wallet/comrades/
-leaderboard/history/notification-preferences links, try the Feed via the
-link on Home, and — if you created a channel — an "⚙ Admin" link appears
-next to it on Home.
+Vite serves the app at `http://localhost:3000`.
 
-## Environment
+## Validate
 
-No env vars are required to run — the backend base URL is hardcoded to match
-the original app everywhere it appears in the Dart source. See
-`.env.example` for the Firebase web config, needed only if Phone-Auth OTP is
-added later.
+From the repository root:
+
+```bash
+npm run typecheck:web
+npm run build:web
+```
+
+## Route map
+
+| Route | Purpose |
+| --- | --- |
+| `/login` | Sign in / registration UI |
+| `/home` | Main fixture and channel feed |
+| `/chat` | Channel chat |
+| `/trending` | Trending markets |
+| `/fixture/:matchId` | Fixture detail, votes, pledges and markets |
+| `/feed` | Posts feed |
+| `/profile` | Profile, wallet and account links |
+| `/comrades` | Friends/comrades |
+| `/leaderboard` | Leaderboard |
+| `/history` | Match history |
+| `/notifications` | Notification data/preferences |
+| `/admin/:channelId` | Channel administration |
+
+Protected routes use the current web auth context. Keep route names and equivalent feature behavior aligned with the completed React Native app, which is the reference for web parity.
+
+## Structure
+
+- `main.tsx` — Vite/React entry point
+- `App.tsx` — React Router route declarations and providers
+- `app/` — page components retained as ordinary React modules (the folder name is organizational; it is not a Next.js App Router)
+- `components/` — shared web UI
+- `lib/` — auth, API, toast and platform-specific helpers
+- `vite.config.ts` — Vite configuration
+
+## Backend constraints and known limitations
+
+The app uses the existing API endpoints and request/response contracts; this web migration does not change the backend or authentication flow. Firebase phone OTP and browser push delivery still require their own live configuration and must not be considered implemented until tested with that configuration. Do not substitute fake backend behavior for a real API call.
