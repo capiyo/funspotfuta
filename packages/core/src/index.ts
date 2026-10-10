@@ -25,25 +25,14 @@ export type { Voter } from './types/fixture';
 export * from './api/payment-service';
 export * from './api/history-service';
 export * from './api/notification-service';
-
-export * from './api/admin-service';
+export { checkPaymentVisibility } from './api/admin-service';
 export * from './api/posts-service';
 export * from './api/websocket-service';
 export * from './api/profile-service';
 
-// Was './queryClient' — the file is under api/, so the path must match.
 export { createAppQueryClient, PERSIST_OPTIONS } from './queryClient';
-
 export { useFixtures, useHistoryGames } from './queries/useFixtures';
-
-export type {
-    AftermatchData,
-    AftermatchVoter,
-    AftermatchPledge,
-    AftermatchBet,
-    AftermatchSubFixture,
-    AftermatchSubFixturePledge,
-} from './types/afternatch';
+export type { AftermatchData, AftermatchVoter, AftermatchPledge, AftermatchBet, AftermatchSubFixture, AftermatchPledge as AftermatchSubFixturePledge } from './types/afternatch';
 export { fetchAftermatch } from './api/aftermatch_service';
 export { useAftermatch } from './queries/useAftermatch';
 export { chatMessageFromJson, chatMessageCommentary } from './types/chat-message';
