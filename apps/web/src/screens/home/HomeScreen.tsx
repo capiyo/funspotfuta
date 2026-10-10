@@ -12,7 +12,7 @@
 
 import { useEffect, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import {
   Fixture,
   getAllFixtures,
@@ -47,7 +47,7 @@ import { ChannelCreationModal } from '@/src/modals/ChannelCreationModal';
 import { SwipeableVotePledgeModal } from '@/src/modals/actionModal';
 import { ChatModal } from '@/src/screens/ChatsScreen';
 import FeedScreen from '../FeedScreen';
-import HistoryScreen from '../HistoryScreen';
+import { WebSidebar } from '@/components/WebSidebar';
 
 // ── Page ────────────────────────────────────────────────────────
 export default function HomePage() {
@@ -64,9 +64,6 @@ export default function HomePage() {
     queryFn: () => getAllChannels(authToken ?? undefined),
     enabled: showBrowseChannels,
   });
-  const [searchParams, setSearchParams] = useSearchParams();
-  const requestedTab = searchParams.get('tab');
-  const activeSection = requestedTab === 'feed' || requestedTab === 'logs' ? requestedTab : 'chats';
   const activeChannel = channels.find((channel) => channel.channelId === activeChannelId);
 
   async function handleJoinChannel(channel: Channel) {
@@ -123,28 +120,39 @@ export default function HomePage() {
   }, [userId, authToken]);
 
   return (
-    <div className="flex min-h-[calc(100vh-3.5rem)] flex-col bg-fan-background">
-      {activeSection === 'chats' && (
-        <div className="flex items-center gap-fan-sm border-b border-fan-border/60 px-fan-base py-fan-sm">
-          {channels.length > 0 && (
-            <label className="flex min-w-0 flex-1 items-center gap-fan-sm text-fan-caption text-fan-textTertiary">
-              Channel
-              <select aria-label="Active channel" value={activeChannelId ?? ''} onChange={(event) => setActiveChannelId(event.target.value)} className="min-w-0 flex-1 rounded-fan-md border border-fan-border bg-fan-surface px-fan-md py-fan-sm text-fan-body text-fan-textPrimary">
-                {channels.map((channel) => <option key={channel.channelId} value={channel.channelId}>{channel.name}</option>)}
-              </select>
-            </label>
-          )}
-          {activeChannel?.isAdmin && (
-            <button onClick={() => navigate(`/admin/${encodeURIComponent(activeChannel.channelId)}`)} className="shrink-0 rounded-fan-pill border border-fan-primary/40 bg-fan-primaryDim px-fan-base py-fan-sm text-fan-caption font-semibold text-fan-primary">Admin</button>
-          )}
-          <button onClick={() => setShowBrowseChannels(true)} className="shrink-0 rounded-fan-pill border border-fan-border px-fan-base py-fan-sm text-fan-caption font-semibold text-fan-textSecondary">Browse</button>
-          <button onClick={() => isLoggedIn ? setShowCreateChannel(true) : navigate(`/login?next=${encodeURIComponent('/home?tab=chats')}`)} className="shrink-0 rounded-fan-pill bg-fan-primary px-fan-base py-fan-sm text-fan-caption font-semibold text-fan-textInverse">+ Create channel</button>
-        </div>
-      )}
-      {/* Chats, Feed and Logs follow the mobile Home tabs. */}
-      <div className="flex flex-1 flex-col overflow-y-auto">
-        {activeSection === 'chats' ? <ArenaColumn channelId={activeChannelId} /> : activeSection === 'feed' ? <FeedScreen /> : <HistoryScreen />}
-      </div>
+    <div className="flex min-h-[calc(100vh-3rem)] flex-col bg-fan-background lg:flex-row">
+      <aside aria-label="Profile sidebar" className="hidden w-[280px] shrink-0 overflow-y-auto border-r border-fan-border/60 bg-fan-surfaceElevated lg:block">
+        <WebSidebar />
+      </aside>
+      <main className="grid min-w-0 flex-1 grid-cols-1 lg:grid-cols-2">
+        <section aria-labelledby="home-chats-heading" className="flex min-h-[65vh] min-w-0 flex-col border-b border-fan-border/60 lg:min-h-0 lg:border-b-0 lg:border-r">
+          <div className="border-b border-fan-border/60 px-fan-base py-fan-md">
+            <h1 id="home-chats-heading" className="mb-fan-sm font-condensed text-fan-headline text-fan-textPrimary">Chats</h1>
+            <div className="flex items-center gap-fan-sm">
+              {channels.length > 0 && (
+                <label className="flex min-w-0 flex-1 items-center gap-fan-sm text-fan-caption text-fan-textTertiary">
+                  Channel
+                  <select aria-label="Active channel" value={activeChannelId ?? ''} onChange={(event) => setActiveChannelId(event.target.value)} className="min-w-0 flex-1 rounded-fan-md border border-fan-border bg-fan-surface px-fan-md py-fan-sm text-fan-body text-fan-textPrimary">
+                    {channels.map((channel) => <option key={channel.channelId} value={channel.channelId}>{channel.name}</option>)}
+                  </select>
+                </label>
+              )}
+              {activeChannel?.isAdmin && (
+                <button onClick={() => navigate(`/admin/${encodeURIComponent(activeChannel.channelId)}`)} className="shrink-0 rounded-fan-pill border border-fan-primary/40 bg-fan-primaryDim px-fan-base py-fan-sm text-fan-caption font-semibold text-fan-primary">Admin</button>
+              )}
+              <button onClick={() => setShowBrowseChannels(true)} className="shrink-0 rounded-fan-pill border border-fan-border px-fan-base py-fan-sm text-fan-caption font-semibold text-fan-textSecondary">Browse</button>
+              <button onClick={() => isLoggedIn ? setShowCreateChannel(true) : navigate(`/login?next=${encodeURIComponent('/home?tab=chats')}`)} className="shrink-0 rounded-fan-pill bg-fan-primary px-fan-base py-fan-sm text-fan-caption font-semibold text-fan-textInverse">+ Create</button>
+            </div>
+          </div>
+          <div className="min-h-0 flex-1 overflow-y-auto"><ArenaColumn channelId={activeChannelId} /></div>
+        </section>
+        <section aria-labelledby="home-feed-heading" className="flex min-h-[65vh] min-w-0 flex-col lg:min-h-0">
+          <div className="border-b border-fan-border/60 px-fan-base py-fan-md">
+            <h2 id="home-feed-heading" className="font-condensed text-fan-headline text-fan-textPrimary">Feed</h2>
+          </div>
+          <div className="min-h-0 flex-1 overflow-y-auto"><FeedScreen /></div>
+        </section>
+      </main>
       {showBrowseChannels && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 sm:items-center" onClick={() => setShowBrowseChannels(false)}>
           <section role="dialog" aria-modal="true" aria-labelledby="browse-channels-title" className="max-h-[85vh] w-full max-w-md overflow-y-auto rounded-t-fan-xl border border-fan-border bg-fan-background p-fan-lg sm:rounded-fan-xl" onClick={(event) => event.stopPropagation()}>
