@@ -4,11 +4,11 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import { useFanColors, hexWithAlpha } from '@/lib/theme/use-fan-colors';
+import { useFanColors, hexWithAlpha } from '@/components/modals/use-fan-colors';
 import {
   calculatePositions, shortName, NEUTRAL_GAP_FRACTION,
   type PitchPosition, type SimplifiedPlayer,
-} from '@/lib/match/pitch-engine';
+} from '@/components/modals/pitch-engine';
 
 const GRASS_EVEN = '#0D5E1A';
 const GRASS_ODD = '#0A5218';
