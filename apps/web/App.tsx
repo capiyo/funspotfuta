@@ -6,7 +6,7 @@ import RootPage from '@/app/page';
 import LoginModal from '@/app/login/page';
 import AppLayout from '@/app/(app)/layout';
 import HomePage from '@/app/(app)/home/page';
-import ChatPage from '@/app/(app)/chat/page';
+import ChatPage from '@/app/(app)/chat/ChatRoutePage';
 import FeedPage from '@/app/(app)/feed/page';
 import TrendingPage from '@/app/(app)/trending/page';
 import FixtureDetailPage from '@/app/(app)/fixture/[matchId]/page';
