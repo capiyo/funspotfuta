@@ -51,6 +51,9 @@ function initials(name: string): string {
   return name.slice(0, 2).toUpperCase();
 }
 
+const ENABLE_MOCK_FANS =
+  import.meta.env.DEV && import.meta.env.VITE_ENABLE_MOCK_FANS === 'true';
+
 const SAMPLE_FAN_NAMES = [
   '⚡ LightningBolt',
   '🔥 FireStriker',
@@ -115,7 +118,7 @@ interface DisplayVoter {
 
 function fillVotersTo3(fixture: Fixture): DisplayVoter[] {
   const real: DisplayVoter[] = fixture.voters.slice(0, 3);
-  if (real.length >= 3) return real;
+  if (!ENABLE_MOCK_FANS || real.length >= 3) return real;
 
   const seed = fixture.matchId || fixture.id;
   const base = seededHash(seed);
