@@ -41,7 +41,7 @@ import {
 } from '@/lib/api/vote-modal-shims';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useToast } from '@/lib/toast/toast-context';
-import { MatchCard } from '@/components/MatchCard';
+import { MatchCard } from '@/components/ChatsCard';
 import { MatchDetailsModal } from '@/src/modals/match/MatchDetailsModal';
 import { ChannelCreationModal } from '@/src/modals/ChannelCreationModal';
 import { SwipeableVotePledgeModal } from '@/src/modals/actionModal';
