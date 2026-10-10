@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { MessageCircle, RefreshCw } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { getAllFixtures, getUserChannels } from '@funspot/core';
 import type { Channel, Fixture } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
@@ -66,7 +67,7 @@ export default function ChatRoutePage() {
         <div className="rounded-2xl border border-fan-border bg-fan-surface p-6">
           <h2 className="font-semibold text-fan-textPrimary">Join a channel first</h2>
           <p className="mt-2 text-sm text-fan-textSecondary">Your match conversations are connected to your channels.</p>
-          <a href="/home" className="mt-4 inline-flex rounded-full bg-fan-primary px-4 py-2 text-sm font-semibold text-fan-background">Explore channels</a>
+          <Link to="/home" className="mt-4 inline-flex rounded-full bg-fan-primary px-4 py-2 text-sm font-semibold text-fan-background">Explore channels</Link>
         </div>
       ) : fixtures.length === 0 ? (
         <div className="rounded-2xl border border-fan-border bg-fan-surface p-6 text-sm text-fan-textSecondary">No matches are available right now. Refresh to try again.</div>
