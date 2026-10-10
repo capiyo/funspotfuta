@@ -14,7 +14,7 @@ export * from './theme';
 export * from './api/config';
 export * from './api/auth-service';
 export * from './api/database-service';
-export * from './api/comrade-service';
+export {\n  \n} from './api/comrade-service';
 export * from './api/channels-service';
 
 export * from './api/bet-service';
