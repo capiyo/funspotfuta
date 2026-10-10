@@ -32,7 +32,7 @@ export * from './api/profile-service';
 
 export { createAppQueryClient, PERSIST_OPTIONS } from './queryClient';
 export { useFixtures, useHistoryGames } from './queries/useFixtures';
-export type { AftermatchData, AftermatchVoter, AftermatchPledge, AftermatchBet, AftermatchSubFixture, AftermatchPledge as AftermatchSubFixturePledge } from './types/afternatch';
+export type { AftermatchData, AftermatchVoter, AftermatchPledge, AftermatchBet, AftermatchSubFixture, AftermatchSubFixturePledge } from './types/afternatch';
 export { fetchAftermatch } from './api/aftermatch_service';
 export { useAftermatch } from './queries/useAftermatch';
 export { chatMessageFromJson, chatMessageCommentary } from './types/chat-message';
