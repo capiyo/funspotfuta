@@ -10,6 +10,21 @@ import type { Channel, ChannelMember } from '../types/channels';
 
 const API_BASE_URL = 'https://clash-api-m5mr.onrender.com/api';
 
+function asString(value: unknown, fallback = ''): string {
+  return typeof value === 'string' ? value : value == null ? fallback : String(value);
+}
+
+function asInt(value: unknown, fallback = 0): number {
+  const parsed = typeof value === 'number' ? value : Number(value);
+  return Number.isFinite(parsed) ? Math.trunc(parsed) : fallback;
+}
+
+function asDateTime(value: unknown): Date | null {
+  if (value == null || value === '') return null;
+  const date = new Date(value as string | number);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
 function authHeaders(authToken?: string): HeadersInit {
   return authToken ? { Authorization: `Bearer ${authToken}` } : {};
 }
