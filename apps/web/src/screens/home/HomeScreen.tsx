@@ -3,7 +3,7 @@
 // columns.
 //
 // ArenaColumn owns the vote/pledge/sub-fixtures modal AND the chat modal.
-//   • MatchCard body tap / 💬 pill → ChatModal
+//   • ChatsCard body tap / 💬 pill → ChatModal
 //   • 👥 votes pill → SwipeableVotePledgeModal (live / upcoming) or
 //                     AftermatchReviewModal (completed)
 //
@@ -41,7 +41,7 @@ import {
 } from '@/lib/api/vote-modal-shims';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useToast } from '@/lib/toast/toast-context';
-import { MatchCard } from '@/components/ChatsCard';
+import { ChatsCard } from '@/components/ChatsCard';
 import { MatchDetailsModal } from '@/src/modals/match/MatchDetailsModal';
 import { ChannelCreationModal } from '@/src/modals/ChannelCreationModal';
 import { SwipeableVotePledgeModal } from '@/src/modals/actionModal';
@@ -258,7 +258,7 @@ function ArenaColumn({ channelId }: { channelId?: string }) {
       {filteredFixtures.length === 0 ? (
         <p className="py-fan-xxl text-center text-fan-body text-fan-textTertiary">{fixtures.length === 0 ? 'No fixtures right now.' : filter === 'live' ? 'Nothing live at the moment.' : filter === 'upcoming' ? 'No upcoming fixtures.' : filter === 'completed' ? 'No completed matches yet.' : 'No fixtures match this filter.'}</p>
       ) : filteredFixtures.map((f) => (
-        <MatchCard
+        <ChatsCard
           key={f.id || f.matchId}
           fixture={f}
           channelId={channelId}
