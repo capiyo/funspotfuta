@@ -1,6 +1,27 @@
-# Funspot Web — React + Vite
+# FunspotFuta Web — React + Vite
 
-The web app is a **React + TypeScript + Vite** application. It does not use Next.js. It uses React Router for client-side routing, Tailwind CSS for styling, and the existing production API through shared services in `@funspot/core`.
+The web application is a React single-page app built with Vite, React Router, and TypeScript. It does not use Next.js or the Next.js App Router. The completed mobile app is the behavioral reference: the web app should match its user-visible features, state transitions, validation, error handling, and outcomes.
+
+## Stack
+
+- React 18 and React DOM
+- React Router
+- Vite and TypeScript
+- Tailwind CSS
+- TanStack Query
+- `@funspot/core` for shared API/domain logic
+
+## Screens and organization
+
+- `App.tsx` — application shell and route definitions
+- `main.tsx` — React entry point
+- `src/screens/` — route-level screens
+- `src/modals/` — modal and overlay components
+- `components/` — reusable web UI
+- `lib/` — web API helpers and browser-specific adapters
+- `theme/` — global stylesheet and theme resources
+
+The old Next.js `app/` route tree is obsolete. Do not add `page.tsx`, `layout.tsx`, or Next.js routing conventions here.
 
 ## Run locally
 
@@ -8,54 +29,45 @@ From the repository root:
 
 ```bash
 npm install
-npm run dev:web
-```
-
-Or from this directory:
-
-```bash
+cd apps/web
 npm run dev
 ```
 
-Vite serves the app at `http://localhost:3000`.
+Vite prints the local URL when the server starts (typically http://localhost:5173).
 
-## Validate
-
-From the repository root:
+## Typecheck and build
 
 ```bash
-npm run typecheck:web
-npm run build:web
+npm run typecheck
+npm run build
 ```
 
-## Route map
+From the monorepo root, run `npm run typecheck` for workspace typechecking.
 
-| Route | Purpose |
-| --- | --- |
-| `/login` | Sign in / registration UI |
-| `/home` | Main fixture and channel feed |
-| `/chat` | Channel chat |
-| `/trending` | Trending markets |
-| `/fixture/:matchId` | Fixture detail, votes, pledges and markets |
-| `/feed` | Posts feed |
-| `/profile` | Profile, wallet and account links |
-| `/comrades` | Friends/comrades |
-| `/leaderboard` | Leaderboard |
-| `/history` | Match history |
-| `/notifications` | Notification data/preferences |
-| `/admin/:channelId` | Channel administration |
+## Parity rules
 
-Protected routes use the current web auth context. Keep route names and equivalent feature behavior aligned with the completed React Native app, which is the reference for web parity.
+- Use the mobile implementation as the behavioral reference, not as a reason to leave web features incomplete.
+- Reuse shared types and services from `@funspot/core`; preserve backend endpoints, authentication flow, and API shapes.
+- Implement browser-specific behavior with browser APIs and adapters rather than copying mobile-only APIs literally.
+- Do not fake successful verification, push delivery, uploads, payments, or persistence when the corresponding integration is not configured.
+- Mock/filler fan data must be development-only and must not appear as production data.
 
-## Structure
+## Remaining parity/integration areas
 
-- `main.tsx` — Vite/React entry point
-- `App.tsx` — React Router route declarations and providers
-- `app/` — page components retained as ordinary React modules (the folder name is organizational; it is not a Next.js App Router)
-- `components/` — shared web UI
-- `lib/` — auth, API, toast and platform-specific helpers
-- `vite.config.ts` — Vite configuration
+The current pass has added the browser Firebase Phone Auth flow (OTP with the existing PIN fallback), FCM token registration and foreground/background notification handling, persisted query-cache restoration, and persisted feed/fixture queries.
 
-## Backend constraints and known limitations
+Still to validate or complete:
 
-The app uses the existing API endpoints and request/response contracts; this web migration does not change the backend or authentication flow. Firebase phone OTP and browser push delivery still require their own live configuration and must not be considered implemented until tested with that configuration. Do not substitute fake backend behavior for a real API call.
+1. **Firebase Phone Auth:** verify reCAPTCHA, SMS delivery, authorized domains, OTP failure behavior and PIN fallback on the deployed HTTPS origin.
+2. **FCM / Web Push:** confirm permission, browser token registration and real delivery with the deployed Firebase configuration and backend.
+3. **Offline coverage:** Feed and fixture queries use the persisted cache. Review the remaining direct-fetch screens for cache behavior and add synchronization/retry where the mobile experience requires it.
+4. **Profile parity:** own-profile editing, wallet top-up/withdrawal, and read-only member profiles are wired. Continue validating public profile fields against real backend responses.
+5. **Messaging navigation parity:** web chat remains a responsive modal rather than a dedicated route. Typing indicators, read receipts, copy/reply actions, image viewing, and send-failure feedback are implemented; verify keyboard and browser-back behavior in a real browser.
+
+The current mobile chat screen also marks video upload/playback as not ported, so that is not considered mobile parity in this pass. The current mobile AdminModal likewise deliberately excludes deposit/withdraw controls; profile wallet flows remain available.
+
+A feature is complete only after its interaction is implemented and tested, and any required external configuration or backend support is confirmed. Clearly document deployment blockers instead of silently downgrading behavior.
+
+## Architecture
+
+The web workspace owns its TanStack Query client. Keep React components and browser-specific runtime behavior in `apps/web`, and shared domain/API logic in `packages/core`. Match mobile behavior while keeping each platform's UI/runtime independent.

@@ -1,7 +1,7 @@
 import type { KVStorage } from './types';
 
 /**
- * React web storage adapter.
+ * Next.js / web storage adapter.
  * Guards against SSR (no `window` on the server).
  */
 export const webStorage: KVStorage = {

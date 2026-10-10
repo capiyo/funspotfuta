@@ -1,5 +1,3 @@
-'use client';
-
 // Port of modals/Funzy/swipeable_vote_pledge_modal.dart — REDESIGN v4.
 //
 // Same architecture as the Dart file:
@@ -24,7 +22,7 @@ import {
 } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Fixture, Voter, Bet } from '@funspot/core';
-import { FooterPill } from './FooterPill';
+import { FooterPill } from '@/components/FooterPill';
 
 // ── Types (mirror the Dart models) ──────────────────────────────
 type Selection = 'home' | 'away';

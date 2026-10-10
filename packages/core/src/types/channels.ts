@@ -171,7 +171,7 @@ export function memberAccuracyLabel(m: ChannelMember): string {
 // ============================================================================
 
 export interface Channel {
-    /** Legacy mobile alias; always mirrors channelId. */
+    /** Legacy web compatibility alias for channelId. */
     id: string;
     channelId: string;
     name: string;
@@ -200,10 +200,9 @@ export function channelFromJson(json: Record<string, any>): Channel {
         const hasAdmin = members.some(memberIsAdmin);
         const joinedAt = asDateTime(json.joinedAt ?? json.joined_at);
 
-        const channelId = asString(json.channel_id ?? json.channelId ?? json._id ?? json.id);
         return {
-            id: channelId,
-            channelId,
+            id: asString(json.channel_id ?? json.channelId),
+            channelId: asString(json.channel_id ?? json.channelId),
             name: asString(json.name ?? json.channelName, 'Unknown Channel'),
             memberCount: asInt(json.member_count ?? json.memberCount),
             season: asString(json.season),
@@ -219,10 +218,9 @@ export function channelFromJson(json: Record<string, any>): Channel {
         };
     } catch (e) {
         console.warn('⚠️ channelFromJson failed, returning safe fallback:', e, json);
-        const channelId = asString(json.channel_id ?? json.channelId ?? json._id ?? json.id);
         return {
-            id: channelId,
-            channelId,
+            id: asString(json.channel_id ?? json.channelId),
+            channelId: asString(json.channel_id ?? json.channelId),
             name: 'Unknown Channel',
             memberCount: 0,
             season: '',
@@ -241,6 +239,7 @@ export function channelFromJson(json: Record<string, any>): Channel {
 
 export function channelToJson(c: Channel): Record<string, any> {
     return {
+        id: c.channelId,
         channel_id: c.channelId,
         name: c.name,
         member_count: c.memberCount,

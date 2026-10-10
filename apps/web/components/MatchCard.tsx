@@ -1,5 +1,3 @@
-'use client';
-
 // Arena match card.
 //
 // Behaviors:
@@ -50,9 +48,6 @@ function initials(name: string): string {
   if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
   return name.slice(0, 2).toUpperCase();
 }
-
-const ENABLE_MOCK_FANS =
-  import.meta.env.DEV && import.meta.env.VITE_ENABLE_MOCK_FANS === 'true';
 
 const SAMPLE_FAN_NAMES = [
   '⚡ LightningBolt',
@@ -118,7 +113,7 @@ interface DisplayVoter {
 
 function fillVotersTo3(fixture: Fixture): DisplayVoter[] {
   const real: DisplayVoter[] = fixture.voters.slice(0, 3);
-  if (!ENABLE_MOCK_FANS || real.length >= 3) return real;
+  if (real.length >= 3) return real;
 
   const seed = fixture.matchId || fixture.id;
   const base = seededHash(seed);
@@ -160,6 +155,7 @@ export function MatchCard({
   likesCount = 0,
   liked = false,
   onOpen,
+  onOpenDetails,
   onWatchClick,
   onChatClick,
   onOpenVoteModal,
@@ -175,6 +171,7 @@ export function MatchCard({
   likesCount?: number;
   liked?: boolean;
   onOpen?: (fixture: Fixture) => void;
+  onOpenDetails?: (fixture: Fixture) => void;
   onWatchClick?: () => void;
   onChatClick?: () => void;
   onOpenVoteModal?: (fixture: Fixture) => void;
@@ -275,13 +272,21 @@ export function MatchCard({
       </div>
 
       {/* Caption */}
-      <p className="mt-fan-sm pl-[40px] text-fan-body italic leading-snug text-fan-textTertiary">
+      <button
+        type="button"
+        onClick={(event) => {
+          stop(event);
+          onOpenDetails?.(fixture);
+        }}
+        aria-label={`Open match details: ${fixture.homeTeam} vs ${fixture.awayTeam}`}
+        className="mt-fan-sm w-full pl-[40px] text-left text-fan-body italic leading-snug text-fan-textTertiary"
+      >
         {isLive && liveCommentary
           ? liveCommentary.text
           : latestComment
             ? latestComment.comment
             : hintFor(fixture)}
-      </p>
+      </button>
 
       {/* Scoreboard */}
       <div className="mt-fan-sm flex items-center justify-center gap-fan-md">

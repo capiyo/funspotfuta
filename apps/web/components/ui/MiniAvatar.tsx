@@ -1,4 +1,3 @@
-'use client';
 // Web port of RN miniAvatar.tsx — 24px, falls back to initial if the image errors.
 
 import { useState } from 'react';

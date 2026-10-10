@@ -1,14 +1,10 @@
-name: Validate workspaces
+name: Typecheck
 
 on:
   push:
-    branches: [master]
+    branches: [master, chore/monorepo-clean-mobile-parity]
   pull_request:
     branches: [master]
-
-concurrency:
-  group: funspot-validation-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
 
 jobs:
   typecheck:
@@ -19,8 +15,8 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - run: npm install --no-audit --no-fund
+      - run: npm install
       - run: npm run typecheck:core
       - run: npm run typecheck:web
+      - run: npm run build --workspace=funspot-web
       - run: npm run typecheck:mobile
-      - run: npm run build:web

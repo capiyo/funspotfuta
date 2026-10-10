@@ -10,13 +10,13 @@
   },
   "dependencies": {
     "@funspot/core": "*",
+    "@funspot/storage": "*",
+    "firebase": "^11.2.0",
     "framer-motion": "^13.4.4",
     "lucide-react": "^0.383.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "react-router-dom": "^6.28.1",
-    "@funspot/storage": "*",
-    "firebase": "^11.0.2",
+    "react-router-dom": "^6.30.1",
     "@tanstack/react-query": "^5.103.1",
     "@tanstack/react-query-persist-client": "^5.103.1"
   },

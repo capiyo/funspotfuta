@@ -1,11 +1,10 @@
-'use client';
 // Web port of RN src/modals/match/lineupsTab.tsx.
 
 import { useState } from 'react';
 import { AlertCircle, CircleDot, X, ArrowLeftRight } from 'lucide-react';
 import type { Fixture } from '@funspot/core';
 import type { LineupsData } from '@funspot/core/src/types/matchDetails';
-import { useFanColors, hexWithAlpha } from '@/components/modals/use-fan-colors';
+import { useFanColors, hexWithAlpha } from '@/lib/theme/use-fan-colors';
 import { BenchColumn, PitchView } from './PitchView';
 
 function FormationPill({ teamName, formation, color, alignRight = false }: { teamName: string; formation: string; color: string; alignRight?: boolean }) {

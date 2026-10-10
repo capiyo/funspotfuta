@@ -1,5 +1,3 @@
-'use client';
-
 // Ported 1:1 from lib/widgets/web_navbar.dart.
 // Height 48, FanColors.surfaceElevated background, plain text channels
 // (no pill backgrounds), underline-only search, gold leader pill on

@@ -1,5 +1,3 @@
-'use client';
-
 // Web port of RN src/modals/LeaderboardModal.tsx.
 //  - LEADERBOARD tab: champion card (rank 1) + member cards (rank 2+)
 //  - VOTES tab (only when a `fixture` is passed): vote summary bar, All/Home/Draw/Away
@@ -479,7 +477,7 @@ export function LeaderboardPanel({
         if (!userId || !authToken) return;
         getUserChannels(userId, authToken).then((c) => {
             setChannels(c);
-            setActiveChannelId((prev) => prev ?? c[0]?.channelId ?? null);
+            setActiveChannelId((prev) => prev ?? c[0]?.id ?? null);
         });
     }, [userId, authToken]);
 
@@ -501,7 +499,7 @@ export function LeaderboardPanel({
     const openHistory = (r: ComradeWithStats) =>
         setHistory({ userId: r.id, userName: r.username, displayName: r.nickname || r.username, clubFan: r.clubFan, authToken });
 
-    const title = channelName ?? channels.find((c) => c.channelId === activeChannelId)?.name ?? 'Leaderboard';
+    const title = channelName ?? channels.find((c) => c.id === activeChannelId)?.name ?? 'Leaderboard';
     const champion = rows[0] ?? null;
     const members = rows.slice(1);
 
@@ -522,7 +520,7 @@ export function LeaderboardPanel({
                     onChange={(e) => setActiveChannelId(e.target.value)}
                     className="mb-3 w-full rounded-fan-md border border-fan-border bg-fan-surface px-3 py-2 text-fan-body text-fan-textPrimary"
                 >
-                    {channels.map((c) => <option key={c.channelId} value={c.channelId}>{c.name}</option>)}
+                    {channels.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
             )}
 

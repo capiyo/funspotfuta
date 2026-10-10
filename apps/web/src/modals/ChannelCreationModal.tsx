@@ -1,5 +1,3 @@
-'use client';
-
 // Simplified port of funspot/lib/modals/homepage/channel_creation.dart —
 // the original (1049 lines) also handles searching/inviting comrades inline;
 // that piece depends on comrade_service.dart's search endpoint and is left
@@ -26,19 +24,26 @@ export function ChannelCreationModal({ onClose }: { onClose: () => void }) {
       setError('Log in to create a channel');
       return;
     }
+    if (submitting) return;
     setSubmitting(true);
     setError(null);
-    const result = await createChannel({
-      name: name.trim(),
-      createdBy: userId,
-      createdByUsername: username,
-      season,
-      members: [{ id: userId, username }],
-      authToken,
-    });
-    setSubmitting(false);
-    if (result.success) onClose();
-    else setError(result.message ?? 'Failed to create channel');
+    try {
+      const result = await createChannel({
+        name: name.trim(),
+        createdBy: userId,
+        createdByUsername: username,
+        season,
+        members: [{ id: userId, username }],
+        authToken,
+      });
+      if (result.success) onClose();
+      else setError(result.message ?? 'Failed to create channel');
+    } catch (requestError) {
+      console.error('Could not create channel', requestError);
+      setError('Could not create channel. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (

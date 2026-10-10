@@ -16,12 +16,10 @@
   "scripts": {
     "typecheck:core": "npm run typecheck --workspace=@funspot/core",
     "typecheck:web": "npm run typecheck --workspace=funspot-web",
-    "typecheck:mobile": "npm run typecheck --workspace=funspot",
-    "typecheck": "npm run typecheck:core && npm run typecheck:web && npm run typecheck:mobile",
     "dev:web": "npm run dev --workspace=funspot-web",
     "dev:mobile": "npm run start --workspace=funspot",
-    "build:web": "npm run build --workspace=funspot-web",
-    "build": "npm run build:web"
+    "typecheck:mobile": "npm run typecheck --workspace=funspot",
+    "typecheck": "npm run typecheck:core && npm run typecheck:web && npm run typecheck:mobile"
   },
   "devDependencies": {
     "turbo": "^2.10.13"
