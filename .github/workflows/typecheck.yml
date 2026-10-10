@@ -2,7 +2,7 @@ name: Validate workspaces
 
 on:
   push:
-    branches: [master, chore/web-only-react-parity]
+    branches: [master]
   pull_request:
     branches: [master]
 
