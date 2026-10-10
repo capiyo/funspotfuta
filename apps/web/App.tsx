@@ -67,7 +67,7 @@ function AppRoutes() {
   return <>
     <SiteNavbar />
     <Routes>
-      <Route path="/" element={<Navigate to="/home?tab=chats" replace />} />
+      <Route path="/" element={<HomeScreen />} />
       <Route path="/home" element={<HomeScreen />} />
       <Route path="/login" element={<LoginRoute />} />
       <Route path="/feed" element={<Navigate to="/home?tab=feed" replace />} />
