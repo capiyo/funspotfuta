@@ -2,7 +2,7 @@ import type { Config } from 'tailwindcss';
 
 const config: Config = {
   darkMode: 'media',
-  content: ['./**/*.{ts,tsx}', './index.html'],
+  content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}', './lib/**/*.{ts,tsx}', './App.tsx', './main.tsx', './index.html'],
   theme: {
     extend: {
       fontFamily: {
