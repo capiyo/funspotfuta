@@ -7,6 +7,7 @@ import {
   channelMemberFromJson,
 } from '../types/channels';
 import type { Channel, ChannelMember } from '../types/channels';
+export type { Channel, ChannelMember } from '../types/channels';
 
 const API_BASE_URL = 'https://clash-api-m5mr.onrender.com/api';
 
