@@ -30,7 +30,10 @@ export function useChannelChat(params: {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [connected, setConnected] = useState(false);
   const [loadingHistory, setLoadingHistory] = useState(true);
+  const [historyError, setHistoryError] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [typingUsers, setTypingUsers] = useState<string[]>([]);
+  const typingStopRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const seenIds = useRef(new Set<string>());
 
   const appendMessage = useCallback((msg: ChatMessage) => {
@@ -49,16 +52,23 @@ export function useChannelChat(params: {
 
     (async () => {
       setLoadingHistory(true);
-      const history = await getMessages(channelId, authToken, {
-        fixtureId: fixtureId ?? undefined,
-      });
-      if (cancelled) return;
-      const parsed = history.map(chatMessageFromJson);
-      parsed.forEach((m) => seenIds.current.add(m.id));
-      setMessages(
-        parsed.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime()),
-      );
-      setLoadingHistory(false);
+      setHistoryError(false);
+      try {
+        const history = await getMessages(channelId, authToken, {
+          fixtureId: fixtureId ?? undefined,
+        });
+        if (cancelled) return;
+        const parsed = history.map(chatMessageFromJson);
+        parsed.forEach((m) => seenIds.current.add(m.id));
+        setMessages(
+          parsed.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime()),
+        );
+      } catch (error) {
+        console.error('Could not load chat history', error);
+        if (!cancelled) setHistoryError(true);
+      } finally {
+        if (!cancelled) setLoadingHistory(false);
+      }
     })();
 
     webSocketService.connect({
@@ -72,7 +82,17 @@ export function useChannelChat(params: {
 
     const onChatMessage = (payload: Record<string, any>) =>
       appendMessage(chatMessageFromJson(payload));
+    const onTyping = (payload: Record<string, any>) => {
+      const fromUserId = payload.userId ?? payload.fromUserId;
+      if (!fromUserId || fromUserId === userId) return;
+      const name = typeof payload.username === 'string' ? payload.username : 'Someone';
+      setTypingUsers((previous) => payload.isTyping
+        ? (previous.includes(name) ? previous : [...previous, name])
+        : previous.filter((item) => item !== name),
+      );
+    };
     webSocketService.on('chat.message', onChatMessage);
+    webSocketService.on('typing', onTyping);
 
     const roomId = fixtureId
       ? `${channelId}_${fixtureId}`
@@ -82,7 +102,15 @@ export function useChannelChat(params: {
     return () => {
       cancelled = true;
       webSocketService.off('chat.message', onChatMessage);
+      webSocketService.off('typing', onTyping);
       webSocketService.leaveRoom(roomId);
+      if (typingStopRef.current) clearTimeout(typingStopRef.current);
+      // Match the mobile chat lifecycle: mark the channel/fixture read when
+      // leaving the conversation. This uses the existing backend endpoint.
+      void fetch(
+        `https://clash-api-m5mr.onrender.com/api/channels/${channelId}/fixtures/${fixtureId ?? 'overall'}/read/${userId}`,
+        { method: 'PUT', headers: { Authorization: `Bearer ${authToken}` } },
+      ).catch(() => { /* read receipts must not block closing the chat */ });
       unsubStatus();
     };
   }, [channelId, fixtureId, userId, username, authToken, appendMessage]);
@@ -156,7 +184,7 @@ export function useChannelChat(params: {
         });
       } else {
         // Fallback to REST when the socket isn't up yet.
-        await sendMessageRest({
+        const sent = await sendMessageRest({
           channelId,
           fixtureId,
           senderId: userId,
@@ -164,6 +192,12 @@ export function useChannelChat(params: {
           text,
           authToken,
         });
+        if (!sent) {
+          setMessages((prev) => prev.map((message) =>
+            message.id === messageId ? { ...message, status: 'failed', isPending: false } : message,
+          ));
+          throw new Error('Message was not accepted by the server.');
+        }
       }
     },
     [channelId, fixtureId, userId, username, authToken, connected, appendMessage],
@@ -224,7 +258,7 @@ export function useChannelChat(params: {
 
         // Persist via the media/reply-capable path (image_url + is_image),
         // matching sendChannelMessage in api_services.dart.
-        await sendChannelMessage({
+        const sent = await sendChannelMessage({
           channelId,
           userId,
           username,
@@ -236,6 +270,12 @@ export function useChannelChat(params: {
           authToken,
           tempId,
         });
+        if (sent === false) {
+          setMessages((prev) => prev.map((message) =>
+            message.id === tempId ? { ...message, status: 'failed', isPending: false } : message,
+          ));
+          throw new Error('Image message was not accepted by the server.');
+        }
       } finally {
         setUploadingImage(false);
       }
@@ -243,5 +283,14 @@ export function useChannelChat(params: {
     [channelId, fixtureId, userId, username, authToken, appendMessage],
   );
 
-  return { messages, connected, loadingHistory, uploadingImage, send, sendImage };
+  const sendTyping = useCallback(() => {
+    if (!username) return;
+    webSocketService.send('typing', { isTyping: true, username });
+    if (typingStopRef.current) clearTimeout(typingStopRef.current);
+    typingStopRef.current = setTimeout(() => {
+      webSocketService.send('typing', { isTyping: false, username });
+    }, 2000);
+  }, [username]);
+
+  return { messages, connected, loadingHistory, historyError, uploadingImage, typingUsers, send, sendImage, sendTyping };
 }

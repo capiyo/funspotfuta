@@ -5,10 +5,14 @@ import { useFanColors } from '@/theme/use-fan-colors';
 
 import HomeScreen from '@/screens/home/HomeScreen';
 import ChatScreen from '@/screens/MessageScreen';
+import TrendingScreen from '@/screens/TrendingScreen';
+import FixtureDetailScreen from '@/screens/FixtureDetailScreen';
 
 export type RootStackParamList = {
   Tabs: undefined;
   Chat: { channelId: string; fixtureId?: string };
+  Trending: undefined;
+  FixtureDetail: { matchId: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -43,6 +47,8 @@ export default function RootNavigator() {
           component={ChatScreen}
           options={{ headerShown: false }}
         />
+        <Stack.Screen name="Trending" component={TrendingScreen} options={{ title: 'Trending' }} />
+        <Stack.Screen name="FixtureDetail" component={FixtureDetailScreen} options={{ title: 'Fixture' }} />
       </Stack.Navigator>
     </>
   );

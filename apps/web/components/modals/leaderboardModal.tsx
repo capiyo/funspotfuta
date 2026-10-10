@@ -1,5 +1,3 @@
-'use client';
-
 // Web port of RN src/modals/LeaderboardModal.tsx.
 //  - LEADERBOARD tab: champion card (rank 1) + member cards (rank 2+)
 //  - VOTES tab (only when a `fixture` is passed): vote summary bar, All/Home/Draw/Away
@@ -564,7 +562,7 @@ export default function LeaderboardModal({
 }: { visible: boolean; onClose: () => void; fixture?: Fixture | null; channelId?: string; channelName?: string }) {
     // Remount on open so the tab resets to LEADERBOARD, same as RN.
     if (!visible) return null;
-    return (/
+    return (
         <Sheet onClose={onClose}>
             <LeaderboardPanel {...rest} onClose={onClose} />
         </Sheet>

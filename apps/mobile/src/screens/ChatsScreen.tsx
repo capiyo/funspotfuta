@@ -6,7 +6,7 @@
 //   - loading / empty / error use the shared list states
 //   - no horizontal padding on the list: FeedItem owns the gutter
 //   - last card clears the floating tab bar (LIST_BOTTOM_INSET)
-//   - commentsOf() mocks two comments per fixture
+//   - mock comments are dev-only; production renders only API-backed comments
 //   - MatchCard's bottom-right fixture caption opens MatchDetailsModal
 //   - scroll reported via useHomeList().scrollProps; content padded by topInset
 //   - keepPreviousData + isError branch so offline shows cached fixtures
@@ -165,7 +165,8 @@ function commentsOf(f: Fixture): LatestComment[] {
     }))
     .filter((c) => c.comment);
   if (real.length) return real;
-  return mockCommentsFor(f.matchId || f.id || 'fixture');
+  if (__DEV__) return mockCommentsFor(f.matchId || f.id || 'fixture');
+  return [];
 }
 
 function isLiveFixture(f: Fixture) {
@@ -216,7 +217,7 @@ export default function ChatsScreen() {
     queryKey: FIXTURES_KEY,
     queryFn: getAllFixtures,
     placeholderData: keepPreviousData,
-    enabled: activeTab === 'Chats',
+    enabled: activeTab === 'Arena',
   });
   const fixtures = data ?? NO_FIXTURES;
 

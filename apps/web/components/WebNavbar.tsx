@@ -1,12 +1,10 @@
-'use client';
-
 // Ported 1:1 from lib/widgets/web_navbar.dart.
 // Height 48, FanColors.surfaceElevated background, plain text channels
 // (no pill backgrounds), underline-only search, gold leader pill on
 // member chips, red gradient notification badge, gradient-ring avatar.
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useNavigate } from 'react-router-dom';
 import {
   Bell,
   Search,
@@ -21,7 +19,7 @@ import {
 import { useAuth } from '@/lib/auth/auth-context';
 
 export interface NavbarChannel {
-  id: string;
+  channelId: string;
   name: string;
   isAdmin?: boolean;
   members?: { username: string; seasonPoints: number }[];
@@ -51,7 +49,7 @@ export function WebNavbar({
   country?: string;
 }) {
   const { isLoggedIn, userId, username } = useAuth();
-  const router = useRouter();
+  const navigate = useNavigate();
   const [query, setQuery] = useState('');
 
   const hasProfileInfo = !!(nickname || teamName || country);
@@ -121,14 +119,14 @@ export function WebNavbar({
             <>
               {channels.map((c) => (
                 <MemberChip
-                  key={c.id}
+                  key={c.channelId}
                   channel={c}
                   isSelected={
                     activeChannelId
-                      ? activeChannelId === c.id
-                      : channels[0]?.id === c.id
+                      ? activeChannelId === c.channelId
+                      : channels[0]?.channelId === c.channelId
                   }
-                  onSelect={() => onSelectChannel?.(c.id)}
+                  onSelect={() => onSelectChannel?.(c.channelId)}
                 />
               ))}
               <CreateChip onClick={onCreateChannel} />
@@ -141,7 +139,7 @@ export function WebNavbar({
 
       <NotificationBell
         count={notificationCount}
-        onClick={onNotificationTap ?? (() => router.push('/notifications'))}
+        onClick={onNotificationTap ?? (() => navigate('/notifications'))}
       />
 
       <div className="ml-3" />
@@ -149,7 +147,7 @@ export function WebNavbar({
       <Avatar
         isLoggedIn={!!isLoggedIn}
         url={avatarUrl}
-        onClick={onMenuTap ?? (() => router.push('/profile'))}
+        onClick={onMenuTap ?? (() => navigate('/profile'))}
       />
 
       <div className="mr-[18px]" />
@@ -258,11 +256,11 @@ function ChannelDisplay({
   return (
     <div className="flex items-center">
       {display.map((c) => {
-        const isMember = c.id === activeChannelId;
+        const isMember = c.channelId === activeChannelId;
         return (
-          <div key={c.id} className="mr-2 flex items-center">
+          <div key={c.channelId} className="mr-2 flex items-center">
             <button
-              onClick={() => onSelect?.(c.id)}
+              onClick={() => onSelect?.(c.channelId)}
               className={`text-[12px] leading-none ${isMember
                   ? 'font-semibold text-fan-primary'
                   : 'font-normal text-fan-textSecondary'
@@ -275,7 +273,7 @@ function ChannelDisplay({
                 <Circle size={4} className="fill-fan-primary text-fan-primary" />
               ) : (
                 <button
-                  onClick={() => onJoin?.(c.id)}
+                  onClick={() => onJoin?.(c.channelId)}
                   className="text-[12px] font-semibold leading-none text-fan-primary"
                 >
                   +

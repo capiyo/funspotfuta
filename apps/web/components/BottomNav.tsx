@@ -1,10 +1,4 @@
-'use client';
-
-// Ported from funspot/lib/pages/bottom_navigation.dart — same 5 items
-// (Home, Trending, +Add, Chat, Profile), same colors (#10B981 active green,
-// gray-600 inactive), same layout.
-
-import { usePathname, useRouter } from 'next/navigation';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Home, TrendingUp, Plus, MessageCircle, User } from 'lucide-react';
 
 const TABS = [
@@ -18,16 +12,13 @@ const TABS_RIGHT = [
 ] as const;
 
 export function BottomNav({ onAddPressed }: { onAddPressed?: () => void }) {
-  const pathname = usePathname();
-  const router = useRouter();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const NavItem = ({ href, label, Icon }: { href: string; label: string; Icon: typeof Home }) => {
-    const isSelected = pathname === href;
+    const isSelected = location.pathname === href;
     return (
-      <button
-        onClick={() => router.push(href)}
-        className="flex flex-col items-center gap-1"
-      >
+      <button onClick={() => navigate(href)} className="flex flex-col items-center gap-1">
         <Icon size={24} color={isSelected ? '#10B981' : '#4b5563'} />
         <span className={`text-[10px] ${isSelected ? 'text-funspot-green' : 'text-gray-600'}`}>{label}</span>
       </button>
@@ -37,10 +28,7 @@ export function BottomNav({ onAddPressed }: { onAddPressed?: () => void }) {
   return (
     <div className="border-t border-gray-800/50 bg-black/95">
       <div className="flex items-center justify-around py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
-        {TABS.map((t) => (
-          <NavItem key={t.href} {...t} />
-        ))}
-
+        {TABS.map((t) => <NavItem key={t.href} {...t} />)}
         <button
           onClick={onAddPressed}
           className="flex h-12 w-12 items-center justify-center rounded-full shadow-[0_0_16px_2px_rgba(16,185,129,0.3)]"
@@ -48,10 +36,7 @@ export function BottomNav({ onAddPressed }: { onAddPressed?: () => void }) {
         >
           <Plus size={24} color="white" />
         </button>
-
-        {TABS_RIGHT.map((t) => (
-          <NavItem key={t.href} {...t} />
-        ))}
+        {TABS_RIGHT.map((t) => <NavItem key={t.href} {...t} />)}
       </div>
     </div>
   );

@@ -15,6 +15,7 @@ export * from './api/config';
 export * from './api/auth-service';
 export * from './api/database-service';
 export * from './api/comrade-service';
+export * from './api/channels-service';
 
 export * from './api/bet-service';
 export * from './api/sub-fixture-service';
@@ -46,3 +47,7 @@ export { fetchAftermatch } from './api/aftermatch_service';
 export { useAftermatch } from './queries/useAftermatch';
 export { chatMessageFromJson, chatMessageCommentary } from './types/chat-message';
 export type { ChatMessage, ReplyData } from './types/chat-message';
+// Resolve legacy duplicate channel/admin exports explicitly.
+export { getUserChannels } from './api/channels-service';
+export type { ChannelDetail } from './api/admin-service';
+export { getChannelDetail, removeMember } from './api/admin-service';
