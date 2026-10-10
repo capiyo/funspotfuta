@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [master]
 
+concurrency:
+  group: funspot-validation-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   typecheck:
     runs-on: ubuntu-latest
@@ -15,7 +19,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - run: npm install
+      - run: npm install --no-audit --no-fund
       - run: npm run typecheck:core
       - run: npm run typecheck:web
       - run: npm run typecheck:mobile
