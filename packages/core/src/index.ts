@@ -16,7 +16,24 @@ export * from './api/auth-service';
 export * from './api/database-service';
 export { addComrade, getUserComrades, getComradeStats, removeComrade, areComrades, getComradeDetails, searchPotentialComrades, getComradesWhoVotedOnFixture, getUserChannelCount, createChannel, getChannel, getChannelLeaderboard, getChannelFixtures, addMembersToChannel, leaveChannel, initializeFixtureChat, sendMessage, getMessages, castVote, sendChannelMessage, getChannelMessages, postComment } from './api/comrade-service';
 export type { AddComradeParams, ComradeStats, CreateChannelParams, SendMessageParams, CastVoteParams, SendChannelMessageParams, PostCommentParams } from './api/comrade-service';
-export * from './api/channels-service';
+export {
+  getUserChannels,
+  getAllChannels,
+  getChannelDetail,
+  removeMember,
+  addChannelMember,
+  joinChannel,
+  requestJoinChannel,
+  getPendingJoinRequests,
+  approveJoinRequest,
+  rejectJoinRequest,
+  getComradesInGroups,
+} from './api/channels-service';
+export type {
+  ChannelDetail,
+  RemoveMemberResult,
+  PendingJoinRequest,
+} from './api/channels-service';
 
 export * from './api/bet-service';
 export * from './api/sub-fixture-service';
