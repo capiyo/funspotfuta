@@ -104,7 +104,7 @@ export default function FixtureDetailPage() {
         fixtures.find((fx) => fx.matchId === matchId || fx.id === matchId) ??
         null;
       setFixture(f);
-      const cid = channels[0]?.id ?? null;
+      const cid = channels[0]?.channelId ?? null;
       setChannelId(cid);
 
       if (f) {
