@@ -5,7 +5,7 @@ import {
   getAllFixtures,
   getPosts,
 } from '@funspot/core';
-import { webStorage } from '@funspot/storage';
+import { webStorage } from '@funspot/storage/web';
 
 const { queryClient, persistOptions } = createAppQueryClient(webStorage);
 const FEED_PAGE_SIZE = 10;
