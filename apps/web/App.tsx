@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from '@/lib/auth/auth-context';
 import { ToastProvider } from '@/lib/toast/toast-context';
 import { QueryProvider } from '@/app/provider';
@@ -6,6 +6,7 @@ import RootPage from '@/app/page';
 import LoginModal from '@/app/login/page';
 import AppLayout from '@/app/(app)/layout';
 import HomePage from '@/app/(app)/home/page';
+import ChatPage from '@/app/(app)/chat/page';
 import FeedPage from '@/app/(app)/feed/page';
 import TrendingPage from '@/app/(app)/trending/page';
 import FixtureDetailPage from '@/app/(app)/fixture/[matchId]/page';
@@ -47,6 +48,7 @@ export default function App() {
               <Route path="/login" element={<LoginRoute />} />
               <Route path="/home" element={<PrivateRoute><AppLayout><HomePage /></AppLayout></PrivateRoute>} />
               <Route path="/feed" element={<PrivateRoute><AppLayout><FeedPage /></AppLayout></PrivateRoute>} />
+              <Route path="/chat" element={<PrivateRoute><AppLayout><ChatPage /></AppLayout></PrivateRoute>} />
               <Route path="/trending" element={<PrivateRoute><AppLayout><TrendingPage /></AppLayout></PrivateRoute>} />
               <Route path="/fixture/:matchId" element={<PrivateRoute><AppLayout><FixtureDetailPage /></AppLayout></PrivateRoute>} />
               <Route path="/history" element={<PrivateRoute><AppLayout><HistoryPage /></AppLayout></PrivateRoute>} />
