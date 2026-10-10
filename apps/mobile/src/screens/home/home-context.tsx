@@ -61,8 +61,8 @@ function writeStoredActiveChannelId(id: string | undefined) {
 
 function readStoredActiveTab(): TabName {
     const raw = mobileStorage.getItem(ACTIVE_TAB_KEY) as string | null;
-    if (raw === 'Chats' || raw === 'Feed') return raw;
-    return 'Chats';
+    if (raw === 'Arena' || raw === 'Feed' || raw === 'Logs') return raw;
+    return 'Arena';
 }
 
 function writeStoredActiveTab(tab: TabName) {
@@ -131,7 +131,7 @@ const Ctx = createContext<HomeCtx>({
     joiningChannelIds: new Set(),
     joinChannel: async () => { },
     reloadChannels: async () => { },
-    activeTab: 'Chats',
+    activeTab: 'Arena',
     setActiveTab: () => { },
     headerVisible: true,
     reportScroll: () => { },

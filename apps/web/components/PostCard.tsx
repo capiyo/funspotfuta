@@ -1,5 +1,3 @@
-'use client';
-
 // Feed post card — restyled to match the Arena/Logs cards: avatar header
 // row, NEW + media-type pills, an inline "follow" link, caption, media,
 // and a footer icon row (like / comment / repost / share) instead of the
@@ -74,14 +72,13 @@ export function PostCard({
     const img = hasVideo ? null : bestImageUrl(post);
 
     async function handleFollow() {
-        if (!post.userId || followBusy) return;
+        if (!currentUserId || !post.userId || followBusy) return;
         setFollowBusy(true);
-        setFollowing(true); // optimistic
         try {
-           // const ok = await followUser(post.userId);
-           // if (!ok) setFollowing(false);
+            const ok = await followUser(currentUserId, post.userId);
+            if (ok) setFollowing(true);
         } catch {
-            setFollowing(false);
+            // Keep the follow action available when the request fails.
         } finally {
             setFollowBusy(false);
         }

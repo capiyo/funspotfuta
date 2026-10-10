@@ -3,7 +3,7 @@
 // that opens SwipeableVotePledgeModal) can reuse the same fetchers.
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ??
+  import.meta.env.VITE_API_BASE_URL ??
   'https://clash-api-m5mr.onrender.com/api';
 
 export async function fetchVoters(

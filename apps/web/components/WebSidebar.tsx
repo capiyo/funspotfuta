@@ -1,5 +1,3 @@
-'use client';
-
 // Ported 1:1 from lib/WebView/Hompage/web_profile_panel.dart.
 // Width 280, FanColors.surfaceElevated background, mock preview when no
 // userId, balance card, info-row stat chips, channel tabs, and
@@ -18,7 +16,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/auth/auth-context';
 
 const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ?? 'https://clash-api-m5mr.onrender.com/api';
+  import.meta.env.VITE_API_BASE_URL ?? 'https://clash-api-m5mr.onrender.com/api';
 
 // ── Types ──────────────────────────────────────────────────────
 interface ChannelMember {
@@ -75,6 +73,7 @@ function mockMembers(count: number, prefix: string): ChannelMember[] {
   });
 }
 
+const ENABLE_MOCK_FANS = import.meta.env.DEV && import.meta.env.VITE_ENABLE_MOCK_FANS === 'true';
 const MOCK_CHANNELS: Channel[] = [
   { name: 'Premier League', memberCount: 15, season: '3', isAdmin: true, members: mockMembers(15, 'pl') },
   { name: 'World Cup Warriors', memberCount: 15, season: '1', isAdmin: false, members: mockMembers(15, 'wc') },
@@ -598,7 +597,17 @@ export function WebSidebar() {
   // Load — mirrors _loadAllData / _loadMockData
   useEffect(() => {
     if (!userId) {
-      // Signed out — use mock data
+      if (!ENABLE_MOCK_FANS) {
+        setUserData(null);
+        setChannels([]);
+        setChannelsAreMock(false);
+        setBalance(0);
+        setBalanceLoading(false);
+        setLoading(false);
+        setChannelsLoading(false);
+        return;
+      }
+      // Signed out — development-only mock data
       setUserData({
         userId: 'mock_user',
         username: MOCK_PROFILE.username,
@@ -630,7 +639,7 @@ export function WebSidebar() {
       fetchUserChannels(userId, authToken),
       fetchBalance(userId, authToken),
     ]).then(([profile, chans, bal]) => {
-      const usingMock = chans.length === 0;
+      const usingMock = ENABLE_MOCK_FANS && chans.length === 0;
       const finalChannels = usingMock ? MOCK_CHANNELS : chans;
 
       if (profile) {
