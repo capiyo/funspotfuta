@@ -147,7 +147,7 @@ export interface LiveCommentaryEntry {
   timestamp?: string;
 }
 
-export function MatchCard({
+export function ChatsCard({
   fixture,
   latestComment,
   liveCommentary,
