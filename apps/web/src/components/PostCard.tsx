@@ -6,7 +6,7 @@ import {
 } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
-import { HIT_SLOP, PRESSED_OPACITY } from '@/theme/layout';
+import { HIT_SLOP } from '@/theme/layout';
 import { FeedItem } from './ui/FeedItem';
 import { ActionButton } from './ui/ActionButton';
 import { MiniAvatar } from './ui/miniAvatar';
@@ -65,7 +65,7 @@ export function PostCard({ post, index, currentUserId, isNew = false, onLike, on
           <ActionButton icon={Share2} label="Share" colors={colors} onPress={() => onShare?.(post)} />
         </div>
         <div style={{ flex: 1, minWidth: 0, minHeight: 32, display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-          {!isOwnPost && !following && <button type="button" onClick={() => setFollowing(true)} aria-label={`Follow ${userName}`} style={{ minHeight: 32, border: 0, background: 'transparent', cursor: 'pointer', padding: Math.max(HIT_SLOP.top, HIT_SLOP.left), color: colors.primary, ...fanText('tag', colors, colors.primary), opacity: PRESSED_OPACITY === 0 ? 1 : undefined }}>Follow</button>}
+          {!isOwnPost && !following && <button type="button" onClick={() => setFollowing(true)} aria-label={`Follow ${userName}`} style={{ minHeight: 32, border: 0, background: 'transparent', cursor: 'pointer', padding: Math.max(HIT_SLOP.top, HIT_SLOP.left), ...fanText('tag', colors, colors.primary) }}>Follow</button>}
         </div>
       </div>
     </div>
