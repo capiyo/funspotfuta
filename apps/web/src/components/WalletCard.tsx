@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { getUserBalance, getTransactionHistory, initiateSTKPush, type PaymentTransaction } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
 import { colors } from '@/theme';
