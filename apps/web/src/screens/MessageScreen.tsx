@@ -330,11 +330,6 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       input.value = '';
       return;
     }
-    if (file.size > 10 * 1024 * 1024) {
-      toast.showError('Image too large. Max size: 10MB');
-      input.value = '';
-      return;
-    }
     const uri = URL.createObjectURL(file);
     setPendingImage({ uri, name: file.name || `image-${Date.now()}.jpg`, type: file.type || 'image/jpeg', width: undefined, height: undefined });
     setCaption('');

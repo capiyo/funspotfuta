@@ -8,7 +8,6 @@ import {
   type ChatMessage,
   type ReplyData,
 } from '@funspot/core';
-import { uploadChatImage } from './media-service';
 
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'https://clash-api-m5mr.onrender.com/api').replace(/\/$/, '');
 const UPLOADING = 'uploading...';
@@ -353,11 +352,22 @@ export function useChannelChat({
     } as ChatMessage);
     setUploadingImage(true);
     try {
-      const response = await fetch(asset.uri);
-      const blob = await response.blob();
+      const assetResponse = await fetch(asset.uri);
+      const blob = await assetResponse.blob();
       const file = new File([blob], asset.name ?? 'image.jpg', { type: asset.type ?? blob.type });
-      const imageUrl = await uploadChatImage({ file, fileName: file.name, userId, authToken: authToken ?? undefined, caption });
-      if (!imageUrl) throw new Error('Failed to upload image');
+      const form = new FormData();
+      form.append('file', file, file.name);
+      if (fixtureId) form.append('fixture_id', fixtureId);
+      if (caption) form.append('caption', caption);
+      const uploadResponse = await fetch(`${API_BASE_URL}/upload/chat/image`, {
+        method: 'POST',
+        headers: authToken ? { Authorization: `Bearer ${authToken}` } : undefined,
+        body: form,
+      });
+      if (!uploadResponse.ok) throw new Error(`Upload failed (${uploadResponse.status})`);
+      const uploadData = await uploadResponse.json();
+      const imageUrl: string | undefined = uploadData?.url ?? uploadData?.image_url;
+      if (!imageUrl) throw new Error('No image URL in response');
       replaceById(tempId, { imageUrl });
       const ok = await deliver(tempId, caption, { imageUrl, isImage: true });
       if (!ok) throw new Error('Not connected to chat server');
