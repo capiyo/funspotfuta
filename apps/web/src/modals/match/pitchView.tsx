@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
-import { FAN_SPACING, FAN_RADIUS } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
 import { fanShadowStyle } from '@/theme/use-fan-shadow';
@@ -176,7 +175,7 @@ export function PitchView({ homeTeam, awayTeam, homeFormation, awayFormation, ho
       </div>}
       <span className="truncate text-[11px] font-semibold" style={{color:colors.away}}>{awayTeam} · {awayFormation}</span>
     </div>
-    <div className="overflow-hidden rounded-xl" style={{...fanShadowStyle(colors),background:GRASS_EVEN}}>
+    <div className="overflow-hidden rounded-xl" style={{...fanShadowStyle('card', true),background:GRASS_EVEN}}>
       <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`${homeTeam} vs ${awayTeam} lineups`} className="block w-full" onLoad={(event)=>{const rect=event.currentTarget.getBoundingClientRect(); if(rect.width && (pitchSize.width!==rect.width || pitchSize.height!==rect.height)) setPitchSize({width:rect.width,height:rect.height});}}>
         {Array.from({length:8},(_,i)=><rect key={i} x={i*width/8} y="0" width={width/8} height={height} fill={i%2===0?GRASS_EVEN:GRASS_ODD}/>)}
         <g fill="none" stroke="rgba(255,255,255,.75)" strokeWidth="2">
