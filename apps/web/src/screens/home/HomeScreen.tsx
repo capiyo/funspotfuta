@@ -84,12 +84,7 @@ function HomeScreenContent() {
 
         <main className="home-columns" aria-label="Home workspace">
           <section className={`home-column chats-column ${activeTab === 'Chats' ? 'mobile-tab-active' : 'mobile-tab-hidden'}`} aria-label="Chats">
-            <ChatsScreen
-              channels={channels}
-              activeChannel={activeChannel ?? null}
-              onSelectChannel={(channel) => setActiveChannelId(channel.channelId)}
-              loading={loadingChannels}
-            />
+            <ChatsScreen />
           </section>
           <section className={`home-column feed-column ${activeTab === 'Feed' ? 'mobile-tab-active' : 'mobile-tab-hidden'}`} aria-label="Feed">
             <FeedScreen />
