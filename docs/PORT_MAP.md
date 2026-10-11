@@ -36,7 +36,7 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/lib/toast/toast-context.tsx` | 111 | `apps/web/src/lib/toast/toast-context.tsx` | PORTED |
 | `src/modals/AdminModal.tsx` | 1015 | MISSING — must port | PENDING |
 | `src/modals/AftermatchModal.tsx` | 913 | MISSING — must port | PENDING |
-| `src/modals/ChannelCreation.tsx` | 979 | MISSING — must port | PENDING |
+| `src/modals/ChannelCreation.tsx` | 979 | `apps/web/src/modals/ChannelCreation.tsx` | SUSPECT (30% line count) |
 | `src/modals/ChannelCreationModal.tsx` | 91 | `apps/web/src/modals/ChannelCreationModal.tsx` | PORTED (72% line count) |
 | `src/modals/CommentsModal.tsx` | 1043 | MISSING — must port | PENDING |
 | `src/modals/ComradesModal.tsx` | 290 | `apps/web/src/modals/ComradesModal.tsx` | PORTED |
@@ -53,10 +53,10 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/modals/comradelist/index.tsx` | 1190 | MISSING — must port | PENDING |
 | `src/modals/comradelist/types.ts` | 43 | `apps/web/src/modals/comradelist/types.ts` | PORTED |
 | `src/modals/joingroupmodal.tsx` | 794 | MISSING — must port | PENDING |
-| `src/modals/match/lineupsTab.tsx` | 362 | `apps/web/src/modals/match/lineupsTab.tsx` | PORTED |
-| `src/modals/match/matchDetailsModals.tsx` | 500 | `apps/web/src/modals/match/matchDetailsModals.tsx` | PORTED |
+| `src/modals/match/lineupsTab.tsx` | 362 | `apps/web/src/modals/match/lineupsTab.tsx` | SUSPECT (20% line count) |
+| `src/modals/match/matchDetailsModals.tsx` | 500 | `apps/web/src/modals/match/matchDetailsModals.tsx` | SUSPECT (20% line count) |
 | `src/modals/match/pitchView.tsx` | 1119 | `apps/web/src/modals/match/pitchView.tsx` (18% line count; simplified view, suspect) | SUSPECT (18% line count) |
-| `src/modals/match/statsTab.tsx` | 236 | `apps/web/src/modals/match/statsTab.tsx` | PORTED |
+| `src/modals/match/statsTab.tsx` | 236 | `apps/web/src/modals/match/statsTab.tsx` | SUSPECT (30% line count) |
 | `src/modals/profile/ChannelLeaderboard.tsx` | 563 | MISSING — must port | PENDING |
 | `src/modals/profile/ProfileModal.tsx` | 1121 | MISSING — must port | PENDING |
 | `src/modals/profile/index.tsx` | 1072 | MISSING — must port | PENDING |
