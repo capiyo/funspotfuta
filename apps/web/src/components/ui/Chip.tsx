@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import type { FanColorPalette } from '@funspot/core';
 import { FAN_SPACING, FAN_RADIUS } from '@funspot/core';
 import { fanText } from '@/theme/use-fan-typography';
@@ -11,7 +12,7 @@ export function Chip({ label, colors, active = false, variant = 'filter', active
   tone?: 'neutral' | 'primary';
   onPress?: () => void;
 }) {
-  const style: React.CSSProperties = {
+  const style: CSSProperties = {
     borderRadius: FAN_RADIUS.pill,
     backgroundColor: active ? colors.primary : variant === 'tag' && tone === 'primary' ? colors.primaryDim : colors.surfaceSunken,
     padding: `${variant === 'tag' ? FAN_SPACING.xs : FAN_SPACING.sm}px ${variant === 'tag' ? FAN_SPACING.md : FAN_SPACING.base}px`,

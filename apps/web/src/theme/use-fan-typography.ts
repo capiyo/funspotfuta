@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 // Maps shared FAN_TYPOGRAPHY roles to browser CSS text styles.
 import { FAN_TYPOGRAPHY, type FanColorPalette, type FanTextStyle } from '@funspot/core';
 
@@ -10,7 +11,7 @@ export function fanText(
   role: keyof typeof FAN_TYPOGRAPHY,
   colors: FanColorPalette,
   colorOverride?: string,
-): React.CSSProperties {
+): CSSProperties {
   const style = FAN_TYPOGRAPHY[role];
   return {
     fontFamily: resolveFontFamily(style),

@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 // Converts shared FanShadowLayer values to a CSS box-shadow.
 import { fanShadow, type FanShadowLayer } from '@funspot/core';
 
@@ -11,7 +12,7 @@ function rgbaToCssColor(rgba: string): { color: string; alpha: number } {
 export function fanShadowStyle(
   role: 'subtle' | 'card' | 'elevated' | 'glow' | 'button',
   isDark: boolean,
-): React.CSSProperties {
+): CSSProperties {
   const layer: FanShadowLayer = fanShadow(role, isDark);
   const { color, alpha } = rgbaToCssColor(layer.colorRgba);
   return {

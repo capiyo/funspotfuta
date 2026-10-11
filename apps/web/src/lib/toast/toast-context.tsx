@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
 
 type ToastVariant = 'success' | 'error' | 'info' | 'warning';
 interface ToastItem {
@@ -30,7 +31,7 @@ interface ToastContextValue {
 const ToastContext = createContext<ToastContextValue | null>(null);
 let nextId = 0;
 
-export function ToastProvider({ children }: { children: React.ReactNode }) {
+export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([]);
   const timers = useRef(new Map<number, ReturnType<typeof setTimeout>>());
 

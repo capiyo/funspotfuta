@@ -1,3 +1,4 @@
+import type { CSSProperties } from 'react';
 import type { FanColorPalette } from '@funspot/core';
 import { fanText } from '@/theme/use-fan-typography';
 
@@ -13,7 +14,7 @@ export function Avatar({ colors, size = 'md', uri, label, borderColor, backgroun
   backgroundColor?: string;
 }) {
   const dim = SIZES[size];
-  const style: React.CSSProperties = {
+  const style: CSSProperties = {
     width: dim, height: dim, borderRadius: '50%', backgroundColor: backgroundColor ?? colors.primaryMuted,
     border: borderColor ? `1px solid ${borderColor}` : 'none', display: 'inline-flex',
     alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flex: '0 0 auto',
