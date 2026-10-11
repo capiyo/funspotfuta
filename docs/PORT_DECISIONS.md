@@ -9,9 +9,9 @@
 
 ## Auth and API
 - Mobile `notification-service.ts` uses `https://clash-api-m5mr.onrender.com/api`; web should configure `VITE_API_BASE_URL` with this documented default and preserve endpoint paths/payloads from mobile.
-- Mobile auth stores `usertoken`, `user`, `isLoggedIn`, `phone`, and `refreshToken`. Preserve backend-issued token semantics. Do not substitute Firebase ID tokens for the backend token unless mobile's backend login flow confirms that behavior.
+- Verified from `apps/mobile/src/modals/LoginModal.tsx`: an existing user's Firebase phone-auth path uses the Firebase ID token as the session token; PIN login and registration use the token returned by the backend. The web port should preserve this split exactly.
 - Firebase web configuration comes from Vite environment variables; never commit real config secrets.
-- Confirm web FCM token compatibility against the exact mobile registration endpoint/payload. If backend lacks web-token support, do not silently change backend contracts; document the required change and disable registration gracefully.
+- Verified from `packages/core/src/api/notification-service.ts`: `registerToken` posts to `/api/notifications/register-token` with `{ user_id, fcm_token, platform }`; the shared platform type includes `web`. Web calls this existing function only after the user explicitly enables notifications. Backend acceptance still needs a live check.
 
 ## Porting strategy
 - Similar-looking legacy web components are not equivalent until reviewed. Keep each row pending until APIs, state transitions, text, and loading/empty/error states are compared.
