@@ -20,4 +20,4 @@
 
 
 ## Notifications compatibility finding
-- The master mobile `LoginModal.tsx` explicitly leaves `_registerFcmTokenAfterLogin` as a TODO; the current master source does not define a backend registration endpoint or payload for FCM tokens. Do not invent one. Web permission/token retrieval and foreground/background display can be implemented, but backend registration must remain disabled until the API contract is added or confirmed. The required backend change is a documented authenticated endpoint (or an explicitly supported existing endpoint) that accepts a browser FCM token and platform/source metadata without changing existing native token behavior.
+- `packages/core/src/api/notification-service.ts` defines `registerToken` for `POST /api/notifications/register-token`, body `{ user_id, fcm_token, platform }`, with `platform: 'web'` accepted by the shared type. The mobile login flow still leaves automatic registration after login as a TODO, but the endpoint and payload contract exist. Web registration therefore reuses this exact shared function after an explicit user action; it does not invent an endpoint. Server acceptance still needs runtime verification.

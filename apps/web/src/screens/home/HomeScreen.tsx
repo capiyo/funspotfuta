@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getUserChannels, type Channel } from '@funspot/core';
+import { getUserChannels, registerToken, type Channel } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useNavigate } from 'react-router-dom';
 import ChatsScreen from '@/screens/ChatsScreen';
@@ -42,8 +42,11 @@ export default function HomeScreen() {
       onRefresh={() => setRefreshKey((n) => n + 1)}
       onEnableNotifications={async () => {
         try {
+          if (!isLoggedIn || !userId || !authToken) { setPushStatus('Log in before enabling notifications.'); return; }
           const token = await requestWebPushToken();
-          setPushStatus(token ? 'Browser push token created. Server registration is unavailable in the current mobile API contract.' : 'Push notifications are unsupported or permission was not granted.');
+          if (!token) { setPushStatus('Push notifications are unsupported or permission was not granted.'); return; }
+          const registered = await registerToken({ userId, fcmToken: token, platform: 'web', authToken });
+          setPushStatus(registered ? 'Browser notifications enabled.' : 'A browser token was created, but the server did not accept registration.');
         } catch (e) { setPushStatus(e instanceof Error ? e.message : 'Could not enable notifications.'); }
       }}
     />
