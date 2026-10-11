@@ -34,14 +34,14 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/lib/auth/auth-validation.tsx` | 104 | `apps/web/src/lib/auth/auth-validation.tsx` (byte-identical) | PORTED |
 | `src/lib/firebase.ts` | 55 | `apps/web/src/lib/firebase.ts` (browser Firebase equivalent) | SUSPECT (42% line count) |
 | `src/lib/toast/toast-context.tsx` | 111 | `apps/web/src/lib/toast/toast-context.tsx` | PORTED |
-| `src/modals/AdminModal.tsx` | 1015 | `apps/web/src/modals/AdminModal.tsx` (full source ported through browser view adapters) | PENDING — CI validation |
+| `src/modals/AdminModal.tsx` | 1015 | `apps/web/src/modals/AdminModal.tsx` (full source ported through browser view adapters) | PORTED — CI passed |
 | `src/modals/AftermatchModal.tsx` | 913 | `apps/web/src/modals/AftermatchModal.tsx` (functional review dialog; source parity remains incomplete) | SUSPECT (6% line count; dependent-flow parity remains) |
 | `src/modals/ChannelCreation.tsx` | 979 | `apps/web/src/modals/ChannelCreation.tsx` | SUSPECT (9% line count) |
 | `src/modals/ChannelCreationModal.tsx` | 91 | `apps/web/src/modals/ChannelCreationModal.tsx` | PORTED (72% line count) |
 | `src/modals/CommentsModal.tsx` | 1043 | `apps/web/src/modals/CommentsModal.tsx` (comments fetch/cache, nested replies, notifications, submit flow, keyboard dialog and Tailwind UI ported; web view is more compact than native styles) | PORTED — CI validation pending |
 | `src/modals/ComradesModal.tsx` | 290 | `apps/web/src/modals/ComradesModal.tsx` | PORTED |
 | `src/modals/HistoryModal.tsx` | 449 | `apps/web/src/modals/HistoryModal.tsx` (functional history and review flow; parity remains incomplete) | SUSPECT |
-| `src/modals/LeaderboardModal.tsx` | 1998 | `apps/web/src/modals/LeaderboardModal.tsx` (full source ported through browser view adapters) | PENDING — CI validation |
+| `src/modals/LeaderboardModal.tsx` | 1998 | `apps/web/src/modals/LeaderboardModal.tsx` (full source ported through browser view adapters) | PORTED — CI passed |
 | `src/modals/Login-modal-context.tsx` | 138 | `apps/web/src/modals/Login-modal-context.tsx` | SUSPECT (34% line count) |
 | `src/modals/LoginModal.tsx` | 960 | `apps/web/src/modals/LoginModal.tsx` is a shortened web flow; full mobile flow still unported | PENDING |
 | `src/modals/NotificationGate.tsx` | 100 | `apps/web/src/modals/NotificationGate.tsx` (browser permission requested only after click) | PORTED |
@@ -50,23 +50,23 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/modals/addPostModal.tsx` | 834 | `apps/web/src/modals/addPostModal.tsx` (browser file picker; posts-create endpoint preserved) | SUSPECT (7% line count) |
 | `src/modals/channelHeader.tsx` | 38 | `apps/web/src/modals/channelHeader.tsx` | PORTED |
 | `src/modals/comradelist/comradeCard.tsx` | 279 | `apps/web/src/modals/comradelist/comradeCard.tsx` | SUSPECT (24% line count) |
-| `src/modals/comradelist/index.tsx` | 1190 | `apps/web/src/modals/comradelist/index.tsx` (profile list, search, add/invite flows and nested profile/picker views) | PENDING — CI validation |
+| `src/modals/comradelist/index.tsx` | 1190 | `apps/web/src/modals/comradelist/index.tsx` (profile list, search, add/invite flows and nested profile/picker views) | PORTED — CI passed |
 | `src/modals/comradelist/types.ts` | 43 | `apps/web/src/modals/comradelist/types.ts` | PORTED |
 | `src/modals/joingroupmodal.tsx` | 794 | `apps/web/src/modals/joingroupmodal.tsx` | SUSPECT (5% line count) |
 | `src/modals/match/lineupsTab.tsx` | 362 | `apps/web/src/modals/match/lineupsTab.tsx` | SUSPECT (20% line count) |
 | `src/modals/match/matchDetailsModals.tsx` | 500 | `apps/web/src/modals/match/matchDetailsModals.tsx` | SUSPECT (20% line count) |
 | `src/modals/match/pitchView.tsx` | 1119 | `apps/web/src/modals/match/pitchView.tsx` (simplified view, suspect) | SUSPECT (18% line count) |
 | `src/modals/match/statsTab.tsx` | 236 | `apps/web/src/modals/match/statsTab.tsx` | SUSPECT (30% line count) |
-| `src/modals/profile/ChannelLeaderboard.tsx` | 563 | `apps/web/src/modals/profile/ChannelLeaderboard.tsx` (full source ported through browser view adapters) | PENDING — CI validation |
-| `src/modals/profile/ProfileModal.tsx` | 1121 | `apps/web/src/modals/profile/ProfileModal.tsx` (full source ported through browser view adapters) | PENDING — CI validation |
-| `src/modals/profile/index.tsx` | 1072 | `apps/web/src/modals/profile/index.tsx` (full source ported through browser view adapters) | PENDING — CI validation |
-| `src/modals/profile/paymentsDialogs.tsx` | 715 | `apps/web/src/modals/profile/paymentsDialogs.tsx` (deposit/withdraw state and API flows ported through browser view adapters) | PENDING — CI validation |
+| `src/modals/profile/ChannelLeaderboard.tsx` | 563 | `apps/web/src/modals/profile/ChannelLeaderboard.tsx` (full source ported through browser view adapters) | PORTED — CI passed |
+| `src/modals/profile/ProfileModal.tsx` | 1121 | `apps/web/src/modals/profile/ProfileModal.tsx` (full source ported through browser view adapters) | PORTED — CI passed |
+| `src/modals/profile/index.tsx` | 1072 | `apps/web/src/modals/profile/index.tsx` (full source ported through browser view adapters) | PORTED — CI passed |
+| `src/modals/profile/paymentsDialogs.tsx` | 715 | `apps/web/src/modals/profile/paymentsDialogs.tsx` (deposit/withdraw state and API flows ported through browser view adapters) | PORTED — CI passed |
 | `src/modals/profile/types.ts` | 68 | `apps/web/src/modals/profile/types.ts` (logic copied unchanged) | PORTED |
-| `src/navigation/RootNavigator.tsx` | 50 | `apps/web/src/navigation/RootNavigator.tsx` (Tabs/Home and Chat routes; protected chat opens LoginModal) | PORTED — CI validation pending |
+| `src/navigation/RootNavigator.tsx` | 50 | `apps/web/src/navigation/RootNavigator.tsx` (Tabs/Home and Chat routes; protected chat opens LoginModal) | PORTED — CI passed |
 | `src/screens/ChatsScreen.tsx` | 602 | `apps/web/src/screens/ChatsScreen.tsx` is 28 lines; mobile fixture list, voting, pledge, refresh and modal wiring still unported | PENDING |
 | `src/screens/FeedScreen.tsx` | 368 | `apps/web/src/screens/FeedScreen.tsx` | SUSPECT (34% line count) |
 | `src/screens/MessageScreen.tsx` | 1640 | `apps/web/src/screens/MessageScreen.tsx` (1,045 lines; independent `/messages/:channelId?` route (legacy embedded caller redirects to it), header, list/scroll, composer, replies, media, context actions, vote/aftermatch wiring, WebSocket/read state; see `docs/MESSAGESCREEN_CHECKLIST.md`) | PORTED WITH REMAINING ITEMS (pagination not in source hook; dependent modal parity incomplete) |
-| `src/screens/home/HomeScreen.tsx` | 151 | `apps/web/src/screens/home/HomeScreen.tsx` navbar → profile sidebar → equal 50/50 Chats/Feed panes; independent desktop scroll and FloatingPillTabBar on narrow screens | PORTED — CI validation pending |
+| `src/screens/home/HomeScreen.tsx` | 151 | `apps/web/src/screens/home/HomeScreen.tsx` navbar → profile sidebar → equal 50/50 Chats/Feed panes; independent desktop scroll and FloatingPillTabBar on narrow screens | PORTED — CI passed |
 | `src/screens/home/appHeader.tsx` | 460 | `apps/web/src/screens/home/appHeader.tsx` is a short navbar adaptation; full mobile header actions and channel creation remain unported | PENDING |
 | `src/screens/home/header-inset.tsx` | 13 | `apps/web/src/screens/home/header-inset.tsx` | PORTED |
 | `src/screens/home/home-context.tsx` | 386 | `apps/web/src/screens/home/home-context.tsx` | SUSPECT (57% line count) |
