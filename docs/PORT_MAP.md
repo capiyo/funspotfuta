@@ -64,7 +64,7 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/modals/profile/types.ts` | 68 | MISSING — must port | PENDING |
 | `src/navigation/RootNavigator.tsx` | 50 | MISSING — must port | PENDING |
 | `src/screens/ChatsScreen.tsx` | 602 | Exists at matching path; parity not yet verified | PENDING |
-| `src/screens/FeedScreen.tsx` | 368 | Exists at matching path; parity not yet verified | PENDING |
+| `src/screens/FeedScreen.tsx` | 368 | `apps/web/src/screens/FeedScreen.tsx` | PORTED |
 | `src/screens/MessageScreen.tsx` | 1640 | Exists at matching path; parity not yet verified | PENDING |
 | `src/screens/home/HomeScreen.tsx` | 151 | Exists at matching path; parity not yet verified | PENDING |
 | `src/screens/home/appHeader.tsx` | 460 | Exists at matching path; parity not yet verified | PENDING |

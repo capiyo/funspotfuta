@@ -2,6 +2,8 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from '@/lib/auth/auth-context';
 import HomeScreen from '@/screens/home/HomeScreen';
+import { HomeProvider } from '@/screens/home/home-context';
+import { LoginModalProvider } from '@/modals/Login-modal-context';
 import LoginModal from '@/modals/LoginModal';
 import { listenForForegroundMessages, type ForegroundNotice } from '@/lib/api/notification-service';
 import { firebaseApp, webFirebaseConfig } from '@/lib/firebase';
@@ -31,4 +33,4 @@ function AppRoutes() {
     {notice && <button className="toast" onClick={() => setNotice(null)} aria-label="Dismiss notification"><strong>{notice.title}</strong>{notice.body && <span>{notice.body}</span>}</button>}
   </>;
 }
-export default function App() { return <AuthProvider><AppRoutes /></AuthProvider>; }
+export default function App() { return <AuthProvider><HomeProvider><LoginModalProvider><AppRoutes /></LoginModalProvider></HomeProvider></AuthProvider>; }
