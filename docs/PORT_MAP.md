@@ -43,7 +43,7 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/modals/HistoryModal.tsx` | 449 | MISSING — must port | PENDING |
 | `src/modals/LeaderboardModal.tsx` | 1998 | MISSING — must port | PENDING |
 | `src/modals/Login-modal-context.tsx` | 138 | `apps/web/src/modals/Login-modal-context.tsx` | PORTED |
-| `src/modals/LoginModal.tsx` | 960 | Exists at matching path; parity not yet verified | PENDING |
+| `src/modals/LoginModal.tsx` | 960 | `apps/web/src/modals/LoginModal.tsx` is a shortened web flow; full mobile flow still unported | PENDING |
 | `src/modals/NotificationGate.tsx` | 100 | MISSING — must port | PENDING |
 | `src/modals/NotificationsModal.tsx` | 313 | MISSING — must port | PENDING |
 | `src/modals/actionModal.tsx` | 2764 | MISSING — must port | PENDING |
@@ -63,11 +63,11 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/modals/profile/paymentsDialogs.tsx` | 715 | MISSING — must port | PENDING |
 | `src/modals/profile/types.ts` | 68 | MISSING — must port | PENDING |
 | `src/navigation/RootNavigator.tsx` | 50 | MISSING — must port | PENDING |
-| `src/screens/ChatsScreen.tsx` | 602 | Exists at matching path; parity not yet verified | PENDING |
+| `src/screens/ChatsScreen.tsx` | 602 | `apps/web/src/screens/ChatsScreen.tsx` is 28 lines; mobile fixture list, voting, pledge, refresh and modal wiring still unported | PENDING |
 | `src/screens/FeedScreen.tsx` | 368 | `apps/web/src/screens/FeedScreen.tsx` | PORTED |
-| `src/screens/MessageScreen.tsx` | 1640 | Exists at matching path; parity not yet verified | PENDING |
-| `src/screens/home/HomeScreen.tsx` | 151 | Exists at matching path; parity not yet verified | PENDING |
-| `src/screens/home/appHeader.tsx` | 460 | Exists at matching path; parity not yet verified | PENDING |
+| `src/screens/MessageScreen.tsx` | 1640 | `apps/web/src/screens/MessageScreen.tsx` is 30 lines; full mobile reply/media/vote/modal/message lifecycle behavior still unported | PENDING |
+| `src/screens/home/HomeScreen.tsx` | 151 | `apps/web/src/screens/home/HomeScreen.tsx` has the requested desktop 3-column layout, but mobile state/layout parity remains unverified | PENDING |
+| `src/screens/home/appHeader.tsx` | 460 | `apps/web/src/screens/home/appHeader.tsx` is a short navbar adaptation; full mobile header actions and channel creation remain unported | PENDING |
 | `src/screens/home/header-inset.tsx` | 13 | `apps/web/src/screens/home/header-inset.tsx` | PORTED |
 | `src/screens/home/home-context.tsx` | 386 | `apps/web/src/screens/home/home-context.tsx` | PORTED |
 | `src/theme.ts` | 16 | `apps/web/src/theme.ts` | PORTED |
