@@ -1,4 +1,4 @@
-import type { InputHTMLAttributes, CSSProperties, ChangeEvent } from 'react';
+import type { InputHTMLAttributes, TextareaHTMLAttributes, CSSProperties, ChangeEvent } from 'react';
 import type { FanColorPalette } from '@funspot/core';
 import { FAN_SPACING, FAN_RADIUS } from '@funspot/core';
 import { fanText } from '@/theme/use-fan-typography';
@@ -21,5 +21,7 @@ export function Input({ colors, variant = 'pill', multiline = false, rows, style
     ...style,
   };
   const common = { ...rest, style: inputStyle, onChange, 'aria-label': rest['aria-label'] ?? rest.placeholder };
-  return multiline ? <textarea {...common} rows={rows} /> : <input {...common} />;
+  return multiline
+    ? <textarea {...(common as unknown as TextareaHTMLAttributes<HTMLTextAreaElement>)} rows={rows} />
+    : <input {...common} />;
 }
