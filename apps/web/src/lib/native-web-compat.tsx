@@ -1,9 +1,18 @@
 import { createElement, type CSSProperties, type ReactNode } from 'react';
 import type * as React from 'react';
-import type * as React from 'react';
 import { createPortal } from 'react-dom';
 
-type NativeProps = Record<string, any> & { children?: ReactNode; style?: any };
+type StyleValue = Record<string, any> | Array<Record<string, any>> | ((state: { pressed: boolean }) => Record<string, any> | Array<Record<string, any>>);
+type NativeProps = Record<string, any> & {
+  children?: ReactNode;
+  style?: StyleValue;
+  onPress?: (event: React.MouseEvent<HTMLButtonElement | HTMLDivElement>) => void;
+  onLongPress?: (event: React.MouseEvent<HTMLButtonElement | HTMLDivElement>) => void;
+  onChangeText?: (value: string) => void;
+  onValueChange?: (value: string) => void;
+  renderItem?: (info: { item: any; index: number }) => ReactNode;
+  keyExtractor?: (item: any, index: number) => string;
+};
 
 function flattenStyle(style: any): CSSProperties {
   if (!style) return {};
