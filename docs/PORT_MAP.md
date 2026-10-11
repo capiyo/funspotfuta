@@ -35,7 +35,7 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/lib/firebase.ts` | 55 | `apps/web/src/lib/firebase.ts` (browser Firebase equivalent) | SUSPECT (42% line count) |
 | `src/lib/toast/toast-context.tsx` | 111 | `apps/web/src/lib/toast/toast-context.tsx` | PORTED |
 | `src/modals/AdminModal.tsx` | 1015 | MISSING — must port | PENDING |
-| `src/modals/AftermatchModal.tsx` | 913 | MISSING — must port | PENDING |
+| `src/modals/AftermatchModal.tsx` | 913 | `apps/web/src/modals/AftermatchModal.tsx` (functional review dialog; source parity remains incomplete) | SUSPECT (6% line count; dependent-flow parity remains) |
 | `src/modals/ChannelCreation.tsx` | 979 | `apps/web/src/modals/ChannelCreation.tsx` | SUSPECT (9% line count) |
 | `src/modals/ChannelCreationModal.tsx` | 91 | `apps/web/src/modals/ChannelCreationModal.tsx` | PORTED (72% line count) |
 | `src/modals/CommentsModal.tsx` | 1043 | `apps/web/src/modals/CommentsModal.tsx` (comments fetch/cache, nested replies, notifications, submit flow, keyboard dialog and Tailwind UI ported; web view is more compact than native styles) | PORTED — CI validation pending |
@@ -46,7 +46,7 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/modals/LoginModal.tsx` | 960 | `apps/web/src/modals/LoginModal.tsx` is a shortened web flow; full mobile flow still unported | PENDING |
 | `src/modals/NotificationGate.tsx` | 100 | `apps/web/src/modals/NotificationGate.tsx` (browser permission requested only after click) | PORTED |
 | `src/modals/NotificationsModal.tsx` | 313 | `apps/web/src/modals/NotificationsModal.tsx` | SUSPECT (37% line count) |
-| `src/modals/actionModal.tsx` | 2764 | MISSING — must port | PENDING |
+| `src/modals/actionModal.tsx` | 2764 | `apps/web/src/modals/actionModal.tsx` (functional vote/pledge dialog; full mobile payment and sub-fixture flow parity remains) | SUSPECT (7% line count; dependent-flow parity remains) |
 | `src/modals/addPostModal.tsx` | 834 | `apps/web/src/modals/addPostModal.tsx` (browser file picker; posts-create endpoint preserved) | SUSPECT (7% line count) |
 | `src/modals/channelHeader.tsx` | 38 | `apps/web/src/modals/channelHeader.tsx` | PORTED |
 | `src/modals/comradelist/comradeCard.tsx` | 279 | `apps/web/src/modals/comradelist/comradeCard.tsx` | SUSPECT (24% line count) |
@@ -65,7 +65,7 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/navigation/RootNavigator.tsx` | 50 | MISSING — must port | PENDING |
 | `src/screens/ChatsScreen.tsx` | 602 | `apps/web/src/screens/ChatsScreen.tsx` is 28 lines; mobile fixture list, voting, pledge, refresh and modal wiring still unported | PENDING |
 | `src/screens/FeedScreen.tsx` | 368 | `apps/web/src/screens/FeedScreen.tsx` | SUSPECT (34% line count) |
-| `src/screens/MessageScreen.tsx` | 1640 | `apps/web/src/screens/MessageScreen.tsx` is 30 lines; full mobile reply/media/vote/modal/message lifecycle behavior still unported | PENDING |
+| `src/screens/MessageScreen.tsx` | 1640 | `apps/web/src/screens/MessageScreen.tsx` (1,040 lines; independent `/messages/:channelId?` route, header, list/scroll, composer, replies, media, context actions, vote/aftermatch wiring, WebSocket/read state; see `docs/MESSAGESCREEN_CHECKLIST.md`) | PORTED WITH REMAINING ITEMS (pagination not in source hook; dependent modal parity incomplete) |
 | `src/screens/home/HomeScreen.tsx` | 151 | `apps/web/src/screens/home/HomeScreen.tsx` has the requested desktop 3-column layout, but mobile state/layout parity remains unverified | PENDING |
 | `src/screens/home/appHeader.tsx` | 460 | `apps/web/src/screens/home/appHeader.tsx` is a short navbar adaptation; full mobile header actions and channel creation remain unported | PENDING |
 | `src/screens/home/header-inset.tsx` | 13 | `apps/web/src/screens/home/header-inset.tsx` | PORTED |
