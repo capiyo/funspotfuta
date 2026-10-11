@@ -52,7 +52,7 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/modals/comradelist/comradeCard.tsx` | 279 | `apps/web/src/modals/comradelist/comradeCard.tsx` | SUSPECT (24% line count) |
 | `src/modals/comradelist/index.tsx` | 1190 | MISSING — must port | PENDING |
 | `src/modals/comradelist/types.ts` | 43 | `apps/web/src/modals/comradelist/types.ts` | PORTED |
-| `src/modals/joingroupmodal.tsx` | 794 | MISSING — must port | PENDING |
+| `src/modals/joingroupmodal.tsx` | 794 | `apps/web/src/modals/joingroupmodal.tsx` | SUSPECT (20% line count) |
 | `src/modals/match/lineupsTab.tsx` | 362 | `apps/web/src/modals/match/lineupsTab.tsx` | SUSPECT (20% line count) |
 | `src/modals/match/matchDetailsModals.tsx` | 500 | `apps/web/src/modals/match/matchDetailsModals.tsx` | SUSPECT (20% line count) |
 | `src/modals/match/pitchView.tsx` | 1119 | `apps/web/src/modals/match/pitchView.tsx` (18% line count; simplified view, suspect) | SUSPECT (18% line count) |
