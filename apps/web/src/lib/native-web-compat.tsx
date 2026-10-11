@@ -1,4 +1,5 @@
-import { createElement, type CSSProperties } from 'react';
+import { createElement, type CSSProperties, type ReactNode } from 'react';
+import type * as React from 'react';
 import type * as React from 'react';
 import { createPortal } from 'react-dom';
 
