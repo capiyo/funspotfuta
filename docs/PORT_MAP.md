@@ -16,7 +16,7 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/components/ui/ActionButton.tsx` | 78 | `apps/web/src/components/ui/ActionButton.tsx` | PORTED |
 | `src/components/ui/Avatar.tsx` | 84 | `apps/web/src/components/ui/Avatar.tsx` | PORTED |
 | `src/components/ui/Chip.tsx` | 86 | `apps/web/src/components/ui/Chip.tsx` | PORTED |
-| `src/components/ui/CountryCodePicker.tsx` | 136 | MISSING — must port | PENDING |
+| `src/components/ui/CountryCodePicker.tsx` | 136 | `apps/web/src/components/ui/CountryCodePicker.tsx` | PORTED |
 | `src/components/ui/FeedItem.tsx` | 48 | `apps/web/src/components/ui/FeedItem.tsx` | PORTED |
 | `src/components/ui/ListsStates.tsx` | 129 | `apps/web/src/components/ui/ListsStates.tsx` | PORTED |
 | `src/components/ui/LiveBadge.tsx` | 34 | `apps/web/src/components/ui/LiveBadge.tsx` | PORTED |
