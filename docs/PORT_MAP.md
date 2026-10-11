@@ -34,14 +34,14 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/lib/auth/auth-validation.tsx` | 104 | `apps/web/src/lib/auth/auth-validation.tsx` (byte-identical) | PORTED |
 | `src/lib/firebase.ts` | 55 | `apps/web/src/lib/firebase.ts` (browser Firebase equivalent) | SUSPECT (42% line count) |
 | `src/lib/toast/toast-context.tsx` | 111 | `apps/web/src/lib/toast/toast-context.tsx` | PORTED |
-| `src/modals/AdminModal.tsx` | 1015 | MISSING — must port | PENDING |
+| `src/modals/AdminModal.tsx` | 1015 | `apps/web/src/modals/AdminModal.tsx` (full source ported through browser view adapters) | PENDING — CI validation |
 | `src/modals/AftermatchModal.tsx` | 913 | `apps/web/src/modals/AftermatchModal.tsx` (functional review dialog; source parity remains incomplete) | SUSPECT (6% line count; dependent-flow parity remains) |
 | `src/modals/ChannelCreation.tsx` | 979 | `apps/web/src/modals/ChannelCreation.tsx` | SUSPECT (9% line count) |
 | `src/modals/ChannelCreationModal.tsx` | 91 | `apps/web/src/modals/ChannelCreationModal.tsx` | PORTED (72% line count) |
 | `src/modals/CommentsModal.tsx` | 1043 | `apps/web/src/modals/CommentsModal.tsx` (comments fetch/cache, nested replies, notifications, submit flow, keyboard dialog and Tailwind UI ported; web view is more compact than native styles) | PORTED — CI validation pending |
 | `src/modals/ComradesModal.tsx` | 290 | `apps/web/src/modals/ComradesModal.tsx` | PORTED |
-| `src/modals/HistoryModal.tsx` | 449 | MISSING — must port | PENDING |
-| `src/modals/LeaderboardModal.tsx` | 1998 | MISSING — must port | PENDING |
+| `src/modals/HistoryModal.tsx` | 449 | `apps/web/src/modals/HistoryModal.tsx` (functional history and review flow; parity remains incomplete) | SUSPECT |
+| `src/modals/LeaderboardModal.tsx` | 1998 | `apps/web/src/modals/LeaderboardModal.tsx` (full source ported through browser view adapters) | PENDING — CI validation |
 | `src/modals/Login-modal-context.tsx` | 138 | `apps/web/src/modals/Login-modal-context.tsx` | SUSPECT (34% line count) |
 | `src/modals/LoginModal.tsx` | 960 | `apps/web/src/modals/LoginModal.tsx` is a shortened web flow; full mobile flow still unported | PENDING |
 | `src/modals/NotificationGate.tsx` | 100 | `apps/web/src/modals/NotificationGate.tsx` (browser permission requested only after click) | PORTED |
@@ -50,23 +50,23 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/modals/addPostModal.tsx` | 834 | `apps/web/src/modals/addPostModal.tsx` (browser file picker; posts-create endpoint preserved) | SUSPECT (7% line count) |
 | `src/modals/channelHeader.tsx` | 38 | `apps/web/src/modals/channelHeader.tsx` | PORTED |
 | `src/modals/comradelist/comradeCard.tsx` | 279 | `apps/web/src/modals/comradelist/comradeCard.tsx` | SUSPECT (24% line count) |
-| `src/modals/comradelist/index.tsx` | 1190 | MISSING — must port | PENDING |
+| `src/modals/comradelist/index.tsx` | 1190 | `apps/web/src/modals/comradelist/index.tsx` (profile list, search, add/invite flows and nested profile/picker views) | PENDING — CI validation |
 | `src/modals/comradelist/types.ts` | 43 | `apps/web/src/modals/comradelist/types.ts` | PORTED |
 | `src/modals/joingroupmodal.tsx` | 794 | `apps/web/src/modals/joingroupmodal.tsx` | SUSPECT (5% line count) |
 | `src/modals/match/lineupsTab.tsx` | 362 | `apps/web/src/modals/match/lineupsTab.tsx` | SUSPECT (20% line count) |
 | `src/modals/match/matchDetailsModals.tsx` | 500 | `apps/web/src/modals/match/matchDetailsModals.tsx` | SUSPECT (20% line count) |
 | `src/modals/match/pitchView.tsx` | 1119 | `apps/web/src/modals/match/pitchView.tsx` (simplified view, suspect) | SUSPECT (18% line count) |
 | `src/modals/match/statsTab.tsx` | 236 | `apps/web/src/modals/match/statsTab.tsx` | SUSPECT (30% line count) |
-| `src/modals/profile/ChannelLeaderboard.tsx` | 563 | MISSING — must port | PENDING |
-| `src/modals/profile/ProfileModal.tsx` | 1121 | MISSING — must port | PENDING |
-| `src/modals/profile/index.tsx` | 1072 | MISSING — must port | PENDING |
-| `src/modals/profile/paymentsDialogs.tsx` | 715 | MISSING — must port | PENDING |
+| `src/modals/profile/ChannelLeaderboard.tsx` | 563 | `apps/web/src/modals/profile/ChannelLeaderboard.tsx` (full source ported through browser view adapters) | PENDING — CI validation |
+| `src/modals/profile/ProfileModal.tsx` | 1121 | `apps/web/src/modals/profile/ProfileModal.tsx` (full source ported through browser view adapters) | PENDING — CI validation |
+| `src/modals/profile/index.tsx` | 1072 | `apps/web/src/modals/profile/index.tsx` (full source ported through browser view adapters) | PENDING — CI validation |
+| `src/modals/profile/paymentsDialogs.tsx` | 715 | `apps/web/src/modals/profile/paymentsDialogs.tsx` (deposit/withdraw state and API flows ported through browser view adapters) | PENDING — CI validation |
 | `src/modals/profile/types.ts` | 68 | `apps/web/src/modals/profile/types.ts` (logic copied unchanged) | PORTED |
-| `src/navigation/RootNavigator.tsx` | 50 | MISSING — must port | PENDING |
+| `src/navigation/RootNavigator.tsx` | 50 | `apps/web/src/navigation/RootNavigator.tsx` (Tabs/Home and Chat routes; protected chat opens LoginModal) | PORTED — CI validation pending |
 | `src/screens/ChatsScreen.tsx` | 602 | `apps/web/src/screens/ChatsScreen.tsx` is 28 lines; mobile fixture list, voting, pledge, refresh and modal wiring still unported | PENDING |
 | `src/screens/FeedScreen.tsx` | 368 | `apps/web/src/screens/FeedScreen.tsx` | SUSPECT (34% line count) |
 | `src/screens/MessageScreen.tsx` | 1640 | `apps/web/src/screens/MessageScreen.tsx` (1,045 lines; independent `/messages/:channelId?` route (legacy embedded caller redirects to it), header, list/scroll, composer, replies, media, context actions, vote/aftermatch wiring, WebSocket/read state; see `docs/MESSAGESCREEN_CHECKLIST.md`) | PORTED WITH REMAINING ITEMS (pagination not in source hook; dependent modal parity incomplete) |
-| `src/screens/home/HomeScreen.tsx` | 151 | `apps/web/src/screens/home/HomeScreen.tsx` has the requested desktop 3-column layout, but mobile state/layout parity remains unverified | PENDING |
+| `src/screens/home/HomeScreen.tsx` | 151 | `apps/web/src/screens/home/HomeScreen.tsx` navbar → profile sidebar → equal 50/50 Chats/Feed panes; independent desktop scroll and FloatingPillTabBar on narrow screens | PORTED — CI validation pending |
 | `src/screens/home/appHeader.tsx` | 460 | `apps/web/src/screens/home/appHeader.tsx` is a short navbar adaptation; full mobile header actions and channel creation remain unported | PENDING |
 | `src/screens/home/header-inset.tsx` | 13 | `apps/web/src/screens/home/header-inset.tsx` | PORTED |
 | `src/screens/home/home-context.tsx` | 386 | `apps/web/src/screens/home/home-context.tsx` | SUSPECT (57% line count) |
@@ -76,6 +76,10 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/theme/use-fan-colors.ts` | 27 | `apps/web/src/theme/use-fan-colors.ts` | PORTED |
 | `src/theme/use-fan-shadow.ts` | 46 | `apps/web/src/theme/use-fan-shadow.ts` | SUSPECT (48% line count) |
 | `src/theme/use-fan-typography.ts` | 51 | `apps/web/src/theme/use-fan-typography.ts` | SUSPECT (49% line count) |
+
+## Current same-path audit (2026-10-11)
+
+GitHub recursive tree comparison of `apps/mobile/src` on `master` and `apps/web/src` on `web-port-from-master`: **70 mobile source files, 70/70 same-path web counterparts, 0 missing paths**. The directory comparison was performed through the repository tree API because no local checkout shell is attached to this session. This is a path-presence audit only; it does not mean all counterparts have passed parity review. The newly ported full React Native source files use `apps/web/src/lib/native-web-compat.tsx` to adapt native layout primitives to browser DOM; CI must validate this adapter before these rows can be marked complete.
 
 ## Completion rule
 For each row, create the same relative path under `apps/web/src/`, convert the view layer to accessible DOM/Tailwind, and compare API calls, state transitions, visible strings, and loading/empty/error states against mobile. Do not mark a row complete until typecheck and parity review pass. Especially large files such as `LeaderboardModal.tsx` (1,998 lines), `MessageScreen.tsx` (1,640 lines), `ProfileModal.tsx` (1,121 lines), and `CommentsModal.tsx` (1,043 lines) must not be replaced with abbreviated versions.
