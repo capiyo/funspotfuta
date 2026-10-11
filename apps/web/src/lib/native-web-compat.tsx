@@ -71,7 +71,7 @@ export function Pressable({ children, style, onPress, onLongPress, disabled, hit
   const computed = typeof style === 'function' ? style({ pressed: false }) : style;
   return createElement('button', {
     ...props, type: props.type ?? 'button', disabled, onClick: onPress,
-    onContextMenu: onLongPress ? (event: React.MouseEvent) => { event.preventDefault(); onLongPress(event); } : undefined,
+    onContextMenu: onLongPress ? (event: React.MouseEvent<HTMLDivElement>) => { event.preventDefault(); onLongPress(event as React.MouseEvent<HTMLButtonElement | HTMLDivElement>); } : undefined,
     style: commonStyle(computed, { border: 'none', font: 'inherit', textAlign: 'inherit', cursor: disabled ? 'not-allowed' : 'pointer' }),
   }, children);
 }
