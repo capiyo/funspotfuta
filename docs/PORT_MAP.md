@@ -47,7 +47,7 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/modals/NotificationGate.tsx` | 100 | `apps/web/src/modals/NotificationGate.tsx` (browser permission requested only after click) | PORTED |
 | `src/modals/NotificationsModal.tsx` | 313 | `apps/web/src/modals/NotificationsModal.tsx` | SUSPECT (37% line count) |
 | `src/modals/actionModal.tsx` | 2764 | MISSING — must port | PENDING |
-| `src/modals/addPostModal.tsx` | 834 | MISSING — must port | PENDING |
+| `src/modals/addPostModal.tsx` | 834 | `apps/web/src/modals/addPostModal.tsx` (browser file picker; posts-create endpoint preserved) | SUSPECT (18% line count) |
 | `src/modals/channelHeader.tsx` | 38 | `apps/web/src/modals/channelHeader.tsx` | PORTED |
 | `src/modals/comradelist/comradeCard.tsx` | 279 | `apps/web/src/modals/comradelist/comradeCard.tsx` | SUSPECT (24% line count) |
 | `src/modals/comradelist/index.tsx` | 1190 | MISSING — must port | PENDING |
