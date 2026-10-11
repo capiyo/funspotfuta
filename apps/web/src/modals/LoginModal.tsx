@@ -152,6 +152,15 @@ export default function LoginModal({ visible = true, onClose, onSuccess }: Login
   useDialogFocus(visible, dialogRef, closeDialog);
   useDialogFocus(pickerVisible, countryDialogRef, () => setPickerVisible(false));
 
+  // Phone auth is backed by Firebase's browser SDK, not a replacement backend.
+  // The invisible verifier is attached to a persistent element in this component.
+  // Keeping that element mounted avoids the detached-container problem that occurs
+  // when a form step replaces the node used by RecaptchaVerifier.
+  // A verifier instance is reused for OTP resends during this modal session.
+  // It is cleared only when the modal component unmounts, not on every send.
+  // The existing auth-context remains responsible for writing the signed-in session.
+  // The PIN fallback and registration requests continue to use @funspot/core.
+  // Validation remains delegated to the project's auth-validation module.
   // A single verifier is retained while mounted; its container never changes between sends.
   useEffect(() => () => {
     if (toastTimer.current) clearTimeout(toastTimer.current);
