@@ -36,7 +36,7 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/lib/toast/toast-context.tsx` | 111 | `apps/web/src/lib/toast/toast-context.tsx` | PORTED |
 | `src/modals/AdminModal.tsx` | 1015 | MISSING — must port | PENDING |
 | `src/modals/AftermatchModal.tsx` | 913 | MISSING — must port | PENDING |
-| `src/modals/ChannelCreation.tsx` | 979 | `apps/web/src/modals/ChannelCreation.tsx` | SUSPECT (30% line count) |
+| `src/modals/ChannelCreation.tsx` | 979 | `apps/web/src/modals/ChannelCreation.tsx` | SUSPECT (9% line count) |
 | `src/modals/ChannelCreationModal.tsx` | 91 | `apps/web/src/modals/ChannelCreationModal.tsx` | PORTED (72% line count) |
 | `src/modals/CommentsModal.tsx` | 1043 | MISSING — must port | PENDING |
 | `src/modals/ComradesModal.tsx` | 290 | `apps/web/src/modals/ComradesModal.tsx` | PORTED |
