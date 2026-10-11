@@ -7,15 +7,15 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | Mobile source | Lines | Current web counterpart / finding | Port status |
 |---|---:|---|---|
 | `src/components/ChatsCard.tsx` | 504 | MISSING — must port | PENDING |
-| `src/components/FloatingPillTabBar.tsx` | 98 | MISSING — must port | PENDING |
+| `src/components/FloatingPillTabBar.tsx` | 98 | `apps/web/src/components/FloatingPillTabBar.tsx` | PORTED |
 | `src/components/FooterPill.tsx` | 75 | MISSING — must port | PENDING |
 | `src/components/HistoryCard.tsx` | 253 | MISSING — must port | PENDING |
 | `src/components/PostCard.tsx` | 237 | MISSING — must port | PENDING |
 | `src/components/SmartMedia.tsx` | 59 | MISSING — must port | PENDING |
 | `src/components/WalletCard.tsx` | 94 | MISSING — must port | PENDING |
-| `src/components/ui/ActionButton.tsx` | 78 | MISSING — must port | PENDING |
-| `src/components/ui/Avatar.tsx` | 84 | MISSING — must port | PENDING |
-| `src/components/ui/Chip.tsx` | 86 | MISSING — must port | PENDING |
+| `src/components/ui/ActionButton.tsx` | 78 | `apps/web/src/components/ui/ActionButton.tsx` | PORTED |
+| `src/components/ui/Avatar.tsx` | 84 | `apps/web/src/components/ui/Avatar.tsx` | PORTED |
+| `src/components/ui/Chip.tsx` | 86 | `apps/web/src/components/ui/Chip.tsx` | PORTED |
 | `src/components/ui/CountryCodePicker.tsx` | 136 | MISSING — must port | PENDING |
 | `src/components/ui/FeedItem.tsx` | 48 | MISSING — must port | PENDING |
 | `src/components/ui/ListsStates.tsx` | 129 | MISSING — must port | PENDING |
