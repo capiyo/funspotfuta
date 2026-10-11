@@ -6,7 +6,7 @@
 // member chips, red gradient notification badge, gradient-ring avatar.
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useNavigate } from 'react-router-dom';
 import {
   Bell,
   Search,
@@ -51,7 +51,7 @@ export function WebNavbar({
   country?: string;
 }) {
   const { isLoggedIn, userId, username } = useAuth();
-  const router = useRouter();
+  const navigate = useNavigate();
   const [query, setQuery] = useState('');
 
   const hasProfileInfo = !!(nickname || teamName || country);
@@ -141,7 +141,7 @@ export function WebNavbar({
 
       <NotificationBell
         count={notificationCount}
-        onClick={onNotificationTap ?? (() => router.push('/notifications'))}
+        onClick={onNotificationTap ?? (() => navigate('/notifications'))}
       />
 
       <div className="ml-3" />
@@ -170,7 +170,7 @@ function Logo() {
         }}
       >
         <div className="flex h-full w-full items-center justify-center rounded-full bg-[#07291E] p-[4.5px]">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
+          
           <img src="/icons/app_icon.png" alt="" className="h-full w-full object-cover" />
         </div>
       </div>
@@ -405,7 +405,7 @@ function Avatar({
     >
       <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-full bg-fan-surfaceElevated">
         {isLoggedIn ? (
-          // eslint-disable-next-line @next/next/no-img-element
+          
           <img src={url} alt="" className="h-full w-full object-cover" />
         ) : (
           <User size={15} className="text-fan-textTertiary" />
