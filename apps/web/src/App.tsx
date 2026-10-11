@@ -24,7 +24,7 @@ function AppRoutes() {
   if (!isInitialized) return <div className="loading-screen" role="status" aria-label="Loading"><span className="spinner" /></div>;
   return <>
     <Routes>
-      <Route path="/" element={isLoggedIn ? <HomeScreen /> : <Navigate to="/login" replace />} />
+      <Route path="/" element={<HomeScreen />} />
       <Route path="/login" element={isLoggedIn ? <Navigate to="/" replace /> : <LoginModal />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

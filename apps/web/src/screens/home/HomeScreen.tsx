@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getUserChannels, registerToken, type Channel } from '@funspot/core';
+import { getAllChannels, getUserChannels, registerToken, type Channel } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useNavigate } from 'react-router-dom';
 import ChatsScreen from '@/screens/ChatsScreen';
@@ -19,7 +19,7 @@ export default function HomeScreen() {
   useEffect(() => {
     let alive = true;
     setLoadingChannels(true);
-    const load = isLoggedIn && userId && authToken ? getUserChannels(userId, authToken) : Promise.resolve([] as Channel[]);
+    const load = isLoggedIn && userId && authToken ? getUserChannels(userId, authToken) : getAllChannels(authToken ?? undefined);
     load.then((result) => {
       if (!alive) return;
       setChannels(result);
