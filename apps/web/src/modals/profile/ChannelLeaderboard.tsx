@@ -383,14 +383,14 @@ export function ChannelLeaderboard({
             {/* Members list */}
             <FlatList
                 data={sortedMembers}
-                keyExtractor={(m) => m.userId}
+                keyExtractor={(m: any) => m.userId}
                 contentContainerStyle={styles.membersList}
                 ListEmptyComponent={
                     <Text style={[styles.emptyHint, { color: colors.textTertiary }]}>
                         No members yet
                     </Text>
                 }
-                renderItem={({ item, index }) => (
+                renderItem={({ item, index }: { item: any; index: number }) => (
                     <MemberCard
                         colors={colors}
                         styles={styles}
