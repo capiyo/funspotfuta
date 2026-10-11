@@ -10,8 +10,9 @@ import FeedScreen from '@/screens/FeedScreen';
 import { AppHeader } from '@/screens/home/appHeader';
 import { FloatingPillTabBar, type TabName } from '@/components/FloatingPillTabBar';
 import { requestWebPushToken } from '@/lib/api/notification-service';
+import { HomeProvider } from '@/screens/home/home-context';
 
-export default function HomeScreen() {
+function HomeScreenContent() {
   const { userId, username, authToken, isLoggedIn, logout } = useAuth();
   const [channels, setChannels] = useState<Channel[]>([]);
   const [activeChannelId, setActiveChannelId] = useState<string | null>(null);
@@ -72,4 +73,9 @@ export default function HomeScreen() {
       </main>
     </div>
   </div>;
+}
+
+
+export default function HomeScreen() {
+  return <HomeProvider><HomeScreenContent /></HomeProvider>;
 }
