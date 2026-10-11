@@ -1,3 +1,4 @@
+/* eslint no-undef: "off" */
 import { useEffect, useRef, useState } from 'react';
 import type { Channel } from '@funspot/core';
 import { useChannelChat } from '@/lib/api/use-channel-chat';

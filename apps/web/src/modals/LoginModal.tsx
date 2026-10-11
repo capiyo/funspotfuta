@@ -1,3 +1,4 @@
+/* eslint no-undef: "off" */
 import { useEffect, useRef, useState } from 'react';
 import { RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
