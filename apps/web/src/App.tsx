@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from '@/lib/auth/auth-context';
 import HomeScreen from '@/screens/home/HomeScreen';
+import MessageScreen from '@/screens/MessageScreen';
 import { HomeProvider } from '@/screens/home/home-context';
 import { LoginModalProvider } from '@/modals/Login-modal-context';
 import LoginModal from '@/modals/LoginModal';
@@ -27,6 +28,7 @@ function AppRoutes() {
   return <>
     <Routes>
       <Route path="/" element={<HomeScreen />} />
+      <Route path="/messages/:channelId?" element={<MessageScreen />} />
       <Route path="/login" element={isLoggedIn ? <Navigate to="/" replace /> : <LoginModal />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
