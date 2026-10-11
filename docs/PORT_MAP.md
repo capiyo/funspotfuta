@@ -27,12 +27,12 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/components/ui/input.tsx` | 69 | `apps/web/src/components/ui/input.tsx` | PORTED |
 | `src/components/ui/miniAvatar.tsx` | 50 | `apps/web/src/components/ui/miniAvatar.tsx` | PORTED |
 | `src/components/ui/postImages.tsx` | 163 | `apps/web/src/components/ui/postImages.tsx` | PORTED |
-| `src/lib/api/media-service.ts` | 58 | Exists at matching path; parity not yet verified | PENDING |
+| `src/lib/api/media-service.ts` | 58 | `apps/web/src/lib/api/media-service.ts` | PORTED |
 | `src/lib/api/notification-service.ts` | 969 | `apps/web/src/lib/api/notification-service.ts` | PORTED |
 | `src/lib/api/posts-create.ts` | 93 | `apps/web/src/lib/api/posts-create.ts` | PORTED |
 | `src/lib/auth/auth-context.tsx` | 213 | Exists at matching path; parity not yet verified | PENDING |
-| `src/lib/auth/auth-validation.tsx` | 104 | Exists at matching path; parity not yet verified | PENDING |
-| `src/lib/firebase.ts` | 55 | Exists at matching path; parity not yet verified | PENDING |
+| `src/lib/auth/auth-validation.tsx` | 104 | `apps/web/src/lib/auth/auth-validation.tsx` (byte-identical) | PORTED |
+| `src/lib/firebase.ts` | 55 | `apps/web/src/lib/firebase.ts` (browser Firebase equivalent) | PORTED |
 | `src/lib/toast/toast-context.tsx` | 111 | `apps/web/src/lib/toast/toast-context.tsx` | PORTED |
 | `src/modals/AdminModal.tsx` | 1015 | MISSING — must port | PENDING |
 | `src/modals/AftermatchModal.tsx` | 913 | MISSING — must port | PENDING |
