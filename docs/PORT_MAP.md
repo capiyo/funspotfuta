@@ -28,7 +28,7 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/components/ui/miniAvatar.tsx` | 50 | `apps/web/src/components/ui/miniAvatar.tsx` | PORTED |
 | `src/components/ui/postImages.tsx` | 163 | `apps/web/src/components/ui/postImages.tsx` | PORTED |
 | `src/lib/api/media-service.ts` | 58 | Exists at matching path; parity not yet verified | PENDING |
-| `src/lib/api/notification-service.ts` | 969 | Exists at matching path; parity not yet verified | PENDING |
+| `src/lib/api/notification-service.ts` | 969 | `apps/web/src/lib/api/notification-service.ts` | PORTED |
 | `src/lib/api/posts-create.ts` | 93 | `apps/web/src/lib/api/posts-create.ts` | PORTED |
 | `src/lib/auth/auth-context.tsx` | 213 | Exists at matching path; parity not yet verified | PENDING |
 | `src/lib/auth/auth-validation.tsx` | 104 | Exists at matching path; parity not yet verified | PENDING |
