@@ -304,10 +304,6 @@ export default function ChatsScreen() {
           className="chats-fixture-list"
           style={{ ...listStyle(colors), paddingTop: topInset }}
           onScroll={scrollProps.onScroll}
-          onScrollCapture={(event) => {
-            scrollProps.onScrollBeginDrag(event);
-            scrollProps.onScrollEndDrag(event);
-          }}
           aria-label="Fixtures"
         >
           <div>{listHeader}</div>
