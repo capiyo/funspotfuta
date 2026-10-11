@@ -149,7 +149,7 @@ export function WebNavbar({
       <Avatar
         isLoggedIn={!!isLoggedIn}
         url={avatarUrl}
-        onClick={onMenuTap ?? (() => router.push('/profile'))}
+        onClick={onMenuTap ?? (() => navigate('/profile'))}
       />
 
       <div className="mr-[18px]" />
