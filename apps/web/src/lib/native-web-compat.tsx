@@ -54,7 +54,7 @@ export function View({ children, style, onPress, onLongPress, onLayout, pointerE
     ...props,
     style: commonStyle(style, pointerEvents === 'none' ? { pointerEvents: 'none' } : undefined),
     onClick: onPress,
-    onContextMenu: onLongPress ? (event: React.MouseEvent) => { event.preventDefault(); onLongPress(event); } : undefined,
+    onContextMenu: onLongPress ? (event: React.MouseEvent) => { event.preventDefault(); onLongPress(event as React.MouseEvent<HTMLButtonElement | HTMLDivElement>); } : undefined,
     onLoad: onLayout,
   }, children);
 }
@@ -77,7 +77,9 @@ export function Pressable({ children, style, onPress, onLongPress, disabled, hit
 }
 
 export function TextInput({ style, value, defaultValue, onChangeText, onChange, onSubmitEditing, multiline, numberOfLines, editable, placeholderTextColor, ...props }: NativeProps) {
-  const baseStyle = commonStyle(style, { color: style?.color ?? 'inherit', outlineOffset: 2 });
+  const resolvedStyle = typeof style === 'function' ? style({ pressed: false }) : style;
+  const styleObject = Array.isArray(resolvedStyle) ? flattenStyle(resolvedStyle) : (resolvedStyle ?? {});
+  const baseStyle = commonStyle(styleObject, { color: styleObject.color ?? 'inherit', outlineOffset: 2 });
   const onKeyDown = (event: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     if (event.key === 'Enter' && !multiline && onSubmitEditing) { event.preventDefault(); onSubmitEditing({ nativeEvent: { text: (event.target as HTMLInputElement).value } }); }
     props.onKeyDown?.(event);
