@@ -6,7 +6,7 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 
 | Mobile source | Lines | Current web counterpart / finding | Port status |
 |---|---:|---|---|
-| `src/components/ChatsCard.tsx` | 504 | MISSING — must port | PENDING |
+| `src/components/ChatsCard.tsx` | 504 | `apps/web/src/components/ChatsCard.tsx` | PORTED |
 | `src/components/FloatingPillTabBar.tsx` | 98 | `apps/web/src/components/FloatingPillTabBar.tsx` | PORTED |
 | `src/components/FooterPill.tsx` | 75 | `apps/web/src/components/FooterPill.tsx` | PORTED |
 | `src/components/HistoryCard.tsx` | 253 | MISSING — must port | PENDING |
