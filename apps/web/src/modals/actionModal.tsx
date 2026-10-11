@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Wallet, Users, RefreshCw, CheckCircle2, AlertCircle } from 'lucide-react';
 import { useFanColors } from '@/theme/use-fan-colors';
@@ -120,7 +120,7 @@ export function SwipeableVotePledgeModal(props: Props) {
     } catch (e) { setError(e instanceof Error ? e.message : 'Unable to load market pledges'); }
   }
 
-  async function submitFunds(event: React.FormEvent) {
+  async function submitFunds(event: FormEvent) {
     event.preventDefault();
     const value = Number(fundAmount);
     if (!Number.isFinite(value) || value <= 0) { setError('Enter a valid amount'); return; }
