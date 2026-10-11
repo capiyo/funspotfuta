@@ -135,9 +135,9 @@ export function useWindowDimensions() {
   return { width: typeof window === 'undefined' ? 1024 : window.innerWidth, height: typeof window === 'undefined' ? 768 : window.innerHeight, scale: 1, fontScale: 1 };
 }
 
-export const Picker: any = function Picker({ children, selectedValue, onValueChange, style, ...props }: NativeProps) {
-  return createElement('select', { ...props, value: selectedValue, onChange: (event: React.ChangeEvent<HTMLSelectElement>) => onValueChange?.(event.target.value), style: commonStyle(style) }, children);
-};
-Picker.Item = function PickerItem({ label, value, ...props }: NativeProps) {
-  return createElement('option', { ...props, value }, label);
-};
+export const Picker: { (props: NativeProps): React.ReactElement; Item: (props: NativeProps) => React.ReactElement } = Object.assign(
+  function Picker({ children, selectedValue, onValueChange, style, ...props }: NativeProps) {
+    return createElement('select', { ...props, value: selectedValue, onChange: (event: React.ChangeEvent<HTMLSelectElement>) => onValueChange?.(event.target.value), style: commonStyle(style) }, children);
+  },
+  { Item: function PickerItem({ label, value, ...props }: NativeProps) { return createElement('option', { ...props, value }, label); } },
+);
