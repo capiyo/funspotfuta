@@ -21,6 +21,7 @@
 //     clears the floating tab bar when the modal is dismissed
 
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   View,
   Text,
