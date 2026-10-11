@@ -59,7 +59,6 @@ import { useAuth } from '@/lib/auth/auth-context';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
 import { PRESSED_OPACITY } from '@/theme/layout';
-// TODO: export these from @funspot/core instead of reaching into its src.
 import {
   fetchVoters,
   fetchUserActivityHistory,
