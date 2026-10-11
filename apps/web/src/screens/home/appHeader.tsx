@@ -236,7 +236,7 @@ export function AppHeader(props: HeaderProps = {}) {
                   </button>
                 );
               })}
-              {props.loadingChannels && <span className="px-2 text-xs" style={{ color: colors.textMuted }}>Loading channels…</span>}
+              {props.loadingChannels && <span className="px-2 text-xs" style={{ color: colors.textTertiary }}>Loading channels…</span>}
               {!props.loadingChannels && loggedIn && joinedChannels.length === 0 && availableChannels.length === 0 && (
                 <span className="px-2 text-xs" style={{ color: colors.textMuted }}>No channels available</span>
               )}
