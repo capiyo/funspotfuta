@@ -17,11 +17,11 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/components/ui/Avatar.tsx` | 84 | `apps/web/src/components/ui/Avatar.tsx` | PORTED |
 | `src/components/ui/Chip.tsx` | 86 | `apps/web/src/components/ui/Chip.tsx` | PORTED |
 | `src/components/ui/CountryCodePicker.tsx` | 136 | MISSING — must port | PENDING |
-| `src/components/ui/FeedItem.tsx` | 48 | MISSING — must port | PENDING |
+| `src/components/ui/FeedItem.tsx` | 48 | `apps/web/src/components/ui/FeedItem.tsx` | PORTED |
 | `src/components/ui/ListsStates.tsx` | 129 | MISSING — must port | PENDING |
-| `src/components/ui/LiveBadge.tsx` | 34 | MISSING — must port | PENDING |
-| `src/components/ui/Scoreline.tsx` | 88 | MISSING — must port | PENDING |
-| `src/components/ui/Segmentedcontrol.tsx` | 71 | MISSING — must port | PENDING |
+| `src/components/ui/LiveBadge.tsx` | 34 | `apps/web/src/components/ui/LiveBadge.tsx` | PORTED |
+| `src/components/ui/Scoreline.tsx` | 88 | `apps/web/src/components/ui/Scoreline.tsx` | PORTED |
+| `src/components/ui/Segmentedcontrol.tsx` | 71 | `apps/web/src/components/ui/Segmentedcontrol.tsx` | PORTED |
 | `src/components/ui/Voterstack.tsx` | 108 | MISSING — must port | PENDING |
 | `src/components/ui/button.tsx` | 90 | MISSING — must port | PENDING |
 | `src/components/ui/input.tsx` | 69 | MISSING — must port | PENDING |
