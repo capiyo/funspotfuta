@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import type { Ref } from 'react';
 import { createPortal } from 'react-dom';
 import {
     Camera,
@@ -522,8 +523,8 @@ function MediaActions({
     hasVideo: boolean;
     hasMedia: boolean;
     posting: boolean;
-    imageInput: React.RefObject<HTMLInputElement | null>;
-    videoInput: React.RefObject<HTMLInputElement | null>;
+    imageInput: Ref<HTMLInputElement>;
+    videoInput: Ref<HTMLInputElement>;
     onPickImage: () => void;
     onPickVideo: () => void;
     onClearMedia: () => void;
