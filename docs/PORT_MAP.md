@@ -69,7 +69,7 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/screens/home/HomeScreen.tsx` | 151 | Exists at matching path; parity not yet verified | PENDING |
 | `src/screens/home/appHeader.tsx` | 460 | Exists at matching path; parity not yet verified | PENDING |
 | `src/screens/home/header-inset.tsx` | 13 | `apps/web/src/screens/home/header-inset.tsx` | PORTED |
-| `src/screens/home/home-context.tsx` | 386 | MISSING — must port | PENDING |
+| `src/screens/home/home-context.tsx` | 386 | `apps/web/src/screens/home/home-context.tsx` | PORTED |
 | `src/theme.ts` | 16 | `apps/web/src/theme.ts` | PORTED |
 | `src/theme/index.ts` | 29 | `apps/web/src/theme/index.ts` | PORTED |
 | `src/theme/layout.ts` | 24 | `apps/web/src/theme/layout.ts` | PORTED |
