@@ -255,7 +255,7 @@ export function AppHeader(props: HeaderProps = {}) {
             {props.onEnableNotifications && <button type="button" onClick={() => { void props.onEnableNotifications?.(); }} className="hidden rounded-full px-3 py-2 text-[11px] font-medium lg:inline-flex" style={{ color: colors.textSecondary, background: colors.surface }}>Enable notifications</button>}
             <button
               type="button"
-              onClick={() => setNotifOpen(true)
+              onClick={() => setNotifOpen(true)}
               aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : 'Notifications'}
               className="relative flex h-9 w-9 items-center justify-center rounded-full"
               style={{ color: colors.textSecondary }}
