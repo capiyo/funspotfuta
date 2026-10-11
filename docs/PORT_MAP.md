@@ -68,14 +68,14 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/screens/MessageScreen.tsx` | 1640 | Exists at matching path; parity not yet verified | PENDING |
 | `src/screens/home/HomeScreen.tsx` | 151 | Exists at matching path; parity not yet verified | PENDING |
 | `src/screens/home/appHeader.tsx` | 460 | Exists at matching path; parity not yet verified | PENDING |
-| `src/screens/home/header-inset.tsx` | 13 | MISSING — must port | PENDING |
+| `src/screens/home/header-inset.tsx` | 13 | `apps/web/src/screens/home/header-inset.tsx` | PORTED |
 | `src/screens/home/home-context.tsx` | 386 | MISSING — must port | PENDING |
-| `src/theme.ts` | 16 | MISSING — must port | PENDING |
-| `src/theme/index.ts` | 29 | MISSING — must port | PENDING |
-| `src/theme/layout.ts` | 24 | MISSING — must port | PENDING |
-| `src/theme/use-fan-colors.ts` | 27 | MISSING — must port | PENDING |
-| `src/theme/use-fan-shadow.ts` | 46 | MISSING — must port | PENDING |
-| `src/theme/use-fan-typography.ts` | 51 | MISSING — must port | PENDING |
+| `src/theme.ts` | 16 | `apps/web/src/theme.ts` | PORTED |
+| `src/theme/index.ts` | 29 | `apps/web/src/theme/index.ts` | PORTED |
+| `src/theme/layout.ts` | 24 | `apps/web/src/theme/layout.ts` | PORTED |
+| `src/theme/use-fan-colors.ts` | 27 | `apps/web/src/theme/use-fan-colors.ts` | PORTED |
+| `src/theme/use-fan-shadow.ts` | 46 | `apps/web/src/theme/use-fan-shadow.ts` | PORTED |
+| `src/theme/use-fan-typography.ts` | 51 | `apps/web/src/theme/use-fan-typography.ts` | PORTED |
 
 ## Completion rule
 For each row, create the same relative path under `apps/web/src/`, convert the view layer to accessible DOM/Tailwind, and compare API calls, state transitions, visible strings, and loading/empty/error states against mobile. Do not mark a row complete until typecheck and parity review pass. Especially large files such as `LeaderboardModal.tsx` (1,998 lines), `MessageScreen.tsx` (1,640 lines), `ProfileModal.tsx` (1,121 lines), and `CommentsModal.tsx` (1,043 lines) must not be replaced with abbreviated versions.
