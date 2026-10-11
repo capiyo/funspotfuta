@@ -2,36 +2,72 @@
 /** Browser port of apps/mobile/src/modals/LoginModal.tsx. Auth services remain unchanged. */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { onAuthStateChanged, RecaptchaVerifier, signInWithPhoneNumber, signOut, type ConfirmationResult, type User as FirebaseUser } from 'firebase/auth';
-import { checkUser, isUsernameTaken, pinLogin, setPin, registerUser } from '@funspot/core';
+import {
+  onAuthStateChanged,
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
+  signOut,
+  type ConfirmationResult,
+  type User as FirebaseUser,
+} from 'firebase/auth';
+import {
+  checkUser,
+  isUsernameTaken,
+  pinLogin,
+  setPin,
+  registerUser,
+} from '@funspot/core';
 import { firebaseAuth } from '@/lib/firebase';
 import { useAuth } from '@/lib/auth/auth-context';
-import { buildE164, validatePhone, validateUsername, validatePin } from '@/lib/auth/auth-validation';
+import {
+  buildE164,
+  validatePhone,
+  validateUsername,
+  validatePin,
+} from '@/lib/auth/auth-validation';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
 
 type Step = 'phone' | 'otp' | 'pin' | 'username';
 type ToastKind = 'success' | 'warn' | 'error';
 type Country = { name: string; iso2: string; dial: string };
-type LoginModalProps = { visible?: boolean; onClose?: () => void;
-  onSuccess?: (userId: string, username: string) => void };
+type LoginModalProps = {
+  visible?: boolean;
+  onClose?: () => void;
+  onSuccess?: (userId: string, username: string) => void;
+};
   const TERMS_URL = 'https://clash-privacy.netlify.app/';
   const COUNTRIES: Country[] = [
-  { name: 'Kenya', iso2: 'KE', dial: '+254' }, { name: 'United States', iso2: 'US', dial: '+1' },
-  { name: 'United Kingdom', iso2: 'GB', dial: '+44' }, { name: 'Nigeria', iso2: 'NG', dial: '+234' },
-  { name: 'Ghana', iso2: 'GH', dial: '+233' }, { name: 'South Africa', iso2: 'ZA', dial: '+27' },
-  { name: 'Tanzania', iso2: 'TZ', dial: '+255' }, { name: 'Uganda', iso2: 'UG', dial: '+256' },
-  { name: 'Rwanda', iso2: 'RW', dial: '+250' }, { name: 'Ethiopia', iso2: 'ET', dial: '+251' },
-  { name: 'Egypt', iso2: 'EG', dial: '+20' }, { name: 'India', iso2: 'IN', dial: '+91' },
-  { name: 'Pakistan', iso2: 'PK', dial: '+92' }, { name: 'Canada', iso2: 'CA', dial: '+1' },
-  { name: 'Australia', iso2: 'AU', dial: '+61' }, { name: 'Germany', iso2: 'DE', dial: '+49' },
-  { name: 'France', iso2: 'FR', dial: '+33' }, { name: 'Spain', iso2: 'ES', dial: '+34' },
-  { name: 'Italy', iso2: 'IT', dial: '+39' }, { name: 'Netherlands', iso2: 'NL', dial: '+31' },
-  { name: 'UAE', iso2: 'AE', dial: '+971' }, { name: 'Saudi Arabia', iso2: 'SA', dial: '+966' },
-  { name: 'China', iso2: 'CN', dial: '+86' }, { name: 'Brazil', iso2: 'BR', dial: '+55' },
-  { name: 'Mexico', iso2: 'MX', dial: '+52' }, { name: 'Zambia', iso2: 'ZM', dial: '+260' },
-  { name: 'Zimbabwe', iso2: 'ZW', dial: '+263' }, { name: 'Malawi', iso2: 'MW', dial: '+265' },
-  { name: 'Somalia', iso2: 'SO', dial: '+252' }, { name: 'DR Congo', iso2: 'CD', dial: '+243' },
+  { name: 'Kenya', iso2: 'KE', dial: '+254' },
+  { name: 'United States', iso2: 'US', dial: '+1' },
+  { name: 'United Kingdom', iso2: 'GB', dial: '+44' },
+  { name: 'Nigeria', iso2: 'NG', dial: '+234' },
+  { name: 'Ghana', iso2: 'GH', dial: '+233' },
+  { name: 'South Africa', iso2: 'ZA', dial: '+27' },
+  { name: 'Tanzania', iso2: 'TZ', dial: '+255' },
+  { name: 'Uganda', iso2: 'UG', dial: '+256' },
+  { name: 'Rwanda', iso2: 'RW', dial: '+250' },
+  { name: 'Ethiopia', iso2: 'ET', dial: '+251' },
+  { name: 'Egypt', iso2: 'EG', dial: '+20' },
+  { name: 'India', iso2: 'IN', dial: '+91' },
+  { name: 'Pakistan', iso2: 'PK', dial: '+92' },
+  { name: 'Canada', iso2: 'CA', dial: '+1' },
+  { name: 'Australia', iso2: 'AU', dial: '+61' },
+  { name: 'Germany', iso2: 'DE', dial: '+49' },
+  { name: 'France', iso2: 'FR', dial: '+33' },
+  { name: 'Spain', iso2: 'ES', dial: '+34' },
+  { name: 'Italy', iso2: 'IT', dial: '+39' },
+  { name: 'Netherlands', iso2: 'NL', dial: '+31' },
+  { name: 'UAE', iso2: 'AE', dial: '+971' },
+  { name: 'Saudi Arabia', iso2: 'SA', dial: '+966' },
+  { name: 'China', iso2: 'CN', dial: '+86' },
+  { name: 'Brazil', iso2: 'BR', dial: '+55' },
+  { name: 'Mexico', iso2: 'MX', dial: '+52' },
+  { name: 'Zambia', iso2: 'ZM', dial: '+260' },
+  { name: 'Zimbabwe', iso2: 'ZW', dial: '+263' },
+  { name: 'Malawi', iso2: 'MW', dial: '+265' },
+  { name: 'Somalia', iso2: 'SO', dial: '+252' },
+  { name: 'DR Congo', iso2: 'CD', dial: '+243' },
 ];
   const DEFAULT_COUNTRY = COUNTRIES[0];
   const sanitizePhoneInput = (raw: string) => raw.replace(/[^\d\s\-().+]/g, '');
@@ -147,10 +183,19 @@ export default function LoginModal({ visible = true, onClose, onSuccess }: Login
     setToastState(null); setPickerVisible(false); closeDialog();
   }
   function openLink(url: string) {
-    try { window.open(url, '_blank', 'noopener,noreferrer'); }
-    catch (error) { toastRawError('could not open link', error); }
+    try {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    } catch (error) {
+      toastRawError('could not open link', error);
+    }
   }
-  async function getUserSafe(e164: string) { try { return await checkUser(e164); } catch { return null; } }
+  async function getUserSafe(e164: string) {
+    try {
+      return await checkUser(e164);
+    } catch {
+      return null;
+    }
+  }
   async function performLogin(userId: string, username: string, token: string, phone: string) {
     const ok = await login(userId, username, token, { phone });
   if (!ok) { toast('Login failed. Please try again.', { error: true });
