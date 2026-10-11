@@ -12,7 +12,7 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/components/HistoryCard.tsx` | 253 | MISSING — must port | PENDING |
 | `src/components/PostCard.tsx` | 237 | `apps/web/src/components/PostCard.tsx` | PORTED |
 | `src/components/SmartMedia.tsx` | 59 | `apps/web/src/components/SmartMedia.tsx` | PORTED |
-| `src/components/WalletCard.tsx` | 94 | MISSING — must port | PENDING |
+| `src/components/WalletCard.tsx` | 94 | `apps/web/src/components/WalletCard.tsx` | PORTED |
 | `src/components/ui/ActionButton.tsx` | 78 | `apps/web/src/components/ui/ActionButton.tsx` | PORTED |
 | `src/components/ui/Avatar.tsx` | 84 | `apps/web/src/components/ui/Avatar.tsx` | PORTED |
 | `src/components/ui/Chip.tsx` | 86 | `apps/web/src/components/ui/Chip.tsx` | PORTED |
@@ -44,14 +44,14 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/modals/LeaderboardModal.tsx` | 1998 | MISSING — must port | PENDING |
 | `src/modals/Login-modal-context.tsx` | 138 | `apps/web/src/modals/Login-modal-context.tsx` | PORTED |
 | `src/modals/LoginModal.tsx` | 960 | `apps/web/src/modals/LoginModal.tsx` is a shortened web flow; full mobile flow still unported | PENDING |
-| `src/modals/NotificationGate.tsx` | 100 | MISSING — must port | PENDING |
-| `src/modals/NotificationsModal.tsx` | 313 | MISSING — must port | PENDING |
+| `src/modals/NotificationGate.tsx` | 100 | `apps/web/src/modals/NotificationGate.tsx` (browser permission requested only after click) | PORTED |
+| `src/modals/NotificationsModal.tsx` | 313 | `apps/web/src/modals/NotificationsModal.tsx` | PORTED |
 | `src/modals/actionModal.tsx` | 2764 | MISSING — must port | PENDING |
 | `src/modals/addPostModal.tsx` | 834 | MISSING — must port | PENDING |
-| `src/modals/channelHeader.tsx` | 38 | MISSING — must port | PENDING |
+| `src/modals/channelHeader.tsx` | 38 | `apps/web/src/modals/channelHeader.tsx` | PORTED |
 | `src/modals/comradelist/comradeCard.tsx` | 279 | MISSING — must port | PENDING |
 | `src/modals/comradelist/index.tsx` | 1190 | MISSING — must port | PENDING |
-| `src/modals/comradelist/types.ts` | 43 | MISSING — must port | PENDING |
+| `src/modals/comradelist/types.ts` | 43 | `apps/web/src/modals/comradelist/types.ts` | PORTED |
 | `src/modals/joingroupmodal.tsx` | 794 | MISSING — must port | PENDING |
 | `src/modals/match/lineupsTab.tsx` | 362 | MISSING — must port | PENDING |
 | `src/modals/match/matchDetailsModals.tsx` | 500 | MISSING — must port | PENDING |
@@ -79,3 +79,8 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 
 ## Completion rule
 For each row, create the same relative path under `apps/web/src/`, convert the view layer to accessible DOM/Tailwind, and compare API calls, state transitions, visible strings, and loading/empty/error states against mobile. Do not mark a row complete until typecheck and parity review pass. Especially large files such as `LeaderboardModal.tsx` (1,998 lines), `MessageScreen.tsx` (1,640 lines), `ProfileModal.tsx` (1,121 lines), and `CommentsModal.tsx` (1,043 lines) must not be replaced with abbreviated versions.
+
+
+## Suspect files from prior port (line-count audit)
+
+The prior run's 36 rows marked PORTED still require an automated mobile-vs-web line-count audit before being treated as parity-verified. Known suspects from the previous review: `src/components/ChatsCard.tsx`, `src/lib/auth/auth-context.tsx`, `src/modals/Login-modal-context.tsx`, and `src/screens/FeedScreen.tsx`. These have not been revalidated in this run.
