@@ -95,7 +95,7 @@ export function MatchCard({ fixture, channel, comments, latestComment, liveComme
   }
   const placeholder = !isLoggedIn ? 'Log in to comment' : canComment ? 'Add a comment…' : 'Vote to comment';
   const line: CSSProperties = { display: 'flex', alignItems: 'center', gap: FAN_SPACING.sm };
-  const bottom: React.CSSProperties = { display: 'flex', alignItems: 'center', gap: FAN_SPACING.sm, marginTop: 18, marginBottom: -FOOTER_BLEED };
+  const bottom: CSSProperties = { display: 'flex', alignItems: 'center', gap: FAN_SPACING.sm, marginTop: 18, marginBottom: -FOOTER_BLEED };
   return <FeedItem colors={colors}>
     <div className="match-card" style={{ position: 'relative' }}>
       <button type="button" onClick={handleChat} aria-label={`Open chat for ${fixtureLabel}`} className="match-card-open" style={{ position: 'absolute', inset: 0, zIndex: 0, width: '100%', height: '100%', padding: 0, border: 0, background: 'transparent' }} />
