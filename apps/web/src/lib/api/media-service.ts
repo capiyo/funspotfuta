@@ -2,7 +2,7 @@
 // (chat media upload; the video+thumbnail variants are mobile-only
 // background-upload code paths and are not ported, see README).
 
-const API_BASE_URL = 'https://clash-api-m5mr.onrender.com/api';
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || 'https://clash-api-m5mr.onrender.com/api').replace(/\/$/, '');
 
 export async function uploadChatImage(params: {
   file: File | Blob;

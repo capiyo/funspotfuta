@@ -17,3 +17,7 @@
 - Similar-looking legacy web components are not equivalent until reviewed. Keep each row pending until APIs, state transitions, text, and loading/empty/error states are compared.
 - Preserve existing files unless deletion is necessary for the no-Next.js requirement or a reviewed mobile counterpart supports removal.
 - Manual Firebase console steps belong in `FIREBASE_SETUP.md`.
+
+
+## Notifications compatibility finding
+- The master mobile `LoginModal.tsx` explicitly leaves `_registerFcmTokenAfterLogin` as a TODO; the current master source does not define a backend registration endpoint or payload for FCM tokens. Do not invent one. Web permission/token retrieval and foreground/background display can be implemented, but backend registration must remain disabled until the API contract is added or confirmed. The required backend change is a documented authenticated endpoint (or an explicitly supported existing endpoint) that accepts a browser FCM token and platform/source metadata without changing existing native token behavior.

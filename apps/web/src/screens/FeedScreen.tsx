@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { getPosts, type Post } from '@funspot/core';
-import { useAuth } from '@/lib/auth-context';
+import { useAuth } from '@/lib/auth/auth-context';
 
 export default function FeedScreen() {
   const { userId } = useAuth();
