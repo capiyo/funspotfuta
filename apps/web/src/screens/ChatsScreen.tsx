@@ -1,6 +1,6 @@
 import type { Channel } from '@funspot/core';
 import MessageScreen from '@/screens/MessageScreen';
-import { useAuth } from '@/lib/auth-context';
+import { useAuth } from '@/lib/auth/auth-context';
 
 export default function ChatsScreen({ channels, activeChannel, onSelectChannel, loading }: {
   channels: Channel[];

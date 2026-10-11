@@ -1,5 +1,5 @@
 import { getToken, onMessage } from 'firebase/messaging';
-import { firebaseApp, getFirebaseMessaging, webFirebaseConfig } from './firebase';
+import { firebaseApp, getFirebaseMessaging, webFirebaseConfig } from '../firebase';
 
 export type ForegroundNotice = { title: string; body: string; data?: Record<string, string> };
 
