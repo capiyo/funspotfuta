@@ -38,7 +38,7 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/modals/AftermatchModal.tsx` | 913 | MISSING — must port | PENDING |
 | `src/modals/ChannelCreation.tsx` | 979 | `apps/web/src/modals/ChannelCreation.tsx` | SUSPECT (9% line count) |
 | `src/modals/ChannelCreationModal.tsx` | 91 | `apps/web/src/modals/ChannelCreationModal.tsx` | PORTED (72% line count) |
-| `src/modals/CommentsModal.tsx` | 1043 | MISSING — must port | PENDING |
+| `src/modals/CommentsModal.tsx` | 1043 | `apps/web/src/modals/CommentsModal.tsx` (comments fetch/cache, nested replies, notifications, submit flow, keyboard dialog and Tailwind UI ported; web view is more compact than native styles) | PORTED — CI validation pending |
 | `src/modals/ComradesModal.tsx` | 290 | `apps/web/src/modals/ComradesModal.tsx` | PORTED |
 | `src/modals/HistoryModal.tsx` | 449 | MISSING — must port | PENDING |
 | `src/modals/LeaderboardModal.tsx` | 1998 | MISSING — must port | PENDING |
@@ -47,15 +47,15 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/modals/NotificationGate.tsx` | 100 | `apps/web/src/modals/NotificationGate.tsx` (browser permission requested only after click) | PORTED |
 | `src/modals/NotificationsModal.tsx` | 313 | `apps/web/src/modals/NotificationsModal.tsx` | SUSPECT (37% line count) |
 | `src/modals/actionModal.tsx` | 2764 | MISSING — must port | PENDING |
-| `src/modals/addPostModal.tsx` | 834 | `apps/web/src/modals/addPostModal.tsx` (browser file picker; posts-create endpoint preserved) | SUSPECT (18% line count) |
+| `src/modals/addPostModal.tsx` | 834 | `apps/web/src/modals/addPostModal.tsx` (browser file picker; posts-create endpoint preserved) | SUSPECT (7% line count) |
 | `src/modals/channelHeader.tsx` | 38 | `apps/web/src/modals/channelHeader.tsx` | PORTED |
 | `src/modals/comradelist/comradeCard.tsx` | 279 | `apps/web/src/modals/comradelist/comradeCard.tsx` | SUSPECT (24% line count) |
 | `src/modals/comradelist/index.tsx` | 1190 | MISSING — must port | PENDING |
 | `src/modals/comradelist/types.ts` | 43 | `apps/web/src/modals/comradelist/types.ts` | PORTED |
-| `src/modals/joingroupmodal.tsx` | 794 | `apps/web/src/modals/joingroupmodal.tsx` | SUSPECT (20% line count) |
+| `src/modals/joingroupmodal.tsx` | 794 | `apps/web/src/modals/joingroupmodal.tsx` | SUSPECT (5% line count) |
 | `src/modals/match/lineupsTab.tsx` | 362 | `apps/web/src/modals/match/lineupsTab.tsx` | SUSPECT (20% line count) |
 | `src/modals/match/matchDetailsModals.tsx` | 500 | `apps/web/src/modals/match/matchDetailsModals.tsx` | SUSPECT (20% line count) |
-| `src/modals/match/pitchView.tsx` | 1119 | `apps/web/src/modals/match/pitchView.tsx` (18% line count; simplified view, suspect) | SUSPECT (18% line count) |
+| `src/modals/match/pitchView.tsx` | 1119 | `apps/web/src/modals/match/pitchView.tsx` (simplified view, suspect) | SUSPECT (18% line count) |
 | `src/modals/match/statsTab.tsx` | 236 | `apps/web/src/modals/match/statsTab.tsx` | SUSPECT (30% line count) |
 | `src/modals/profile/ChannelLeaderboard.tsx` | 563 | MISSING — must port | PENDING |
 | `src/modals/profile/ProfileModal.tsx` | 1121 | MISSING — must port | PENDING |
