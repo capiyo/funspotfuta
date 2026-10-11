@@ -230,9 +230,7 @@ export function useChannelChat(params: {
           username,
           text: caption ?? '',
           fixtureId: fixtureId ?? undefined,
-          imageUrl,
-          isImage: true,
-          caption,
+          extras: { imageUrl, isImage: true },
           authToken,
           tempId,
         });
