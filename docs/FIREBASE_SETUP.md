@@ -7,3 +7,10 @@
 5. Under **Cloud Messaging → Web configuration**, generate a Web Push certificate key pair and set the public key as `VITE_FIREBASE_VAPID_KEY`.
 6. Serve `public/firebase-messaging-sw.js` from the site root with a JavaScript content type. Push requires HTTPS except on localhost.
 7. Confirm backend support for browser FCM tokens before enabling registration. Reuse mobile's endpoint and payload if supported; if not, document the precise backend API change instead of inventing an endpoint.
+
+## Browser runtime behavior
+
+- The web provider order is AuthProvider → ToastProvider → LoginModalProvider. The login-modal provider mounts the global login dialog and notification gate so protected actions can request login without navigating to a separate screen.
+- Notification permission is requested only after the user clicks Allow Notifications. If the browser does not support push, permission is blocked, or token initialization fails, the gate provides a continue-without-notifications path; the app does not fabricate a token.
+- /messages/:channelId? is the protected browser equivalent of the mobile Chat screen. It opens the global login modal for logged-out users; Home/Tabs remains public.
+- Passing CI does not verify real Firebase SMS delivery or browser push delivery. Complete the manual checks above with valid local .env.local values before enabling production traffic.

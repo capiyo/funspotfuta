@@ -1,38 +1,29 @@
 # Web port report
 
-## Baseline
-- Source: `master`, commit `84255b277d0568b05986aba8ec54daf748871b7b`.
-- Working branch: `web-port-from-master`.
-- Mobile source inventory: 70 files under `apps/mobile/src/`; see `PORT_MAP.md` for line counts and findings.
+## Baseline and branch
+- Repository: capiyo/funspotfuta
+- Source of truth: apps/mobile/src on master, baseline 84255b277d0568b05986aba8ec54daf748871b7b
+- Working branch: web-port-from-master (draft PR #4)
+- Web stack: React, Vite, TypeScript, Tailwind and React Router; no Next.js route tree.
 
-## Current status
-This is a checkpoint, not a completion claim. All 70 rows in `PORT_MAP.md` are pending until React/DOM implementation and parity checks are complete. The legacy web tree contains Next.js routes, a duplicated `apps/web/testa/` tree, and layouts that diverge from mobile; those are not accepted as parity evidence. Firebase manual steps are recorded in `FIREBASE_SETUP.md`.
+## Current implementation checkpoint
+The recursive GitHub tree comparison found 70 mobile source files and 70 same-path web counterparts (0 missing paths). The path audit includes navigation/RootNavigator.tsx, HomeScreen, and the five requested modal paths: CommentsModal, actionModal, comradelist/index, AftermatchModal, and HistoryModal. This is a file-path result, not a claim that every UI component has full visual parity.
 
-## Implemented on the working branch so far
-- Added a React/Vite entry point, React Router, Tailwind entry stylesheet, a desktop navbar/profile-sidebar/Chats-and-Feed split, independently scrollable columns, initial live channel/feed loading, and a message pane backed by the existing shared chat hook.
-- Added Firebase Web SDK initialization, phone OTP flow, country-aware E.164 validation, username validation, PIN fallback, resend cooldown, and Firebase session wiring. These are not yet manually tested against the live Firebase project.
-- Added explicit user-action web-push permission/token generation and registered the token using the existing shared `/api/notifications/register-token` contract (`platform: 'web'`). Foreground toast and background notification click-through are wired; server acceptance/browser delivery are not live-tested.
-- Removed the Next.js route tree and duplicate `apps/web/testa/` tree from the working branch, replaced the web package scripts with Vite scripts, and changed `.env.example` to placeholders only.
-- Exported the existing core channels service from `@funspot/core` so the web can use the same channel API without duplicating it.
-- GitHub Actions validates `typecheck:core`, `typecheck:web`, `typecheck:mobile`, `lint:web`, and `build:web`. A previous checkpoint at `9d3e5156db9eeaa070dee3fbfed43b7f89083080` passed all five checks. Newer commits are queued/running validation; do not treat that earlier pass as validation of the latest head. The port map remains pending because full screen/modal parity is incomplete.
+The Home route is the only intended screen-layout divergence: desktop navbar on top, profile/channel sidebar on the left, and Chats/Feed panes at 50/50 with independent scrolling. Narrow screens use the shared Chats/Feed pill tab bar. RootNavigator exposes Home/Tabs and Chat only; there are no Arena, Logs, Trending, FixtureDetail, or History screen routes. Providers are ordered Auth → Toast → LoginModal, with NotificationGate mounted by the login-modal provider.
 
-## Remaining work — do not merge as complete
-- The web `ChatsScreen` is still much smaller than mobile's 602-line `ChatsScreen`; its fixture cards, vote/pledge flow, comments, match-details modal, pull-to-refresh, and shared list-state behavior are not fully ported.
-- The web `FeedScreen` is still much smaller than mobile's 368-line `FeedScreen`; composer, media picker/upload, comments/actions, pagination, and complete loading/error states need a parity pass.
-- `MessageScreen` is not yet a full equivalent of mobile's 1,639-line `MessageScreen` (reply/media/video/commentary/optimistic and history behavior remain unverified).
-- Profile, Comments, addPost, joingroup, Leaderboard, and Admin modals are not yet ported into the required matching `src/modals/` paths. Several mobile UI components also remain missing or have only legacy counterparts.
-- The profile sidebar is a shell, not a fully ported profile screen/modal.
-- Phone auth's PIN fallback is wired, but the complete mobile country list, terms behavior edge cases, PIN error mapping, and Firebase live behavior still need verification.
+## Validation
+GitHub Actions run for code commit 2143f43d649166d8ac5d4b68f13e08b76f3cc3fd passed npm run typecheck:core, npm run typecheck:web, npm run typecheck:mobile, npm run lint:web, and npm run build:web.
 
-## Known blocker
-- Master mobile currently has a TODO for FCM token registration and no confirmed token-registration endpoint/payload. See `PORT_DECISIONS.md`; web must not invent an API contract.
+The run validates code at that commit. Documentation-only commits may follow it; the latest branch head must be checked again before treating a later code change as validated. No live Firebase SMS, web push delivery, production API behavior, or browser end-to-end session has been manually verified here.
 
-## Verification remaining
-- [ ] `git diff master -- apps/mobile` is empty.
-- [ ] No `next` dependency in any package.json; no `page.tsx` anywhere.
-- [ ] All `PORT_MAP.md` rows ported with matching relative filenames and reviewed parity.
-- [ ] Typecheck, lint, and Vite build pass for core, web, and mobile.
-- [ ] Browser verifies navbar + profile sidebar + Chats and Feed at 50/50 with independent scrolling and responsive stacking.
-- [ ] Phone auth is wired and manually tested with Firebase configuration.
-- [ ] FCM token registration and foreground/background handling are verified, or backend incompatibility is documented with graceful fallback.
-- [ ] Final report contains actual commit and test evidence.
+## Remaining parity work
+- apps/web/src/screens/ChatsScreen.tsx remains much shorter than mobile and still needs a full pass for fixture lists, voting/pledging, refresh and modal wiring.
+- apps/web/src/screens/home/appHeader.tsx is still a shorter navbar adaptation; full mobile header actions/channel-creation behavior remain.
+- LoginModal.tsx, FeedScreen.tsx, and multiple small UI/theme components remain shorter than their mobile counterparts; docs/PORT_MAP.md retains SUSPECT/PENDING labels for these.
+- CommentsModal, comradelist/index, and other modal view trees are more compact in the browser than native StyleSheet versions; CI is not a substitute for interaction and visual parity checks.
+- Browser notification permission, Firebase phone OTP, token registration, and actual production API responses still require a live configured test.
+
+## Repository integrity
+- apps/mobile is the source of truth and has not been intentionally modified by this port work.
+- The same-path audit is recorded in docs/PORT_MAP.md; no missing mobile-relative paths remain in the current tree comparison.
+- Keep PR #4 as draft until the remaining parity work and live browser checks are complete.
