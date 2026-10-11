@@ -1,16 +1,14 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from '@/lib/auth/auth-context';
-import HomeScreen from '@/screens/home/HomeScreen';
-import MessageScreen from '@/screens/MessageScreen';
 import { HomeProvider } from '@/screens/home/home-context';
 import { LoginModalProvider } from '@/modals/Login-modal-context';
-import LoginModal from '@/modals/LoginModal';
+import { ToastProvider } from '@/lib/toast/toast-context';
+import RootNavigator from '@/navigation/RootNavigator';
 import { listenForForegroundMessages, type ForegroundNotice } from '@/lib/api/notification-service';
 import { firebaseApp, webFirebaseConfig } from '@/lib/firebase';
 
 function AppRoutes() {
-  const { isInitialized, isLoggedIn } = useAuth();
+  const { isInitialized } = useAuth();
   const [notice, setNotice] = useState<ForegroundNotice | null>(null);
   useEffect(() => {
     let stop: (() => void) | undefined;
@@ -26,13 +24,11 @@ function AppRoutes() {
   }, []);
   if (!isInitialized) return <div className="loading-screen" role="status" aria-label="Loading"><span className="spinner" /></div>;
   return <>
-    <Routes>
-      <Route path="/" element={<HomeScreen />} />
-      <Route path="/messages/:channelId?" element={<MessageScreen />} />
-      <Route path="/login" element={isLoggedIn ? <Navigate to="/" replace /> : <LoginModal />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+    <RootNavigator />
     {notice && <button className="toast" onClick={() => setNotice(null)} aria-label="Dismiss notification"><strong>{notice.title}</strong>{notice.body && <span>{notice.body}</span>}</button>}
   </>;
 }
-export default function App() { return <AuthProvider><HomeProvider><LoginModalProvider><AppRoutes /></LoginModalProvider></HomeProvider></AuthProvider>; }
+
+export default function App() {
+  return <AuthProvider><ToastProvider><LoginModalProvider><HomeProvider><AppRoutes /></HomeProvider></LoginModalProvider></ToastProvider></AuthProvider>;
+}
