@@ -15,7 +15,7 @@ import { HomeProvider, useHome } from '@/screens/home/home-context';
 function HomeScreenContent() {
   const { userId, username, authToken, isLoggedIn, logout } = useAuth();
   const {
-    channels, activeChannel, activeChannelId, setActiveChannelId,
+    channels, activeChannelId, setActiveChannelId,
     loadingChannels, reloadChannels, activeTab, setActiveTab,
   } = useHome();
   const [pushStatus, setPushStatus] = useState('');
