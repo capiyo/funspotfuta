@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { AuthProvider, useAuth } from '@/lib/auth/auth-context';
 import { useLocation } from 'react-router-dom';
-import { HomeProvider } from '@/screens/home/home-context';
 import { LoginModalProvider } from '@/modals/Login-modal-context';
 import { ToastProvider } from '@/lib/toast/toast-context';
 import NotificationGate from '@/modals/NotificationGate';
@@ -38,5 +37,5 @@ function AppRoutes() {
 }
 
 export default function App() {
-  return <AuthProvider><ToastProvider><LoginModalProvider><HomeProvider><AppRoutes /></HomeProvider></LoginModalProvider></ToastProvider></AuthProvider>;
+  return <AuthProvider><ToastProvider><LoginModalProvider><AppRoutes /></LoginModalProvider></ToastProvider></AuthProvider>;
 }
