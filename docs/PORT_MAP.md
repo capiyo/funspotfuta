@@ -42,7 +42,7 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/modals/ComradesModal.tsx` | 290 | MISSING — must port | PENDING |
 | `src/modals/HistoryModal.tsx` | 449 | MISSING — must port | PENDING |
 | `src/modals/LeaderboardModal.tsx` | 1998 | MISSING — must port | PENDING |
-| `src/modals/Login-modal-context.tsx` | 138 | MISSING — must port | PENDING |
+| `src/modals/Login-modal-context.tsx` | 138 | `apps/web/src/modals/Login-modal-context.tsx` | PORTED |
 | `src/modals/LoginModal.tsx` | 960 | Exists at matching path; parity not yet verified | PENDING |
 | `src/modals/NotificationGate.tsx` | 100 | MISSING — must port | PENDING |
 | `src/modals/NotificationsModal.tsx` | 313 | MISSING — must port | PENDING |
