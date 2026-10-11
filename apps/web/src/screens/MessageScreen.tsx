@@ -378,7 +378,7 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
     }
   }
   function retryMessage(message: ChatMessage) {
-    if (!message.text?.trim()) {
+    if (!message.text?.trim() && !message.imageUrl && !message.videoUrl) {
       toast.showInfo('This message cannot be retried');
       return;
     }
