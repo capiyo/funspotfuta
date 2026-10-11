@@ -1,88 +1,104 @@
-/* eslint no-undef: "off" */
-import { useEffect, useRef, useState } from 'react';
-import { RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from 'firebase/auth';
-import { useNavigate } from 'react-router-dom';
-import { checkUser, registerUser } from '@funspot/core';
-import { firebaseAuth } from '@/lib/firebase';
-import { useAuth } from '@/lib/auth/auth-context';
+// lib/auth/auth-validation.ts
+//
+// Ported 1:1 from the two `validateUsername` copies in
+// funspot/lib/modals/login_modal.dart (they were identical — the Dart file
+// just had it duplicated), plus `_buildE164`. Neither of these made it into
+// the RN port; `handleRegister` was only checking `length >= 3`, and
+// `toE164` in LoginModal.tsx didn't handle the '0' prefix / already-dialed
+// / '00' cases the Dart version does.
 
-function toE164(raw: string) {
-  let value = raw.trim().replace(/[\s\-().]/g, '');
-  if (value.startsWith('+')) return value;
-  if (value.startsWith('00')) return '+' + value.slice(2);
-  if (value.startsWith('0')) value = value.slice(1);
-  return '+254' + value;
+const BLOCKED_PATTERNS: RegExp[] = [
+    /^admin$/i,
+    /^administrator$/i,
+    /^superadmin$/i,
+    /^root$/i,
+    /^sysadmin$/i,
+    /^moderator$/i,
+    /^mod$/i,
+    /^staff$/i,
+    /^support$/i,
+    /^helpdesk$/i,
+    /^webmaster$/i,
+    /^master$/i,
+    /^system$/i,
+    /^test$/i,
+    /^user$/i,
+    /^guest$/i,
+    /^anonymous$/i,
+    /^default$/i,
+    /^example$/i,
+    /^null$/i,
+    /^undefined$/i,
+    /^service$/i,
+    /^api$/i,
+    /^bot$/i,
+    /^cron$/i,
+    /^daemon$/i,
+    /^clash$/i,
+    /^fanclash$/i,
+    /^clashfan$/i,
+    /^clashadmin$/i,
+    /^clashmod$/i,
+    /^clashstaff$/i,
+    /admin/i,
+    /root/i,
+    /super/i,
+    /mod/i,
+];
+
+const SEQUENTIAL = /(?:abc|bcd|cde|def|efg|fgh|ghi|hij|ijk|jkl|klm|lmn|mno|nop|opq|pqr|qrs|rst|stu|tuv|uvw|vwx|wxy|xyz)/i;
+const KEYBOARD = /(?:qwerty|asdfgh|zxcvbn|qwert|asdf|zxcv|qwe|asd|zxc|poiu|poi|lkj|mnb)/i;
+
+/** Returns an error message, or null if the username is valid. */
+export function validateUsername(username: string): string | null {
+    if (!username) return 'Username is required';
+    const trimmed = username.trim();
+
+    if (trimmed.length < 3) return 'Username must be at least 3 characters';
+    if (trimmed.length > 20) return 'Username must be less than 20 characters';
+    if (!/^[a-zA-Z]+$/.test(trimmed)) return 'Username must contain only letters (a-z)';
+
+    const lower = trimmed.toLowerCase();
+    if (BLOCKED_PATTERNS.some((p) => p.test(lower))) return 'This username is not allowed';
+    if (/^[0-9+\-\s()]{8,}$/.test(trimmed)) return 'Username cannot be a phone number';
+    if (/^(.)\1{2,}$/.test(trimmed)) return 'Username cannot have repeated characters only';
+    if (SEQUENTIAL.test(lower)) return 'Username cannot contain sequential patterns (abc, xyz)';
+    if (KEYBOARD.test(lower)) return 'Username cannot contain keyboard patterns';
+
+    return null;
 }
 
-export default function LoginModal() {
-  const auth = useAuth();
-  const navigate = useNavigate();
-  const recaptcha = useRef<RecaptchaVerifier | null>(null);
-  const [phone, setPhone] = useState('');
-  const [username, setUsername] = useState('');
-  const [code, setCode] = useState('');
-  const [confirmation, setConfirmation] = useState<ConfirmationResult | null>(null);
-  const [needsUsername, setNeedsUsername] = useState(false);
-  const [verifiedPhone, setVerifiedPhone] = useState('');
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState('');
+/**
+ * Ported from `_buildE164` in login_modal.dart. Handles:
+ *  - already-international input ("+2547...")
+ *  - "00"-prefixed international dialing
+ *  - a local number that already includes the dial code digits without '+'
+ *  - a local number with a leading trunk '0' (e.g. Kenyan "07...")
+ */
+export function buildE164(raw: string, dialCode: string): string {
+    let s = raw.trim().replace(/[\s\-().]/g, '');
+    if (s.startsWith('+')) return s;
+    if (s.startsWith('00')) return `+${s.slice(2)}`;
 
-  useEffect(() => () => { recaptcha.current?.clear(); }, []);
-  async function sendCode(event: React.FormEvent) {
-    event.preventDefault(); setError('');
-    if (!firebaseAuth) { setError('Firebase is not configured. Add the VITE_FIREBASE_* values from the setup guide.'); return; }
-    const e164 = toE164(phone);
-    if (!/^\+\d{10,15}$/.test(e164)) { setError('Enter a valid phone number, including country code if outside Kenya.'); return; }
-    setBusy(true);
-    try {
-      recaptcha.current?.clear();
-      recaptcha.current = new RecaptchaVerifier(firebaseAuth, 'recaptcha-container', { size: 'invisible' });
-      const result = await signInWithPhoneNumber(firebaseAuth, e164, recaptcha.current);
-      setConfirmation(result); setVerifiedPhone(e164);
-    } catch (e) {
-      const code = (e as {code?: string}).code;
-      setError(code === 'auth/invalid-phone-number' ? 'Enter a valid phone number.' : code === 'auth/too-many-requests' ? 'Too many attempts. Please wait before trying again.' : code === 'auth/operation-not-allowed' ? 'Phone sign-in is not enabled for this Firebase project.' : 'Could not send the SMS code. Check the number and SMS region policy, then try again.');
-    } finally { setBusy(false); }
-  }
-  async function verifyCode(event: React.FormEvent) {
-    event.preventDefault(); setError('');
-    if (!confirmation) return;
-    if (!/^\d{6}$/.test(code.trim())) { setError('Enter the 6-digit SMS code.'); return; }
-    setBusy(true);
-    try {
-      const credential = await confirmation.confirm(code.trim());
-      const firebaseUser = credential.user;
-      const idToken = await firebaseUser.getIdToken(true);
-      const existing = await checkUser(verifiedPhone);
-      if (existing?.id) {
-        auth.login(String(existing.id), String(existing.username ?? 'Fan'), idToken, verifiedPhone);
-        navigate('/', { replace: true });
-      } else {
-        setNeedsUsername(true);
-      }
-    } catch (e) {
-      const code = (e as {code?: string}).code;
-      setError(code === 'auth/invalid-verification-code' ? 'That code is incorrect.' : code === 'auth/code-expired' ? 'That code has expired. Request a new one.' : 'Could not verify the code. Please try again.');
-    } finally { setBusy(false); }
-  }
-  async function finishRegistration(event: React.FormEvent) {
-    event.preventDefault(); setError('');
-    const name = username.trim();
-    if (!/^[a-zA-Z]{3,20}$/.test(name)) { setError('Username must be 3–20 letters (a–z).'); return; }
-    setBusy(true);
-    try {
-      const result = await registerUser(name, verifiedPhone);
-      if (!result.ok || !result.user?.id || !result.token) throw new Error(result.message ?? 'Registration failed.');
-      auth.login(String(result.user.id), name, result.token, verifiedPhone);
-      navigate('/', { replace: true });
-    } catch (e) { setError(e instanceof Error ? e.message : 'Registration failed.'); }
-    finally { setBusy(false); }
-  }
+    const dialDigits = dialCode.replace('+', '');
+    if (s.startsWith(dialDigits) && s.length > dialDigits.length + 4) {
+        return `+${s}`;
+    }
+    if (s.startsWith('0')) s = s.slice(1);
+    return `${dialCode}${s}`;
+}
 
-  return <main className="login-page"><section className="login-card"><a href="/" className="brand">Funspot😂</a><h1>Join the conversation</h1><p className="muted">Sign in with your phone number. Kenya (+254) is the default country.</p>
-    {!confirmation ? <form onSubmit={sendCode} className="login-form"><label htmlFor="phone">Phone number</label><div className="phone-input"><span>+254</span><input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="7XX XXX XXX" autoComplete="tel" required /></div><button className="button button-wide" disabled={busy}>{busy ? 'Sending code…' : 'Send verification code'}</button><div id="recaptcha-container" /></form> :
-      needsUsername ? <form onSubmit={finishRegistration} className="login-form"><label htmlFor="username">Choose a username</label><input id="username" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="3–20 letters" required /><button className="button button-wide" disabled={busy}>{busy ? 'Creating account…' : 'Create account'}</button></form> :
-      <form onSubmit={verifyCode} className="login-form"><label htmlFor="code">SMS verification code</label><input id="code" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} placeholder="6-digit code" required /><button className="button button-wide" disabled={busy}>{busy ? 'Verifying…' : 'Verify phone'}</button><button type="button" className="text-button" disabled={busy} onClick={() => { setConfirmation(null); setCode(''); recaptcha.current?.clear(); }}>Use a different number</button></form>}
-    {error && <p className="error-message" role="alert">{error}</p>}<p className="muted small">If SMS delivery fails, verify that Phone Authentication is enabled and your country is allowed in Firebase Console.</p>
-  </section></main>;
+/** Mirrors the Dart phone TextFormField validator (7–12 raw digits, final E.164 10–15 digits). */
+export function validatePhone(raw: string, dialCode: string): string | null {
+    if (!raw || !raw.trim()) return 'Required';
+    const cleaned = raw.trim().replace(/[\s\-()]/g, '');
+    if (!/^[0-9]{7,12}$/.test(cleaned)) return 'Enter a valid phone number';
+    const e164 = buildE164(raw, dialCode);
+    if (!/^\+\d{10,15}$/.test(e164)) return 'Enter a valid phone number';
+    return null;
+}
+
+export function validatePin(pin: string): string | null {
+    if (!/^\d{4}$/.test(pin)) return 'Enter a 4-digit PIN';
+    return null;
 }
