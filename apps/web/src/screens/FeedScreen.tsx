@@ -340,8 +340,10 @@ export default function FeedScreen() {
         background: colors.background,
         ...listStyle,
       }}
-      onScroll={handleScroll}
-      {...scrollProps}
+      onScroll={(event) => {
+        scrollProps.onScroll(event);
+        handleScroll();
+      }}
     >
       {isPending ? (
         <div style={{ paddingTop: 0 }}>
