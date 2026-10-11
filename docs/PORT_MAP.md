@@ -65,7 +65,7 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/navigation/RootNavigator.tsx` | 50 | MISSING — must port | PENDING |
 | `src/screens/ChatsScreen.tsx` | 602 | `apps/web/src/screens/ChatsScreen.tsx` is 28 lines; mobile fixture list, voting, pledge, refresh and modal wiring still unported | PENDING |
 | `src/screens/FeedScreen.tsx` | 368 | `apps/web/src/screens/FeedScreen.tsx` | SUSPECT (34% line count) |
-| `src/screens/MessageScreen.tsx` | 1640 | `apps/web/src/screens/MessageScreen.tsx` (1,040 lines; independent `/messages/:channelId?` route, header, list/scroll, composer, replies, media, context actions, vote/aftermatch wiring, WebSocket/read state; see `docs/MESSAGESCREEN_CHECKLIST.md`) | PORTED WITH REMAINING ITEMS (pagination not in source hook; dependent modal parity incomplete) |
+| `src/screens/MessageScreen.tsx` | 1640 | `apps/web/src/screens/MessageScreen.tsx` (1,045 lines; independent `/messages/:channelId?` route (legacy embedded caller redirects to it), header, list/scroll, composer, replies, media, context actions, vote/aftermatch wiring, WebSocket/read state; see `docs/MESSAGESCREEN_CHECKLIST.md`) | PORTED WITH REMAINING ITEMS (pagination not in source hook; dependent modal parity incomplete) |
 | `src/screens/home/HomeScreen.tsx` | 151 | `apps/web/src/screens/home/HomeScreen.tsx` has the requested desktop 3-column layout, but mobile state/layout parity remains unverified | PENDING |
 | `src/screens/home/appHeader.tsx` | 460 | `apps/web/src/screens/home/appHeader.tsx` is a short navbar adaptation; full mobile header actions and channel creation remain unported | PENDING |
 | `src/screens/home/header-inset.tsx` | 13 | `apps/web/src/screens/home/header-inset.tsx` | PORTED |
