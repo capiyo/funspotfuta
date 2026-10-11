@@ -1610,7 +1610,7 @@ export function SwipeableVotePledgeModal(props: Props) {
                                         `📊 Vote on: ${fixture.homeTeam} vs ${fixture.awayTeam}\n` +
                                         `🏆 ${fixture.league}\n\n` +
                                         `Download the app and vote now!`;
-                                    try { await Share.share({ message }); } catch { }
+                                    try { await Share.share({ message }); } catch { /* The share sheet can be dismissed or unavailable. */ }
                                 }}
                                 style={({ pressed }) => [styles.shareBtn, pressed && { opacity: PRESSED_OPACITY }]}
                             >
