@@ -320,6 +320,16 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
     sendTyping();
   }
 
+  // React Native's multiline TextInput grows until its maxHeight. Mirror that
+  // behavior in the browser without changing the text or typing-throttle flow.
+  function handleComposerChange(event: ChangeEvent<HTMLTextAreaElement>) {
+    const target = event.currentTarget;
+    handleDraftChange(target.value);
+    target.style.height = 'auto';
+    target.style.height = `${Math.min(target.scrollHeight, 100)}px`;
+    target.style.overflowY = target.scrollHeight > 100 ? 'auto' : 'hidden';
+  }
+
   async function handleImagePick(event?: ChangeEvent<HTMLInputElement>) {
     setShowAttachMenu(false);
     const input = event?.currentTarget;
@@ -583,13 +593,13 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       onSubmit={(event) => { event.preventDefault(); void handleSend(); }}>
             <textarea
       value={draft}
-      onChange={(event) => handleDraftChange(event.target.value)}
+      onChange={handleComposerChange}
       onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void handleSend(); } }}
       disabled={!isLoggedIn || uploadingImage}
       rows={1}
       placeholder={!isLoggedIn ? 'Log in to chat' : uploadingImage ? 'Uploading…' : isLive ? '🔴 Live - join the conversation!' : isCompleted ? '📊 Game finished - discuss the match!' : 'Type a message…'}
       aria-label="Type a message"
-      className="max-h-28 min-h-9 flex-1 resize-y bg-transparent py-2.5 text-[13px] outline-none"
+      className="max-h-28 min-h-9 flex-1 resize-none bg-transparent py-2.5 text-[13px] outline-none"
       style={{ color: colors.textPrimary, ...fanText('caption', colors, colors.textPrimary) }}/>
           </form>}
           {isLoggedIn && !voteGateActive && draft.trim().length > 0 && <button
