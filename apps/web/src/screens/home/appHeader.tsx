@@ -155,7 +155,7 @@ export function AppHeader(props: HeaderProps = {}) {
   const availableChannels = allChannels.length > 0 ? allChannels : joinedChannels;
 
   function openChat(channel: Channel) {
-    navigate(`/chat/${encodeURIComponent(channel.channelId)}`, {
+    navigate(`/messages/${encodeURIComponent(channel.channelId)}`, {
       state: { channelId: channel.channelId, channelName: channel.name, userId, username, authToken },
     });
   }
@@ -252,9 +252,10 @@ export function AppHeader(props: HeaderProps = {}) {
           </nav>
 
           <div className="ml-auto flex shrink-0 items-center gap-1.5 sm:gap-3">
+            {props.onEnableNotifications && <button type="button" onClick={() => { void props.onEnableNotifications?.(); }} className="hidden rounded-full px-3 py-2 text-[11px] font-medium lg:inline-flex" style={{ color: colors.textSecondary, background: colors.surface }}>Enable notifications</button>}
             <button
               type="button"
-              onClick={() => setNotifOpen(true)}
+              onClick={() => setNotifOpen(true)
               aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : 'Notifications'}
               className="relative flex h-9 w-9 items-center justify-center rounded-full"
               style={{ color: colors.textSecondary }}
