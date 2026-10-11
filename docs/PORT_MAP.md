@@ -9,7 +9,7 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/components/ChatsCard.tsx` | 504 | `apps/web/src/components/ChatsCard.tsx` | SUSPECT (26% line count) |
 | `src/components/FloatingPillTabBar.tsx` | 98 | `apps/web/src/components/FloatingPillTabBar.tsx` | SUSPECT (36% line count) |
 | `src/components/FooterPill.tsx` | 75 | `apps/web/src/components/FooterPill.tsx` | SUSPECT (32% line count) |
-| `src/components/HistoryCard.tsx` | 253 | `apps/web/src/components/HistoryCard.tsx` | PORTED |
+| `src/components/HistoryCard.tsx` | 253 | `apps/web/src/components/HistoryCard.tsx` | SUSPECT (30% line count) |
 | `src/components/PostCard.tsx` | 237 | `apps/web/src/components/PostCard.tsx` | SUSPECT (31% line count) |
 | `src/components/SmartMedia.tsx` | 59 | `apps/web/src/components/SmartMedia.tsx` | SUSPECT (36% line count) |
 | `src/components/WalletCard.tsx` | 94 | `apps/web/src/components/WalletCard.tsx` | PORTED |
@@ -37,9 +37,9 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/modals/AdminModal.tsx` | 1015 | MISSING — must port | PENDING |
 | `src/modals/AftermatchModal.tsx` | 913 | MISSING — must port | PENDING |
 | `src/modals/ChannelCreation.tsx` | 979 | MISSING — must port | PENDING |
-| `src/modals/ChannelCreationModal.tsx` | 91 | `apps/web/src/modals/ChannelCreationModal.tsx` | PORTED |
+| `src/modals/ChannelCreationModal.tsx` | 91 | `apps/web/src/modals/ChannelCreationModal.tsx` | PORTED (72% line count) |
 | `src/modals/CommentsModal.tsx` | 1043 | MISSING — must port | PENDING |
-| `src/modals/ComradesModal.tsx` | 290 | MISSING — must port | PENDING |
+| `src/modals/ComradesModal.tsx` | 290 | `apps/web/src/modals/ComradesModal.tsx` | PORTED |
 | `src/modals/HistoryModal.tsx` | 449 | MISSING — must port | PENDING |
 | `src/modals/LeaderboardModal.tsx` | 1998 | MISSING — must port | PENDING |
 | `src/modals/Login-modal-context.tsx` | 138 | `apps/web/src/modals/Login-modal-context.tsx` | SUSPECT (34% line count) |
@@ -49,7 +49,7 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/modals/actionModal.tsx` | 2764 | MISSING — must port | PENDING |
 | `src/modals/addPostModal.tsx` | 834 | MISSING — must port | PENDING |
 | `src/modals/channelHeader.tsx` | 38 | `apps/web/src/modals/channelHeader.tsx` | PORTED |
-| `src/modals/comradelist/comradeCard.tsx` | 279 | `apps/web/src/modals/comradelist/comradeCard.tsx` | PORTED |
+| `src/modals/comradelist/comradeCard.tsx` | 279 | `apps/web/src/modals/comradelist/comradeCard.tsx` | SUSPECT (24% line count) |
 | `src/modals/comradelist/index.tsx` | 1190 | MISSING — must port | PENDING |
 | `src/modals/comradelist/types.ts` | 43 | `apps/web/src/modals/comradelist/types.ts` | PORTED |
 | `src/modals/joingroupmodal.tsx` | 794 | MISSING — must port | PENDING |

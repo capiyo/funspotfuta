@@ -81,6 +81,11 @@ export default function NotificationGate({ visible, onRetry }: { visible: boolea
           style={{ background: colors.green }}>
           {requesting ? 'Requesting…' : unsupported ? 'Try Notifications Again' : 'Allow Notifications'}
         </button>
+        <button type="button" onClick={() => void onRetry()} disabled={requesting}
+          className="mt-3 w-full rounded-xl px-4 py-2 text-sm font-semibold disabled:opacity-60"
+          style={{ color: colors.textMuted }}>
+          Continue without notifications
+        </button>
       </section>
     </div>,
     document.body,
