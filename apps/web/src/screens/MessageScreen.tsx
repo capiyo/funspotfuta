@@ -26,7 +26,7 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type CSSProperties, type MouseEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import {
   ArrowLeft, Image as ImageIcon, Info, Lock, Paperclip, Send, Users, X,
@@ -123,6 +123,7 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
 
   const routeChannelId = props.channel?.channelId ?? routeParams.channelId ?? searchParams.get('channelId');
   const routeFixtureId = searchParams.get('fixtureId');
+  const legacyEmbed = !!props.channel && !routeParams.channelId && !searchParams.get('channelId');
   const [activeChannelId, setActiveChannelId] = useState<string | null>(routeChannelId ?? null);
   const [autoFixture, setAutoFixture] = useState<Fixture | null>(null);
   const [draft, setDraft] = useState('');
@@ -398,6 +399,10 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
     minHeight: '100dvh', height: '100dvh', display: 'flex', flexDirection: 'column',
     overflow: 'hidden', paddingTop: 'env(safe-area-inset-top)',
   };
+
+  if (legacyEmbed && props.channel?.channelId) {
+    return <Navigate to={`/messages/${encodeURIComponent(props.channel.channelId)}`} replace />;
+  }
 
   return <main
       className="message-screen flex min-h-0 flex-col"
