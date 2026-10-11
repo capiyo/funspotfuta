@@ -108,16 +108,20 @@ function isUpcomingStatus(status: string): boolean {
  * does not render inside ChatsScreen, so route state and the message lifecycle
  * remain scoped to this screen.
  */
-export default function MessageScreen() {
+export default function MessageScreen(props: { channel?: Channel; userId?: string | null; username?: string | null; authToken?: string | null } = {}) {
   const colors = useFanColors();
   const navigate = useNavigate();
   const routeParams = useParams<RouteParams>();
   const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
-  const { userId, username, authToken, isLoggedIn } = useAuth();
+  const auth = useAuth();
+  const userId = props.userId !== undefined ? props.userId : auth.userId;
+  const username = props.username !== undefined ? props.username : auth.username;
+  const authToken = props.authToken !== undefined ? props.authToken : auth.authToken;
+  const isLoggedIn = auth.isLoggedIn;
   const toast = useToast();
 
-  const routeChannelId = routeParams.channelId ?? searchParams.get('channelId');
+  const routeChannelId = props.channel?.channelId ?? routeParams.channelId ?? searchParams.get('channelId');
   const routeFixtureId = searchParams.get('fixtureId');
   const [activeChannelId, setActiveChannelId] = useState<string | null>(routeChannelId ?? null);
   const [autoFixture, setAutoFixture] = useState<Fixture | null>(null);
