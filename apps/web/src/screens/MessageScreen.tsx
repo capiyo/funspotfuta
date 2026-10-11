@@ -1004,7 +1004,7 @@ function Dialog({ colors, label, onClose, children }: { colors: FanColors; label
       style={{ maxHeight: '88vh', overflowY: 'auto', background: colors.surface, color: colors.textPrimary, border: `1px solid ${colors.border}` }}>{children}</section>
 </div>, document.body);
 }
-function ActionRow({ icon, label, onClick, danger = false }: { icon: React.ReactNode; label: string; onClick: () => void; danger?: boolean }) {
+function ActionRow({ icon, label, onClick, danger = false }: { icon: ReactNode; label: string; onClick: () => void; danger?: boolean }) {
   const colors = useFanColors();
   return <button
       type="button"
