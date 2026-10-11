@@ -14,6 +14,7 @@ export default function LoginModal() {
   const [phone, setPhone] = useState('');
   const [countryCode, setCountryCode] = useState('+254');
   const [resendIn, setResendIn] = useState(0);
+  const [acceptTerms, setAcceptTerms] = useState(false);
   const [username, setUsername] = useState('');
   const [code, setCode] = useState('');
   const [confirmation, setConfirmation] = useState<ConfirmationResult | null>(null);
@@ -24,8 +25,8 @@ export default function LoginModal() {
 
   useEffect(() => () => { recaptcha.current?.clear(); }, []);
   useEffect(() => { if (resendIn <= 0) return; const timer = window.setTimeout(() => setResendIn((value) => Math.max(0, value - 1)), 1000); return () => window.clearTimeout(timer); }, [resendIn]);
-  async function sendCode(event: React.FormEvent) {
-    event.preventDefault(); setError('');
+  async function sendCode(event?: React.FormEvent) {
+    event?.preventDefault(); setError('');
     if (!firebaseAuth) { setError('Firebase is not configured. Add the VITE_FIREBASE_* values from the setup guide.'); return; }
     const phoneError = validatePhone(phone, countryCode);
     if (phoneError) { setError(phoneError); return; }
@@ -81,7 +82,7 @@ export default function LoginModal() {
   return <main className="login-page"><section className="login-card"><a href="/" className="brand">Funspot😂</a><h1>Join the conversation</h1><p className="muted">Sign in with your phone number. Kenya (+254) is the default country.</p>
     {!confirmation ? <form onSubmit={sendCode} className="login-form"><label htmlFor="country-code">Country</label><select id="country-code" value={countryCode} onChange={(e) => setCountryCode(e.target.value)}>{[['Kenya','+254'],['United States','+1'],['United Kingdom','+44'],['Nigeria','+234'],['Ghana','+233'],['South Africa','+27'],['Tanzania','+255'],['Uganda','+256'],['Rwanda','+250'],['Ethiopia','+251'],['India','+91'],['Canada','+1'],['Australia','+61'],['Germany','+49'],['Netherlands','+31']].map(([name,dial]) => <option key={name} value={dial}>{name} ({dial})</option>)}</select><label htmlFor="phone">Phone number</label><div className="phone-input"><span>{countryCode}</span><input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder={countryCode === '+254' ? '7XX XXX XXX' : 'Phone number'} autoComplete="tel" required /></div><label className="terms-row"><input type="checkbox" checked={acceptTerms} onChange={(e) => setAcceptTerms(e.target.checked)} /> I accept the <a href="https://clash-privacy.netlify.app/" target="_blank" rel="noreferrer">Terms &amp; Conditions</a>.</label><button className="button button-wide" disabled={busy}>{busy ? 'Sending code…' : 'Send verification code'}</button><div id="recaptcha-container" /></form> :
       needsUsername ? <form onSubmit={finishRegistration} className="login-form"><label htmlFor="username">Choose a username</label><input id="username" value={username} onChange={(e) => setUsername(e.target.value)} placeholder="3–20 letters" required /><button className="button button-wide" disabled={busy}>{busy ? 'Creating account…' : 'Create account'}</button></form> :
-      <form onSubmit={verifyCode} className="login-form"><label htmlFor="code">SMS verification code</label><input id="code" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} placeholder="6-digit code" required /><button className="button button-wide" disabled={busy}>{busy ? 'Verifying…' : 'Verify phone'}</button><button type="button" className="text-button" disabled={busy} onClick={() => { setConfirmation(null); setCode(''); recaptcha.current?.clear(); }}>Use a different number</button></form>}
+      <form onSubmit={verifyCode} className="login-form"><label htmlFor="code">SMS verification code</label><input id="code" inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={code} onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))} placeholder="6-digit code" required /><button className="button button-wide" disabled={busy}>{busy ? 'Verifying…' : 'Verify phone'}</button><button type="button" className="text-button" disabled={busy || resendIn > 0} onClick={() => { setConfirmation(null); setCode(''); void sendCode(); }}>{resendIn > 0 ? 'Resend code in ' + resendIn + 's' : 'Resend code'}</button><button type="button" className="text-button" disabled={busy} onClick={() => { setConfirmation(null); setCode(''); setError(''); recaptcha.current?.clear(); }}>Use a different number</button></form>}
     {error && <p className="error-message" role="alert">{error}</p>}<p className="muted small">If SMS delivery fails, verify that Phone Authentication is enabled and your country is allowed in Firebase Console.</p>
   </section></main>;
 }
