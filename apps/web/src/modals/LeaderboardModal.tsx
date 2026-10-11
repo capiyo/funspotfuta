@@ -20,6 +20,7 @@
 // the user can hop channels from inside this modal.
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
 import {
   View,
   Text,
@@ -521,7 +522,7 @@ function ChampionStat({
 }: {
   colors: FanColors;
   styles: ReturnType<typeof createStyles>;
-  icon: React.ReactNode;
+  icon: ReactNode;
   value: string;
   label: string;
 }) {
@@ -756,7 +757,7 @@ function StatRow({
   colors: FanColors;
   styles: ReturnType<typeof createStyles>;
   label: string;
-  trailing: React.ReactNode;
+  trailing: ReactNode;
 }) {
   return (
     <View style={styles.statRow}>
