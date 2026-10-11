@@ -54,7 +54,7 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/modals/comradelist/types.ts` | 43 | `apps/web/src/modals/comradelist/types.ts` | PORTED |
 | `src/modals/joingroupmodal.tsx` | 794 | MISSING — must port | PENDING |
 | `src/modals/match/lineupsTab.tsx` | 362 | `apps/web/src/modals/match/lineupsTab.tsx` | PORTED |
-| `src/modals/match/matchDetailsModals.tsx` | 500 | MISSING — must port | PENDING |
+| `src/modals/match/matchDetailsModals.tsx` | 500 | `apps/web/src/modals/match/matchDetailsModals.tsx` | PORTED |
 | `src/modals/match/pitchView.tsx` | 1119 | `apps/web/src/modals/match/pitchView.tsx` (18% line count; simplified view, suspect) | SUSPECT (18% line count) |
 | `src/modals/match/statsTab.tsx` | 236 | `apps/web/src/modals/match/statsTab.tsx` | PORTED |
 | `src/modals/profile/ChannelLeaderboard.tsx` | 563 | MISSING — must port | PENDING |
