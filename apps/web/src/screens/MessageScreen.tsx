@@ -258,6 +258,23 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
     return () => window.clearTimeout(timer);
   }, [messages.length]);
 
+  // FlatList's onContentSizeChange also scrolls after text and media layout.
+  // A MutationObserver gives the DOM list the same behavior when the content
+  // grows without changing the message count (for example after image decode).
+  useEffect(() => {
+    const element = listRef.current;
+    if (!element) return;
+    const observer = new MutationObserver(() => {
+      element.scrollTo({ top: element.scrollHeight, behavior: 'auto' });
+    });
+    observer.observe(element, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    });
+    return () => observer.disconnect();
+  }, []);
+
   useEffect(() => { markReadRef.current = markRead; }, [markRead]);
   useEffect(() => () => { void markReadRef.current?.(); }, []);
 
