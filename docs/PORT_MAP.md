@@ -61,7 +61,7 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/modals/profile/ProfileModal.tsx` | 1121 | MISSING — must port | PENDING |
 | `src/modals/profile/index.tsx` | 1072 | MISSING — must port | PENDING |
 | `src/modals/profile/paymentsDialogs.tsx` | 715 | MISSING — must port | PENDING |
-| `src/modals/profile/types.ts` | 68 | MISSING — must port | PENDING |
+| `src/modals/profile/types.ts` | 68 | `apps/web/src/modals/profile/types.ts` (logic copied unchanged) | PORTED |
 | `src/navigation/RootNavigator.tsx` | 50 | MISSING — must port | PENDING |
 | `src/screens/ChatsScreen.tsx` | 602 | `apps/web/src/screens/ChatsScreen.tsx` is 28 lines; mobile fixture list, voting, pledge, refresh and modal wiring still unported | PENDING |
 | `src/screens/FeedScreen.tsx` | 368 | `apps/web/src/screens/FeedScreen.tsx` | SUSPECT (34% line count) |
