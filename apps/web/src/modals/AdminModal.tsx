@@ -33,6 +33,7 @@
 //   FanColors.border                      → colors.border
 
 import { useCallback, useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
 import {
   View,
   Text,
@@ -577,7 +578,7 @@ function StatCard({
 }: {
   colors: FanColorPalette;
   styles: ReturnType<typeof createStyles>;
-  icon: React.ReactNode;
+  icon: ReactNode;
   value: number;
   label: string;
 }) {
@@ -779,7 +780,7 @@ function StatRow({
   colors: FanColorPalette;
   styles: ReturnType<typeof createStyles>;
   label: string;
-  trailing: React.ReactNode;
+  trailing: ReactNode;
 }) {
   return (
     <View style={styles.memberStatRow}>
