@@ -1,4 +1,5 @@
-import { createElement, type CSSProperties, type ReactNode } from 'react';
+import { createElement, type CSSProperties } from 'react';
+import type * as React from 'react';
 import { createPortal } from 'react-dom';
 
 type NativeProps = Record<string, any> & { children?: ReactNode; style?: any };
@@ -111,7 +112,7 @@ export function Modal({ visible, children, onRequestClose: _onRequestClose, tran
 }
 
 export function RefreshControl(_props: NativeProps) { return null; }
-export function Keyboard() { return { dismiss: () => { if (document.activeElement instanceof HTMLElement) document.activeElement.blur(); } }; }
+export const Keyboard = { dismiss: () => { if (document.activeElement instanceof HTMLElement) document.activeElement.blur(); } };
 export const Platform = { OS: 'web', select: (values: Record<string, any>) => values.web ?? values.default };
 export const Share = { share: async ({ message }: { message: string }) => { if (navigator.share) await navigator.share({ text: message }); else await navigator.clipboard?.writeText(message); } };
 export const StyleSheet = {
@@ -124,9 +125,9 @@ export function useWindowDimensions() {
   return { width: typeof window === 'undefined' ? 1024 : window.innerWidth, height: typeof window === 'undefined' ? 768 : window.innerHeight, scale: 1, fontScale: 1 };
 }
 
-export function Picker({ children, selectedValue, onValueChange, style, ...props }: NativeProps) {
+export const Picker: any = function Picker({ children, selectedValue, onValueChange, style, ...props }: NativeProps) {
   return createElement('select', { ...props, value: selectedValue, onChange: (event: React.ChangeEvent<HTMLSelectElement>) => onValueChange?.(event.target.value), style: commonStyle(style) }, children);
-}
+};
 Picker.Item = function PickerItem({ label, value, ...props }: NativeProps) {
   return createElement('option', { ...props, value }, label);
 };
