@@ -29,11 +29,11 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/components/ui/postImages.tsx` | 163 | MISSING — must port | PENDING |
 | `src/lib/api/media-service.ts` | 58 | Exists at matching path; parity not yet verified | PENDING |
 | `src/lib/api/notification-service.ts` | 969 | Exists at matching path; parity not yet verified | PENDING |
-| `src/lib/api/posts-create.ts` | 93 | MISSING — must port | PENDING |
+| `src/lib/api/posts-create.ts` | 93 | `apps/web/src/lib/api/posts-create.ts` | PORTED |
 | `src/lib/auth/auth-context.tsx` | 213 | Exists at matching path; parity not yet verified | PENDING |
 | `src/lib/auth/auth-validation.tsx` | 104 | Exists at matching path; parity not yet verified | PENDING |
 | `src/lib/firebase.ts` | 55 | Exists at matching path; parity not yet verified | PENDING |
-| `src/lib/toast/toast-context.tsx` | 111 | MISSING — must port | PENDING |
+| `src/lib/toast/toast-context.tsx` | 111 | `apps/web/src/lib/toast/toast-context.tsx` | PORTED |
 | `src/modals/AdminModal.tsx` | 1015 | MISSING — must port | PENDING |
 | `src/modals/AftermatchModal.tsx` | 913 | MISSING — must port | PENDING |
 | `src/modals/ChannelCreation.tsx` | 979 | MISSING — must port | PENDING |
