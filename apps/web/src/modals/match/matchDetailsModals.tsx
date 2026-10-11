@@ -45,7 +45,7 @@ export function MatchDetailsModal({visible,fixture,userId,username,authToken,onC
       if(fallbackRes.status===200) { const data=await fallbackRes.json(); if(data?.success===true&&data?.data!=null) { setLineups(parseLineupsData(data.data));setLoadingLineups(false);return; } }
       setLineupsError('No lineup available');setLoadingLineups(false);
     } catch(error) { console.warn('❌ Error fetching lineups:',error);setLineupsError('No network error');setLoadingLineups(false); }
-  },[fixture.matchId,authToken]);
+  },[fixture.matchId,authToken,headers]);
 
   const fetchStatistics=useCallback(async()=>{
     setLoadingStats(true);setStatsError('');

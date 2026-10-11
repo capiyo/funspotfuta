@@ -148,10 +148,10 @@ export function PitchView({ homeTeam, awayTeam, homeFormation, awayFormation, ho
   const colors = useFanColors();
   const [showHomeOverflow,setShowHomeOverflow] = useState(false), [showAwayOverflow,setShowAwayOverflow] = useState(false);
   const [pitchSize,setPitchSize] = useState({width:0,height:0});
-  const cappedHome=homePlayers.slice(0,11), cappedAway=awayPlayers.slice(0,11);
+  const cappedHome=useMemo(()=>homePlayers.slice(0,11),[homePlayers]), cappedAway=useMemo(()=>awayPlayers.slice(0,11),[awayPlayers]);
   const homeOverflow=homePlayers.slice(11), awayOverflow=awayPlayers.slice(11);
-  const homePositions=useMemo(()=>pitchSize.width>0?calculatePositions(cappedHome,homeFormation,{isHome:true,width:pitchSize.width,height:pitchSize.height}):[],[homePlayers,homeFormation,pitchSize.width,pitchSize.height]);
-  const awayPositions=useMemo(()=>pitchSize.width>0?calculatePositions(cappedAway,awayFormation,{isHome:false,width:pitchSize.width,height:pitchSize.height}):[],[awayPlayers,awayFormation,pitchSize.width,pitchSize.height]);
+  const homePositions=useMemo(()=>pitchSize.width>0?calculatePositions(cappedHome,homeFormation,{isHome:true,width:pitchSize.width,height:pitchSize.height}):[],[cappedHome,homeFormation,pitchSize.width,pitchSize.height]);
+  const awayPositions=useMemo(()=>pitchSize.width>0?calculatePositions(cappedAway,awayFormation,{isHome:false,width:pitchSize.width,height:pitchSize.height}):[],[cappedAway,awayFormation,pitchSize.width,pitchSize.height]);
   const width=600, height=width*PITCH_ASPECT_RATIO;
   const renderPlayers=(players:SimplifiedPlayer[],positions:PitchPosition[],color:string,isHome:boolean)=>players.slice(0,11).map((player,index)=>{
     const point=positions[index]; if(!point) return null;

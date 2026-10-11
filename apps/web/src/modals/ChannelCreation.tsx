@@ -8,7 +8,7 @@ import { colors } from '@/theme';
 
 const ADMIN_ACCENT='#F59E0B', MEMBER_ACCENT='#10B981', DANGER='#EF4444';
 const API_BASE='https://clash-api-m5mr.onrender.com/api';
-function authHeaders(authToken?:string|null):HeadersInit{return {'Content-Type':'application/json',...(authToken?{Authorization:`Bearer ${authToken}`}:{})};}
+function authHeaders(authToken?:string|null):Record<string,string>{return {'Content-Type':'application/json',...(authToken?{Authorization:`Bearer ${authToken}`}:{})};}
 async function fetchAllProfiles(authToken?:string|null):Promise<any[]>{try{const res=await fetch(`${API_BASE}/profile/profiles`,{headers:authHeaders(authToken)});if(!res.ok)return[];const body:unknown=await res.json();return Array.isArray(body)?body:[];}catch(e){console.warn('fetchAllProfiles failed:',e);return[];}}
 async function fetchAllChannels(authToken?:string|null):Promise<any[]>{try{const res=await fetch(`${API_BASE}/channels/all`,{headers:authHeaders(authToken)});if(!res.ok)return[];const body:unknown=await res.json();if(Array.isArray(body))return body;const asObj=body as {channels?:unknown}|null;return asObj&&Array.isArray(asObj.channels)?asObj.channels as any[]:[];}catch(e){console.warn('fetchAllChannels failed:',e);return[];}}
 
