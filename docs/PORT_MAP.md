@@ -55,7 +55,7 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/modals/joingroupmodal.tsx` | 794 | MISSING — must port | PENDING |
 | `src/modals/match/lineupsTab.tsx` | 362 | MISSING — must port | PENDING |
 | `src/modals/match/matchDetailsModals.tsx` | 500 | MISSING — must port | PENDING |
-| `src/modals/match/pitchView.tsx` | 1119 | MISSING — must port | PENDING |
+| `src/modals/match/pitchView.tsx` | 1119 | `apps/web/src/modals/match/pitchView.tsx` (positioning helpers and SVG field ported; bench interactions retained) | PORTED |
 | `src/modals/match/statsTab.tsx` | 236 | `apps/web/src/modals/match/statsTab.tsx` | PORTED |
 | `src/modals/profile/ChannelLeaderboard.tsx` | 563 | MISSING — must port | PENDING |
 | `src/modals/profile/ProfileModal.tsx` | 1121 | MISSING — must port | PENDING |
