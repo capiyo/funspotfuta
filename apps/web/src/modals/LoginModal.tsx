@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { buildE164, validatePhone, validateUsername } from '@/lib/auth/auth-validation';
 import { RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
-import { checkUser, pinLogin, registerUser, setPin } from '@funspot/core';
+import { checkUser, isUsernameTaken, pinLogin, registerUser, setPin } from '@funspot/core';
 import { firebaseAuth } from '@/lib/firebase';
 import { useAuth } from '@/lib/auth/auth-context';
 
@@ -108,6 +108,7 @@ export default function LoginModal() {
     if (validationError) { setError(validationError); return; }
     setBusy(true);
     try {
+      if (await isUsernameTaken(name)) { setError('That username is already taken.'); return; }
       const result = await registerUser(name, verifiedPhone, pendingPin ?? undefined);
       if (!result.ok || !result.user?.id || !result.token) throw new Error(result.message ?? 'Registration failed.');
       auth.login(String(result.user.id), name, result.token, verifiedPhone);
