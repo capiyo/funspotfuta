@@ -246,7 +246,7 @@ export function DepositDialog({
                 style={styles.backdrop}
                 onPress={processing ? undefined : onClose}
             >
-                <Pressable style={styles.dialog} onPress={(e) => e.stopPropagation()}>
+                <Pressable style={styles.dialog} onPress={(e: any) => e.stopPropagation()}>
                     <View style={styles.dialogHeader}>
                         <Plus size={18} color={colors.primary} />
                         <Text style={[styles.dialogTitle, { color: colors.textPrimary }]}>
