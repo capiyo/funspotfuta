@@ -10,7 +10,7 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/components/FloatingPillTabBar.tsx` | 98 | `apps/web/src/components/FloatingPillTabBar.tsx` | PORTED |
 | `src/components/FooterPill.tsx` | 75 | `apps/web/src/components/FooterPill.tsx` | PORTED |
 | `src/components/HistoryCard.tsx` | 253 | MISSING — must port | PENDING |
-| `src/components/PostCard.tsx` | 237 | MISSING — must port | PENDING |
+| `src/components/PostCard.tsx` | 237 | `apps/web/src/components/PostCard.tsx` | PORTED |
 | `src/components/SmartMedia.tsx` | 59 | `apps/web/src/components/SmartMedia.tsx` | PORTED |
 | `src/components/WalletCard.tsx` | 94 | MISSING — must port | PENDING |
 | `src/components/ui/ActionButton.tsx` | 78 | `apps/web/src/components/ui/ActionButton.tsx` | PORTED |
