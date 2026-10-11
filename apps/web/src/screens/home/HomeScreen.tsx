@@ -4,6 +4,7 @@ import { useAuth } from '@/lib/auth/auth-context';
 import { useNavigate } from 'react-router-dom';
 import ChatsScreen from '@/screens/ChatsScreen';
 import FeedScreen from '@/screens/FeedScreen';
+import { requestWebPushToken } from '@/lib/api/notification-service';
 
 export default function HomeScreen() {
   const { userId, username, authToken, isLoggedIn, logout } = useAuth();
@@ -11,6 +12,7 @@ export default function HomeScreen() {
   const [activeChannelId, setActiveChannelId] = useState<string | null>(null);
   const [loadingChannels, setLoadingChannels] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [pushStatus, setPushStatus] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -36,9 +38,10 @@ export default function HomeScreen() {
       </div>
       <div className="navbar-actions">
         {isLoggedIn ? <><span className="username">{username}</span><button className="button button-quiet" onClick={() => { logout(); navigate('/login'); }}>Log out</button></> : <button className="button" onClick={() => navigate('/login')}>Join</button>}
-        <button className="button button-quiet" onClick={() => setRefreshKey((n) => n + 1)} aria-label="Refresh channels">↻</button>
+        <button className="button button-quiet" onClick={async () => { try { const token = await requestWebPushToken(); setPushStatus(token ? 'Browser push token created. Server registration is unavailable in the current mobile API contract.' : 'Push notifications are unsupported or permission was not granted.'); } catch (e) { setPushStatus(e instanceof Error ? e.message : 'Could not enable notifications.'); } }} aria-label="Enable notifications">Enable notifications</button><button className="button button-quiet" onClick={() => setRefreshKey((n) => n + 1)} aria-label="Refresh channels">↻</button>
       </div>
     </header>
+    {pushStatus && <div className="push-status" role="status">{pushStatus}<button onClick={() => setPushStatus('')} aria-label="Dismiss notification setup message">×</button></div>}
     <div className="workspace">
       <aside className="profile-sidebar">
         <div className="profile-avatar" aria-hidden="true">{(username?.[0] ?? 'F').toUpperCase()}</div>
