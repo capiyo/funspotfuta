@@ -62,11 +62,11 @@ export default function HomeScreen() {
       </aside>
       <div className="mobile-home-tabs"><FloatingPillTabBar active={activeTab} onChange={setActiveTab} /></div>
       <main className="home-columns" aria-label="Home workspace">
-        <section className={`home-column chats-column ${activeTab === 'Chats' ? 'mobile-tab-active' : 'mobile-tab-hidden'}`} aria-label="Chats" aria-hidden={activeTab !== 'Chats' && window.matchMedia('(max-width: 650px)').matches}>
+        <section className={`home-column chats-column ${activeTab === 'Chats' ? 'mobile-tab-active' : 'mobile-tab-hidden'}`} aria-label="Chats">
           <ChatsScreen channels={channels} activeChannel={activeChannel}
             onSelectChannel={(channel) => setActiveChannelId(channel.channelId)} loading={loadingChannels} />
         </section>
-        <section className={`home-column feed-column ${activeTab === 'Feed' ? 'mobile-tab-active' : 'mobile-tab-hidden'}`} aria-label="Feed" aria-hidden={activeTab !== 'Feed' && window.matchMedia('(max-width: 650px)').matches}>
+        <section className={`home-column feed-column ${activeTab === 'Feed' ? 'mobile-tab-active' : 'mobile-tab-hidden'}`} aria-label="Feed">
           <FeedScreen />
         </section>
       </main>
