@@ -1,14 +1,14 @@
 import { useEffect } from 'react';
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
+import type { ReactNode } from 'react';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useLoginModal } from '@/modals/Login-modal-context';
 import HomeScreen from '@/screens/home/HomeScreen';
 import MessageScreen from '@/screens/MessageScreen';
 import LoginModal from '@/modals/LoginModal';
 
-/** Browser equivalent of the mobile RootNavigator. Only the mobile Tabs and
- * Chat destinations are registered here; the mobile screen names are kept. */
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
+// Browser equivalent of mobile RootNavigator: only Tabs and Chat are routes.
+function ProtectedRoute({ children }: { children: ReactNode }) {
   const { isInitialized, isLoggedIn } = useAuth();
   const { requireLogin } = useLoginModal();
   const location = useLocation();
@@ -25,7 +25,6 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 export default function RootNavigator() {
   const { isInitialized, isLoggedIn } = useAuth();
   if (!isInitialized) return <div className="loading-screen" role="status" aria-label="Loading"><span className="spinner" /></div>;
-
   return <Routes>
     <Route path="/" element={<HomeScreen />} />
     <Route path="/messages/:channelId?" element={<ProtectedRoute><MessageScreen /></ProtectedRoute>} />
