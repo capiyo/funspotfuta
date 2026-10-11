@@ -759,7 +759,7 @@ export default function ProfileModal({
                 statusBarTranslucent
             >
                 <Pressable style={styles.backdrop} onPress={onClose}>
-                    <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
+                    <Pressable style={styles.sheet} onPress={(e: any) => e.stopPropagation()}>
                         <View style={styles.handleWrap}>
                             <View style={styles.handle} />
                         </View>
