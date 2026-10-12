@@ -741,3 +741,8 @@ body:has(.home-screen) *::-webkit-scrollbar {
   color: var(--home-text-secondary) !important;
   background: var(--home-page-bg) !important;
 }
+
+.home-screen .profile-sidebar-rich .mock-signin {
+  color: var(--home-primary) !important;
+  background: var(--home-page-bg) !important;
+}
