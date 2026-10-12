@@ -901,6 +901,7 @@ export default function ProfileModal({
 
             {/* Scrollable body */}
             <ScrollView
+              className="no-scrollbar"
               style={styles.scroll}
               contentContainerStyle={styles.scrollContent}
               keyboardShouldPersistTaps="handled"
