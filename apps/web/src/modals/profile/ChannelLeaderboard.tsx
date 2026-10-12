@@ -378,6 +378,8 @@ export function ChannelLeaderboard({
 
             {/* Members list */}
             <FlatList
+                className="no-scrollbar"
+                showsVerticalScrollIndicator={false}
                 data={sortedMembers}
                 keyExtractor={(m: any) => m.userId}
                 contentContainerStyle={styles.membersList}
