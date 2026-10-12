@@ -21,3 +21,9 @@
 
 ## Notifications compatibility finding
 - `packages/core/src/api/notification-service.ts` defines `registerToken` for `POST /api/notifications/register-token`, body `{ user_id, fcm_token, platform }`, with `platform: 'web'` accepted by the shared type. The mobile login flow still leaves automatic registration after login as a TODO, but the endpoint and payload contract exist. Web registration therefore reuses this exact shared function after an explicit user action; it does not invent an endpoint. Server acceptance still needs runtime verification.
+
+- Home surface reset: Home is one page-background surface; borders, separators, shadows, and rounded corners are removed with scoped global CSS. Avatar circles remain circular because the mobile UI uses circular avatars.
+- Home scrolling: panes and Home modal scroll containers remain scrollable but hide scrollbar chrome using the `.no-scrollbar` utility and equivalent scoped selectors. No stable scrollbar gutter is reserved.
+- Feed composer: guests do not see a composer; only authenticated users can create posts.
+- Feed media: web uses a natural-image aspect ratio clamped between 16:9 and 4:5, capped by viewport height. This is a deliberate web adaptation to avoid oversized media while preserving mobile's full-width media.
+- Chats cards: channel assignment rotates through the filtered/sorted channel pool by visible card position, rather than using a fixture hash, so adjacent cards use different channels when at least two are available.

@@ -284,3 +284,143 @@ body:has(.home-screen) {
     display: block;
   }
 }
+
+
+/* Home is one uninterrupted surface. All panes remain scrollable without visible rails. */
+.home-screen {
+  --home-page-bg: var(--home-scrollbar-track, #0b1020);
+  background: var(--home-page-bg) !important;
+}
+.no-scrollbar {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+.no-scrollbar::-webkit-scrollbar,
+.no-scrollbar *::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+.home-screen,
+.home-screen *,
+body:has(.home-screen) .fixed,
+body:has(.home-screen) .fixed * {
+  box-shadow: none !important;
+  outline: 0 !important;
+  border-width: 0 !important;
+  border-style: none !important;
+  border-radius: 0 !important;
+}
+.home-screen *::before,
+.home-screen *::after,
+body:has(.home-screen) .fixed *::before,
+body:has(.home-screen) .fixed *::after {
+  box-shadow: none !important;
+  outline: 0 !important;
+  border-width: 0 !important;
+  background-image: none !important;
+}
+.home-screen .profile-avatar,
+.home-screen .mini-avatar,
+.home-screen .mock-profile-avatar,
+.home-screen .mock-profile-identity img,
+.home-screen .navbar [aria-label*="Account menu"],
+.home-screen .navbar [aria-label*="Account menu"] img {
+  border-radius: 50% !important;
+}
+.home-screen > header,
+.home-screen .navbar,
+.home-screen .workspace,
+.home-screen .profile-sidebar,
+.home-screen .profile-sidebar-rich,
+.home-screen .home-columns,
+.home-screen .home-column,
+.home-screen .pane-content,
+.home-screen .pane-heading,
+.home-screen .mobile-home-tabs,
+.home-screen .feed-screen,
+.home-screen .feed-item,
+.home-screen .post-card,
+.home-screen .match-card,
+.home-screen .chats-fixture-list,
+.home-screen .chats-fixture-row,
+.home-screen .chats-list-footer {
+  background: var(--home-page-bg) !important;
+  background-color: var(--home-page-bg) !important;
+}
+.home-screen .navbar {
+  box-shadow: none !important;
+}
+.home-screen .workspace,
+.home-screen .home-columns,
+.home-screen .home-column,
+.home-screen .profile-sidebar,
+.home-screen .feed-screen,
+.home-screen .chats-fixture-list,
+.home-screen [class*="overflow-y-auto"],
+.home-screen [class*="overflow-auto"],
+body:has(.home-screen) .fixed [class*="overflow-y-auto"],
+body:has(.home-screen) .fixed [class*="overflow-auto"] {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+.home-screen .workspace::-webkit-scrollbar,
+.home-screen .home-columns::-webkit-scrollbar,
+.home-screen .home-column::-webkit-scrollbar,
+.home-screen .profile-sidebar::-webkit-scrollbar,
+.home-screen .feed-screen::-webkit-scrollbar,
+.home-screen .chats-fixture-list::-webkit-scrollbar,
+.home-screen [class*="overflow-y-auto"]::-webkit-scrollbar,
+.home-screen [class*="overflow-auto"]::-webkit-scrollbar,
+body:has(.home-screen) .fixed [class*="overflow-y-auto"]::-webkit-scrollbar,
+body:has(.home-screen) .fixed [class*="overflow-auto"]::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+.home-screen .feed-item,
+.home-screen .post-card,
+.home-screen .match-card {
+  margin-bottom: 14px !important;
+  padding: 0 !important;
+}
+.home-screen .profile-sidebar,
+.home-screen .profile-sidebar-rich {
+  border: 0 !important;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+.home-screen .pane-heading {
+  border: 0 !important;
+}
+.home-screen .chats-column {
+  border: 0 !important;
+}
+.home-screen hr,
+.home-screen [class*="divide-"],
+.home-screen [class*="ring-"],
+.home-screen [class*="outline-"],
+.home-screen [class*="border-"],
+body:has(.home-screen) .fixed hr,
+body:has(.home-screen) .fixed [class*="divide-"],
+body:has(.home-screen) .fixed [class*="ring-"],
+body:has(.home-screen) .fixed [class*="outline-"],
+body:has(.home-screen) .fixed [class*="border-"] {
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+body:has(.home-screen) {
+  height: 100vh;
+  overflow: hidden;
+}
+@media (max-width: 650px) {
+  .home-screen .home-columns {
+    display: flex;
+    flex-direction: column;
+  }
+  .home-screen .home-column {
+    flex: 1;
+    min-height: 0;
+  }
+}

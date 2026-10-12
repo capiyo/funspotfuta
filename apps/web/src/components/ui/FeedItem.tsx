@@ -8,14 +8,14 @@ export function FeedItem({ colors, onPress, style, children }: {
   children: ReactNode;
 }) {
   const root: CSSProperties = {
-    backgroundColor: colors.surface === colors.background ? colors.inputSurface : colors.surface,
+    backgroundColor: colors.background,
     color: colors.textPrimary,
-    padding: 14,
+    padding: 0,
     display: 'flex',
     flexDirection: 'column',
     gap: 8,
-    border: `1px solid ${colors.border}`,
-    borderRadius: 12,
+    border: 0,
+    borderRadius: 0,
     marginBottom: 10,
     minHeight: 0,
     boxSizing: 'border-box',
