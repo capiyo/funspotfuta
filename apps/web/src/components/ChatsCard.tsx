@@ -300,7 +300,7 @@ export function MatchCard({
       whiteSpace: 'nowrap',
     },
     leagueName: {
-      ...fanText('competition', colors, '#FFFFFF'),
+      ...fanText('competition', colors, colors.textPrimary),
       flex: 1,
       minWidth: 0,
       overflow: 'hidden',
@@ -355,19 +355,6 @@ export function MatchCard({
       minWidth: 0,
       border: 0,
       background: 'transparent',
-    },
-    captionButton: {
-      flexShrink: 0,
-      maxWidth: '40%',
-      minHeight: 32,
-      border: 0,
-      background: 'transparent',
-      cursor: 'pointer',
-      padding: 0,
-      overflow: 'hidden',
-      textOverflow: 'ellipsis',
-      whiteSpace: 'nowrap',
-      ...fanText('tag', colors, colors.textTertiary),
     },
   };
 
