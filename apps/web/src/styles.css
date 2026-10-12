@@ -679,3 +679,63 @@ body:has(.home-screen) *::-webkit-scrollbar {
   width: 0 !important;
   height: 0 !important;
 }
+
+
+/* Legacy base selectors above are shared by non-Home routes. On Home, colors
+   come only from the active theme palette rather than legacy hex literals. */
+.home-screen .brand {
+  color: var(--home-primary) !important;
+}
+.home-screen .username,
+.home-screen .muted,
+.home-screen .channel-row-copy small,
+.home-screen .post-author small,
+.home-screen .message-heading small,
+.home-screen .sidebar-label,
+.home-screen .eyebrow {
+  color: var(--home-text-tertiary) !important;
+}
+.home-screen .channel-chip,
+.home-screen .sidebar-channel,
+.home-screen .button,
+.home-screen .button-quiet {
+  color: var(--home-text-secondary) !important;
+  background: var(--home-page-bg) !important;
+  border: 0 !important;
+  filter: none !important;
+}
+.home-screen .channel-chip:hover,
+.home-screen .channel-chip.active,
+.home-screen .sidebar-channel:hover,
+.home-screen .sidebar-channel.selected,
+.home-screen .mock-signin {
+  color: var(--home-primary) !important;
+  background: var(--home-page-bg) !important;
+}
+.home-screen .profile-avatar,
+.home-screen .mini-avatar,
+.home-screen .channel-avatar {
+  color: var(--home-primary) !important;
+  background: var(--home-page-bg) !important;
+}
+.home-screen .count {
+  color: var(--home-primary) !important;
+  background: var(--home-page-bg) !important;
+}
+.home-screen .post-caption {
+  color: var(--home-text-primary) !important;
+}
+.home-screen .empty-state,
+.home-screen .error-state,
+.home-screen .empty-state p,
+.home-screen .error-state p {
+  color: var(--home-text-tertiary) !important;
+}
+.home-screen .empty-state h2,
+.home-screen .error-state h2 {
+  color: var(--home-text-primary) !important;
+}
+.home-screen .push-status {
+  color: var(--home-text-secondary) !important;
+  background: var(--home-page-bg) !important;
+}
