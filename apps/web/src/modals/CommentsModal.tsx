@@ -273,7 +273,7 @@ export default function PostCommentsModal({
           <button type="button" onClick={onClose} aria-label="Close comments" className="flex h-8 w-8 items-center justify-center rounded-full border"
             style={{ background: colors.surfaceSunken, borderColor: colors.border }}><X size={15} color={colors.textSecondary} /></button>
         </header>
-        <div ref={listRef} className="min-h-0 flex-1 overflow-y-auto px-5 py-4" style={{ gap: FAN_SPACING.md }}>
+        <div ref={listRef} className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-5 py-4" style={{ gap: FAN_SPACING.md }}>
           {loading && comments.length === 0 ? <div className="flex h-full flex-col items-center justify-center gap-3 py-12" role="status">
             <span className="h-6 w-6 animate-spin rounded-full border-2 border-current border-r-transparent" style={{ color: colors.primary }} />
             <span className="text-xs" style={{ color: colors.textTertiary }}>Loading comments…</span>
