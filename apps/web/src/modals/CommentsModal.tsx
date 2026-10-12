@@ -98,7 +98,7 @@ export interface PostCommentsModalProps {
 }
 
 export default function PostCommentsModal({
-  visible, onClose, postId, postUserId, postUserName, postCaption,
+  visible, onClose, postId, postUserId, postCaption,
 }: PostCommentsModalProps) {
   const colors = useFanColors();
   const { userId, username, authToken } = useAuth();
