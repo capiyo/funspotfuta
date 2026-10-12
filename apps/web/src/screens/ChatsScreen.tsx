@@ -6,8 +6,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
-import type { Fixture, FanColorPalette, Voter } from '@funspot/core';
+import type { Channel, Fixture, FanColorPalette, Voter } from '@funspot/core';
 import { FAN_SPACING, getAllFixtures } from '@funspot/core';
+import { useAllChannels } from '@/hooks/useAllChannels';
 import { sendChannelMessage } from '@funspot/core/src/api/send-channel-messages';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useLoginModal } from '@/modals/Login-modal-context';
@@ -104,11 +105,6 @@ function statusRank(fixture: Fixture) {
   if (isUpcomingFixture(fixture)) return 1;
   return 2;
 }
-function channelIdFor(fixtureKey: string, ids: string[]): string | undefined {
-  if (!ids.length) return undefined;
-  const h = (hashSeed(fixtureKey + '#ch') * 1103515245 + 12345) >>> 0;
-  return ids[(h >>> 16) % ids.length];
-}
 const panelStyle = (colors: FanColorPalette) => ({
   background: colors.background, color: colors.textPrimary, minWidth: 0, minHeight: 0,
 });
@@ -118,7 +114,7 @@ const headerStyle = (colors: FanColorPalette) => ({
 });
 const listStyle = (colors: FanColorPalette) => ({
   overflowY: 'auto' as const, minHeight: 0, flex: 1,
-  paddingBottom: LIST_BOTTOM_INSET, scrollbarGutter: 'stable' as const,
+  paddingBottom: LIST_BOTTOM_INSET,
   background: colors.background,
 });
 
@@ -149,18 +145,24 @@ export default function ChatsScreen() {
     enabled: isDesktop || activeTab === 'Chats',
   });
   const fixtures = data ?? NO_FIXTURES;
+  const { data: publicChannels = NO_CHANNELS, isPending: isAllChannelsPending } = useAllChannels(authToken);
+  const channelPool = useMemo(() => {
+    const merged = new Map<string, Channel>();
+    for (const channel of publicChannels) merged.set(channel.channelId, channel);
+    for (const channel of channels) merged.set(channel.channelId, channel);
+    return [...merged.values()].filter((channel) => !!channel.channelId && !!channel.name);
+  }, [publicChannels, channels]);
   const headerById = useMemo(() => {
     const map = new Map<string, ChannelHeaderData>();
-    for (const channel of channels) map.set(channel.channelId, channelHeaderOf(channel));
+    for (const channel of channelPool) map.set(channel.channelId, channelHeaderOf(channel));
     return map;
-  }, [channels]);
+  }, [channelPool]);
 
   const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState<Filter>('all');
   const [modalFixture, setModalFixture] = useState<Fixture | null>(null);
   const [reviewFixture, setReviewFixture] = useState<Fixture | null>(null);
   const [matchDetailsFixture, setMatchDetailsFixture] = useState<Fixture | null>(null);
-  const channelIds = useMemo(() => channels.map((channel) => channel.channelId), [channels]);
 
   // Each open vote sheet remembers the channel associated with that fixture.
   const [sheetChannelId, setSheetChannelId] = useState<string | undefined>();
@@ -179,7 +181,7 @@ export default function ChatsScreen() {
     [liveModalFixture, userId],
   );
   const loadError = error && fixtures.length === 0
-    ? 'Could not load fixtures. Pull down to try again.'
+    ? 'Could not load fixtures. Try again.'
     : null;
 
   const onRefresh = useCallback(async () => {
@@ -305,14 +307,14 @@ export default function ChatsScreen() {
 
   return (
     <section aria-label="Chats and fixtures" style={{ ...panelStyle(colors), display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-      {isPending ? (
-        <div style={{ paddingTop: topInset, minHeight: 0, overflowY: 'auto' }} aria-busy="true">
+      {isPending || isAllChannelsPending ? (
+        <div className="no-scrollbar" style={{ paddingTop: topInset, minHeight: 0, overflowY: 'auto' }} aria-busy="true">
           {listHeader}
           <SkeletonRows colors={colors} />
         </div>
       ) : (
         <div
-          className="chats-fixture-list"
+          className="chats-fixture-list no-scrollbar"
           style={{ ...listStyle(colors), paddingTop: topInset }}
           onScroll={scrollProps.onScroll}
           aria-label="Fixtures"
@@ -321,17 +323,18 @@ export default function ChatsScreen() {
           <div aria-live="polite">
             {filtered.length === 0 ? (
               isError ? (
-                <EmptyState colors={colors} title="You're offline" hint="Pull down to retry once you're back online." />
+                <EmptyState colors={colors} title="You're offline" hint="Tap Refresh once you're back online." />
               ) : (
                 <EmptyState colors={colors} title={EMPTY_COPY[filter].title} hint={EMPTY_COPY[filter].hint} />
               )
-            ) : filtered.map((fixture) => {
-              const channelId = channelIdFor(fixture.matchId || fixture.id, channelIds) ?? homeChannelId;
+            ) : filtered.map((fixture, index) => {
+              const channel = channelPool.length > 0 ? channelPool[index % channelPool.length] : undefined;
+              const channelId = channel?.channelId ?? homeChannelId;
               return (
                 <div key={fixture.id || fixture.matchId} className="chats-fixture-row">
                   <MatchCard
                     fixture={fixture}
-                    channel={channelId ? headerById.get(channelId) : undefined}
+                    channel={channel ? headerById.get(channel.channelId) : (channelId ? headerById.get(channelId) : undefined)}
                     comments={commentsOf(fixture)}
                     channelId={channelId}
                     onOpenVoteModal={(selectedFixture) => {
@@ -351,13 +354,12 @@ export default function ChatsScreen() {
               );
             })}
           </div>
-          <div className="chats-list-footer">
+          {(isError || filtered.length === 0) && <div className="chats-list-footer">
             <button type="button" onClick={() => void onRefresh()} disabled={refreshing}
-              aria-label="Refresh fixtures" aria-busy={refreshing}
-              className="secondary-button">
-              {refreshing ? 'Refreshing…' : 'Pull down to try again'}
+              aria-label="Refresh fixtures" aria-busy={refreshing} className="secondary-button">
+              {refreshing ? 'Refreshing…' : 'Refresh'}
             </button>
-          </div>
+          </div>}
         </div>
       )}
 
