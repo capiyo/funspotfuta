@@ -319,7 +319,7 @@ body:has(.home-screen) .fixed *::after {
   box-shadow: none !important;
   outline: 0 !important;
   border-width: 0 !important;
-  background-image: none !important;
+  background: transparent !important;
 }
 .home-screen .home-avatar,
 .home-screen .profile-avatar,
