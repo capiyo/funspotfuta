@@ -279,7 +279,8 @@ export default function PostCommentsModal({
             <span className="text-xs" style={{ color: colors.textTertiary }}>Loading comments…</span>
           </div> : comments.length === 0 ? <div className="flex h-full flex-col items-center justify-center gap-2 py-12">
             <MessageCircle size={30} color={colors.textTertiary} />
-            <strong className="text-xs">Be the first to comment!</strong>
+            <strong className="text-xs">No comments yet</strong>
+            <span className="text-xs" style={{ color: colors.textTertiary }}>Be the first to comment!</span>
           </div> : comments.map((comment) => <CommentBubble key={comment.id || `${comment.user_id}-${comment.timestamp}`}
             colors={colors} comment={comment} currentUserId={userId ?? ''}
             parentUsername={isReply(comment) ? comments.find((item) => item.id === comment.parent_comment_id)?.user_name ?? null : null}
