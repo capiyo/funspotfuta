@@ -327,7 +327,7 @@ function CommentBubble({ colors, comment, currentUserId, parentUsername, onReply
     </div>}
     <div className={`flex items-end gap-3 ${isMe ? 'justify-end' : 'justify-start'}`}>
       {!isMe && <button type="button" onClick={onReply} onContextMenu={(event) => { event.preventDefault(); onReply(); }}
-        aria-label={`Reply to ${comment.user_name}`} className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border text-sm font-semibold"
+        aria-label={`Reply to ${comment.user_name}`} className="home-avatar flex h-9 w-9 shrink-0 items-center justify-center rounded-full border text-sm font-semibold"
         style={{ background: colors.primaryDim, borderColor: colors.primaryMuted, color: colors.primary }}>{initialsOf(comment.user_name)}</button>}
       <div className={`flex max-w-[78%] shrink flex-col ${isMe ? 'items-end' : 'items-start'}`}>
         {!isMe && <span className="mb-1 mx-1 max-w-full truncate text-[10px] font-semibold">{comment.user_name}</span>}
@@ -343,7 +343,7 @@ function CommentBubble({ colors, comment, currentUserId, parentUsername, onReply
         </div>
       </div>
       {isMe && <button type="button" onClick={onReply} onContextMenu={(event) => { event.preventDefault(); onReply(); }}
-        aria-label="Reply to your comment" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold"
+        aria-label="Reply to your comment" className="home-avatar flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold"
         style={{ background: colors.primary, color: colors.textInverse }}>{initialsOf(comment.user_name)}</button>}
     </div>
   </article>;
