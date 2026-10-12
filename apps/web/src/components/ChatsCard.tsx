@@ -248,6 +248,7 @@ export function MatchCard({
       position: 'relative',
       zIndex: 1,
       pointerEvents: 'none',
+      padding: '14px 14px 0',
     },
     lineRow: {
       display: 'flex',
@@ -333,6 +334,7 @@ export function MatchCard({
       alignItems: 'center',
       gap: FAN_SPACING.sm,
       marginTop: 12,
+      padding: '0 14px 14px',
       position: 'relative',
       zIndex: 2,
     },
