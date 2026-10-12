@@ -45,6 +45,7 @@ const EMPTY_COPY: Record<Filter, { title: string; hint: string }> = {
 };
 const FIXTURES_KEY = ['fixtures'] as const;
 const NO_FIXTURES: Fixture[] = [];
+const NO_CHANNELS: Channel[] = [];
 const MOCK_COMMENTORS = ['Kevo', 'Aisha', 'Brian', 'Faith', 'Otieno', 'Wanjiru', 'Denis', 'Nadia', 'Mutiso', 'Cheryl'];
 const MOCK_COMMENTS = [
   'This is going to be a banger', 'My gut says an upset today',
