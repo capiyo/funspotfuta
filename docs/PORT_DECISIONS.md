@@ -27,3 +27,10 @@
 - Feed composer: guests do not see a composer; only authenticated users can create posts.
 - Feed media: web uses a natural-image aspect ratio clamped between 16:9 and 4:5, capped by viewport height. This is a deliberate web adaptation to avoid oversized media while preserving mobile's full-width media.
 - Chats cards: channel assignment rotates through the filtered/sorted channel pool by visible card position, rather than using a fixture hash, so adjacent cards use different channels when at least two are available.
+
+- Chats channel source: `useAllChannels` calls the existing core `getAllChannels`, which requests `GET /api/channels/all` and is explicitly documented in core as usable without auth. The visible pool merges that public/discoverable result with joined channels by `channelId`, preferring joined-channel records when duplicate IDs occur.
+- Chat channel assignment: cards rotate through the already filtered/sorted fixture list by index. Vote/pledge/review modals receive the assigned card channel ID; chat and comments use it as well. The existing core `castFixtureVote` endpoint is global (`POST /api/actions/vote/cast`) and has no `channel_id` field, so it remains unchanged rather than inventing an API shape; pledge and review use the selected channel ID.
+- Media: post video URLs are rendered with a real `<video>`, not an image. Playback observes a 60% visibility threshold, pauses offscreen, and a module-level active-video reference prevents concurrent playback. Image/video aspect ratios clamp to 4:5–16:9, with viewport height caps.
+- Small modal fixes: comments show response counts and the exact first-comment empty copy, without a post-caption block; channel creation uses the requested effect dependency exception, black Create button text, and corrected `EyeOff` JSX.
+- Narrow Home: Chats/Feed remain the existing mobile-style tabs; the profile sidebar collapses to a compact identity/sign-in strip on narrow screens.
+- Existing behavior verified by source inspection: `useHomeList().scrollProps.onScroll` already reads `event.currentTarget.scrollTop`; no change was needed.
