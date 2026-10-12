@@ -213,7 +213,7 @@ export default function FeedScreen() {
           <MiniAvatar colors={colors} label={username ?? '?'} />
           <span
             style={{
-              ...fanText('competition', colors, '#FFFFFF'),
+              ...fanText('competition', colors, colors.textPrimary),
               ...composerStyles.grow,
               fontWeight: 'normal',
             }}
