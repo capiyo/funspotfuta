@@ -147,8 +147,8 @@ function MemberCard({
                                 <Star
                                     key={i}
                                     size={10}
-                                    color={i < starCount ? RANK_GOLD : colors.border}
-                                    fill={i < starCount ? RANK_GOLD : 'transparent'}
+                                    color={i < starCount ? colors.primary : colors.border}
+                                    fill={i < starCount ? colors.primary : 'transparent'}
                                 />
                             ))}
                             <Text
