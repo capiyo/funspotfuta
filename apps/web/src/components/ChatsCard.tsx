@@ -278,9 +278,9 @@ export function MatchCard({
     channelAvatar: {
       width: 24,
       height: 24,
-      borderRadius: 12,
-      border: `1px solid ${colors.border}`,
-      background: colors.surfaceSunken,
+      borderRadius: 0,
+      border: 0,
+      background: colors.background,
       display: 'inline-flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -293,7 +293,7 @@ export function MatchCard({
       objectFit: 'cover',
     },
     channelName: {
-      ...fanText('competition', colors, '#FFFFFF'),
+      ...fanText('competition', colors, colors.textPrimary),
       fontWeight: 'normal',
       overflow: 'hidden',
       textOverflow: 'ellipsis',
@@ -308,6 +308,12 @@ export function MatchCard({
       whiteSpace: 'nowrap',
     },
     date: fanText('tag', colors, colors.textTertiary),
+    secondaryRow: {
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: FAN_SPACING.sm,
+      width: '100%', padding: 0, marginBottom: 8, textAlign: 'left', background: colors.background,
+      color: colors.textSecondary, cursor: 'pointer', fontSize: 12,
+    },
+    secondaryText: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
     previewRow: { marginBottom: 0 },
     previewText: {
       ...fanText('caption', colors, COMMENT_STYLE_COLOR(colors)),
@@ -412,6 +418,12 @@ export function MatchCard({
             )}
           </div>
 
+          <button type="button" onClick={handleLineups} style={styles.secondaryRow}
+            aria-label={`Open match details: ${fixtureLabel}`}>
+            <span style={styles.secondaryText}>{fixture.league || 'Unknown league'}</span>
+            <span style={styles.secondaryText}>{captionLabel}</span>
+          </button>
+
           {/* Comment preview / live commentary */}
           <div style={{ ...styles.lineRow, ...styles.previewRow }}>
             {isLive && liveCommentary ? (
@@ -504,19 +516,7 @@ export function MatchCard({
             />
           </div>
 
-          {/* Right: Home vs Away + score -> match details */}
-          <button
-            type="button"
-            onClick={handleLineups}
-            aria-label={`Open match details: ${fixtureLabel}`}
-            style={styles.captionButton}
-            onMouseDown={(event) => {
-              if (event.button === 2) event.preventDefault();
-            }}
-            onContextMenu={(event) => event.preventDefault()}
-          >
-            {captionLabel}
-          </button>
+
         </div>
       </div>
     </FeedItem>
