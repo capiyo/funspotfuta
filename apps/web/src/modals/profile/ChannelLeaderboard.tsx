@@ -92,6 +92,7 @@ function MemberCard({
             <View style={styles.memberRow}>
                 {/* Avatar + rank number badge */}
                 <View
+                    className="home-avatar"
                     style={[
                         styles.memberAvatar,
                         { backgroundColor: colors.primaryDim },
