@@ -34,3 +34,7 @@
 - Small modal fixes: comments show response counts and the exact first-comment empty copy, without a post-caption block; channel creation uses the requested effect dependency exception, black Create button text, and corrected `EyeOff` JSX.
 - Narrow Home: Chats/Feed remain the existing mobile-style tabs; the profile sidebar collapses to a compact identity/sign-in strip on narrow screens.
 - Existing behavior verified by source inspection: `useHomeList().scrollProps.onScroll` already reads `event.currentTarget.scrollTop`; no change was needed.
+
+- If the public-channel request fails or returns no channels and the user has no joined channels, fixture cards are withheld and the empty/error state exposes Refresh. A fixture must never fall back to showing its league as a fake channel title.
+- Media placeholder ratio starts at 4:3 when the API does not supply intrinsic dimensions, then updates to the natural ratio clamped to 4:5–16:9. This follows the mobile image component's placeholder behavior. The shared Post model currently strips intrinsic image dimensions, so the initial ratio cannot be derived from API metadata without changing core, which is outside this web-only scope.
+- Home's global reset includes portal-rendered dialogs because the profile, login, vote, comments, and review modals render outside the .home-screen element. Circular avatar classes are the only radius exception.
