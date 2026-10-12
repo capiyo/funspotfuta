@@ -97,7 +97,7 @@ export function PostCard({
       minWidth: 0,
     },
     authorName: {
-      ...fanText('competition', colors, '#FFFFFF'),
+      ...fanText('competition', colors, colors.textPrimary),
       fontWeight: 'normal',
       overflow: 'hidden',
       textOverflow: 'ellipsis',
