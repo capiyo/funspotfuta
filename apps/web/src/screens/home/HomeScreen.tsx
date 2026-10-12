@@ -73,11 +73,9 @@ function HomeScreenContent() {
       <div className="workspace">
         <ProfileSidebar
           channels={channels}
-          activeChannelId={activeChannelId}
           setActiveChannelId={setActiveChannelId}
           setActiveTab={setActiveTab}
           isLoggedIn={isLoggedIn}
-          userId={userId}
         />
 
         <div className="mobile-home-tabs">
