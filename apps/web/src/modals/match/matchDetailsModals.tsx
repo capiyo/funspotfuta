@@ -89,7 +89,7 @@ export function MatchDetailsModal({visible,fixture,userId,username,authToken,onC
       {hasStats&&<div className="mx-4 flex border-b" style={{borderColor:'rgba(0,0,0,.1)'}}>
         {(['lineups','stats'] as const).map(tab=><button key={tab} type="button" onClick={()=>setActiveTab(tab)} className="relative flex-1 py-2.5 text-[13px] font-semibold tracking-wide" style={{color:activeTab===tab?colors.primary:colors.textSecondary}}>{tab==='lineups'?'LINEUPS':'STATS'}{activeTab===tab&&<span className="absolute inset-x-0 bottom-0 h-0.5 rounded" style={{backgroundColor:colors.primary}}/>}</button>)}
       </div>}
-      <div className="min-h-0 flex-1">
+      <div className="no-scrollbar min-h-0 flex-1">
         {activeTab==='lineups'?<LineupsTab fixture={fixture} lineups={lineups} loading={loadingLineups} error={lineupsError}/>:hasStats&&statistics?<StatsTab homeTeam={fixture.homeTeam} awayTeam={fixture.awayTeam} statistics={statistics}/>:<p className="p-4 text-center text-xs" style={{color:colors.textSecondary}}>{loadingStats?'Loading statistics…':statsError}</p>}
       </div>
     </section>
