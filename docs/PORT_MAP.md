@@ -137,3 +137,13 @@ The 41 rows marked PORTED before this audit were compared against the full sourc
 | `theme/use-fan-colors.ts` | 27 | 27 | 100% |
 | `theme/use-fan-shadow.ts` | 46 | 22 | 48% |
 | `theme/use-fan-typography.ts` | 51 | 25 | 49% |
+
+
+## Home cleanup run (2026-10-12)
+
+Implemented A–E on `web-port-from-master`. Public/discoverable channels use the existing core `getAllChannels` function (`GET /api/channels/all`), merged with joined channels by `channelId`. Home-specific decisions and the existing global-vote API limitation are recorded in `docs/PORT_DECISIONS.md`.
+
+### Remaining verification blockers
+- Browser DevTools checks on desktop and narrow widths have not been run in this environment. Verify computed borders, shadows, outlines, radii (avatars only), scroll behavior, image sizing, and video autoplay/pause/one-at-a-time behavior in a browser.
+- `npx prettier --write` has not been run: there is no local repository checkout or local Prettier binary in this environment. GitHub Actions validates typecheck, lint, and Vite build, but does not run Prettier.
+- The mobile vote endpoint `POST /api/actions/vote/cast` is global and has no `channel_id` field. The existing API shape was preserved; the selected card channel ID is passed to the vote modal and used for pledge/review/chat, but the vote request itself cannot send a channel ID without changing the core API.
