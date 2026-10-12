@@ -1,16 +1,18 @@
-import { memo, useEffect, useState } from 'react';
-import type { ReactNode, SyntheticEvent, CSSProperties } from 'react';
+import { memo, useState } from 'react';
+import type { CSSProperties, ReactNode, SyntheticEvent } from 'react';
 import { ImageOff } from 'lucide-react';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { ICON } from '@/theme/layout';
 
 type Size = { w: number; h: number };
 const sizeCache = new Map<string, Size>();
-const PLACEHOLDER_RATIO = 4 / 3;
-const MIN_RATIO = 0.5;
-const MAX_HEIGHT_FRACTION = 0.7;
-const MAX_UPSCALE = 2;
-const RADIUS = 12;
+const MIN_RATIO = 4 / 5;
+const MAX_RATIO = 16 / 9;
+
+function clampedRatio(width: number, height: number): number {
+  if (width <= 0 || height <= 0) return 4 / 3;
+  return Math.max(MIN_RATIO, Math.min(MAX_RATIO, width / height));
+}
 
 export const PostImage = memo(function PostImage({ uri, colors, width, height, overlay, onPress, accessibilityLabel = 'Post image' }: {
   uri: string;
@@ -21,49 +23,40 @@ export const PostImage = memo(function PostImage({ uri, colors, width, height, o
   onPress?: () => void;
   accessibilityLabel?: string;
 }) {
-  const [boxW, setBoxW] = useState(0);
+  const cached = sizeCache.get(uri);
+  const [natural, setNatural] = useState<Size | null>(
+    width && height ? { w: width, h: height } : cached ?? null,
+  );
   const [failedUri, setFailedUri] = useState<string | null>(null);
-  const [loaded, setLoaded] = useState<Size | null>(null);
-  const [windowH, setWindowH] = useState(typeof window === 'undefined' ? 800 : window.innerHeight);
-  useEffect(() => {
-    const resize = () => setWindowH(window.innerHeight);
-    window.addEventListener('resize', resize);
-    return () => window.removeEventListener('resize', resize);
-  }, []);
+  const [loaded, setLoaded] = useState(false);
   const failed = failedUri === uri;
-  const natural = width && height ? { w: width, h: height } : sizeCache.get(uri) ?? (loaded?.w ? loaded : null);
+  const ratio = natural ? clampedRatio(natural.w, natural.h) : 4 / 3;
+  const maxHeight = typeof window !== 'undefined' && window.innerWidth <= 650 ? '60vh' : '70vh';
+  const frame: CSSProperties = {
+    position: 'relative', display: 'block', width: '100%',
+    aspectRatio: String(ratio), maxHeight, overflow: 'hidden',
+    background: colors.background,
+  };
   const onLoad = (event: SyntheticEvent<HTMLImageElement>) => {
     const image = event.currentTarget;
     if (!image.naturalWidth || !image.naturalHeight) return;
     const size = { w: image.naturalWidth, h: image.naturalHeight };
     sizeCache.set(uri, size);
-    setLoaded(size);
+    setNatural(size);
+    setLoaded(true);
   };
-  const frame: CSSProperties = {
-    position: 'relative', width: '100%', borderRadius: RADIUS, border: `1px solid ${colors.border}`,
-    backgroundColor: colors.surfaceSunken, overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center',
-    aspectRatio: boxW ? undefined : String(PLACEHOLDER_RATIO),
-    height: boxW && natural ? undefined : undefined,
-  };
-  if (failed) return <div ref={(node) => { if (node && node.clientWidth !== boxW) setBoxW(node.clientWidth); }} style={{ ...frame, aspectRatio: String(PLACEHOLDER_RATIO) }}><ImageOff size={ICON.md} color={colors.textTertiary} aria-label="Image unavailable" /></div>;
-
-  let imgW = boxW;
-  let imgH = boxW / PLACEHOLDER_RATIO;
-  let sideBars = false;
-  if (natural && boxW) {
-    const ratio = natural.w / natural.h;
-    const targetH = Math.min(boxW / Math.max(ratio, MIN_RATIO), windowH * MAX_HEIGHT_FRACTION);
-    const scale = Math.min(boxW / natural.w, targetH / natural.h, MAX_UPSCALE);
-    imgW = Math.round(natural.w * scale);
-    imgH = Math.round(natural.h * scale);
-    sideBars = imgW < boxW - 1;
+  if (failed) {
+    const unavailable = <div className="post-image-frame" style={{ ...frame, display: 'grid', placeItems: 'center' }}>
+      <ImageOff size={ICON.md} color={colors.textTertiary} aria-label="Image unavailable" />
+    </div>;
+    return onPress ? <button type="button" onClick={onPress} aria-label={accessibilityLabel} className="post-image-button" style={{ display: 'block', width: '100%', padding: 0, background: colors.background }}>{unavailable}</button> : unavailable;
   }
-  const content = <div ref={(node) => { if (node && node.clientWidth !== boxW) setBoxW(node.clientWidth); }}
-    className="post-image-frame" style={{ ...frame, height: boxW ? imgH : undefined, aspectRatio: boxW ? undefined : String(PLACEHOLDER_RATIO) }}>
-    {sideBars && <img src={uri} alt="" aria-hidden="true" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', filter: 'blur(24px)', opacity: 0.35 }} />}
-    <img src={uri} onLoad={onLoad} onError={() => setFailedUri(uri)} alt={accessibilityLabel}
-      style={natural && boxW ? { position: 'relative', width: imgW, height: imgH, objectFit: 'contain' } : { position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'contain' }} />
+  const content = <div className="post-image-frame" style={frame}>
+    {!loaded && <div aria-hidden="true" className="post-media-skeleton" style={{ position: 'absolute', inset: 0, background: colors.background }} />}
+    <img src={uri} alt={accessibilityLabel} loading="lazy" decoding="async" onLoad={onLoad}
+      onError={() => setFailedUri(uri)}
+      style={{ position: 'absolute', inset: 0, display: 'block', width: '100%', height: '100%', objectFit: 'cover', opacity: loaded ? 1 : 0 }} />
     {overlay && <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>{overlay}</div>}
   </div>;
-  return onPress ? <button type="button" onClick={onPress} aria-label={accessibilityLabel} className="post-image-button" style={{ width: '100%', padding: 0, border: 0, background: 'transparent', cursor: 'pointer' }}>{content}</button> : content;
+  return onPress ? <button type="button" onClick={onPress} aria-label={accessibilityLabel} className="post-image-button" style={{ display: 'block', width: '100%', padding: 0, background: colors.background, cursor: 'pointer' }}>{content}</button> : content;
 });
