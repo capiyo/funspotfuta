@@ -10,20 +10,16 @@ import {
 
 interface ProfileSidebarProps {
   channels: Channel[];
-  activeChannelId?: string;
   setActiveChannelId: (channelId: string) => void;
   setActiveTab: (tab: 'Chats' | 'Feed') => void;
   isLoggedIn: boolean;
-  userId: string | null;
 }
 
 export default function ProfileSidebar({
   channels,
-  activeChannelId,
   setActiveChannelId,
   setActiveTab,
   isLoggedIn,
-  userId,
 }: ProfileSidebarProps) {
   const loginModal = useLoginModal();
   const [profileOpen, setProfileOpen] = useState(false);
