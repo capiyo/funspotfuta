@@ -421,7 +421,7 @@ export default function LoginModal({ visible = true, onClose, onSuccess }: Login
           style={{ color: colors.textTertiary }}>✕</button>
       </div>
       <div
-          className="overflow-y-auto pr-1"
+          className="no-scrollbar overflow-y-auto pr-1"
           style={{ maxHeight: 'calc(min(90dvh, 850px) - 85px)' }}>
           {step === 'phone' && <div
           className="flex flex-col gap-3">
@@ -643,7 +643,7 @@ export default function LoginModal({ visible = true, onClose, onSuccess }: Login
           className={inputClass}
           style={inputStyle} />
       <div
-          className="overflow-y-auto"
+          className="no-scrollbar overflow-y-auto"
           role="listbox"
           aria-label="Countries">
               {filteredCountries.map((item) =>
