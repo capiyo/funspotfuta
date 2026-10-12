@@ -383,7 +383,12 @@ body:has(.home-screen) .fixed [class*="overflow-auto"]::-webkit-scrollbar {
 .home-screen .post-card,
 .home-screen .match-card {
   margin-bottom: 14px !important;
-  padding: 0 !important;
+}
+.home-screen .skeleton-row,
+.home-screen .skeleton-post {
+  background: var(--home-page-bg) !important;
+  background-image: none !important;
+  animation: none !important;
 }
 .home-screen .profile-sidebar,
 .home-screen .profile-sidebar-rich {
