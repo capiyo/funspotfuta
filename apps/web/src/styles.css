@@ -27,3 +27,53 @@
   .home-columns { flex: 1; height: 0; min-height: 0; overflow: hidden; }
   .home-column { height: 100%; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
 }
+
+
+/* Homepage panes own scrolling; prevent a second document scrollbar. */
+body:has(.home-screen) {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.home-screen .workspace {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.home-screen .profile-sidebar {
+  overflow: hidden;
+}
+
+.home-screen .home-column {
+  overflow: hidden;
+}
+
+.home-screen .feed-screen,
+.home-screen .chats-fixture-list {
+  min-height: 0;
+  overscroll-behavior: contain;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--home-scrollbar-thumb, #2E5E2E) var(--home-scrollbar-track, #0F1E27);
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--home-scrollbar-track, #0F1E27);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--home-scrollbar-thumb, #2E5E2E);
+  border: 2px solid var(--home-scrollbar-track, #0F1E27);
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--home-scrollbar-thumb, #2E5E2E);
+}

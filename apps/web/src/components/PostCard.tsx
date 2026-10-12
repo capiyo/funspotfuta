@@ -37,10 +37,6 @@ import { MiniAvatar } from './ui/miniAvatar';
 import { SmartMedia } from './SmartMedia';
 import { Chip } from './ui/Chip';
 
-// Pulls the footer down to the card floor (cancels FeedItem's bottom
-// padding). Keep in sync with MatchCard's FOOTER_BLEED.
-const FOOTER_BLEED = 12;
-
 export function PostCard({
   post,
   index,
@@ -91,7 +87,7 @@ export function PostCard({
       alignItems: 'center',
       justifyContent: 'space-between',
       gap: FAN_SPACING.sm,
-      marginBottom: 16,
+      marginBottom: 12,
     },
     author: {
       display: 'flex',
@@ -115,14 +111,13 @@ export function PostCard({
       gap: FAN_SPACING.sm,
     },
     captionRow: { marginBottom: 0 },
-    mediaRow: { marginTop: 12, position: 'relative', zIndex: 2 },
+    mediaRow: { marginTop: 10, position: 'relative', zIndex: 2 },
     bottomRow: {
       display: 'flex',
       flexDirection: 'row',
       alignItems: 'center',
       gap: FAN_SPACING.sm,
-      marginTop: 18,
-      marginBottom: -FOOTER_BLEED,
+      marginTop: 12,
       position: 'relative',
       zIndex: 2,
     },

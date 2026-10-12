@@ -4,7 +4,7 @@
 // optimistic likes, composer state, validation, and user-facing copy mirror
 // the mobile implementation. Native list/picker controls are browser controls.
 
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ChangeEvent, CSSProperties } from 'react';
 import { ImagePlus, Paperclip, X } from 'lucide-react';
 import {
@@ -41,9 +41,6 @@ import { useHome, useHomeList } from './home/home-context';
 
 const PAGE_SIZE = 10;
 const FEED_KEY = ['feed'] as const;
-// Keep in sync with MatchCard's FOOTER_BLEED.
-const FOOTER_BLEED = 12;
-
 type FeedPage = { posts: Post[] };
 
 export default function FeedScreen() {
@@ -54,6 +51,17 @@ export default function FeedScreen() {
   const { requireLogin } = useLoginModal();
   const { activeTab } = useHome();
   const { scrollProps, topInset } = useHomeList();
+  const [isDesktop, setIsDesktop] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(min-width: 651px)').matches,
+  );
+
+  useEffect(() => {
+    const media = window.matchMedia('(min-width: 651px)');
+    const updateDesktop = () => setIsDesktop(media.matches);
+    updateDesktop();
+    media.addEventListener('change', updateDesktop);
+    return () => media.removeEventListener('change', updateDesktop);
+  }, []);
 
   const [caption, setCaption] = useState('');
   const [image, setImage] = useState<File | null>(null);
@@ -79,7 +87,7 @@ export default function FeedScreen() {
     // A failed refetch must not wipe the feed.
     placeholderData: (previous) => previous,
     retry: 1,
-    enabled: activeTab === 'Feed',
+    enabled: isDesktop || activeTab === 'Feed',
   });
 
   const posts = useMemo(
@@ -201,8 +209,7 @@ export default function FeedScreen() {
       alignItems: 'center',
       justifyContent: 'space-between',
       gap: FAN_SPACING.sm,
-      marginTop: 18,
-      marginBottom: -FOOTER_BLEED,
+      marginTop: 12,
     },
     banner: {
       padding: `${FAN_SPACING.md}px ${FAN_SPACING.lg}px`,

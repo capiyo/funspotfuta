@@ -51,10 +51,6 @@ import { ActionButton } from './ui/ActionButton';
 import { Input } from './ui/input';
 import { VoterList } from './ui/Voterstack';
 
-// How far the footer is pulled down to reach the card floor (cancels
-// FeedItem's bottom padding). Raise it if there is still a gap.
-const FOOTER_BLEED = 12;
-
 const COMMENT_STYLE_COLOR = (colors: ReturnType<typeof useFanColors>) =>
   colors.textSecondary;
 
@@ -266,7 +262,10 @@ export function MatchCard({
       alignItems: 'center',
       justifyContent: 'space-between',
       gap: FAN_SPACING.sm,
-      marginBottom: 16,
+      marginBottom: 10,
+      minHeight: 24,
+      position: 'relative',
+      zIndex: 2,
     },
     channelLabel: {
       display: 'flex',
@@ -319,16 +318,15 @@ export function MatchCard({
       whiteSpace: 'nowrap',
     },
     minute: fanText('tag', colors, colors.textTertiary),
-    resultRow: { marginTop: 10 },
+    resultRow: { marginTop: 8 },
     resultText: fanText('caption', colors, COMMENT_STYLE_COLOR(colors)),
-    stackRow: { marginTop: 14 },
+    stackRow: { marginTop: 10 },
     bottomRow: {
       display: 'flex',
       flexDirection: 'row',
       alignItems: 'center',
       gap: FAN_SPACING.sm,
-      marginTop: 18,
-      marginBottom: -FOOTER_BLEED,
+      marginTop: 12,
       position: 'relative',
       zIndex: 2,
     },

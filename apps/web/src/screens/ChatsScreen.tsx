@@ -3,7 +3,7 @@
 // messages intentionally follow the mobile implementation. DOM elements and
 // browser navigation replace React Native presentation primitives.
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import type { Fixture, FanColorPalette, Voter } from '@funspot/core';
@@ -129,13 +129,24 @@ export default function ChatsScreen() {
   const { activeChannelId: homeChannelId, activeTab, channels } = useHome();
   const { scrollProps, topInset } = useHomeList();
   const navigate = useNavigate();
+  const [isDesktop, setIsDesktop] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(min-width: 651px)').matches,
+  );
+
+  useEffect(() => {
+    const media = window.matchMedia('(min-width: 651px)');
+    const updateDesktop = () => setIsDesktop(media.matches);
+    updateDesktop();
+    media.addEventListener('change', updateDesktop);
+    return () => media.removeEventListener('change', updateDesktop);
+  }, []);
   const queryClient = useQueryClient();
 
   const { data, isPending, isError, error, refetch } = useQuery({
     queryKey: FIXTURES_KEY,
     queryFn: getAllFixtures,
     placeholderData: keepPreviousData,
-    enabled: activeTab === 'Chats',
+    enabled: isDesktop || activeTab === 'Chats',
   });
   const fixtures = data ?? NO_FIXTURES;
   const headerById = useMemo(() => {

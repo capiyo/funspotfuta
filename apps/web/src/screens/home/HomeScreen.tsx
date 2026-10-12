@@ -2,6 +2,8 @@
 // Order: AppHeader/navbar, then profile sidebar, then equally sized Chats and Feed columns.
 // Desktop panes scroll independently; narrow screens use the same Chats/Feed pill tabs as mobile.
 import { useState } from 'react';
+import type { CSSProperties } from 'react';
+import { useFanColors } from '@/theme/use-fan-colors';
 import { registerToken } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useNavigate } from 'react-router-dom';
@@ -13,6 +15,7 @@ import { requestWebPushToken } from '@/lib/api/notification-service';
 import { HomeProvider, useHome } from '@/screens/home/home-context';
 
 function HomeScreenContent() {
+  const colors = useFanColors();
   const { userId, username, authToken, isLoggedIn, logout } = useAuth();
   const {
     channels, activeChannelId, setActiveChannelId,
@@ -22,7 +25,13 @@ function HomeScreenContent() {
   const navigate = useNavigate();
 
   return (
-    <div className="app-shell home-screen">
+    <div
+      className="app-shell home-screen"
+      style={{
+        '--home-scrollbar-track': colors.background,
+        '--home-scrollbar-thumb': colors.borderActive,
+      } as CSSProperties}
+    >
       <AppHeader
         channels={channels}
         activeChannelId={activeChannelId ?? null}
