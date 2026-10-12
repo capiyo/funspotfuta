@@ -146,7 +146,12 @@ export default function ChatsScreen() {
     enabled: isDesktop || activeTab === 'Chats',
   });
   const fixtures = data ?? NO_FIXTURES;
-  const { data: publicChannels = NO_CHANNELS, isPending: isAllChannelsPending } = useAllChannels(authToken);
+  const {
+    data: publicChannels = NO_CHANNELS,
+    isPending: isAllChannelsPending,
+    isError: isAllChannelsError,
+    refetch: refetchAllChannels,
+  } = useAllChannels(authToken);
   const channelPool = useMemo(() => {
     const merged = new Map<string, Channel>();
     for (const channel of publicChannels) merged.set(channel.channelId, channel);
@@ -181,14 +186,20 @@ export default function ChatsScreen() {
     () => (liveModalFixture?.voters ?? []).find((voter) => voter.userId === userId),
     [liveModalFixture, userId],
   );
-  const loadError = error && fixtures.length === 0
-    ? 'Could not load fixtures. Try again.'
-    : null;
+  const loadError = isAllChannelsError && channelPool.length === 0
+    ? 'Could not load channels. Try again.'
+    : error && fixtures.length === 0
+      ? 'Could not load fixtures. Try again.'
+      : null;
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    try { await refetch(); } finally { setRefreshing(false); }
-  }, [refetch]);
+    try {
+      await Promise.all([refetch(), refetchAllChannels()]);
+    } finally {
+      setRefreshing(false);
+    }
+  }, [refetch, refetchAllChannels]);
 
   const liveCount = useMemo(() => fixtures.filter(isLiveFixture).length, [fixtures]);
   const filterOptions = useMemo(() => [
@@ -322,7 +333,13 @@ export default function ChatsScreen() {
         >
           <div>{listHeader}</div>
           <div aria-live="polite">
-            {filtered.length === 0 ? (
+            {channelPool.length === 0 ? (
+              isAllChannelsError ? (
+                <EmptyState colors={colors} title="You're offline" hint="Tap Refresh once you're back online." />
+              ) : (
+                <EmptyState colors={colors} title="No channels available" hint="Try again." />
+              )
+            ) : filtered.length === 0 ? (
               isError ? (
                 <EmptyState colors={colors} title="You're offline" hint="Tap Refresh once you're back online." />
               ) : (
@@ -355,7 +372,7 @@ export default function ChatsScreen() {
               );
             })}
           </div>
-          {(isError || filtered.length === 0) && <div className="chats-list-footer">
+          {(isError || isAllChannelsError || filtered.length === 0 || channelPool.length === 0) && <div className="chats-list-footer">
             <button type="button" onClick={() => void onRefresh()} disabled={refreshing}
               aria-label="Refresh fixtures" aria-busy={refreshing} className="secondary-button">
               {refreshing ? 'Refreshing…' : 'Refresh'}
