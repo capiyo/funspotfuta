@@ -644,3 +644,37 @@ body:has(.home-screen) {
     overflow-y: auto;
   }
 }
+
+
+/* Portals used by Home modals render under document.body, outside .home-screen. */
+body:has(.home-screen) * {
+  border: 0 !important;
+  border-width: 0 !important;
+  border-style: none !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+  border-radius: 0 !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+body:has(.home-screen) *::before,
+body:has(.home-screen) *::after {
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+  background-image: none !important;
+}
+body:has(.home-screen) .home-avatar,
+body:has(.home-screen) .profile-avatar,
+body:has(.home-screen) .mini-avatar,
+body:has(.home-screen) .mock-profile-avatar,
+body:has(.home-screen) .mock-profile-identity img,
+body:has(.home-screen) .navbar [aria-label*="Account menu"],
+body:has(.home-screen) .navbar [aria-label*="Account menu"] img {
+  border-radius: 50% !important;
+}
+body:has(.home-screen) *::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
