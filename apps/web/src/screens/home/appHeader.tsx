@@ -283,7 +283,7 @@ export function AppHeader(props: HeaderProps = {}) {
                 </button>
               </>
             ) : (
-              <button type="button" onClick={() => props.onLogin ? props.onLogin() : requireLogin()} className="rounded-full px-3 py-2 text-xs font-bold sm:px-4" style={{ background: colors.primary, color: '#fff' }}>Join</button>
+              <button type="button" onClick={() => props.onLogin ? props.onLogin() : requireLogin()} className="rounded-full px-3 py-2 text-xs font-bold sm:px-4" style={{ background: colors.primary, color: colors.textInverse }}>Join</button>
             )}
             <button
               type="button"
