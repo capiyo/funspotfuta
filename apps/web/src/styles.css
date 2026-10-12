@@ -57,7 +57,7 @@ body:has(.home-screen) {
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: var(--home-scrollbar-thumb, #2E5E2E) var(--home-scrollbar-track, #0F1E27);
+  scrollbar-color: var(--home-scrollbar-thumb, currentColor) var(--home-scrollbar-track, transparent);
 }
 
 *::-webkit-scrollbar {
@@ -66,17 +66,17 @@ body:has(.home-screen) {
 }
 
 *::-webkit-scrollbar-track {
-  background: var(--home-scrollbar-track, #0F1E27);
+  background: var(--home-scrollbar-track, transparent);
 }
 
 *::-webkit-scrollbar-thumb {
-  background: var(--home-scrollbar-thumb, #2E5E2E);
-  border: 2px solid var(--home-scrollbar-track, #0F1E27);
+  background: var(--home-scrollbar-thumb, currentColor);
+  border: 2px solid var(--home-scrollbar-track, transparent);
   border-radius: 999px;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background: var(--home-scrollbar-thumb, #2E5E2E);
+  background: var(--home-scrollbar-thumb, currentColor);
 }
 
 
