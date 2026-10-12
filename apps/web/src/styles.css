@@ -304,6 +304,7 @@ body:has(.home-screen) {
 }
 .home-screen,
 .home-screen *,
+body:has(.home-screen) *,
 body:has(.home-screen) .fixed,
 body:has(.home-screen) .fixed * {
   box-shadow: none !important;
@@ -314,6 +315,8 @@ body:has(.home-screen) .fixed * {
 }
 .home-screen *::before,
 .home-screen *::after,
+body:has(.home-screen) *::before,
+body:has(.home-screen) *::after,
 body:has(.home-screen) .fixed *::before,
 body:has(.home-screen) .fixed *::after {
   box-shadow: none !important;
@@ -476,6 +479,10 @@ body:has(.home-screen) {
   }
 }
 
+body:has(.home-screen) .home-avatar,
+body:has(.home-screen) .profile-avatar,
+body:has(.home-screen) .mini-avatar,
+body:has(.home-screen) .mock-profile-avatar,
 body:has(.home-screen) .fixed .home-avatar {
   border-radius: 50% !important;
 }
@@ -486,6 +493,7 @@ body:has(.home-screen) .fixed * {
   -ms-overflow-style: none !important;
 }
 .home-screen *::-webkit-scrollbar,
+body:has(.home-screen) *::-webkit-scrollbar,
 body:has(.home-screen) .fixed *::-webkit-scrollbar {
   display: none !important;
   width: 0 !important;
@@ -536,6 +544,8 @@ body:has(.home-screen) .fixed *::-webkit-scrollbar {
 .home-screen .match-card,
 .home-screen .chats-fixture-row,
 .home-screen .profile-sidebar-rich *,
+body:has(.home-screen) [role="dialog"],
+body:has(.home-screen) [role="dialog"] *,
 body:has(.home-screen) .fixed [role="dialog"],
 body:has(.home-screen) .fixed [role="dialog"] * {
   border: 0 !important;
