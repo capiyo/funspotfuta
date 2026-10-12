@@ -70,6 +70,10 @@ function HomeScreenContent() {
         </div>
       )}
 
+      <div className="mobile-home-tabs">
+        <FloatingPillTabBar active={activeTab} onChange={setActiveTab} />
+      </div>
+
       <div className="workspace">
         <ProfileSidebar
           channels={channels}
@@ -77,10 +81,6 @@ function HomeScreenContent() {
           setActiveTab={setActiveTab}
           isLoggedIn={isLoggedIn}
         />
-
-        <div className="mobile-home-tabs">
-          <FloatingPillTabBar active={activeTab} onChange={setActiveTab} />
-        </div>
 
         <main className="home-columns no-scrollbar" aria-label="Home workspace">
           <section className={`home-column no-scrollbar chats-column ${activeTab === 'Chats' ? 'mobile-tab-active' : 'mobile-tab-hidden'}`} aria-label="Chats">
