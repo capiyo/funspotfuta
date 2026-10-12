@@ -4,7 +4,7 @@
 // optimistic likes, composer state, validation, and user-facing copy mirror
 // the mobile implementation. Native list/picker controls are browser controls.
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import type { ChangeEvent, CSSProperties } from 'react';
 import { ImagePlus, Paperclip, X } from 'lucide-react';
 import {
@@ -37,7 +37,7 @@ import {
   PagingFooter,
   SkeletonRows,
 } from '@/components/ui/ListsStates';
-import { useHome, useHomeList } from './home/home-context';
+import { useHomeList } from './home/home-context';
 
 const PAGE_SIZE = 10;
 const FEED_KEY = ['feed'] as const;
@@ -390,13 +390,15 @@ export default function FeedScreen() {
                 Load more
               </button>
             )}
-            <button
-              type="button"
-              onClick={() => void onRefresh()}
-              disabled={refreshing}
-            >
-              {refreshing ? 'Refreshing…' : 'Refresh'}
-            </button>
+            {(isError || posts.length === 0) && (
+              <button
+                type="button"
+                onClick={() => void onRefresh()}
+                disabled={refreshing}
+              >
+                {refreshing ? 'Refreshing…' : 'Refresh'}
+              </button>
+            )}
           </div>
         </>
       )}
