@@ -49,20 +49,7 @@ export default function FeedScreen() {
 
   const { userId, username, isLoggedIn } = useAuth();
   const { requireLogin } = useLoginModal();
-  const { activeTab } = useHome();
   const { scrollProps, topInset } = useHomeList();
-  const [isDesktop, setIsDesktop] = useState(
-    () => typeof window !== 'undefined' && window.matchMedia('(min-width: 651px)').matches,
-  );
-
-  useEffect(() => {
-    const media = window.matchMedia('(min-width: 651px)');
-    const updateDesktop = () => setIsDesktop(media.matches);
-    updateDesktop();
-    media.addEventListener('change', updateDesktop);
-    return () => media.removeEventListener('change', updateDesktop);
-  }, []);
-
   const [caption, setCaption] = useState('');
   const [image, setImage] = useState<File | null>(null);
   const [posting, setPosting] = useState(false);
@@ -87,7 +74,9 @@ export default function FeedScreen() {
     // A failed refetch must not wipe the feed.
     placeholderData: (previous) => previous,
     retry: 1,
-    enabled: isDesktop || activeTab === 'Feed',
+    enabled: true,
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 
   const posts = useMemo(
@@ -97,7 +86,7 @@ export default function FeedScreen() {
 
   const loadError =
     isError && posts.length === 0
-      ? 'Could not load posts. Pull down to try again.'
+      ? 'Could not load posts. Try again.'
       : null;
 
   const onRefresh = useCallback(async () => {
@@ -312,7 +301,7 @@ export default function FeedScreen() {
 
   const listHeader = (
     <div>
-      {composer}
+      {isLoggedIn && composer}
       {loadError && (
         <div style={composerStyles.banner}>
           <ErrorBanner colors={colors} message={loadError} />
@@ -366,7 +355,7 @@ export default function FeedScreen() {
               <EmptyState
                 colors={colors}
                 title="You're offline"
-                hint="Pull down to retry once you're back online."
+                hint="Tap Refresh once you're back online."
               />
             ) : (
               <EmptyState
@@ -406,7 +395,7 @@ export default function FeedScreen() {
               onClick={() => void onRefresh()}
               disabled={refreshing}
             >
-              {refreshing ? 'Refreshing…' : 'Refresh feed'}
+              {refreshing ? 'Refreshing…' : 'Refresh'}
             </button>
           </div>
         </>
