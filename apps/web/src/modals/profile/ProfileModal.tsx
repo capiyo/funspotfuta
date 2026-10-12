@@ -56,6 +56,7 @@ import { useFanColors } from '@/theme/use-fan-colors';
 import {
   getUserBalance,
   getSavedPhone,
+  memberVoteAccuracy,
   type Channel,
   type ChannelMember,
 } from '@funspot/core';
@@ -91,13 +92,22 @@ function hexWithAlpha(hex: string, alpha: number): string {
 export interface ProfileModalProps {
   visible: boolean;
   onClose: () => void;
-  /** The channels the current user belongs to, shown as tabs. */
+  /** Render the same profile body inline instead of in an overlay. */
+  inline?: boolean;
+  onViewProfile?: () => void;
+  onSelectChannel?: (channelId: string) => void;
+  onSelectChats?: () => void;
+  /** The channels the current user belongs to, shown in the profile. */
   channels?: Channel[];
 }
 
 export default function ProfileModal({
   visible,
   onClose,
+  inline = false,
+  onViewProfile,
+  onSelectChannel,
+  onSelectChats,
   channels = [],
 }: ProfileModalProps) {
   const colors = useFanColors();
@@ -141,6 +151,22 @@ export default function ProfileModal({
   const isCurrentUser = viewingMember === null;
   const targetUserId = viewingMember?.userId ?? userId ?? '';
   const targetUsername = viewingMember?.username ?? username ?? '';
+
+  const currentUserChannelMembers = channels
+    .map((channel) => channel.members?.find((member) => member.userId === userId))
+    .filter((member): member is ChannelMember => Boolean(member));
+  const totalSeasonPoints = currentUserChannelMembers.reduce(
+    (total, member) => total + member.seasonPoints,
+    0,
+  );
+  const profileAccuracy = currentUserChannelMembers.length
+    ? Math.round(
+        currentUserChannelMembers.reduce(
+          (total, member) => total + memberVoteAccuracy(member),
+          0,
+        ) / currentUserChannelMembers.length,
+      )
+    : 0;
 
   // ── Reset on open ───────────────────────────────────────────
   useEffect(() => {
@@ -527,6 +553,22 @@ export default function ProfileModal({
     if (!profile) return null;
     return (
       <View style={{ gap: FAN_SPACING.sm }}>
+        {isCurrentUser && (
+          <View style={styles.statsGrid}>
+            <View style={[styles.statCard, { backgroundColor: colors.surfaceSunken }]}>
+              <Text style={[styles.statLabel, { color: colors.textTertiary }]}>Bets</Text>
+              <Text style={[styles.statValue, { color: colors.textPrimary }]}>{profile.numberOfBets}</Text>
+            </View>
+            <View style={[styles.statCard, { backgroundColor: colors.surfaceSunken }]}>
+              <Text style={[styles.statLabel, { color: colors.textTertiary }]}>Points</Text>
+              <Text style={[styles.statValue, { color: colors.textPrimary }]}>{totalSeasonPoints}</Text>
+            </View>
+            <View style={[styles.statCard, { backgroundColor: colors.surfaceSunken }]}>
+              <Text style={[styles.statLabel, { color: colors.textTertiary }]}>Accuracy</Text>
+              <Text style={[styles.statValue, { color: colors.textPrimary }]}>{profileAccuracy}%</Text>
+            </View>
+          </View>
+        )}
         {renderInfoRow({
           Icon: UserIcon,
           label: 'Username',
@@ -794,20 +836,13 @@ export default function ProfileModal({
   //  MAIN RENDER
   // ═══════════════════════════════════════════════════════════
 
-  return (
+  const profileBody = (
     <>
-      <Modal
-        visible={visible}
-        transparent
-        animationType="slide"
-        onRequestClose={onClose}
-        statusBarTranslucent
-      >
-        <Pressable style={styles.backdrop} onPress={onClose}>
-          <Pressable style={styles.sheet} onPress={(e: any) => e.stopPropagation()}>
-            <View style={styles.handleWrap}>
-              <View style={styles.handle} />
-            </View>
+            {!inline && (
+              <View style={styles.handleWrap}>
+                <View style={styles.handle} />
+              </View>
+            )}
 
             {/* Header */}
             <View style={styles.headerRow}>
@@ -853,9 +888,15 @@ export default function ProfileModal({
                     : 'Member'}
                 </Text>
               </View>
-              <Pressable onPress={onClose} hitSlop={8} style={styles.closeBtn}>
-                <X size={14} color={colors.textSecondary} />
-              </Pressable>
+              {inline ? (
+                <Pressable onPress={onViewProfile} hitSlop={8} style={styles.viewProfileBtn}>
+                  <Text style={[styles.viewProfileText, { color: colors.primary }]}>View profile</Text>
+                </Pressable>
+              ) : (
+                <Pressable onPress={onClose} hitSlop={8} style={styles.closeBtn}>
+                  <X size={14} color={colors.textSecondary} />
+                </Pressable>
+              )}
             </View>
 
             {/* Scrollable body */}
@@ -883,6 +924,43 @@ export default function ProfileModal({
               )}
             </ScrollView>
 
+            {channels.length > 0 && isCurrentUser && (
+              <View style={styles.channelsSection}>
+                <Text style={[styles.sectionHeading, { color: colors.textTertiary }]}>YOUR CHANNELS</Text>
+                {channels.slice(0, 3).map((channel) => {
+                  const member = channel.members?.find((item) => item.userId === userId);
+                  return (
+                    <Pressable
+                      key={channel.channelId}
+                      onPress={() => {
+                        onSelectChannel?.(channel.channelId);
+                        onSelectChats?.();
+                        onClose();
+                      }}
+                      style={[
+                        styles.channelRow,
+                        { backgroundColor: colors.surfaceSunken, borderColor: colors.border },
+                      ]}
+                    >
+                      <View style={[styles.channelAvatarSmall, { backgroundColor: colors.primaryDim }]}>
+                        <Text style={[styles.channelAvatarSmallText, { color: colors.primary }]}>
+                          {(channel.name?.[0] ?? 'C').toUpperCase()}
+                        </Text>
+                      </View>
+                      <View style={{ flex: 1, minWidth: 0 }}>
+                        <Text style={[styles.channelRowName, { color: colors.textPrimary }]} numberOfLines={1}>
+                          {channel.name}
+                        </Text>
+                        <Text style={[styles.channelRowMeta, { color: colors.textTertiary }]}>
+                          {channel.isAdmin ? 'Admin' : 'Member'} · {member?.seasonPoints ?? 0} points
+                        </Text>
+                      </View>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            )}
+
             {/* Channel leaderboard tabs (below the profile section) */}
             {channels.length > 0 && isCurrentUser && (
               <View style={styles.leaderboardSection}>
@@ -893,10 +971,29 @@ export default function ProfileModal({
                 />
               </View>
             )}
-          </Pressable>
-        </Pressable>
-      </Modal>
 
+    </>
+  );
+
+  return (
+    <>
+      {inline ? (
+        <View style={[styles.sheet, styles.inlineSheet]}>{profileBody}</View>
+      ) : (
+        <Modal
+          visible={visible}
+          transparent
+          animationType="slide"
+          onRequestClose={onClose}
+          statusBarTranslucent
+        >
+          <Pressable style={styles.backdrop} onPress={onClose}>
+            <Pressable style={styles.sheet} onPress={(e: any) => e.stopPropagation()}>
+              {profileBody}
+            </Pressable>
+          </Pressable>
+        </Modal>
+      )}
       {/* Deposit / Withdraw */}
       {isCurrentUser && userId && (
         <DepositDialog
@@ -952,6 +1049,27 @@ function createStyles(colors: FanColors) {
       backgroundColor: colors.background,
       overflow: 'hidden',
     },
+    inlineSheet: {
+      maxHeight: 'none',
+      borderTopLeftRadius: 0,
+      borderTopRightRadius: 0,
+      backgroundColor: 'transparent',
+      overflow: 'visible',
+    },
+    statsGrid: { flexDirection: 'row', gap: FAN_SPACING.sm, marginBottom: FAN_SPACING.sm },
+    statCard: { flex: 1, minWidth: 0, borderRadius: FAN_RADIUS.md, padding: FAN_SPACING.md },
+    statLabel: { fontSize: 10, marginBottom: 3 },
+    statValue: { fontSize: 15, fontWeight: '700' },
+    viewProfileBtn: { paddingHorizontal: FAN_SPACING.sm, paddingVertical: FAN_SPACING.xs },
+    viewProfileText: { fontSize: 12, fontWeight: '700' },
+    channelsSection: { paddingHorizontal: FAN_SPACING.lg, paddingTop: FAN_SPACING.md, paddingBottom: FAN_SPACING.md },
+    sectionHeading: { fontSize: 11, fontWeight: '800', letterSpacing: 1.5, marginBottom: FAN_SPACING.sm },
+    channelRow: { flexDirection: 'row', alignItems: 'center', gap: FAN_SPACING.md, borderWidth: 1, borderRadius: FAN_RADIUS.md, padding: FAN_SPACING.md, marginBottom: FAN_SPACING.sm },
+    channelAvatarSmall: { width: 30, height: 30, borderRadius: FAN_RADIUS.md, alignItems: 'center', justifyContent: 'center' },
+    channelAvatarSmallText: { fontSize: 13, fontWeight: '800' },
+    channelRowName: { fontSize: 13, fontWeight: '700' },
+    channelRowMeta: { fontSize: 11, marginTop: 3 },
+
 
     handleWrap: {
       alignItems: 'center',
