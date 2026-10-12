@@ -56,18 +56,18 @@ export function SmartMedia({ imageUrl, videoUrl, videoThumbnailUrl, width, heigh
         style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover', background: colors.background }}
         aria-label="Post video" />
       {!videoLoaded && <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: colors.background, pointerEvents: "none" }} />}
-      {paused && <button type="button" aria-label="Play video" onClick={() => {
-        const video = videoRef.current;
-        if (!video) return;
-        if (currentlyPlayingVideo && currentlyPlayingVideo !== video) currentlyPlayingVideo.pause();
-        currentlyPlayingVideo = video;
-        setShowControls(true);
-        void video.play().then(() => setPaused(false)).catch(() => setPaused(true));
-      }} style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'transparent', cursor: 'pointer' }}>
-        <span style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 52, height: 52, background: 'rgba(0,0,0,.45)' }}>
+      {paused && <div aria-hidden="true" style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+        <button type="button" aria-label="Play video" onClick={() => {
+          const video = videoRef.current;
+          if (!video) return;
+          if (currentlyPlayingVideo && currentlyPlayingVideo !== video) currentlyPlayingVideo.pause();
+          currentlyPlayingVideo = video;
+          setShowControls(true);
+          void video.play().then(() => setPaused(false)).catch(() => setPaused(true));
+        }} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 52, height: 52, padding: 0, background: colors.surfaceSunken, cursor: 'pointer', pointerEvents: 'auto' }}>
           <Play size={22} color={colors.textPrimary} fill={colors.textPrimary} />
-        </span>
-      </button>}
+        </button>
+      </div>}
     </div>;
   }
   if (!imageUrl) return null;
