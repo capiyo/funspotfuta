@@ -912,7 +912,7 @@ export default function ProfileModal({
               ) : (
                 <>
                   {/* Balance card (self only, when visibility allows) */}
-                  {isCurrentUser && profileExists && renderBalanceCard()}
+                  {isCurrentUser && renderBalanceCard()}
 
                   {/* Profile section */}
                   {profile === null
