@@ -77,3 +77,210 @@ body:has(.home-screen) {
 *::-webkit-scrollbar-thumb:hover {
   background: var(--home-scrollbar-thumb, #2E5E2E);
 }
+
+
+/* Full profile sidebar; the logged-out preview is intentionally read-only. */
+.profile-sidebar-rich {
+  width: 300px;
+  flex: 0 0 300px;
+  display: block;
+  padding: 16px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--home-scrollbar-thumb, #2e5e2e) var(--home-scrollbar-track, #0f1e27);
+}
+.home-screen .profile-sidebar-rich {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.profile-sidebar-rich .sidebar-divider {
+  display: block;
+  height: 1px;
+  background: #252d41;
+  margin: 18px 0;
+}
+.profile-sidebar-rich .sidebar-label {
+  display: block;
+  margin: 0 0 10px;
+  font-size: 11px;
+  letter-spacing: .14em;
+}
+.mock-signin {
+  width: 100%;
+  margin: 0 0 18px;
+}
+.mock-profile-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  color: #e4ebf6;
+}
+.mock-profile-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+}
+.mock-profile-avatar {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex: none;
+  border: 1px solid #eab746;
+  border-radius: 50%;
+  background: #263955;
+  color: #f6c453;
+  font-size: 18px;
+  font-weight: 800;
+}
+.mock-profile-identity-copy,
+.mock-channel-copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 4px;
+}
+.mock-profile-identity-copy strong {
+  font-size: 16px;
+}
+.mock-profile-identity-copy span,
+.mock-profile-fandom span,
+.mock-channel-copy span {
+  color: #9ca8bc;
+  font-size: 12px;
+}
+.mock-profile-fandom {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.mock-profile-fandom span {
+  padding: 5px 8px;
+  border: 1px solid #34415a;
+  border-radius: 999px;
+  background: #111a2d;
+}
+.mock-profile-balance {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid #34415a;
+  border-radius: 12px;
+  background: #111a2d;
+}
+.mock-profile-balance > span {
+  color: #9ca8bc;
+  font-size: 12px;
+}
+.mock-profile-balance > strong {
+  font-size: 15px;
+}
+.mock-profile-wallet-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+.mock-profile-wallet-actions button {
+  flex: 1;
+  border: 1px solid #34415a;
+  border-radius: 8px;
+  padding: 7px;
+  background: #202d43;
+  color: #a9b5c8;
+  font-size: 12px;
+}
+.mock-profile-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+.mock-profile-stats > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 8px;
+  border: 1px solid #28344b;
+  border-radius: 10px;
+  background: #111a2d;
+}
+.mock-profile-stats span {
+  color: #9ca8bc;
+  font-size: 11px;
+}
+.mock-profile-stats strong {
+  font-size: 15px;
+}
+.mock-readonly-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  opacity: .58;
+}
+.mock-channel-row,
+.mock-leaderboard-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 9px;
+  border: 1px solid #28344b;
+  border-radius: 9px;
+  background: #111a2d;
+}
+.mock-channel-avatar,
+.mock-leaderboard-rank {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border-radius: 8px;
+  background: #263955;
+  color: #f6c453;
+  font-size: 12px;
+  font-weight: 800;
+}
+.mock-channel-copy strong {
+  overflow: hidden;
+  color: #dce4f0;
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mock-profile-note {
+  margin: 0;
+  color: #8998af;
+  font-size: 11px;
+  line-height: 1.5;
+  text-align: center;
+}
+@media (max-width: 900px) and (min-width: 651px) {
+  .profile-sidebar-rich {
+    width: 280px;
+    flex-basis: 280px;
+    padding: 14px;
+  }
+}
+@media (max-width: 650px) {
+  .profile-sidebar-rich {
+    width: 100%;
+    flex: none;
+    padding: 12px 16px;
+    border-right: 0;
+    border-bottom: 1px solid #252d41;
+  }
+  .profile-sidebar-rich .sidebar-divider,
+  .profile-sidebar-rich .sidebar-label {
+    display: block;
+  }
+}
