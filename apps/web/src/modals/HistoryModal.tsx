@@ -30,7 +30,7 @@ import {
   StyleSheet,
   Modal,
 } from '@/lib/native-web-compat';
-import { X } from 'lucide-react-native';
+import { X } from 'lucide-react';
 import { useInfiniteQuery, keepPreviousData } from '@tanstack/react-query';
 import { fetchHistoryGames, type HistoryGame, FAN_SPACING, FAN_RADIUS } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
