@@ -207,7 +207,7 @@ export default function FeedScreen() {
 
   // Same rows as MatchCard: meta / content / one-line footer.
   const composer = (
-    <FeedItem colors={colors}>
+    <FeedItem colors={colors} style={{ padding: 14 }}>
       <div style={composerStyles.metaRow}>
         <div style={composerStyles.author}>
           <MiniAvatar colors={colors} label={username ?? '?'} />
