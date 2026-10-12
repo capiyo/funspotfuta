@@ -11,6 +11,7 @@ import ChatsScreen from '@/screens/ChatsScreen';
 import FeedScreen from '@/screens/FeedScreen';
 import { AppHeader } from '@/screens/home/appHeader';
 import { FloatingPillTabBar } from '@/components/FloatingPillTabBar';
+import ProfileSidebar from '@/components/ProfileSidebar';
 import { requestWebPushToken } from '@/lib/api/notification-service';
 import { HomeProvider, useHome } from '@/screens/home/home-context';
 
@@ -70,22 +71,14 @@ function HomeScreenContent() {
       )}
 
       <div className="workspace">
-        <aside className="profile-sidebar" aria-label="Profile and channels">
-          <div className="profile-avatar" aria-hidden="true">{(username?.[0] ?? 'F').toUpperCase()}</div>
-          <h2>{username ?? 'Your profile'}</h2>
-          <p className="muted">{isLoggedIn ? 'Fan profile' : 'Join Funspot to personalize your profile.'}</p>
-          <div className="sidebar-divider" />
-          <p className="sidebar-label">YOUR CHANNELS</p>
-          {channels.map((channel) => (
-            <button
-              type="button"
-              key={channel.channelId}
-              className={channel.channelId === activeChannelId ? 'sidebar-channel selected' : 'sidebar-channel'}
-              onClick={() => setActiveChannelId(channel.channelId)}
-            >{channel.name}</button>
-          ))}
-          {!isLoggedIn && <button type="button" className="button sidebar-join" onClick={() => navigate('/login')}>Sign in with phone</button>}
-        </aside>
+        <ProfileSidebar
+          channels={channels}
+          activeChannelId={activeChannelId}
+          setActiveChannelId={setActiveChannelId}
+          setActiveTab={setActiveTab}
+          isLoggedIn={isLoggedIn}
+          userId={userId}
+        />
 
         <div className="mobile-home-tabs">
           <FloatingPillTabBar active={activeTab} onChange={setActiveTab} />
