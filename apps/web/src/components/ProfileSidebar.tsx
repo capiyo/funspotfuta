@@ -26,7 +26,7 @@ export default function ProfileSidebar({
   const openLogin = () => loginModal?.requireLogin();
 
   return (
-    <aside className="profile-sidebar profile-sidebar-rich" aria-label="Profile and channels">
+    <aside className="profile-sidebar profile-sidebar-rich no-scrollbar" aria-label="Profile and channels">
       {isLoggedIn ? (
         <>
           {!profileOpen && (
