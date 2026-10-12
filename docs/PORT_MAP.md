@@ -147,3 +147,9 @@ Implemented A–E on `web-port-from-master`. Public/discoverable channels use th
 - Browser DevTools checks on desktop and narrow widths have not been run in this environment. Verify computed borders, shadows, outlines, radii (avatars only), scroll behavior, image sizing, and video autoplay/pause/one-at-a-time behavior in a browser.
 - `npx prettier --write` has not been run: there is no local repository checkout or local Prettier binary in this environment. GitHub Actions validates typecheck, lint, and Vite build, but does not run Prettier.
 - The mobile vote endpoint `POST /api/actions/vote/cast` is global and has no `channel_id` field. The existing API shape was preserved; the selected card channel ID is passed to the vote modal and used for pledge/review/chat, but the vote request itself cannot send a channel ID without changing the core API.
+
+### Final verification status for the Home cleanup
+- Code changes for A–E are pushed to web-port-from-master; validation is tracked by the latest Web port validation workflow.
+- Remaining environment-only checks: open Home at desktop and narrow widths in a real browser to inspect computed styles and test actual scrolling, guest/authenticated composer visibility, and video autoplay/pause behavior. This environment has no browser automation/DevTools session.
+- npx prettier --write remains unrun because this environment has no working local repository checkout or Prettier executable. Do not claim formatting passed until it is run in a checkout.
+- Known backend contract limitation: castFixtureVote uses the existing global vote endpoint without a channel_id field. Do not invent a payload; card channel IDs are still passed to the vote modal and used for channel chat, comments, pledge, and review.
