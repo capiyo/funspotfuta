@@ -352,6 +352,15 @@ export function MatchCard({
       alignItems: 'center',
       gap: FAN_SPACING.sm,
     },
+    guestCommentPrompt: {
+      ...fanText('caption', colors, colors.textTertiary),
+      flex: 1,
+      minWidth: 0,
+      padding: 0,
+      textAlign: 'left',
+      background: colors.background,
+      cursor: 'pointer',
+    },
     input: {
       flex: 1,
       minWidth: 0,
@@ -487,22 +496,35 @@ export function MatchCard({
 
           {/* Middle: comment box */}
           <div style={styles.inputCell}>
-            {!canComment && (
-              <Lock size={ICON.sm} color={colors.textTertiary} />
+            {!isLoggedIn ? (
+              <button
+                type="button"
+                onClick={handleSubmit}
+                aria-label="Log in to comment"
+                style={styles.guestCommentPrompt}
+              >
+                Log in to comment
+              </button>
+            ) : (
+              <>
+                {!canComment && (
+                  <Lock size={ICON.sm} color={colors.textTertiary} />
+                )}
+                <Input
+                  colors={colors}
+                  variant="inline"
+                  value={draft}
+                  onChange={(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+                    setDraft(event.target.value)
+                  }
+                  disabled={!canComment}
+                  placeholder={placeholder}
+                  aria-label={placeholder}
+                  onKeyDown={handleCommentKeyDown}
+                  style={styles.input}
+                />
+              </>
             )}
-            <Input
-              colors={colors}
-              variant="inline"
-              value={draft}
-              onChange={(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-                setDraft(event.target.value)
-              }
-              disabled={!canComment}
-              placeholder={placeholder}
-              aria-label={placeholder}
-              onKeyDown={handleCommentKeyDown}
-              style={styles.input}
-            />
           </div>
 
 
