@@ -697,7 +697,8 @@ body:has(.home-screen) *::-webkit-scrollbar {
 }
 .home-screen .channel-chip,
 .home-screen .sidebar-channel,
-.home-screen .button,
+.home-screen .navbar .button,
+.home-screen .profile-sidebar-rich .button,
 .home-screen .button-quiet {
   color: var(--home-text-secondary) !important;
   background: var(--home-page-bg) !important;
@@ -708,7 +709,8 @@ body:has(.home-screen) *::-webkit-scrollbar {
 .home-screen .channel-chip.active,
 .home-screen .sidebar-channel:hover,
 .home-screen .sidebar-channel.selected,
-.home-screen .mock-signin {
+.home-screen .mock-signin,
+.home-screen .navbar .button {
   color: var(--home-primary) !important;
   background: var(--home-page-bg) !important;
 }
