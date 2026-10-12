@@ -46,14 +46,14 @@ export function SmartMedia({ imageUrl, videoUrl, videoThumbnailUrl, width, heigh
   if (videoUrl) {
     const ratio = videoRatio;
     const maxHeight = typeof window !== 'undefined' && window.innerWidth <= 650 ? '60vh' : '70vh';
-    return <div className="post-video-frame" style={{ position: 'relative', width: '100%', aspectRatio: String(ratio), maxHeight, overflow: 'hidden', background: colors.background }}>
+    return <div className="post-video-frame" style={{ position: 'relative', width: '100%', aspectRatio: String(ratio), maxHeight, overflow: 'hidden', background: 'transparent' }}>
       <video ref={videoRef} src={videoUrl} poster={videoThumbnailUrl ?? undefined}
         playsInline muted loop preload="metadata" controls={showControls}
         onClick={() => setShowControls(true)}
         onLoadedMetadata={(event) => { const video = event.currentTarget; if (video.videoWidth && video.videoHeight) setVideoRatio(Math.max(4 / 5, Math.min(16 / 9, video.videoWidth / video.videoHeight))); }}
         onLoadedData={() => setVideoLoaded(true)}
         onPlay={() => setPaused(false)} onPause={() => setPaused(true)}
-        style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover', background: colors.background }}
+        style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover', background: 'transparent' }}
         aria-label="Post video" />
       {!videoLoaded && <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: colors.background, pointerEvents: "none" }} />}
       {paused && <div aria-hidden="true" style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
