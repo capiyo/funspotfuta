@@ -1572,7 +1572,7 @@ export function SwipeableVotePledgeModal(props: Props) {
                         <View style={{ flex: 1, overflow: 'hidden' }}>
                             <ScrollView
                                 className="no-scrollbar"
-                                ref={pagerRef
+                                ref={pagerRef}
                                 horizontal
                                 pagingEnabled
                                 showsHorizontalScrollIndicator={false}
