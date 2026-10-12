@@ -490,3 +490,146 @@ body:has(.home-screen) .fixed *::-webkit-scrollbar {
   width: 0 !important;
   height: 0 !important;
 }
+
+
+/* Final Home surface contract: the page background is the only surface. */
+.home-screen,
+.home-screen .navbar,
+.home-screen .workspace,
+.home-screen .profile-sidebar,
+.home-screen .profile-sidebar-rich,
+.home-screen .home-columns,
+.home-screen .home-column,
+.home-screen .pane-content,
+.home-screen .pane-heading,
+.home-screen .mobile-home-tabs,
+.home-screen .feed-screen,
+.home-screen .feed-item,
+.home-screen .post-card,
+.home-screen .match-card,
+.home-screen .chats-fixture-list,
+.home-screen .chats-fixture-row,
+.home-screen .chats-list-footer,
+.home-screen .profile-sidebar-rich .mock-profile-balance,
+.home-screen .profile-sidebar-rich .mock-profile-stats > div,
+.home-screen .profile-sidebar-rich .mock-channel-row,
+.home-screen .profile-sidebar-rich .mock-leaderboard-row,
+.home-screen .profile-sidebar-rich .mock-profile-fandom span {
+  background: var(--home-page-bg) !important;
+  background-color: var(--home-page-bg) !important;
+  background-image: none !important;
+}
+.home-screen .navbar {
+  border: 0 !important;
+  box-shadow: none !important;
+}
+.home-screen .home-column,
+.home-screen .chats-column,
+.home-screen .feed-column,
+.home-screen .profile-sidebar,
+.home-screen .profile-sidebar-rich,
+.home-screen .pane-heading,
+.home-screen .chats-list-footer,
+.home-screen .feed-item,
+.home-screen .post-card,
+.home-screen .match-card,
+.home-screen .chats-fixture-row,
+.home-screen .profile-sidebar-rich *,
+body:has(.home-screen) .fixed [role="dialog"],
+body:has(.home-screen) .fixed [role="dialog"] * {
+  border: 0 !important;
+  border-width: 0 !important;
+  border-style: none !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+  border-radius: 0 !important;
+}
+.home-screen button,
+.home-screen input,
+.home-screen textarea,
+.home-screen img,
+.home-screen video,
+.home-screen footer,
+.home-screen [class*="card"],
+.home-screen [class*="row"],
+.home-screen [class*="footer"],
+body:has(.home-screen) .fixed button,
+body:has(.home-screen) .fixed input,
+body:has(.home-screen) .fixed textarea,
+body:has(.home-screen) .fixed img,
+body:has(.home-screen) .fixed video,
+body:has(.home-screen) .fixed footer,
+body:has(.home-screen) .fixed [class*="overflow"] {
+  border: 0 !important;
+  border-width: 0 !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+  border-radius: 0 !important;
+}
+.home-screen .home-avatar,
+.home-screen .profile-avatar,
+.home-screen .mini-avatar,
+.home-screen .mock-profile-avatar,
+.home-screen .mock-profile-identity img,
+.home-screen .navbar [aria-label*="Account menu"],
+.home-screen .navbar [aria-label*="Account menu"] img,
+body:has(.home-screen) .fixed .home-avatar {
+  border-radius: 50% !important;
+}
+.home-screen *::before,
+.home-screen *::after,
+body:has(.home-screen) .fixed *::before,
+body:has(.home-screen) .fixed *::after {
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+  background-image: none !important;
+}
+.no-scrollbar,
+.no-scrollbar * {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+.no-scrollbar::-webkit-scrollbar,
+.no-scrollbar *::-webkit-scrollbar,
+.home-screen *::-webkit-scrollbar,
+body:has(.home-screen) .fixed *::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+.home-screen,
+body:has(.home-screen) {
+  scrollbar-gutter: auto !important;
+}
+body:has(.home-screen) {
+  height: 100vh;
+  overflow: hidden !important;
+}
+@media (max-width: 650px) {
+  .app-shell.home-screen {
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden !important;
+  }
+  .home-screen .workspace {
+    min-height: 0;
+    overflow: hidden;
+  }
+  .home-screen .profile-sidebar-rich {
+    width: 100%;
+    flex: none;
+    max-height: 140px;
+    overflow: hidden !important;
+  }
+  .home-screen .home-columns {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .home-screen .home-column {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+}
