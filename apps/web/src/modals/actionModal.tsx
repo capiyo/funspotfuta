@@ -1571,7 +1571,8 @@ export function SwipeableVotePledgeModal(props: Props) {
                         {/* Body */}
                         <View style={{ flex: 1, overflow: 'hidden' }}>
                             <ScrollView
-                                ref={pagerRef}
+                                className="no-scrollbar"
+                                ref={pagerRef
                                 horizontal
                                 pagingEnabled
                                 showsHorizontalScrollIndicator={false}
@@ -1582,6 +1583,7 @@ export function SwipeableVotePledgeModal(props: Props) {
                                 {tabs.map((_, i) => (
                                     <View key={i} style={{ width: screenW, flex: 1 }}>
                                         <ScrollView
+                                            className="no-scrollbar"
                                             contentContainerStyle={{
                                                 paddingBottom: FAN_SPACING.xl,
                                                 paddingTop: FAN_SPACING.xs,
@@ -2128,6 +2130,7 @@ export function SwipeableVotePledgeModal(props: Props) {
                                 <View style={styles.subExpanded}>
                                     {list.length > 0 && (
                                         <ScrollView
+                                            className="no-scrollbar"
                                             horizontal
                                             showsHorizontalScrollIndicator={false}
                                             style={{ marginBottom: FAN_SPACING.sm }}
