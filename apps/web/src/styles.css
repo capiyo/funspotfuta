@@ -288,7 +288,7 @@ body:has(.home-screen) {
 
 /* Home is one uninterrupted surface. All panes remain scrollable without visible rails. */
 .home-screen {
-  --home-page-bg: var(--home-scrollbar-track, #0b1020);
+  --home-page-bg: var(--home-scrollbar-track);
   background: var(--home-page-bg) !important;
 }
 .no-scrollbar {
@@ -461,4 +461,8 @@ body:has(.home-screen) {
   .home-screen .profile-sidebar-rich .sidebar-label {
     display: none !important;
   }
+}
+
+body:has(.home-screen) .fixed .home-avatar {
+  border-radius: 50% !important;
 }
