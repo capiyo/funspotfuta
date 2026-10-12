@@ -45,7 +45,8 @@ body:has(.home-screen) {
 }
 
 .home-screen .home-column {
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 .home-screen .feed-screen,
@@ -465,4 +466,16 @@ body:has(.home-screen) {
 
 body:has(.home-screen) .fixed .home-avatar {
   border-radius: 50% !important;
+}
+
+.home-screen *,
+body:has(.home-screen) .fixed * {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+.home-screen *::-webkit-scrollbar,
+body:has(.home-screen) .fixed *::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
