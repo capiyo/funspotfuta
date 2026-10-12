@@ -321,6 +321,7 @@ body:has(.home-screen) .fixed *::after {
   border-width: 0 !important;
   background-image: none !important;
 }
+.home-screen .home-avatar,
 .home-screen .profile-avatar,
 .home-screen .mini-avatar,
 .home-screen .mock-profile-avatar,
@@ -434,8 +435,13 @@ body:has(.home-screen) {
 
 /* Narrow Home uses tabs and a compact identity strip instead of a tall sidebar. */
 .home-screen .profile-sidebar-rich * {
+  background: var(--home-page-bg) !important;
+  background-color: var(--home-page-bg) !important;
   border: 0 !important;
   box-shadow: none !important;
+}
+.home-screen .profile-sidebar-rich .mock-signin {
+  color: var(--home-primary) !important;
 }
 .home-screen .profile-sidebar-rich .mock-profile-balance,
 .home-screen .profile-sidebar-rich .mock-profile-stats > div,
