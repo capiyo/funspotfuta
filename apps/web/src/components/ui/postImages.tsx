@@ -35,7 +35,7 @@ export const PostImage = memo(function PostImage({ uri, colors, width, height, o
   const frame: CSSProperties = {
     position: 'relative', display: 'block', width: '100%',
     aspectRatio: String(ratio), maxHeight, overflow: 'hidden',
-    background: colors.background,
+    background: 'transparent',
   };
   const onLoad = (event: SyntheticEvent<HTMLImageElement>) => {
     const image = event.currentTarget;
@@ -49,7 +49,7 @@ export const PostImage = memo(function PostImage({ uri, colors, width, height, o
     const unavailable = <div className="post-image-frame" style={{ ...frame, display: 'grid', placeItems: 'center' }}>
       <ImageOff size={ICON.md} color={colors.textTertiary} aria-label="Image unavailable" />
     </div>;
-    return onPress ? <button type="button" onClick={onPress} aria-label={accessibilityLabel} className="post-image-button" style={{ display: 'block', width: '100%', padding: 0, background: colors.background }}>{unavailable}</button> : unavailable;
+    return onPress ? <button type="button" onClick={onPress} aria-label={accessibilityLabel} className="post-image-button" style={{ display: 'block', width: '100%', padding: 0, background: 'transparent' }}>{unavailable}</button> : unavailable;
   }
   const content = <div className="post-image-frame" style={frame}>
     {!loaded && <div aria-hidden="true" className="post-media-skeleton" style={{ position: 'absolute', inset: 0, background: colors.background }} />}
@@ -58,5 +58,5 @@ export const PostImage = memo(function PostImage({ uri, colors, width, height, o
       style={{ position: 'absolute', inset: 0, display: 'block', width: '100%', height: '100%', objectFit: 'cover', opacity: loaded ? 1 : 0 }} />
     {overlay && <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>{overlay}</div>}
   </div>;
-  return onPress ? <button type="button" onClick={onPress} aria-label={accessibilityLabel} className="post-image-button" style={{ display: 'block', width: '100%', padding: 0, background: colors.background, cursor: 'pointer' }}>{content}</button> : content;
+  return onPress ? <button type="button" onClick={onPress} aria-label={accessibilityLabel} className="post-image-button" style={{ display: 'block', width: '100%', padding: 0, background: 'transparent', cursor: 'pointer' }}>{content}</button> : content;
 });
