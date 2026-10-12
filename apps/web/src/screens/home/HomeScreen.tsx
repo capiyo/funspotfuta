@@ -82,11 +82,11 @@ function HomeScreenContent() {
           <FloatingPillTabBar active={activeTab} onChange={setActiveTab} />
         </div>
 
-        <main className="home-columns" aria-label="Home workspace">
-          <section className={`home-column chats-column ${activeTab === 'Chats' ? 'mobile-tab-active' : 'mobile-tab-hidden'}`} aria-label="Chats">
+        <main className="home-columns no-scrollbar" aria-label="Home workspace">
+          <section className={`home-column no-scrollbar chats-column ${activeTab === 'Chats' ? 'mobile-tab-active' : 'mobile-tab-hidden'}`} aria-label="Chats">
             <ChatsScreen />
           </section>
-          <section className={`home-column feed-column ${activeTab === 'Feed' ? 'mobile-tab-active' : 'mobile-tab-hidden'}`} aria-label="Feed">
+          <section className={`home-column no-scrollbar feed-column ${activeTab === 'Feed' ? 'mobile-tab-active' : 'mobile-tab-hidden'}`} aria-label="Feed">
             <FeedScreen />
           </section>
         </main>
