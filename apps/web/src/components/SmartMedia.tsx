@@ -16,6 +16,8 @@ export function SmartMedia({ imageUrl, videoUrl, videoThumbnailUrl, width, heigh
   const colors = useFanColors();
   const videoRef = useRef<HTMLVideoElement>(null);
   const [paused, setPaused] = useState(true);
+  const [videoLoaded, setVideoLoaded] = useState(false);
+  const [videoRatio, setVideoRatio] = useState(width && height ? Math.max(4 / 5, Math.min(16 / 9, width / height)) : 4 / 3);
   const [showControls, setShowControls] = useState(false);
 
   useEffect(() => {
@@ -42,15 +44,18 @@ export function SmartMedia({ imageUrl, videoUrl, videoThumbnailUrl, width, heigh
   }, [videoUrl]);
 
   if (videoUrl) {
-    const ratio = width && height ? Math.max(4 / 5, Math.min(16 / 9, width / height)) : 4 / 3;
+    const ratio = videoRatio;
     const maxHeight = typeof window !== 'undefined' && window.innerWidth <= 650 ? '60vh' : '70vh';
     return <div className="post-video-frame" style={{ position: 'relative', width: '100%', aspectRatio: String(ratio), maxHeight, overflow: 'hidden', background: colors.background }}>
       <video ref={videoRef} src={videoUrl} poster={videoThumbnailUrl ?? undefined}
         playsInline muted loop preload="metadata" controls={showControls}
         onClick={() => setShowControls(true)}
+        onLoadedMetadata={(event) => { const video = event.currentTarget; if (video.videoWidth && video.videoHeight) setVideoRatio(Math.max(4 / 5, Math.min(16 / 9, video.videoWidth / video.videoHeight))); }}
+        onLoadedData={() => setVideoLoaded(true)}
         onPlay={() => setPaused(false)} onPause={() => setPaused(true)}
         style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover', background: colors.background }}
         aria-label="Post video" />
+      {!videoLoaded && <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: colors.background, pointerEvents: "none" }} />}
       {paused && <button type="button" aria-label="Play video" onClick={() => {
         const video = videoRef.current;
         if (!video) return;
