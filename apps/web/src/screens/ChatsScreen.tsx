@@ -334,7 +334,7 @@ export default function ChatsScreen() {
           <div>{listHeader}</div>
           <div aria-live="polite">
             {channelPool.length === 0 ? (
-              isAllChannelsError ? (
+              (isError || isAllChannelsError) ? (
                 <EmptyState colors={colors} title="You're offline" hint="Tap Refresh once you're back online." />
               ) : (
                 <EmptyState colors={colors} title="No channels available" hint="Try again." />
@@ -372,7 +372,7 @@ export default function ChatsScreen() {
               );
             })}
           </div>
-          {(isError || isAllChannelsError || filtered.length === 0 || channelPool.length === 0) && <div className="chats-list-footer">
+          {(isError || filtered.length === 0 || channelPool.length === 0) && <div className="chats-list-footer">
             <button type="button" onClick={() => void onRefresh()} disabled={refreshing}
               aria-label="Refresh fixtures" aria-busy={refreshing} className="secondary-button">
               {refreshing ? 'Refreshing…' : 'Refresh'}
