@@ -30,15 +30,10 @@ import { useFanColors } from '@/theme/use-fan-colors';
 
 type FanColors = ReturnType<typeof useFanColors>;
 
-// Rank colors — medal gold/silver/bronze. Not design tokens.
-const RANK_GOLD = '#FFC107';
-const RANK_SILVER = '#B0BEC5';
-const RANK_BRONZE = '#CD7F32';
-
 function rankColor(rank: number, colors: FanColors): string {
-    if (rank === 1) return RANK_GOLD;
-    if (rank === 2) return RANK_SILVER;
-    if (rank === 3) return RANK_BRONZE;
+    if (rank === 1) return colors.primary;
+    if (rank === 2) return colors.textSecondary;
+    if (rank === 3) return colors.textTertiary;
     return colors.textTertiary;
 }
 
@@ -464,7 +459,7 @@ function createStyles(colors: FanColors) {
             justifyContent: 'center',
         },
         channelAvatarText: {
-            color: '#FFFFFF',
+            color: colors.textPrimary,
             fontSize: 10,
             fontWeight: '700',
         },
