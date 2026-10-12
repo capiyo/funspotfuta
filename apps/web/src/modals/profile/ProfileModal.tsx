@@ -491,7 +491,7 @@ export default function ProfileModal({
               { backgroundColor: colors.primary },
             ]}
           >
-            <Plus size={10} color="#FFFFFF" />
+            <Plus size={10} color={colors.textInverse} />
             <Text style={styles.actionChipTextPrimary}>Deposit</Text>
           </Pressable>
           <Pressable
@@ -604,7 +604,7 @@ export default function ProfileModal({
                 { backgroundColor: colors.primary },
               ]}
             >
-              <Pencil size={11} color="#FFFFFF" />
+              <Pencil size={11} color={colors.textInverse} />
               <Text style={styles.actionBtnTextPrimary}>Edit</Text>
             </Pressable>
             <Pressable
@@ -737,10 +737,10 @@ export default function ProfileModal({
           ]}
         >
           {saving ? (
-            <ActivityIndicator size="small" color="#FFFFFF" />
+            <ActivityIndicator size="small" color={colors.textInverse} />
           ) : (
             <>
-              <CheckCircle2 size={11} color="#FFFFFF" />
+              <CheckCircle2 size={11} color={colors.textInverse} />
               <Text style={styles.actionBtnTextPrimary}>Complete Profile</Text>
             </>
           )}
@@ -819,10 +819,10 @@ export default function ProfileModal({
             ]}
           >
             {saving ? (
-              <ActivityIndicator size="small" color="#FFFFFF" />
+              <ActivityIndicator size="small" color={colors.textInverse} />
             ) : (
               <>
-                <CheckCircle2 size={11} color="#FFFFFF" />
+                <CheckCircle2 size={11} color={colors.textInverse} />
                 <Text style={styles.actionBtnTextPrimary}>Save</Text>
               </>
             )}
@@ -856,6 +856,7 @@ export default function ProfileModal({
                 </Pressable>
               )}
               <View
+                className="home-avatar"
                 style={[
                   styles.headerAvatar,
                   {
@@ -1160,7 +1161,7 @@ function createStyles(colors: FanColors) {
     },
     actionChipText: { fontSize: 9, fontWeight: '600' },
     actionChipTextPrimary: {
-      color: '#FFFFFF',
+      color: colors.textPrimary,
       fontSize: 9,
       fontWeight: '600',
     },
@@ -1190,7 +1191,7 @@ function createStyles(colors: FanColors) {
     },
     actionBtnText: { fontSize: 10, fontWeight: '600' },
     actionBtnTextPrimary: {
-      color: '#FFFFFF',
+      color: colors.textPrimary,
       fontSize: 10,
       fontWeight: '600',
     },
