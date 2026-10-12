@@ -387,8 +387,9 @@ body:has(.home-screen) .fixed [class*="overflow-auto"]::-webkit-scrollbar {
 }
 .home-screen .skeleton-row,
 .home-screen .skeleton-post {
-  background: var(--home-page-bg) !important;
+  background: var(--home-text-tertiary) !important;
   background-image: none !important;
+  opacity: 0.14;
   animation: none !important;
 }
 .home-screen .profile-sidebar,
