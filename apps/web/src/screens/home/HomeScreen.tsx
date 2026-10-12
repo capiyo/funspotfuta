@@ -31,6 +31,11 @@ function HomeScreenContent() {
       style={{
         '--home-scrollbar-track': colors.background,
         '--home-scrollbar-thumb': colors.borderActive,
+        '--home-text-primary': colors.textPrimary,
+        '--home-text-secondary': colors.textSecondary,
+        '--home-text-tertiary': colors.textTertiary,
+        '--home-primary': colors.primary,
+        '--home-border': colors.border,
       } as CSSProperties}
     >
       <AppHeader
