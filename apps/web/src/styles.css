@@ -424,3 +424,41 @@ body:has(.home-screen) {
     min-height: 0;
   }
 }
+
+
+/* Narrow Home uses tabs and a compact identity strip instead of a tall sidebar. */
+.home-screen .profile-sidebar-rich * {
+  border: 0 !important;
+  box-shadow: none !important;
+}
+.home-screen .profile-sidebar-rich .mock-profile-balance,
+.home-screen .profile-sidebar-rich .mock-profile-stats > div,
+.home-screen .profile-sidebar-rich .mock-channel-row,
+.home-screen .profile-sidebar-rich .mock-leaderboard-row,
+.home-screen .profile-sidebar-rich .mock-profile-fandom span {
+  background: var(--home-page-bg) !important;
+  background-color: var(--home-page-bg) !important;
+}
+@media (max-width: 650px) {
+  .home-screen .profile-sidebar-rich {
+    width: 100%;
+    flex: none;
+    max-height: 140px;
+    overflow: hidden !important;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+  .home-screen .profile-sidebar-rich > div {
+    max-height: 124px;
+    overflow: hidden;
+  }
+  .home-screen .profile-sidebar-rich .mock-profile-fandom,
+  .home-screen .profile-sidebar-rich .mock-profile-balance,
+  .home-screen .profile-sidebar-rich .mock-profile-stats,
+  .home-screen .profile-sidebar-rich .mock-readonly-list,
+  .home-screen .profile-sidebar-rich .mock-profile-note,
+  .home-screen .profile-sidebar-rich .sidebar-divider,
+  .home-screen .profile-sidebar-rich .sidebar-label {
+    display: none !important;
+  }
+}
