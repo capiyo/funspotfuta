@@ -662,6 +662,7 @@ body:has(.home-screen) *::after {
   border: 0 !important;
   box-shadow: none !important;
   outline: 0 !important;
+  background: transparent !important;
   background-image: none !important;
 }
 body:has(.home-screen) .home-avatar,
