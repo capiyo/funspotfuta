@@ -328,7 +328,7 @@ export default function FeedScreen() {
   return (
     <div
       ref={scrollRef}
-      className="feed-screen"
+      className="feed-screen no-scrollbar"
       style={{
         height: '100%',
         minHeight: 0,
