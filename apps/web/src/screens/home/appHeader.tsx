@@ -199,7 +199,7 @@ export function AppHeader(props: HeaderProps = {}) {
           >Funspot😂</a>
 
           <nav className="min-w-0 flex-1" aria-label="Channels">
-            <div className="flex items-center gap-1.5 overflow-x-auto whitespace-nowrap py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div className="no-scrollbar flex items-center gap-1.5 overflow-x-auto whitespace-nowrap py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {loggedIn && hasJoinedChannels ? joinedChannels.map((channel) => {
                 const active = selectedChannelId === channel.channelId;
                 const leader = topMember(channel);
