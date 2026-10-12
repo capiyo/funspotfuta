@@ -267,21 +267,19 @@ export default function PostCommentsModal({
           <div className="min-w-0 flex-1">
             <h2 className="text-[15px] font-semibold">Comments</h2>
             <p className="mt-0.5 text-[11px]" style={{ color: colors.textTertiary }}>
-              {postUserName ? `On ${postUserName}'s post` : 'Join the conversation'}
+              {comments.length} {comments.length === 1 ? 'response' : 'responses'}
             </p>
           </div>
           <button type="button" onClick={onClose} aria-label="Close comments" className="flex h-8 w-8 items-center justify-center rounded-full border"
             style={{ background: colors.surfaceSunken, borderColor: colors.border }}><X size={15} color={colors.textSecondary} /></button>
         </header>
-        {postCaption && <div className="border-b px-5 py-3 text-sm" style={{ borderColor: colors.border, color: colors.textSecondary }}>{postCaption}</div>}
         <div ref={listRef} className="min-h-0 flex-1 overflow-y-auto px-5 py-4" style={{ gap: FAN_SPACING.md }}>
           {loading && comments.length === 0 ? <div className="flex h-full flex-col items-center justify-center gap-3 py-12" role="status">
             <span className="h-6 w-6 animate-spin rounded-full border-2 border-current border-r-transparent" style={{ color: colors.primary }} />
             <span className="text-xs" style={{ color: colors.textTertiary }}>Loading comments…</span>
           </div> : comments.length === 0 ? <div className="flex h-full flex-col items-center justify-center gap-2 py-12">
             <MessageCircle size={30} color={colors.textTertiary} />
-            <strong className="text-xs">No comments yet</strong>
-            <span className="text-center text-xs" style={{ color: colors.textTertiary }}>Be the first to share your thoughts.</span>
+            <strong className="text-xs">Be the first to comment!</strong>
           </div> : comments.map((comment) => <CommentBubble key={comment.id || `${comment.user_id}-${comment.timestamp}`}
             colors={colors} comment={comment} currentUserId={userId ?? ''}
             parentUsername={isReply(comment) ? comments.find((item) => item.id === comment.parent_comment_id)?.user_name ?? null : null}
