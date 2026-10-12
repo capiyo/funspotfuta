@@ -93,7 +93,7 @@ export default function NotificationsModal({ visible, onClose }: { visible: bool
           <button type="button" onClick={onClose} aria-label="Close notifications" className="rounded-full p-2" style={{ background: colors.surfaceSunken }}><X size={14} color={colors.textSecondary} /></button>
         </header>
         {loading ? <div className="py-10 text-center" role="status" style={{ color: colors.primary }}>Loading…</div> :
-          <div className="overflow-y-auto px-5 pb-8" style={{ maxHeight: 'calc(80vh - 72px)' }}>
+          <div className="no-scrollbar overflow-y-auto px-5 pb-8" style={{ maxHeight: 'calc(80vh - 72px)' }}>
             {summary && <div className="mb-4 flex gap-3">
               {[{ label: 'Unread notifications', value: summary.notifications }, { label: 'Unread comments', value: summary.comments }].map((item) =>
                 <div key={item.label} className="flex flex-1 flex-col items-center rounded-xl border p-3" style={{ borderColor: colors.border, background: colors.surface, gap: FAN_SPACING.xs }}>
