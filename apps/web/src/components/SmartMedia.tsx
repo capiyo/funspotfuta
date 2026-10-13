@@ -52,7 +52,18 @@ export function SmartMedia({ imageUrl, videoUrl, videoThumbnailUrl, width, heigh
         onClick={() => setShowControls(true)}
         onLoadedMetadata={(event) => { const video = event.currentTarget; if (video.videoWidth && video.videoHeight) setVideoRatio(Math.max(4 / 5, Math.min(16 / 9, video.videoWidth / video.videoHeight))); }}
         onLoadedData={() => setVideoLoaded(true)}
-        onPlay={() => setPaused(false)} onPause={() => setPaused(true)}
+        onPlay={(event) => {
+          const video = event.currentTarget;
+          if (currentlyPlayingVideo && currentlyPlayingVideo !== video) {
+            currentlyPlayingVideo.pause();
+          }
+          currentlyPlayingVideo = video;
+          setPaused(false);
+        }}
+        onPause={(event) => {
+          if (currentlyPlayingVideo === event.currentTarget) currentlyPlayingVideo = null;
+          setPaused(true);
+        }}
         style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover', background: 'transparent' }}
         aria-label="Post video" />
       {!videoLoaded && <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: colors.background, pointerEvents: "none" }} />}
