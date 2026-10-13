@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import AddPostModal from '@/modals/addPostModal';
 import type { Channel } from '@funspot/core';
 import ProfileModal from '@/modals/profile/ProfileModal';
 import { useLoginModal } from '@/modals/Login-modal-context';
@@ -23,12 +25,17 @@ export default function ProfileSidebar({
 }: ProfileSidebarProps) {
   const loginModal = useLoginModal();
   const [profileOpen, setProfileOpen] = useState(false);
+  const [postModalOpen, setPostModalOpen] = useState(false);
+  const queryClient = useQueryClient();
   const openLogin = () => loginModal?.requireLogin();
 
   return (
     <aside className="profile-sidebar profile-sidebar-rich no-scrollbar" aria-label="Profile and channels">
       {isLoggedIn ? (
         <>
+          <button type="button" className="button sidebar-join" onClick={() => setPostModalOpen(true)}>Post</button>
+          <AddPostModal visible={postModalOpen} onClose={() => setPostModalOpen(false)}
+            onPostCreated={() => { void queryClient.invalidateQueries({ queryKey: ['feed'] }); }} />
           {!profileOpen && (
             <ProfileModal
               visible
