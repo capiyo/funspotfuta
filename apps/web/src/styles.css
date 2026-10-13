@@ -746,3 +746,102 @@ body:has(.home-screen) *::-webkit-scrollbar {
   color: var(--home-primary) !important;
   background: var(--home-page-bg) !important;
 }
+
+/* Final Home contract: one theme-colored surface, no visual dividers or scroll chrome. */
+body:has(.home-screen),
+body:has(.home-screen) .home-screen,
+body:has(.home-screen) .home-screen .navbar,
+body:has(.home-screen) .home-screen .workspace,
+body:has(.home-screen) .home-screen .profile-sidebar,
+body:has(.home-screen) .home-screen .profile-sidebar-rich,
+body:has(.home-screen) .home-screen .home-columns,
+body:has(.home-screen) .home-screen .home-column,
+body:has(.home-screen) .home-screen .pane-content,
+body:has(.home-screen) .home-screen .pane-heading,
+body:has(.home-screen) .home-screen .mobile-home-tabs,
+body:has(.home-screen) .home-screen .feed-screen,
+body:has(.home-screen) .home-screen .feed-item,
+body:has(.home-screen) .home-screen .post-card,
+body:has(.home-screen) .home-screen .match-card,
+body:has(.home-screen) .home-screen .chats-fixture-list,
+body:has(.home-screen) .home-screen .chats-fixture-row,
+body:has(.home-screen) .home-screen .chats-list-footer,
+body:has(.home-screen) .home-screen .post-image-frame,
+body:has(.home-screen) .home-screen .post-video-frame {
+  background: var(--home-page-bg) !important;
+  background-color: var(--home-page-bg) !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+  border-radius: 0 !important;
+}
+body:has(.home-screen) .home-screen,
+body:has(.home-screen) .home-screen *,
+body:has(.home-screen) .fixed,
+body:has(.home-screen) .fixed * {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+  scrollbar-gutter: auto !important;
+}
+body:has(.home-screen) .home-screen *::-webkit-scrollbar,
+body:has(.home-screen) .fixed *::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+body:has(.home-screen) .home-screen *,
+body:has(.home-screen) .fixed * {
+  border-width: 0 !important;
+  border-style: none !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+  border-radius: 0 !important;
+}
+body:has(.home-screen) .home-screen *::before,
+body:has(.home-screen) .home-screen *::after,
+body:has(.home-screen) .fixed *::before,
+body:has(.home-screen) .fixed *::after {
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+  background-image: none !important;
+}
+body:has(.home-screen) .home-screen .home-avatar,
+body:has(.home-screen) .home-screen .profile-avatar,
+body:has(.home-screen) .home-screen .mini-avatar,
+body:has(.home-screen) .home-screen .mock-profile-avatar,
+body:has(.home-screen) .home-screen .mock-profile-identity img,
+body:has(.home-screen) .home-screen .navbar [aria-label*="Account menu"],
+body:has(.home-screen) .home-screen .navbar [aria-label*="Account menu"] img,
+body:has(.home-screen) .fixed .home-avatar,
+body:has(.home-screen) .fixed .profile-avatar,
+body:has(.home-screen) .fixed .mini-avatar {
+  border-radius: 50% !important;
+}
+body:has(.home-screen) .home-screen .navbar {
+  background: var(--home-page-bg) !important;
+}
+body:has(.home-screen) .home-screen .profile-sidebar,
+body:has(.home-screen) .home-screen .profile-sidebar-rich {
+  width: 300px;
+  max-width: 300px;
+  flex: 0 0 300px;
+  background: var(--home-page-bg) !important;
+}
+@media (max-width: 900px) and (min-width: 651px) {
+  body:has(.home-screen) .home-screen .profile-sidebar,
+  body:has(.home-screen) .home-screen .profile-sidebar-rich {
+    width: 300px;
+    max-width: 300px;
+    flex-basis: 300px;
+  }
+}
+@media (max-width: 650px) {
+  body:has(.home-screen) .home-screen .profile-sidebar,
+  body:has(.home-screen) .home-screen .profile-sidebar-rich {
+    width: 100%;
+    max-width: none;
+    flex-basis: auto;
+  }
+}
