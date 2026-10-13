@@ -82,9 +82,8 @@ async function fetchWebFixtures(signal?: AbortSignal): Promise<Fixture[]> {
     if (!rawFixtures) throw new Error('Invalid fixtures response: expected an array, data, fixtures, or games array');
 
     // Match mobile's fixtureFromJson field fallbacks for snake_case and camelCase payloads.
-    return rawFixtures
-      .map((fixture) => fixtureFromJson(fixture))
-      .filter((fixture) => fixture.status !== 'completed' && fixture.status !== 'finished');
+    // Match mobile's getAllFixtures: preserve every status for the screen filters.
+    return rawFixtures.map((fixture) => fixtureFromJson(fixture));
   } catch (error) {
     if (import.meta.env.DEV) {
       console.error('[ChatsScreen] GET fixtures failed', {
