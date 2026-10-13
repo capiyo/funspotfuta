@@ -845,3 +845,14 @@ body:has(.home-screen) .home-screen .profile-sidebar-rich {
     flex-basis: auto;
   }
 }
+
+/* Only feed media has rounded clipping; all other Home elements stay square. */
+body:has(.home-screen) .home-screen .feed-column .post-image-frame,
+body:has(.home-screen) .home-screen .feed-column .post-video-frame {
+  border-radius: 8px !important;
+  overflow: hidden !important;
+}
+body:has(.home-screen) .home-screen .feed-column .post-image-frame img,
+body:has(.home-screen) .home-screen .feed-column .post-video-frame video {
+  border-radius: 8px !important;
+}
