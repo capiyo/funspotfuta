@@ -39,3 +39,11 @@
 - Media placeholder ratio starts at 4:3 when the API does not supply intrinsic dimensions, then updates to the natural ratio clamped to 4:5–16:9. This follows the mobile image component's placeholder behavior. The shared Post model currently strips intrinsic image dimensions, so the initial ratio cannot be derived from API metadata without changing core, which is outside this web-only scope.
 - Home's global reset includes portal-rendered dialogs because the profile, login, vote, comments, and review modals render outside the .home-screen element. Circular avatar classes are the only radius exception.
 - The existing core `getAllChannels` catches network/non-2xx failures and returns an empty array. When there are no joined channels either, web shows a refreshable empty state instead of rendering fixtures with a league label as a channel name.
+
+## Home visual and interaction verification (2026-10-13)
+- Desktop profile sidebar is fixed at 300px; below 651px it becomes a compact identity strip and Chats/Feed are switched by the existing tabs.
+- Home and portal-rendered modal content keep native scrolling but hide scrollbar chrome. The CSS reset removes borders, outlines, shadows and corner radii, restoring circular radii only for user-avatar elements that are circular in the mobile UI.
+- Feed image placeholders start at 4:3 until intrinsic dimensions are known, then use the mobile-derived natural ratio clamped to 4:5–16:9; image loading remains lazy and async. This is a browser layout adaptation, not a change to post data.
+- Video playback is exclusive across cards: both visibility-triggered autoplay and a manual play action claim the shared active-video slot; videos pause when no longer at least 60% visible.
+- Refresh is exposed for fixture errors, public-channel errors, or an empty displayed list. Public channels are fetched through the existing core `getAllChannels` function (the documented `GET /api/channels/all` endpoint); no endpoint or payload shape was added.
+- Source review found the requested small fixes already present in `CommentsModal.tsx`, `ChannelCreation.tsx`, and `home-context.tsx`; no additional auth, backend, or mobile changes were made for those items.
