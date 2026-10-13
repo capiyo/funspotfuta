@@ -7,7 +7,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import type { Channel, Fixture, FanColorPalette, Voter } from '@funspot/core';
-import { FAN_SPACING, getAllFixtures } from '@funspot/core';
+import { FAN_SPACING } from '@funspot/core';
+import { apiFetch } from '@/lib/api/api-client';
 import { useAllChannels } from '@/hooks/useAllChannels';
 import { sendChannelMessage } from '@funspot/core/src/api/send-channel-messages';
 import { useAuth } from '@/lib/auth/auth-context';
@@ -46,6 +47,14 @@ const EMPTY_COPY: Record<Filter, { title: string; hint: string }> = {
 const FIXTURES_KEY = ['fixtures'] as const;
 const NO_FIXTURES: Fixture[] = [];
 const NO_CHANNELS: Channel[] = [];
+
+async function fetchWebFixtures(): Promise<Fixture[]> {
+  const response = await apiFetch(`games?_=${Date.now()}`);
+  if (!response.ok) throw new Error(`Failed to fetch fixtures: ${response.status}`);
+  const payload = await response.json() as { data?: unknown };
+  if (!Array.isArray(payload.data)) throw new Error('Invalid fixtures response');
+  return (payload.data as Fixture[]).filter((fixture) => fixture.status !== 'completed' && fixture.status !== 'finished');
+}
 const MOCK_COMMENTORS = ['Kevo', 'Aisha', 'Brian', 'Faith', 'Otieno', 'Wanjiru', 'Denis', 'Nadia', 'Mutiso', 'Cheryl'];
 const MOCK_COMMENTS = [
   'This is going to be a banger', 'My gut says an upset today',
@@ -126,24 +135,13 @@ export default function ChatsScreen() {
   const { activeChannelId: homeChannelId, activeTab, channels } = useHome();
   const { scrollProps, topInset } = useHomeList();
   const navigate = useNavigate();
-  const [isDesktop, setIsDesktop] = useState(
-    () => typeof window !== 'undefined' && window.matchMedia('(min-width: 651px)').matches,
-  );
-
-  useEffect(() => {
-    const media = window.matchMedia('(min-width: 651px)');
-    const updateDesktop = () => setIsDesktop(media.matches);
-    updateDesktop();
-    media.addEventListener('change', updateDesktop);
-    return () => media.removeEventListener('change', updateDesktop);
-  }, []);
   const queryClient = useQueryClient();
 
-  const { data, isPending, isError, error, refetch } = useQuery({
+  const { data, isPending, isFetching, isError, error, refetch } = useQuery({
     queryKey: FIXTURES_KEY,
-    queryFn: getAllFixtures,
+    queryFn: fetchWebFixtures,
     placeholderData: keepPreviousData,
-    enabled: isDesktop || activeTab === 'Chats',
+    refetchOnMount: true,
   });
   const fixtures = data ?? NO_FIXTURES;
   const {
@@ -152,6 +150,18 @@ export default function ChatsScreen() {
     isError: isAllChannelsError,
     refetch: refetchAllChannels,
   } = useAllChannels(authToken);
+  useEffect(() => {
+    if ((data?.length ?? 0) > 0 && publicChannels.length > 0) return;
+    const retryIfVisible = () => {
+      if (document.visibilityState !== 'visible') return;
+      if (!window.matchMedia('(min-width: 651px)').matches && activeTab !== 'Chats') return;
+      void refetch();
+      void refetchAllChannels();
+    };
+    const timer = window.setInterval(retryIfVisible, 10_000);
+    return () => window.clearInterval(timer);
+  }, [data, publicChannels.length, activeTab, refetch, refetchAllChannels]);
+
   const channelPool = useMemo(() => {
     const merged = new Map<string, Channel>();
     for (const channel of publicChannels) merged.set(channel.channelId, channel);
@@ -319,7 +329,7 @@ export default function ChatsScreen() {
 
   return (
     <section aria-label="Chats and fixtures" style={{ ...panelStyle(colors), display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-      {isPending || isAllChannelsPending ? (
+      {isPending || isAllChannelsPending || ((data?.length ?? 0) === 0 && isFetching) ? (
         <div className="no-scrollbar" style={{ paddingTop: topInset, minHeight: 0, overflowY: 'auto' }} aria-busy="true">
           {listHeader}
           <SkeletonRows colors={colors} />
