@@ -1,5 +1,5 @@
 /* eslint no-undef: "off" */
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { useQueryClient } from '@tanstack/react-query';
 import { firebaseAuth } from '../firebase';
@@ -50,6 +50,20 @@ function readStoredState(): AuthState {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
   const [state, setState] = useState<AuthState>(initialState);
+  const previousAuthIdentity = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!state.isInitialized) return;
+    const identity = JSON.stringify([state.isLoggedIn, state.userId, state.authToken]);
+    const previous = previousAuthIdentity.current;
+    previousAuthIdentity.current = identity;
+    if (previous === null || previous === identity) return;
+    void Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['fixtures'] }),
+      queryClient.invalidateQueries({ queryKey: ['channels'] }),
+      queryClient.invalidateQueries({ queryKey: ['feed'] }),
+    ]);
+  }, [state.isInitialized, state.isLoggedIn, state.userId, state.authToken, queryClient]);
 
   useEffect(() => { setState(readStoredState()); }, []);
 
