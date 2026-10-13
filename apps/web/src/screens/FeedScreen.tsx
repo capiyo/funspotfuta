@@ -9,19 +9,41 @@ import { LIST_BOTTOM_INSET } from '@/theme/layout';
 import { PostCard } from '@/components/PostCard';
 import { EmptyState, PagingFooter, SkeletonRows } from '@/components/ui/ListsStates';
 import { useHomeList, useHome } from './home/home-context';
-import { apiFetch } from '@/lib/api/api-client';
+import { apiFetch, apiUrl } from '@/lib/api/api-client';
 
 const PAGE_SIZE = 10;
 const FEED_KEY = ['feed'] as const;
 type FeedPage = { posts: Post[] };
 
-async function fetchPostsPage(page: number): Promise<FeedPage> {
+async function fetchPostsPage(page: number, signal?: AbortSignal): Promise<FeedPage> {
   const params = new URLSearchParams({ page: String(page), limit: String(PAGE_SIZE), _: String(Date.now()) });
-  const response = await apiFetch(`posts?${params.toString()}`);
-  if (!response.ok) throw new Error(`Error fetching posts: ${response.status}`);
-  const payload = await response.json() as { posts?: unknown[] };
-  if (!Array.isArray(payload.posts)) throw new Error('Invalid posts response');
-  return { posts: payload.posts.map((post) => postFromJson(post as Record<string, unknown>)) };
+  const path = `posts?${params.toString()}`;
+  const url = apiUrl(path);
+  let status: number | undefined;
+  try {
+    const response = await apiFetch(path, { signal });
+    status = response.status;
+    if (!response.ok) throw new Error(`GET ${url} failed: HTTP ${response.status} ${response.statusText}`.trim());
+    const payload: unknown = await response.json();
+    const record = payload && typeof payload === 'object' && !Array.isArray(payload)
+      ? payload as Record<string, unknown>
+      : null;
+    const rawPosts = Array.isArray(payload)
+      ? payload
+      : Array.isArray(record?.posts) ? record.posts
+        : Array.isArray(record?.data) ? record.data : null;
+    if (!rawPosts) throw new Error('Invalid posts response: expected an array, posts, or data array');
+    return { posts: rawPosts.map((post) => postFromJson(post as Record<string, unknown>)) };
+  } catch (error) {
+    if (import.meta.env.DEV) {
+      console.error('[FeedScreen] GET posts failed', {
+        url, status,
+        message: error instanceof Error ? error.message : String(error),
+        error,
+      });
+    }
+    throw error;
+  }
 }
 
 export default function FeedScreen() {
@@ -38,7 +60,7 @@ export default function FeedScreen() {
     fetchNextPage, refetch,
   } = useInfiniteQuery({
     queryKey: FEED_KEY,
-    queryFn: ({ pageParam }) => fetchPostsPage(pageParam),
+    queryFn: ({ pageParam, signal }) => fetchPostsPage(pageParam, signal),
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) =>
       lastPage.posts.length === PAGE_SIZE ? allPages.length + 1 : undefined,
