@@ -372,7 +372,7 @@ export default function ChatsScreen() {
               );
             })}
           </div>
-          {(isError || filtered.length === 0 || channelPool.length === 0) && <div className="chats-list-footer">
+          {(isError || isAllChannelsError || filtered.length === 0 || channelPool.length === 0) && <div className="chats-list-footer">
             <button type="button" onClick={() => void onRefresh()} disabled={refreshing}
               aria-label="Refresh fixtures" aria-busy={refreshing} className="secondary-button">
               {refreshing ? 'Refreshing…' : 'Refresh'}
