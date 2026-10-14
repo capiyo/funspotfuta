@@ -338,7 +338,7 @@ export function AppHeader(props: HeaderProps = {}) {
               className="mobile-home-menu-button" style={{ color: colors.textSecondary, background: loggedIn ? colors.primaryMuted : 'transparent' }}>
               {loggedIn ? <img src={avatarUri} alt="" /> : <Menu size={20} />}
             </button>
-            {!loggedIn && <button type="button" onClick={() => requireLogin()}
+            {!loggedIn && <button type="button" onClick={() => props.onLogin ? props.onLogin() : requireLogin()}
               className="mobile-home-join" style={{ color: colors.primary, fontFamily: 'SairaCondensed_600SemiBold, sans-serif' }}>Join</button>}
           </div>
         </div>
