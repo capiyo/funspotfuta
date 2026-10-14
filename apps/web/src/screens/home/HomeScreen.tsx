@@ -20,7 +20,7 @@ function HomeScreenContent() {
   const { userId, username, authToken, isLoggedIn, logout } = useAuth();
   const {
     channels, activeChannelId, setActiveChannelId,
-    loadingChannels, reloadChannels, activeTab, setActiveTab,
+    loadingChannels, reloadChannels, activeTab, setActiveTab, headerVisible,
   } = useHome();
   const [pushStatus, setPushStatus] = useState('');
   const navigate = useNavigate();
@@ -75,7 +75,7 @@ function HomeScreenContent() {
         </div>
       )}
 
-      <div className="mobile-home-tabs">
+      <div className={`mobile-home-tabs ${headerVisible ? "home-header-visible" : "home-header-hidden"}`}>
         <FloatingPillTabBar active={activeTab} onChange={setActiveTab} />
       </div>
 
