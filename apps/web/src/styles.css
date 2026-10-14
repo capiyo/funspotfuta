@@ -856,3 +856,70 @@ body:has(.home-screen) .home-screen .feed-column .post-image-frame img,
 body:has(.home-screen) .home-screen .feed-column .post-video-frame video {
   border-radius: 8px !important;
 }
+
+
+/* Narrow Home follows the mobile header, profile drawer and floating two-tab pill. */
+.mobile-home-header { display: none; flex: none; position: relative; z-index: 40; width: 100%; }
+.mobile-home-header-row { display: flex; min-height: 44px; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 16px 4px; }
+.mobile-home-brand { flex: none; font-size: 15px; font-weight: 700; letter-spacing: -0.3px; line-height: 1.2; text-decoration: none; }
+.mobile-home-header-actions { display: flex; min-width: 0; flex: none; align-items: center; gap: 12px; }
+.mobile-home-icon-button { position: relative; display: inline-flex; width: 28px; height: 28px; flex: none; align-items: center; justify-content: center; padding: 0; background: transparent; }
+.mobile-home-notification-count { position: absolute; top: -3px; right: -5px; min-width: 15px; height: 15px; padding: 0 3px; border-radius: 999px !important; color: #fff; font-size: 9px; font-weight: 700; line-height: 15px; text-align: center; }
+.mobile-home-menu-button { display: inline-flex; width: 28px; height: 28px; flex: none; align-items: center; justify-content: center; overflow: hidden; padding: 0; border-radius: 50% !important; }
+.mobile-home-menu-button img { width: 100%; height: 100%; object-fit: cover; border-radius: 50% !important; }
+.mobile-home-join { padding: 0; background: transparent; font-size: 15px; font-weight: 700; letter-spacing: -0.3px; }
+.mobile-home-channel-row { display: flex; width: 100%; align-items: center; gap: 8px; overflow-x: auto; padding: 6px 12px 8px; white-space: nowrap; }
+.mobile-home-channel-chip { display: inline-flex; min-height: 26px; flex: none; align-items: center; gap: 4px; border-bottom: 1.5px solid transparent !important; padding: 4px 6px; background: transparent; font-size: 10px; font-weight: 500; }
+.mobile-home-channel-chip small { font-size: 8px; font-weight: 400; }
+.mobile-home-create-channel { gap: 3px; font-weight: 600; }
+.mobile-profile-drawer-backdrop { position: fixed; inset: 0; z-index: 1000; display: flex; justify-content: flex-end; background: rgba(0,0,0,.4); }
+.mobile-profile-drawer { display: flex; width: min(88vw, 360px); height: 100%; min-height: 0; flex-direction: column; padding-top: max(env(safe-area-inset-top), 8px); padding-bottom: env(safe-area-inset-bottom); overflow: hidden; border-radius: 12px 0 0 12px !important; }
+.mobile-profile-drawer-heading { display: flex; flex: none; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; }
+.mobile-profile-drawer-heading strong { font-size: 17px; font-weight: 700; }
+.mobile-profile-drawer-heading button { display: inline-flex; width: 32px; height: 32px; align-items: center; justify-content: center; background: transparent; }
+.mobile-profile-drawer-scroll { min-height: 0; flex: 1; overflow-y: auto; overscroll-behavior: contain; padding: 0 16px 24px; }
+.mobile-profile-drawer .profile-sidebar-rich,
+body:has(.home-screen) .mobile-profile-drawer .profile-sidebar-rich { display: block !important; width: 100% !important; max-width: none !important; min-height: 0; max-height: none !important; flex: none !important; overflow: visible !important; padding: 0 !important; background: transparent !important; }
+.mobile-profile-drawer .profile-sidebar-rich .mock-signin { margin-bottom: 18px; }
+.mobile-profile-drawer .profile-sidebar-rich .sidebar-divider { display: block !important; height: 1px; margin: 16px 0; background: var(--home-border, #555) !important; opacity: .35; }
+.mobile-profile-drawer .profile-sidebar-rich .sidebar-label { display: block !important; margin: 0 0 10px; }
+.mobile-profile-drawer .mock-profile-avatar,
+.mobile-profile-drawer .mock-channel-avatar,
+.mobile-profile-drawer .mock-profile-identity img,
+.mobile-profile-drawer .profile-avatar,
+.mobile-profile-drawer .mini-avatar { border-radius: 50% !important; }
+.mobile-profile-drawer-actions { display: flex; flex-direction: column; gap: 16px; margin-top: 16px; }
+.mobile-profile-drawer-actions > button { width: 100%; padding: 12px 0; background: transparent; text-align: left; font-size: 13px; font-weight: 600; }
+.mobile-profile-drawer-channel-list { display: flex; flex-direction: column; gap: 2px; }
+.mobile-profile-drawer-label { margin-bottom: 6px; font-size: 10px; letter-spacing: .12em; }
+.mobile-profile-drawer-channel-list button { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; background: transparent; text-align: left; font-size: 13px; }
+.mobile-profile-drawer-channel-list button span { font-size: 11px; }
+.mobile-profile-drawer button:focus-visible,
+.mobile-home-header button:focus-visible,
+.mobile-home-channel-row button:focus-visible,
+.floating-pill button:focus-visible { outline: 2px solid var(--home-primary, #2bb673) !important; outline-offset: 3px; }
+
+@media (max-width: 650px) {
+  .home-screen { display: flex; height: 100dvh !important; min-height: 0 !important; flex-direction: column; overflow: hidden !important; }
+  .desktop-home-header { display: none !important; }
+  .mobile-home-header { display: block !important; }
+  .home-screen .workspace { display: flex; min-height: 0; flex: 1; overflow: hidden; }
+  .home-screen .profile-sidebar-rich,
+  .home-screen .workspace > .profile-sidebar { display: none !important; }
+  .home-screen .home-columns { display: flex; width: 100%; min-width: 0; min-height: 0; flex: 1; flex-direction: column; overflow: hidden; }
+  .home-screen .home-column { display: none; width: 100%; min-width: 0; height: 100%; min-height: 0; flex: 1; overflow-x: hidden; overflow-y: auto; }
+  .home-screen .home-column.mobile-tab-active { display: block !important; }
+  .home-screen .mobile-home-tabs { display: block !important; position: fixed !important; z-index: 80; right: 0; bottom: calc(16px + env(safe-area-inset-bottom)); left: 0; width: 100%; padding: 0 12px; pointer-events: none; }
+  .home-screen .mobile-home-tabs .floating-pill-wrap { position: static !important; display: flex; justify-content: center; padding: 0; pointer-events: none; }
+  .home-screen .floating-pill { display: inline-flex; align-items: center; gap: 4px; padding: 4px !important; border: 0 !important; border-radius: 999px !important; box-shadow: 0 4px 10px rgba(0,0,0,.25) !important; pointer-events: auto; }
+  .home-screen .floating-pill-item { display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-height: 38px; padding: 10px 16px !important; border-radius: 999px !important; font-size: 12px; transition: background-color 220ms ease, color 220ms ease, transform 220ms ease; }
+  .home-screen .floating-pill-item.active { transform: scale(1); }
+  .home-screen .floating-pill-item:not(.active) { transform: scale(.98); }
+  .home-screen .floating-pill-item span { font-size: 12px; }
+  .home-screen .chats-column,
+  .home-screen .feed-column { border: 0 !important; }
+  .home-screen .pane-content { padding-right: 12px; padding-left: 12px; }
+  .home-screen .post-image-frame,
+  .home-screen .post-video-frame { border-radius: 8px !important; overflow: hidden !important; }
+  .mobile-profile-drawer-backdrop { padding-top: env(safe-area-inset-top); }
+}
