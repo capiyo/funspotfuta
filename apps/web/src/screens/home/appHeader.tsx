@@ -318,7 +318,7 @@ export function AppHeader(props: HeaderProps = {}) {
       </header>
 
       <header
-        className={\`mobile-home-header \${headerVisible ? 'home-header-visible' : 'home-header-hidden'}\`}
+        className={'mobile-home-header ' + (headerVisible ? 'home-header-visible' : 'home-header-hidden')}
         style={{ background: colors.surfaceElevated, color: colors.textPrimary, paddingTop: 'max(env(safe-area-inset-top), 0px)' }}
       >
         <div className="mobile-home-header-row">
