@@ -935,3 +935,18 @@ body:has(.home-screen) .mobile-profile-drawer .profile-sidebar-rich { display: b
   .home-screen .mobile-home-tabs.home-header-hidden { opacity: 0; transform: translateY(24px); pointer-events: none; }
   body:has(.home-screen) .mobile-profile-drawer { border-radius: 12px 0 0 12px !important; }
 }
+
+
+/* Restore only the radii and shadow that the mobile Home UI actually uses. */
+body:has(.home-screen) .home-screen .floating-pill {
+  border-radius: 999px !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,.25) !important;
+}
+body:has(.home-screen) .home-screen .floating-pill-item {
+  border-radius: 999px !important;
+}
+body:has(.home-screen) .home-screen .mobile-home-menu-button,
+body:has(.home-screen) .home-screen .mobile-home-menu-button img,
+body:has(.home-screen) .home-screen .mobile-home-notification-count {
+  border-radius: 50% !important;
+}
