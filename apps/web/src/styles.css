@@ -923,3 +923,15 @@ body:has(.home-screen) .mobile-profile-drawer .profile-sidebar-rich { display: b
   .home-screen .post-video-frame { border-radius: 8px !important; overflow: hidden !important; }
   .mobile-profile-drawer-backdrop { padding-top: env(safe-area-inset-top); }
 }
+
+
+/* Mobile Home uses the same short fade/slide used by the native overlay. */
+@media (max-width: 650px) {
+  .mobile-home-header { transition: opacity 260ms ease, transform 260ms ease; }
+  .mobile-home-header.home-header-visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+  .mobile-home-header.home-header-hidden { opacity: 0; transform: translateY(-8px); pointer-events: none; }
+  .home-screen .mobile-home-tabs { transition: opacity 260ms ease, transform 260ms ease; }
+  .home-screen .mobile-home-tabs.home-header-visible { opacity: 1; transform: translateY(0); }
+  .home-screen .mobile-home-tabs.home-header-hidden { opacity: 0; transform: translateY(24px); pointer-events: none; }
+  body:has(.home-screen) .mobile-profile-drawer { border-radius: 12px 0 0 12px !important; }
+}
