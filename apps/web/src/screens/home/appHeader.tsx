@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { RefObject, KeyboardEvent as ReactKeyboardEvent, MouseEvent as ReactMouseEvent } from 'react';
 import { createPortal } from 'react-dom';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { Bell, ChevronDown, LogOut, Plus, UserRound, Wallet } from 'lucide-react';
+import { Bell, ChevronDown, LogOut, Menu, Plus, RefreshCw, UserRound, Wallet, X } from 'lucide-react';
 import type { Channel } from '@funspot/core';
 import { FAN_RADIUS } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
@@ -19,6 +19,7 @@ import AddPostModal from '@/modals/addPostModal';
 import HistoryModal from '@/modals/HistoryModal';
 import CreateChannelModal from '@/modals/ChannelCreation';
 import { NotificationService } from '@/lib/api/notification-service';
+import ProfileSidebar from '@/components/ProfileSidebar';
 
 type HeaderProps = {
   channels?: Channel[];
@@ -79,12 +80,13 @@ function useEscapeAndFocusTrap(open: boolean, ref: RefObject<HTMLElement | null>
 export function AppHeader(props: HeaderProps = {}) {
   const colors = useFanColors();
   const navigate = useNavigate();
+  const location = useLocation();
   const queryClient = useQueryClient();
   const { userId, username, authToken, isLoggedIn, logout } = useAuth();
   const { requireLogin } = useLoginModal();
   const {
     activeChannel, activeChannelId, channels, allChannels, setActiveChannelId,
-    joiningChannelIds, joinChannel,
+    joiningChannelIds, joinChannel, activeTab, setActiveTab,
   } = useHome();
 
   // Retain HomeScreen's existing callback API while sourcing channel state and
@@ -96,6 +98,7 @@ export function AppHeader(props: HeaderProps = {}) {
 
   const [notifOpen, setNotifOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [comradesOpen, setComradesOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -107,8 +110,23 @@ export function AppHeader(props: HeaderProps = {}) {
   const [menuAnchor, setMenuAnchor] = useState({ top: 0, right: 8 });
   const avatarRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const mobileDrawerRef = useRef<HTMLDivElement>(null);
   const closeMenu = useCallback(() => setMenuOpen(false), []);
   useEscapeAndFocusTrap(menuOpen, menuRef, closeMenu);
+  const closeMobileDrawer = useCallback(() => setMobileDrawerOpen(false), []);
+  useEscapeAndFocusTrap(mobileDrawerOpen, mobileDrawerRef, closeMobileDrawer);
+
+  useEffect(() => {
+    setMobileDrawerOpen(false);
+    setMenuOpen(false);
+  }, [location.pathname, location.search, location.hash]);
+
+  useEffect(() => {
+    if (!mobileDrawerOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = previousOverflow; };
+  }, [mobileDrawerOpen]);
 
   // Keep the bell badge synchronized with the notification service stream and
   // the same persisted unread counts used by NotificationsModal.
@@ -186,7 +204,7 @@ export function AppHeader(props: HeaderProps = {}) {
   return (
     <>
       <header
-        className="sticky top-0 z-50 w-full border-b"
+        className="desktop-home-header sticky top-0 z-50 w-full border-b"
         style={{ background: colors.surfaceElevated, borderColor: colors.border, paddingTop: 'max(env(safe-area-inset-top), 0px)' }}
       >
         <div className="mx-auto flex min-h-14 w-full max-w-[1600px] items-center gap-3 px-3 sm:px-5 lg:px-7">
@@ -295,7 +313,88 @@ export function AppHeader(props: HeaderProps = {}) {
             >↻</button>
           </div>
         </div>
+
       </header>
+
+      <header
+        className="mobile-home-header"
+        style={{ background: colors.surfaceElevated, color: colors.textPrimary, paddingTop: 'max(env(safe-area-inset-top), 0px)' }}
+      >
+        <div className="mobile-home-header-row">
+          <a href="/" onClick={(event) => { event.preventDefault(); navigate('/'); }} aria-label="Funspot home"
+            className="mobile-home-brand" style={{ color: colors.primary, fontFamily: 'SairaCondensed_600SemiBold, sans-serif' }}>Funspot😂</a>
+          <div className="mobile-home-header-actions">
+            <button type="button" onClick={() => setNotifOpen(true)} aria-label="Notifications"
+              className="mobile-home-icon-button" style={{ color: colors.textSecondary }}>
+              <Bell size={18} />
+              {unreadCount > 0 && <span className="mobile-home-notification-count" style={{ background: colors.primary }}>{unreadCount > 99 ? '99+' : unreadCount}</span>}
+            </button>
+            <button type="button"
+              onClick={() => props.onRefresh ? props.onRefresh() : void queryClient.invalidateQueries({ queryKey: ['channels'] })}
+              aria-label="Refresh" className="mobile-home-icon-button" style={{ color: colors.textSecondary }}><RefreshCw size={17} /></button>
+            <button ref={avatarRef} type="button" onClick={() => setMobileDrawerOpen(true)}
+              aria-label="Open profile and menu" aria-haspopup="dialog" aria-expanded={mobileDrawerOpen}
+              className="mobile-home-menu-button" style={{ color: colors.textSecondary, background: loggedIn ? colors.primaryMuted : 'transparent' }}>
+              {loggedIn ? <img src={avatarUri} alt="" /> : <Menu size={20} />}
+            </button>
+            {!loggedIn && <button type="button" onClick={() => props.onLogin ? props.onLogin() : requireLogin()}
+              className="mobile-home-join" style={{ color: colors.primary, fontFamily: 'SairaCondensed_600SemiBold, sans-serif' }}>Join</button>}
+          </div>
+        </div>
+        <nav className="mobile-home-channel-row no-scrollbar" aria-label="Channels">
+          {loggedIn && hasJoinedChannels ? joinedChannels.map((channel) => {
+            const active = selectedChannelId === channel.channelId;
+            const leader = topMember(channel);
+            return <button key={channel.channelId} type="button" className="mobile-home-channel-chip"
+              style={{ color: active ? colors.primary : colors.textSecondary, borderBottomColor: active ? colors.primary : 'transparent' }}
+              aria-current={active ? 'page' : undefined} onClick={() => selectChannel(channel)}
+              onContextMenu={(event) => handleChipContextMenu(event, channel)} onDoubleClick={() => openChat(channel)}>
+              {channel.isAdmin && <span>👑 </span>}{channel.name}
+              {leader && <small style={{ color: colors.primary }}>{leader.username} ({leader.seasonPoints}pts)</small>}
+            </button>;
+          }) : availableChannels.map((channel) => {
+            const joining = joiningChannelIds.has(channel.channelId);
+            return <button key={channel.channelId} type="button" disabled={joining} className="mobile-home-channel-chip"
+              style={{ color: colors.textSecondary, borderBottomColor: 'transparent' }} onClick={() => join(channel)}>
+              {channel.name}<small style={{ color: colors.primary }}>{joining ? '…' : 'join'}</small>
+            </button>;
+          })}
+          {(loggedIn && hasJoinedChannels ? joinedChannels.length : 0) < MAX_CHANNELS && (
+            <button type="button" className="mobile-home-channel-chip mobile-home-create-channel" style={{ color: colors.primary, borderBottomColor: 'transparent' }}
+              onClick={() => requireLogin(() => setCreateChannelOpen(true))}><Plus size={12} /> create channel</button>
+          )}
+        </nav>
+      </header>
+
+      {mobileDrawerOpen && createPortal(
+        <div className="mobile-profile-drawer-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) closeMobileDrawer(); }}>
+          <section ref={mobileDrawerRef} role="dialog" aria-modal="true" aria-label="Profile and menu"
+            className="mobile-profile-drawer" style={{ background: colors.surfaceElevated, color: colors.textPrimary }}>
+            <div className="mobile-profile-drawer-heading">
+              <strong style={{ color: colors.primary, fontFamily: 'SairaCondensed_600SemiBold, sans-serif' }}>Profile & channels</strong>
+              <button type="button" onClick={closeMobileDrawer} aria-label="Close menu" style={{ color: colors.textSecondary }}><X size={20} /></button>
+            </div>
+            <div className="mobile-profile-drawer-scroll no-scrollbar">
+              <ProfileSidebar channels={joinedChannels}
+                setActiveChannelId={(id) => { setActiveChannelId(id); setActiveTab('Chats'); closeMobileDrawer(); }}
+                setActiveTab={(tab) => { setActiveTab(tab); closeMobileDrawer(); }}
+                isLoggedIn={loggedIn} />
+              <div className="mobile-profile-drawer-actions">
+                <button type="button" onClick={() => requireLogin(() => { setMobileDrawerOpen(false); setCreateChannelOpen(true); })}
+                  style={{ color: colors.primary }}>Create channel</button>
+                <div className="mobile-profile-drawer-channel-list">
+                  <span className="mobile-profile-drawer-label" style={{ color: colors.textTertiary }}>JOIN CHANNEL</span>
+                  {availableChannels.map((channel) => <button key={channel.channelId} type="button"
+                    disabled={joiningChannelIds.has(channel.channelId)} onClick={() => { closeMobileDrawer(); join(channel); }}
+                    style={{ color: colors.textPrimary }}>{channel.name}<span style={{ color: colors.primary }}>{joiningChannelIds.has(channel.channelId) ? '…' : 'Join'}</span></button>)}
+                  {!availableChannels.length && <span style={{ color: colors.textTertiary }}>No channels available</span>}
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>,
+        document.body,
+      )}
 
       {menuOpen && createPortal(
         <div className="fixed inset-0 z-[950]" onMouseDown={(event) => { if (event.target === event.currentTarget) closeMenu(); }}>
