@@ -86,7 +86,7 @@ export function AppHeader(props: HeaderProps = {}) {
   const { requireLogin } = useLoginModal();
   const {
     activeChannel, activeChannelId, channels, allChannels, setActiveChannelId,
-    joiningChannelIds, joinChannel, activeTab, setActiveTab,
+    joiningChannelIds, joinChannel, activeTab, setActiveTab, headerVisible,
   } = useHome();
 
   // Retain HomeScreen's existing callback API while sourcing channel state and
@@ -109,6 +109,7 @@ export function AppHeader(props: HeaderProps = {}) {
   const [unreadCount, setUnreadCount] = useState(0);
   const [menuAnchor, setMenuAnchor] = useState({ top: 0, right: 8 });
   const avatarRef = useRef<HTMLButtonElement>(null);
+  const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const mobileDrawerRef = useRef<HTMLDivElement>(null);
   const closeMenu = useCallback(() => setMenuOpen(false), []);
@@ -317,7 +318,7 @@ export function AppHeader(props: HeaderProps = {}) {
       </header>
 
       <header
-        className="mobile-home-header"
+        className={\`mobile-home-header \${headerVisible ? 'home-header-visible' : 'home-header-hidden'}\`}
         style={{ background: colors.surfaceElevated, color: colors.textPrimary, paddingTop: 'max(env(safe-area-inset-top), 0px)' }}
       >
         <div className="mobile-home-header-row">
@@ -332,7 +333,7 @@ export function AppHeader(props: HeaderProps = {}) {
             <button type="button"
               onClick={() => props.onRefresh ? props.onRefresh() : void queryClient.invalidateQueries({ queryKey: ['channels'] })}
               aria-label="Refresh" className="mobile-home-icon-button" style={{ color: colors.textSecondary }}><RefreshCw size={17} /></button>
-            <button ref={avatarRef} type="button" onClick={() => setMobileDrawerOpen(true)}
+            <button ref={mobileMenuButtonRef} type="button" onClick={() => setMobileDrawerOpen(true)}
               aria-label="Open profile and menu" aria-haspopup="dialog" aria-expanded={mobileDrawerOpen}
               className="mobile-home-menu-button" style={{ color: colors.textSecondary, background: loggedIn ? colors.primaryMuted : 'transparent' }}>
               {loggedIn ? <img src={avatarUri} alt="" /> : <Menu size={20} />}
