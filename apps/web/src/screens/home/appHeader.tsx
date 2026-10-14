@@ -47,7 +47,7 @@ function useEscapeAndFocusTrap(open: boolean, ref: RefObject<HTMLElement | null>
     const previous = document.activeElement as HTMLElement | null;
     const root = ref.current;
     const frame = window.requestAnimationFrame(() => {
-      root?.querySelector<HTMLElement>('button:not(:disabled), a[href], input:not(:disabled)')?.focus();
+      root?.querySelector<HTMLElement>('button:not(:disabled), a[href], input:not(:disabled), textarea:not(:disabled), select:not(:disabled)')?.focus();
     });
     const onKeyDown = (event: globalThis.KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -57,7 +57,7 @@ function useEscapeAndFocusTrap(open: boolean, ref: RefObject<HTMLElement | null>
       }
       if (event.key !== 'Tab' || !root) return;
       const items = Array.from(root.querySelectorAll<HTMLElement>(
-        'button:not(:disabled), a[href], input:not(:disabled), [tabindex="0"]',
+        'button:not(:disabled), a[href], input:not(:disabled), textarea:not(:disabled), select:not(:disabled), [tabindex="0"]',
       ));
       if (!items.length) event.preventDefault();
       else if (event.shiftKey && document.activeElement === items[0]) {
