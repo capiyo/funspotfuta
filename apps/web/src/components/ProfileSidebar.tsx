@@ -15,6 +15,7 @@ interface ProfileSidebarProps {
   setActiveChannelId: (channelId: string) => void;
   setActiveTab: (tab: 'Chats' | 'Feed') => void;
   isLoggedIn: boolean;
+  onOpenChannel?: (channelId: string) => void;
 }
 
 export default function ProfileSidebar({
@@ -22,6 +23,7 @@ export default function ProfileSidebar({
   setActiveChannelId,
   setActiveTab,
   isLoggedIn,
+  onOpenChannel,
 }: ProfileSidebarProps) {
   const loginModal = useLoginModal();
   const [profileOpen, setProfileOpen] = useState(false);
@@ -46,6 +48,7 @@ export default function ProfileSidebar({
               onSelectChannel={(channelId) => {
                 setActiveChannelId(channelId);
                 setActiveTab('Chats');
+                onOpenChannel?.(channelId);
               }}
               onSelectChats={() => setActiveTab('Chats')}
             />
@@ -59,6 +62,7 @@ export default function ProfileSidebar({
                 setActiveChannelId(channelId);
                 setActiveTab('Chats');
                 setProfileOpen(false);
+                onOpenChannel?.(channelId);
               }}
               onSelectChats={() => setActiveTab('Chats')}
             />
