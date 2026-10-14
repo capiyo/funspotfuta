@@ -369,7 +369,7 @@ export function AppHeader(props: HeaderProps = {}) {
       {mobileDrawerOpen && createPortal(
         <div className="mobile-profile-drawer-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) closeMobileDrawer(); }}>
           <section ref={mobileDrawerRef} role="dialog" aria-modal="true" aria-label="Profile and menu"
-            className="mobile-profile-drawer" style={{ background: colors.surfaceElevated, color: colors.textPrimary }}>
+            className="mobile-profile-drawer" style={{ background: colors.surfaceElevated, color: colors.textPrimary, '--home-scrollbar-track': colors.background, '--home-scrollbar-thumb': colors.borderActive, '--home-text-primary': colors.textPrimary, '--home-text-secondary': colors.textSecondary, '--home-text-tertiary': colors.textTertiary, '--home-primary': colors.primary, '--home-border': colors.border } as React.CSSProperties}>
             <div className="mobile-profile-drawer-heading">
               <strong style={{ color: colors.primary, fontFamily: 'SairaCondensed_600SemiBold, sans-serif' }}>Profile & channels</strong>
               <button type="button" onClick={closeMobileDrawer} aria-label="Close menu" style={{ color: colors.textSecondary }}><X size={20} /></button>
@@ -378,7 +378,8 @@ export function AppHeader(props: HeaderProps = {}) {
               <ProfileSidebar channels={joinedChannels}
                 setActiveChannelId={(id) => { setActiveChannelId(id); setActiveTab('Chats'); closeMobileDrawer(); }}
                 setActiveTab={(tab) => { setActiveTab(tab); closeMobileDrawer(); }}
-                isLoggedIn={loggedIn} />
+                isLoggedIn={loggedIn}
+                onOpenChannel={(id) => { const channel = [...joinedChannels, ...availableChannels].find((item) => item.channelId === id); if (channel) openChat(channel); closeMobileDrawer(); }} />
               <div className="mobile-profile-drawer-actions">
                 <button type="button" onClick={() => requireLogin(() => { setMobileDrawerOpen(false); setCreateChannelOpen(true); })}
                   style={{ color: colors.primary }}>Create channel</button>
