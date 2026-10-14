@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { RefObject, KeyboardEvent as ReactKeyboardEvent, MouseEvent as ReactMouseEvent } from 'react';
+import type { CSSProperties, RefObject, KeyboardEvent as ReactKeyboardEvent, MouseEvent as ReactMouseEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
@@ -369,7 +369,7 @@ export function AppHeader(props: HeaderProps = {}) {
       {mobileDrawerOpen && createPortal(
         <div className="mobile-profile-drawer-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) closeMobileDrawer(); }}>
           <section ref={mobileDrawerRef} role="dialog" aria-modal="true" aria-label="Profile and menu"
-            className="mobile-profile-drawer" style={{ background: colors.surfaceElevated, color: colors.textPrimary, '--home-scrollbar-track': colors.background, '--home-scrollbar-thumb': colors.borderActive, '--home-text-primary': colors.textPrimary, '--home-text-secondary': colors.textSecondary, '--home-text-tertiary': colors.textTertiary, '--home-primary': colors.primary, '--home-border': colors.border } as React.CSSProperties}>
+            className="mobile-profile-drawer" style={{ background: colors.surfaceElevated, color: colors.textPrimary, '--home-scrollbar-track': colors.background, '--home-scrollbar-thumb': colors.borderActive, '--home-text-primary': colors.textPrimary, '--home-text-secondary': colors.textSecondary, '--home-text-tertiary': colors.textTertiary, '--home-primary': colors.primary, '--home-border': colors.border } as CSSProperties}>
             <div className="mobile-profile-drawer-heading">
               <strong style={{ color: colors.primary, fontFamily: 'SairaCondensed_600SemiBold, sans-serif' }}>Profile & channels</strong>
               <button type="button" onClick={closeMobileDrawer} aria-label="Close menu" style={{ color: colors.textSecondary }}><X size={20} /></button>
