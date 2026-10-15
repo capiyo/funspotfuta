@@ -63,7 +63,7 @@
 
 
 ## Narrow Home menu parity (2026-10-15)
-- Native AppHeader menu order found in mobile: Create Post, Create Channel, Profile, Comrades, History, Admin Dashboard (only when an active channel ID exists), Logout. Web additionally exposes Login for guests, Notifications, and Join Channel choices.
+- Native AppHeader menu order found in mobile: Create Post, Create Channel, Profile, Comrades, History, Admin Dashboard (only when the active channel is marked admin), Logout. Web additionally exposes Login for guests, Notifications, and Join Channel choices.
 - Profile, channel creation, admin, comrades, history, post creation, login, logout, and notifications use existing web modal/auth handlers. Profile balance, stats and leaderboard remain in ProfileModal/profile content rather than becoming the menu itself.
 - Browser dialog uses the existing portal, Escape/backdrop dismissal, focus trap and body scroll lock. React Native Modal and safe-area/elevation behavior are adapted to browser portal/CSS.
 - Media reserves a 4:5 frame, begins loading immediately, retries a failed individual media URL once after three seconds, then shows Tap to retry. No fetching, query retry, cache, or API code changed.
