@@ -60,3 +60,10 @@
 - The floating Chats/Feed pill mirrors mobile's MessageCircle/Newspaper icons, lowercase labels, active primary pill, rounded surface, spacing, elevation-like shadow, bottom/sides margins and safe-area inset. One column is visible at a time; existing list bottom insets are retained.
 - The mobile menu opens a focus-trapped, Escape/backdrop/route-dismissable profile drawer. It reuses the web profile sidebar content, including guest sign-in, Post, balance actions, stats, channels/leaderboard, and adds create/join channel actions. Body scrolling is locked while open; channel selection navigates to that channel's chat.
 - Browser adaptations: native React Native Modal/safe-area APIs and elevation cannot be reproduced literally in a browser; they are implemented with a React portal, CSS safe-area env values, keyboard focus management, and a CSS shadow. No data-fetching or retry code was changed for this task, and no mobile files were edited.
+
+
+## Narrow Home menu parity (2026-10-15)
+- Native AppHeader menu order found in mobile: Create Post, Create Channel, Profile, Comrades, History, Admin Dashboard (only when an active channel ID exists), Logout. Web additionally exposes Login for guests, Notifications, and Join Channel choices.
+- Profile, channel creation, admin, comrades, history, post creation, login, logout, and notifications use existing web modal/auth handlers. Profile balance, stats and leaderboard remain in ProfileModal/profile content rather than becoming the menu itself.
+- Browser dialog uses the existing portal, Escape/backdrop dismissal, focus trap and body scroll lock. React Native Modal and safe-area/elevation behavior are adapted to browser portal/CSS.
+- Media reserves a 4:5 frame, begins loading immediately, retries a failed individual media URL once after three seconds, then shows Tap to retry. No fetching, query retry, cache, or API code changed.
