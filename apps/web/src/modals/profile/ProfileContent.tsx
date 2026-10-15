@@ -826,27 +826,65 @@ export default function ProfileContent({
   //  MAIN RENDER
   // ═══════════════════════════════════════════════════════════
 
-  const renderGuestPreview = () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: FAN_SPACING.md, padding: FAN_SPACING.lg }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: FAN_SPACING.md }}>
-        <div style={{ ...Object.assign({}, styles.headerAvatar, { backgroundColor: colors.primaryDim, borderColor: colors.borderActive }) }}>
-          <UserIcon size={20} color={colors.primary} />
+  const guestProfile: UserData = {
+    userId: 'guest_fan',
+    username: '@guest_fan',
+    phone: 'Not set',
+    nickname: 'Guest Fan',
+    clubFan: 'Arsenal',
+    countryFan: 'Kenya',
+    numberOfBets: 18,
+    balance: 0,
+  };
+  const guestChannels = [
+    {
+      channelId: 'preview-premier-league',
+      name: 'Premier League',
+      isAdmin: false,
+      members: [
+        { userId: 'guest_john', username: 'john_w', totalVotes: 42, msgCount: 16, seasonPoints: 760, correctVotes: 29, isAdmin: false },
+        { userId: 'guest_mary', username: 'mary_ochieng', totalVotes: 35, msgCount: 23, seasonPoints: 640, correctVotes: 25, isAdmin: false },
+      ],
+    },
+    {
+      channelId: 'preview-world-cup',
+      name: 'World Cup',
+      isAdmin: false,
+      members: [
+        { userId: 'guest_mary', username: 'mary_ochieng', totalVotes: 35, msgCount: 23, seasonPoints: 640, correctVotes: 25, isAdmin: false },
+        { userId: 'guest_john', username: 'john_w', totalVotes: 42, msgCount: 16, seasonPoints: 760, correctVotes: 29, isAdmin: false },
+      ],
+    },
+    {
+      channelId: 'preview-local-derbies',
+      name: 'Local Derbies',
+      isAdmin: false,
+      members: [
+        { userId: 'guest_john', username: 'john_w', totalVotes: 42, msgCount: 16, seasonPoints: 760, correctVotes: 29, isAdmin: false },
+        { userId: 'guest_mary', username: 'mary_ochieng', totalVotes: 35, msgCount: 23, seasonPoints: 640, correctVotes: 25, isAdmin: false },
+      ],
+    },
+  ] as unknown as Channel[];
+  const visibleChannels = isLoggedIn ? channels : guestChannels;
+  const visibleProfile = isLoggedIn ? profile : guestProfile;
+  const openLogin = () => {
+    onClose();
+    window.dispatchEvent(new CustomEvent('funspot:open-login'));
+  };
+  const renderGuestFields = () => (
+    <div className="profile-guest-fields">
+      {[
+        ['Username', guestProfile.username],
+        ['Team nickname', guestProfile.nickname],
+        ['Favorite club', guestProfile.clubFan],
+        ['Country', guestProfile.countryFan],
+        ['Phone', guestProfile.phone],
+      ].map(([label, value]) => (
+        <div className="profile-guest-field" key={label}>
+          <span style={{ color: colors.textTertiary }}>{label}</span>
+          <strong style={{ color: colors.textPrimary }}>{value}</strong>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 3, minWidth: 0 }}>
-          <span style={{ ...Object.assign({}, styles.headerTitle, { color: colors.textPrimary }) }}>Guest preview</span>
-          <span style={{ ...Object.assign({}, styles.headerSub, { color: colors.textTertiary }) }}>Explore the community before joining</span>
-        </div>
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: FAN_SPACING.sm, padding: FAN_SPACING.md, borderRadius: FAN_RADIUS.lg, backgroundColor: colors.surfaceSunken }}>
-        <span style={{ ...Object.assign({}, styles.sectionHeading, { color: colors.textTertiary }) }}>YOUR FAN PROFILE</span>
-        {renderInfoRow({ Icon: UserIcon, label: 'Username', value: 'Sign in to add your username' })}
-        {renderInfoRow({ Icon: Shield, label: 'Team nickname', value: 'Show your fan identity' })}
-        {renderInfoRow({ Icon: Globe2, label: 'Country', value: 'Connect with fans worldwide' })}
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: FAN_SPACING.sm, padding: FAN_SPACING.md, borderRadius: FAN_RADIUS.lg, border: `1px solid ${colors.border}` }}>
-        <span style={{ ...Object.assign({}, styles.sectionHeading, { color: colors.textTertiary }) }}>JOIN THE COMMUNITY</span>
-        <span style={{ ...Object.assign({}, styles.noProfileHint, { color: colors.textSecondary }) }}>Sign in to create your profile, join channels, chat with supporters, and track your predictions.</span>
-      </div>
+      ))}
     </div>
   );
 
@@ -880,7 +918,7 @@ export default function ProfileContent({
                 ) }}
               >
                 <span style={{ ...Object.assign({}, styles.headerAvatarText, { color: colors.primary }) }}>
-                  {(profile?.nickname || targetUsername || '?')
+                  {(visibleProfile?.nickname || targetUsername || '?')
                     .charAt(0)
                     .toUpperCase()}
                 </span>
@@ -890,13 +928,13 @@ export default function ProfileContent({
                   style={{ ...Object.assign({}, styles.headerTitle, { color: colors.textPrimary }) }}
                   className="profile-ellipsis"
                 >
-                  {profile?.nickname || targetUsername || 'Profile'}
+                  {visibleProfile?.nickname || targetUsername || 'Profile'}
                 </span>
                 <span
                   style={{ ...Object.assign({}, styles.headerSub, { color: colors.textTertiary }) }}
                   className="profile-ellipsis"
                 >
-                  {isCurrentUser
+                  {!isLoggedIn ? '@guest_fan' : isCurrentUser
                     ? channels.length === 0
                       ? 'No channels'
                       : `${channels.length} ${channels.length === 1 ? 'Channel' : 'Channels'}`
@@ -922,7 +960,15 @@ export default function ProfileContent({
               {!isInitialized ? (
                 <div style={styles.center}><span>Loading profile…</span></div>
               ) : !isLoggedIn ? (
-                renderGuestPreview()
+                <div className="profile-guest-preview">
+                  <div className="profile-guest-banner">Preview data - log in to see your own profile</div>
+                  {renderGuestFields()}
+                  <button type="button" className="profile-guest-login" onClick={openLogin}>Log In</button>
+                  <div className="profile-guest-channels-heading">
+                    <strong>Channels (preview)</strong><span>{visibleChannels.length}</span>
+                  </div>
+                  <ChannelLeaderboard channels={visibleChannels} currentUserId="guest_fan" onViewMember={() => undefined} />
+                </div>
               ) : loading ? (
                 <div style={styles.center}>
                   <span color={colors.primary} />
@@ -942,7 +988,7 @@ export default function ProfileContent({
               )}
             </div>
 
-            {isLoggedIn && channels.length > 0 && isCurrentUser && (
+            {(isLoggedIn ? channels : []).length > 0 && isCurrentUser && (
               <div style={styles.channelsSection}>
                 <span style={{ ...Object.assign({}, styles.sectionHeading, { color: colors.textTertiary }) }}>YOUR CHANNELS</span>
                 {channels.slice(0, 3).map((channel) => {
