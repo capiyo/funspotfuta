@@ -71,4 +71,4 @@
 
 ## Shared compact Home menu (2026-10-15)
 - Mobile menu items and order copied into one shared desktop/mobile popover: Login for guests / Logout for signed-in users, Create Post (signed-in users), Create Channel, Profile, Comrades, History, Notifications, Admin Dashboard (only when an active channel ID exists, matching the native menu entry point).
-- The previous Join Channel list and profile/group content are not part of the menu. The popover uses a browser portal, focus trap, Escape and outside-click dismissal; React Native modal presentation is adapted to an anchored 220px browser popover.
+- The previous Join Channel list and profile/group content are not part of the menu. Desktop and narrow layouts share the same menu state and action handlers. The popover uses a browser portal, focus trap, Escape and outside-click dismissal; React Native modal presentation is adapted to an anchored 220px browser popover.
