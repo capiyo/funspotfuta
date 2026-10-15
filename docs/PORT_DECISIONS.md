@@ -67,3 +67,8 @@
 - Profile, channel creation, admin, comrades, history, post creation, login, logout, and notifications use existing web modal/auth handlers. Profile balance, stats and leaderboard remain in ProfileModal/profile content rather than becoming the menu itself.
 - Browser dialog uses the existing portal, Escape/backdrop dismissal, focus trap and body scroll lock. React Native Modal and safe-area/elevation behavior are adapted to browser portal/CSS.
 - Media reserves a 4:5 frame, begins loading immediately, retries a failed individual media URL once after three seconds, then shows Tap to retry. No fetching, query retry, cache, or API code changed.
+
+
+## Shared compact Home menu (2026-10-15)
+- Mobile menu items and order copied into one shared desktop/mobile popover: Login for guests / Logout for signed-in users, Create Post (signed-in users), Create Channel, Profile, Comrades, History, Notifications, Admin Dashboard (only when an active channel ID exists, matching the native menu entry point).
+- The previous Join Channel list and profile/group content are not part of the menu. The popover uses a browser portal, focus trap, Escape and outside-click dismissal; React Native modal presentation is adapted to an anchored 220px browser popover.
