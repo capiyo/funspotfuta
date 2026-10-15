@@ -17,7 +17,9 @@ export function SmartMedia({ imageUrl, videoUrl, videoThumbnailUrl, width, heigh
   const videoRef = useRef<HTMLVideoElement>(null);
   const [paused, setPaused] = useState(true);
   const [videoLoaded, setVideoLoaded] = useState(false);
-  const [videoRatio, setVideoRatio] = useState(width && height ? Math.max(4 / 5, Math.min(16 / 9, width / height)) : 4 / 3);
+  const [videoFailed, setVideoFailed] = useState(false);
+  const [videoAttempt, setVideoAttempt] = useState(0);
+  const [videoRatio, setVideoRatio] = useState(width && height ? Math.max(4 / 5, Math.min(16 / 9, width / height)) : 4 / 5);
   const [showControls, setShowControls] = useState(false);
 
   useEffect(() => {
@@ -41,17 +43,18 @@ export function SmartMedia({ imageUrl, videoUrl, videoThumbnailUrl, width, heigh
       video.pause();
       if (currentlyPlayingVideo === video) currentlyPlayingVideo = null;
     };
-  }, [videoUrl]);
+  }, [videoUrl, videoFailed]);
 
   if (videoUrl) {
     const ratio = videoRatio;
-    const maxHeight = typeof window !== 'undefined' && window.innerWidth <= 650 ? '60vh' : '70vh';
+    const maxHeight = typeof window !== 'undefined' && window.innerWidth <= 650 ? '60vh' : '480px';
     return <div className="post-video-frame" style={{ position: 'relative', width: '100%', aspectRatio: String(ratio), maxHeight, overflow: 'hidden', background: 'transparent' }}>
-      <video ref={videoRef} src={videoUrl} poster={videoThumbnailUrl ?? undefined}
+      <video key={videoAttempt} ref={videoRef} src={videoUrl} poster={videoThumbnailUrl ?? undefined}
         playsInline muted loop preload="metadata" controls={showControls}
         onClick={() => setShowControls(true)}
         onLoadedMetadata={(event) => { const video = event.currentTarget; if (video.videoWidth && video.videoHeight) setVideoRatio(Math.max(4 / 5, Math.min(16 / 9, video.videoWidth / video.videoHeight))); }}
-        onLoadedData={() => setVideoLoaded(true)}
+        onLoadedData={() => { setVideoLoaded(true); setVideoFailed(false); }}
+        onError={() => { if (import.meta.env.DEV) console.error('[SmartMedia] failed video URL:', videoUrl); if (videoAttempt === 0) window.setTimeout(() => { setVideoAttempt(1); setVideoLoaded(false); }, 3000); else setVideoFailed(true); }}
         onPlay={(event) => {
           const video = event.currentTarget;
           if (currentlyPlayingVideo && currentlyPlayingVideo !== video) {
@@ -64,10 +67,11 @@ export function SmartMedia({ imageUrl, videoUrl, videoThumbnailUrl, width, heigh
           if (currentlyPlayingVideo === event.currentTarget) currentlyPlayingVideo = null;
           setPaused(true);
         }}
-        style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover', background: 'transparent' }}
+        style={{ position: 'relative', zIndex: 1, display: 'block', width: '100%', height: '100%', objectFit: 'cover', background: 'transparent' }}
         aria-label="Post video" />
-      {!videoLoaded && <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: colors.background, pointerEvents: "none" }} />}
-      {paused && <div aria-hidden="true" style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+      {!videoLoaded && <div aria-hidden="true" style={{ position: 'absolute', inset: 0, zIndex: 0, background: colors.background, pointerEvents: 'none' }} />}
+      {videoFailed && <button type="button" onClick={() => { setVideoAttempt(0); setVideoFailed(false); setVideoLoaded(false); setPaused(true); }} style={{ position: 'absolute', inset: 0, zIndex: 4, background: colors.background, color: colors.textSecondary, cursor: 'pointer' }}>Tap to retry</button>}
+      {paused && !videoFailed && <div aria-hidden="true" style={{ position: 'absolute', inset: 0, zIndex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
         <button type="button" aria-label="Play video" onClick={() => {
           const video = videoRef.current;
           if (!video) return;
