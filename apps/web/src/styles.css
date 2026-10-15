@@ -985,3 +985,45 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
   body:has(.home-screen) .home-screen .match-card-prediction { max-width: 92px; font-size: 9px !important; }
   body:has(.home-screen) .home-screen .match-card .bottomRow { gap: 4px; }
 }
+
+
+/* Shared compact menu popover for mobile and desktop. */
+.home-menu-popover {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  overscroll-behavior: contain;
+}
+.home-menu-item {
+  display: flex !important;
+  width: 100%;
+  min-height: 44px;
+  flex: none;
+  align-items: center;
+  padding: 12px !important;
+  margin: 0;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  text-align: left;
+  white-space: normal;
+  line-height: 1.25;
+  font-size: 13px;
+  cursor: pointer;
+}
+.home-menu-item:hover,
+.home-menu-item:focus-visible { background: var(--home-primary-muted, transparent) !important; outline-offset: -2px; }
+@media (min-width: 651px) {
+  .home-screen .home-columns { gap: 16px; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .home-screen .chats-column { border-right: 0 !important; }
+  .home-screen .chats-column .pane-content,
+  .home-screen .feed-column .pane-content { padding-left: 0 !important; padding-right: 0 !important; }
+  .home-screen .chats-column .chats-fixture-row { max-width: 640px; margin-left: 0 !important; margin-right: auto !important; }
+  .home-screen .feed-column .post-card,
+  .home-screen .feed-column .feed-screen > .feed-item { max-width: 640px; margin-left: auto !important; margin-right: 0 !important; }
+  .home-screen .feed-column .feed-list { align-items: flex-end; }
+}
