@@ -185,10 +185,6 @@ export function AppHeader(props: HeaderProps = {}) {
     if (props.onLogout) props.onLogout();
     else void logout();
   }
-  function openProfile() {
-    pick(() => requireLogin(() => setProfileOpen(true)));
-  }
-
   return (
     <>
       <header
