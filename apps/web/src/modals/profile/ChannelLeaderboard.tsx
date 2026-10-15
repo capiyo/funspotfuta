@@ -487,12 +487,13 @@ function createStyles(colors: FanColors) {
         // Members
         membersList: { paddingVertical: FAN_SPACING.md },
         memberCard: {
-            backgroundColor: colors.surface,
-            borderRadius: FAN_RADIUS.md,
-            borderWidth: 0.5,
-            borderColor: hexWithAlpha(colors.border, 0.3),
+            backgroundColor: 'transparent',
+            borderRadius: 0,
+            borderWidth: 0,
+            borderBottomWidth: 1,
+            borderBottomColor: hexWithAlpha(colors.border, 0.3),
             padding: FAN_SPACING.md,
-            marginBottom: FAN_SPACING.sm,
+            marginBottom: 0,
         },
         memberRow: { flexDirection: 'row', gap: FAN_SPACING.md },
 
