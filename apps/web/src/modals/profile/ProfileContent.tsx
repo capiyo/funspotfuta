@@ -106,7 +106,7 @@ export default function ProfileContent({
   channels = [],
 }: ProfileContentProps) {
   const inline = variant === 'sidebar';
-  const visible = variant === 'modal';
+  const visible = true;
   const colors = useFanColors();
   const styles = createStyles(colors);
   const { userId, username, phone, authToken, logout } = useAuth();
