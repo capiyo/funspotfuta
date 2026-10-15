@@ -25,8 +25,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
-const StyleSheet = { create: <T extends Record<string, unknown>>(styles: T): Record<string, CSSProperties> => styles as unknown as Record<string, CSSProperties> };
-const Keyboard = { dismiss: () => { if (document.activeElement instanceof HTMLElement) document.activeElement.blur(); } };
+const dismissKeyboard = () => { if (document.activeElement instanceof HTMLElement) document.activeElement.blur(); };
 import {
   X,
   ArrowLeft,
@@ -408,7 +407,7 @@ export default function ProfileContent({
       setEditing(false);
       setBalance(saved.balance);
       toast.showSuccess('Profile saved!');
-      Keyboard.dismiss();
+      dismissKeyboard();
     } catch (e: any) {
       toast.showError(`Network error: ${e?.message ?? e}`);
     } finally {
@@ -779,7 +778,7 @@ export default function ProfileContent({
           <button type="button"
             onClick={() => {
               setEditing(false);
-              Keyboard.dismiss();
+              dismissKeyboard();
             }}
             style={{ ...Object.assign({}, 
               styles.actionBtn,
@@ -971,7 +970,7 @@ export default function ProfileContent({
                 </div>
               ) : loading ? (
                 <div style={styles.center}>
-                  <span color={colors.primary} />
+                  <span className="profile-loading-indicator" aria-label="Loading" />
                 </div>
               ) : (
                 <>
@@ -1057,7 +1056,7 @@ export default function ProfileContent({
 // ═══════════════════════════════════════════════════════════════
 
 function createStyles(colors: FanColors) {
-  return StyleSheet.create({
+  return {
     backdrop: {
       flex: 1,
       backgroundColor: 'rgba(0,0,0,0.5)',
@@ -1256,5 +1255,5 @@ function createStyles(colors: FanColors) {
       paddingVertical: FAN_SPACING.md,
       maxHeight: 340,
     },
-  });
+  };
 }
