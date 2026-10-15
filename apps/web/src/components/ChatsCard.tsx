@@ -232,7 +232,7 @@ export function MatchCard({
       : 'Vote to comment';
 
   const styles: Record<string, CSSProperties> = {
-    card: { position: 'relative' },
+    card: { position: 'relative', cursor: 'pointer' },
     openTarget: {
       position: 'absolute',
       inset: 0,
@@ -248,7 +248,7 @@ export function MatchCard({
       position: 'relative',
       zIndex: 1,
       pointerEvents: 'none',
-      padding: '14px 14px 0',
+      padding: '8px 12px 0',
     },
     lineRow: {
       display: 'flex',
@@ -333,8 +333,8 @@ export function MatchCard({
       flexDirection: 'row',
       alignItems: 'center',
       gap: FAN_SPACING.sm,
-      marginTop: 12,
-      padding: '0 14px 14px',
+      marginTop: 8,
+      padding: '0 12px 8px',
       position: 'relative',
       zIndex: 2,
     },
@@ -461,7 +461,7 @@ export function MatchCard({
             <VoterList
               colors={colors}
               voters={voterItems}
-              emptyLabel={isCompleted ? 'No votes were cast' : emptyPrompt}
+              emptyLabel={isCompleted ? 'No votes were cast' : ''}
             />
           </div>
         </div>
@@ -526,8 +526,7 @@ export function MatchCard({
               </>
             )}
           </div>
-
-
+          {!voters.length && !isCompleted && <span className="match-card-prediction" style={{ color: colors.primary, fontSize: 11, textAlign: 'right', whiteSpace: 'nowrap', marginLeft: 'auto' }}>{emptyPrompt}</span>}
         </div>
       </div>
     </FeedItem>
