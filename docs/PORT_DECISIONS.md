@@ -72,3 +72,10 @@
 ## Shared compact Home menu (2026-10-15)
 - Mobile menu items and order copied into one shared desktop/mobile popover: Login for guests / Logout for signed-in users, Create Post (signed-in users), Create Channel, Profile, Comrades, History, Notifications, Admin Dashboard (only when an active channel ID exists, matching the native menu entry point).
 - The previous Join Channel list and profile/group content are not part of the menu. Desktop and narrow layouts share the same menu state and action handlers. The popover uses a browser portal, focus trap, Escape and outside-click dismissal; React Native modal presentation is adapted to an anchored 220px browser popover.
+
+
+## Shared profile surface (2026-10-15)
+- The sidebar must render the existing web port of the mobile `ProfileModal` directly; profile fetching, editing, balance/payment dialogs, logout, and leaderboard behavior stay in that one flow rather than being reimplemented in `ProfileSidebar`.
+- `ProfileSidebar` now only owns its container, the logged-in Post action, and channel-selection callbacks. The separate mock-only guest identity, balance/stats cards, channel list, and leaderboard markup were removed from the sidebar component.
+- The profile palette is sourced from `useFanColors()` / the core fan color tokens. Profile-specific surfaces may use the profile's rounded cards and green-tinted borders; Home's no-border/no-rounding rule remains scoped to the other Home surfaces.
+- Remaining follow-up for this pass: split the current large profile implementation into `ProfileContent` plus small presentational components and replace the profile modal's current shell with the specified desktop-centered / narrow bottom-sheet shell. Those structural changes require extracting shared UI without duplicating the existing data and payment logic.
