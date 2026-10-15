@@ -11,13 +11,8 @@
 // types/channel.ts provides.
 
 import { useMemo, useState } from 'react';
-import {
-    View,
-    Text,
-    Pressable,
-    StyleSheet,
-    FlatList,
-} from '@/lib/native-web-compat';
+import type { CSSProperties, ReactNode } from 'react';
+const StyleSheet = { create: <T extends Record<string, unknown>>(styles: T): T => styles };
 import { Star, Users, Crown, Award } from 'lucide-react';
 import {
     FAN_SPACING,
@@ -83,66 +78,66 @@ function MemberCard({
     const accent = rankColor(rank, colors);
 
     return (
-        <View style={styles.memberCard}>
-            <View style={styles.memberRow}>
+        <div style={styles.memberCard}>
+            <div style={styles.memberRow}>
                 {/* Avatar + rank number badge */}
-                <View
+                <div
                     className="home-avatar"
-                    style={[
+                    style={{ ...Object.assign({}, 
                         styles.memberAvatar,
                         { backgroundColor: colors.primaryDim },
-                    ]}
+                    ) }}
                 >
-                    <Text style={[styles.memberAvatarText, { color: colors.primary }]}>
+                    <span style={{ ...Object.assign({}, styles.memberAvatarText, { color: colors.primary }) }}>
                         {(member.username?.[0] ?? '?').toUpperCase()}
-                    </Text>
-                    <Text
-                        style={[
+                    </span>
+                    <span
+                        style={{ ...Object.assign({}, 
                             styles.memberAvatarRank,
                             { color: hexWithAlpha(colors.primary, 0.6) },
-                        ]}
+                        ) }}
                     >
                         {rank}
-                    </Text>
-                </View>
+                    </span>
+                </div>
 
-                <View style={styles.memberBody}>
+                <div style={styles.memberBody}>
                     {/* Name + You pill + View link */}
-                    <View style={styles.nameRow}>
-                        <Text
-                            style={[styles.memberName, { color: colors.textPrimary }]}
-                            numberOfLines={1}
+                    <div style={styles.nameRow}>
+                        <span
+                            style={{ ...Object.assign({}, styles.memberName, { color: colors.textPrimary }) }}
+                            className="profile-ellipsis"
                         >
                             {member.username}
-                        </Text>
+                        </span>
                         {isYou && (
-                            <View
-                                style={[
+                            <div
+                                style={{ ...Object.assign({}, 
                                     styles.youPill,
                                     { backgroundColor: colors.primaryMuted },
-                                ]}
+                                ) }}
                             >
-                                <Text style={[styles.youPillText, { color: colors.primary }]}>
+                                <span style={{ ...Object.assign({}, styles.youPillText, { color: colors.primary }) }}>
                                     You
-                                </Text>
-                            </View>
+                                </span>
+                            </div>
                         )}
-                        <View style={{ flex: 1 }} />
+                        <div style={{ flex: 1 }} />
                         {onViewProfile && (
-                            <Pressable onPress={onViewProfile} hitSlop={6}>
-                                <Text style={[styles.viewLink, { color: colors.primary }]}>
+                            <button type="button" onClick={onViewProfile} >
+                                <span style={{ ...Object.assign({}, styles.viewLink, { color: colors.primary }) }}>
                                     View
-                                </Text>
-                            </Pressable>
+                                </span>
+                            </button>
                         )}
-                    </View>
+                    </div>
 
                     {/* Rating row */}
-                    <View style={styles.statRow}>
-                        <Text style={[styles.statLabel, { color: colors.textTertiary }]}>
+                    <div style={styles.statRow}>
+                        <span style={{ ...Object.assign({}, styles.statLabel, { color: colors.textTertiary }) }}>
                             Rating
-                        </Text>
-                        <View style={styles.starsRow}>
+                        </span>
+                        <div style={styles.starsRow}>
                             {[0, 1, 2, 3, 4].map((i) => (
                                 <Star
                                     key={i}
@@ -151,82 +146,82 @@ function MemberCard({
                                     fill={i < starCount ? colors.primary : 'transparent'}
                                 />
                             ))}
-                            <Text
-                                style={[styles.statValueMuted, { color: colors.textTertiary }]}
+                            <span
+                                style={{ ...Object.assign({}, styles.statValueMuted, { color: colors.textTertiary }) }}
                             >
                                 ({member.totalVotes})
-                            </Text>
-                        </View>
-                    </View>
+                            </span>
+                        </div>
+                    </div>
 
                     {/* Votes row */}
-                    <View style={styles.statRow}>
-                        <Text style={[styles.statLabel, { color: colors.textTertiary }]}>
+                    <div style={styles.statRow}>
+                        <span style={{ ...Object.assign({}, styles.statLabel, { color: colors.textTertiary }) }}>
                             Votes
-                        </Text>
-                        <Text style={[styles.statValue, { color: colors.textPrimary }]}>
+                        </span>
+                        <span style={{ ...Object.assign({}, styles.statValue, { color: colors.textPrimary }) }}>
                             {member.totalVotes}
-                        </Text>
-                        <View style={{ flex: 1 }} />
-                        <Text
-                            style={[styles.statValueMuted, { color: colors.textTertiary }]}
+                        </span>
+                        <div style={{ flex: 1 }} />
+                        <span
+                            style={{ ...Object.assign({}, styles.statValueMuted, { color: colors.textTertiary }) }}
                         >
                             {Math.round(winRate * 100)}%
-                        </Text>
-                    </View>
+                        </span>
+                    </div>
 
                     {/* Messages row */}
-                    <View style={styles.statRow}>
-                        <Text style={[styles.statLabel, { color: colors.textTertiary }]}>
+                    <div style={styles.statRow}>
+                        <span style={{ ...Object.assign({}, styles.statLabel, { color: colors.textTertiary }) }}>
                             Messages
-                        </Text>
-                        <Text style={[styles.statValue, { color: colors.textPrimary }]}>
+                        </span>
+                        <span style={{ ...Object.assign({}, styles.statValue, { color: colors.textPrimary }) }}>
                             {member.msgCount}
-                        </Text>
-                    </View>
+                        </span>
+                    </div>
 
                     {/* Points row */}
-                    <View style={styles.statRow}>
-                        <Text style={[styles.statLabel, { color: colors.textTertiary }]}>
+                    <div style={styles.statRow}>
+                        <span style={{ ...Object.assign({}, styles.statLabel, { color: colors.textTertiary }) }}>
                             Points
-                        </Text>
-                        <Text style={[styles.statValue, { color: colors.textPrimary }]}>
+                        </span>
+                        <span style={{ ...Object.assign({}, styles.statValue, { color: colors.textPrimary }) }}>
                             {member.seasonPoints}
-                        </Text>
-                    </View>
+                        </span>
+                    </div>
 
                     {/* Rank badge + progress bar */}
-                    <View style={styles.footerRow}>
-                        <View
-                            style={[
+                    <div style={styles.footerRow}>
+                        <div
+                            style={{ ...Object.assign({}, 
                                 styles.rankPill,
                                 { backgroundColor: hexWithAlpha(accent, 0.15) },
-                            ]}
+                            ) }}
                         >
-                            <Text style={[styles.rankPillText, { color: accent }]}>
+                            <span style={{ ...Object.assign({}, styles.rankPillText, { color: accent }) }}>
                                 {rankBadge(rank)}
-                            </Text>
-                        </View>
-                        <View
-                            style={[
+                            </span>
+                        </div>
+                        <div
+                            style={{ ...Object.assign({}, 
                                 styles.progressTrack,
                                 { backgroundColor: hexWithAlpha(colors.border, 0.3) },
-                            ]}
+                            ) }}
                         >
-                            <View
-                                style={[
+                            <div
+                                style={{ ...Object.assign({}, 
                                     styles.progressFill,
                                     {
                                         width: `${pointsFraction * 100}%`,
                                         backgroundColor: accent,
                                     },
-                                ]}
+                                ) }}
                             />
-                        </View>
-                    </View>
-                </View>
-            </View>
-        </View>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     );
 }
 
@@ -255,15 +250,15 @@ export function ChannelLeaderboard({
 
     if (visibleChannels.length === 0) {
         return (
-            <View style={styles.emptyWrap}>
+            <div style={styles.emptyWrap}>
                 <Users size={32} color={hexWithAlpha(colors.textTertiary, 0.4)} />
-                <Text style={[styles.emptyTitle, { color: colors.textTertiary }]}>
+                <span style={{ ...Object.assign({}, styles.emptyTitle, { color: colors.textTertiary }) }}>
                     No channels joined
-                </Text>
-                <Text style={[styles.emptyHint, { color: colors.textTertiary }]}>
+                </span>
+                <span style={{ ...Object.assign({}, styles.emptyHint, { color: colors.textTertiary }) }}>
                     Join a channel to see members
-                </Text>
-            </View>
+                </span>
+            </div>
         );
     }
 
@@ -274,16 +269,16 @@ export function ChannelLeaderboard({
     const maxPoints = sortedMembers[0]?.seasonPoints ?? 0;
 
     return (
-        <View style={styles.wrap}>
+        <div style={styles.wrap}>
             {/* Tab bar */}
-            <View
-                style={[
+            <div
+                style={{ ...Object.assign({}, 
                     styles.tabBar,
                     {
                         backgroundColor: colors.surfaceSunken,
                         borderColor: colors.border,
                     },
-                ]}
+                ) }}
             >
                 {visibleChannels.map((channel, idx) => {
                     const isActive = idx === activeTab;
@@ -292,16 +287,16 @@ export function ChannelLeaderboard({
                             ? `${channel.name.substring(0, 8)}…`
                             : channel.name;
                     return (
-                        <Pressable
+                        <button type="button"
                             key={channel.channelId || idx}
-                            onPress={() => setActiveTab(idx)}
-                            style={[
+                            onClick={() => setActiveTab(idx)}
+                            style={{ ...Object.assign({}, 
                                 styles.tab,
                                 isActive && { backgroundColor: colors.surface },
-                            ]}
+                            ) }}
                         >
-                            <Text
-                                style={[
+                            <span
+                                style={{ ...Object.assign({}, 
                                     styles.tabText,
                                     {
                                         color: isActive
@@ -309,102 +304,78 @@ export function ChannelLeaderboard({
                                             : colors.textTertiary,
                                         fontWeight: isActive ? '700' : '400',
                                     },
-                                ]}
-                                numberOfLines={1}
+                                ) }}
+                                className="profile-ellipsis"
                             >
                                 {label}
-                            </Text>
-                        </Pressable>
+                            </span>
+                        </button>
                     );
                 })}
-            </View>
+            </div>
 
             {/* Channel header */}
-            <View
-                style={[
+            <div
+                style={{ ...Object.assign({}, 
                     styles.channelHeader,
                     {
                         backgroundColor: colors.primaryDim,
                         borderColor: colors.borderActive,
                     },
-                ]}
+                ) }}
             >
-                <View
-                    style={[
+                <div
+                    style={{ ...Object.assign({}, 
                         styles.channelAvatar,
                         { backgroundColor: colors.primary },
-                    ]}
+                    ) }}
                 >
-                    <Text style={styles.channelAvatarText}>
+                    <span style={styles.channelAvatarText}>
                         {(activeChannel.name?.[0] ?? '?').toUpperCase()}
-                    </Text>
-                </View>
-                <View style={{ flex: 1 }}>
-                    <Text
-                        style={[styles.channelName, { color: colors.textPrimary }]}
-                        numberOfLines={1}
+                    </span>
+                </div>
+                <div style={{ flex: 1 }}>
+                    <span
+                        style={{ ...Object.assign({}, styles.channelName, { color: colors.textPrimary }) }}
+                        className="profile-ellipsis"
                     >
                         {activeChannel.name}
-                    </Text>
-                    <View style={styles.channelMeta}>
+                    </span>
+                    <div style={styles.channelMeta}>
                         <Users size={9} color={colors.textTertiary} />
-                        <Text
-                            style={[styles.channelMetaText, { color: colors.textTertiary }]}
+                        <span
+                            style={{ ...Object.assign({}, styles.channelMetaText, { color: colors.textTertiary }) }}
                         >
                             {activeChannel.memberCount}
-                        </Text>
+                        </span>
                         <Award size={9} color={colors.textTertiary} />
-                        <Text
-                            style={[styles.channelMetaText, { color: colors.textTertiary }]}
+                        <span
+                            style={{ ...Object.assign({}, styles.channelMetaText, { color: colors.textTertiary }) }}
                         >
                             S{activeChannel.season}
-                        </Text>
+                        </span>
                         {activeChannel.isAdmin && (
-                            <View
-                                style={[
+                            <div
+                                style={{ ...Object.assign({}, 
                                     styles.adminPill,
                                     { backgroundColor: colors.primaryMuted },
-                                ]}
+                                ) }}
                             >
                                 <Crown size={8} color={colors.primary} />
-                                <Text style={[styles.adminPillText, { color: colors.primary }]}>
+                                <span style={{ ...Object.assign({}, styles.adminPillText, { color: colors.primary }) }}>
                                     Admin
-                                </Text>
-                            </View>
+                                </span>
+                            </div>
                         )}
-                    </View>
-                </View>
-            </View>
+                    </div>
+                </div>
+            </div>
 
             {/* Members list */}
-            <FlatList
-                className="no-scrollbar"
-                showsVerticalScrollIndicator={false}
-                data={sortedMembers}
-                keyExtractor={(m: any) => m.userId}
-                contentContainerStyle={styles.membersList}
-                ListEmptyComponent={
-                    <Text style={[styles.emptyHint, { color: colors.textTertiary }]}>
-                        No members yet
-                    </Text>
-                }
-                renderItem={({ item, index }: { item: any; index: number }) => (
-                    <MemberCard
-                        colors={colors}
-                        styles={styles}
-                        member={item}
-                        rank={index + 1}
-                        maxPoints={maxPoints}
-                        isYou={item.userId === currentUserId}
-                        onViewProfile={
-                            item.userId !== currentUserId
-                                ? () => onViewMember(item)
-                                : undefined
-                        }
-                    />
+            <div>{(sortedMembers ?? []).map((item, index) => <div key={String(index)}>{String(item)}</div>)}</div>
                 )}
             />
-        </View>
+        </div>
     );
 }
 
