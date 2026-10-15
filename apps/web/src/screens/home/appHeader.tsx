@@ -217,8 +217,8 @@ export function AppHeader(props: HeaderProps = {}) {
             style={{ color: colors.primary, fontFamily: 'SairaCondensed_600SemiBold, sans-serif' }}
           >Funspot😂</a>
 
-          <nav className="min-w-0 flex-1" aria-label="Channels">
-            <div className="no-scrollbar flex items-center gap-1.5 overflow-x-auto whitespace-nowrap py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <nav className="min-w-0 max-w-[min(62vw,900px)] flex-none" aria-label="Channels">
+            <div className="no-scrollbar flex items-center gap-4 overflow-x-auto whitespace-nowrap py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {loggedIn && hasJoinedChannels ? joinedChannels.map((channel) => {
                 const active = selectedChannelId === channel.channelId;
                 const leader = topMember(channel);
@@ -226,7 +226,7 @@ export function AppHeader(props: HeaderProps = {}) {
                   <button
                     key={channel.channelId}
                     type="button"
-                    className="flex shrink-0 items-center border-b-2 px-2 py-2 text-[11px] transition-colors sm:text-xs"
+                    className="flex shrink-0 items-center border-b-2 px-0 py-2 text-[11px] transition-colors sm:text-xs"
                     style={{ borderColor: active ? colors.primary : 'transparent', color: active ? colors.primary : colors.textSecondary }}
                     aria-current={active ? 'page' : undefined}
                     onClick={() => selectChannel(channel)}
@@ -246,7 +246,7 @@ export function AppHeader(props: HeaderProps = {}) {
                     key={channel.channelId}
                     type="button"
                     disabled={joining}
-                    className="flex shrink-0 items-center gap-1 border-b-2 border-transparent px-2 py-2 text-[11px] sm:text-xs"
+                    className="flex shrink-0 items-center gap-1 border-b-2 border-transparent px-0 py-2 text-[11px] sm:text-xs"
                     style={{ color: colors.textSecondary }}
                     onClick={() => join(channel)}
                   >
@@ -263,7 +263,7 @@ export function AppHeader(props: HeaderProps = {}) {
                 <button
                   type="button"
                   onClick={() => requireLogin(() => props.onAddChannel ? props.onAddChannel() : setCreateChannelOpen(true))}
-                  className="flex shrink-0 items-center gap-1 rounded-md px-2 py-2 text-[10px] font-medium sm:text-xs"
+                  className="flex shrink-0 items-center gap-1 px-0 py-2 text-[10px] font-medium sm:text-xs"
                   style={{ color: colors.primary }}
                 ><Plus size={13} /> create channel</button>
               )}
@@ -372,25 +372,25 @@ export function AppHeader(props: HeaderProps = {}) {
           <section ref={mobileDrawerRef} role="dialog" aria-modal="true" aria-label="Profile and menu"
             className="mobile-profile-drawer" style={{ background: colors.surfaceElevated, color: colors.textPrimary, '--home-scrollbar-track': colors.background, '--home-scrollbar-thumb': colors.borderActive, '--home-text-primary': colors.textPrimary, '--home-text-secondary': colors.textSecondary, '--home-text-tertiary': colors.textTertiary, '--home-primary': colors.primary, '--home-border': colors.border } as CSSProperties}>
             <div className="mobile-profile-drawer-heading">
-              <strong style={{ color: colors.primary, fontFamily: 'SairaCondensed_600SemiBold, sans-serif' }}>Profile & channels</strong>
+              <strong style={{ color: colors.primary, fontFamily: 'SairaCondensed_600SemiBold, sans-serif' }}>Menu</strong>
               <button type="button" onClick={closeMobileDrawer} aria-label="Close menu" style={{ color: colors.textSecondary }}><X size={20} /></button>
             </div>
             <div className="mobile-profile-drawer-scroll no-scrollbar">
-              <ProfileSidebar channels={joinedChannels}
-                setActiveChannelId={(id) => { setActiveChannelId(id); setActiveTab('Chats'); closeMobileDrawer(); }}
-                setActiveTab={(tab) => { setActiveTab(tab); closeMobileDrawer(); }}
-                isLoggedIn={loggedIn}
-                onOpenChannel={(id) => { const channel = [...joinedChannels, ...availableChannels].find((item) => item.channelId === id); if (channel) openChat(channel); closeMobileDrawer(); }} />
-              <div className="mobile-profile-drawer-actions">
-                <button type="button" onClick={() => requireLogin(() => { setMobileDrawerOpen(false); setCreateChannelOpen(true); })}
-                  style={{ color: colors.primary }}>Create channel</button>
-                <div className="mobile-profile-drawer-channel-list">
-                  <span className="mobile-profile-drawer-label" style={{ color: colors.textTertiary }}>JOIN CHANNEL</span>
-                  {availableChannels.map((channel) => <button key={channel.channelId} type="button"
-                    disabled={joiningChannelIds.has(channel.channelId)} onClick={() => { closeMobileDrawer(); join(channel); }}
-                    style={{ color: colors.textPrimary }}>{channel.name}<span style={{ color: colors.primary }}>{joiningChannelIds.has(channel.channelId) ? '…' : 'Join'}</span></button>)}
-                  {!availableChannels.length && <span style={{ color: colors.textTertiary }}>No channels available</span>}
-                </div>
+              <div className="mobile-native-menu-items">
+                {!loggedIn && <button type="button" onClick={() => { closeMobileDrawer(); requireLogin(); }} style={{ color: colors.primary }}>Login</button>}
+                <button type="button" onClick={() => { closeMobileDrawer(); requireLogin(() => setPostOpen(true)); }} style={{ color: colors.textPrimary }}>Create Post</button>
+                <button type="button" onClick={() => { closeMobileDrawer(); requireLogin(() => setCreateChannelOpen(true)); }} style={{ color: colors.textPrimary }}>Create Channel</button>
+                <button type="button" onClick={() => { closeMobileDrawer(); requireLogin(() => setProfileOpen(true)); }} style={{ color: colors.textPrimary }}>Profile</button>
+                <button type="button" onClick={() => { closeMobileDrawer(); requireLogin(() => setComradesOpen(true)); }} style={{ color: colors.textPrimary }}>Comrades</button>
+                <button type="button" onClick={() => { closeMobileDrawer(); requireLogin(() => setHistoryOpen(true)); }} style={{ color: colors.textPrimary }}>History</button>
+                {activeChannelId && <button type="button" onClick={() => { closeMobileDrawer(); requireLogin(() => setAdminOpen(true)); }} style={{ color: colors.textPrimary }}>Admin Dashboard</button>}
+                <button type="button" onClick={() => { closeMobileDrawer(); setNotifOpen(true); }} style={{ color: colors.textPrimary }}>Notifications</button>
+                {loggedIn && <button type="button" onClick={() => { closeMobileDrawer(); signOut(); }} style={{ color: colors.away }}>Logout</button>}
+              </div>
+              <div className="mobile-profile-drawer-channel-list" style={{ marginTop: 18 }}>
+                <span className="mobile-profile-drawer-label" style={{ color: colors.textTertiary }}>JOIN CHANNEL</span>
+                {availableChannels.map((channel) => <button key={channel.channelId} type="button" disabled={joiningChannelIds.has(channel.channelId)} onClick={() => { closeMobileDrawer(); join(channel); }} style={{ color: colors.textPrimary }}>{channel.name}<span style={{ color: colors.primary }}>{joiningChannelIds.has(channel.channelId) ? '…' : 'Join'}</span></button>)}
+                {!availableChannels.length && <span style={{ color: colors.textTertiary }}>No channels available</span>}
               </div>
             </div>
           </section>
