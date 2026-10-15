@@ -1,4 +1,4 @@
-// apps/mobile/src/modals/ProfileModal/PaymentDialogs.tsx
+// apps/web/src/modals/profile/paymentsDialogs.tsx
 //
 // Deposit (STK push) and Withdraw (B2C) dialogs, ported from the two
 // AlertDialogs in funspot/lib/modals/profile/swipeable_profile_modal.dart.
@@ -14,7 +14,7 @@
 import { useEffect, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-const StyleSheet = { create: <T extends Record<string, unknown>>(styles: T): T => styles };
+const StyleSheet = { create: <T extends Record<string, CSSProperties>>(styles: T): Record<string, CSSProperties> => styles };
 import {
     CheckCircle2,
     AlertCircle,
@@ -32,6 +32,26 @@ import {
 } from '@funspot/core';
 
 type FanColors = ReturnType<typeof useFanColors>;
+
+type ModalProps = {
+  visible: boolean;
+  transparent?: boolean;
+  animationType?: string;
+  onRequestClose?: (() => void) | undefined;
+  statusBarTranslucent?: boolean;
+  children: ReactNode;
+};
+
+function Modal({ visible, onRequestClose, children }: ModalProps) {
+  if (!visible) return null;
+  return createPortal(
+    <div className="payment-modal-root" role="presentation" onClick={onRequestClose}>
+      <div onClick={(event) => event.stopPropagation()}>{children}</div>
+    </div>,
+    document.body,
+  );
+}
+
 
 // Matches the Flutter _isValidPhone regex.
 function isValidPhone(phone: string): boolean {
@@ -131,7 +151,7 @@ function StatusLine({
             ) : isError ? (
                 <AlertCircle size={14} color={accent} />
             ) : (
-                <span size="small" color={accent} />
+                <span className="profile-loading-indicator" aria-label="Processing" />
             )}
             <span style={{ ...Object.assign({}, styles.statusLineText, { color: accent }) }}>{message}</span>
         </div>
@@ -258,11 +278,11 @@ export function DepositDialog({
                     <div style={processing ? styles.inputsDisabled : undefined}>
                         <input
                             value={amount}
-                            onChangeText={setAmount}
+                            onChange={(e) => setAmount(e.target.value)}
                             placeholder="Amount (KES)"
-                            placeholderTextColor={colors.textTertiary}
+                            
                             type="number" inputMode="numeric"
-                            editable={!processing}
+                            disabled={processing}
                             style={{ ...Object.assign({}, 
                                 styles.input,
                                 {
@@ -275,11 +295,11 @@ export function DepositDialog({
 
                         <input
                             value={phone}
-                            onChangeText={setPhone}
+                            onChange={(e) => setPhone(e.target.value)}
                             placeholder="M-Pesa Phone Number"
-                            placeholderTextColor={colors.textTertiary}
+                            
                             type="tel" inputMode="tel"
-                            editable={!processing}
+                            disabled={processing}
                             style={{ ...Object.assign({}, 
                                 styles.input,
                                 {
@@ -350,7 +370,7 @@ export function DepositDialog({
                             ) }}
                         >
                             {processing ? (
-                                <span size="small" color="#FFFFFF" />
+                                <span className="profile-loading-indicator" aria-label="Processing" />
                             ) : (
                                 <span style={styles.dialogBtnPrimaryText}>Pay via M-Pesa</span>
                             )}
@@ -491,11 +511,11 @@ export function WithdrawDialog({
                     <div style={processing ? styles.inputsDisabled : undefined}>
                         <input
                             value={amount}
-                            onChangeText={setAmount}
+                            onChange={(e) => setAmount(e.target.value)}
                             placeholder="Amount (KES)"
-                            placeholderTextColor={colors.textTertiary}
+                            
                             type="number" inputMode="numeric"
-                            editable={!processing}
+                            disabled={processing}
                             style={{ ...Object.assign({}, 
                                 styles.input,
                                 {
@@ -508,11 +528,11 @@ export function WithdrawDialog({
 
                         <input
                             value={phone}
-                            onChangeText={setPhone}
+                            onChange={(e) => setPhone(e.target.value)}
                             placeholder="M-Pesa Phone Number"
-                            placeholderTextColor={colors.textTertiary}
+                            
                             type="tel" inputMode="tel"
-                            editable={!processing}
+                            disabled={processing}
                             style={{ ...Object.assign({}, 
                                 styles.input,
                                 {
@@ -584,7 +604,7 @@ export function WithdrawDialog({
                             ) }}
                         >
                             {processing ? (
-                                <span size="small" color="#FFFFFF" />
+                                <span className="profile-loading-indicator" aria-label="Processing" />
                             ) : (
                                 <span style={styles.dialogBtnPrimaryText}>Withdraw</span>
                             )}
