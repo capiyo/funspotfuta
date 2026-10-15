@@ -25,7 +25,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
-const StyleSheet = { create: <T extends Record<string, unknown>>(styles: T): Record<string, CSSProperties> => styles as unknown as Record<string, CSSProperties> };
+const StyleSheet = { create: <T extends Record<string, CSSProperties>>(styles: T): Record<string, CSSProperties> => styles };
 const Keyboard = { dismiss: () => { if (document.activeElement instanceof HTMLElement) document.activeElement.blur(); } };
 import {
   X,
@@ -610,7 +610,7 @@ export default function ProfileContent({
               ) }}
             >
               {loggingOut ? (
-                <span size="small" color={colors.primary} />
+                <span className="profile-loading-indicator" aria-label="Loading" />
               ) : (
                 <>
                   <LogOut size={11} color={colors.textSecondary} />
@@ -661,10 +661,10 @@ export default function ProfileContent({
           <Icon size={12} color={colors.textTertiary} />
           <input
             value={value}
-            onChangeText={onChange}
+            onChange={(e) => onChange(e.target.value)}
             placeholder={placeholder}
-            placeholderTextColor={colors.textTertiary}
-            editable={!saving}
+            
+            disabled={saving}
             style={{ ...Object.assign({}, styles.fieldInput, { color: colors.textPrimary }) }}
           />
         </div>
@@ -727,7 +727,7 @@ export default function ProfileContent({
           ) }}
         >
           {saving ? (
-            <span size="small" color={colors.textInverse} />
+            <span className="profile-loading-indicator" aria-label="Saving" />
           ) : (
             <>
               <CheckCircle2 size={11} color={colors.textInverse} />
@@ -809,7 +809,7 @@ export default function ProfileContent({
             ) }}
           >
             {saving ? (
-              <span size="small" color={colors.textInverse} />
+              <span className="profile-loading-indicator" aria-label="Saving" />
             ) : (
               <>
                 <CheckCircle2 size={11} color={colors.textInverse} />
