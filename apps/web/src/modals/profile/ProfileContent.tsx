@@ -102,7 +102,7 @@ export default function ProfileContent({
   const visible = true;
   const colors = useFanColors();
   const styles = createStyles(colors);
-  const { userId, username, phone, authToken, logout } = useAuth();
+  const { isInitialized, isLoggedIn, userId, username, phone, authToken, logout } = useAuth();
   const toast = useToast();
 
   // ── Which profile is being viewed ───────────────────────────
@@ -167,7 +167,7 @@ export default function ProfileContent({
 
   // ── Load the profile whenever the target user changes ───────
   useEffect(() => {
-    if (!visible || !targetUserId) return;
+    if (!visible || !isInitialized || !isLoggedIn || !targetUserId) return;
     let cancelled = false;
 
     (async () => {
@@ -233,7 +233,7 @@ export default function ProfileContent({
     return () => {
       cancelled = true;
     };
-  }, [visible, targetUserId, authToken, isCurrentUser]);
+  }, [visible, isInitialized, isLoggedIn, targetUserId, authToken, isCurrentUser]);
 
   // ── Balance + saved phones (self only) ──────────────────────
   const refreshBalance = useCallback(async () => {
@@ -249,7 +249,7 @@ export default function ProfileContent({
   }, [userId, authToken]);
 
   useEffect(() => {
-    if (!visible || !isCurrentUser || !userId) return;
+    if (!visible || !isInitialized || !isLoggedIn || !isCurrentUser || !userId) return;
     let cancelled = false;
     (async () => {
       const [bal, topupPhone, withdrawPhone] = await Promise.all([
@@ -266,11 +266,11 @@ export default function ProfileContent({
     return () => {
       cancelled = true;
     };
-  }, [visible, isCurrentUser, userId, authToken]);
+  }, [visible, isInitialized, isLoggedIn, isCurrentUser, userId, authToken]);
 
   // ── Payment visibility gate (self only) ─────────────────────
   useEffect(() => {
-    if (!visible || !isCurrentUser) return;
+    if (!visible || !isInitialized || !isLoggedIn || !isCurrentUser) return;
     let cancelled = false;
     (async () => {
       try {
@@ -294,7 +294,7 @@ export default function ProfileContent({
     return () => {
       cancelled = true;
     };
-  }, [visible, isCurrentUser, authToken]);
+  }, [visible, isInitialized, isLoggedIn, isCurrentUser, authToken]);
 
   // ── Snapshot fetch ──────────────────────────────────────────
   async function fetchUsersCollectionSnapshot(): Promise<UsersCollectionSnapshot> {
@@ -826,6 +826,30 @@ export default function ProfileContent({
   //  MAIN RENDER
   // ═══════════════════════════════════════════════════════════
 
+  const renderGuestPreview = () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: FAN_SPACING.md, padding: FAN_SPACING.lg }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: FAN_SPACING.md }}>
+        <div style={{ ...Object.assign({}, styles.headerAvatar, { backgroundColor: colors.primaryDim, borderColor: colors.borderActive }) }}>
+          <UserIcon size={20} color={colors.primary} />
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 3, minWidth: 0 }}>
+          <span style={{ ...Object.assign({}, styles.headerTitle, { color: colors.textPrimary }) }}>Guest preview</span>
+          <span style={{ ...Object.assign({}, styles.headerSub, { color: colors.textTertiary }) }}>Explore the community before joining</span>
+        </div>
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: FAN_SPACING.sm, padding: FAN_SPACING.md, borderRadius: FAN_RADIUS.lg, backgroundColor: colors.surfaceSunken }}>
+        <span style={{ ...Object.assign({}, styles.sectionHeading, { color: colors.textTertiary }) }}>YOUR FAN PROFILE</span>
+        {renderInfoRow({ Icon: UserIcon, label: 'Username', value: 'Sign in to add your username' })}
+        {renderInfoRow({ Icon: Shield, label: 'Team nickname', value: 'Show your fan identity' })}
+        {renderInfoRow({ Icon: Globe2, label: 'Country', value: 'Connect with fans worldwide' })}
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: FAN_SPACING.sm, padding: FAN_SPACING.md, borderRadius: FAN_RADIUS.lg, border: `1px solid ${colors.border}` }}>
+        <span style={{ ...Object.assign({}, styles.sectionHeading, { color: colors.textTertiary }) }}>JOIN THE COMMUNITY</span>
+        <span style={{ ...Object.assign({}, styles.noProfileHint, { color: colors.textSecondary }) }}>Sign in to create your profile, join channels, chat with supporters, and track your predictions.</span>
+      </div>
+    </div>
+  );
+
   const profileBody = (
     <>
             {!inline && (
@@ -894,10 +918,12 @@ export default function ProfileContent({
             <div
               className="no-scrollbar"
               style={styles.scroll}
-              contentContainerStyle={styles.scrollContent}
-              keyboardShouldPersistTaps="handled"
             >
-              {loading ? (
+              {!isInitialized ? (
+                <div style={styles.center}><span>Loading profile…</span></div>
+              ) : !isLoggedIn ? (
+                renderGuestPreview()
+              ) : loading ? (
                 <div style={styles.center}>
                   <span color={colors.primary} />
                 </div>
@@ -916,7 +942,7 @@ export default function ProfileContent({
               )}
             </div>
 
-            {channels.length > 0 && isCurrentUser && (
+            {isLoggedIn && channels.length > 0 && isCurrentUser && (
               <div style={styles.channelsSection}>
                 <span style={{ ...Object.assign({}, styles.sectionHeading, { color: colors.textTertiary }) }}>YOUR CHANNELS</span>
                 {channels.slice(0, 3).map((channel) => {
@@ -954,7 +980,7 @@ export default function ProfileContent({
             )}
 
             {/* Channel leaderboard tabs (below the profile section) */}
-            {channels.length > 0 && isCurrentUser && (
+            {isLoggedIn && channels.length > 0 && isCurrentUser && (
               <div style={styles.leaderboardSection}>
                 <ChannelLeaderboard
                   channels={channels}
@@ -970,10 +996,10 @@ export default function ProfileContent({
   return (
     <>
       {profileBody}
-      {isCurrentUser && userId && (
+      {isLoggedIn && isCurrentUser && userId && (
         <DepositDialog visible={dialog === 'deposit'} userId={userId} username={username ?? ''} authToken={authToken} balance={balance} isBalanceLoading={balanceLoading} savedPhone={savedTopupPhone} onClose={() => setDialog(null)} onSuccess={(newBal) => { setBalance(newBal); void refreshBalance(); }} />
       )}
-      {isCurrentUser && userId && (
+      {isLoggedIn && isCurrentUser && userId && (
         <WithdrawDialog visible={dialog === 'withdraw'} userId={userId} username={username ?? ''} authToken={authToken} balance={balance} isBalanceLoading={balanceLoading} savedPhone={savedWithdrawPhone} onClose={() => setDialog(null)} onSuccess={(newBal) => { setBalance(newBal); void refreshBalance(); }} />
       )}
     </>
