@@ -950,3 +950,16 @@ body:has(.home-screen) .home-screen .mobile-home-menu-button img,
 body:has(.home-screen) .home-screen .mobile-home-notification-count {
   border-radius: 50% !important;
 }
+
+
+/* Home layout refinements: compact cards, bounded media and a natural-width channel rail. */
+@media (min-width: 651px) {
+  .home-screen .chats-fixture-row,
+  .home-screen .feed-screen .post-card,
+  .home-screen .feed-screen > .feed-item { max-width: 560px; margin-left: auto; margin-right: auto; }
+  .home-screen .post-image-frame, .home-screen .post-video-frame { max-height: 480px !important; }
+  .home-screen .chats-fixture-row, .home-screen .feed-screen .post-card { margin-bottom: 8px; }
+}
+.home-screen .match-card-prediction { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.home-screen .mobile-native-menu-items { display: flex; flex-direction: column; }
+.home-screen .mobile-native-menu-items > button { width: 100%; min-height: 42px; padding: 10px 0; background: transparent; text-align: left; font-size: 13px; font-weight: 600; }
