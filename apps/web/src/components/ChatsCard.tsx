@@ -457,13 +457,13 @@ export function MatchCard({
           ) : null}
 
           {/* Voter stack */}
-          <div style={styles.stackRow}>
+          {(voters.length > 0 || isCompleted) && <div style={styles.stackRow}>
             <VoterList
               colors={colors}
               voters={voterItems}
               emptyLabel={isCompleted ? 'No votes were cast' : ''}
             />
-          </div>
+          </div>}
         </div>
 
         {/* One line: actions, comment box, teams + score */}
