@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import type { Channel } from '@funspot/core';
 import AddPostModal from '@/modals/addPostModal';
-import ProfileModal from '@/modals/profile/ProfileModal';
+import ProfileContent from '@/modals/profile/ProfileContent';
 
 interface ProfileSidebarProps {
   channels: Channel[];
@@ -43,9 +43,8 @@ export default function ProfileSidebar({
           />
         </>
       )}
-      <ProfileModal
-        visible
-        inline
+      <ProfileContent
+        variant="sidebar"
         channels={channels}
         onClose={() => undefined}
         onSelectChannel={(channelId) => {
