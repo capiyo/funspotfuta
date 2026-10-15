@@ -25,7 +25,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
-const StyleSheet = { create: <T extends Record<string, CSSProperties>>(styles: T): Record<string, CSSProperties> => styles };
+const StyleSheet = { create: <T extends Record<string, unknown>>(styles: T): Record<string, CSSProperties> => styles as unknown as Record<string, CSSProperties> };
 const Keyboard = { dismiss: () => { if (document.activeElement instanceof HTMLElement) document.activeElement.blur(); } };
 import {
   X,
