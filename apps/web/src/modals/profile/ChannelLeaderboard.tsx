@@ -1,4 +1,4 @@
-// apps/mobile/src/modals/ProfileModal/ChannelLeaderboard.tsx
+// apps/web/src/modals/profile/ChannelLeaderboard.tsx
 //
 // Per-channel leaderboard tabs from funspot/lib/modals/profile/
 // swipeable_profile_modal.dart (_buildChannelTabBar + _buildChannelFragment
@@ -12,7 +12,7 @@
 
 import { useMemo, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
-const StyleSheet = { create: <T extends Record<string, unknown>>(styles: T): T => styles };
+const StyleSheet = { create: <T extends Record<string, unknown>>(styles: T): Record<string, CSSProperties> => styles as unknown as Record<string, CSSProperties> };
 import { Star, Users, Crown, Award } from 'lucide-react';
 import {
     FAN_SPACING,
