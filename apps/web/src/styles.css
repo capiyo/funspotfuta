@@ -1027,3 +1027,48 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
   .home-screen .feed-column .feed-screen > .feed-item { max-width: 640px; margin-left: auto !important; margin-right: 0 !important; }
   .home-screen .feed-column .feed-list { align-items: flex-end; }
 }
+
+
+/* Shared profile shell: the profile body is rendered identically in the
+   desktop sidebar and the menu modal; only this outer container changes. */
+.profile-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, .62);
+}
+.profile-modal-shell {
+  width: min(420px, 100%);
+  max-height: 85vh;
+  overflow-y: auto;
+  scrollbar-width: none;
+  background: var(--fan-background, #0b2026);
+  border-radius: 12px;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, .35);
+}
+.profile-modal-shell::-webkit-scrollbar,
+.profile-sidebar-rich::-webkit-scrollbar { display: none; }
+.profile-sidebar-rich {
+  width: 300px;
+  min-width: 300px;
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+@media (max-width: 650px) {
+  .profile-modal-backdrop {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .profile-modal-shell {
+    width: 100%;
+    height: 78vh;
+    max-height: 78vh;
+    overflow-y: auto;
+    border-radius: 18px 18px 0 0;
+  }
+}
