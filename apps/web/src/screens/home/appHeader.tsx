@@ -382,7 +382,7 @@ export function AppHeader(props: HeaderProps = {}) {
                 <button type="button" onClick={() => { closeMobileDrawer(); requireLogin(() => setProfileOpen(true)); }} style={{ color: colors.textPrimary }}>Profile</button>
                 <button type="button" onClick={() => { closeMobileDrawer(); requireLogin(() => setComradesOpen(true)); }} style={{ color: colors.textPrimary }}>Comrades</button>
                 <button type="button" onClick={() => { closeMobileDrawer(); requireLogin(() => setHistoryOpen(true)); }} style={{ color: colors.textPrimary }}>History</button>
-                {activeChannelId && <button type="button" onClick={() => { closeMobileDrawer(); requireLogin(() => setAdminOpen(true)); }} style={{ color: colors.textPrimary }}>Admin Dashboard</button>}
+                {activeChannel?.isAdmin && <button type="button" onClick={() => { closeMobileDrawer(); requireLogin(() => setAdminOpen(true)); }} style={{ color: colors.textPrimary }}>Admin Dashboard</button>}
                 <button type="button" onClick={() => { closeMobileDrawer(); setNotifOpen(true); }} style={{ color: colors.textPrimary }}>Notifications</button>
                 {loggedIn && <button type="button" onClick={() => { closeMobileDrawer(); signOut(); }} style={{ color: colors.away }}>Logout</button>}
               </div>
