@@ -12,15 +12,9 @@
 // success only.
 
 import { useEffect, useState } from 'react';
-import {
-    View,
-    Text,
-    TextInput,
-    Pressable,
-    Modal,
-    ActivityIndicator,
-    StyleSheet,
-} from '@/lib/native-web-compat';
+import type { CSSProperties, ReactNode } from 'react';
+import { createPortal } from 'react-dom';
+const StyleSheet = { create: <T extends Record<string, unknown>>(styles: T): T => styles };
 import {
     CheckCircle2,
     AlertCircle,
@@ -70,12 +64,12 @@ function BalanceStrip({
     loading: boolean;
 }) {
     return (
-        <View style={styles.balanceStrip}>
+        <div style={styles.balanceStrip}>
             <Wallet size={14} color={colors.primary} />
-            <Text style={[styles.balanceStripText, { color: colors.textPrimary }]}>
+            <span style={{ ...Object.assign({}, styles.balanceStripText, { color: colors.textPrimary }) }}>
                 {loading ? 'Loading…' : `KES ${balance.toFixed(2)}`}
-            </Text>
-        </View>
+            </span>
+        </div>
     );
 }
 
@@ -92,19 +86,19 @@ function InfoBox({
 }) {
     const accent = danger ? colors.away : colors.primary;
     return (
-        <View
-            style={[
+        <div
+            style={{ ...Object.assign({}, 
                 styles.infoBox,
                 { borderColor: hexWithAlpha(accent, 0.15) },
-            ]}
+            ) }}
         >
             {danger ? (
                 <AlertCircle size={12} color={accent} />
             ) : (
                 <Info size={12} color={accent} />
             )}
-            <Text style={[styles.infoBoxText, { color: accent }]}>{text}</Text>
-        </View>
+            <span style={{ ...Object.assign({}, styles.infoBoxText, { color: accent }) }}>{text}</span>
+        </div>
     );
 }
 
@@ -126,21 +120,21 @@ function StatusLine({
             : colors.primary;
 
     return (
-        <View
-            style={[
+        <div
+            style={{ ...Object.assign({}, 
                 styles.statusLine,
                 { backgroundColor: hexWithAlpha(accent, 0.08) },
-            ]}
+            ) }}
         >
             {isSuccess ? (
                 <CheckCircle2 size={14} color={accent} />
             ) : isError ? (
                 <AlertCircle size={14} color={accent} />
             ) : (
-                <ActivityIndicator size="small" color={accent} />
+                <span size="small" color={accent} />
             )}
-            <Text style={[styles.statusLineText, { color: accent }]}>{message}</Text>
-        </View>
+            <span style={{ ...Object.assign({}, styles.statusLineText, { color: accent }) }}>{message}</span>
+        </div>
     );
 }
 
@@ -242,17 +236,17 @@ export function DepositDialog({
             onRequestClose={processing ? undefined : onClose}
             statusBarTranslucent
         >
-            <Pressable
+            <button type="button"
                 style={styles.backdrop}
-                onPress={processing ? undefined : onClose}
+                onClick={processing ? undefined : onClose}
             >
-                <Pressable style={styles.dialog} onPress={(e: any) => e.stopPropagation()}>
-                    <View style={styles.dialogHeader}>
+                <button type="button" style={styles.dialog} onClick={(e: any) => e.stopPropagation()}>
+                    <div style={styles.dialogHeader}>
                         <Plus size={18} color={colors.primary} />
-                        <Text style={[styles.dialogTitle, { color: colors.textPrimary }]}>
+                        <span style={{ ...Object.assign({}, styles.dialogTitle, { color: colors.textPrimary }) }}>
                             Top Up Balance
-                        </Text>
-                    </View>
+                        </span>
+                    </div>
 
                     <BalanceStrip
                         colors={colors}
@@ -261,43 +255,43 @@ export function DepositDialog({
                         loading={isBalanceLoading}
                     />
 
-                    <View style={processing ? styles.inputsDisabled : undefined}>
-                        <TextInput
+                    <div style={processing ? styles.inputsDisabled : undefined}>
+                        <input
                             value={amount}
                             onChangeText={setAmount}
                             placeholder="Amount (KES)"
                             placeholderTextColor={colors.textTertiary}
-                            keyboardType="numeric"
+                            type="number" inputMode="numeric"
                             editable={!processing}
-                            style={[
+                            style={{ ...Object.assign({}, 
                                 styles.input,
                                 {
                                     color: colors.textPrimary,
                                     borderColor: colors.border,
                                     backgroundColor: colors.inputSurface,
                                 },
-                            ]}
+                            ) }}
                         />
 
-                        <TextInput
+                        <input
                             value={phone}
                             onChangeText={setPhone}
                             placeholder="M-Pesa Phone Number"
                             placeholderTextColor={colors.textTertiary}
-                            keyboardType="phone-pad"
+                            type="tel" inputMode="tel"
                             editable={!processing}
-                            style={[
+                            style={{ ...Object.assign({}, 
                                 styles.input,
                                 {
                                     color: colors.textPrimary,
                                     borderColor: colors.border,
                                     backgroundColor: colors.inputSurface,
                                 },
-                            ]}
+                            ) }}
                         />
 
-                        <Pressable
-                            onPress={() => {
+                        <button type="button"
+                            onClick={() => {
                                 const next = !useSaved;
                                 setUseSaved(next);
                                 if (next && savedPhone) setPhone(savedPhone);
@@ -305,24 +299,24 @@ export function DepositDialog({
                             disabled={processing}
                             style={styles.checkboxRow}
                         >
-                            <View
-                                style={[
+                            <div
+                                style={{ ...Object.assign({}, 
                                     styles.checkbox,
                                     {
                                         borderColor: useSaved ? colors.primary : colors.border,
                                         backgroundColor: useSaved ? colors.primary : 'transparent',
                                     },
-                                ]}
+                                ) }}
                             >
                                 {useSaved && <CheckCircle2 size={12} color="#FFFFFF" />}
-                            </View>
-                            <Text
-                                style={[styles.checkboxLabel, { color: colors.textTertiary }]}
+                            </div>
+                            <span
+                                style={{ ...Object.assign({}, styles.checkboxLabel, { color: colors.textTertiary }) }}
                             >
                                 Save this number for future top-ups
-                            </Text>
-                        </Pressable>
-                    </View>
+                            </span>
+                        </button>
+                    </div>
 
                     <InfoBox
                         colors={colors}
@@ -334,36 +328,36 @@ export function DepositDialog({
                         <StatusLine colors={colors} styles={styles} message={status} />
                     )}
 
-                    <View style={styles.dialogActions}>
-                        <Pressable
-                            onPress={onClose}
+                    <div style={styles.dialogActions}>
+                        <button type="button"
+                            onClick={onClose}
                             disabled={processing}
-                            style={[styles.dialogBtn, { borderColor: colors.border }]}
+                            style={{ ...Object.assign({}, styles.dialogBtn, { borderColor: colors.border }) }}
                         >
-                            <Text
-                                style={[styles.dialogBtnText, { color: colors.textSecondary }]}
+                            <span
+                                style={{ ...Object.assign({}, styles.dialogBtnText, { color: colors.textSecondary }) }}
                             >
                                 {processing ? 'Processing…' : 'Cancel'}
-                            </Text>
-                        </Pressable>
-                        <Pressable
-                            onPress={handlePay}
+                            </span>
+                        </button>
+                        <button type="button"
+                            onClick={handlePay}
                             disabled={processing}
-                            style={[
+                            style={{ ...Object.assign({}, 
                                 styles.dialogBtn,
                                 styles.dialogBtnPrimary,
                                 { backgroundColor: colors.primary },
-                            ]}
+                            ) }}
                         >
                             {processing ? (
-                                <ActivityIndicator size="small" color="#FFFFFF" />
+                                <span size="small" color="#FFFFFF" />
                             ) : (
-                                <Text style={styles.dialogBtnPrimaryText}>Pay via M-Pesa</Text>
+                                <span style={styles.dialogBtnPrimaryText}>Pay via M-Pesa</span>
                             )}
-                        </Pressable>
-                    </View>
-                </Pressable>
-            </Pressable>
+                        </button>
+                    </div>
+                </button>
+            </button>
         </Modal>
     );
 }
@@ -475,17 +469,17 @@ export function WithdrawDialog({
             onRequestClose={processing ? undefined : onClose}
             statusBarTranslucent
         >
-            <Pressable
+            <button type="button"
                 style={styles.backdrop}
-                onPress={processing ? undefined : onClose}
+                onClick={processing ? undefined : onClose}
             >
-                <Pressable style={styles.dialog} onPress={(e) => e.stopPropagation()}>
-                    <View style={styles.dialogHeader}>
+                <button type="button" style={styles.dialog} onClick={(e) => e.stopPropagation()}>
+                    <div style={styles.dialogHeader}>
                         <Minus size={18} color={colors.away} />
-                        <Text style={[styles.dialogTitle, { color: colors.textPrimary }]}>
+                        <span style={{ ...Object.assign({}, styles.dialogTitle, { color: colors.textPrimary }) }}>
                             Withdraw Funds
-                        </Text>
-                    </View>
+                        </span>
+                    </div>
 
                     <BalanceStrip
                         colors={colors}
@@ -494,43 +488,43 @@ export function WithdrawDialog({
                         loading={isBalanceLoading}
                     />
 
-                    <View style={processing ? styles.inputsDisabled : undefined}>
-                        <TextInput
+                    <div style={processing ? styles.inputsDisabled : undefined}>
+                        <input
                             value={amount}
                             onChangeText={setAmount}
                             placeholder="Amount (KES)"
                             placeholderTextColor={colors.textTertiary}
-                            keyboardType="numeric"
+                            type="number" inputMode="numeric"
                             editable={!processing}
-                            style={[
+                            style={{ ...Object.assign({}, 
                                 styles.input,
                                 {
                                     color: colors.textPrimary,
                                     borderColor: colors.border,
                                     backgroundColor: colors.inputSurface,
                                 },
-                            ]}
+                            ) }}
                         />
 
-                        <TextInput
+                        <input
                             value={phone}
                             onChangeText={setPhone}
                             placeholder="M-Pesa Phone Number"
                             placeholderTextColor={colors.textTertiary}
-                            keyboardType="phone-pad"
+                            type="tel" inputMode="tel"
                             editable={!processing}
-                            style={[
+                            style={{ ...Object.assign({}, 
                                 styles.input,
                                 {
                                     color: colors.textPrimary,
                                     borderColor: colors.border,
                                     backgroundColor: colors.inputSurface,
                                 },
-                            ]}
+                            ) }}
                         />
 
-                        <Pressable
-                            onPress={() => {
+                        <button type="button"
+                            onClick={() => {
                                 const next = !useSaved;
                                 setUseSaved(next);
                                 if (next && savedPhone) setPhone(savedPhone);
@@ -538,24 +532,24 @@ export function WithdrawDialog({
                             disabled={processing}
                             style={styles.checkboxRow}
                         >
-                            <View
-                                style={[
+                            <div
+                                style={{ ...Object.assign({}, 
                                     styles.checkbox,
                                     {
                                         borderColor: useSaved ? colors.primary : colors.border,
                                         backgroundColor: useSaved ? colors.primary : 'transparent',
                                     },
-                                ]}
+                                ) }}
                             >
                                 {useSaved && <CheckCircle2 size={12} color="#FFFFFF" />}
-                            </View>
-                            <Text
-                                style={[styles.checkboxLabel, { color: colors.textTertiary }]}
+                            </div>
+                            <span
+                                style={{ ...Object.assign({}, styles.checkboxLabel, { color: colors.textTertiary }) }}
                             >
                                 Save this number for future withdrawals
-                            </Text>
-                        </Pressable>
-                    </View>
+                            </span>
+                        </button>
+                    </div>
 
                     <InfoBox
                         colors={colors}
@@ -568,36 +562,36 @@ export function WithdrawDialog({
                         <StatusLine colors={colors} styles={styles} message={status} />
                     )}
 
-                    <View style={styles.dialogActions}>
-                        <Pressable
-                            onPress={onClose}
+                    <div style={styles.dialogActions}>
+                        <button type="button"
+                            onClick={onClose}
                             disabled={processing}
-                            style={[styles.dialogBtn, { borderColor: colors.border }]}
+                            style={{ ...Object.assign({}, styles.dialogBtn, { borderColor: colors.border }) }}
                         >
-                            <Text
-                                style={[styles.dialogBtnText, { color: colors.textSecondary }]}
+                            <span
+                                style={{ ...Object.assign({}, styles.dialogBtnText, { color: colors.textSecondary }) }}
                             >
                                 Cancel
-                            </Text>
-                        </Pressable>
-                        <Pressable
-                            onPress={handleWithdraw}
+                            </span>
+                        </button>
+                        <button type="button"
+                            onClick={handleWithdraw}
                             disabled={processing}
-                            style={[
+                            style={{ ...Object.assign({}, 
                                 styles.dialogBtn,
                                 styles.dialogBtnPrimary,
                                 { backgroundColor: colors.away },
-                            ]}
+                            ) }}
                         >
                             {processing ? (
-                                <ActivityIndicator size="small" color="#FFFFFF" />
+                                <span size="small" color="#FFFFFF" />
                             ) : (
-                                <Text style={styles.dialogBtnPrimaryText}>Withdraw</Text>
+                                <span style={styles.dialogBtnPrimaryText}>Withdraw</span>
                             )}
-                        </Pressable>
-                    </View>
-                </Pressable>
-            </Pressable>
+                        </button>
+                    </div>
+                </button>
+            </button>
         </Modal>
     );
 }
