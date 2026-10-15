@@ -3,7 +3,7 @@ import type { CSSProperties, RefObject, KeyboardEvent as ReactKeyboardEvent, Mou
 import { createPortal } from 'react-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { Bell, ChevronDown, LogOut, Menu, Plus, RefreshCw, UserRound, Wallet, X } from 'lucide-react';
+import { Bell, ChevronDown, Menu, RefreshCw } from 'lucide-react';
 import type { Channel } from '@funspot/core';
 import { FAN_RADIUS } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
@@ -97,7 +97,6 @@ export function AppHeader(props: HeaderProps = {}) {
 
   const [notifOpen, setNotifOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [comradesOpen, setComradesOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
@@ -110,23 +109,12 @@ export function AppHeader(props: HeaderProps = {}) {
   const avatarRef = useRef<HTMLButtonElement>(null);
   const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const mobileDrawerRef = useRef<HTMLDivElement>(null);
   const closeMenu = useCallback(() => setMenuOpen(false), []);
   useEscapeAndFocusTrap(menuOpen, menuRef, closeMenu);
-  const closeMobileDrawer = useCallback(() => setMobileDrawerOpen(false), []);
-  useEscapeAndFocusTrap(mobileDrawerOpen, mobileDrawerRef, closeMobileDrawer);
 
   useEffect(() => {
-    setMobileDrawerOpen(false);
     setMenuOpen(false);
   }, [location.pathname, location.search, location.hash]);
-
-  useEffect(() => {
-    if (!mobileDrawerOpen) return;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = previousOverflow; };
-  }, [mobileDrawerOpen]);
 
   // Keep the bell badge synchronized with the notification service stream and
   // the same persisted unread counts used by NotificationsModal.
@@ -156,8 +144,8 @@ export function AppHeader(props: HeaderProps = {}) {
     };
   }, [loggedIn, userId]);
 
-  const openMenu = useCallback(() => {
-    const rect = avatarRef.current?.getBoundingClientRect();
+  const openMenu = useCallback((anchor?: HTMLButtonElement | null) => {
+    const rect = (anchor ?? avatarRef.current ?? mobileMenuButtonRef.current)?.getBoundingClientRect();
     if (rect) setMenuAnchor({ top: rect.bottom + 4, right: Math.max(8, window.innerWidth - rect.right) });
     setMenuOpen(true);
   }, []);
@@ -286,9 +274,9 @@ export function AppHeader(props: HeaderProps = {}) {
                 <button
                   ref={avatarRef}
                   type="button"
-                  onClick={openMenu}
+                  onClick={() => openMenu(avatarRef.current)}
                   onKeyDown={(event: ReactKeyboardEvent<HTMLButtonElement>) => {
-                    if (event.key === 'ArrowDown') { event.preventDefault(); openMenu(); }
+                    if (event.key === 'ArrowDown') { event.preventDefault(); openMenu(avatarRef.current); }
                   }}
                   aria-haspopup="menu"
                   aria-expanded={menuOpen}
@@ -296,7 +284,7 @@ export function AppHeader(props: HeaderProps = {}) {
                   className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full"
                   style={{ background: colors.primaryMuted }}
                 ><img src={avatarUri} alt="" className="h-full w-full object-cover" /></button>
-                <button type="button" className="hidden max-w-28 items-center gap-1 truncate text-xs sm:flex" style={{ color: colors.textSecondary }} onClick={openMenu}>
+                <button type="button" className="hidden max-w-28 items-center gap-1 truncate text-xs sm:flex" style={{ color: colors.textSecondary }} onClick={() => openMenu(avatarRef.current)}>
                   {currentUsername ?? 'Profile'} <ChevronDown size={13} />
                 </button>
               </>
@@ -332,8 +320,8 @@ export function AppHeader(props: HeaderProps = {}) {
             <button type="button"
               onClick={() => props.onRefresh ? props.onRefresh() : void queryClient.invalidateQueries({ queryKey: ['channels'] })}
               aria-label="Refresh" className="mobile-home-icon-button" style={{ color: colors.textSecondary }}><RefreshCw size={17} /></button>
-            <button ref={mobileMenuButtonRef} type="button" onClick={() => setMobileDrawerOpen(true)}
-              aria-label="Open profile and menu" aria-haspopup="dialog" aria-expanded={mobileDrawerOpen}
+            <button ref={mobileMenuButtonRef} type="button" onClick={() => openMenu(mobileMenuButtonRef.current)}
+              aria-label="Open menu" aria-haspopup="menu" aria-expanded={menuOpen}
               className="mobile-home-menu-button" style={{ color: colors.textSecondary, background: loggedIn ? colors.primaryMuted : 'transparent' }}>
               {loggedIn ? <img src={avatarUri} alt="" /> : <Menu size={20} />}
             </button>
@@ -366,55 +354,24 @@ export function AppHeader(props: HeaderProps = {}) {
         </nav>
       </header>
 
-      {mobileDrawerOpen && createPortal(
-        <div className="mobile-profile-drawer-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) closeMobileDrawer(); }}>
-          <section ref={mobileDrawerRef} role="dialog" aria-modal="true" aria-label="Profile and menu"
-            className="mobile-profile-drawer" style={{ background: colors.surfaceElevated, color: colors.textPrimary, '--home-scrollbar-track': colors.background, '--home-scrollbar-thumb': colors.borderActive, '--home-text-primary': colors.textPrimary, '--home-text-secondary': colors.textSecondary, '--home-text-tertiary': colors.textTertiary, '--home-primary': colors.primary, '--home-border': colors.border } as CSSProperties}>
-            <div className="mobile-profile-drawer-heading">
-              <strong style={{ color: colors.primary, fontFamily: 'SairaCondensed_600SemiBold, sans-serif' }}>Menu</strong>
-              <button type="button" onClick={closeMobileDrawer} aria-label="Close menu" style={{ color: colors.textSecondary }}><X size={20} /></button>
-            </div>
-            <div className="mobile-profile-drawer-scroll no-scrollbar">
-              <div className="mobile-native-menu-items">
-                {!loggedIn && <button type="button" onClick={() => { closeMobileDrawer(); requireLogin(); }} style={{ color: colors.primary }}>Login</button>}
-                <button type="button" onClick={() => { closeMobileDrawer(); requireLogin(() => setPostOpen(true)); }} style={{ color: colors.textPrimary }}>Create Post</button>
-                <button type="button" onClick={() => { closeMobileDrawer(); requireLogin(() => setCreateChannelOpen(true)); }} style={{ color: colors.textPrimary }}>Create Channel</button>
-                <button type="button" onClick={() => { closeMobileDrawer(); requireLogin(() => setProfileOpen(true)); }} style={{ color: colors.textPrimary }}>Profile</button>
-                <button type="button" onClick={() => { closeMobileDrawer(); requireLogin(() => setComradesOpen(true)); }} style={{ color: colors.textPrimary }}>Comrades</button>
-                <button type="button" onClick={() => { closeMobileDrawer(); requireLogin(() => setHistoryOpen(true)); }} style={{ color: colors.textPrimary }}>History</button>
-                {activeChannelId && <button type="button" onClick={() => { closeMobileDrawer(); requireLogin(() => setAdminOpen(true)); }} style={{ color: colors.textPrimary }}>Admin Dashboard</button>}
-                <button type="button" onClick={() => { closeMobileDrawer(); setNotifOpen(true); }} style={{ color: colors.textPrimary }}>Notifications</button>
-                {loggedIn && <button type="button" onClick={() => { closeMobileDrawer(); signOut(); }} style={{ color: colors.away }}>Logout</button>}
-              </div>
-              <div className="mobile-profile-drawer-channel-list" style={{ marginTop: 18 }}>
-                <span className="mobile-profile-drawer-label" style={{ color: colors.textTertiary }}>JOIN CHANNEL</span>
-                {availableChannels.map((channel) => <button key={channel.channelId} type="button" disabled={joiningChannelIds.has(channel.channelId)} onClick={() => { closeMobileDrawer(); join(channel); }} style={{ color: colors.textPrimary }}>{channel.name}<span style={{ color: colors.primary }}>{joiningChannelIds.has(channel.channelId) ? '…' : 'Join'}</span></button>)}
-                {!availableChannels.length && <span style={{ color: colors.textTertiary }}>No channels available</span>}
-              </div>
-            </div>
-          </section>
-        </div>,
-        document.body,
-      )}
-
       {menuOpen && createPortal(
         <div className="fixed inset-0 z-[950]" onMouseDown={(event) => { if (event.target === event.currentTarget) closeMenu(); }}>
           <div
             ref={menuRef}
             role="menu"
             aria-label="Account menu"
-            className="fixed w-48 overflow-hidden rounded-lg border py-1 shadow-xl"
-            style={{ top: menuAnchor.top, right: menuAnchor.right, background: colors.surfaceElevated, borderColor: colors.border, boxShadow: '0 12px 36px rgba(0,0,0,.28)' }}
+            className="home-menu-popover fixed w-[220px] overflow-y-auto no-scrollbar"
+            style={{ top: menuAnchor.top, right: menuAnchor.right, maxHeight: 'calc(100vh - 16px)', background: colors.background, color: colors.textPrimary }}
           >
-            <button type="button" role="menuitem" className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm" style={{ color: colors.textPrimary }} onClick={() => pick(() => requireLogin(() => setPostOpen(true)))}><Plus size={15} /> Create Post</button>
-            <button type="button" role="menuitem" className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm" style={{ color: colors.textPrimary }} onClick={() => pick(() => requireLogin(() => setCreateChannelOpen(true)))}><Plus size={15} /> Create Channel</button>
-            <div className="my-1 border-t" style={{ borderColor: colors.border }} />
-            <button type="button" role="menuitem" className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm" style={{ color: colors.textPrimary }} onClick={openProfile}><UserRound size={15} /> Profile</button>
-            <button type="button" role="menuitem" className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm" style={{ color: colors.textPrimary }} onClick={() => pick(() => requireLogin(() => setComradesOpen(true)))}><UserRound size={15} /> Comrades</button>
-            <button type="button" role="menuitem" className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm" style={{ color: colors.textPrimary }} onClick={() => pick(() => requireLogin(() => setHistoryOpen(true)))}><Wallet size={15} /> History</button>
-            {activeChannelId && <button type="button" role="menuitem" className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm" style={{ color: colors.textPrimary }} onClick={() => pick(() => requireLogin(() => setAdminOpen(true)))}><UserRound size={15} /> Admin Dashboard</button>}
-            <div className="my-1 border-t" style={{ borderColor: colors.border }} />
-            <button type="button" role="menuitem" className="flex w-full items-center gap-3 px-4 py-3 text-left text-sm" style={{ color: colors.away }} onClick={() => pick(signOut)}><LogOut size={15} /> Logout</button>
+            {!loggedIn && <button type="button" role="menuitem" className="home-menu-item" style={{ color: colors.primary }} onClick={() => pick(() => requireLogin())}>Login</button>}
+            {loggedIn && <button type="button" role="menuitem" className="home-menu-item" style={{ color: colors.away }} onClick={() => pick(signOut)}>Logout</button>}
+            {loggedIn && <button type="button" role="menuitem" className="home-menu-item" style={{ color: colors.textPrimary }} onClick={() => pick(() => setPostOpen(true))}>Create Post</button>}
+            <button type="button" role="menuitem" className="home-menu-item" style={{ color: colors.textPrimary }} onClick={() => pick(() => requireLogin(() => setCreateChannelOpen(true)))}>Create Channel</button>
+            <button type="button" role="menuitem" className="home-menu-item" style={{ color: colors.textPrimary }} onClick={() => pick(() => requireLogin(() => setProfileOpen(true)))}>Profile</button>
+            <button type="button" role="menuitem" className="home-menu-item" style={{ color: colors.textPrimary }} onClick={() => pick(() => requireLogin(() => setComradesOpen(true)))}>Comrades</button>
+            <button type="button" role="menuitem" className="home-menu-item" style={{ color: colors.textPrimary }} onClick={() => pick(() => requireLogin(() => setHistoryOpen(true)))}>History</button>
+            <button type="button" role="menuitem" className="home-menu-item" style={{ color: colors.textPrimary }} onClick={() => pick(() => setNotifOpen(true))}>Notifications</button>
+            {activeChannelId && <button type="button" role="menuitem" className="home-menu-item" style={{ color: colors.textPrimary }} onClick={() => pick(() => requireLogin(() => setAdminOpen(true)))}>Admin Dashboard</button>}
           </div>
         </div>,
         document.body,
