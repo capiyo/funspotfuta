@@ -3,7 +3,7 @@ import type { CSSProperties, RefObject, KeyboardEvent as ReactKeyboardEvent, Mou
 import { createPortal } from 'react-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { Bell, ChevronDown, Menu, RefreshCw } from 'lucide-react';
+import { Bell, ChevronDown, Menu, Plus, RefreshCw } from 'lucide-react';
 import type { Channel } from '@funspot/core';
 import { FAN_RADIUS } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
@@ -299,6 +299,7 @@ export function AppHeader(props: HeaderProps = {}) {
               className="hidden h-9 w-9 items-center justify-center rounded-full sm:flex"
               style={{ color: colors.textSecondary }}
             >↻</button>
+            <button type="button" onClick={(event) => openMenu(event.currentTarget)} aria-label="Open menu" aria-haspopup="menu" aria-expanded={menuOpen} className="hidden h-9 w-9 items-center justify-center sm:flex" style={{ color: colors.textSecondary }}><Menu size={19} /></button>
           </div>
         </div>
 
