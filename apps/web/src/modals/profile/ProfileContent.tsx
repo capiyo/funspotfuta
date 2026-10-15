@@ -24,16 +24,9 @@
 //      profiles (see header).
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  ScrollView,
-  ActivityIndicator,
-  StyleSheet,
-  Keyboard,
-} from '@/lib/native-web-compat';
+import type { CSSProperties, ReactNode } from 'react';
+const StyleSheet = { create: <T extends Record<string, unknown>>(styles: T): T => styles };
+const Keyboard = { dismiss: () => { if (document.activeElement instanceof HTMLElement) document.activeElement.blur(); } };
 import {
   X,
   ArrowLeft,
@@ -455,65 +448,65 @@ export default function ProfileContent({
   function renderBalanceCard() {
     if (!isCurrentUser || !paymentVisible) return null;
     return (
-      <View
-        style={[
+      <div
+        style={{ ...Object.assign({}, 
           styles.balanceCard,
           {
             backgroundColor: colors.surface,
             borderColor: colors.borderActive,
           },
-        ]}
+        ) }}
       >
-        <View
-          style={[
+        <div
+          style={{ ...Object.assign({}, 
             styles.balanceIcon,
             { backgroundColor: colors.primaryDim },
-          ]}
+          ) }}
         >
           <Wallet size={16} color={colors.primary} />
-        </View>
-        <View style={{ flex: 1 }}>
-          <Text style={[styles.balanceLabel, { color: colors.textTertiary }]}>
+        </div>
+        <div style={{ flex: 1 }}>
+          <span style={{ ...Object.assign({}, styles.balanceLabel, { color: colors.textTertiary }) }}>
             Balance
-          </Text>
-          <Text style={[styles.balanceValue, { color: colors.textPrimary }]}>
+          </span>
+          <span style={{ ...Object.assign({}, styles.balanceValue, { color: colors.textPrimary }) }}>
             {balanceLoading ? 'Loading…' : `KES ${balance.toFixed(2)}`}
-          </Text>
-        </View>
-        <View style={styles.balanceActions}>
-          <Pressable
-            onPress={() => setDialog('deposit')}
-            style={[
+          </span>
+        </div>
+        <div style={styles.balanceActions}>
+          <button type="button"
+            onClick={() => setDialog('deposit')}
+            style={{ ...Object.assign({}, 
               styles.actionChip,
               { backgroundColor: colors.primary },
-            ]}
+            ) }}
           >
             <Plus size={10} color={colors.textInverse} />
-            <Text style={styles.actionChipTextPrimary}>Deposit</Text>
-          </Pressable>
-          <Pressable
-            onPress={() => setDialog('withdraw')}
-            style={[
+            <span style={styles.actionChipTextPrimary}>Deposit</span>
+          </button>
+          <button type="button"
+            onClick={() => setDialog('withdraw')}
+            style={{ ...Object.assign({}, 
               styles.actionChip,
               {
                 backgroundColor: colors.surfaceSunken,
                 borderWidth: 0.5,
                 borderColor: colors.border,
               },
-            ]}
+            ) }}
           >
             <Minus size={10} color={colors.textSecondary} />
-            <Text
-              style={[
+            <span
+              style={{ ...Object.assign({}, 
                 styles.actionChipText,
                 { color: colors.textSecondary },
-              ]}
+              ) }}
             >
               Withdraw
-            </Text>
-          </Pressable>
-        </View>
-      </View>
+            </span>
+          </button>
+        </div>
+      </div>
     );
   }
 
@@ -527,44 +520,44 @@ export default function ProfileContent({
     value: string;
   }) {
     return (
-      <View
-        style={[
+      <div
+        style={{ ...Object.assign({}, 
           styles.infoRow,
           { backgroundColor: colors.surfaceSunken },
-        ]}
+        ) }}
       >
         <Icon size={12} color={colors.primary} />
-        <View style={{ flex: 1 }}>
-          <Text style={[styles.infoLabel, { color: colors.textTertiary }]}>
+        <div style={{ flex: 1 }}>
+          <span style={{ ...Object.assign({}, styles.infoLabel, { color: colors.textTertiary }) }}>
             {label}
-          </Text>
-          <Text style={[styles.infoValue, { color: colors.textPrimary }]}>
+          </span>
+          <span style={{ ...Object.assign({}, styles.infoValue, { color: colors.textPrimary }) }}>
             {value}
-          </Text>
-        </View>
-      </View>
+          </span>
+        </div>
+      </div>
     );
   }
 
   function renderProfileView() {
     if (!profile) return null;
     return (
-      <View style={{ gap: FAN_SPACING.sm }}>
+      <div style={{ gap: FAN_SPACING.sm }}>
         {isCurrentUser && (
-          <View style={styles.statsGrid}>
-            <View style={[styles.statCard, { backgroundColor: colors.surfaceSunken }]}>
-              <Text style={[styles.statLabel, { color: colors.textTertiary }]}>Bets</Text>
-              <Text style={[styles.statValue, { color: colors.textPrimary }]}>{profile.numberOfBets}</Text>
-            </View>
-            <View style={[styles.statCard, { backgroundColor: colors.surfaceSunken }]}>
-              <Text style={[styles.statLabel, { color: colors.textTertiary }]}>Points</Text>
-              <Text style={[styles.statValue, { color: colors.textPrimary }]}>{totalSeasonPoints}</Text>
-            </View>
-            <View style={[styles.statCard, { backgroundColor: colors.surfaceSunken }]}>
-              <Text style={[styles.statLabel, { color: colors.textTertiary }]}>Accuracy</Text>
-              <Text style={[styles.statValue, { color: colors.textPrimary }]}>{profileAccuracy}%</Text>
-            </View>
-          </View>
+          <div style={styles.statsGrid}>
+            <div style={{ ...Object.assign({}, styles.statCard, { backgroundColor: colors.surfaceSunken }) }}>
+              <span style={{ ...Object.assign({}, styles.statLabel, { color: colors.textTertiary }) }}>Bets</span>
+              <span style={{ ...Object.assign({}, styles.statValue, { color: colors.textPrimary }) }}>{profile.numberOfBets}</span>
+            </div>
+            <div style={{ ...Object.assign({}, styles.statCard, { backgroundColor: colors.surfaceSunken }) }}>
+              <span style={{ ...Object.assign({}, styles.statLabel, { color: colors.textTertiary }) }}>Points</span>
+              <span style={{ ...Object.assign({}, styles.statValue, { color: colors.textPrimary }) }}>{totalSeasonPoints}</span>
+            </div>
+            <div style={{ ...Object.assign({}, styles.statCard, { backgroundColor: colors.surfaceSunken }) }}>
+              <span style={{ ...Object.assign({}, styles.statLabel, { color: colors.textTertiary }) }}>Accuracy</span>
+              <span style={{ ...Object.assign({}, styles.statValue, { color: colors.textPrimary }) }}>{profileAccuracy}%</span>
+            </div>
+          </div>
         )}
         {renderInfoRow({
           Icon: UserIcon,
@@ -593,48 +586,48 @@ export default function ProfileContent({
         })}
 
         {isCurrentUser && (
-          <View style={styles.actionRow}>
-            <Pressable
-              onPress={() => setEditing(true)}
-              style={[
+          <div style={styles.actionRow}>
+            <button type="button"
+              onClick={() => setEditing(true)}
+              style={{ ...Object.assign({}, 
                 styles.actionBtn,
                 { backgroundColor: colors.primary },
-              ]}
+              ) }}
             >
               <Pencil size={11} color={colors.textInverse} />
-              <Text style={styles.actionBtnTextPrimary}>Edit</Text>
-            </Pressable>
-            <Pressable
-              onPress={handleLogout}
+              <span style={styles.actionBtnTextPrimary}>Edit</span>
+            </button>
+            <button type="button"
+              onClick={handleLogout}
               disabled={loggingOut}
-              style={[
+              style={{ ...Object.assign({}, 
                 styles.actionBtn,
                 {
                   backgroundColor: colors.surfaceSunken,
                   borderWidth: 0.5,
                   borderColor: colors.border,
                 },
-              ]}
+              ) }}
             >
               {loggingOut ? (
-                <ActivityIndicator size="small" color={colors.primary} />
+                <span size="small" color={colors.primary} />
               ) : (
                 <>
                   <LogOut size={11} color={colors.textSecondary} />
-                  <Text
-                    style={[
+                  <span
+                    style={{ ...Object.assign({}, 
                       styles.actionBtnText,
                       { color: colors.textSecondary },
-                    ]}
+                    ) }}
                   >
                     Logout
-                  </Text>
+                  </span>
                 </>
               )}
-            </Pressable>
-          </View>
+            </button>
+          </div>
         )}
-      </View>
+      </div>
     );
   }
 
@@ -652,56 +645,56 @@ export default function ProfileContent({
     Icon: typeof UserIcon;
   }) {
     return (
-      <View style={{ marginBottom: FAN_SPACING.md }}>
-        <Text style={[styles.fieldLabel, { color: colors.textTertiary }]}>
+      <div style={{ marginBottom: FAN_SPACING.md }}>
+        <span style={{ ...Object.assign({}, styles.fieldLabel, { color: colors.textTertiary }) }}>
           {label}
-        </Text>
-        <View
-          style={[
+        </span>
+        <div
+          style={{ ...Object.assign({}, 
             styles.fieldWrap,
             {
               backgroundColor: colors.surfaceSunken,
               borderColor: colors.border,
             },
-          ]}
+          ) }}
         >
           <Icon size={12} color={colors.textTertiary} />
-          <TextInput
+          <input
             value={value}
             onChangeText={onChange}
             placeholder={placeholder}
             placeholderTextColor={colors.textTertiary}
             editable={!saving}
-            style={[styles.fieldInput, { color: colors.textPrimary }]}
+            style={{ ...Object.assign({}, styles.fieldInput, { color: colors.textPrimary }) }}
           />
-        </View>
-      </View>
+        </div>
+      </div>
     );
   }
 
   function renderNoProfileView() {
     return (
-      <View style={{ gap: FAN_SPACING.md }}>
-        <View style={{ alignItems: 'center' }}>
-          <View
-            style={[
+      <div style={{ gap: FAN_SPACING.md }}>
+        <div style={{ alignItems: 'center' }}>
+          <div
+            style={{ ...Object.assign({}, 
               styles.noProfileIcon,
               { backgroundColor: colors.primaryDim },
-            ]}
+            ) }}
           >
             <UserIcon size={24} color={colors.primary} />
-          </View>
-          <Text
-            style={[styles.noProfileTitle, { color: colors.textPrimary }]}
+          </div>
+          <span
+            style={{ ...Object.assign({}, styles.noProfileTitle, { color: colors.textPrimary }) }}
           >
             Complete Your Profile
-          </Text>
-          <Text
-            style={[styles.noProfileHint, { color: colors.textTertiary }]}
+          </span>
+          <span
+            style={{ ...Object.assign({}, styles.noProfileHint, { color: colors.textTertiary }) }}
           >
             Tell us about yourself
-          </Text>
-        </View>
+          </span>
+        </div>
 
         {renderEditField({
           label: 'TEAM NICKNAME',
@@ -725,40 +718,40 @@ export default function ProfileContent({
           Icon: Globe2,
         })}
 
-        <Pressable
-          onPress={handleSave}
+        <button type="button"
+          onClick={handleSave}
           disabled={saving}
-          style={[
+          style={{ ...Object.assign({}, 
             styles.actionBtn,
             { backgroundColor: colors.primary },
-          ]}
+          ) }}
         >
           {saving ? (
-            <ActivityIndicator size="small" color={colors.textInverse} />
+            <span size="small" color={colors.textInverse} />
           ) : (
             <>
               <CheckCircle2 size={11} color={colors.textInverse} />
-              <Text style={styles.actionBtnTextPrimary}>Complete Profile</Text>
+              <span style={styles.actionBtnTextPrimary}>Complete Profile</span>
             </>
           )}
-        </Pressable>
-      </View>
+        </button>
+      </div>
     );
   }
 
   function renderEditMode() {
     return (
-      <View style={{ gap: FAN_SPACING.md }}>
-        <View style={{ alignItems: 'center' }}>
-          <View
-            style={[
+      <div style={{ gap: FAN_SPACING.md }}>
+        <div style={{ alignItems: 'center' }}>
+          <div
+            style={{ ...Object.assign({}, 
               styles.noProfileIcon,
               { backgroundColor: colors.primaryDim, width: 48, height: 48 },
-            ]}
+            ) }}
           >
             <UserIcon size={20} color={colors.primary} />
-          </View>
-        </View>
+          </div>
+        </div>
 
         {renderEditField({
           label: 'TEAM NICKNAME',
@@ -782,50 +775,50 @@ export default function ProfileContent({
           Icon: Globe2,
         })}
 
-        <View style={styles.actionRow}>
-          <Pressable
-            onPress={() => {
+        <div style={styles.actionRow}>
+          <button type="button"
+            onClick={() => {
               setEditing(false);
               Keyboard.dismiss();
             }}
-            style={[
+            style={{ ...Object.assign({}, 
               styles.actionBtn,
               {
                 backgroundColor: colors.surfaceSunken,
                 borderWidth: 0.5,
                 borderColor: colors.border,
               },
-            ]}
+            ) }}
           >
             <X size={11} color={colors.textSecondary} />
-            <Text
-              style={[
+            <span
+              style={{ ...Object.assign({}, 
                 styles.actionBtnText,
                 { color: colors.textSecondary },
-              ]}
+              ) }}
             >
               Cancel
-            </Text>
-          </Pressable>
-          <Pressable
-            onPress={handleSave}
+            </span>
+          </button>
+          <button type="button"
+            onClick={handleSave}
             disabled={saving}
-            style={[
+            style={{ ...Object.assign({}, 
               styles.actionBtn,
               { backgroundColor: colors.primary },
-            ]}
+            ) }}
           >
             {saving ? (
-              <ActivityIndicator size="small" color={colors.textInverse} />
+              <span size="small" color={colors.textInverse} />
             ) : (
               <>
                 <CheckCircle2 size={11} color={colors.textInverse} />
-                <Text style={styles.actionBtnTextPrimary}>Save</Text>
+                <span style={styles.actionBtnTextPrimary}>Save</span>
               </>
             )}
-          </Pressable>
-        </View>
-      </View>
+          </button>
+        </div>
+      </div>
     );
   }
 
@@ -836,78 +829,78 @@ export default function ProfileContent({
   const profileBody = (
     <>
             {!inline && (
-              <View style={styles.handleWrap}>
-                <View style={styles.handle} />
-              </View>
+              <div style={styles.handleWrap}>
+                <div style={styles.handle} />
+              </div>
             )}
 
             {/* Header */}
-            <View style={styles.headerRow}>
+            <div style={styles.headerRow}>
               {!isCurrentUser && (
-                <Pressable
-                  onPress={handleBackToSelf}
-                  hitSlop={8}
+                <button type="button"
+                  onClick={handleBackToSelf}
+                  
                   style={styles.backBtn}
                 >
                   <ArrowLeft size={16} color={colors.textSecondary} />
-                </Pressable>
+                </button>
               )}
-              <View
+              <div
                 className="home-avatar"
-                style={[
+                style={{ ...Object.assign({}, 
                   styles.headerAvatar,
                   {
                     backgroundColor: colors.primaryDim,
                     borderColor: colors.borderActive,
                   },
-                ]}
+                ) }}
               >
-                <Text style={[styles.headerAvatarText, { color: colors.primary }]}>
+                <span style={{ ...Object.assign({}, styles.headerAvatarText, { color: colors.primary }) }}>
                   {(profile?.nickname || targetUsername || '?')
                     .charAt(0)
                     .toUpperCase()}
-                </Text>
-              </View>
-              <View style={{ flex: 1, marginLeft: FAN_SPACING.md }}>
-                <Text
-                  style={[styles.headerTitle, { color: colors.textPrimary }]}
-                  numberOfLines={1}
+                </span>
+              </div>
+              <div style={{ flex: 1, marginLeft: FAN_SPACING.md }}>
+                <span
+                  style={{ ...Object.assign({}, styles.headerTitle, { color: colors.textPrimary }) }}
+                  className="profile-ellipsis"
                 >
                   {profile?.nickname || targetUsername || 'Profile'}
-                </Text>
-                <Text
-                  style={[styles.headerSub, { color: colors.textTertiary }]}
-                  numberOfLines={1}
+                </span>
+                <span
+                  style={{ ...Object.assign({}, styles.headerSub, { color: colors.textTertiary }) }}
+                  className="profile-ellipsis"
                 >
                   {isCurrentUser
                     ? channels.length === 0
                       ? 'No channels'
                       : `${channels.length} ${channels.length === 1 ? 'Channel' : 'Channels'}`
                     : 'Member'}
-                </Text>
-              </View>
+                </span>
+              </div>
               {inline ? (
-                <Pressable onPress={onViewProfile} hitSlop={8} style={styles.viewProfileBtn}>
-                  <Text style={[styles.viewProfileText, { color: colors.primary }]}>View profile</Text>
-                </Pressable>
+                <button type="button" onClick={onViewProfile}  style={styles.viewProfileBtn}>
+                  <span style={{ ...Object.assign({}, styles.viewProfileText, { color: colors.primary }) }}>View profile</span>
+                </button>
               ) : (
-                <Pressable onPress={onClose} hitSlop={8} style={styles.closeBtn}>
+                <button type="button" onClick={onClose}  style={styles.closeBtn}>
                   <X size={14} color={colors.textSecondary} />
-                </Pressable>
+                </button>
               )}
-            </View>
+            </div>
 
             {/* Scrollable body */}
-            <ScrollView
+            <div
               className="no-scrollbar"
               style={styles.scroll}
               contentContainerStyle={styles.scrollContent}
               keyboardShouldPersistTaps="handled"
             >
               {loading ? (
-                <View style={styles.center}>
-                  <ActivityIndicator color={colors.primary} />
-                </View>
+                <div style={styles.center}>
+                  <span color={colors.primary} />
+                </div>
               ) : (
                 <>
                   {/* Balance card (self only, when visibility allows) */}
@@ -921,54 +914,54 @@ export default function ProfileContent({
                       : renderProfileView()}
                 </>
               )}
-            </ScrollView>
+            </div>
 
             {channels.length > 0 && isCurrentUser && (
-              <View style={styles.channelsSection}>
-                <Text style={[styles.sectionHeading, { color: colors.textTertiary }]}>YOUR CHANNELS</Text>
+              <div style={styles.channelsSection}>
+                <span style={{ ...Object.assign({}, styles.sectionHeading, { color: colors.textTertiary }) }}>YOUR CHANNELS</span>
                 {channels.slice(0, 3).map((channel) => {
                   const member = channel.members?.find((item) => item.userId === userId);
                   return (
-                    <Pressable
+                    <button type="button"
                       key={channel.channelId}
-                      onPress={() => {
+                      onClick={() => {
                         onSelectChannel?.(channel.channelId);
                         onSelectChats?.();
                         onClose();
                       }}
-                      style={[
+                      style={{ ...Object.assign({}, 
                         styles.channelRow,
                         { backgroundColor: colors.surfaceSunken, borderColor: colors.border },
-                      ]}
+                      ) }}
                     >
-                      <View style={[styles.channelAvatarSmall, { backgroundColor: colors.primaryDim }]}>
-                        <Text style={[styles.channelAvatarSmallText, { color: colors.primary }]}>
+                      <div style={{ ...Object.assign({}, styles.channelAvatarSmall, { backgroundColor: colors.primaryDim }) }}>
+                        <span style={{ ...Object.assign({}, styles.channelAvatarSmallText, { color: colors.primary }) }}>
                           {(channel.name?.[0] ?? 'C').toUpperCase()}
-                        </Text>
-                      </View>
-                      <View style={{ flex: 1, minWidth: 0 }}>
-                        <Text style={[styles.channelRowName, { color: colors.textPrimary }]} numberOfLines={1}>
+                        </span>
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <span style={{ ...Object.assign({}, styles.channelRowName, { color: colors.textPrimary }) }} className="profile-ellipsis">
                           {channel.name}
-                        </Text>
-                        <Text style={[styles.channelRowMeta, { color: colors.textTertiary }]}>
+                        </span>
+                        <span style={{ ...Object.assign({}, styles.channelRowMeta, { color: colors.textTertiary }) }}>
                           {channel.isAdmin ? 'Admin' : 'Member'} · {member?.seasonPoints ?? 0} points
-                        </Text>
-                      </View>
-                    </Pressable>
+                        </span>
+                      </div>
+                    </button>
                   );
                 })}
-              </View>
+              </div>
             )}
 
             {/* Channel leaderboard tabs (below the profile section) */}
             {channels.length > 0 && isCurrentUser && (
-              <View style={styles.leaderboardSection}>
+              <div style={styles.leaderboardSection}>
                 <ChannelLeaderboard
                   channels={channels}
                   currentUserId={userId ?? ''}
                   onViewMember={handleViewMember}
                 />
-              </View>
+              </div>
             )}
 
     </>
