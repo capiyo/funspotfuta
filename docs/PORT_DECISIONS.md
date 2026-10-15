@@ -79,3 +79,9 @@
 - `ProfileSidebar` now only owns its container, the logged-in Post action, and channel-selection callbacks. The separate mock-only guest identity, balance/stats cards, channel list, and leaderboard markup were removed from the sidebar component.
 - The profile palette is sourced from `useFanColors()` / the core fan color tokens. Profile-specific surfaces may use the profile's rounded cards and green-tinted borders; Home's no-border/no-rounding rule remains scoped to the other Home surfaces.
 - Remaining follow-up for this pass: split the current large profile implementation into `ProfileContent` plus small presentational components and replace the profile modal's current shell with the specified desktop-centered / narrow bottom-sheet shell. Those structural changes require extracting shared UI without duplicating the existing data and payment logic.
+
+
+## Profile implementation follow-up (2026-10-15)
+- Profile leaderboard member rows use a bottom-only green-tinted border; no surrounding card border or rounded corners.
+- The profile content still imports the web native-compat adapter. A true pure-React/DOM conversion of the profile, leaderboard, and payment dialogs remains outstanding and must preserve the existing API/auth/payment behavior.
+- Guest presentation must be keyed to the absence of an authenticated user, rather than treating a missing profile for an authenticated user as the guest state. This behavior still requires implementation and verification.
