@@ -372,9 +372,20 @@ export function ChannelLeaderboard({
             </div>
 
             {/* Members list */}
-            <div>{(sortedMembers ?? []).map((item, index) => <div key={String(index)}>{String(item)}</div>)}</div>
-                )}
-            />
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                {sortedMembers.map((member, index) => (
+                    <MemberCard
+                        key={member.userId || index}
+                        colors={colors}
+                        styles={styles}
+                        member={member}
+                        rank={index + 1}
+                        maxPoints={maxPoints}
+                        isYou={member.userId === currentUserId}
+                        onViewProfile={() => onViewMember(member)}
+                    />
+                ))}
+            </div>
         </div>
     );
 }
