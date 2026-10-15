@@ -1,4 +1,4 @@
-// apps/mobile/src/modals/ProfileModal.tsx
+// apps/web/src/modals/profile/ProfileContent.tsx
 //
 // RN port of funspot/lib/modals/profile/swipeable_profile_modal.dart —
 // the "Profile" modal opened from the AppHeader menu.
@@ -25,7 +25,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
-const StyleSheet = { create: <T extends Record<string, unknown>>(styles: T): T => styles };
+const StyleSheet = { create: <T extends Record<string, unknown>>(styles: T): Record<string, CSSProperties> => styles as unknown as Record<string, CSSProperties> };
 const Keyboard = { dismiss: () => { if (document.activeElement instanceof HTMLElement) document.activeElement.blur(); } };
 import {
   X,
