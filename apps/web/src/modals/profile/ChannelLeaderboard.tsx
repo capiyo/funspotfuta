@@ -539,5 +539,5 @@ function createStyles(colors: FanColors) {
             overflow: 'hidden',
         },
         progressFill: { height: '100%' },
-    });
+    };
 }
