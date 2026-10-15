@@ -19,7 +19,6 @@ import AddPostModal from '@/modals/addPostModal';
 import HistoryModal from '@/modals/HistoryModal';
 import CreateChannelModal from '@/modals/ChannelCreation';
 import { NotificationService } from '@/lib/api/notification-service';
-import ProfileSidebar from '@/components/ProfileSidebar';
 
 type HeaderProps = {
   channels?: Channel[];
