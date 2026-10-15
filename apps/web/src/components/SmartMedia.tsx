@@ -43,7 +43,7 @@ export function SmartMedia({ imageUrl, videoUrl, videoThumbnailUrl, width, heigh
       video.pause();
       if (currentlyPlayingVideo === video) currentlyPlayingVideo = null;
     };
-  }, [videoUrl, videoFailed]);
+  }, [videoUrl, videoFailed, videoAttempt]);
 
   if (videoUrl) {
     const ratio = videoRatio;
