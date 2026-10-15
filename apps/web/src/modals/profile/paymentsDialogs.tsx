@@ -14,7 +14,6 @@
 import { useEffect, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-const StyleSheet = { create: <T extends Record<string, CSSProperties>>(styles: T): Record<string, CSSProperties> => styles };
 import {
     CheckCircle2,
     AlertCircle,
@@ -33,25 +32,37 @@ import {
 
 type FanColors = ReturnType<typeof useFanColors>;
 
-type ModalProps = {
+type PaymentOverlayProps = {
   visible: boolean;
-  transparent?: boolean;
-  animationType?: string;
-  onRequestClose?: (() => void) | undefined;
-  statusBarTranslucent?: boolean;
+  onClose?: () => void;
   children: ReactNode;
 };
 
-function Modal({ visible, onRequestClose, children }: ModalProps) {
+function PaymentOverlay({ visible, onClose, children }: PaymentOverlayProps) {
+  useEffect(() => {
+    if (!visible) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose?.();
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [visible, onClose]);
+
   if (!visible) return null;
   return createPortal(
-    <div className="payment-modal-root" role="presentation" onClick={onRequestClose}>
-      <div onClick={(event) => event.stopPropagation()}>{children}</div>
+    <div className="payment-modal-root" role="presentation" onMouseDown={(event) => {
+      if (event.target === event.currentTarget) onClose?.();
+    }}>
+      <div role="dialog" aria-modal="true" className="payment-modal-dialog">{children}</div>
     </div>,
     document.body,
   );
 }
-
 
 // Matches the Flutter _isValidPhone regex.
 function isValidPhone(phone: string): boolean {
@@ -249,13 +260,7 @@ export function DepositDialog({
     }
 
     return (
-        <Modal
-            visible={visible}
-            transparent
-            animationType="fade"
-            onRequestClose={processing ? undefined : onClose}
-            statusBarTranslucent
-        >
+        <PaymentOverlay visible={visible} onClose={processing ? undefined : onClose}>
             <button type="button"
                 style={styles.backdrop}
                 onClick={processing ? undefined : onClose}
@@ -378,7 +383,7 @@ export function DepositDialog({
                     </div>
                 </button>
             </button>
-        </Modal>
+        </PaymentOverlay>
     );
 }
 
@@ -482,13 +487,7 @@ export function WithdrawDialog({
     }
 
     return (
-        <Modal
-            visible={visible}
-            transparent
-            animationType="fade"
-            onRequestClose={processing ? undefined : onClose}
-            statusBarTranslucent
-        >
+        <PaymentOverlay visible={visible} onClose={processing ? undefined : onClose}>
             <button type="button"
                 style={styles.backdrop}
                 onClick={processing ? undefined : onClose}
@@ -612,7 +611,7 @@ export function WithdrawDialog({
                     </div>
                 </button>
             </button>
-        </Modal>
+        </PaymentOverlay>
     );
 }
 
@@ -621,7 +620,7 @@ export function WithdrawDialog({
 // ═══════════════════════════════════════════════════════════════
 
 function createStyles(colors: FanColors) {
-    return StyleSheet.create({
+    return {
         backdrop: {
             flex: 1,
             backgroundColor: 'rgba(0,0,0,0.5)',
@@ -725,5 +724,5 @@ function createStyles(colors: FanColors) {
             fontSize: 13,
             fontWeight: '700',
         },
-    });
+    };
 }
