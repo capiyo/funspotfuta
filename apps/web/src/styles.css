@@ -963,3 +963,25 @@ body:has(.home-screen) .home-screen .mobile-home-notification-count {
 .home-screen .match-card-prediction { flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .home-screen .mobile-native-menu-items { display: flex; flex-direction: column; }
 .home-screen .mobile-native-menu-items > button { width: 100%; min-height: 42px; padding: 10px 0; background: transparent; text-align: left; font-size: 13px; font-weight: 600; }
+
+
+/* Home surface is flat: media is the sole corner-radius exception. */
+body:has(.home-screen) .home-screen,
+body:has(.home-screen) .home-screen *,
+body:has(.home-screen) .mobile-profile-drawer,
+body:has(.home-screen) .mobile-profile-drawer * {
+  border-radius: 0 !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+body:has(.home-screen) .home-screen .post-image-frame,
+body:has(.home-screen) .home-screen .post-video-frame,
+body:has(.home-screen) .mobile-profile-drawer .post-image-frame,
+body:has(.home-screen) .mobile-profile-drawer .post-video-frame {
+  border-radius: 8px !important;
+}
+body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !important; }
+@media (max-width: 650px) {
+  body:has(.home-screen) .home-screen .match-card-prediction { max-width: 92px; font-size: 9px !important; }
+  body:has(.home-screen) .home-screen .match-card .bottomRow { gap: 4px; }
+}
