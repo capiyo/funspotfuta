@@ -12,7 +12,6 @@
 
 import { useMemo, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
-const StyleSheet = { create: <T extends Record<string, unknown>>(styles: T): Record<string, CSSProperties> => styles as unknown as Record<string, CSSProperties> };
 import { Star, Users, Crown, Award } from 'lucide-react';
 import {
     FAN_SPACING,
@@ -395,7 +394,7 @@ export function ChannelLeaderboard({
 // ═══════════════════════════════════════════════════════════════
 
 function createStyles(colors: FanColors) {
-    return StyleSheet.create({
+    return {
         wrap: { flex: 1 },
 
         emptyWrap: {
