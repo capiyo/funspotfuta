@@ -1143,3 +1143,184 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
 }
 .profile-guest-preview .profile-guest-fields > .profile-guest-field,
 .profile-guest-preview .profile-guest-channels-heading { box-sizing: border-box; }
+
+
+/* Desktop Home: bounded equal columns and width-safe cards. Mobile rules above stay unchanged. */
+@media (min-width: 651px) {
+  body:has(.home-screen) { overflow: hidden; }
+  .home-screen,
+  .home-screen .workspace,
+  .home-screen .profile-sidebar-rich,
+  .home-screen .home-columns,
+  .home-screen .home-column,
+  .home-screen .chats-column,
+  .home-screen .feed-column,
+  .home-screen .pane-content,
+  .home-screen .chats-fixture-list,
+  .home-screen .feed-screen,
+  .home-screen .chats-fixture-list > *,
+  .home-screen .feed-screen > *,
+  .home-screen .chats-fixture-row,
+  .home-screen .feed-item,
+  .home-screen .match-card,
+  .home-screen .post-card,
+  .home-screen .match-card > *,
+  .home-screen .post-card > * {
+    min-width: 0;
+    box-sizing: border-box;
+  }
+  .home-screen .workspace {
+    display: grid;
+    grid-template-columns: 300px minmax(0, 1fr);
+    column-gap: 12px;
+    width: 100%;
+    padding: 0 12px;
+    overflow: hidden;
+  }
+  .home-screen .profile-sidebar-rich {
+    width: 300px;
+    max-width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .home-screen .home-columns {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 16px;
+    align-items: stretch;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    overflow: hidden;
+  }
+  .home-screen .chats-column,
+  .home-screen .feed-column {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    margin: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: none;
+    overscroll-behavior: contain;
+  }
+  .home-screen .chats-column::-webkit-scrollbar,
+  .home-screen .feed-column::-webkit-scrollbar,
+  .home-screen .chats-fixture-list::-webkit-scrollbar,
+  .home-screen .feed-screen::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+  .home-screen .chats-column .pane-content,
+  .home-screen .feed-column .pane-content {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  .home-screen .chats-column > section,
+  .home-screen .chats-column .chats-fixture-list,
+  .home-screen .feed-column .feed-screen {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+  .home-screen .chats-column .chats-fixture-list > div,
+  .home-screen .chats-column .chats-list-header,
+  .home-screen .chats-column .chats-fixture-row,
+  .home-screen .feed-column .feed-list,
+  .home-screen .feed-column .feed-item,
+  .home-screen .feed-column .post-card {
+    width: 100%;
+    min-width: 0;
+    max-width: 760px;
+    box-sizing: border-box;
+    margin-inline: auto !important;
+  }
+  .home-screen .chats-column .chats-fixture-row,
+  .home-screen .feed-column .feed-item {
+    margin-bottom: 8px;
+  }
+  .home-screen .chats-column .chats-fixture-list > div:has(> .segmented-control),
+  .home-screen .chats-column .segmented-control {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+  .home-screen .chats-column .segmented-control {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
+  }
+  .home-screen .segmented-control > button {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    padding-inline: 4px;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+  .home-screen .segmented-control > button > span {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+  }
+  .home-screen .match-card,
+  .home-screen .post-card {
+    width: 100%;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+  .home-screen .match-card > [style*="padding"],
+  .home-screen .post-card > [style*="padding"] {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  .home-screen .post-card > div,
+  .home-screen .post-card .post-card-open,
+  .home-screen .match-card > div {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+  .home-screen .post-image-frame,
+  .home-screen .post-video-frame {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    aspect-ratio: 4 / 5;
+    box-sizing: border-box;
+    overflow: hidden;
+    border-radius: 8px !important;
+  }
+  .home-screen .post-image-frame img,
+  .home-screen .post-video-frame video {
+    width: 100%;
+    max-width: 100%;
+  }
+  .home-screen .match-card-prediction,
+  .home-screen .match-card .secondaryText,
+  .home-screen .match-card .channelName,
+  .home-screen .match-card .leagueName,
+  .home-screen .post-card .authorName,
+  .home-screen .post-card .post-caption {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
