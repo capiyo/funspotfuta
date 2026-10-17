@@ -171,6 +171,8 @@ export function memberAccuracyLabel(m: ChannelMember): string {
 // ============================================================================
 
 export interface Channel {
+    /** Compatibility alias used by existing mobile screens; mirrors channelId. */
+    id?: string;
     channelId: string;
     name: string;
     memberCount: number;
@@ -198,8 +200,10 @@ export function channelFromJson(json: Record<string, any>): Channel {
         const hasAdmin = members.some(memberIsAdmin);
         const joinedAt = asDateTime(json.joinedAt ?? json.joined_at);
 
+        const channelId = asString(json.channel_id ?? json.channelId);
         return {
-            channelId: asString(json.channel_id ?? json.channelId),
+            id: asString(json.id ?? json.channel_id ?? json.channelId, channelId),
+            channelId,
             name: asString(json.name ?? json.channelName, 'Unknown Channel'),
             memberCount: asInt(json.member_count ?? json.memberCount),
             season: asString(json.season),
@@ -215,8 +219,10 @@ export function channelFromJson(json: Record<string, any>): Channel {
         };
     } catch (e) {
         console.warn('⚠️ channelFromJson failed, returning safe fallback:', e, json);
+        const channelId = asString(json.channel_id ?? json.channelId);
         return {
-            channelId: asString(json.channel_id ?? json.channelId),
+            id: channelId,
+            channelId,
             name: 'Unknown Channel',
             memberCount: 0,
             season: '',
@@ -288,6 +294,7 @@ export function getMember(c: Channel, userId: string): ChannelMember | undefined
 // used in _getChannelName and PendingRequestsModal.
 export function emptyChannel(): Channel {
     return {
+        id: '',
         channelId: '',
         name: 'Unknown',
         memberCount: 0,

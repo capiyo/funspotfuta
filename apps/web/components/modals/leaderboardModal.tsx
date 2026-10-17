@@ -564,7 +564,7 @@ export default function LeaderboardModal({
 }: { visible: boolean; onClose: () => void; fixture?: Fixture | null; channelId?: string; channelName?: string }) {
     // Remount on open so the tab resets to LEADERBOARD, same as RN.
     if (!visible) return null;
-    return (/
+    return (
         <Sheet onClose={onClose}>
             <LeaderboardPanel {...rest} onClose={onClose} />
         </Sheet>

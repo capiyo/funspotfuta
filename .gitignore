@@ -28,18 +28,11 @@ expo-env.d.ts
 # Metro
 .metro-health-check*
 
-# === Next.js (apps/web) ===
-apps/web/.next/
-apps/web/out/
-.next/
-out/
-
 # === Turborepo ===
 .turbo/
 
 # === TypeScript build info ===
 *.tsbuildinfo
-next-env.d.ts
 
 # === Build outputs ===
 build/
