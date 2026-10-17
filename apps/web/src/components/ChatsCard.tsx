@@ -248,7 +248,7 @@ export function MatchCard({
       position: 'relative',
       zIndex: 1,
       pointerEvents: 'none',
-      padding: '8px 12px 0',
+      padding: '6px 10px 0',
     },
     lineRow: {
       display: 'flex',
@@ -263,8 +263,8 @@ export function MatchCard({
       alignItems: 'center',
       justifyContent: 'space-between',
       gap: FAN_SPACING.sm,
-      marginBottom: 10,
-      minHeight: 24,
+      marginBottom: 3,
+      minHeight: 18,
       position: 'relative',
       zIndex: 2,
     },
@@ -272,13 +272,13 @@ export function MatchCard({
       display: 'flex',
       flexDirection: 'row',
       alignItems: 'center',
-      gap: FAN_SPACING.sm,
+      gap: 5,
       flex: 1,
       minWidth: 0,
     },
     channelAvatar: {
-      width: 24,
-      height: 24,
+      width: 18,
+      height: 18,
       borderRadius: 0,
       border: 0,
       background: colors.background,
@@ -295,29 +295,33 @@ export function MatchCard({
     },
     channelName: {
       ...fanText('competition', colors, colors.textPrimary),
-      fontWeight: 'normal',
+      fontSize: 13,
+      fontWeight: 600,
       overflow: 'hidden',
       textOverflow: 'ellipsis',
       whiteSpace: 'nowrap',
     },
     leagueName: {
       ...fanText('competition', colors, colors.textPrimary),
+      fontSize: 11,
       flex: 1,
       minWidth: 0,
       overflow: 'hidden',
       textOverflow: 'ellipsis',
       whiteSpace: 'nowrap',
     },
-    date: fanText('tag', colors, colors.textTertiary),
+    date: { ...fanText('tag', colors, colors.textTertiary), fontSize: 11, lineHeight: 1.25 },
     secondaryRow: {
       display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: FAN_SPACING.sm,
-      width: '100%', padding: 0, marginBottom: 8, textAlign: 'left', background: colors.background,
-      color: colors.textSecondary, cursor: 'pointer', fontSize: 12,
+      width: '100%', padding: 0, marginBottom: 3, textAlign: 'left', background: colors.background,
+      color: colors.textSecondary, cursor: 'pointer', fontSize: 11, lineHeight: 1.25,
     },
     secondaryText: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
     previewRow: { marginBottom: 0 },
     previewText: {
       ...fanText('caption', colors, COMMENT_STYLE_COLOR(colors)),
+      fontSize: 12,
+      lineHeight: 1.25,
       flex: 1,
       minWidth: 0,
       overflow: 'hidden',
@@ -325,16 +329,16 @@ export function MatchCard({
       whiteSpace: 'nowrap',
     },
     minute: fanText('tag', colors, colors.textTertiary),
-    resultRow: { marginTop: 8 },
+    resultRow: { marginTop: 3 },
     resultText: fanText('caption', colors, COMMENT_STYLE_COLOR(colors)),
-    stackRow: { marginTop: 10 },
+    stackRow: { marginTop: 3 },
     bottomRow: {
       display: 'flex',
       flexDirection: 'row',
       alignItems: 'center',
-      gap: FAN_SPACING.sm,
-      marginTop: 8,
-      padding: '0 12px 8px',
+      gap: 5,
+      marginTop: 3,
+      padding: '0 10px 6px',
       position: 'relative',
       zIndex: 2,
     },
@@ -342,7 +346,7 @@ export function MatchCard({
       display: 'flex',
       flexDirection: 'row',
       alignItems: 'center',
-      gap: FAN_SPACING.base,
+      gap: 5,
     },
     inputCell: {
       flex: 1,
@@ -354,6 +358,8 @@ export function MatchCard({
     },
     guestCommentPrompt: {
       ...fanText('caption', colors, colors.textTertiary),
+      fontSize: 11,
+      lineHeight: 1.25,
       flex: 1,
       minWidth: 0,
       padding: 0,
@@ -371,7 +377,7 @@ export function MatchCard({
 
   return (
     <FeedItem colors={colors}>
-      <div className="match-card" style={styles.card}>
+      <div className="match-card" style={{ ...styles.card, lineHeight: 1.25 }}>
         {/* Layer 1 — invisible full-card tap target -> Chat */}
         <button
           type="button"
