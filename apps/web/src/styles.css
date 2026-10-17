@@ -1489,3 +1489,12 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
     margin-right: 12px !important;
   }
 }
+
+
+/* Desktop header aligns its first brand edge with the profile sidebar content. */
+@media (min-width: 651px) {
+  .home-screen .navbar {
+    padding-left: 16px !important;
+    padding-right: 12px !important;
+  }
+}
