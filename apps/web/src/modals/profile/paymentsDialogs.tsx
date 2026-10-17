@@ -265,7 +265,7 @@ export function DepositDialog({
                 style={styles.backdrop}
                 onClick={processing ? undefined : onClose}
             >
-                <button type="button" style={styles.dialog} onClick={(e: any) => e.stopPropagation()}>
+                <button type="button" style={styles.dialog} onClick={(e: React.MouseEvent<HTMLButtonElement>) => e.stopPropagation()}>
                     <div style={styles.dialogHeader}>
                         <Plus size={18} color={colors.primary} />
                         <span style={{ ...Object.assign({}, styles.dialogTitle, { color: colors.textPrimary }) }}>
@@ -619,7 +619,7 @@ export function WithdrawDialog({
 //  STYLES
 // ═══════════════════════════════════════════════════════════════
 
-function createStyles(colors: FanColors) {
+function createStyles(colors: FanColors): Record<string, CSSProperties> {
     return {
         backdrop: {
             flex: 1,
@@ -649,8 +649,8 @@ function createStyles(colors: FanColors) {
             flexDirection: 'row',
             alignItems: 'center',
             gap: FAN_SPACING.md,
-            paddingHorizontal: FAN_SPACING.base,
-            paddingVertical: FAN_SPACING.md,
+            paddingInline: FAN_SPACING.base,
+            paddingBlock: FAN_SPACING.md,
             backgroundColor: colors.surfaceSunken,
             borderRadius: FAN_RADIUS.md,
             marginBottom: FAN_SPACING.base,
@@ -661,8 +661,8 @@ function createStyles(colors: FanColors) {
         input: {
             borderWidth: 1,
             borderRadius: FAN_RADIUS.md,
-            paddingHorizontal: FAN_SPACING.base,
-            paddingVertical: FAN_SPACING.md,
+            paddingInline: FAN_SPACING.base,
+            paddingBlock: FAN_SPACING.md,
             fontSize: 13,
             marginBottom: FAN_SPACING.md,
         },

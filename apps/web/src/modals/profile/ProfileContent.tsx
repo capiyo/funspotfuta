@@ -1055,7 +1055,7 @@ export default function ProfileContent({
 //  STYLES
 // ═══════════════════════════════════════════════════════════════
 
-function createStyles(colors: FanColors) {
+function createStyles(colors: FanColors): Record<string, CSSProperties> {
   return {
     backdrop: {
       flex: 1,
@@ -1080,9 +1080,9 @@ function createStyles(colors: FanColors) {
     statCard: { flex: 1, minWidth: 0, borderRadius: FAN_RADIUS.md, padding: FAN_SPACING.md },
     statLabel: { fontSize: 10, marginBottom: 3 },
     statValue: { fontSize: 15, fontWeight: '700' },
-    viewProfileBtn: { paddingHorizontal: FAN_SPACING.sm, paddingVertical: FAN_SPACING.xs },
+    viewProfileBtn: { paddingInline: FAN_SPACING.sm, paddingBlock: FAN_SPACING.xs },
     viewProfileText: { fontSize: 12, fontWeight: '700' },
-    channelsSection: { paddingHorizontal: FAN_SPACING.lg, paddingTop: FAN_SPACING.md, paddingBottom: FAN_SPACING.md },
+    channelsSection: { paddingInline: FAN_SPACING.lg, paddingTop: FAN_SPACING.md, paddingBottom: FAN_SPACING.md },
     sectionHeading: { fontSize: 11, fontWeight: '800', letterSpacing: 1.5, marginBottom: FAN_SPACING.sm },
     channelRow: { flexDirection: 'row', alignItems: 'center', gap: FAN_SPACING.md, borderWidth: 1, borderRadius: FAN_RADIUS.md, padding: FAN_SPACING.md, marginBottom: FAN_SPACING.sm },
     channelAvatarSmall: { width: 30, height: 30, borderRadius: FAN_RADIUS.md, alignItems: 'center', justifyContent: 'center' },
@@ -1106,8 +1106,8 @@ function createStyles(colors: FanColors) {
     headerRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      paddingHorizontal: FAN_SPACING.lg,
-      paddingVertical: FAN_SPACING.md,
+      paddingInline: FAN_SPACING.lg,
+      paddingBlock: FAN_SPACING.md,
     },
     backBtn: {
       width: 28,
@@ -1140,11 +1140,11 @@ function createStyles(colors: FanColors) {
 
     scroll: { flexGrow: 0 },
     scrollContent: {
-      paddingHorizontal: FAN_SPACING.lg,
+      paddingInline: FAN_SPACING.lg,
       paddingBottom: FAN_SPACING.lg,
     },
     center: {
-      paddingVertical: 60,
+      paddingBlock: 60,
       alignItems: 'center',
       justifyContent: 'center',
     },
@@ -1173,8 +1173,8 @@ function createStyles(colors: FanColors) {
       flexDirection: 'row',
       alignItems: 'center',
       gap: 3,
-      paddingHorizontal: FAN_SPACING.md,
-      paddingVertical: FAN_SPACING.sm,
+      paddingInline: FAN_SPACING.md,
+      paddingBlock: FAN_SPACING.sm,
       borderRadius: FAN_RADIUS.pill,
     },
     actionChipText: { fontSize: 9, fontWeight: '600' },
@@ -1189,8 +1189,8 @@ function createStyles(colors: FanColors) {
       flexDirection: 'row',
       alignItems: 'center',
       gap: FAN_SPACING.md,
-      paddingHorizontal: FAN_SPACING.base,
-      paddingVertical: FAN_SPACING.md,
+      paddingInline: FAN_SPACING.base,
+      paddingBlock: FAN_SPACING.md,
       borderRadius: FAN_RADIUS.md,
     },
     infoLabel: { fontSize: 9 },
@@ -1204,7 +1204,7 @@ function createStyles(colors: FanColors) {
       alignItems: 'center',
       justifyContent: 'center',
       gap: FAN_SPACING.sm,
-      paddingVertical: FAN_SPACING.md,
+      paddingBlock: FAN_SPACING.md,
       borderRadius: FAN_RADIUS.md,
     },
     actionBtnText: { fontSize: 10, fontWeight: '600' },
@@ -1240,19 +1240,19 @@ function createStyles(colors: FanColors) {
       flexDirection: 'row',
       alignItems: 'center',
       gap: FAN_SPACING.md,
-      paddingHorizontal: FAN_SPACING.md,
-      paddingVertical: FAN_SPACING.sm,
+      paddingInline: FAN_SPACING.md,
+      paddingBlock: FAN_SPACING.sm,
       borderRadius: FAN_RADIUS.md,
       borderWidth: 0.5,
     },
-    fieldInput: { flex: 1, fontSize: 12, paddingVertical: 4 },
+    fieldInput: { flex: 1, fontSize: 12, paddingBlock: 4 },
 
     // Leaderboard section
     leaderboardSection: {
       borderTopWidth: 0.5,
       borderTopColor: colors.border,
-      paddingHorizontal: FAN_SPACING.md,
-      paddingVertical: FAN_SPACING.md,
+      paddingInline: FAN_SPACING.md,
+      paddingBlock: FAN_SPACING.md,
       maxHeight: 340,
     },
   };

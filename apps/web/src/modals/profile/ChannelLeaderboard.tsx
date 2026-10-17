@@ -393,7 +393,7 @@ export function ChannelLeaderboard({
 //  STYLES
 // ═══════════════════════════════════════════════════════════════
 
-function createStyles(colors: FanColors) {
+function createStyles(colors: FanColors): Record<string, CSSProperties> {
     return {
         wrap: { flex: 1 },
 
@@ -409,14 +409,14 @@ function createStyles(colors: FanColors) {
         // Tab bar
         tabBar: {
             flexDirection: 'row',
-            marginHorizontal: FAN_SPACING.md,
+            marginInline: FAN_SPACING.md,
             padding: 2,
             borderRadius: FAN_RADIUS.md,
             borderWidth: 0.5,
         },
         tab: {
             flex: 1,
-            paddingVertical: 5,
+            paddingBlock: 5,
             alignItems: 'center',
             borderRadius: FAN_RADIUS.sm,
         },
@@ -427,10 +427,10 @@ function createStyles(colors: FanColors) {
             flexDirection: 'row',
             alignItems: 'center',
             gap: FAN_SPACING.md,
-            marginHorizontal: FAN_SPACING.xs,
+            marginInline: FAN_SPACING.xs,
             marginTop: FAN_SPACING.sm,
-            paddingHorizontal: FAN_SPACING.md,
-            paddingVertical: FAN_SPACING.md,
+            paddingInline: FAN_SPACING.md,
+            paddingBlock: FAN_SPACING.md,
             borderRadius: FAN_RADIUS.md,
             borderWidth: 0.5,
         },
@@ -459,14 +459,14 @@ function createStyles(colors: FanColors) {
             alignItems: 'center',
             gap: 2,
             marginLeft: FAN_SPACING.sm,
-            paddingHorizontal: 4,
-            paddingVertical: 1,
+            paddingInline: 4,
+            paddingBlock: 1,
             borderRadius: FAN_RADIUS.sm,
         },
         adminPillText: { fontSize: 7, fontWeight: '600' },
 
         // Members
-        membersList: { paddingVertical: FAN_SPACING.md },
+        membersList: { paddingBlock: FAN_SPACING.md },
         memberCard: {
             backgroundColor: 'transparent',
             borderRadius: 0,
@@ -503,8 +503,8 @@ function createStyles(colors: FanColors) {
         },
         memberName: { fontSize: 12, fontWeight: '700', flexShrink: 1 },
         youPill: {
-            paddingHorizontal: 4,
-            paddingVertical: 1,
+            paddingInline: 4,
+            paddingBlock: 1,
             borderRadius: FAN_RADIUS.sm,
         },
         youPillText: { fontSize: 7, fontWeight: '600' },
@@ -513,7 +513,7 @@ function createStyles(colors: FanColors) {
         statRow: {
             flexDirection: 'row',
             alignItems: 'center',
-            paddingVertical: 1.5,
+            paddingBlock: 1.5,
         },
         statLabel: { width: 60, fontSize: 9 },
         statValue: { fontSize: 10, fontWeight: '600' },
@@ -527,8 +527,8 @@ function createStyles(colors: FanColors) {
             marginTop: FAN_SPACING.sm,
         },
         rankPill: {
-            paddingHorizontal: 6,
-            paddingVertical: 2,
+            paddingInline: 6,
+            paddingBlock: 2,
             borderRadius: FAN_RADIUS.md,
         },
         rankPillText: { fontSize: 9, fontWeight: '700' },
