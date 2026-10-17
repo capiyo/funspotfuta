@@ -1482,3 +1482,10 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
   }
 }
 
+
+@media (min-width: 651px) {
+  .home-screen .home-columns {
+    margin-left: 8px !important;
+    margin-right: 12px !important;
+  }
+}
