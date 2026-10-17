@@ -12,7 +12,7 @@
 // success only.
 
 import { useEffect, useState } from 'react';
-import type { CSSProperties, ReactNode } from 'react';
+import type { CSSProperties, MouseEvent, ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import {
     CheckCircle2,
@@ -265,7 +265,7 @@ export function DepositDialog({
                 style={styles.backdrop}
                 onClick={processing ? undefined : onClose}
             >
-                <button type="button" style={styles.dialog} onClick={(e: React.MouseEvent<HTMLButtonElement>) => e.stopPropagation()}>
+                <button type="button" style={styles.dialog} onClick={(e: MouseEvent<HTMLButtonElement>) => e.stopPropagation()}>
                     <div style={styles.dialogHeader}>
                         <Plus size={18} color={colors.primary} />
                         <span style={{ ...Object.assign({}, styles.dialogTitle, { color: colors.textPrimary }) }}>
