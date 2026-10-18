@@ -864,7 +864,8 @@ export default function ProfileContent({
       ],
     },
   ] as unknown as Channel[];
-  const visibleChannels = isLoggedIn ? channels : guestChannels;
+  const visibleChannels = isLoggedIn && channels.length > 0 ? channels.slice(0, 3) : guestChannels;
+  const isPreviewChannels = !isLoggedIn || channels.length === 0;
   const visibleProfile = isLoggedIn ? profile : guestProfile;
   const openLogin = () => {
     onClose();
@@ -966,7 +967,7 @@ export default function ProfileContent({
                   <div className="profile-guest-channels-heading">
                     <strong>Channels (preview)</strong><span>{visibleChannels.length}</span>
                   </div>
-                  <ChannelLeaderboard channels={visibleChannels} currentUserId="guest_fan" onViewMember={() => undefined} />
+                  <ChannelLeaderboard channels={visibleChannels} currentUserId={isLoggedIn ? (userId ?? '') : 'guest_fan'} onViewMember={isLoggedIn ? handleViewMember : () => undefined} />
                 </div>
               ) : loading ? (
                 <div style={styles.center}>
@@ -1028,7 +1029,7 @@ export default function ProfileContent({
             {isLoggedIn && channels.length > 0 && isCurrentUser && (
               <div style={styles.leaderboardSection}>
                 <ChannelLeaderboard
-                  channels={channels}
+                  channels={channels.slice(0, 3)}
                   currentUserId={userId ?? ''}
                   onViewMember={handleViewMember}
                 />
