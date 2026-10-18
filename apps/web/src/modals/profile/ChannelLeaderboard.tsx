@@ -284,7 +284,7 @@ export function ChannelLeaderboard({
         <div style={styles.wrap}>
             {/* Tab bar */}
             <div
-                style={rn({ ...Object.assign({}, 
+                className="profile-channel-tabbar" style={rn({ ...Object.assign({}, 
                     styles.tabBar,
                     {
                         backgroundColor: colors.surfaceSunken,
@@ -304,6 +304,7 @@ export function ChannelLeaderboard({
                             role="tab"
                             aria-selected={isActive}
                             tabIndex={isActive ? 0 : -1}
+                            onKeyDown={(event) => { if (event.key === "ArrowLeft" || event.key === "ArrowRight") { event.preventDefault(); selectTab(activeTab + (event.key === "ArrowRight" ? 1 : -1)); } }}
                             onClick={() => { if (suppressClickRef.current) { suppressClickRef.current = false; return; } selectTab(idx); }}
                             style={rn({ ...Object.assign({}, 
                                 styles.tab,
