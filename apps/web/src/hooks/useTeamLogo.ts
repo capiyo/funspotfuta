@@ -117,8 +117,20 @@ export function useTeamLogo(teamName: string, fixture: Record<string, unknown>, 
   const direct = fixtureLogo(fixture, side);
   const key = normalise(teamName);
   const [url, setUrl] = useState<string | null>(() => direct ?? (key ? getCached(key) ?? null : null));
+  const [desktop, setDesktop] = useState(() => typeof window !== 'undefined' && window.matchMedia('(min-width: 651px)').matches);
 
   useEffect(() => {
+    const media = window.matchMedia('(min-width: 651px)');
+    const update = () => setDesktop(media.matches);
+    media.addEventListener('change', update);
+    return () => media.removeEventListener('change', update);
+  }, []);
+
+  useEffect(() => {
+    if (!desktop) {
+      setUrl(direct ?? null);
+      return;
+    }
     if (direct) {
       setUrl(direct);
       return;
@@ -138,7 +150,7 @@ export function useTeamLogo(teamName: string, fixture: Record<string, unknown>, 
       if (active) setUrl(value);
     });
     return () => { active = false; };
-  }, [direct, key, teamName]);
+  }, [desktop, direct, key, teamName]);
 
   return url;
 }
