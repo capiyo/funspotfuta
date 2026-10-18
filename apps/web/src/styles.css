@@ -1500,3 +1500,27 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
 }
 
 .profile-channel-track{display:flex;flex-direction:row;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-ms-overflow-style:none;min-width:0;overscroll-behavior-x:contain;touch-action:pan-x;cursor:grab}.profile-channel-track::-webkit-scrollbar{display:none}.profile-channel-track:active{cursor:grabbing}.profile-channel-panel{flex:0 0 100%;width:100%;min-width:0;scroll-snap-align:start;box-sizing:border-box}.profile-channel-panel>*{min-width:0;max-width:100%;box-sizing:border-box}
+
+
+/* Desktop Home header: align the logo with the sidebar's 12px inner inset. */
+@media (min-width: 651px) {
+  .home-screen .desktop-home-header > div {
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .home-screen .desktop-home-header nav {
+    max-width: min(62vw, 900px);
+    min-width: 0;
+  }
+  .home-screen .desktop-home-header nav > div {
+    gap: 16px;
+    scrollbar-width: none;
+  }
+  .home-screen .desktop-home-header nav > div::-webkit-scrollbar {
+    display: none;
+  }
+}
