@@ -2397,3 +2397,10 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
     color: var(--primary) !important;
   }
 }
+
+
+@media (min-width: 651px) {
+  .home-screen .desktop-home-header.home-has-scrolled {
+    box-shadow: 0 1px 0 var(--home-border) !important;
+  }
+}
