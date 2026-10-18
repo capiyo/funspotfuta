@@ -57,7 +57,10 @@ async function inspectDesktop(width) {
   await page.goto(baseURL, { waitUntil: 'domcontentloaded' });
   await page.waitForSelector('.match-card', { timeout: 45000 });
   await page.waitForFunction(() => document.querySelectorAll('.match-card').length >= 6, null, { timeout: 45000 });
-  await page.waitForTimeout(500);
+  await page.waitForFunction(() => {
+    try { return Object.keys(JSON.parse(localStorage.getItem('funspot.teamLogos.v1') ?? '{}')).length >= 4; }
+    catch { return false; }
+  }, null, { timeout: 30000 });
   const cards = page.locator('.match-card');
   const cardCount = await cards.count();
   assert(cardCount >= 6, `Expected 6 cards at ${width}px; got ${cardCount}`);
