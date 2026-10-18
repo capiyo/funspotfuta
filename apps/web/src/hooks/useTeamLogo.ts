@@ -101,9 +101,9 @@ function setNull(key: string): null {
 function fixtureLogo(fixture: Record<string, unknown>, side: 'home' | 'away'): string | null {
   const cap = side === 'home' ? 'Home' : 'Away';
   const names = [
-    `${side}Logo`, `${side}TeamLogo`, `${side}_logo`, `${side}_team_logo`,
-    `${side}Crest`, `${side}TeamCrest`, `${side}_crest`, `${side}_team_crest`,
-    `${side}Badge`, `${side}TeamBadge`, `${side}_badge`, `${side}_team_badge`,
+    `${side}Logo`, `${side}TeamLogo`, `${side}LogoUrl`, `${side}TeamLogoUrl`, `${side}_logo`, `${side}_team_logo`, `${side}_logo_url`, `${side}_team_logo_url`,
+    `${side}Crest`, `${side}TeamCrest`, `${side}CrestUrl`, `${side}TeamCrestUrl`, `${side}_crest`, `${side}_team_crest`, `${side}_crest_url`, `${side}_team_crest_url`,
+    `${side}Badge`, `${side}TeamBadge`, `${side}BadgeUrl`, `${side}TeamBadgeUrl`, `${side}_badge`, `${side}_team_badge`, `${side}_badge_url`, `${side}_team_badge_url`,
     `${side}TeamImage`, `${side}_team_image`, `${cap}TeamLogo`,
   ];
   for (const name of names) {
