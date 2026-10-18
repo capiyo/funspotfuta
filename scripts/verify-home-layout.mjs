@@ -9,6 +9,7 @@ fs.mkdirSync(outDir, { recursive: true });
 const widths = [1024, 1280, 1440, 1920];
 const baselinePath = path.resolve('scripts/home-layout-baseline-390.json');
 const baseline = fs.existsSync(baselinePath) ? JSON.parse(fs.readFileSync(baselinePath, 'utf8')) : null;
+const recordBaseline = process.argv.includes('--record-baseline');
 
 const fixtures = {
   games: Array.from({ length: 6 }, (_, i) => ({
@@ -116,17 +117,17 @@ try {
   const narrow = await metrics(390);
   assert(narrow.cardCount >= 1, 'No Chats cards at 390px');
   assert(narrow.documentWidth <= narrow.viewportWidth, 'Document horizontal overflow at 390px');
-  if (!baseline) {
-    console.error('390px baseline comparison NOT VERIFIED: scripts/home-layout-baseline-390.json is missing. Run this script on the parent commit with --record-baseline before comparing.');
+  const narrowMetrics = { cardHeights: narrow.cardHeights, rowGaps: narrow.rowGaps };
+  if (recordBaseline) {
+    fs.writeFileSync(baselinePath, JSON.stringify(narrowMetrics, null, 2) + '\\n');
+    console.log('Recorded 390px baseline:', JSON.stringify(narrowMetrics));
+  } else if (!baseline) {
+    console.error('390px baseline comparison NOT VERIFIED: scripts/home-layout-baseline-390.json is missing. Check out the parent commit and run this script with --record-baseline, then restore the target commit and rerun.');
+    process.exitCode = 2;
   } else {
-    assert.deepEqual(
-      { cardHeights: narrow.cardHeights, rowGaps: narrow.rowGaps },
-      baseline,
-      'Narrow 390px card heights or row gaps differ from parent-commit baseline',
-    );
+    assert.deepEqual(narrowMetrics, baseline, 'Narrow 390px card heights or row gaps differ from parent-commit baseline');
   }
-  console.log(JSON.stringify({ desktop: results, narrow390: narrow, narrowBaselineCompared: !!baseline }, null, 2));
-  if (!baseline) process.exitCode = 2;
+  console.log(JSON.stringify({ desktop: results, narrow390: narrow, narrowBaselineCompared: !recordBaseline && !!baseline }, null, 2));
 } finally {
   await browser.close();
 }
