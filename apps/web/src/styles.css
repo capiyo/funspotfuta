@@ -1847,3 +1847,5 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
   .match-card-poke:hover .match-card-poke-circle { filter: brightness(1.15); }
   .match-card-poke:focus-visible { outline: 2px solid var(--match-primary); outline-offset: 2px; }
 }
+
+@media (min-width: 651px) { .match-card-legacy-stack { display: none !important; } }
