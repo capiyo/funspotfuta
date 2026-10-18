@@ -194,7 +194,7 @@ function MemberCard({
                             style={{ ...Object.assign({}, 
                                 styles.rankPill,
                                 { backgroundColor: hexWithAlpha(accent, 0.15) },
-                            ) }}
+                            ) })}
                         >
                             <span style={{ ...Object.assign({}, styles.rankPillText, { color: accent }) }}>
                                 {rankBadge(rank)}
@@ -290,7 +290,7 @@ export function ChannelLeaderboard({
                         backgroundColor: colors.surfaceSunken,
                         borderColor: colors.border,
                     },
-                ) }}
+                ) })}
             >
                 {visibleChannels.map((channel, idx) => {
                     const isActive = idx === activeTab;
@@ -320,7 +320,7 @@ export function ChannelLeaderboard({
                                             : colors.textTertiary,
                                         fontWeight: isActive ? '700' : '400',
                                     },
-                                ) }}
+                                ) })}
                                 className="profile-ellipsis"
                             >
                                 {label}
