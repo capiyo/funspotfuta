@@ -2056,7 +2056,7 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
     padding: 0 !important;
   }
 
-  .home-screen .chats-column .chats-fixture-list > div:has(> .segmented-control) {
+  .home-screen .chats-column .chats-fixture-list > div:first-child > div {
     position: sticky;
     top: 0;
     z-index: 5;
@@ -2273,3 +2273,39 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
   }
 }
 
+
+
+@media (min-width: 651px) {
+  .home-screen .desktop-home-header .desktop-channel-avatar {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 20px !important;
+    height: 20px !important;
+    flex: 0 0 20px !important;
+    overflow: hidden;
+    border-radius: 50% !important;
+    background: var(--primary-dim) !important;
+    color: var(--primary) !important;
+    font-size: 10px !important;
+    font-weight: 600 !important;
+    line-height: 1 !important;
+  }
+
+  .home-screen .chats-column .chats-fixture-list > div:first-child > div {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 5 !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: var(--bg) !important;
+  }
+
+  .home-screen .chats-column .segmented-control > button[aria-pressed="true"]::after,
+  .home-screen .chats-column .segmented-control > button[aria-selected="true"]::after,
+  .home-screen .chats-column .segmented-control > button[data-state="active"]::after {
+    background: var(--primary) !important;
+  }
+}
