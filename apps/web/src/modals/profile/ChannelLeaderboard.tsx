@@ -10,7 +10,7 @@
 // `members: ChannelMember[]` explicitly via the `Channel` re-export that
 // types/channel.ts provides.
 
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 import { Star, Users, Crown, Award } from 'lucide-react';
 import {
@@ -242,6 +242,20 @@ export function ChannelLeaderboard({
     const colors = useFanColors();
     const styles = createStyles(colors);
     const [activeTab, setActiveTab] = useState(0);
+    const trackRef = useRef<HTMLDivElement>(null);
+    const dragRef = useRef<{ pointerId: number; startX: number; startScrollLeft: number; moved: boolean } | null>(null);
+    const suppressClickRef = useRef(false);
+    const selectTab = (index: number) => {
+        const next = Math.max(0, Math.min(index, visibleChannels.length - 1));
+        setActiveTab(next);
+        if (trackRef.current) trackRef.current.scrollTo({ left: next * trackRef.current.clientWidth, behavior: 'smooth' });
+    };
+    const handleTrackScroll = () => {
+        const track = trackRef.current;
+        if (!track || !track.clientWidth) return;
+        const next = Math.max(0, Math.min(Math.round(track.scrollLeft / track.clientWidth), visibleChannels.length - 1));
+        setActiveTab(current => current === next ? current : next);
+    };
 
     // Cap at 3 tabs — matches the Flutter source's
     // `_userChannels.length.clamp(0, 3)`.
@@ -288,7 +302,10 @@ export function ChannelLeaderboard({
                     return (
                         <button type="button"
                             key={channel.channelId || idx}
-                            onClick={() => setActiveTab(idx)}
+                            role="tab"
+                            aria-selected={isActive}
+                            tabIndex={isActive ? 0 : -1}
+                            onClick={() => { if (suppressClickRef.current) { suppressClickRef.current = false; return; } selectTab(idx); }}
                             style={{ ...Object.assign({}, 
                                 styles.tab,
                                 isActive && { backgroundColor: colors.surface },
