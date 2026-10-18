@@ -24,6 +24,8 @@ import { useFanColors } from '@/theme/use-fan-colors';
 
 type FanColors = ReturnType<typeof useFanColors>;
 
+function hexWithAlpha(hex: string, alpha: number): string { const c = hex.replace('#', ''); if (c.length !== 6) return hex; const r = parseInt(c.substring(0, 2), 16); const g = parseInt(c.substring(2, 4), 16); const b = parseInt(c.substring(4, 6), 16); return `rgba(${r}, ${g}, ${b}, ${alpha})`; }
+
 const rn = (s: CSSProperties): CSSProperties => ({
     ...(('flexDirection' in s || 'alignItems' in s || 'justifyContent' in s || 'gap' in s) && !s.display ? { display: 'flex' } : {}),
     ...(s.display === 'flex' && !s.flexDirection ? { flexDirection: 'column' } : {}),
@@ -191,29 +193,17 @@ function MemberCard({
                     {/* Rank badge + progress bar */}
                     <div style={styles.footerRow}>
                         <div
-                            style={{ ...Object.assign({}, 
-                                styles.rankPill,
-                                { backgroundColor: hexWithAlpha(accent, 0.15) },
-                            ) })}
+                            style={rn({ ...Object.assign({}, styles.rankPill, { backgroundColor: hexWithAlpha(accent, 0.15) }) })}
                         >
                             <span style={{ ...Object.assign({}, styles.rankPillText, { color: accent }) }}>
                                 {rankBadge(rank)}
                             </span>
                         </div>
                         <div
-                            style={{ ...Object.assign({}, 
-                                styles.progressTrack,
-                                { backgroundColor: hexWithAlpha(colors.border, 0.3) },
-                            ) }}
+                            style={rn({ ...Object.assign({}, styles.progressTrack, { backgroundColor: hexWithAlpha(colors.border, 0.3) }) })}
                         >
                             <div
-                                style={{ ...Object.assign({}, 
-                                    styles.progressFill,
-                                    {
-                                        width: `${pointsFraction * 100}%`,
-                                        backgroundColor: accent,
-                                    },
-                                ) }}
+                                style={rn({ ...Object.assign({}, styles.progressFill, { width: `${pointsFraction * 100}%`, backgroundColor: accent }) })}
                             />
                         </div>
                     </div>
