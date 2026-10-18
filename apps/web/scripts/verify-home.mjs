@@ -55,7 +55,7 @@ try {
   async function inspect(width) {
     await page.setViewportSize({ width, height: 1000 });
     await page.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 45000 });
-    await page.waitForSelector('.home-screen .profile-sidebar-rich', { timeout: 45000 });
+    await page.waitForSelector('.home-screen .profile-sidebar-rich', { state: 'attached', timeout: 45000 });
     await page.waitForTimeout(1000);
     if (width >= 651) {
       await page.waitForSelector('.home-screen .match-card', { timeout: 45000 });
