@@ -85,3 +85,9 @@
 - Profile leaderboard member rows use a bottom-only green-tinted border; no surrounding card border or rounded corners.
 - The profile content still imports the web native-compat adapter. A true pure-React/DOM conversion of the profile, leaderboard, and payment dialogs remains outstanding and must preserve the existing API/auth/payment behavior.
 - Guest presentation must be keyed to the absence of an authenticated user, rather than treating a missing profile for an authenticated user as the guest state. This behavior still requires implementation and verification.
+
+
+## Desktop Chats card rhythm verification (2026-10-18)
+- Desktop-only (min-width: 651px) Chats cards use 14px top/left/right inset, 12px bottom inset, 28px header row, 4px league offset, 10px comment offset, and 12px action-row offset. Card-to-card spacing is 8px.
+- Desktop columns use minmax(0, clamp(440px, 30vw, 560px)) minmax(0, 1fr) with a 5px gap; Feed cards cap at 840px and align to the left of the Feed column. Chats cards and the filter row fill the Chats column.
+- scripts/verify-home-layout.mjs measures desktop card heights, row geometry, column/filter edges, horizontal overflow, and screenshots at 1024/1280/1440/1920px. It also supports recording/comparing the 390px baseline. Browser execution and the parent-commit baseline comparison must be run in an environment with Playwright/Chromium and the app's fixture routes available.
