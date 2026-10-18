@@ -481,7 +481,7 @@ export function MatchCard({
           ) : null}
 
           {/* Voter stack */}
-          {(voters.length > 0 || isCompleted) && <div style={styles.stackRow}>
+          {(voters.length > 0 || isCompleted) && <div className="match-card-legacy-stack" style={styles.stackRow}>
             <VoterList
               colors={colors}
               voters={voterItems}
