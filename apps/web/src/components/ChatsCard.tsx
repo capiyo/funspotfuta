@@ -388,7 +388,7 @@ export function MatchCard({
         />
 
         {/* Layer 2 — content */}
-        <div style={styles.content}>
+        <div className="match-card-content" style={styles.content}>
           {/* Meta: league or channel on the left, date / live on the right */}
           <div style={styles.metaRow}>
             {channel ? (
@@ -486,8 +486,8 @@ export function MatchCard({
         </div>
 
         {/* One line: actions, comment box, teams + score */}
-        <div style={styles.bottomRow}>
-          <div style={styles.actions}>
+        <div className="match-card-bottom" style={styles.bottomRow}>
+          <div className="match-card-actions" style={styles.actions}>
             <ActionButton
               icon={Vote}
               label={isCompleted ? 'Results' : 'Vote'}
