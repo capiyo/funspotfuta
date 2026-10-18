@@ -115,16 +115,17 @@ async function inspectDesktop(width) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth || document.body.scrollWidth > document.body.clientWidth);
   assert(!overflow, `Horizontal page overflow at ${width}px`);
   await page.screenshot({ path: `docs/verify/chats-card-${width}.png`, fullPage: true });
+  const intervals = requestTimes.slice(1).map((time, i) => time - requestTimes[i]);
+  assert(intervals.every(ms => ms >= 1000), `TheSportsDB request spacing below 1 second at ${width}px: ${intervals.join(', ')}`);
+  for (const [team, count] of teamRequests) assert(count === 1, `Repeated team ${team} requested ${count} times at ${width}px`);
+  requestTimes.length = 0;
+  teamRequests.clear();
   await context.close();
 }
 
 try {
   await inspectDesktop(1280);
   await inspectDesktop(1920);
-  const intervals = requestTimes.slice(1).map((time, i) => time - requestTimes[i]);
-  assert(intervals.every(ms => ms >= 1000), `TheSportsDB request spacing below 1 second: ${intervals.join(', ')}`);
-  for (const [team, count] of teamRequests) assert(count === 1, `Repeated team ${team} requested ${count} times`);
-
   const mobileContext = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
   const mobile = await mobileContext.newPage();
   await installMocks(mobile);
