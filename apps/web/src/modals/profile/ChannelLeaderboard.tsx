@@ -24,6 +24,14 @@ import { useFanColors } from '@/theme/use-fan-colors';
 
 type FanColors = ReturnType<typeof useFanColors>;
 
+const rn = (s: CSSProperties): CSSProperties => ({
+    ...(('flexDirection' in s || 'alignItems' in s || 'justifyContent' in s || 'gap' in s) && !s.display ? { display: 'flex' } : {}),
+    ...(s.display === 'flex' && !s.flexDirection ? { flexDirection: 'column' } : {}),
+    ...(('borderWidth' in s || 'borderTopWidth' in s || 'borderBottomWidth' in s) && !s.borderStyle ? { borderStyle: 'solid' } : {}),
+    boxSizing: 'border-box', minWidth: 0,
+    ...s,
+});
+
 function rankColor(rank: number, colors: FanColors): string {
     if (rank === 1) return colors.primary;
     if (rank === 2) return colors.textSecondary;
@@ -36,15 +44,6 @@ function rankBadge(rank: number): string {
     if (rank === 2) return '🥈';
     if (rank === 3) return '🥉';
     return `#${rank}`;
-}
-
-function hexWithAlpha(hex: string, alpha: number): string {
-    const c = hex.replace('#', '');
-    if (c.length !== 6) return hex;
-    const r = parseInt(c.substring(0, 2), 16);
-    const g = parseInt(c.substring(2, 4), 16);
-    const b = parseInt(c.substring(4, 6), 16);
-    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -121,7 +120,7 @@ function MemberCard({
                                 </span>
                             </div>
                         )}
-                        <div style={{ flex: 1 }} />
+                        <div style={rn({ flex: 1 })} />
                         {onViewProfile && (
                             <button type="button" onClick={onViewProfile} >
                                 <span style={{ ...Object.assign({}, styles.viewLink, { color: colors.primary }) }}>
@@ -285,7 +284,7 @@ export function ChannelLeaderboard({
         <div style={styles.wrap}>
             {/* Tab bar */}
             <div
-                style={{ ...Object.assign({}, 
+                style={rn({ ...Object.assign({}, 
                     styles.tabBar,
                     {
                         backgroundColor: colors.surfaceSunken,
@@ -306,13 +305,13 @@ export function ChannelLeaderboard({
                             aria-selected={isActive}
                             tabIndex={isActive ? 0 : -1}
                             onClick={() => { if (suppressClickRef.current) { suppressClickRef.current = false; return; } selectTab(idx); }}
-                            style={{ ...Object.assign({}, 
+                            style={rn({ ...Object.assign({}, 
                                 styles.tab,
                                 isActive && { backgroundColor: colors.surface },
                             ) }}
                         >
                             <span
-                                style={{ ...Object.assign({}, 
+                                style={rn({ ...Object.assign({}, 
                                     styles.tabText,
                                     {
                                         color: isActive
@@ -330,7 +329,7 @@ export function ChannelLeaderboard({
                 })}
             </div>
 
-            <div ref={trackRef} className="profile-channel-track" onScroll={handleTrackScroll}
+            <div ref={trackRef} className="profile-channel-track" role="tabpanel" tabIndex={0} onScroll={handleTrackScroll}
                 onKeyDown={(event) => { if (event.key === "ArrowLeft" || event.key === "ArrowRight") { event.preventDefault(); selectTab(activeTab + (event.key === "ArrowRight" ? 1 : -1)); } }}
                 onPointerDown={(event) => { if (event.pointerType === "mouse" && event.button === 0) dragRef.current = { pointerId: event.pointerId, startX: event.clientX, startScrollLeft: event.currentTarget.scrollLeft, moved: false }; }}
                 onPointerMove={(event) => { const d = dragRef.current; if (!d || d.pointerId !== event.pointerId) return; if (Math.abs(event.clientX - d.startX) > 5) d.moved = true; if (d.moved) event.currentTarget.scrollLeft = d.startScrollLeft - (event.clientX - d.startX); }}
@@ -340,14 +339,14 @@ export function ChannelLeaderboard({
                 const members = [...channel.members].sort((x, y) => y.seasonPoints - x.seasonPoints);
                 const panelMaxPoints = members[0]?.seasonPoints ?? 0;
                 return <section className="profile-channel-panel" key={channel.channelId || panelIndex} aria-label={channel.name}>
-                  <div style={{ ...Object.assign({}, styles.channelHeader, { backgroundColor: colors.primaryDim, borderColor: colors.borderActive }) }}>
+                  <div style={rn({ ...Object.assign({}, styles.channelHeader, { backgroundColor: colors.primaryDim, borderColor: colors.borderActive }) })}>
                     <div style={{ ...Object.assign({}, styles.channelAvatar, { backgroundColor: colors.primary }) }}><span style={styles.channelAvatarText}>{(channel.name?.[0] ?? "?").toUpperCase()}</span></div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <span style={{ ...Object.assign({}, styles.channelName, { color: colors.textPrimary }) }} className="profile-ellipsis">{channel.name}</span>
                       <div style={styles.channelMeta}><Users size={9} color={colors.textTertiary} /><span style={{ ...Object.assign({}, styles.channelMetaText, { color: colors.textTertiary }) }}>{channel.memberCount}</span><Award size={9} color={colors.textTertiary} /><span style={{ ...Object.assign({}, styles.channelMetaText, { color: colors.textTertiary }) }}>S{channel.season}</span>{channel.isAdmin && <div style={{ ...Object.assign({}, styles.adminPill, { backgroundColor: colors.primaryMuted }) }}><Crown size={8} color={colors.primary} /><span style={{ ...Object.assign({}, styles.adminPillText, { color: colors.primary }) }}>Admin</span></div>}</div>
                     </div>
                   </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: 6, minWidth: 0 }}>
+                  <div style={rn({ display: 'flex', flexDirection: 'column', gap: 6, minWidth: 0 })}>
                     {members.map((member, index) => <MemberCard key={member.userId || index} colors={colors} styles={styles} member={member} rank={index + 1} maxPoints={panelMaxPoints} isYou={member.userId === currentUserId} onViewProfile={() => onViewMember(member)} />)}
                   </div>
                 </section>;
@@ -362,7 +361,7 @@ export function ChannelLeaderboard({
 // ═══════════════════════════════════════════════════════════════
 
 function createStyles(colors: FanColors): Record<string, CSSProperties> {
-    return {
+    const raw: Record<string, CSSProperties> = {
         wrap: { flex: 1 },
 
         emptyWrap: {
@@ -508,4 +507,5 @@ function createStyles(colors: FanColors): Record<string, CSSProperties> {
         },
         progressFill: { height: '100%' },
     };
+    return Object.fromEntries(Object.entries(raw).map(([key, value]) => [key, rn(value)]));
 }
