@@ -309,7 +309,7 @@ export function ChannelLeaderboard({
                             style={rn({ ...Object.assign({}, 
                                 styles.tab,
                                 isActive && { backgroundColor: colors.surface },
-                            ) }}
+                            ) })}
                         >
                             <span
                                 style={rn({ ...Object.assign({}, 
