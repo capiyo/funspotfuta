@@ -228,6 +228,7 @@ export function AppHeader(props: HeaderProps = {}) {
                     title={joined ? 'Select to open leaderboard; double-click or right-click to open chat' : 'Join channel'}
                   >
                     {channel.isAdmin && joined && <span aria-label="Admin" className="mr-1">👑</span>}
+                    <span className="desktop-channel-avatar" aria-hidden="true">{channel.name.trim().charAt(0).toUpperCase() || '?'}</span>
                     <span>{channel.name}</span>
                     {joined && leader && <span className="ml-1 text-[9px]" style={{ color: colors.primary }}>{leader.username} ({leader.seasonPoints}pts)</span>}
                     {!joined && <span className="text-[9px] font-bold" style={{ color: colors.primary }}>{joining ? '…' : 'join'}</span>}
