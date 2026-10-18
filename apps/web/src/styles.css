@@ -1839,3 +1839,12 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
   .match-card-mobile-league { display: flex !important; }
   .match-card-mobile-prediction { display: inline !important; }
 }
+
+
+@media (min-width: 651px) {
+  .match-card-poke { height: 28px; min-height: 28px; padding: 0; gap: 5px; border-radius: 0; background: transparent; }
+  .match-card-poke-circle { display: inline-flex; flex: 0 0 28px; width: 28px; height: 28px; align-items: center; justify-content: center; border-radius: 50%; background: var(--match-primary-dim); color: var(--match-primary); }
+  .match-card-poke-circle svg { width: 16px; height: 16px; }
+  .match-card-poke:hover .match-card-poke-circle { filter: brightness(1.15); }
+  .match-card-poke:focus-visible { outline: 2px solid var(--match-primary); outline-offset: 2px; }
+}
