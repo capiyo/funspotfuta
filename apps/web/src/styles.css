@@ -2316,3 +2316,84 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
     background: var(--primary) !important;
   }
 }
+
+
+@media (min-width: 651px) {
+  .home-screen .feed-column .post-card > div[style*="padding"] > div:first-child {
+    min-height: 36px !important;
+    margin-bottom: 0 !important;
+    gap: 8px !important;
+    align-items: center !important;
+  }
+
+  .home-screen .feed-column .post-card > div[style*="padding"] > div:first-child > div:first-child {
+    min-width: 0 !important;
+    gap: 8px !important;
+    align-items: center !important;
+  }
+
+  .home-screen .feed-column .post-card .mini-avatar {
+    width: 28px !important;
+    height: 28px !important;
+    flex: 0 0 28px !important;
+    border-radius: 50% !important;
+    border: 0 !important;
+  }
+
+  .home-screen .feed-column .post-card > div[style*="padding"] > div:first-child > div:first-child > span:last-child {
+    color: var(--text-1) !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+  }
+
+  .home-screen .feed-column .post-card > div[style*="padding"] > div:first-child > div:last-child > span {
+    color: var(--text-3) !important;
+    font-size: 12px !important;
+  }
+
+  .home-screen .feed-column .post-card > div[style*="padding"] > div:nth-child(2) {
+    margin-top: 6px !important;
+    color: var(--text-1) !important;
+    font-size: 14px !important;
+    line-height: 1.45 !important;
+  }
+
+  .home-screen .feed-column .post-card > div[style*="margin-top"] {
+    margin-top: 8px !important;
+  }
+
+  .home-screen .feed-column .post-card > div[style*="padding"] {
+    padding: 0 !important;
+  }
+
+  .home-screen .feed-column .post-card:hover,
+  .home-screen .feed-column .post-card:hover > div:not(.post-card-open) {
+    background: var(--surface) !important;
+  }
+
+  .home-screen .feed-column .post-card .post-card-open {
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .home-screen .feed-column .post-card > div:last-child {
+    margin-top: 8px !important;
+    padding: 0 !important;
+    gap: 16px !important;
+  }
+
+  .home-screen .feed-column .post-card > div:last-child > div:first-child {
+    gap: 16px !important;
+  }
+
+  .home-screen .feed-column .post-card > div:last-child button {
+    min-height: 28px !important;
+    padding: 0 !important;
+    color: var(--text-2) !important;
+  }
+
+  .home-screen .feed-column .post-card > div:last-child button:last-child {
+    color: var(--primary) !important;
+  }
+}
