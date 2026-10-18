@@ -1790,8 +1790,8 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
   }
   .match-card-team-name { display: block; flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .match-card-score { display: block; flex: 0 0 auto; color: inherit; font-size: 12px; font-weight: 600; }
-  .match-card-team-logo { display: block; flex: 0 0 16px; width: 16px; height: 16px; border-radius: 50%; object-fit: cover; border: 0; background: transparent; }
-  .match-card-team-fallback { display: inline-flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; }
+  .match-card-team-logo { display: block; flex: 0 0 16px; width: 16px; height: 16px; border-radius: 50% !important; object-fit: cover; border: 0; background: transparent; }
+  .match-card-team-fallback { display: inline-flex; align-items: center; justify-content: center; border-radius: 50% !important; font-size: 9px; font-weight: 700; }
   .match-card-prompt-line { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 6px; }
   .match-card .match-card-prediction { display: none; }
   .match-card .action-button { padding: 0 !important; min-height: 28px; gap: 4px; pointer-events: auto; color: var(--match-primary); }
@@ -1842,7 +1842,7 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
 
 @media (min-width: 651px) {
   .match-card-poke { height: 28px; min-height: 28px; padding: 0; gap: 5px; border-radius: 0; background: transparent; }
-  .match-card-poke-circle { display: inline-flex; flex: 0 0 28px; width: 28px; height: 28px; align-items: center; justify-content: center; border-radius: 50%; background: var(--match-primary-dim); color: var(--match-primary); }
+  .match-card-poke-circle { display: inline-flex; flex: 0 0 28px; width: 28px; height: 28px; align-items: center; justify-content: center; border-radius: 50% !important; background: var(--match-primary-dim); color: var(--match-primary); }
   .match-card-poke-circle svg { width: 16px; height: 16px; }
   .match-card-poke:hover .match-card-poke-circle { filter: brightness(1.15); }
   .match-card-poke:focus-visible { outline: 2px solid var(--match-primary); outline-offset: 2px; }
