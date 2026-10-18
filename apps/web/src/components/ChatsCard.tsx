@@ -438,7 +438,7 @@ export function MatchCard({
           </button>
 
           {/* Comment preview / live commentary */}
-          <div style={{ ...styles.lineRow, ...styles.previewRow }}>
+          <div className="match-card-comment-preview" style={{ ...styles.lineRow, ...styles.previewRow }}>
             {isLive && liveCommentary ? (
               <>
                 <Radio size={ICON.sm} color={colors.live} />
