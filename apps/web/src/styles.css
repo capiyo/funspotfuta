@@ -2203,7 +2203,7 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
     margin-top: 8px !important;
     border-radius: 8px !important;
     object-fit: cover !important;
-    aspect-ratio: clamp(16 / 9, 100%, 4 / 5);
+    aspect-ratio: 16 / 9;
   }
 
   .home-screen .feed-column .post-card button,
@@ -2273,13 +2273,3 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
   }
 }
 
-@media (max-width: 650px) {
-  /* Explicitly preserve the pre-existing narrow Home presentation. */
-  .home-screen .workspace,
-  .home-screen .home-columns,
-  .home-screen .profile-sidebar-rich,
-  .home-screen .desktop-home-header,
-  .home-screen .feed-column::before {
-    all: revert;
-  }
-}
