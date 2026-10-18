@@ -390,10 +390,10 @@ export function MatchCard({
         {/* Layer 2 — content */}
         <div className="match-card-content" style={styles.content}>
           {/* Meta: league or channel on the left, date / live on the right */}
-          <div style={styles.metaRow}>
+          <div className="match-card-meta" style={styles.metaRow}>
             {channel ? (
               <div style={styles.channelLabel}>
-                <span style={styles.channelAvatar}>
+                <span className="match-card-channel-avatar" style={styles.channelAvatar}>
                   {channel.imageUrl && failedUri !== channel.imageUrl ? (
                     <img
                       src={channel.imageUrl}
