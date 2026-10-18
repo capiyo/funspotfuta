@@ -198,7 +198,7 @@ export function AppHeader(props: HeaderProps = {}) {
         className="desktop-home-header sticky top-0 z-50 w-full border-b"
         style={{ background: colors.surfaceElevated, borderColor: colors.border, paddingTop: 'max(env(safe-area-inset-top), 0px)' }}
       >
-        <div className="mx-auto flex min-h-14 w-full max-w-[1600px] items-center gap-3 px-3 sm:px-5 lg:px-7">
+        <div className="flex min-h-14 w-full items-center gap-4 px-3">
           <a
             href="/"
             onClick={(event) => { event.preventDefault(); navigate('/'); }}
@@ -210,43 +210,30 @@ export function AppHeader(props: HeaderProps = {}) {
           <nav className="min-w-0 max-w-[min(62vw,900px)] flex-none" aria-label="Channels">
             <div className="no-scrollbar flex items-center gap-4 overflow-x-auto whitespace-nowrap py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               {displayedChannels.slice(0, 4).map((channel) => {
+                const joined = loggedIn && hasJoinedChannels && joinedChannels.some((item) => item.channelId === channel.channelId);
                 const active = selectedChannelId === channel.channelId;
                 const leader = topMember(channel);
-                return (
-                  <button
-                    key={channel.channelId}
-                    type="button"
-                    className="flex shrink-0 items-center border-b-2 px-0 py-2 text-[11px] transition-colors sm:text-xs"
-                    style={{ borderColor: active ? colors.primary : 'transparent', color: active ? colors.primary : colors.textSecondary }}
-                    aria-current={active ? 'page' : undefined}
-                    onClick={() => selectChannel(channel)}
-                    onContextMenu={(event) => handleChipContextMenu(event, channel)}
-                    onDoubleClick={() => openChat(channel)}
-                    title="Select to open leaderboard; double-click or right-click to open chat"
-                  >
-                    {channel.isAdmin && <span aria-label="Admin" className="mr-1">👑</span>}
-                    <span>{channel.name}</span>
-                    {leader && <span className="ml-1 text-[9px]" style={{ color: colors.primary }}>{leader.username} ({leader.seasonPoints}pts)</span>}
-                  </button>
-                );
-              }) : availableChannels.map((channel) => {
                 const joining = joiningChannelIds.has(channel.channelId);
                 return (
                   <button
                     key={channel.channelId}
                     type="button"
-                    disabled={joining}
-                    className="flex shrink-0 items-center gap-1 border-b-2 border-transparent px-0 py-2 text-[11px] sm:text-xs"
-                    style={{ color: colors.textSecondary }}
-                    onClick={() => join(channel)}
+                    disabled={!joined && joining}
+                    className={`flex shrink-0 items-center gap-1 border-b-2 px-0 py-2 text-[11px] transition-colors sm:text-xs ${joined ? '' : 'border-transparent'}`}
+                    style={{ borderColor: joined && active ? colors.primary : 'transparent', color: joined && active ? colors.primary : colors.textSecondary }}
+                    aria-current={joined && active ? 'page' : undefined}
+                    onClick={() => joined ? selectChannel(channel) : join(channel)}
+                    onContextMenu={joined ? (event) => handleChipContextMenu(event, channel) : undefined}
+                    onDoubleClick={joined ? () => openChat(channel) : undefined}
+                    title={joined ? 'Select to open leaderboard; double-click or right-click to open chat' : 'Join channel'}
                   >
+                    {channel.isAdmin && joined && <span aria-label="Admin" className="mr-1">👑</span>}
                     <span>{channel.name}</span>
-                    <span className="text-[9px] font-bold" style={{ color: colors.primary }}>{joining ? '…' : 'join'}</span>
+                    {joined && leader && <span className="ml-1 text-[9px]" style={{ color: colors.primary }}>{leader.username} ({leader.seasonPoints}pts)</span>}
+                    {!joined && <span className="text-[9px] font-bold" style={{ color: colors.primary }}>{joining ? '…' : 'join'}</span>}
                   </button>
                 );
               })}
-              
-              
               {(loggedIn && hasJoinedChannels ? joinedChannels.length : 0) < MAX_CHANNELS && (
                 <button
                   type="button"
