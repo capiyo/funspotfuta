@@ -73,11 +73,13 @@ async function inspectDesktop(width) {
     assert(Math.abs(voteBox.y - pokeBox.y) <= 2, `Card ${i}: Vote and Poke not on same row`);
     assert(pokeBox.x >= voteBox.x + voteBox.width - 1 && pokeBox.x - (voteBox.x + voteBox.width) <= 16, `Card ${i}: Poke does not directly follow Vote`);
     const pokeStyle = await poke.evaluate(el => {
-      const s = getComputedStyle(el);
-      return { width: el.getBoundingClientRect().width, height: el.getBoundingClientRect().height, radius: s.borderRadius, text: el.textContent?.trim() };
+      const circle = el.querySelector('.match-card-poke-circle');
+      if (!circle) return null;
+      const s = getComputedStyle(circle); const r = circle.getBoundingClientRect();
+      return { width: r.width, height: r.height, radius: s.borderRadius, text: el.textContent?.trim() };
     });
-    assert(Math.abs(pokeStyle.width - 28) <= 1 && Math.abs(pokeStyle.height - 28) <= 1, `Card ${i}: Poke is not 28x28 (${pokeStyle.width}x${pokeStyle.height})`);
-    assert(pokeStyle.radius === '50%' || pokeStyle.radius === '14px', `Card ${i}: Poke circle/pill radius unexpected: ${pokeStyle.radius}`);
+    assert(pokeStyle && Math.abs(pokeStyle.width - 28) <= 1 && Math.abs(pokeStyle.height - 28) <= 1, `Card ${i}: Poke icon target is not 28x28`);
+    assert(pokeStyle.radius === '50%', `Card ${i}: Poke icon is not circular: ${pokeStyle.radius}`);
     assert(pokeStyle.text === 'Poke', `Card ${i}: Poke label mismatch: ${pokeStyle.text}`);
     const preview = card.locator('.match-card-comment-preview').first();
     const prompt = card.locator('.match-card-prompt-line').first();
@@ -91,7 +93,8 @@ async function inspectDesktop(width) {
     const team = card.locator('.match-card-teams');
     const teamStyle = await team.evaluate(el => ({ color: getComputedStyle(el).color, box: el.getBoundingClientRect().toJSON() }));
     const primary = await card.evaluate(el => getComputedStyle(el).getPropertyValue('--match-primary').trim());
-    assert(teamStyle.color === primary || teamStyle.color === await card.evaluate(el => getComputedStyle(el).color), `Card ${i}: team group is not using primary color`);
+    const expectedPrimary = await card.evaluate(el => { const probe = document.createElement('span'); probe.style.color = 'var(--match-primary)'; el.appendChild(probe); const color = getComputedStyle(probe).color; probe.remove(); return color; });
+    assert(teamStyle.color === expectedPrimary && primary.length > 0, `Card ${i}: team group is not using primary color`);
     const logos = card.locator('.match-card-team-logo');
     assert(await logos.count() === 2, `Card ${i}: both team logos/fallbacks must render`);
     for (let j = 0; j < 2; j++) {
