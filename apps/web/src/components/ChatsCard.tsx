@@ -434,7 +434,7 @@ export function MatchCard({
           <div className="match-card-league-line" style={{ ...styles.leagueName, marginBottom: 6 }}>{fixture.league || 'Unknown league'}</div>
           <button type="button" onClick={handleLineups} className="match-card-mobile-league" style={styles.secondaryRow} aria-label={`Open match details: ${fixtureLabel}`}>
             <span style={styles.secondaryText}>{fixture.league || 'Unknown league'}</span>
-            <span style={styles.secondaryText}>{fixtureLabel.replace(' vs ', ' ') + (hasScores(fixture) ? ` ${scoreDisplay(fixture)}` : ' vs')}</span>
+            <span style={styles.secondaryText}>{captionLabel}</span>
           </button>
 
           {/* Comment preview / live commentary */}
