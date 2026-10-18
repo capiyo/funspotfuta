@@ -91,3 +91,8 @@
 - Desktop-only (min-width: 651px) Chats cards use 14px top/left/right inset, 12px bottom inset, 28px header row, 4px league offset, 10px comment offset, and 12px action-row offset. Card-to-card spacing is 8px.
 - Desktop columns use minmax(0, clamp(440px, 30vw, 560px)) minmax(0, 1fr) with a 5px gap; Feed cards cap at 840px and align to the left of the Feed column. Chats cards and the filter row fill the Chats column.
 - scripts/verify-home-layout.mjs measures desktop card heights, row geometry, column/filter edges, horizontal overflow, and screenshots at 1024/1280/1440/1920px. It also supports recording/comparing the 390px baseline. Browser execution and the parent-commit baseline comparison must be run in an environment with Playwright/Chromium and the app's fixture routes available.
+
+
+## Desktop ChatsCard Poke and team logos
+- Repository source search across `apps/mobile`, `packages/core`, and `apps/web` found no existing Poke feature or Poke API. Poke therefore uses the exact existing Vote handler: guests go through `requireLogin`, signed-in users open the existing vote modal, and completed fixtures retain the current Results behavior. No endpoint was invented.
+- The mapped `Fixture` type in `packages/core/src/types/fixture.ts` does not define team-logo properties and `fixtureFromJson` does not preserve logo payload fields. The web hook checks common camelCase/snake_case home/away logo, crest, and badge fields when present on a mapped fixture; otherwise it uses only TheSportsDB public search endpoint and caches/rate-limits lookups.
