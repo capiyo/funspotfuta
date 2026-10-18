@@ -19,3 +19,21 @@ jobs:
       - run: npm run typecheck:mobile
       - run: npm run lint:web
       - run: npm run build:web
+      - name: Install Playwright and Chromium
+        run: |
+          npm install --no-save --no-audit --no-fund playwright
+          npx playwright install --with-deps chromium
+      - name: Verify ChatsCard at desktop and mobile widths
+        run: |
+          cd apps/web
+          npm run start -- --host 127.0.0.1 > /tmp/funspot-web-preview.log 2>&1 &
+          for attempt in $(seq 1 30); do curl --fail --silent http://127.0.0.1:4173/ > /dev/null && break; sleep 1; done
+          cd ../..
+          node apps/web/scripts/verify-chats-card.mjs
+      - name: Upload ChatsCard verification screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chats-card-verification-screenshots
+          path: docs/verify/*.png
+          if-no-files-found: warn
