@@ -1498,3 +1498,5 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
     padding-right: 12px !important;
   }
 }
+
+.profile-channel-track{display:flex;flex-direction:row;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-ms-overflow-style:none;min-width:0;overscroll-behavior-x:contain;touch-action:pan-x;cursor:grab}.profile-channel-track::-webkit-scrollbar{display:none}.profile-channel-track:active{cursor:grabbing}.profile-channel-panel{flex:0 0 100%;width:100%;min-width:0;scroll-snap-align:start;box-sizing:border-box}.profile-channel-panel>*{min-width:0;max-width:100%;box-sizing:border-box}
