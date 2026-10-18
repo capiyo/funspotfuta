@@ -61,20 +61,20 @@ import {
 } from './types';
 import { DepositDialog, WithdrawDialog } from './paymentsDialogs';
 import { ChannelLeaderboard } from './ChannelLeaderboard';
+import './profile.css';
 
 type FanColors = ReturnType<typeof useFanColors>;
 
 const API_BASE = 'https://clash-api-m5mr.onrender.com/api';
 const TIMEOUT_MS = 15000;
 
-function hexWithAlpha(hex: string, alpha: number): string {
-  const c = hex.replace('#', '');
-  if (c.length !== 6) return hex;
-  const r = parseInt(c.substring(0, 2), 16);
-  const g = parseInt(c.substring(2, 4), 16);
-  const b = parseInt(c.substring(4, 6), 16);
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-}
+const rn = (s: CSSProperties): CSSProperties => ({
+  ...(('flexDirection' in s || 'alignItems' in s || 'justifyContent' in s || 'gap' in s) && !s.display ? { display: 'flex' } : {}),
+  ...(s.display === 'flex' && !s.flexDirection ? { flexDirection: 'column' } : {}),
+  ...(('borderWidth' in s || 'borderTopWidth' in s) && !s.borderStyle ? { borderStyle: 'solid' } : {}),
+  boxSizing: 'border-box', minWidth: 0,
+  ...s,
+});
 
 // ═══════════════════════════════════════════════════════════════
 //  PROFILE MODAL
@@ -464,7 +464,7 @@ export default function ProfileContent({
         >
           <Wallet size={16} color={colors.primary} />
         </div>
-        <div style={{ flex: 1 }}>
+        <div style={rn({ flex: 1, flexDirection: 'column' })}>
           <span style={{ ...Object.assign({}, styles.balanceLabel, { color: colors.textTertiary }) }}>
             Balance
           </span>
@@ -541,7 +541,7 @@ export default function ProfileContent({
   function renderProfileView() {
     if (!profile) return null;
     return (
-      <div style={{ gap: FAN_SPACING.sm }}>
+      <div style={rn({ display: 'flex', flexDirection: 'row', gap: FAN_SPACING.sm })}>
         {isCurrentUser && (
           <div style={styles.statsGrid}>
             <div style={{ ...Object.assign({}, styles.statCard, { backgroundColor: colors.surfaceSunken }) }}>
@@ -673,8 +673,8 @@ export default function ProfileContent({
 
   function renderNoProfileView() {
     return (
-      <div style={{ gap: FAN_SPACING.md }}>
-        <div style={{ alignItems: 'center' }}>
+      <div style={rn({ display: 'flex', flexDirection: 'column', gap: FAN_SPACING.md })}>
+        <div style={rn({ display: 'flex', flexDirection: 'column', alignItems: 'center' })}>
           <div
             style={{ ...Object.assign({}, 
               styles.noProfileIcon,
@@ -923,7 +923,7 @@ export default function ProfileContent({
                     .toUpperCase()}
                 </span>
               </div>
-              <div style={{ flex: 1, marginLeft: FAN_SPACING.md }}>
+              <div style={{ flex: 1, minWidth: 0, marginLeft: FAN_SPACING.md }}>
                 <span
                   style={{ ...Object.assign({}, styles.headerTitle, { color: colors.textPrimary }) }}
                   className="profile-ellipsis"
@@ -1057,7 +1057,7 @@ export default function ProfileContent({
 // ═══════════════════════════════════════════════════════════════
 
 function createStyles(colors: FanColors): Record<string, CSSProperties> {
-  return {
+  const raw: Record<string, CSSProperties> = {
     backdrop: {
       flex: 1,
       backgroundColor: 'rgba(0,0,0,0.5)',
@@ -1257,4 +1257,5 @@ function createStyles(colors: FanColors): Record<string, CSSProperties> {
       maxHeight: 340,
     },
   };
+  return Object.fromEntries(Object.entries(raw).map(([key, value]) => [key, rn(value)]));
 }
