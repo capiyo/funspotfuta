@@ -1741,3 +1741,29 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
   .home-screen .feed-column .feed-item { margin-bottom: 0 !important; }
   html, body { overflow-x: clip !important; }
 }
+
+
+@media (min-width: 651px) {
+  .home-screen .chats-column .match-card > div[style*="padding"] > div:first-child {
+    min-height: 28px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    align-items: center !important;
+  }
+  .home-screen .chats-column .match-card > div[style*="padding"] > button[aria-label^="Open match details"] {
+    margin-top: 4px !important;
+    margin-bottom: 0 !important;
+    padding: 0 14px 0 0 !important;
+    min-height: 0 !important;
+    line-height: 1.4 !important;
+  }
+  .home-screen .chats-column .match-card > div[style*="padding"] > div:nth-child(3) {
+    margin-top: 10px !important;
+    margin-bottom: 0 !important;
+    padding: 0 !important;
+    min-height: 0 !important;
+  }
+  .home-screen .chats-column .match-card > div[style*="padding"] > div:nth-child(3) > span:last-child {
+    margin-right: 0 !important;
+  }
+}
