@@ -442,13 +442,13 @@ export function MatchCard({
             {isLive && liveCommentary ? (
               <>
                 <Radio size={ICON.sm} color={colors.live} />
-                <span style={styles.previewText}>{liveCommentary.text}</span>
+                <span className="match-card-preview-text" style={styles.previewText}>{liveCommentary.text}</span>
                 <span style={styles.minute}>{liveCommentary.minute}&apos;</span>
               </>
             ) : (
               <>
                 <MessageCircle size={ICON.sm} color={colors.textTertiary} />
-                <span style={styles.previewText}>
+                <span className="match-card-preview-text" style={styles.previewText}>
                   {preview
                     ? `${preview.username}: ${preview.comment}`
                     : 'Be the first to comment on this match'}
