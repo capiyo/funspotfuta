@@ -1849,3 +1849,18 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
 }
 
 @media (min-width: 651px) { .match-card-legacy-stack { display: none !important; } }
+
+/* These selectors intentionally outrank the Home-wide square-corner reset. */
+.home-screen .match-card .match-card-poke-circle {
+  display: inline-flex !important;
+  flex: 0 0 28px !important;
+  width: 28px !important;
+  height: 28px !important;
+  border-radius: 50% !important;
+}
+.home-screen .match-card .match-card-team-logo,
+.home-screen .match-card .match-card-team-fallback {
+  width: 16px !important;
+  height: 16px !important;
+  border-radius: 50% !important;
+}
