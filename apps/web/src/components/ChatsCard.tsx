@@ -88,8 +88,8 @@ export interface LiveCommentaryEntry {
 
 function TeamLogo({ name, url, colors }: { name: string; url: string | null; colors: ReturnType<typeof useFanColors> }) {
   const [failed, setFailed] = useState(false);
-  if (!url || failed) return <span className="match-card-team-logo match-card-team-fallback" style={{ background: colors.primaryDim, color: colors.primary }}>{name.trim().charAt(0).toUpperCase() || '?'}</span>;
-  return <img className="match-card-team-logo" src={url} alt="" loading="lazy" decoding="async" referrerPolicy="no-referrer" onError={() => setFailed(true)} />;
+  if (!url || failed) return <span className="match-card-team-logo match-card-team-fallback" style={{ display: 'inline-flex', flex: '0 0 16px', width: 16, height: 16, alignItems: 'center', justifyContent: 'center', borderRadius: '50%', border: 0, objectFit: 'cover', background: colors.primaryDim, color: colors.primary, fontSize: 9, fontWeight: 700 }}>{name.trim().charAt(0).toUpperCase() || '?'}</span>;
+  return <img className="match-card-team-logo" src={url} alt="" loading="lazy" decoding="async" referrerPolicy="no-referrer" onError={() => setFailed(true)} style={{ display: 'block', flex: '0 0 16px', width: 16, height: 16, borderRadius: '50%', objectFit: 'cover', border: 0, background: 'transparent' }} />;
 }
 
 function kickoffLabel(dateString: string): string {
@@ -554,11 +554,11 @@ export function MatchCard({
             )}
           </div>
           {!voters.length && !isCompleted && <span className="match-card-mobile-prediction" style={{ color: colors.primary, fontSize: 11, textAlign: 'right', whiteSpace: 'nowrap', marginLeft: 'auto' }}>{emptyPrompt}</span>}
-          <button type="button" className="match-card-teams" onClick={handleLineups} aria-label={`Open match details: ${fixtureLabel}`}>
+          <button type="button" className="match-card-teams" onClick={handleLineups} aria-label={`Open match details: ${fixtureLabel}`} style={{ display: 'flex', flex: '0 1 34%', alignItems: 'center', justifyContent: 'flex-end', gap: 6, minWidth: 0, padding: 0, border: 0, background: 'transparent', color: colors.primary, fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden' }}>
             <TeamLogo name={fixture.homeTeam} url={homeLogo} colors={colors} />
-            <span className="match-card-team-name">{fixture.homeTeam}</span>
-            <span className="match-card-score">{scoreLabel}</span>
-            <span className="match-card-team-name">{fixture.awayTeam}</span>
+            <span className="match-card-team-name" style={{ display: 'block', flex: '0 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{fixture.homeTeam}</span>
+            <span className="match-card-score" style={{ display: 'block', flex: '0 0 auto', color: 'inherit', fontSize: 12, fontWeight: 600 }}>{scoreLabel}</span>
+            <span className="match-card-team-name" style={{ display: 'block', flex: '0 1 auto', minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{fixture.awayTeam}</span>
             <TeamLogo name={fixture.awayTeam} url={awayLogo} colors={colors} />
           </button>
         </div>
