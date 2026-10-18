@@ -962,8 +962,8 @@ export default function ProfileContent({
               ) : !isLoggedIn ? (
                 <div className="profile-guest-preview">
                   <div className="profile-guest-banner">Preview data - log in to see your own profile</div>
-                  {renderGuestFields()}
-                  <button type="button" className="profile-guest-login" onClick={openLogin}>Log In</button>
+                  {!isLoggedIn && renderGuestFields()}
+                  {!isLoggedIn && <button type="button" className="profile-guest-login" onClick={openLogin}>Log In</button>}
                   <div className="profile-guest-channels-heading">
                     <strong>Channels (preview)</strong><span>{visibleChannels.length}</span>
                   </div>
