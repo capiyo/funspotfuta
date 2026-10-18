@@ -377,7 +377,7 @@ export function MatchCard({
 
   return (
     <FeedItem colors={colors}>
-      <div className="match-card" style={{ ...styles.card, lineHeight: 1.25 }}>
+      <div className="match-card" style={{ ...styles.card, lineHeight: 1.25, '--match-primary': colors.primary, '--match-primary-dim': colors.primaryDim } as CSSProperties}>
         {/* Layer 1 — invisible full-card tap target -> Chat */}
         <button
           type="button"
@@ -398,6 +398,9 @@ export function MatchCard({
                     <img
                       src={channel.imageUrl}
                       alt=""
+                      loading="lazy"
+                      decoding="async"
+                      referrerPolicy="no-referrer"
                       onError={() => setFailedUri(channel.imageUrl ?? null)}
                       style={styles.channelAvatarImage}
                     />
@@ -428,6 +431,8 @@ export function MatchCard({
             <span style={styles.secondaryText}>{captionLabel}</span>
           </button>
 
+          <div className="match-card-league-line" style={{ ...styles.leagueName, marginBottom: 6 }}>{fixture.league || 'Unknown league'}</div>
+
           {/* Comment preview / live commentary */}
           <div style={{ ...styles.lineRow, ...styles.previewRow }}>
             {isLive && liveCommentary ? (
@@ -446,6 +451,10 @@ export function MatchCard({
                 </span>
               </>
             )}
+          </div>
+
+          <div className="match-card-prompt-line" style={{ ...styles.previewText, marginTop: 6 }}>
+            {voters.length > 0 ? <VoterList colors={colors} voters={voterItems} emptyLabel="" /> : isCompleted ? 'No votes were cast' : emptyPrompt}
           </div>
 
           {/* Result / vote state */}
