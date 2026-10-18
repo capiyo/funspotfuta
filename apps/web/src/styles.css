@@ -1782,7 +1782,7 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
   }
   .match-card-poke svg { width: 16px; height: 16px; color: var(--match-primary); }
   .match-card-poke:hover { filter: brightness(1.15); }
-  .match-card-poke:focus-visible { outline: 2px solid var(--match-primary); outline-offset: 2px; }
+  .match-card-poke:focus-visible { outline: 2px solid var(--match-primary) !important; outline-offset: 2px !important; }
   .match-card-teams {
     display: flex; flex: 0 1 38%; align-items: center; justify-content: flex-end; gap: 6px;
     min-width: 0; padding: 0; border: 0; background: transparent; color: var(--match-primary);
