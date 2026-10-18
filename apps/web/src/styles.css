@@ -1797,3 +1797,45 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
   .match-card .action-button { padding: 0 !important; min-height: 28px; gap: 4px; pointer-events: auto; color: var(--match-primary); }
   .match-card .action-button svg { width: 14px; height: 14px; }
 }
+
+
+/* Desktop-only match-card layout; the mobile markup and dimensions remain unchanged. */
+@media (min-width: 651px) {
+  .chats-column .feed-item { margin-bottom: 4px !important; gap: 0 !important; }
+  .match-card { --match-primary: inherit; --match-primary-dim: transparent; }
+  .match-card-content { padding: 12px 12px 0 !important; }
+  .match-card .match-card-meta { margin-bottom: 6px !important; }
+  .match-card .match-card-channel-avatar { width: 24px !important; height: 24px !important; border-radius: 50% !important; }
+  .match-card-league-line { display: block; margin-bottom: 6px !important; }
+  .match-card-mobile-league, .match-card-mobile-prediction { display: none !important; }
+  .match-card-poke {
+    display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+    flex: 0 0 auto; height: 28px; min-height: 28px; padding: 0 8px 0 0;
+    border: 0; border-radius: 14px; background: var(--match-primary-dim);
+    color: var(--match-primary); font-size: 12px; font-weight: 600;
+    white-space: nowrap; pointer-events: auto;
+  }
+  .match-card-poke svg { width: 16px; height: 16px; color: var(--match-primary); }
+  .match-card-poke:hover { filter: brightness(1.15); }
+  .match-card-poke:focus-visible { outline: 2px solid var(--match-primary); outline-offset: 2px; }
+  .match-card-bottom { gap: 12px !important; margin-top: 6px !important; padding: 0 12px 12px !important; min-height: 28px; }
+  .match-card-actions { gap: 12px !important; flex: 0 0 auto; white-space: nowrap; }
+  .match-card .action-button { padding: 0 !important; min-height: 28px; gap: 4px; pointer-events: auto; color: var(--match-primary); }
+  .match-card .action-button svg { width: 14px; height: 14px; }
+  .match-card-teams {
+    display: flex; flex: 0 1 34%; align-items: center; justify-content: flex-end; gap: 6px;
+    min-width: 0; padding: 0; border: 0; background: transparent; color: var(--match-primary);
+    font-size: 12px; font-weight: 600; white-space: nowrap; pointer-events: auto; overflow: hidden;
+  }
+  .match-card-team-name { display: block; flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .match-card-score { display: block; flex: 0 0 auto; color: inherit; font-size: 12px; font-weight: 600; }
+  .match-card-team-logo { display: block; flex: 0 0 16px; width: 16px; height: 16px; border-radius: 50%; object-fit: cover; border: 0; background: transparent; }
+  .match-card-team-fallback { display: inline-flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 700; }
+  .match-card-prompt-line { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 6px; }
+  .match-card .match-card-prediction { display: none; }
+}
+@media (max-width: 650px) {
+  .match-card-poke, .match-card-teams, .match-card-league-line, .match-card-prompt-line { display: none !important; }
+  .match-card-mobile-league { display: flex !important; }
+  .match-card-mobile-prediction { display: inline !important; }
+}
