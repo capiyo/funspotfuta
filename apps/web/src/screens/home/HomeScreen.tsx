@@ -36,7 +36,6 @@ function HomeScreenContent() {
         '--home-text-tertiary': colors.textTertiary,
         '--home-primary': colors.primary,
         '--home-primary-dim': colors.primaryDim,
-        '--home-text-on-primary': colors.textOnPrimary,
         '--home-border': colors.border,
       } as CSSProperties}
     >
