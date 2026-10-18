@@ -1880,7 +1880,14 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
   }
 
   .home-screen {
+    --bg: var(--home-page-bg, #0b1020);
     --home-surface: color-mix(in srgb, var(--home-page-bg) 96%, white 4%);
+    --surface: var(--home-surface);
+    --text-1: var(--home-text-primary, #f3f4f6);
+    --text-2: var(--home-text-secondary, #9ca8bc);
+    --text-3: var(--home-text-tertiary, #8190a8);
+    --primary: var(--home-primary, #eab746);
+    --primary-dim: var(--home-primary-dim, #202d43);
     width: 100%;
     overflow: hidden;
     color: var(--text-1);
@@ -2116,7 +2123,7 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
     height: 44px;
     min-height: 44px;
     padding: 0 12px;
-    background: var(--bg);
+    background: var(--bg) !important;
     color: var(--text-3);
     font-size: 12px;
     font-weight: 600;
