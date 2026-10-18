@@ -10,6 +10,7 @@ import { useAuth } from '@/lib/auth/auth-context';
 import { useLoginModal } from '@/modals/Login-modal-context';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { useHome, MAX_CHANNELS } from './home-context';
+import { useAllChannels } from '@/hooks/useAllChannels';
 import NotificationsModal from '@/modals/NotificationsModal';
 import ProfileModal from '@/modals/profile/ProfileModal';
 import ComradeListModal from '@/modals/comradelist/index';
@@ -82,6 +83,7 @@ export function AppHeader(props: HeaderProps = {}) {
   const location = useLocation();
   const queryClient = useQueryClient();
   const { userId, username, authToken, isLoggedIn, logout } = useAuth();
+  const publicChannelsQuery = useAllChannels(authToken);
   const { requireLogin } = useLoginModal();
   const {
     activeChannel, activeChannelId, channels, allChannels, setActiveChannelId,
@@ -158,7 +160,12 @@ export function AppHeader(props: HeaderProps = {}) {
   const comradesList = queryClient.getQueryData<string[]>(['comrades']) ?? [];
   const avatarUri = `https://i.pravatar.cc/150?u=${encodeURIComponent(userId ?? 'guest')}`;
   const hasJoinedChannels = joinedChannels.length > 0;
-  const availableChannels = allChannels.length > 0 ? allChannels : joinedChannels;
+  const publicChannels = publicChannelsQuery.data ?? [];
+  const availableChannels = allChannels.length > 0 ? allChannels : publicChannels.length > 0 ? publicChannels : joinedChannels;
+  const displayedChannels = loggedIn && hasJoinedChannels ? joinedChannels : availableChannels;
+  useEffect(() => {
+    if (import.meta.env.DEV) console.error('[AppHeader] channels', { joined: joinedChannels.length, browsable: allChannels.length, loading: !!props.loadingChannels || !!publicChannelsQuery.isLoading });
+  }, [joinedChannels.length, allChannels.length, props.loadingChannels, publicChannelsQuery.isLoading]);
 
   function openChat(channel: Channel) {
     navigate(`/messages/${encodeURIComponent(channel.channelId)}`, {
@@ -202,7 +209,7 @@ export function AppHeader(props: HeaderProps = {}) {
 
           <nav className="min-w-0 max-w-[min(62vw,900px)] flex-none" aria-label="Channels">
             <div className="no-scrollbar flex items-center gap-4 overflow-x-auto whitespace-nowrap py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {loggedIn && hasJoinedChannels ? joinedChannels.map((channel) => {
+              {displayedChannels.slice(0, 4).map((channel) => {
                 const active = selectedChannelId === channel.channelId;
                 const leader = topMember(channel);
                 return (
@@ -238,10 +245,8 @@ export function AppHeader(props: HeaderProps = {}) {
                   </button>
                 );
               })}
-              {props.loadingChannels && <span className="px-2 text-xs" style={{ color: colors.textTertiary }}>Loading channels…</span>}
-              {!props.loadingChannels && loggedIn && joinedChannels.length === 0 && availableChannels.length === 0 && (
-                <span className="px-2 text-xs" style={{ color: colors.textTertiary }}>No channels available</span>
-              )}
+              
+              
               {(loggedIn && hasJoinedChannels ? joinedChannels.length : 0) < MAX_CHANNELS && (
                 <button
                   type="button"
