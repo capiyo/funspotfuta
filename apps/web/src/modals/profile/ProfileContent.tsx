@@ -897,7 +897,7 @@ export default function ProfileContent({
             )}
 
             {/* Header */}
-            <div style={styles.headerRow}>
+            <div style={styles.headerRow} className="profile-header-row">
               {!isCurrentUser && (
                 <button type="button"
                   onClick={handleBackToSelf}
@@ -923,7 +923,7 @@ export default function ProfileContent({
                     .toUpperCase()}
                 </span>
               </div>
-              <div style={{ flex: 1, minWidth: 0, marginLeft: FAN_SPACING.md }}>
+              <div style={rn({ flex: 1, minWidth: 0, marginLeft: FAN_SPACING.md })} className="profile-header-name-column">
                 <span
                   style={{ ...Object.assign({}, styles.headerTitle, { color: colors.textPrimary }) }}
                   className="profile-ellipsis"
@@ -943,7 +943,7 @@ export default function ProfileContent({
               </div>
               {inline ? (
                 <button type="button" onClick={onViewProfile}  style={styles.viewProfileBtn}>
-                  <span style={{ ...Object.assign({}, styles.viewProfileText, { color: colors.primary }) }}>View profile</span>
+                  <span style={{ ...Object.assign({}, styles.viewProfileText, { color: colors.primary }) }} className="profile-header-view-link">View profile</span>
                 </button>
               ) : (
                 <button type="button" onClick={onClose}  style={styles.closeBtn}>
