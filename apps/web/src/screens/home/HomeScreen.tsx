@@ -1,7 +1,7 @@
 // Browser-only home layout adaptation; mobile remains the source of truth for data and behavior.
 // Order: AppHeader/navbar, then profile sidebar, then equally sized Chats and Feed columns.
 // Desktop panes scroll independently; narrow screens use the same Chats/Feed pill tabs as mobile.
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { registerToken } from '@funspot/core';
@@ -24,6 +24,26 @@ function HomeScreenContent() {
   } = useHome();
   const [pushStatus, setPushStatus] = useState('');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const root = document.querySelector('.home-screen');
+    const header = root?.querySelector('.desktop-home-header');
+    if (!root || !header) return;
+    const updateShadow = () => {
+      const scrollers = root.querySelectorAll<HTMLElement>('.home-column, .chats-fixture-list, .feed-screen');
+      const scrolled = window.scrollY > 0 || Array.from(scrollers).some((node) => node.scrollTop > 0);
+      header.classList.toggle('home-has-scrolled', scrolled);
+    };
+    const scrollers = root.querySelectorAll<HTMLElement>('.home-column, .chats-fixture-list, .feed-screen');
+    scrollers.forEach((node) => node.addEventListener('scroll', updateShadow, { passive: true }));
+    window.addEventListener('scroll', updateShadow, { passive: true });
+    updateShadow();
+    return () => {
+      scrollers.forEach((node) => node.removeEventListener('scroll', updateShadow));
+      window.removeEventListener('scroll', updateShadow);
+      header.classList.remove('home-has-scrolled');
+    };
+  }, []);
 
   return (
     <div
