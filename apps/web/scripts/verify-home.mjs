@@ -25,11 +25,12 @@ const channels = ['Premier League', 'World Cup', 'Local Derbies', 'Arsenal Fans'
   is_public: true, is_approved: true, is_active: true,
 }));
 const posts = Array.from({ length: 4 }, (_, i) => ({
-  id: `home-post-${i}`, user_id: `home-user-${i}`, username: ['maya', 'john_w', 'lee', 'sam'][i],
+  id: `home-post-${i}`, user_id: `home-user-${i}`, user_name: ['maya', 'john_w', 'lee', 'sam'][i],
   caption: `A sample post for the Home visual verification (${i + 1}).`,
   created_at: new Date(Date.now() - i * 60000).toISOString(), likes_count: i + 2,
-  comments_count: i, media: i === 3 ? [{ type: 'video', url: 'https://media.test/highlights.mp4' }] :
-    [{ type: 'image', url: `https://images.test/post-${i}.jpg` }],
+  comments_count: i, post_type: i === 3 ? 'video' : 'image',
+  video_url: i === 3 ? 'https://media.test/highlights.mp4' : null,
+  image_url: i === 3 ? null : `https://images.test/post-${i}.jpg`,
 }));
 
 const browser = await chromium.launch({ headless: true });
