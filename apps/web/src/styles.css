@@ -2411,3 +2411,10 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
     box-shadow: none !important;
   }
 }
+
+
+@media (min-width: 651px) {
+  body:has(.home-screen) .home-screen .mobile-home-tabs .floating-pill {
+    box-shadow: none !important;
+  }
+}
