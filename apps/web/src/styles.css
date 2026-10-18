@@ -2201,16 +2201,23 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
   }
 
   .home-screen .feed-column .post-image,
-  .home-screen .feed-column .post-card video,
-  .home-screen .feed-column .feed-item video,
-  .home-screen .feed-column .feed-item img:not(.mini-avatar) {
+  .home-screen .feed-column .post-image-frame,
+  .home-screen .feed-column .post-video-frame {
     display: block;
     width: 100% !important;
     max-height: 420px !important;
-    margin-top: 8px !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+  }
+
+  .home-screen .feed-column .post-image-frame > img,
+  .home-screen .feed-column .post-video-frame > video {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 420px !important;
     border-radius: 8px !important;
     object-fit: cover !important;
-    aspect-ratio: 16 / 9;
   }
 
   .home-screen .feed-column .post-card button,
