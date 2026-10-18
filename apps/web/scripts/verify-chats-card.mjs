@@ -24,6 +24,7 @@ await mkdir('docs/verify', { recursive: true });
 const errors = [];
 const requestTimes = [];
 const teamRequests = new Map();
+const intervalResults = [];
 
 async function installMocks(page) {
   await page.route('**/api/games**', route => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(fixtures) }));
@@ -120,6 +121,7 @@ async function inspectDesktop(width) {
   await page.screenshot({ path: `docs/verify/chats-card-${width}.png`, fullPage: true });
   const intervals = requestTimes.slice(1).map((time, i) => time - requestTimes[i]);
   assert(intervals.every(ms => ms >= 1000), `TheSportsDB request spacing below 1 second at ${width}px: ${intervals.join(', ')}`);
+  intervalResults.push({ width, intervals });
   for (const [team, count] of teamRequests) assert(count === 1, `Repeated team ${team} requested ${count} times at ${width}px`);
   requestTimes.length = 0;
   teamRequests.clear();
@@ -145,7 +147,7 @@ try {
   await mobile.screenshot({ path: 'docs/verify/chats-card-390.png', fullPage: true });
   await mobileContext.close();
   assert(errors.length === 0, `Browser errors: ${errors.join('; ')}`);
-  console.log(JSON.stringify({ passed: true, desktopWidths: [1280, 1920], cardsPerWidth: 6, uniqueTeams: teamRequests.size, requestIntervalsMs: intervals, mobile390: mobileState, screenshots: ['docs/verify/chats-card-1280.png', 'docs/verify/chats-card-1920.png', 'docs/verify/chats-card-390.png'] }, null, 2));
+  console.log(JSON.stringify({ passed: true, desktopWidths: [1280, 1920], cardsPerWidth: 6, uniqueTeams: teamRequests.size, requestIntervalsMs: intervalResults, mobile390: mobileState, screenshots: ['docs/verify/chats-card-1280.png', 'docs/verify/chats-card-1920.png', 'docs/verify/chats-card-390.png'] }, null, 2));
 } finally {
   await browser.close();
 }
