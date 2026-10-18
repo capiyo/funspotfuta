@@ -1876,7 +1876,6 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
     --text-3: var(--home-text-tertiary, #8190a8);
     --primary: var(--home-primary, #eab746);
     --primary-dim: var(--home-primary-dim, #202d43);
-    font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
   }
 
   .home-screen {
