@@ -197,6 +197,7 @@ export function MatchCard({
   const fixtureLabel = `${fixture.homeTeam} vs ${fixture.awayTeam}`;
   // Teams with the score between them, or "vs" before kickoff.
   const captionLabel = `${fixture.homeTeam} ${hasScores(fixture) ? scoreDisplay(fixture) : 'vs'} ${fixture.awayTeam}`;
+  const scoreLabel = hasScores(fixture) ? `${fixture.homeScore} : ${fixture.awayScore}` : 'vs';
   const canComment = !!isLoggedIn && (isCompleted || hasVoted);
 
   function handleChat() {
