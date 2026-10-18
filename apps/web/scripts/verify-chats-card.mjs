@@ -85,7 +85,7 @@ async function inspectDesktop(width) {
     const prompt = card.locator('.match-card-prompt-line').first();
     const [previewBox, promptBox, previewColor, promptColor] = await Promise.all([
       preview.boundingBox(), prompt.boundingBox(),
-      preview.evaluate(el => getComputedStyle(el).color),
+      preview.locator('.match-card-preview-text').evaluate(el => getComputedStyle(el).color),
       prompt.evaluate(el => getComputedStyle(el).color),
     ]);
     assert(previewBox && promptBox && promptBox.y >= previewBox.y + previewBox.height - 1, `Card ${i}: prompt line is not below comment preview`);
