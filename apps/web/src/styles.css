@@ -1802,10 +1802,9 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
 /* Desktop-only match-card layout; the mobile markup and dimensions remain unchanged. */
 @media (min-width: 651px) {
   .chats-column .feed-item { margin-bottom: 4px !important; gap: 0 !important; }
-  .match-card { --match-primary: inherit; --match-primary-dim: transparent; }
   .match-card-content { padding: 12px 12px 0 !important; }
   .match-card .match-card-meta { margin-bottom: 6px !important; }
-  .match-card .match-card-channel-avatar { width: 24px !important; height: 24px !important; border-radius: 50% !important; }
+  .match-card .match-card-channel-avatar { width: 24px !important; height: 24px !important; border-radius: 50% !important; background: var(--match-primary-dim) !important; }
   .match-card-league-line { display: block; margin-bottom: 6px !important; }
   .match-card-mobile-league, .match-card-mobile-prediction { display: none !important; }
   .match-card-poke {
