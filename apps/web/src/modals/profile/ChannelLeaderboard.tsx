@@ -330,63 +330,29 @@ export function ChannelLeaderboard({
                 })}
             </div>
 
-            {/* Channel header */}
-            <div
-                style={{ ...Object.assign({}, 
-                    styles.channelHeader,
-                    {
-                        backgroundColor: colors.primaryDim,
-                        borderColor: colors.borderActive,
-                    },
-                ) }}
-            >
-                <div
-                    style={{ ...Object.assign({}, 
-                        styles.channelAvatar,
-                        { backgroundColor: colors.primary },
-                    ) }}
-                >
-                    <span style={styles.channelAvatarText}>
-                        {(activeChannel.name?.[0] ?? '?').toUpperCase()}
-                    </span>
-                </div>
-                <div style={{ flex: 1 }}>
-                    <span
-                        style={{ ...Object.assign({}, styles.channelName, { color: colors.textPrimary }) }}
-                        className="profile-ellipsis"
-                    >
-                        {activeChannel.name}
-                    </span>
-                    <div style={styles.channelMeta}>
-                        <Users size={9} color={colors.textTertiary} />
-                        <span
-                            style={{ ...Object.assign({}, styles.channelMetaText, { color: colors.textTertiary }) }}
-                        >
-                            {activeChannel.memberCount}
-                        </span>
-                        <Award size={9} color={colors.textTertiary} />
-                        <span
-                            style={{ ...Object.assign({}, styles.channelMetaText, { color: colors.textTertiary }) }}
-                        >
-                            S{activeChannel.season}
-                        </span>
-                        {activeChannel.isAdmin && (
-                            <div
-                                style={{ ...Object.assign({}, 
-                                    styles.adminPill,
-                                    { backgroundColor: colors.primaryMuted },
-                                ) }}
-                            >
-                                <Crown size={8} color={colors.primary} />
-                                <span style={{ ...Object.assign({}, styles.adminPillText, { color: colors.primary }) }}>
-                                    Admin
-                                </span>
-                            </div>
-                        )}
+            <div ref={trackRef} className="profile-channel-track" onScroll={handleTrackScroll}
+                onKeyDown={(event) => { if (event.key === "ArrowLeft" || event.key === "ArrowRight") { event.preventDefault(); selectTab(activeTab + (event.key === "ArrowRight" ? 1 : -1)); } }}
+                onPointerDown={(event) => { if (event.pointerType === "mouse" && event.button === 0) dragRef.current = { pointerId: event.pointerId, startX: event.clientX, startScrollLeft: event.currentTarget.scrollLeft, moved: false }; }}
+                onPointerMove={(event) => { const d = dragRef.current; if (!d || d.pointerId !== event.pointerId) return; if (Math.abs(event.clientX - d.startX) > 5) d.moved = true; if (d.moved) event.currentTarget.scrollLeft = d.startScrollLeft - (event.clientX - d.startX); }}
+                onPointerUp={(event) => { const d = dragRef.current; if (!d || d.pointerId !== event.pointerId) return; dragRef.current = null; suppressClickRef.current = d.moved; if (d.moved) { const n = Math.max(0, Math.min(Math.round(event.currentTarget.scrollLeft / event.currentTarget.clientWidth), visibleChannels.length - 1)); setActiveTab(n); event.currentTarget.scrollTo({ left: n * event.currentTarget.clientWidth, behavior: "smooth" }); } }}
+                onPointerCancel={() => { dragRef.current = null; }}>
+              {visibleChannels.map((channel, panelIndex) => {
+                const members = [...channel.members].sort((x, y) => y.seasonPoints - x.seasonPoints);
+                const panelMaxPoints = members[0]?.seasonPoints ?? 0;
+                return <section className="profile-channel-panel" key={channel.channelId || panelIndex} aria-label={channel.name}>
+                  <div style={{ ...Object.assign({}, styles.channelHeader, { backgroundColor: colors.primaryDim, borderColor: colors.borderActive }) }}>
+                    <div style={{ ...Object.assign({}, styles.channelAvatar, { backgroundColor: colors.primary }) }}><span style={styles.channelAvatarText}>{(channel.name?.[0] ?? "?").toUpperCase()}</span></div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <span style={{ ...Object.assign({}, styles.channelName, { color: colors.textPrimary }) }} className="profile-ellipsis">{channel.name}</span>
+                      <div style={styles.channelMeta}><Users size={9} color={colors.textTertiary} /><span style={{ ...Object.assign({}, styles.channelMetaText, { color: colors.textTertiary }) }}>{channel.memberCount}</span><Award size={9} color={colors.textTertiary} /><span style={{ ...Object.assign({}, styles.channelMetaText, { color: colors.textTertiary }) }}>S{channel.season}</span>{channel.isAdmin && <div style={{ ...Object.assign({}, styles.adminPill, { backgroundColor: colors.primaryMuted }) }}><Crown size={8} color={colors.primary} /><span style={{ ...Object.assign({}, styles.adminPillText, { color: colors.primary }) }}>Admin</span></div>}</div>
                     </div>
-                </div>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6, minWidth: 0 }}>
+                    {members.map((member, index) => <MemberCard key={member.userId || index} colors={colors} styles={styles} member={member} rank={index + 1} maxPoints={panelMaxPoints} isYou={member.userId === currentUserId} onViewProfile={() => onViewMember(member)} />)}
+                  </div>
+                </section>;
+              })}
             </div>
-
             {/* Members list */}
             <div style={{ display: 'flex', flexDirection: 'column' }}>
                 {sortedMembers.map((member, index) => (
