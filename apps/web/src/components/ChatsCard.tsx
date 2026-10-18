@@ -29,6 +29,7 @@ import {
   Heart,
   Lock,
   MessageCircle,
+  Pointer,
   Radio,
   Vote,
 } from 'lucide-react';
@@ -50,6 +51,7 @@ import { LiveBadge } from './ui/LiveBadge';
 import { ActionButton } from './ui/ActionButton';
 import { Input } from './ui/input';
 import { VoterList } from './ui/Voterstack';
+import { useTeamLogo } from '@/hooks/useTeamLogo';
 
 const COMMENT_STYLE_COLOR = (colors: ReturnType<typeof useFanColors>) =>
   colors.textSecondary;
@@ -82,6 +84,12 @@ export interface LiveCommentaryEntry {
   text: string;
   minute: number;
   timestamp?: string;
+}
+
+function TeamLogo({ name, url, colors }: { name: string; url: string | null; colors: ReturnType<typeof useFanColors> }) {
+  const [failed, setFailed] = useState(false);
+  if (!url || failed) return <span className="match-card-team-logo match-card-team-fallback" style={{ background: colors.primaryDim, color: colors.primary }}>{name.trim().charAt(0).toUpperCase() || '?'}</span>;
+  return <img className="match-card-team-logo" src={url} alt="" loading="lazy" decoding="async" referrerPolicy="no-referrer" onError={() => setFailed(true)} />;
 }
 
 function kickoffLabel(dateString: string): string {
@@ -142,6 +150,8 @@ export function MatchCard({
   const { requireLogin } = useLoginModal();
   const [draft, setDraft] = useState('');
   const [failedUri, setFailedUri] = useState<string | null>(null);
+  const homeLogo = useTeamLogo(fixture.homeTeam, fixture as unknown as Record<string, unknown>, 'home');
+  const awayLogo = useTeamLogo(fixture.awayTeam, fixture as unknown as Record<string, unknown>, 'away');
 
   // Random pick, fixed for this card's lifetime.
   const [seed] = useState(() => Math.random());
@@ -425,12 +435,6 @@ export function MatchCard({
             )}
           </div>
 
-          <button type="button" onClick={handleLineups} style={styles.secondaryRow}
-            aria-label={`Open match details: ${fixtureLabel}`}>
-            <span style={styles.secondaryText}>{fixture.league || 'Unknown league'}</span>
-            <span style={styles.secondaryText}>{captionLabel}</span>
-          </button>
-
           <div className="match-card-league-line" style={{ ...styles.leagueName, marginBottom: 6 }}>{fixture.league || 'Unknown league'}</div>
           <button type="button" onClick={handleLineups} className="match-card-mobile-league" style={styles.secondaryRow} aria-label={`Open match details: ${fixtureLabel}`}>
             <span style={styles.secondaryText}>{fixture.league || 'Unknown league'}</span>
@@ -495,6 +499,9 @@ export function MatchCard({
               colors={colors}
               onPress={handleVote}
             />
+            <button type="button" className="match-card-poke" aria-label="Poke on this match" onClick={handleVote}>
+              <span className="match-card-poke-circle"><Pointer size={16} aria-hidden="true" /></span><span>Poke</span>
+            </button>
             <ActionButton
               icon={Heart}
               label={liked ? 'Unlike' : 'Like'}
@@ -545,7 +552,14 @@ export function MatchCard({
               </>
             )}
           </div>
-          {!voters.length && !isCompleted && <span className="match-card-prediction" style={{ color: colors.primary, fontSize: 11, textAlign: 'right', whiteSpace: 'nowrap', marginLeft: 'auto' }}>{emptyPrompt}</span>}
+          {!voters.length && !isCompleted && <span className="match-card-mobile-prediction" style={{ color: colors.primary, fontSize: 11, textAlign: 'right', whiteSpace: 'nowrap', marginLeft: 'auto' }}>{emptyPrompt}</span>}
+          <button type="button" className="match-card-teams" onClick={handleLineups} aria-label={`Open match details: ${fixtureLabel}`}>
+            <TeamLogo name={fixture.homeTeam} url={homeLogo} colors={colors} />
+            <span className="match-card-team-name">{fixture.homeTeam}</span>
+            <span className="match-card-score">{scoreLabel}</span>
+            <span className="match-card-team-name">{fixture.awayTeam}</span>
+            <TeamLogo name={fixture.awayTeam} url={awayLogo} colors={colors} />
+          </button>
         </div>
       </div>
     </FeedItem>
