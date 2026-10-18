@@ -1864,3 +1864,422 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
   height: 16px !important;
   border-radius: 50% !important;
 }
+
+
+/* Desktop Home layout system — presentation-only; preserve the narrow layout. */
+@media (min-width: 651px) {
+  :root {
+    --bg: var(--home-page-bg, #0b1020);
+    --surface: var(--home-surface, #11182a);
+    --text-1: var(--home-text-primary, #f3f4f6);
+    --text-2: var(--home-text-secondary, #9ca8bc);
+    --text-3: var(--home-text-tertiary, #8190a8);
+    --primary: var(--home-primary, #eab746);
+    --primary-dim: var(--home-primary-dim, #202d43);
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+
+  .home-screen {
+    --home-surface: color-mix(in srgb, var(--home-page-bg) 96%, white 4%);
+    width: 100%;
+    overflow: hidden;
+    color: var(--text-1);
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+
+  .home-screen .desktop-home-header {
+    position: sticky !important;
+    top: 0;
+    z-index: 50;
+    height: 56px;
+    min-height: 56px;
+    padding-top: 0 !important;
+    background: var(--bg) !important;
+    border: 0 !important;
+  }
+
+  .home-screen .desktop-home-header > div {
+    width: 100% !important;
+    max-width: 1680px !important;
+    height: 56px;
+    min-height: 56px !important;
+    margin-inline: auto !important;
+    padding-inline: 16px !important;
+    gap: 24px !important;
+  }
+
+  .home-screen .desktop-home-header > div > a {
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif !important;
+    font-size: 22px !important;
+    font-weight: 600 !important;
+    line-height: 1 !important;
+    letter-spacing: -0.035em;
+    color: var(--primary) !important;
+  }
+
+  .home-screen .desktop-home-header nav {
+    flex: 1 1 auto !important;
+    width: auto !important;
+    max-width: none !important;
+    min-width: 0 !important;
+  }
+
+  .home-screen .desktop-home-header nav > div {
+    gap: 16px !important;
+    align-items: center !important;
+    padding-block: 0 !important;
+  }
+
+  .home-screen .desktop-home-header nav button {
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    border: 0 !important;
+    background: transparent !important;
+    color: var(--text-2);
+  }
+
+  .home-screen .desktop-home-header nav button:hover {
+    color: var(--text-1) !important;
+  }
+
+  .home-screen .desktop-home-header nav button[aria-current="page"] {
+    color: var(--primary) !important;
+  }
+
+  .home-screen .desktop-home-header nav button img,
+  .home-screen .desktop-home-header nav button .channel-image,
+  .home-screen .desktop-home-header nav button [data-channel-image] {
+    width: 20px !important;
+    height: 20px !important;
+    flex: 0 0 20px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+  }
+
+  .home-screen .desktop-home-header .navbar-actions,
+  .home-screen .desktop-home-header > div > div:last-child {
+    align-items: center !important;
+    gap: 16px !important;
+    margin-left: auto !important;
+  }
+
+  .home-screen .desktop-home-header button[aria-label="Account menu"],
+  .home-screen .desktop-home-header button[aria-label^="Account menu"] {
+    border-radius: 50% !important;
+  }
+
+  .home-screen .desktop-home-header button[aria-label="Open menu"],
+  .home-screen .desktop-home-header button[aria-label="Refresh channels"],
+  .home-screen .desktop-home-header button[aria-label="Notifications"] {
+    background: transparent !important;
+    color: var(--text-2) !important;
+  }
+
+  .home-screen .desktop-home-header button[aria-label="Open menu"]:hover,
+  .home-screen .desktop-home-header button[aria-label="Refresh channels"]:hover,
+  .home-screen .desktop-home-header button[aria-label="Notifications"]:hover {
+    background: var(--surface) !important;
+  }
+
+  .home-screen .desktop-home-header button:not([aria-label]) {
+    border-radius: 0 !important;
+  }
+
+  .home-screen .workspace {
+    width: 100%;
+    max-width: 1680px;
+    margin-inline: auto;
+    padding: 12px 16px 0;
+    display: grid !important;
+    grid-template-columns: 300px minmax(0, 1fr);
+    gap: 16px;
+    overflow: hidden;
+    background: var(--bg) !important;
+  }
+
+  .home-screen .profile-sidebar-rich {
+    position: sticky;
+    top: 68px;
+    width: 300px !important;
+    height: calc(100vh - 80px);
+    max-height: calc(100vh - 80px);
+    min-height: 0;
+    flex: 0 0 300px !important;
+    padding: 12px 0 !important;
+    margin: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    scrollbar-width: none !important;
+    background: var(--bg) !important;
+  }
+
+  .home-screen .profile-sidebar-rich::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .home-screen .home-columns {
+    display: grid !important;
+    grid-template-columns: minmax(420px, clamp(420px, 28vw, 520px)) minmax(0, 1fr) !important;
+    column-gap: 16px !important;
+    gap: 16px !important;
+    min-width: 0;
+    min-height: 0;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    background: var(--bg) !important;
+  }
+
+  .home-screen .home-column {
+    min-width: 0 !important;
+    min-height: 0;
+    height: 100%;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    scrollbar-width: none !important;
+    background: var(--bg) !important;
+  }
+
+  .home-screen .home-column::-webkit-scrollbar,
+  .home-screen .feed-screen::-webkit-scrollbar,
+  .home-screen .chats-fixture-list::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .home-screen .chats-column,
+  .home-screen .feed-column {
+    border: 0 !important;
+  }
+
+  .home-screen .chats-column .pane-content,
+  .home-screen .feed-column .pane-content {
+    padding: 0 !important;
+  }
+
+  .home-screen .chats-column .chats-fixture-list > div:has(> .segmented-control) {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    height: 44px !important;
+    min-height: 44px !important;
+    max-height: 44px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: var(--bg) !important;
+  }
+
+  .home-screen .chats-column .segmented-control {
+    height: 44px !important;
+    min-height: 44px !important;
+    max-height: 44px !important;
+    align-items: stretch;
+    background: var(--bg) !important;
+  }
+
+  .home-screen .chats-column .segmented-control > button {
+    position: relative;
+    height: 44px !important;
+    min-height: 44px !important;
+    padding: 0 8px !important;
+    color: var(--text-2) !important;
+    background: var(--bg) !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    text-transform: capitalize;
+  }
+
+  .home-screen .chats-column .segmented-control > button[aria-pressed="true"],
+  .home-screen .chats-column .segmented-control > button[aria-selected="true"],
+  .home-screen .chats-column .segmented-control > button[data-state="active"] {
+    color: var(--primary) !important;
+  }
+
+  .home-screen .chats-column .segmented-control > button[aria-pressed="true"]::after,
+  .home-screen .chats-column .segmented-control > button[aria-selected="true"]::after,
+  .home-screen .chats-column .segmented-control > button[data-state="active"]::after {
+    position: absolute;
+    right: 8px;
+    bottom: 0;
+    left: 8px;
+    height: 2px;
+    content: "";
+    background: var(--primary);
+  }
+
+  .home-screen .feed-column::before {
+    content: "LATEST POSTS";
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    height: 44px;
+    min-height: 44px;
+    padding: 0 12px;
+    background: var(--bg);
+    color: var(--text-3);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+  }
+
+  .home-screen .feed-column .feed-screen {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    padding: 0 0 16px !important;
+    background: var(--bg) !important;
+  }
+
+  .home-screen .feed-column .feed-list {
+    gap: 16px !important;
+    align-items: stretch !important;
+  }
+
+  .home-screen .feed-column .post-card,
+  .home-screen .feed-column .feed-item,
+  .home-screen .feed-column .feed-screen > .feed-item {
+    width: 100% !important;
+    max-width: 760px !important;
+    margin: 0 !important;
+    padding: 12px !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: var(--bg) !important;
+    color: var(--text-1) !important;
+    box-shadow: none !important;
+  }
+
+  .home-screen .feed-column .post-card:hover,
+  .home-screen .feed-column .feed-item:hover {
+    background: var(--surface) !important;
+  }
+
+  .home-screen .feed-column .post-author {
+    display: flex;
+    align-items: center;
+    gap: 8px !important;
+    min-height: 36px;
+  }
+
+  .home-screen .feed-column .post-author .mini-avatar,
+  .home-screen .feed-column .post-author img {
+    width: 28px !important;
+    height: 28px !important;
+    flex: 0 0 28px !important;
+    border-radius: 50% !important;
+    object-fit: cover;
+  }
+
+  .home-screen .feed-column .post-author strong,
+  .home-screen .feed-column .post-author a {
+    color: var(--text-1) !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+  }
+
+  .home-screen .feed-column .post-author small,
+  .home-screen .feed-column .post-author time {
+    margin-left: auto;
+    color: var(--text-3) !important;
+    font-size: 12px !important;
+    font-weight: 400 !important;
+  }
+
+  .home-screen .feed-column .post-caption {
+    margin-top: 6px !important;
+    color: var(--text-1) !important;
+    font-size: 14px !important;
+    line-height: 1.45 !important;
+  }
+
+  .home-screen .feed-column .post-image,
+  .home-screen .feed-column .post-card video,
+  .home-screen .feed-column .feed-item video,
+  .home-screen .feed-column .feed-item img:not(.mini-avatar) {
+    display: block;
+    width: 100% !important;
+    max-height: 420px !important;
+    margin-top: 8px !important;
+    border-radius: 8px !important;
+    object-fit: cover !important;
+    aspect-ratio: clamp(16 / 9, 100%, 4 / 5);
+  }
+
+  .home-screen .feed-column .post-card button,
+  .home-screen .feed-column .feed-item button {
+    color: var(--text-2);
+  }
+
+  .home-screen .feed-column .post-card button[class*="follow"],
+  .home-screen .feed-column .feed-item button[class*="follow"] {
+    color: var(--primary) !important;
+  }
+
+  .home-screen .feed-column .post-card svg,
+  .home-screen .feed-column .feed-item svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  .home-screen .feed-column .profile-guest-login,
+  .home-screen .profile-sidebar-rich .profile-guest-login {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    padding: 0 12px !important;
+    border: 0 !important;
+    border-radius: 8px !important;
+    background: var(--primary) !important;
+    color: var(--home-text-on-primary, #111) !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+  }
+
+  .home-screen .profile-sidebar-rich .profile-channel-tabbar [role="tab"] {
+    min-height: 28px !important;
+    font-size: 11px !important;
+  }
+
+  .home-screen .profile-sidebar-rich .profile-channel-tabbar [role="tab"] > span {
+    font-size: 11px !important;
+  }
+
+  .home-screen .profile-sidebar-rich .sidebar-divider {
+    height: 0 !important;
+    margin: 8px 0 !important;
+    background: transparent !important;
+  }
+
+  .home-screen .profile-sidebar-rich .profile-guest-field,
+  .home-screen .profile-sidebar-rich .profile-guest-banner,
+  .home-screen .profile-sidebar-rich .profile-guest-login,
+  .home-screen .profile-sidebar-rich .profile-sidebar-post-action .button {
+    border: 0 !important;
+  }
+
+  .home-screen .feed-column .post-card a,
+  .home-screen .feed-column .feed-item a,
+  .home-screen .profile-sidebar-rich .profile-header-view-link {
+    color: var(--text-1) !important;
+  }
+
+  .home-screen .profile-sidebar-rich .profile-header-view-link:hover,
+  .home-screen .feed-column a:hover {
+    color: var(--primary) !important;
+  }
+}
+
+@media (max-width: 650px) {
+  /* Explicitly preserve the pre-existing narrow Home presentation. */
+  .home-screen .workspace,
+  .home-screen .home-columns,
+  .home-screen .profile-sidebar-rich,
+  .home-screen .desktop-home-header,
+  .home-screen .feed-column::before {
+    all: revert;
+  }
+}
