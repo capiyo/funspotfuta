@@ -5,7 +5,9 @@
 // which means every storage op is async here.
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { mobileStorage } from '@funspot/storage';
 
 interface AuthState {
   isLoggedIn: boolean;
@@ -67,7 +69,22 @@ const LOGOUT_KEYS = [
 ];
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const queryClient = useQueryClient();
+  const previousUserId = useRef<string | null>(null);
   const [state, setState] = useState<AuthState>(initialState);
+
+  useEffect(() => {
+    if (!state.isInitialized) return;
+    const currentUserId = state.isLoggedIn ? state.userId : null;
+    const previous = previousUserId.current;
+    previousUserId.current = currentUserId;
+    if (previous === null || previous === currentUserId) return;
+
+    // The MMKV persisted query blob is user data too. Clear both memory and
+    // disk on logout or direct account switching.
+    queryClient.clear();
+    void mobileStorage.removeItem('FUNSPOT_QUERY_CACHE');
+  }, [state.isInitialized, state.isLoggedIn, state.userId, queryClient]);
 
   useEffect(() => {
     (async () => {
@@ -149,9 +166,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await AsyncStorage.multiRemove(LOGOUT_KEYS);
     } finally {
+      queryClient.clear();
+      await mobileStorage.removeItem('FUNSPOT_QUERY_CACHE');
       setState({ ...initialState, isInitialized: true });
     }
-  }, []);
+  }, [queryClient]);
 
   const updateAuthToken = useCallback(
     async (newToken: string, newRefreshToken?: string): Promise<boolean> => {
@@ -193,9 +212,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await AsyncStorage.clear();
     } finally {
+      queryClient.clear();
+      await mobileStorage.removeItem('FUNSPOT_QUERY_CACHE');
       setState({ ...initialState, isInitialized: true });
     }
-  }, []);
+  }, [queryClient]);
 
   const value = useMemo<AuthContextValue>(
     () => ({ ...state, login, logout, updateAuthToken, updateUserData, hasValidSession, clearAllAppData }),
