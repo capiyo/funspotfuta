@@ -98,13 +98,15 @@ export default function ComradesScreen({
         authToken,
       });
       if (result.success === false) {
-        queryClient.setQueryData(key, previous);
+        if (previous) queryClient.setQueryData(key, previous);
+        else queryClient.removeQueries({ queryKey: key, exact: true });
         return;
       }
       setResults((items) => items.filter((item) => String(item.id ?? item._id) !== id));
       await refresh();
     } catch (error) {
-      queryClient.setQueryData(key, previous);
+      if (previous) queryClient.setQueryData(key, previous);
+        else queryClient.removeQueries({ queryKey: key, exact: true });
       throw error;
     } finally {
       setBusyId(null);
@@ -122,12 +124,14 @@ export default function ComradesScreen({
     try {
       const success = await removeComrade(userId, comradeId, authToken);
       if (!success) {
-        queryClient.setQueryData(key, previous);
+        if (previous) queryClient.setQueryData(key, previous);
+        else queryClient.removeQueries({ queryKey: key, exact: true });
         return;
       }
       await refresh();
     } catch (error) {
-      queryClient.setQueryData(key, previous);
+      if (previous) queryClient.setQueryData(key, previous);
+        else queryClient.removeQueries({ queryKey: key, exact: true });
       throw error;
     } finally {
       setBusyId(null);
