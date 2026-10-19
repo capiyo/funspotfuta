@@ -42,7 +42,7 @@ export { queryKeys, mergeCachedList, capCachedMessages } from './queries/queryKe
 export type { QueryKeyFactory } from './queries/queryKeys';
 export { useCachedProfile, useCachedComrades } from './queries/useCachedAccountData';
 export { useAllChannels } from './queries/useAllChannels';
-export { useFeed } from './queries/useFeed';
+export { useFeed, feedQueryOptions } from './queries/useFeed';
 export type { FeedPage } from './queries/useFeed';
 
 export type {
