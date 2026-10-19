@@ -7,20 +7,70 @@ import type { KVStorage } from '@funspot/storage';
 const DAY = 24 * 60 * 60 * 1000;
 
 /**
- * Query keys whose data is persisted to disk. Matched on queryKey[0] only.
- * Must include EVERY key[0] you want to survive a cold start. Previously
- * 'userChannels' and 'historyGames' were missing, so they were never saved.
+ * Query-key prefixes whose data is persisted to disk. Matched on queryKey[0].
+ *
+ * This is the shared persisted cache for web and mobile. It covers the Flutter
+ * AppCache domains as those domains are migrated to React Query: fixtures,
+ * votes, fixture/channel chat, channels, profile/account display data,
+ * comrades, feed/post interactions, history, aftermatch, notifications and
+ * per-fixture activity counters.
+ *
+ * Adding a prefix permits data under that prefix to persist; each screen still
+ * needs to read/write the matching query key (do not bypass this cache with
+ * component-owned fetch state). Auth tokens, passwords, payment credentials,
+ * and other secrets must never be stored as query data.
  */
 const PERSISTED_KEYS = new Set([
+  // Flutter AppCache: fixtures, history and aftermatch.
   'fixtures',
-  'feed',
   'history',
   'historyGames',
-  'channels',
-  'userChannels',
-  'profile',
+  'aftermatch',
+  'liveEvents',
+  // Flutter AppCache: votes, voters, counts and fixture/channel activity.
   'userVotes',
   'fixtureVotes',
+  'votes',
+  'voters',
+  'comradeVoters',
+  'channelFixtures',
+  'voteCounts',
+  'commentCounts',
+  'likeCounts',
+  'pledgeCounts',
+  'betCounts',
+  'unreadCounts',
+  'latestComments',
+  'perChannelVoteCounts',
+  // Flutter AppCache: fixture and channel messages/comments.
+  'messages',
+  'chatMessages',
+  'comments',
+  'postComments',
+  'historyComments',
+  // Flutter AppCache: profile, accounts and comrades.
+  'profile',
+  'account',
+  'accounts',
+  'userProfile',
+  'comrades',
+  'userComrades',
+  'userChannelCounts',
+  // Flutter AppCache: channels, feed and post data.
+  'channels',
+  'userChannels',
+  'channelLeaderboard',
+  'feed',
+  'posts',
+  'postStats',
+  'followers',
+  'following',
+  // Flutter AppCache: notifications and payment display data.
+  'notifications',
+  'notificationPreferences',
+  'notificationSummary',
+  'balance',
+  'transactions',
 ]);
 
 /**
