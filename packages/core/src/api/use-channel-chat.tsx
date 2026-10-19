@@ -116,10 +116,11 @@ export function useChannelChat({
 
     // Vote identity and voter names survive navigation, backgrounding and cold starts.
     // Keep this snapshot separate from the periodically refreshed fixture payload.
-    const persistedFixtureIdRef = useRef(fixtureId);
+    const voteCacheIdentity = `${fixtureId ?? ""}:${userId ?? "anonymous"}`;
+    const persistedFixtureIdRef = useRef(voteCacheIdentity);
     useEffect(() => {
-        if (persistedFixtureIdRef.current !== fixtureId) {
-            persistedFixtureIdRef.current = fixtureId;
+        if (persistedFixtureIdRef.current !== voteCacheIdentity) {
+            persistedFixtureIdRef.current = voteCacheIdentity;
             return;
         }
         if (!fixtureId) return;
@@ -130,7 +131,7 @@ export function useChannelChat({
             userVoteSelection,
             voters,
         });
-    }, [queryClient, fixtureId, homeVotes, awayVotes, drawVotes, userVoteSelection, voters]);
+    }, [queryClient, fixtureId, userId, voteCacheIdentity, homeVotes, awayVotes, drawVotes, userVoteSelection, voters]);
 
     // Restore the cached vote snapshot whenever the selected fixture changes.
     useEffect(() => {
@@ -142,7 +143,7 @@ export function useChannelChat({
         setDrawVotes(snapshot?.drawVotes ?? 0);
         setUserVoteSelection(snapshot?.userVoteSelection ?? null);
         setVoters(snapshot?.voters ?? []);
-    }, [queryClient, fixtureId]);
+    }, [queryClient, fixtureId, userId]);
 
     // ── Internals ───────────────────────────────────────────────
     const seqRef = useRef(0);
