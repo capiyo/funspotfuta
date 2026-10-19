@@ -21,6 +21,15 @@ const DAY = 24 * 60 * 60 * 1000;
  * component-owned fetch state). Auth tokens, passwords, payment credentials,
  * and other secrets must never be stored as query data.
  */
+function containsCredential(value: unknown, depth = 0): boolean {
+  if (depth > 8 || value === null || typeof value !== 'object') return false;
+  if (Array.isArray(value)) return value.some((item) => containsCredential(item, depth + 1));
+  return Object.entries(value as Record<string, unknown>).some(([key, child]) => {
+    if (/(^|_)(auth|access|refresh)?token$|password|secret|credential|authorization/i.test(key)) return true;
+    return containsCredential(child, depth + 1);
+  });
+}
+
 const PERSISTED_KEYS = new Set([
   // Flutter AppCache: fixtures, history and aftermatch.
   'fixtures',
@@ -98,6 +107,10 @@ export const PERSIST_OPTIONS = {
       if (query.state.status !== 'success' || query.state.data === undefined) return false;
       return typeof key === 'string' && PERSISTED_KEYS.has(key);
     },
+    // Only replay-safe paused mutations may survive restart. Never persist a
+    // mutation whose variables contain bearer tokens, passwords or credentials.
+    shouldDehydrateMutation: (mutation: { state: { isPaused: boolean; variables?: unknown } }) =>
+      mutation.state.isPaused && !containsCredential(mutation.state.variables),
   },
 } as const;
 
