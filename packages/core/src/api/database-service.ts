@@ -28,9 +28,20 @@ async function fetchJson(url: string, ms: number = REQUEST_TIMEOUT_MS): Promise<
   }
 }
 
-function asArray(json: any): any[] {
+function asArray(json: unknown): unknown[] {
   if (Array.isArray(json)) return json;
-  if (json && Array.isArray(json.data)) return json.data;
+  if (!json || typeof json !== 'object') return [];
+  const record = json as Record<string, unknown>;
+  for (const key of ['data', 'fixtures', 'games']) {
+    const value = record[key];
+    if (Array.isArray(value)) return value;
+    if (value && typeof value === 'object') {
+      const nested = value as Record<string, unknown>;
+      for (const nestedKey of ['data', 'fixtures', 'games']) {
+        if (Array.isArray(nested[nestedKey])) return nested[nestedKey] as unknown[];
+      }
+    }
+  }
   return [];
 }
 
