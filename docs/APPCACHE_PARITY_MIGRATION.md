@@ -44,14 +44,38 @@ The persisted-key allowlist only permits matching React Query entries to be writ
 
 Account/profile display data and balance/transaction summaries may be cached, but passwords, auth tokens, payment credentials, and other secrets must not be persisted as query data.
 
-## Status
+## Implementation checklist
 
-- [x] Expanded shared persisted-query prefix allowlist to cover the AppCache domains above.
-- [ ] Migrate each data domain to canonical shared query keys and cache-backed hooks.
-- [ ] Replace component-owned duplicate fetch/state paths in both `apps/mobile` and `apps/web`.
-- [ ] Wire comrade lists, comrade voters, counts, chat messages, post comments and history comments.
-- [ ] Add profile/account display-data cache-first loading and safe balance/transaction-summary caching.
-- [ ] Apply optimistic cache updates and targeted invalidation after each mutation.
-- [ ] Verify cold start, offline cached rendering, background refresh and account switching.
-- [ ] Run core/mobile/web typecheck, lint and web build; inspect Actions results.
-- [ ] Confirm `git diff master -- apps/mobile` is empty only if mobile scope is intentionally excluded. This migration explicitly includes mobile, so mobile changes must instead be reviewed and tested rather than prohibited.
+### Inventory and shared cache foundation
+
+- [x] Read `lib/services/local_database.dart`, `lib/services/memory_manager.dart`, `lib/main.dart`, and fixture-page cache use.
+- [x] Record the known Flutter AppCache and LocalDatabase domains in the inventory table above.
+- [x] Expand persisted query-key prefixes for AppCache data domains.
+- [x] Persist only successful queries with defined data; bump the persisted-cache buster to `v3`.
+- [x] Set query and mutation network mode to `offlineFirst`; keep query `gcTime` aligned with the 7-day persistence max age.
+- [x] Resume paused mutations after mobile persistence hydration.
+- [x] Add a shared query-key factory with user-scoped keys for profile, comrades, votes, messages, history and activity data.
+- [x] Add reusable merge-not-replace and 50-message cache-cap utilities.
+- [x] Add shared cache-first hooks for profile and comrades; export them from `@funspot/core`.
+- [x] Use the shared query-key factory in the existing fixtures/history hooks and web public-channel hook.
+
+### Domain wiring — not complete
+
+- [ ] Fixtures: inventory all consumers, ensure every web/mobile consumer uses `useFixtures`/shared key, validate API response shapes.
+- [ ] Votes and user vote state: wire every query/mutation to canonical user-scoped keys and optimistic rollback.
+- [ ] Voters/comrade voters: merge partial server results with cached entries and wire all consumers.
+- [ ] Chat/messages: wire all consumers and mutations; cap persisted messages at 50 per fixture.
+- [ ] Channels/channel fixtures: move web-specific channel query functions into shared core hooks and wire mobile/web consumers.
+- [ ] Counts/latest comments: wire vote, comment, like, pledge, bet and unread counts to all cards and modals.
+- [ ] Comrades: migrate every list/search/add/remove/relationship caller to shared hooks and optimistic mutations.
+- [ ] Profile/account: remove direct component fetches; cache display profile per user; preserve cached profile on transient network failure.
+- [ ] Payments: cache only safe display summaries; never cache credentials or auth tokens.
+- [ ] Feed/posts/post comments/likes/followers: migrate every consumer and mutation.
+- [ ] History/history comments/aftermatch/live events: migrate every consumer and mutation.
+- [ ] Notifications: migrate every consumer and mutation to shared query keys.
+- [ ] Account switch/logout: clear persisted query data safely and prove no cross-account leakage.
+- [ ] Audit all HTTP usage in apps/web and apps/mobile; ensure components call core hooks rather than HTTP directly.
+- [ ] Add tests for merge, scoping, optimistic rollback, restore, buster, logout, offline launch and vote-to-chat flow.
+- [ ] Run core/mobile/web typecheck, web lint/build and tests; wait for a successful GitHub Actions run.
+
+Status is intentionally not marked complete: the query-key foundation does not itself migrate all component-owned fetch/state paths. No unverified domain row should be checked off.
