@@ -15,6 +15,7 @@
 // (e.g. the Arena match card comment box) send with the exact same payload.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { webSocketService } from './websocket-service';
 import {
     sendChannelMessage,
@@ -83,6 +84,11 @@ export function useChannelChat({
     fixtureStatus = null,
     seed = null,
 }: Params) {
+    const queryClient = useQueryClient();
+    const cachedVotes = fixtureId
+        ? queryClient.getQueryData<{ homeVotes: number; awayVotes: number; drawVotes: number; userVoteSelection: string | null; voters: Voter[] }>(['fixtureVotes', fixtureId])
+        : undefined;
+
     // ── Messages ────────────────────────────────────────────────
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [connected, setConnected] = useState(false);
@@ -100,13 +106,38 @@ export function useChannelChat({
     const [isLive, setIsLive] = useState(seed?.isLive ?? false);
 
     // ── Live vote state ─────────────────────────────────────────
-    const [homeVotes, setHomeVotes] = useState(0);
-    const [awayVotes, setAwayVotes] = useState(0);
-    const [drawVotes, setDrawVotes] = useState(0);
+    const [homeVotes, setHomeVotes] = useState(cachedVotes?.homeVotes ?? 0);
+    const [awayVotes, setAwayVotes] = useState(cachedVotes?.awayVotes ?? 0);
+    const [drawVotes, setDrawVotes] = useState(cachedVotes?.drawVotes ?? 0);
     const [userVoteSelection, setUserVoteSelection] = useState<string | null>(
-        null,
+        cachedVotes?.userVoteSelection ?? null,
     );
-    const [voters, setVoters] = useState<Voter[]>([]);
+    const [voters, setVoters] = useState<Voter[]>(cachedVotes?.voters ?? []);
+
+    // Vote identity and voter names survive navigation, backgrounding and cold starts.
+    // Keep this snapshot separate from the periodically refreshed fixture payload.
+    useEffect(() => {
+        if (!fixtureId) return;
+        queryClient.setQueryData(['fixtureVotes', fixtureId], {
+            homeVotes,
+            awayVotes,
+            drawVotes,
+            userVoteSelection,
+            voters,
+        });
+    }, [queryClient, fixtureId, homeVotes, awayVotes, drawVotes, userVoteSelection, voters]);
+
+    // Restore the cached vote snapshot whenever the selected fixture changes.
+    useEffect(() => {
+        const snapshot = fixtureId
+            ? queryClient.getQueryData<{ homeVotes: number; awayVotes: number; drawVotes: number; userVoteSelection: string | null; voters: Voter[] }>(['fixtureVotes', fixtureId])
+            : undefined;
+        setHomeVotes(snapshot?.homeVotes ?? 0);
+        setAwayVotes(snapshot?.awayVotes ?? 0);
+        setDrawVotes(snapshot?.drawVotes ?? 0);
+        setUserVoteSelection(snapshot?.userVoteSelection ?? null);
+        setVoters(snapshot?.voters ?? []);
+    }, [queryClient, fixtureId]);
 
     // ── Internals ───────────────────────────────────────────────
     const seqRef = useRef(0);
@@ -312,7 +343,18 @@ export function useChannelChat({
                     if (b.userId === userId) return 1;
                     return a.username.localeCompare(b.username);
                 });
-            setVoters(parsed);
+            // Some API responses lag immediately after a successful vote. Merge
+            // instead of replacing with an empty/stale list so the voter stack
+            // never flashes away while the backend catches up.
+            setVoters((previous) => {
+                const merged = new Map(previous.map((v) => [v.userId, v]));
+                for (const voter of parsed) merged.set(voter.userId, voter);
+                return [...merged.values()].sort((a, b) => {
+                    if (a.userId === userId) return -1;
+                    if (b.userId === userId) return 1;
+                    return a.username.localeCompare(b.username);
+                });
+            });
         } catch {
             /* silent */
         }
