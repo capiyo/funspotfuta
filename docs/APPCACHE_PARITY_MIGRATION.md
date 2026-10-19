@@ -78,7 +78,8 @@ Account/profile display data and balance/transaction summaries may be cached, bu
 - [ ] Feed/posts/post comments/likes/followers: migrate every consumer and mutation.
 - [ ] History/history comments/aftermatch/live events: migrate every consumer and mutation.
 - [ ] Notifications: migrate every consumer and mutation to shared query keys.
-- [ ] Account switch/logout: clear persisted query data safely and prove no cross-account leakage.
+- [x] Add query-cache clearing on logout/account switch in web and mobile; mobile provider order now makes the shared QueryClient available to AuthProvider.
+- [ ] Prove account-switch isolation with automated tests and verify the IndexedDB/MMKV removal path on devices.
 - [ ] Audit all HTTP usage in apps/web and apps/mobile; ensure components call core hooks rather than HTTP directly.
 - [ ] Add tests for merge, scoping, optimistic rollback, restore, buster, logout, offline launch and vote-to-chat flow.
 - [ ] Run core/mobile/web typecheck, web lint/build and tests; wait for a successful GitHub Actions run.
