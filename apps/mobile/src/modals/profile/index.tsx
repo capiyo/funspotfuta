@@ -901,7 +901,7 @@ function createStyles(colors: FanColors) {
             justifyContent: 'flex-end',
         },
         sheet: {
-            maxHeight: '88%',
+            maxHeight: '78%',
             borderTopLeftRadius: FAN_RADIUS.xl,
             borderTopRightRadius: FAN_RADIUS.xl,
             backgroundColor: colors.background,
@@ -944,8 +944,8 @@ function createStyles(colors: FanColors) {
             borderWidth: 1,
         },
         headerAvatarText: { fontSize: 14, fontWeight: '700' },
-        headerTitle: { fontSize: 14, fontWeight: '700' },
-        headerSub: { fontSize: 10, marginTop: 2 },
+        headerTitle: { fontSize: 16, fontWeight: '700' },
+        headerSub: { fontSize: 12, marginTop: 2 },
         closeBtn: {
             width: 28,
             height: 28,
@@ -983,8 +983,8 @@ function createStyles(colors: FanColors) {
             alignItems: 'center',
             justifyContent: 'center',
         },
-        balanceLabel: { fontSize: 10 },
-        balanceValue: { fontSize: 14, fontWeight: '700', marginTop: 2 },
+        balanceLabel: { fontSize: 12 },
+        balanceValue: { fontSize: 16, fontWeight: '700', marginTop: 2 },
         balanceActions: { flexDirection: 'row', gap: FAN_SPACING.xs },
         actionChip: {
             flexDirection: 'row',
@@ -994,10 +994,10 @@ function createStyles(colors: FanColors) {
             paddingVertical: FAN_SPACING.sm,
             borderRadius: FAN_RADIUS.pill,
         },
-        actionChipText: { fontSize: 9, fontWeight: '600' },
+        actionChipText: { fontSize: 12, fontWeight: '600' },
         actionChipTextPrimary: {
             color: '#FFFFFF',
-            fontSize: 9,
+            fontSize: 12,
             fontWeight: '600',
         },
 
@@ -1010,8 +1010,8 @@ function createStyles(colors: FanColors) {
             paddingVertical: FAN_SPACING.md,
             borderRadius: FAN_RADIUS.md,
         },
-        infoLabel: { fontSize: 9 },
-        infoValue: { fontSize: 11, fontWeight: '500', marginTop: 1 },
+        infoLabel: { fontSize: 12 },
+        infoValue: { fontSize: 14, fontWeight: '500', marginTop: 1 },
 
         // Action buttons
         actionRow: { flexDirection: 'row', gap: FAN_SPACING.md },
@@ -1024,10 +1024,10 @@ function createStyles(colors: FanColors) {
             paddingVertical: FAN_SPACING.md,
             borderRadius: FAN_RADIUS.md,
         },
-        actionBtnText: { fontSize: 10, fontWeight: '600' },
+        actionBtnText: { fontSize: 13, fontWeight: '600' },
         actionBtnTextPrimary: {
             color: '#FFFFFF',
-            fontSize: 10,
+            fontSize: 13,
             fontWeight: '600',
         },
 
@@ -1040,11 +1040,11 @@ function createStyles(colors: FanColors) {
             justifyContent: 'center',
             marginBottom: FAN_SPACING.md,
         },
-        noProfileTitle: { fontSize: 14, fontWeight: '700', marginBottom: 2 },
-        noProfileHint: { fontSize: 10 },
+        noProfileTitle: { fontSize: 16, fontWeight: '700', marginBottom: 4 },
+        noProfileHint: { fontSize: 12 },
 
         fieldLabel: {
-            fontSize: 8,
+            fontSize: 11,
             fontWeight: '700',
             letterSpacing: 1,
             marginBottom: 4,
@@ -1058,7 +1058,7 @@ function createStyles(colors: FanColors) {
             borderRadius: FAN_RADIUS.md,
             borderWidth: 0.5,
         },
-        fieldInput: { flex: 1, fontSize: 12, paddingVertical: 4 },
+        fieldInput: { flex: 1, fontSize: 14, paddingVertical: 6 },
 
         // Leaderboard section
         leaderboardSection: {
