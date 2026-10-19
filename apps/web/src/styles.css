@@ -1780,6 +1780,7 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
     color: var(--match-primary); font-size: 12px; font-weight: 600;
     white-space: nowrap; pointer-events: auto;
   }
+  .match-card-poke-circle { box-sizing: border-box; flex: 0 0 28px !important; width: 28px !important; min-width: 28px !important; height: 28px !important; min-height: 28px !important; }
   .match-card-poke svg { width: 16px; height: 16px; color: var(--match-primary); }
   .match-card-poke:hover { filter: brightness(1.15); }
   .match-card-poke:focus-visible { outline: 2px solid var(--match-primary) !important; outline-offset: 2px !important; }
@@ -1814,6 +1815,7 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
     color: var(--match-primary); font-size: 12px; font-weight: 600;
     white-space: nowrap; pointer-events: auto;
   }
+  .match-card-poke-circle { box-sizing: border-box; flex: 0 0 28px !important; width: 28px !important; min-width: 28px !important; height: 28px !important; min-height: 28px !important; }
   .match-card-poke svg { width: 16px; height: 16px; color: var(--match-primary); }
   .match-card-poke:hover { filter: brightness(1.15); }
   .match-card-poke:focus-visible { outline: 2px solid var(--match-primary); outline-offset: 2px; }
