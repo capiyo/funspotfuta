@@ -82,7 +82,7 @@ describe('Flutter AppCache parity helpers', () => {
       ...PERSIST_OPTIONS,
     });
     expect(restarted.getQueryData(key)).toBeUndefined();
-    expect(PERSIST_OPTIONS.buster).toBe('v3');
+    expect(PERSIST_OPTIONS.buster).toBe('v4');
     restarted.clear();
   });
 
