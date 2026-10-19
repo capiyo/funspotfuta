@@ -1,13 +1,15 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import {
-  getUserComrades,
   getComradeStats,
   addComrade,
   removeComrade,
   searchPotentialComrades,
   type ComradeStats,
+  useCachedComrades,
+  queryKeys,
 } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
 import { colors } from '@/theme';
@@ -15,26 +17,20 @@ import { colors } from '@/theme';
 export default function ComradesModal({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const { userId, username, authToken } = useAuth();
   const dialogRef = useRef<HTMLDivElement>(null);
-  const [comrades, setComrades] = useState<Record<string, any>[]>([]);
+  const queryClient = useQueryClient();
+  const comradesQuery = useCachedComrades(userId ?? undefined, authToken);
+  const comrades = comradesQuery.data ?? [];
   const [stats, setStats] = useState<ComradeStats | null>(null);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Record<string, any>[]>([]);
-  const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
 
   async function refresh() {
     if (!userId) return;
-    setLoading(true);
-    try {
-      const [list, summary] = await Promise.all([
-        getUserComrades(userId, authToken ?? undefined),
-        getComradeStats(userId, authToken ?? undefined),
-      ]);
-      setComrades(list);
-      setStats(summary);
-    } finally {
-      setLoading(false);
-    }
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: queryKeys.comrades(userId) }),
+      getComradeStats(userId, authToken ?? undefined).then(setStats),
+    ]);
   }
 
   useEffect(() => {
@@ -211,7 +207,7 @@ export default function ComradesModal({ visible, onClose }: { visible: boolean; 
           )}
 
           <h3 className="mb-2 text-[11px]" style={{ color: colors.textMuted }}>Your comrades</h3>
-          {loading ? (
+          {(comradesQuery.isPending && !comradesQuery.data) ? (
             <p role="status" className="mt-5 text-center" style={{ color: colors.green }}>Loading…</p>
           ) : comrades.length === 0 ? (
             <p className="mt-5 text-center text-[13px]" style={{ color: colors.textMuted }}>
