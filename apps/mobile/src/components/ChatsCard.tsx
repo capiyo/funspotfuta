@@ -368,6 +368,18 @@ export function MatchCard({
               colors={colors}
               onPress={handleVote}
             />
+            <Pressable
+              onPress={handleVote}
+              hitSlop={8}
+              style={({ pressed }) => [styles.pokeButton, pressed && { opacity: PRESSED_OPACITY }]}
+              accessibilityRole="button"
+              accessibilityLabel="Poke on this match"
+            >
+              <View style={styles.pokeCircle}>
+                <Pointer size={17} color={colors.primary} />
+              </View>
+              <Text style={[fanText('tag', colors, colors.primary), styles.pokeLabel]}>Poke</Text>
+            </Pressable>
             <ActionButton
               icon={Heart}
               label={liked ? 'Unlike' : 'Like'}
@@ -439,7 +451,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 16,
+    marginBottom: 9,
   },
   previewRow: { marginBottom: 0 },
   resultRow: { marginTop: 10 },
@@ -450,9 +462,9 @@ const styles = StyleSheet.create({
     gap: FAN_SPACING.sm,
   },
   channelAvatar: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: 26,
+    height: 26,
+    borderRadius: 13,
     borderWidth: StyleSheet.hairlineWidth,
     alignItems: 'center',
     justifyContent: 'center',
@@ -472,14 +484,32 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: FAN_SPACING.sm,
-    marginTop: 18,
+    marginTop: 12,
     marginBottom: -FOOTER_BLEED,
+    paddingHorizontal: 14,
+    paddingBottom: 14,
   },
   actions: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: FAN_SPACING.base,
   },
+  pokeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5,
+    minHeight: 30,
+  },
+  pokeCircle: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.primaryDim,
+  },
+  pokeLabel: { fontSize: 13, fontWeight: '600' },
   inputCell: {
     flex: 1,
     minWidth: 0,
