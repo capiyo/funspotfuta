@@ -251,6 +251,7 @@ export default function ProfileContent({
       true,
     );
     setBalance(bal);
+    queryClient.setQueryData(queryKeys.profile(userId), (previous) => previous ? { ...previous, balance: bal } : previous);
     setBalanceLoading(false);
   }, [userId, authToken]);
 
