@@ -219,6 +219,9 @@ export default function ChatsScreen() {
       return fresh.map((fixture) => {
         const fixtureId = fixture.matchId || fixture.id;
         const snapshot = queryClient.getQueryData<{
+          homeVotes: number;
+          awayVotes: number;
+          drawVotes: number;
           voters: Array<{ userId: string; username: string; selection: string; votedAt?: Date | string; isComrade?: boolean }>;
           userVoteSelection: string | null;
         }>(['fixtureVotes', fixtureId, userId ?? 'anonymous']);
