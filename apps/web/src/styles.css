@@ -2592,3 +2592,5 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
 
 @media (min-width: 651px) { body:has(.home-screen) .home-screen .chats-column button.match-card-teams span.match-card-team-name { max-width: none !important; overflow: visible !important; text-overflow: clip !important; }
 }
+
+@media (min-width: 1800px) { .home-screen .home-columns { grid-template-columns: 640px minmax(0, 1fr) !important; } .home-screen .chats-column { min-width: 640px !important; } }
