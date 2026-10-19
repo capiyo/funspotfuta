@@ -39,6 +39,7 @@ export { useFixtures, useHistoryGames } from './queries/useFixtures';
 export { queryKeys, mergeCachedList, capCachedMessages } from './queries/queryKeys';
 export type { QueryKeyFactory } from './queries/queryKeys';
 export { useCachedProfile, useCachedComrades } from './queries/useCachedAccountData';
+export { useAllChannels } from './queries/useAllChannels';
 
 export type {
     AftermatchData,
