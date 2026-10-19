@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { getAllFixtures, getUserParticipatedGames } from '../api/database-service';
+import { queryKeys } from './queryKeys';
 
 /**
  * Replaces AppCache.refreshFixturesWithTime + the fixturesStream +
@@ -9,7 +10,7 @@ import { getAllFixtures, getUserParticipatedGames } from '../api/database-servic
  */
 export function useFixtures() {
   return useQuery({
-    queryKey: ['fixtures'],
+    queryKey: queryKeys.fixtures(),
     queryFn: getAllFixtures,
     staleTime: 60 * 1000,
     refetchInterval: 5 * 60 * 1000, // matches your old auto-refresh cadence
@@ -18,7 +19,7 @@ export function useFixtures() {
 
 export function useHistoryGames(userId?: string) {
   return useQuery({
-    queryKey: ['historyGames', userId],
+    queryKey: queryKeys.historyGames(userId as string),
     queryFn: () => getUserParticipatedGames(userId as string),
     enabled: !!userId,
     staleTime: 5 * 60 * 1000,
