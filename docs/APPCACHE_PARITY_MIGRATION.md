@@ -68,6 +68,8 @@ Account/profile display data and balance/transaction summaries may be cached, bu
 ### Domain wiring — not complete
 
 - [ ] Fixtures: inventory all consumers, ensure every web/mobile consumer uses `useFixtures`/shared key, validate API response shapes.
+- [x] Auth initialization now sequentially warms fixtures → feed → user votes → comrades → profile using shared query options; failures stop the sequence without replacing cached data.
+- [ ] Add fixture-by-fixture voter/chat prefetch only where there is an active fixture/channel, then verify request counts and no startup stampede.
 - [ ] Votes and user vote state: wire every query/mutation to canonical user-scoped keys and optimistic rollback.
 - [ ] Voters/comrade voters: merge partial server results with cached entries and wire all consumers.
 - [ ] Chat/messages: wire all consumers and mutations; cap persisted messages at 50 per fixture.
