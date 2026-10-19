@@ -23,7 +23,7 @@ import {
     createAppQueryClient,
     PERSIST_OPTIONS,
     getAllFixtures,
-    getPosts,
+    feedQueryOptions,
 } from '@funspot/core';
 import { mobileStorage } from '@funspot/storage';
 
@@ -36,13 +36,7 @@ async function prefetchStartupData() {
     // Load the fixture/vote surface first, then warm the feed in the background.
     // Existing persisted data renders immediately while these refreshes run.
     await queryClient.prefetchQuery({ queryKey: ['fixtures'], queryFn: getAllFixtures });
-    await queryClient.prefetchInfiniteQuery({
-        queryKey: ['feed'],
-        queryFn: ({ pageParam }) => getPosts({ page: pageParam, limit: FEED_PAGE_SIZE }),
-        initialPageParam: 1,
-        getNextPageParam: (lastPage: { posts: unknown[] }, allPages: unknown[]) =>
-            lastPage.posts.length === FEED_PAGE_SIZE ? allPages.length + 1 : undefined,
-    });
+    await queryClient.prefetchInfiniteQuery(feedQueryOptions(FEED_PAGE_SIZE));
 }
 
 function onAppStateChange(status: AppStateStatus) {
