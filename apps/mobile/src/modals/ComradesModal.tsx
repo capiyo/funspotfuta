@@ -1,6 +1,7 @@
 // RN port of funspot-next/app/(app)/comrades/page.tsx — as a MODAL.
 
 import { useEffect, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   View,
   Text,
@@ -14,12 +15,13 @@ import {
 import { X } from 'lucide-react-native';
 import { useAuth } from '@/lib/auth/auth-context';
 import {
-  getUserComrades,
   getComradeStats,
   addComrade,
   removeComrade,
   searchPotentialComrades,
   ComradeStats,
+  useCachedComrades,
+  queryKeys,
 } from '@funspot/core';
 import { colors } from '@/theme';
 
@@ -31,23 +33,20 @@ export default function ComradesScreen({
   onClose: () => void;
 }) {
   const { userId, username, authToken } = useAuth();
-  const [comrades, setComrades] = useState<Record<string, any>[]>([]);
+  const queryClient = useQueryClient();
+  const comradesQuery = useCachedComrades(userId ?? undefined, authToken);
+  const comrades = comradesQuery.data ?? [];
   const [stats, setStats] = useState<ComradeStats | null>(null);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Record<string, any>[]>([]);
-  const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
 
   async function refresh() {
     if (!userId) return;
-    setLoading(true);
-    const [list, s] = await Promise.all([
-      getUserComrades(userId, authToken ?? undefined),
-      getComradeStats(userId, authToken ?? undefined),
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: queryKeys.comrades(userId) }),
+      getComradeStats(userId, authToken ?? undefined).then(setStats),
     ]);
-    setComrades(list);
-    setStats(s);
-    setLoading(false);
   }
 
   useEffect(() => {
@@ -160,7 +159,7 @@ export default function ComradesScreen({
             )}
 
             <Text style={styles.sectionLabel}>Your comrades</Text>
-            {loading ? (
+            {(comradesQuery.isPending && !comradesQuery.data) ? (
               <ActivityIndicator color={colors.green} style={{ marginTop: 20 }} />
             ) : comrades.length === 0 ? (
               <Text style={styles.empty}>
