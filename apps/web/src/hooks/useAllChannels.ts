@@ -1,12 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import type { Channel } from '@funspot/core';
 import { channelFromJson } from '@funspot/core/src/api/channels-service';
+import { queryKeys } from '@funspot/core';
 import { apiFetch, apiUrl } from '@/lib/api/api-client';
 
 /** Fetch public/discoverable channels for guests and signed-in users; failures remain errors so React Query can retry. */
 export function useAllChannels(authToken?: string | null) {
   return useQuery<Channel[]>({
-    queryKey: ['channels', 'all-public'],
+    queryKey: queryKeys.channels(),
     queryFn: async () => {
       const url = apiUrl('channels/all');
       let status: number | undefined;
