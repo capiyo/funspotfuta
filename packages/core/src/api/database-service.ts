@@ -62,6 +62,11 @@ export async function getVotesByUser(userId: string): Promise<Record<string, any
   }
 }
 
+/** Strict query-function variant: failures must not be cached as an empty vote list. */
+export async function getVotesByUserStrict(userId: string): Promise<Record<string, any>[]> {
+  return fetchVotesByUser(userId);
+}
+
 export async function getCommentsByUser(userId: string): Promise<Record<string, any>[]> {
   try {
     return await fetchCommentsByUser(userId);
