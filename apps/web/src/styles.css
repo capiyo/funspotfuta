@@ -2602,3 +2602,161 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
 @media (min-width: 651px) { body:has(.home-screen) .home-screen .workspace > main.home-columns { display: grid !important; grid-template-columns: 640px minmax(0, 1fr) !important; } }
 
 @media (min-width: 1800px) { body:has(.home-screen) .home-screen .feed-column { padding-left: 80px !important; box-sizing: border-box !important; } }
+
+/* Responsive parity: keep the match actions and teams available on mobile web. */
+@media (max-width: 650px) {
+  body:has(.home-screen) .home-screen .chats-column .match-card {
+    margin-bottom: 8px !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-content {
+    padding: 12px 12px 4px !important;
+    box-sizing: border-box !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-meta {
+    margin-bottom: 8px !important;
+    gap: 10px !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-channel-avatar {
+    width: 24px !important;
+    height: 24px !important;
+    flex: 0 0 24px !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-league-line {
+    display: block !important;
+    margin: 0 12px 8px !important;
+    font-size: 12px !important;
+    line-height: 1.35 !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-mobile-league {
+    display: none !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-comment-preview {
+    gap: 6px !important;
+    margin-bottom: 6px !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-preview-text {
+    font-size: 13px !important;
+    line-height: 1.4 !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-prompt-line {
+    display: block !important;
+    margin: 6px 0 8px !important;
+    font-size: 12px !important;
+    line-height: 1.35 !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-bottom {
+    display: flex !important;
+    flex-flow: row wrap !important;
+    align-items: center !important;
+    gap: 8px 10px !important;
+    width: 100% !important;
+    padding: 4px 12px 12px !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-actions {
+    display: inline-flex !important;
+    flex: 1 1 auto !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 10px !important;
+    min-width: 0 !important;
+    white-space: nowrap !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-poke {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    flex: 0 0 auto !important;
+    gap: 5px !important;
+    height: 28px !important;
+    min-height: 28px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    color: var(--match-primary) !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    pointer-events: auto !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-poke-circle {
+    display: inline-flex !important;
+    flex: 0 0 28px !important;
+    width: 28px !important;
+    height: 28px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 50% !important;
+    background: var(--match-primary-dim) !important;
+    color: var(--match-primary) !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-teams {
+    display: inline-flex !important;
+    flex: 0 1 auto !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 5px !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    margin-left: auto !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    color: var(--primary) !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    pointer-events: auto !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-team-name {
+    flex: 0 1 auto !important;
+    min-width: 0 !important;
+    max-width: 92px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-size: 12px !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-teams img,
+  body:has(.home-screen) .home-screen .chats-column .match-card-teams .team-logo {
+    width: 16px !important;
+    height: 16px !important;
+    flex: 0 0 16px !important;
+    border-radius: 50% !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-bottom > div:nth-child(2) {
+    flex: 1 1 100% !important;
+    min-width: 0 !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-mobile-prediction {
+    display: none !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card .action-button {
+    min-height: 28px !important;
+    gap: 4px !important;
+    padding: 0 !important;
+    font-size: 12px !important;
+    pointer-events: auto !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card .action-button svg {
+    width: 15px !important;
+    height: 15px !important;
+  }
+}
+
+/* Profile typography: improve legibility on narrow screens without changing layout. */
+@media (max-width: 650px) {
+  .profile-header-row .profile-header-name-column > span:first-child { font-size: 16px !important; }
+  .profile-header-row .profile-header-name-column > span:last-child { font-size: 12px !important; }
+  .profile-guest-preview { gap: 14px !important; padding: 14px 16px 20px !important; }
+  .profile-guest-banner { font-size: 13px !important; line-height: 1.45 !important; padding: 12px !important; }
+  .profile-guest-field { gap: 5px !important; padding: 12px !important; }
+  .profile-guest-field > span { font-size: 12px !important; }
+  .profile-guest-field > strong { font-size: 14px !important; line-height: 1.35 !important; }
+  .profile-guest-login { min-height: 44px !important; font-size: 14px !important; }
+  .profile-guest-channels-heading { font-size: 14px !important; }
+  .profile-guest-channels-heading > span { font-size: 12px !important; }
+  .profile-channel-tabbar [role="tab"],
+  .profile-channel-tabbar [role="tab"] > span { font-size: 12px !important; }
+  .profile-member-card,
+  .profile-member-card * { line-height: 1.4; }
+}
+
