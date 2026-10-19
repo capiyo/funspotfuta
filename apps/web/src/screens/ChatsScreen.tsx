@@ -5,10 +5,9 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useQuery, useQueryClient, keepPreviousData } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import type { Channel, Fixture, FanColorPalette, Voter } from '@funspot/core';
-import { FAN_SPACING, fixtureFromJson } from '@funspot/core';
-import { apiFetch, apiUrl } from '@/lib/api/api-client';
+import { FAN_SPACING, useFixtures, queryKeys } from '@funspot/core';
 import { useAllChannels } from '@/hooks/useAllChannels';
 import { sendChannelMessage } from '@funspot/core/src/api/send-channel-messages';
 import { useAuth } from '@/lib/auth/auth-context';
@@ -44,58 +43,10 @@ const EMPTY_COPY: Record<Filter, { title: string; hint: string }> = {
   upcoming: { title: 'No upcoming fixtures', hint: 'New fixtures appear as they are scheduled.' },
   completed: { title: 'No completed matches yet', hint: 'Finished matches appear here.' },
 };
-const FIXTURES_KEY = ['fixtures'] as const;
+const FIXTURES_KEY = queryKeys.fixtures();
 const NO_FIXTURES: Fixture[] = [];
 const NO_CHANNELS: Channel[] = [];
 
-function fixtureArrayFromPayload(payload: unknown): unknown[] | null {
-  if (Array.isArray(payload)) return payload;
-  if (!payload || typeof payload !== 'object') return null;
-
-  const record = payload as Record<string, unknown>;
-  for (const key of ['data', 'fixtures', 'games']) {
-    const value = record[key];
-    if (Array.isArray(value)) return value;
-    if (value && typeof value === 'object') {
-      const nested = value as Record<string, unknown>;
-      for (const nestedKey of ['data', 'fixtures', 'games']) {
-        if (Array.isArray(nested[nestedKey])) return nested[nestedKey] as unknown[];
-      }
-    }
-  }
-  return null;
-}
-
-async function fetchWebFixtures(signal?: AbortSignal): Promise<Fixture[]> {
-  const path = `games?_=${Date.now()}`;
-  const url = apiUrl(path);
-  let status: number | undefined;
-  try {
-    const response = await apiFetch(path, { signal });
-    status = response.status;
-    if (!response.ok) {
-      throw new Error(`GET ${url} failed: HTTP ${response.status} ${response.statusText}`.trim());
-    }
-
-    const payload: unknown = await response.json();
-    const rawFixtures = fixtureArrayFromPayload(payload);
-    if (!rawFixtures) throw new Error('Invalid fixtures response: expected an array, data, fixtures, or games array');
-
-    // Match mobile's fixtureFromJson field fallbacks for snake_case and camelCase payloads.
-    // Match mobile's getAllFixtures: preserve every status for the screen filters.
-    return rawFixtures.map((fixture) => fixtureFromJson(fixture));
-  } catch (error) {
-    if (import.meta.env.DEV) {
-      console.error('[ChatsScreen] GET fixtures failed', {
-        url,
-        status,
-        message: error instanceof Error ? error.message : String(error),
-        error,
-      });
-    }
-    throw error;
-  }
-}
 
 const MOCK_COMMENTORS = ['Kevo', 'Aisha', 'Brian', 'Faith', 'Otieno', 'Wanjiru', 'Denis', 'Nadia', 'Mutiso', 'Cheryl'];
 const MOCK_COMMENTS = [
@@ -179,12 +130,7 @@ export default function ChatsScreen() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { data, isPending, isFetching, isError, error, refetch } = useQuery({
-    queryKey: FIXTURES_KEY,
-    queryFn: ({ signal }) => fetchWebFixtures(signal),
-    placeholderData: keepPreviousData,
-    refetchOnMount: true,
-  });
+  const { data, isPending, isFetching, isError, error, refetch } = useFixtures(userId ?? undefined);
   const fixtures = data ?? NO_FIXTURES;
   const {
     data: publicChannels = NO_CHANNELS,
