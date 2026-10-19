@@ -8,6 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { mobileStorage } from '@funspot/storage';
+import { getAllFixtures, getVotesByUserStrict, feedQueryOptions, comradesQueryOptions, profileQueryOptions, queryKeys } from '@funspot/core';
 
 interface AuthState {
   isLoggedIn: boolean;
@@ -85,6 +86,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     queryClient.clear();
     void mobileStorage.removeItem('FUNSPOT_QUERY_CACHE');
   }, [state.isInitialized, state.isLoggedIn, state.userId, queryClient]);
+
+  // Warm account data sequentially after hydration/auth initialization. Each
+  // prefetch uses the same canonical query options as its consuming hook.
+  const prefetchedUserId = useRef<string | null>(null);
+  useEffect(() => {
+    if (!state.isInitialized || !state.isLoggedIn || !state.userId) return;
+    const currentUserId = state.userId;
+    if (prefetchedUserId.current === currentUserId) return;
+    prefetchedUserId.current = currentUserId;
+    let cancelled = false;
+    void (async () => {
+      try {
+        await queryClient.prefetchQuery({ queryKey: queryKeys.fixtures(), queryFn: getAllFixtures });
+        if (cancelled) return;
+        await queryClient.prefetchInfiniteQuery(feedQueryOptions(10));
+        if (cancelled) return;
+        await queryClient.prefetchQuery({
+          queryKey: queryKeys.userVotes(currentUserId),
+          queryFn: () => getVotesByUserStrict(currentUserId),
+        });
+        if (cancelled) return;
+        await queryClient.prefetchQuery(comradesQueryOptions(currentUserId, state.authToken));
+        if (cancelled) return;
+        await queryClient.prefetchQuery(profileQueryOptions(currentUserId, state.authToken));
+      } catch (error) {
+        if (import.meta.env.DEV) console.warn('[query-cache] sequential startup prefetch stopped', error);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [state.isInitialized, state.isLoggedIn, state.userId, state.authToken, queryClient]);
 
   useEffect(() => {
     (async () => {
