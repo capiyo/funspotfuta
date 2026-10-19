@@ -20,6 +20,7 @@ const PERSISTED_KEYS = new Set([
   'userChannels',
   'profile',
   'userVotes',
+  'fixtureVotes',
 ]);
 
 /**
@@ -33,7 +34,7 @@ const PERSISTED_KEYS = new Set([
  * catch-and-return-[] queryFns.
  */
 export const PERSIST_OPTIONS = {
-  buster: 'v2',
+  buster: 'v3',
   dehydrateOptions: {
     shouldDehydrateQuery: (query: {
       queryKey: readonly unknown[];
