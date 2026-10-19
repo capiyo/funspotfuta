@@ -14,7 +14,7 @@
 // Delivery itself lives in ./send-channel-message so other screens
 // (e.g. the Arena match card comment box) send with the exact same payload.
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { capCachedMessages, queryKeys } from '../queries/queryKeys';
 import { webSocketService } from './websocket-service';
@@ -89,7 +89,7 @@ export function useChannelChat({
     const cachedVotes = fixtureId
         ? queryClient.getQueryData<{ homeVotes: number; awayVotes: number; drawVotes: number; userVoteSelection: string | null; voters: Voter[] }>(['fixtureVotes', fixtureId, userId ?? 'anonymous'])
         : undefined;
-    const messagesQueryKey = queryKeys.chatMessages(fixtureId ?? 'overall', channelId ?? 'none', userId ?? undefined);
+    const messagesQueryKey = useMemo(() => queryKeys.chatMessages(fixtureId ?? 'overall', channelId ?? 'none', userId ?? undefined), [fixtureId, channelId, userId]);
     const messageCacheIdentity = `${channelId ?? ''}:${fixtureId ?? ''}:${userId ?? 'public'}`;
     const restoreMessages = (cached: ChatMessage[] | undefined): ChatMessage[] => capCachedMessages(
         (cached ?? []).map((message, index) => {
