@@ -111,6 +111,27 @@ try {
             color: getComputedStyle(login).color, radius: getComputedStyle(login).borderRadius,
           } : null,
           firstFeedCardRight: document.querySelector('.home-screen .feed-column .post-card, .home-screen .feed-column .feed-item')?.getBoundingClientRect().right ?? null,
+          chatsWidth: document.querySelector('.home-screen .chats-column')?.getBoundingClientRect().width ?? 0,
+          cardChecks: [...document.querySelectorAll('.home-screen .match-card')].map(card => {
+            const leagues = [...card.querySelectorAll('.match-card-league-line')];
+            const secondary = card.querySelector('.match-card-mobile-league');
+            const actions = card.querySelector('.match-card-actions');
+            const vote = actions?.querySelector('button');
+            const poke = actions?.querySelector('.match-card-poke');
+            const team = card.querySelector('.match-card-teams');
+            const t = team?.getBoundingClientRect(), l = actions?.getBoundingClientRect(), c = card.getBoundingClientRect();
+            const names = [...card.querySelectorAll('.match-card-team-name')].map(name => ({
+              name: (name.textContent ?? '').trim(), length: (name.textContent ?? '').trim().length,
+              scrollWidth: name.scrollWidth, clientWidth: name.clientWidth, textOverflow: getComputedStyle(name).textOverflow,
+            }));
+            return {
+              leagueCount: leagues.length, leagueVisible: leagues.length === 1 && getComputedStyle(leagues[0]).display !== 'none',
+              secondaryVisible: secondary ? getComputedStyle(secondary).display !== 'none' : false,
+              adjacentVotePoke: !!vote && !!poke && vote.nextElementSibling === poke,
+              teamOverlap: !!(t && l && t.left < l.right && t.right > l.left && t.top < l.bottom && t.bottom > l.top),
+              teamRight: t?.right ?? null, cardRight: c.right, names,
+            };
+          }),
           cardCount: document.querySelectorAll('.home-screen .match-card').length,
           feedCount: document.querySelectorAll('.home-screen .feed-column .post-card, .home-screen .feed-column .feed-item').length,
         };
