@@ -369,11 +369,13 @@ export function useChannelChat({
     // Initial fetch (once per channel+fixture)
     useEffect(() => {
         if (!channelId || !fixtureId || !userId) return;
-        const key = `${channelId}:${fixtureId}`;
+        const key = `${channelId}:${fixtureId}:${userId}`;
         if (voteCountsFetchedRef.current === key) return;
         voteCountsFetchedRef.current = key;
-        void fetchVoteCounts();
-        void fetchVoters();
+        void (async () => {
+            await fetchVoteCounts();
+            await fetchVoters();
+        })();
     }, [channelId, fixtureId, userId, fetchVoteCounts, fetchVoters]);
 
     // ── Socket connect + subscriptions ──────────────────────────
