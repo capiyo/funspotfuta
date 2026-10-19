@@ -42,7 +42,7 @@ function asArray(json: unknown): unknown[] {
       }
     }
   }
-  return [];
+  throw new Error('Invalid list response: expected an array or data/fixtures/games array');
 }
 
 // ── Fixtures (queryFn: throws on failure) ──────────────────────
