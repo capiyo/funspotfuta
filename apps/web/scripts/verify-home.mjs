@@ -155,31 +155,18 @@ try {
         const spare = width - layout.firstFeedCardRight;
         assert(spare < 100, `Feed spare width should be <100px at 1920px, got ${spare}`);
       }
-      const chatsWidth = document.querySelector('.home-screen .chats-column')?.getBoundingClientRect().width ?? 0;
-      assert(chatsWidth >= 480 && chatsWidth <= 640,
-        `Chats column width at ${width}px is ${chatsWidth}; expected 480–640px`);
-      for (const card of document.querySelectorAll('.home-screen .match-card')) {
-        const leagues = card.querySelectorAll('.match-card-league-line');
-        assert(leagues.length === 1 && getComputedStyle(leagues[0]).display !== 'none',
-          `Expected one visible league line per card; found ${leagues.length}`);
-        assert(getComputedStyle(card.querySelector('.match-card-mobile-league')).display === 'none',
-          'Redundant secondary league line is visible on desktop');
-        const actions = card.querySelector('.match-card-actions');
-        const vote = actions?.querySelector('button');
-        const poke = actions?.querySelector('.match-card-poke');
-        assert(vote && poke && vote.nextElementSibling === poke, 'Vote and Poke must be adjacent on every card');
-        const teamGroup = card.querySelector('.match-card-teams');
-        const leftGroup = card.querySelector('.match-card-actions');
-        if (teamGroup && leftGroup) {
-          const t = teamGroup.getBoundingClientRect(), l = leftGroup.getBoundingClientRect(), c = card.getBoundingClientRect();
-          const overlaps = t.left < l.right && t.right > l.left && t.top < l.bottom && t.bottom > l.top;
-          assert(!overlaps, 'Team group overlaps the action group');
-          assert(t.right <= c.right + 1, 'Team group exceeds the card');
-        }
-        for (const name of card.querySelectorAll('.match-card-team-name')) {
-          if ((name.textContent ?? '').trim().length <= 28) {
-            assert(name.scrollWidth <= name.clientWidth, `Team name clipped: ${name.textContent}`);
-            assert(getComputedStyle(name).textOverflow !== 'ellipsis', `Short team name ellipsized: ${name.textContent}`);
+      assert(layout.chatsWidth >= 480 && layout.chatsWidth <= 640,
+        `Chats column width at ${width}px is ${layout.chatsWidth}; expected 480–640px`);
+      for (const card of layout.cardChecks) {
+        assert(card.leagueCount === 1 && card.leagueVisible, `Expected one visible league line per card; found ${card.leagueCount}`);
+        assert(!card.secondaryVisible, 'Redundant secondary league line is visible on desktop');
+        assert(card.adjacentVotePoke, 'Vote and Poke must be adjacent on every card');
+        assert(!card.teamOverlap, 'Team group overlaps the action group');
+        assert(card.teamRight === null || card.teamRight <= card.cardRight + 1, 'Team group exceeds the card');
+        for (const name of card.names) {
+          if (name.length <= 28) {
+            assert(name.scrollWidth <= name.clientWidth, `Team name clipped: ${name.name}`);
+            assert(name.textOverflow !== 'ellipsis', `Short team name ellipsized: ${name.name}`);
           }
         }
       }
