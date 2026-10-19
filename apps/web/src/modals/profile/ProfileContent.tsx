@@ -47,6 +47,7 @@ import { useFanColors } from '@/theme/use-fan-colors';
 import {
   getUserBalance,
   getSavedPhone,
+  useCachedProfile,
   memberVoteAccuracy,
   type Channel,
   type ChannelMember,
@@ -164,75 +165,79 @@ export default function ProfileContent({
     setEditing(false);
   }, [visible]);
 
-  // ── Load the profile whenever the target user changes ───────
+  // Profile is shared query data: restored cache renders immediately, while
+  // React Query refreshes it in the background. Transient errors must not be
+  // mistaken for a missing profile and trigger the create-profile flow.
+  const profileQuery = useCachedProfile(
+    isInitialized && isLoggedIn && targetUserId ? targetUserId : undefined,
+    authToken,
+  );
+
   useEffect(() => {
     if (!visible || !isInitialized || !isLoggedIn || !targetUserId) return;
-    let cancelled = false;
-
-    (async () => {
+    if (profileQuery.isPending && profileQuery.data === undefined) {
       setLoading(true);
-      try {
-        const res = await fetch(
-          `${API_BASE}/profile/profile/${targetUserId}`,
-          {
-            headers: {
-              'Content-Type': 'application/json',
-              ...(authToken
-                ? { Authorization: `Bearer ${authToken}` }
-                : {}),
-            },
-          },
-        );
+      return;
+    }
 
-        if (cancelled) return;
+    if (profileQuery.isError && profileQuery.data === undefined) {
+      setLoading(false);
+      return;
+    }
 
-        if (res.status === 200) {
-          const decoded = await res.json();
-          const raw =
-            Array.isArray(decoded) && decoded.length > 0
-              ? decoded[0]
-              : decoded;
-          if (raw && typeof raw === 'object') {
-            const u = userDataFromJson(raw);
-            if (cancelled) return;
-            setProfile(u);
-            setProfileExists(true);
-            setEditNickname(u.nickname);
-            setEditClub(u.clubFan);
-            setEditCountry(u.countryFan);
-            setBalance(u.balance);
-            setEditing(false);
-            setLoading(false);
-            return;
-          }
-        }
+    if (profileQuery.data && typeof profileQuery.data === 'object') {
+      const source = profileQuery.data;
+      const u: UserData = {
+        userId: source.userId,
+        username: source.username,
+        phone: source.phone,
+        nickname: source.nickname,
+        clubFan: source.clubFan,
+        countryFan: source.countryFan,
+        numberOfBets: source.numberOfBets,
+        balance: source.balance,
+      };
+      setProfile(u);
+      setProfileExists(true);
+      setEditNickname(u.nickname);
+      setEditClub(u.clubFan);
+      setEditCountry(u.countryFan);
+      setBalance(u.balance);
+      setEditing(false);
+      setLoading(false);
+      return;
+    }
 
-        // 404 or empty array → no profile yet (only for self)
-        if (cancelled) return;
-        setProfile(null);
-        setProfileExists(false);
-        setEditing(true);
-        setLoading(false);
-        if (isCurrentUser) {
-          const snap = await fetchUsersCollectionSnapshot();
-          if (cancelled) return;
-          pendingSnapshot.current = snap;
-          if (snap.balance > 0) {
-            setBalance(snap.balance);
+    // A successful null means 404/no profile. A failed query is handled above
+    // and deliberately does not open profile creation.
+    if (profileQuery.data === null && !profileQuery.isError) {
+      setProfile(null);
+      setProfileExists(false);
+      setEditing(true);
+      setLoading(false);
+      if (isCurrentUser) {
+        void fetchUsersCollectionSnapshot().then((snapshot) => {
+          pendingSnapshot.current = snapshot;
+          if (snapshot.balance > 0) {
+            setBalance(snapshot.balance);
             setBalanceLoading(false);
           }
-        }
-      } catch (e) {
-        if (!cancelled) {
-          setLoading(false);
-        }
+        }).catch(() => {
+          // Keep the profile editor available if the optional account snapshot
+          // endpoint is unavailable; do not overwrite cached profile data.
+        });
       }
-    })();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [visible, isInitialized, isLoggedIn, targetUserId, authToken, isCurrentUser]);
+    }
+  }, [
+    visible,
+    isInitialized,
+    isLoggedIn,
+    targetUserId,
+    isCurrentUser,
+    profileQuery.data,
+    profileQuery.isError,
+    profileQuery.isPending,
+  ]);
 
   // ── Balance + saved phones (self only) ──────────────────────
   const refreshBalance = useCallback(async () => {
