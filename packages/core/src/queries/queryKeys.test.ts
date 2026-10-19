@@ -3,6 +3,7 @@ import { QueryClient } from '@tanstack/react-query';
 import { persistQueryClientRestore, persistQueryClientSave } from '@tanstack/react-query-persist-client';
 import type { KVStorage } from '@funspot/storage';
 import { createAppQueryClient, PERSIST_OPTIONS } from '../queryClient';
+import { deserializePersistedClient, serializePersistedClient } from '../persistence/serialization';
 import { capCachedMessages, mergeCachedList, queryKeys } from './queryKeys';
 
 function memoryStorage(): KVStorage & { values: Map<string, string> } {
@@ -115,6 +116,35 @@ describe('Flutter AppCache parity helpers', () => {
     });
     expect(client.getQueryData<{ userVoteSelection: string }>(voteKey)?.userVoteSelection).toBe('home_team');
     client.clear();
+  });
+
+  it('round-trips Date values through persisted cache serialization', () => {
+    const persisted = {
+      timestamp: Date.now(),
+      buster: 'v5',
+      clientState: {
+        mutations: [],
+        queries: [{
+          queryKey: ['fixtures'],
+          state: { data: { kickoff: new Date('2026-10-19T12:00:00.000Z'), optional: undefined }, status: 'success' },
+        }],
+      },
+    };
+    const restored = deserializePersistedClient(serializePersistedClient(persisted as never));
+    const data = (restored.clientState.queries[0].state.data as { kickoff: Date; optional?: unknown });
+    expect(data.kickoff).toBeInstanceOf(Date);
+    expect(data.kickoff.toISOString()).toBe('2026-10-19T12:00:00.000Z');
+    expect('optional' in data).toBe(false);
+  });
+
+  it('does not persist paused mutations that carry credentials', () => {
+    const shouldDehydrateMutation = PERSIST_OPTIONS.dehydrateOptions.shouldDehydrateMutation;
+    expect(shouldDehydrateMutation?.({
+      state: { isPaused: true, variables: { fixtureId: 'fixture-1', selection: 'home_team' } },
+    } as never)).toBe(true);
+    expect(shouldDehydrateMutation?.({
+      state: { isPaused: true, variables: { fixtureId: 'fixture-1', authToken: 'never-persist' } },
+    } as never)).toBe(false);
   });
 
   it('does not dehydrate failed queries over a previous successful snapshot', () => {
