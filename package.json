@@ -20,9 +20,11 @@
     "dev:mobile": "cd apps/mobile && npm run start",
     "build:web": "cd apps/web && npm run build",
     "lint:web": "cd apps/web && npm run lint",
-    "typecheck:mobile": "cd apps/mobile && npx tsc --noEmit"
+    "typecheck:mobile": "cd apps/mobile && npx tsc --noEmit",
+    "test:core": "vitest run packages/core/src/queries/queryKeys.test.ts"
   },
   "devDependencies": {
-    "turbo": "^2.10.13"
+    "turbo": "^2.10.13",
+    "vitest": "^2.1.9"
   }
 }
