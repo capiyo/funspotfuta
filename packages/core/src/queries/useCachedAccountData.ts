@@ -1,7 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getUserComrades } from '../api/comrade-service';
 import { getProfile, type UserProfile } from '../api/profile-service';
-import { queryKeys } from './queryKeys';
+import { mergeCachedList, queryKeys } from './queryKeys';
 
 /**
  * Cache-first profile read shared by web and mobile. userId is part of the
@@ -25,9 +25,18 @@ export function useCachedProfile(userId?: string, authToken?: string | null) {
  * part of the key or the cached result.
  */
 export function useCachedComrades(userId?: string, authToken?: string | null) {
+  const queryClient = useQueryClient();
+  const queryKey = userId ? queryKeys.comrades(userId) : ['comrades', 'anonymous'];
   return useQuery({
-    queryKey: userId ? queryKeys.comrades(userId) : ['comrades', 'anonymous'],
-    queryFn: () => getUserComrades(userId as string, authToken),
+    queryKey,
+    queryFn: async () => {
+      const incoming = await getUserComrades(userId as string, authToken);
+      const cached = queryClient.getQueryData<Record<string, unknown>[]>(queryKey);
+      return mergeCachedList(cached, incoming, (item) => {
+        const value = item.comrade_id ?? item.id ?? item._id;
+        return value === undefined || value === null ? undefined : String(value);
+      });
+    },
     enabled: Boolean(userId),
     staleTime: 5 * 60 * 1000,
     gcTime: 7 * 24 * 60 * 60 * 1000,
