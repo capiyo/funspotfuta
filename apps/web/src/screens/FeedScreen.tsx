@@ -1,50 +1,16 @@
 // Browser feed: post creation lives in the dedicated AddPostModal, not in the feed column.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
-import { useInfiniteQuery, useQueryClient, type InfiniteData } from '@tanstack/react-query';
-import { isLikedBy, postFromJson, toggleLikePost, type Post, FAN_SPACING } from '@funspot/core';
+import { useQueryClient, type InfiniteData } from '@tanstack/react-query';
+import { isLikedBy, toggleLikePost, queryKeys, useFeed, type FeedPage, type Post, FAN_SPACING } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { LIST_BOTTOM_INSET } from '@/theme/layout';
 import { PostCard } from '@/components/PostCard';
 import { EmptyState, PagingFooter, SkeletonRows } from '@/components/ui/ListsStates';
 import { useHomeList, useHome } from './home/home-context';
-import { apiFetch, apiUrl } from '@/lib/api/api-client';
 
-const PAGE_SIZE = 10;
-const FEED_KEY = ['feed'] as const;
-type FeedPage = { posts: Post[] };
-
-async function fetchPostsPage(page: number, signal?: AbortSignal): Promise<FeedPage> {
-  const params = new URLSearchParams({ page: String(page), limit: String(PAGE_SIZE), _: String(Date.now()) });
-  const path = `posts?${params.toString()}`;
-  const url = apiUrl(path);
-  let status: number | undefined;
-  try {
-    const response = await apiFetch(path, { signal });
-    status = response.status;
-    if (!response.ok) throw new Error(`GET ${url} failed: HTTP ${response.status} ${response.statusText}`.trim());
-    const payload: unknown = await response.json();
-    const record = payload && typeof payload === 'object' && !Array.isArray(payload)
-      ? payload as Record<string, unknown>
-      : null;
-    const rawPosts = Array.isArray(payload)
-      ? payload
-      : Array.isArray(record?.posts) ? record.posts
-        : Array.isArray(record?.data) ? record.data : null;
-    if (!rawPosts) throw new Error('Invalid posts response: expected an array, posts, or data array');
-    return { posts: rawPosts.map((post) => postFromJson(post as Record<string, unknown>)) };
-  } catch (error) {
-    if (import.meta.env.DEV) {
-      console.error('[FeedScreen] GET posts failed', {
-        url, status,
-        message: error instanceof Error ? error.message : String(error),
-        error,
-      });
-    }
-    throw error;
-  }
-}
+const FEED_KEY = queryKeys.feed();
 
 export default function FeedScreen() {
   const colors = useFanColors();
@@ -58,15 +24,7 @@ export default function FeedScreen() {
   const {
     data, isPending, isFetching, isError, isFetchingNextPage, hasNextPage,
     fetchNextPage, refetch,
-  } = useInfiniteQuery({
-    queryKey: FEED_KEY,
-    queryFn: ({ pageParam, signal }) => fetchPostsPage(pageParam, signal),
-    initialPageParam: 1,
-    getNextPageParam: (lastPage, allPages) =>
-      lastPage.posts.length === PAGE_SIZE ? allPages.length + 1 : undefined,
-    placeholderData: (previous) => previous,
-    refetchOnMount: true,
-  });
+  } = useFeed();
 
   const posts = useMemo(() => data?.pages.flatMap((page) => page.posts) ?? [], [data]);
 
