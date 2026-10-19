@@ -248,17 +248,17 @@ function headers(authToken?: string): HeadersInit {
 
 // GET /api/games/history
 export async function fetchHistoryGames(params?: HistoryQueryParams, authToken?: string): Promise<HistoryGame[]> {
-  try {
-    const qs = toQueryParams(params).toString();
-    const res = await fetch(`${API_BASE_URL}/games/history${qs ? `?${qs}` : ''}`, { headers: headers(authToken) });
-    if (!res.ok) return [];
-    const data = await res.json();
-    const games: any[] = data.data ?? [];
-    return games.map(historyGameFromJson);
-  } catch (e) {
-    console.error('fetchHistoryGames failed:', e);
-    return [];
-  }
+  const qs = toQueryParams(params).toString();
+  const res = await fetch(`${API_BASE_URL}/games/history${qs ? `?${qs}` : ''}`, { headers: headers(authToken) });
+  if (!res.ok) throw new Error(`GET history failed: HTTP ${res.status}`);
+  const payload: unknown = await res.json();
+  const games = Array.isArray(payload)
+    ? payload
+    : payload && typeof payload === 'object' && Array.isArray((payload as Record<string, unknown>).data)
+      ? (payload as Record<string, unknown>).data as unknown[]
+      : null;
+  if (!games) throw new Error('Invalid history response: expected an array or data array');
+  return games.map((game) => historyGameFromJson(game));
 }
 
 // GET /api/games/history/:matchId
