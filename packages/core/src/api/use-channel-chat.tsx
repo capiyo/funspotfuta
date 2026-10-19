@@ -366,6 +366,43 @@ export function useChannelChat({
         }
     }, [fixtureId, userId, authHeaders]);
 
+    const recordUserVote = useCallback((selection: string) => {
+        if (!fixtureId || !userId) return;
+        const normalized = toFrontendSelection(selection);
+        setUserVoteSelection(normalized);
+        setVoters((previous) => {
+            const existing = previous.find((v) => v.userId === userId);
+            const mine: Voter = {
+                userId,
+                username: username ?? existing?.username ?? 'You',
+                selection: normalized,
+                isComrade: existing?.isComrade ?? false,
+                votedAt: new Date(),
+            };
+            return [mine, ...previous.filter((v) => v.userId !== userId)];
+        });
+        queryClient.setQueryData<{
+            homeVotes: number; awayVotes: number; drawVotes: number;
+            userVoteSelection: string | null; voters: Voter[];
+        }>(['fixtureVotes', fixtureId, userId], (previous) => {
+            const existing = previous?.voters ?? [];
+            const mine: Voter = {
+                userId,
+                username: username ?? existing.find((v) => v.userId === userId)?.username ?? 'You',
+                selection: normalized,
+                isComrade: existing.find((v) => v.userId === userId)?.isComrade ?? false,
+                votedAt: new Date(),
+            };
+            return {
+                homeVotes: previous?.homeVotes ?? 0,
+                awayVotes: previous?.awayVotes ?? 0,
+                drawVotes: previous?.drawVotes ?? 0,
+                userVoteSelection: normalized,
+                voters: [mine, ...existing.filter((v) => v.userId !== userId)],
+            };
+        });
+    }, [fixtureId, userId, username, queryClient]);
+
     // Initial fetch (once per channel+fixture)
     useEffect(() => {
         if (!channelId || !fixtureId || !userId) return;
@@ -796,6 +833,7 @@ export function useChannelChat({
         // imperative refetch
         refetchVoteCounts: fetchVoteCounts,
         refetchVoters: fetchVoters,
+        recordUserVote,
     };
 }
 
