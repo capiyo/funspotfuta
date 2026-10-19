@@ -13,7 +13,8 @@
 
 import { useEffect, useRef } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
-import { focusManager } from '@tanstack/react-query';
+import { focusManager, onlineManager } from '@tanstack/react-query';
+import NetInfo from '@react-native-community/netinfo';
 import {
     PersistQueryClientProvider,
     persistQueryClientSave,
@@ -58,6 +59,9 @@ export function QueryProvider({
     const restored = useRef(false);
 
     useEffect(() => {
+        const unsubscribeNetInfo = NetInfo.addEventListener((state) => {
+            onlineManager.setOnline(Boolean(state.isConnected) && state.isInternetReachable !== false);
+        });
         const subscription = AppState.addEventListener('change', (status) => {
             onAppStateChange(status);
 
@@ -71,7 +75,10 @@ export function QueryProvider({
                 });
             }
         });
-        return () => subscription.remove();
+        return () => {
+            subscription.remove();
+            unsubscribeNetInfo();
+        };
     }, []);
 
     return (
