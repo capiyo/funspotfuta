@@ -40,20 +40,6 @@ function mergeFixtureVoteSnapshot(
     });
   }
   const voters = [...merged.values()];
-  const ownVote = voters.find((voter) => voter.userId === userId);
-  queryClient.setQueryData(key, {
-    homeVotes: snapshot?.homeVotes ?? 0,
-    awayVotes: snapshot?.awayVotes ?? 0,
-    drawVotes: snapshot?.drawVotes ?? 0,
-    userVoteSelection: snapshot?.userVoteSelection ?? ownVote?.selection ?? null,
-    voters: voters.map((voter) => ({
-      userId: voter.userId,
-      username: voter.userName,
-      selection: voter.selection,
-      votedAt: voter.votedAt,
-      isComrade: voter.isComrade,
-    })),
-  });
   return { ...fixture, voters };
 }
 
@@ -66,10 +52,8 @@ export function useFixtures(userId?: string, enabled = true) {
   const queryClient = useQueryClient();
   return useQuery({
     queryKey: queryKeys.fixtures(),
-    queryFn: async () => {
-      const fresh = await getAllFixtures();
-      return fresh.map((fixture) => mergeFixtureVoteSnapshot(fixture, userId, queryClient));
-    },
+    queryFn: getAllFixtures,
+    select: (fresh) => fresh.map((fixture) => mergeFixtureVoteSnapshot(fixture, userId, queryClient)),
     enabled,
     staleTime: 60 * 1000,
     gcTime: 7 * 24 * 60 * 60 * 1000,
