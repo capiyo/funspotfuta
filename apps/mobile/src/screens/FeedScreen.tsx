@@ -40,12 +40,6 @@ import { createPost } from '@/lib/api/posts-create';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
 
-// Typography tuned to the mobile-web reference for Chats and Feed.
-function webParityText(role: Parameters<typeof fanText>[0], colors: Parameters<typeof fanText>[1], color?: string) {
-  const base = fanText(role, colors, color);
-  const size = role === 'tag' ? 12 : role === 'caption' ? 13 : role === 'body' ? 14 : role === 'competition' ? 14 : (base.fontSize ?? 12);
-  return { ...base, fontSize: size, lineHeight: Math.round(size * 1.4) };
-}
 import { ICON, LIST_BOTTOM_INSET } from '@/theme/layout';
 import { PostCard } from '@/components/PostCard';
 import { FeedItem } from '@/components/ui/FeedItem';
@@ -67,6 +61,14 @@ const FEED_KEY = ['feed'] as const;
 const FOOTER_BLEED = 12;
 
 type FeedPage = { posts: Post[] };
+
+
+// Typography tuned to the mobile-web reference for Chats and Feed.
+function webParityText(role: Parameters<typeof fanText>[0], colors: Parameters<typeof fanText>[1], color?: string) {
+  const base = fanText(role, colors, color);
+  const size = role === 'tag' ? 12 : role === 'caption' ? 13 : role === 'body' ? 14 : role === 'competition' ? 14 : (base.fontSize ?? 12);
+  return { ...base, fontSize: size, lineHeight: Math.round(size * 1.4) };
+}
 
 export default function FeedScreen() {
   const colors = useFanColors();
