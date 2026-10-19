@@ -2760,3 +2760,195 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
   .profile-member-card * { line-height: 1.4; }
 }
 
+/* Laptop/desktop typography and spacing follow the mobile-web card reference. */
+@media (min-width: 651px) {
+  body:has(.home-screen) .home-screen .chats-column .match-card {
+    margin-bottom: 12px !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-content {
+    padding: 14px 14px 4px !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-meta {
+    margin-bottom: 9px !important;
+    gap: 10px !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-channel-avatar {
+    width: 26px !important;
+    height: 26px !important;
+    flex: 0 0 26px !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-meta,
+  body:has(.home-screen) .home-screen .chats-column .match-card-meta * {
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-league-line {
+    margin: 0 14px 9px !important;
+    font-size: 13px !important;
+    line-height: 1.4 !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-comment-preview {
+    gap: 7px !important;
+    margin-bottom: 7px !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-preview-text {
+    font-size: 14px !important;
+    line-height: 1.45 !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-prompt-line {
+    margin: 7px 0 9px !important;
+    font-size: 13px !important;
+    line-height: 1.4 !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-bottom {
+    display: flex !important;
+    flex-flow: row nowrap !important;
+    align-items: center !important;
+    gap: 12px !important;
+    width: 100% !important;
+    margin-top: 6px !important;
+    padding: 4px 14px 14px !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-actions {
+    display: inline-flex !important;
+    flex: 0 0 auto !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 12px !important;
+    min-width: 0 !important;
+    white-space: nowrap !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card .action-button {
+    min-height: 30px !important;
+    gap: 5px !important;
+    padding: 0 !important;
+    font-size: 13px !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card .action-button svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-poke {
+    display: inline-flex !important;
+    flex: 0 0 auto !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 5px !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    color: var(--match-primary) !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-poke-circle {
+    display: inline-flex !important;
+    flex: 0 0 30px !important;
+    width: 30px !important;
+    height: 30px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 50% !important;
+    background: var(--match-primary-dim) !important;
+    color: var(--match-primary) !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-poke-circle svg {
+    width: 17px !important;
+    height: 17px !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-teams {
+    display: inline-flex !important;
+    flex: 0 1 auto !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 7px !important;
+    min-width: 0 !important;
+    max-width: 48% !important;
+    margin-left: auto !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    color: var(--match-primary) !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-team-name,
+  body:has(.home-screen) .home-screen .chats-column .match-card-score,
+  body:has(.home-screen) .home-screen .chats-column .match-card-teams > span {
+    color: var(--match-primary) !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-team-name {
+    flex: 0 1 auto !important;
+    min-width: 0 !important;
+    max-width: 180px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-team-fallback {
+    font-size: 10px !important;
+    font-weight: 700 !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-teams img,
+  body:has(.home-screen) .home-screen .chats-column .match-card-teams .team-logo,
+  body:has(.home-screen) .home-screen .chats-column .match-card-team-logo {
+    width: 18px !important;
+    height: 18px !important;
+    flex: 0 0 18px !important;
+    border-radius: 50% !important;
+  }
+
+  /* Match the mobile-web profile's readable type scale on laptop and desktop. */
+  body:has(.home-screen) .home-screen .profile-sidebar-rich .profile-header-row .profile-header-name-column > span:first-child {
+    font-size: 16px !important;
+    line-height: 1.35 !important;
+  }
+  body:has(.home-screen) .home-screen .profile-sidebar-rich .profile-header-row .profile-header-name-column > span:last-child {
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+  }
+  body:has(.home-screen) .home-screen .profile-sidebar-rich .profile-guest-preview {
+    gap: 14px !important;
+    padding: 14px 16px 20px !important;
+  }
+  body:has(.home-screen) .home-screen .profile-sidebar-rich .profile-guest-banner {
+    font-size: 13px !important;
+    line-height: 1.45 !important;
+    padding: 12px !important;
+  }
+  body:has(.home-screen) .home-screen .profile-sidebar-rich .profile-guest-field {
+    gap: 5px !important;
+    padding: 12px !important;
+  }
+  body:has(.home-screen) .home-screen .profile-sidebar-rich .profile-guest-field > span {
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+  }
+  body:has(.home-screen) .home-screen .profile-sidebar-rich .profile-guest-field > strong {
+    font-size: 14px !important;
+    line-height: 1.35 !important;
+  }
+  body:has(.home-screen) .home-screen .profile-sidebar-rich .profile-guest-login {
+    min-height: 44px !important;
+    font-size: 14px !important;
+  }
+  body:has(.home-screen) .home-screen .profile-sidebar-rich .profile-guest-channels-heading {
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+  }
+  body:has(.home-screen) .home-screen .profile-sidebar-rich .profile-guest-channels-heading > span,
+  body:has(.home-screen) .home-screen .profile-sidebar-rich .profile-channel-tabbar [role="tab"],
+  body:has(.home-screen) .home-screen .profile-sidebar-rich .profile-channel-tabbar [role="tab"] > span {
+    font-size: 12px !important;
+  }
+  body:has(.home-screen) .home-screen .profile-sidebar-rich .profile-member-card,
+  body:has(.home-screen) .home-screen .profile-sidebar-rich .profile-member-card * {
+    line-height: 1.4 !important;
+  }
+}
+
