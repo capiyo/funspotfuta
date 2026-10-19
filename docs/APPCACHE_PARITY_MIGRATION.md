@@ -51,7 +51,7 @@ Account/profile display data and balance/transaction summaries may be cached, bu
 - [x] Read `lib/services/local_database.dart`, `lib/services/memory_manager.dart`, `lib/main.dart`, and fixture-page cache use.
 - [x] Record the known Flutter AppCache and LocalDatabase domains in the inventory table above.
 - [x] Expand persisted query-key prefixes for AppCache data domains.
-- [x] Persist only successful queries with defined data; bump the persisted-cache buster to `v3`.
+- [x] Persist only successful queries with defined data; bump the persisted-cache buster to `v4` and preserve Date/undefined values.
 - [x] Set query and mutation network mode to `offlineFirst`; keep query `gcTime` aligned with the 7-day persistence max age.
 - [x] Wire React Native NetInfo to TanStack `onlineManager` and keep `AppState` wired to `focusManager`.
 - [x] Add IndexedDB-backed persistence for web, preserve Date values across JSON persistence, and clear its persisted blob during logout/account switching.
