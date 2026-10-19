@@ -39,6 +39,13 @@ import {
 import { createPost } from '@/lib/api/posts-create';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
+
+// Typography tuned to the mobile-web reference for Chats and Feed.
+function webParityText(role: Parameters<typeof fanText>[0], colors: Parameters<typeof fanText>[1], color?: string) {
+  const base = fanText(role, colors, color);
+  const size = role === 'tag' ? 12 : role === 'caption' ? 13 : role === 'body' ? 14 : role === 'competition' ? 14 : base.fontSize;
+  return { ...base, fontSize: size, lineHeight: Math.round(size * 1.4) };
+}
 import { ICON, LIST_BOTTOM_INSET } from '@/theme/layout';
 import { PostCard } from '@/components/PostCard';
 import { FeedItem } from '@/components/ui/FeedItem';
@@ -198,7 +205,7 @@ export default function FeedScreen() {
           <MiniAvatar colors={colors} label={username ?? '?'} />
           <Text
             style={[
-              fanText('competition', colors, '#FFFFFF'),
+              webParityText('competition', colors, '#FFFFFF'),
               styles.authorName,
               styles.grow,
             ]}
@@ -227,7 +234,7 @@ export default function FeedScreen() {
         <View style={styles.attachment}>
           <Paperclip size={ICON.sm} color={colors.textSecondary} />
           <Text
-            style={[fanText('caption', colors, colors.textSecondary), styles.grow]}
+            style={[webParityText('caption', colors, colors.textSecondary), styles.grow]}
             numberOfLines={1}
           >
             {image.fileName ?? 'Image'}
@@ -337,7 +344,7 @@ function createStyles(colors: ReturnType<typeof useFanColors>) {
     list: { flex: 1 },
     content: { paddingBottom: LIST_BOTTOM_INSET },
     grow: { flex: 1 },
-    banner: { paddingHorizontal: FAN_SPACING.lg, paddingVertical: FAN_SPACING.md },
+    banner: { paddingHorizontal: FAN_SPACING.md, paddingVertical: FAN_SPACING.sm },
     metaRow: {
       flexDirection: 'row',
       alignItems: 'center',
