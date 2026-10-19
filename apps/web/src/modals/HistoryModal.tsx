@@ -32,7 +32,7 @@ import {
 } from '@/lib/native-web-compat';
 import { X } from 'lucide-react';
 
-import { useInfiniteHistoryGames, type type HistoryGame, FAN_SPACING, FAN_RADIUS } from '@funspot/core';
+import { useInfiniteHistoryGames, type HistoryGame, FAN_SPACING, FAN_RADIUS } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useLoginModal } from './Login-modal-context';
 import { useFanColors } from '@/theme/use-fan-colors';
