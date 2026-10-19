@@ -30,6 +30,13 @@ import {
 } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
+
+// Typography tuned to the mobile-web reference for Chats and Feed.
+function webParityText(role: Parameters<typeof fanText>[0], colors: Parameters<typeof fanText>[1], color?: string) {
+  const base = fanText(role, colors, color);
+  const size = role === 'tag' ? 12 : role === 'caption' ? 13 : role === 'body' ? 14 : role === 'competition' ? 14 : base.fontSize;
+  return { ...base, fontSize: size, lineHeight: Math.round(size * 1.4) };
+}
 import { HIT_SLOP, PRESSED_OPACITY } from '@/theme/layout';
 import { FeedItem } from './ui/FeedItem';
 import { ActionButton } from './ui/ActionButton';
@@ -91,7 +98,7 @@ export function PostCard({
                         <MiniAvatar colors={colors} label={userName} />
                         <Text
                             style={[
-                                fanText('competition', colors, '#FFFFFF'),
+                                webParityText('competition', colors, '#FFFFFF'),
                                 styles.authorName,
                                 styles.grow,
                             ]}
@@ -105,7 +112,7 @@ export function PostCard({
                             <Chip label="New" colors={colors} variant="tag" tone="primary" />
                         )}
                         {typeTag && <Chip label={typeTag} colors={colors} variant="tag" />}
-                        <Text style={fanText('tag', colors, colors.textTertiary)}>
+                        <Text style={webParityText('tag', colors, colors.textTertiary)}>
                             {formattedDate(post)}
                         </Text>
                     </View>
@@ -114,7 +121,7 @@ export function PostCard({
                 {/* Caption */}
                 {!!caption && (
                     <View style={styles.captionRow} pointerEvents="none">
-                        <Text style={fanText('body', colors, colors.textPrimary)}>
+                        <Text style={webParityText('body', colors, colors.textPrimary)}>
                             {caption}
                         </Text>
                     </View>
@@ -178,7 +185,7 @@ export function PostCard({
                                 accessibilityRole="button"
                                 accessibilityLabel={`Follow ${userName}`}
                             >
-                                <Text style={fanText('tag', colors, colors.primary)}>
+                                <Text style={webParityText('tag', colors, colors.primary)}>
                                     Follow
                                 </Text>
                             </Pressable>
@@ -196,7 +203,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: 12,
+        marginBottom: 10,
     },
     author: {
         flexDirection: 'row',
@@ -218,10 +225,10 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: FAN_SPACING.sm,
-        marginTop: 12,
+        marginTop: 10,
         marginBottom: -FOOTER_BLEED,
-        paddingHorizontal: 14,
-        paddingBottom: 14,
+        paddingHorizontal: 12,
+        paddingBottom: 12,
     },
     actions: {
         flexDirection: 'row',
