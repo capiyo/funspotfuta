@@ -57,6 +57,8 @@ Account/profile display data and balance/transaction summaries may be cached, bu
 - [x] Add a shared query-key factory with user-scoped keys for profile, comrades, votes, messages, history and activity data.
 - [x] Add reusable merge-not-replace and 50-message cache-cap utilities.
 - [x] Add shared cache-first hooks for profile and comrades; export them from `@funspot/core`.
+- [x] Wire web and mobile profile reads to the shared persisted profile query; transient profile fetch errors no longer become cached `null` results.
+- [ ] Wire the remaining profile edit, balance, saved-phone, and transaction actions through shared query/mutation functions.
 - [x] Use the shared query-key factory in the existing fixtures/history hooks and web public-channel hook.
 
 ### Domain wiring — not complete
