@@ -60,6 +60,7 @@ Account/profile display data and balance/transaction summaries may be cached, bu
 - [x] Wire web and mobile profile reads to the shared persisted profile query; transient profile fetch errors no longer become cached `null` results.
 - [ ] Wire the remaining profile edit, balance, saved-phone, and transaction actions through shared query/mutation functions.
 - [x] Use the shared query-key factory in the existing fixtures/history hooks and web public-channel hook.
+- [x] Move public-channel fetching into a shared core hook; web now delegates to it and both platforms can use the same persisted key.
 
 ### Domain wiring — not complete
 
