@@ -71,6 +71,8 @@ Account/profile display data and balance/transaction summaries may be cached, bu
 - [ ] Channels/channel fixtures: move web-specific channel query functions into shared core hooks and wire mobile/web consumers.
 - [ ] Counts/latest comments: wire vote, comment, like, pledge, bet and unread counts to all cards and modals.
 - [ ] Comrades: migrate every list/search/add/remove/relationship caller to shared hooks and optimistic mutations.
+- [x] Web and mobile Comrades modals now render the list from the shared user-scoped persisted comrades query; list loading indicators appear only on a true cache miss.
+- [ ] Move comrade search, stats, add/remove operations into shared core hooks and add optimistic rollback.
 - [ ] Profile/account: remove direct component fetches; cache display profile per user; preserve cached profile on transient network failure.
 - [ ] Payments: cache only safe display summaries; never cache credentials or auth tokens.
 - [ ] Feed/posts/post comments/likes/followers: migrate every consumer and mutation.
