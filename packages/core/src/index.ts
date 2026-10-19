@@ -40,7 +40,7 @@ export { createAppQueryClient, PERSIST_OPTIONS } from './queryClient';
 export { useFixtures, useHistoryGames } from './queries/useFixtures';
 export { queryKeys, mergeCachedList, capCachedMessages } from './queries/queryKeys';
 export type { QueryKeyFactory } from './queries/queryKeys';
-export { useCachedProfile, useCachedComrades } from './queries/useCachedAccountData';
+export { useCachedProfile, useCachedComrades, profileQueryOptions, comradesQueryOptions } from './queries/useCachedAccountData';
 export { useAllChannels } from './queries/useAllChannels';
 export { useFeed, feedQueryOptions } from './queries/useFeed';
 export type { FeedPage } from './queries/useFeed';
