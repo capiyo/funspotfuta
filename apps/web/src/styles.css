@@ -2424,3 +2424,165 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
     box-shadow: none !important;
   }
 }
+
+
+/* Desktop wide-workspace and full-width Chats card contract (2026-10-19). */
+@media (min-width: 651px) {
+  .home-screen .workspace {
+    width: 100% !important;
+    max-width: none !important;
+    margin-inline: 0 !important;
+    padding-inline: 12px !important;
+    box-sizing: border-box !important;
+  }
+  .home-screen .desktop-home-header .desktop-home-header-inner,
+  .home-screen .desktop-home-header > div,
+  .home-screen .desktop-home-header .navbar-inner {
+    width: 100% !important;
+    max-width: none !important;
+    margin-inline: 0 !important;
+    padding-inline: 12px !important;
+    box-sizing: border-box !important;
+  }
+  .home-screen .workspace {
+    display: grid !important;
+    grid-template-columns: 300px minmax(480px, clamp(480px, 34vw, 640px)) minmax(0, 1fr) !important;
+    column-gap: 16px !important;
+    align-items: start !important;
+  }
+  .home-screen .profile-sidebar-rich {
+    width: 300px !important;
+    min-width: 300px !important;
+    max-width: 300px !important;
+    margin: 0 !important;
+    padding-inline: 0 !important;
+  }
+  .home-screen .home-columns {
+    display: grid !important;
+    grid-template-columns: minmax(480px, clamp(480px, 34vw, 640px)) minmax(0, 1fr) !important;
+    column-gap: 16px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+  }
+  .home-screen .chats-column {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    margin: 0 !important;
+  }
+  .home-screen .feed-column {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    margin: 0 !important;
+  }
+  .home-screen .feed-column .post-card,
+  .home-screen .feed-column .feed-item {
+    width: 100% !important;
+    max-width: 840px !important;
+    margin-left: 0 !important;
+    margin-right: auto !important;
+    box-sizing: border-box !important;
+  }
+  .home-screen .chats-column .chats-fixture-list,
+  .home-screen .chats-column .chats-fixture-list > div[aria-live="polite"],
+  .home-screen .chats-column .chats-fixture-row,
+  .home-screen .chats-column .match-card,
+  .home-screen .chats-column .segmented-control {
+    width: 100% !important;
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    box-sizing: border-box !important;
+  }
+  .home-screen .chats-column .match-card {
+    padding: 0 !important;
+  }
+  .home-screen .chats-column .match-card-content {
+    padding: 12px 12px 0 !important;
+    box-sizing: border-box !important;
+  }
+  .home-screen .chats-column .match-card-bottom {
+    display: flex !important;
+    flex-flow: row wrap !important;
+    align-items: center !important;
+    row-gap: 6px !important;
+    column-gap: 8px !important;
+    width: 100% !important;
+    padding: 0 12px 6px !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+  }
+  .home-screen .chats-column .match-card-actions {
+    display: inline-flex !important;
+    flex: 0 0 auto !important;
+    flex-wrap: nowrap !important;
+    gap: 5px !important;
+    white-space: nowrap !important;
+  }
+  .home-screen .chats-column .match-card-bottom > div:nth-child(2) {
+    flex: 0 1 140px !important;
+    min-width: 100px !important;
+  }
+  .home-screen .chats-column .match-card-teams {
+    display: inline-flex !important;
+    flex: 0 0 auto !important;
+    flex-shrink: 0 !important;
+    width: auto !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin-left: auto !important;
+    justify-content: flex-end !important;
+    gap: 5px !important;
+    overflow: visible !important;
+    white-space: nowrap !important;
+    color: var(--primary) !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+  }
+  .home-screen .chats-column .match-card-team-name {
+    flex: 0 0 auto !important;
+    min-width: max-content !important;
+    max-width: 220px !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
+    color: var(--primary) !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+  }
+  .home-screen .chats-column .match-card-score,
+  .home-screen .chats-column .match-card-teams > span {
+    color: var(--primary) !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+  }
+  .home-screen .chats-column .match-card-teams img,
+  .home-screen .chats-column .match-card-teams .team-logo,
+  .home-screen .chats-column .match-card-teams [aria-label*="logo"] {
+    width: 16px !important;
+    height: 16px !important;
+    flex: 0 0 16px !important;
+    border-radius: 50% !important;
+  }
+  .home-screen .chats-column .match-card-league-line {
+    display: block !important;
+    margin: 0 12px 6px !important;
+    color: var(--text-3) !important;
+    font-size: 12px !important;
+    font-weight: 400 !important;
+    line-height: 1.25 !important;
+  }
+  .home-screen .chats-column .match-card-mobile-league {
+    display: none !important;
+  }
+  .home-screen .chats-column .match-card-meta .match-card-channel-avatar,
+  .home-screen .chats-column .match-card-channel-avatar {
+    border-radius: 50% !important;
+  }
+  .home-screen .chats-column .match-card-prompt-line {
+    color: var(--text-2) !important;
+  }
+}
