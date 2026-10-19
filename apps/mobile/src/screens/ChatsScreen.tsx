@@ -214,7 +214,32 @@ export default function ChatsScreen() {
 
   const { data, isPending, isError, error, refetch } = useQuery({
     queryKey: FIXTURES_KEY,
-    queryFn: getAllFixtures,
+    queryFn: async () => {
+      const fresh = await getAllFixtures();
+      return fresh.map((fixture) => {
+        const fixtureId = fixture.matchId || fixture.id;
+        const snapshot = queryClient.getQueryData<{
+          voters: Array<{ userId: string; username: string; selection: string; votedAt?: Date | string; isComrade?: boolean }>;
+          userVoteSelection: string | null;
+        }>(['fixtureVotes', fixtureId]);
+        if (!snapshot?.voters?.length) return fixture;
+        const merged = new Map((fixture.voters ?? []).map((v) => [v.userId, v]));
+        for (const voter of snapshot.voters) {
+          if (!merged.has(voter.userId)) {
+            merged.set(voter.userId, {
+              userId: voter.userId,
+              userName: voter.username,
+              selection: voter.selection,
+              votedAt: voter.votedAt ? new Date(voter.votedAt) : new Date(),
+              isComrade: voter.isComrade ?? false,
+              isCorrect: false,
+              pointsAwarded: 0,
+            } as Voter);
+          }
+        }
+        return { ...fixture, voters: [...merged.values()] };
+      });
+    },
     placeholderData: keepPreviousData,
     enabled: activeTab === 'Chats',
   });
@@ -370,7 +395,27 @@ export default function ChatsScreen() {
           isCorrect: false,
           pointsAwarded: 0,
         };
-        return { ...fx, voters: [...(fx.voters ?? []), newVoter] };
+        const voters = [...(fx.voters ?? []), newVoter];
+        const fixtureId = fx.matchId || fx.id;
+        const cached = queryClient.getQueryData<{
+          homeVotes: number; awayVotes: number; drawVotes: number;
+          userVoteSelection: string | null;
+          voters: Array<{ userId: string; username: string; selection: string; votedAt?: Date | string; isComrade?: boolean }>;
+        }>(['fixtureVotes', fixtureId]);
+        queryClient.setQueryData(['fixtureVotes', fixtureId], {
+          homeVotes: cached?.homeVotes ?? 0,
+          awayVotes: cached?.awayVotes ?? 0,
+          drawVotes: cached?.drawVotes ?? 0,
+          userVoteSelection: selection,
+          voters: voters.map((v) => ({
+            userId: v.userId,
+            username: v.userName,
+            selection: v.selection,
+            votedAt: v.votedAt,
+            isComrade: v.isComrade,
+          })),
+        });
+        return { ...fx, voters };
       }),
     );
   }
