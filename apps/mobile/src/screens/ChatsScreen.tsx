@@ -223,7 +223,8 @@ export default function ChatsScreen() {
           userVoteSelection: string | null;
         }>(['fixtureVotes', fixtureId, userId ?? 'anonymous']);
         if (!snapshot?.voters?.length) return fixture;
-        const merged = new Map((fixture.voters ?? []).map((v) => [v.userId, v]));
+        const merged = new Map<string, Voter>();
+        for (const voter of fixture.voters ?? []) merged.set(voter.userId, voter);
         for (const voter of snapshot.voters) {
           if (!merged.has(voter.userId)) {
             merged.set(voter.userId, {
