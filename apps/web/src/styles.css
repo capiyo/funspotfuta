@@ -2600,3 +2600,5 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
 @media (min-width: 651px) { body:has(.home-screen) .home-screen .workspace > main.home-columns { grid-template-columns: 640px minmax(0, 1fr) !important; } body:has(.home-screen) .home-screen .workspace > main.home-columns > .chats-column { width: 640px !important; min-width: 640px !important; max-width: 640px !important; } }
 
 @media (min-width: 651px) { body:has(.home-screen) .home-screen .workspace > main.home-columns { display: grid !important; grid-template-columns: 640px minmax(0, 1fr) !important; } }
+
+@media (min-width: 1800px) { body:has(.home-screen) .home-screen .feed-column { padding-left: 80px !important; box-sizing: border-box !important; } }
