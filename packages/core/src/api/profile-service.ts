@@ -39,7 +39,7 @@ export async function getProfile(userId: string, authToken?: string): Promise<Us
   try {
     const res = await fetch(`${API_BASE_URL}/profile/profile/${userId}`, { headers: headers(authToken) });
     if (res.status === 404) return null;
-    if (!res.ok) return null;
+    if (!res.ok) throw new Error(`GET profile failed: HTTP ${res.status}`);
     const data = await res.json();
     if (Array.isArray(data)) {
       if (data.length === 0) return null;
@@ -47,8 +47,9 @@ export async function getProfile(userId: string, authToken?: string): Promise<Us
     }
     return userProfileFromJson(data);
   } catch (e) {
-    console.error('getProfile failed:', e);
-    return null;
+    // Let React Query preserve the previous successful cache entry on transient
+    // network/server failures instead of persisting a false 'no profile' value.
+    throw e;
   }
 }
 
