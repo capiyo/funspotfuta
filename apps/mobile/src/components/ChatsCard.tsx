@@ -29,6 +29,7 @@ import {
   Heart,
   Lock,
   MessageCircle,
+  Pointer,
   Radio,
   Vote,
 } from 'lucide-react-native';
@@ -516,7 +517,6 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.primaryDim,
   },
   pokeLabel: { fontSize: 12, fontWeight: '600' },
   inputCell: {
