@@ -75,9 +75,25 @@ export default function ComradesModal({ visible, onClose }: { visible: boolean; 
     if (!userId || !username || !authToken) return;
     const id = String(candidate.id ?? candidate._id ?? '');
     if (!id) return;
+    const key = queryKeys.comrades(userId);
+    const previous = queryClient.getQueryData<Record<string, any>[]>(key);
+    const optimistic = {
+      ...candidate,
+      id,
+      comrade_id: id,
+      username: candidate.username ?? 'Unknown',
+      nickname: candidate.nickname ?? candidate.username ?? 'Unknown',
+      club: candidate.club ?? '',
+      country: candidate.country ?? '',
+    };
+    queryClient.setQueryData<Record<string, any>[]>(key, (current = []) =>
+      current.some((item) => String(item.comrade_id ?? item.id ?? item._id) === id)
+        ? current
+        : [...current, optimistic],
+    );
     setBusyId(id);
     try {
-      await addComrade({
+      const result = await addComrade({
         userId,
         comradeId: id,
         username,
@@ -87,8 +103,15 @@ export default function ComradesModal({ visible, onClose }: { visible: boolean; 
         comradeCountry: candidate.country ?? '',
         authToken,
       });
-      setResults((previous) => previous.filter((item) => String(item.id ?? item._id) !== id));
+      if (result.success === false) {
+        queryClient.setQueryData(key, previous);
+        return;
+      }
+      setResults((items) => items.filter((item) => String(item.id ?? item._id) !== id));
       await refresh();
+    } catch (error) {
+      queryClient.setQueryData(key, previous);
+      throw error;
     } finally {
       setBusyId(null);
     }
@@ -96,10 +119,22 @@ export default function ComradesModal({ visible, onClose }: { visible: boolean; 
 
   async function handleRemove(comradeId: string) {
     if (!userId || !authToken) return;
+    const key = queryKeys.comrades(userId);
+    const previous = queryClient.getQueryData<Record<string, any>[]>(key);
+    queryClient.setQueryData<Record<string, any>[]>(key, (current = []) =>
+      current.filter((item) => String(item.comrade_id ?? item.id ?? item._id) !== comradeId),
+    );
     setBusyId(comradeId);
     try {
-      await removeComrade(userId, comradeId, authToken);
+      const success = await removeComrade(userId, comradeId, authToken);
+      if (!success) {
+        queryClient.setQueryData(key, previous);
+        return;
+      }
       await refresh();
+    } catch (error) {
+      queryClient.setQueryData(key, previous);
+      throw error;
     } finally {
       setBusyId(null);
     }
