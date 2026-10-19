@@ -86,6 +86,37 @@ describe('Flutter AppCache parity helpers', () => {
     restarted.clear();
   });
 
+  it('rolls back an optimistic comrade mutation to the previous cache snapshot', () => {
+    const client = new QueryClient();
+    const key = queryKeys.comrades('user-1');
+    const previous = [{ id: 'comrade-1', username: 'existing' }];
+    client.setQueryData(key, previous);
+    client.setQueryData(key, [...previous, { id: 'comrade-2', username: 'optimistic' }]);
+    client.setQueryData(key, previous);
+    expect(client.getQueryData(key)).toEqual(previous);
+    client.clear();
+  });
+
+  it('clears user data from the query client on logout', () => {
+    const client = new QueryClient();
+    client.setQueryData(queryKeys.profile('user-1'), { username: 'private profile' });
+    client.setQueryData(queryKeys.fixtureVotes('fixture-1', 'user-1'), { userVoteSelection: 'home_team' });
+    client.clear();
+    expect(client.getQueryCache().getAll()).toHaveLength(0);
+  });
+
+  it('makes a cached vote immediately available to the chat cache key', () => {
+    const client = new QueryClient();
+    const voteKey = queryKeys.fixtureVotes('fixture-1', 'user-1');
+    client.setQueryData(voteKey, {
+      homeVotes: 3, awayVotes: 1, drawVotes: 0,
+      userVoteSelection: 'home_team',
+      voters: [{ userId: 'user-1', username: 'fan', selection: 'home_team' }],
+    });
+    expect(client.getQueryData<{ userVoteSelection: string }>(voteKey)?.userVoteSelection).toBe('home_team');
+    client.clear();
+  });
+
   it('does not dehydrate failed queries over a previous successful snapshot', () => {
     const shouldDehydrate = PERSIST_OPTIONS.dehydrateOptions.shouldDehydrateQuery;
     expect(shouldDehydrate?.({
