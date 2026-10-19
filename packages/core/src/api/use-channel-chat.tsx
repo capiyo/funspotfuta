@@ -116,7 +116,12 @@ export function useChannelChat({
 
     // Vote identity and voter names survive navigation, backgrounding and cold starts.
     // Keep this snapshot separate from the periodically refreshed fixture payload.
+    const persistedFixtureIdRef = useRef(fixtureId);
     useEffect(() => {
+        if (persistedFixtureIdRef.current !== fixtureId) {
+            persistedFixtureIdRef.current = fixtureId;
+            return;
+        }
         if (!fixtureId) return;
         queryClient.setQueryData(['fixtureVotes', fixtureId], {
             homeVotes,
