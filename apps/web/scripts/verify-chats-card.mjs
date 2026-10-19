@@ -114,7 +114,8 @@ async function inspectDesktop(width) {
       const teams = el.querySelector('.match-card-teams').getBoundingClientRect();
       return { row: row.toJSON(), actions: actions.toJSON(), teams: teams.toJSON() };
     });
-    assert(left.actions.right <= left.teams.left + 1, `Card ${i}: team group overlaps left action group`);
+    const intersects = left.teams.left < left.actions.right && left.teams.right > left.actions.left && left.teams.top < left.actions.bottom && left.teams.bottom > left.actions.top;
+    assert(!intersects, `Card ${i}: team group overlaps left action group`);
   }
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth || document.body.scrollWidth > document.body.clientWidth);
   assert(!overflow, `Horizontal page overflow at ${width}px`);
