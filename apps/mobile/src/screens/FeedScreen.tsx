@@ -31,7 +31,7 @@ import { useLoginModal } from '../modals/Login-modal-context';
 import {
   toggleLikePost,
   Post,
-  FeedPage,
+  type FeedPage,
   queryKeys,
   useFeed,
   isLikedBy,
