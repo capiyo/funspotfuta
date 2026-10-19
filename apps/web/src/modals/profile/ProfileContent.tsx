@@ -48,6 +48,7 @@ import {
   getUserBalance,
   getSavedPhone,
   useCachedProfile,
+  queryKeys,
   memberVoteAccuracy,
   type Channel,
   type ChannelMember,
@@ -104,6 +105,7 @@ export default function ProfileContent({
   const styles = createStyles(colors);
   const { isInitialized, isLoggedIn, userId, username, phone, authToken, logout } = useAuth();
   const toast = useToast();
+  const queryClient = useQueryClient();
 
   // ── Which profile is being viewed ───────────────────────────
   // When non-null, we're viewing another user's profile (member
@@ -408,6 +410,16 @@ export default function ProfileContent({
       const saved = userDataFromJson(raw);
 
       setProfile(saved);
+      queryClient.setQueryData(queryKeys.profile(userId), {
+        userId: saved.userId,
+        username: saved.username,
+        phone: saved.phone,
+        nickname: saved.nickname,
+        clubFan: saved.clubFan,
+        countryFan: saved.countryFan,
+        numberOfBets: saved.numberOfBets,
+        balance: saved.balance,
+      });
       setProfileExists(true);
       setEditing(false);
       setBalance(saved.balance);
