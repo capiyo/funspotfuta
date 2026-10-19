@@ -86,7 +86,7 @@ export function useChannelChat({
 }: Params) {
     const queryClient = useQueryClient();
     const cachedVotes = fixtureId
-        ? queryClient.getQueryData<{ homeVotes: number; awayVotes: number; drawVotes: number; userVoteSelection: string | null; voters: Voter[] }>(['fixtureVotes', fixtureId])
+        ? queryClient.getQueryData<{ homeVotes: number; awayVotes: number; drawVotes: number; userVoteSelection: string | null; voters: Voter[] }>(['fixtureVotes', fixtureId, userId ?? 'anonymous'])
         : undefined;
 
     // ── Messages ────────────────────────────────────────────────
@@ -123,7 +123,7 @@ export function useChannelChat({
             return;
         }
         if (!fixtureId) return;
-        queryClient.setQueryData(['fixtureVotes', fixtureId], {
+        queryClient.setQueryData(['fixtureVotes', fixtureId, userId ?? 'anonymous'], {
             homeVotes,
             awayVotes,
             drawVotes,
@@ -135,7 +135,7 @@ export function useChannelChat({
     // Restore the cached vote snapshot whenever the selected fixture changes.
     useEffect(() => {
         const snapshot = fixtureId
-            ? queryClient.getQueryData<{ homeVotes: number; awayVotes: number; drawVotes: number; userVoteSelection: string | null; voters: Voter[] }>(['fixtureVotes', fixtureId])
+            ? queryClient.getQueryData<{ homeVotes: number; awayVotes: number; drawVotes: number; userVoteSelection: string | null; voters: Voter[] }>(['fixtureVotes', fixtureId, userId ?? 'anonymous'])
             : undefined;
         setHomeVotes(snapshot?.homeVotes ?? 0);
         setAwayVotes(snapshot?.awayVotes ?? 0);
