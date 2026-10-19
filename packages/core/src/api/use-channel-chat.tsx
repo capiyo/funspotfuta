@@ -23,10 +23,10 @@ import {
     type SendPayloadExtras,
 } from './send-channel-messages';
 import {
-    ChatMessage,
+    type ChatMessage,
     chatMessageFromJson,
     chatMessageCommentary,
-} from '@funspot/core';
+} from '../types/chat-message';
 
 export type { SendPayloadExtras };
 
