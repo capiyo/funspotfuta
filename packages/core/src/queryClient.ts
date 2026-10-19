@@ -84,16 +84,16 @@ const PERSISTED_KEYS = new Set([
  * catch-and-return-[] queryFns.
  */
 export const PERSIST_OPTIONS = {
-  buster: 'v2',
+  buster: 'v3',
   dehydrateOptions: {
     shouldDehydrateQuery: (query: {
       queryKey: readonly unknown[];
-      state: { data: unknown };
+      state: { data: unknown; status: string };
     }) => {
       const key = query.queryKey[0];
-      // Persist anything that holds data, including queries momentarily
-      // refetching.
-      if (query.state.data === undefined) return false;
+      // Only persist successful, validated server responses. A query that
+      // failed after hydration must not overwrite a good disk snapshot.
+      if (query.state.status !== 'success' || query.state.data === undefined) return false;
       return typeof key === 'string' && PERSISTED_KEYS.has(key);
     },
   },
@@ -116,8 +116,11 @@ export function createAppQueryClient(storage: KVStorage) {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
-        // Serve cache instantly, refresh in the background.
+        // Serve restored cache instantly, then refresh stale data in background.
         staleTime: 5 * 60 * 1000,
+        // Cached data may render offline; a failed request is allowed to fall
+        // back to persisted data rather than treating it as a cache miss.
+        networkMode: 'offlineFirst',
         // Keep in memory as long as the on-disk snapshot may live.
         gcTime: 7 * DAY,
         // Cap the retry cycle at ~3s per delay so cold-start failures settle fast.
@@ -126,6 +129,10 @@ export function createAppQueryClient(storage: KVStorage) {
         refetchOnWindowFocus: false,
         // Never flip a populated query back to pending during a refetch.
         placeholderData: keepPreviousData,
+      },
+      mutations: {
+        // Queue mutations while offline; providers resume them after hydration.
+        networkMode: 'offlineFirst',
       },
     },
   });
