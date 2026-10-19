@@ -385,7 +385,7 @@ export function MatchCard({
               accessibilityRole="button"
               accessibilityLabel="Poke on this match"
             >
-              <View style={styles.pokeCircle}>
+              <View style={[styles.pokeCircle, { backgroundColor: colors.primaryDim }]}>
                 <Pointer size={17} color={colors.primary} />
               </View>
               <Text style={[webParityText('tag', colors, colors.primary), styles.pokeLabel]}>Poke</Text>
