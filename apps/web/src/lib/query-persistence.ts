@@ -33,7 +33,15 @@ async function readClient(): Promise<PersistedClient | undefined> {
           return;
         }
         try {
-          resolve(JSON.parse(value) as PersistedClient);
+          resolve(JSON.parse(value, (_key, item: unknown) => {
+            if (!item || typeof item !== 'object' || Array.isArray(item)) return item;
+            const tagged = item as Record<string, unknown>;
+            if (tagged.__funspotPersistedType === 'Date' && typeof tagged.value === 'string') {
+              return new Date(tagged.value);
+            }
+            if (tagged.__funspotPersistedType === 'Undefined') return undefined;
+            return item;
+          }) as PersistedClient);
         } catch {
           resolve(undefined);
         }
@@ -50,7 +58,19 @@ async function writeClient(client: PersistedClient): Promise<void> {
   try {
     await new Promise<void>((resolve, reject) => {
       const transaction = db.transaction(STORE_NAME, 'readwrite');
-      transaction.objectStore(STORE_NAME).put(JSON.stringify(client), CACHE_KEY);
+      const serialized = JSON.stringify(client, function (key, item: unknown) {
+        // Date#toJSON runs before a JSON replacer sees the value, so inspect the
+        // original property through this to retain Date types across restarts.
+        const original = this && typeof this === 'object'
+          ? (this as Record<string, unknown>)[key]
+          : undefined;
+        if (original instanceof Date) {
+          return { __funspotPersistedType: 'Date', value: original.toISOString() };
+        }
+        if (original === undefined) return { __funspotPersistedType: 'Undefined' };
+        return item;
+      });
+      transaction.objectStore(STORE_NAME).put(serialized, CACHE_KEY);
       transaction.oncomplete = () => resolve();
       transaction.onerror = () => reject(transaction.error ?? new Error('Unable to persist query cache'));
       transaction.onabort = () => reject(transaction.error ?? new Error('Query cache persistence aborted'));
