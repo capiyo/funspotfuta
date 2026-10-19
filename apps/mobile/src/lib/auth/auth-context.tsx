@@ -91,7 +91,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // prefetch uses the same canonical query options as its consuming hook.
   const prefetchedUserId = useRef<string | null>(null);
   useEffect(() => {
-    if (!state.isInitialized || !state.isLoggedIn || !state.userId) return;
+    if (!state.isInitialized) return;
+    if (!state.isLoggedIn || !state.userId) {
+      prefetchedUserId.current = null;
+      return;
+    }
     const currentUserId = state.userId;
     if (prefetchedUserId.current === currentUserId) return;
     prefetchedUserId.current = currentUserId;
@@ -111,7 +115,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (cancelled) return;
         await queryClient.prefetchQuery(profileQueryOptions(currentUserId, state.authToken));
       } catch (error) {
-        if (import.meta.env.DEV) console.warn('[query-cache] sequential startup prefetch stopped', error);
+        console.warn('[query-cache] sequential startup prefetch stopped', error);
       }
     })();
     return () => { cancelled = true; };
