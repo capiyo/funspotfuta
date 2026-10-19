@@ -94,7 +94,7 @@ Account/profile display data and balance/transaction summaries may be cached, bu
 - [ ] Prove account-switch isolation with automated tests and verify the IndexedDB/MMKV removal path on devices.
 - [ ] Audit all HTTP usage in apps/web and apps/mobile; ensure components call core hooks rather than HTTP directly.
 - [ ] Verify offline launch and the full vote-to-chat UI flow end to end.
-- [x] Add Vitest coverage for merge-not-replace, user-scoped keys, the 50-message cap, persistence restore after creating a new QueryClient, buster invalidation, successful-query-only dehydration, optimistic rollback, query-client logout clearing, and cached vote availability; CI runs `npm run test:core`.
+- [x] Add Vitest coverage for merge-not-replace, user-scoped keys, the 50-message cap, persistence restore after creating a new QueryClient, Date serialization, buster invalidation, successful-query-only dehydration, credential-free paused mutations, optimistic rollback, query-client logout clearing, and cached vote availability; CI runs `npm run test:core`.
 - [ ] Run core/mobile/web typecheck, web lint/build and tests; wait for a successful GitHub Actions run.
 
 Status is intentionally not marked complete: the query-key foundation does not itself migrate all component-owned fetch/state paths. No unverified domain row should be checked off.
