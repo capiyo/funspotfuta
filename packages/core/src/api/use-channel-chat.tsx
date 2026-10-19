@@ -16,6 +16,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { capCachedMessages, queryKeys } from '../queries/queryKeys';
 import { webSocketService } from './websocket-service';
 import {
     sendChannelMessage,
@@ -88,9 +89,25 @@ export function useChannelChat({
     const cachedVotes = fixtureId
         ? queryClient.getQueryData<{ homeVotes: number; awayVotes: number; drawVotes: number; userVoteSelection: string | null; voters: Voter[] }>(['fixtureVotes', fixtureId, userId ?? 'anonymous'])
         : undefined;
+    const messagesQueryKey = queryKeys.chatMessages(fixtureId ?? 'overall', channelId ?? 'none', userId ?? undefined);
+    const messageCacheIdentity = `${channelId ?? ''}:${fixtureId ?? ''}:${userId ?? 'public'}`;
+    const restoreMessages = (cached: ChatMessage[] | undefined): ChatMessage[] => capCachedMessages(
+        (cached ?? []).map((message, index) => {
+            const rawTimestamp = message.timestamp as unknown;
+            const timestamp = rawTimestamp instanceof Date ? rawTimestamp : new Date(String(rawTimestamp ?? ''));
+            return {
+                ...message,
+                timestamp: Number.isNaN(timestamp.getTime()) ? new Date(0) : timestamp,
+                seq: Number.isFinite(message.seq) ? message.seq : index + 1,
+            };
+        }),
+    );
 
     // ── Messages ────────────────────────────────────────────────
-    const [messages, setMessages] = useState<ChatMessage[]>([]);
+    const [messages, setMessages] = useState<ChatMessage[]>(() => restoreMessages(
+        queryClient.getQueryData<ChatMessage[]>(messagesQueryKey),
+    ));
+    const messagesIdentityRef = useRef(messageCacheIdentity);
     const [connected, setConnected] = useState(false);
     const [loadingHistory, setLoadingHistory] = useState(false);
     const [uploadingImage, setUploadingImage] = useState(false);
@@ -198,6 +215,14 @@ export function useChannelChat({
         [authToken],
     );
 
+    // Persist a bounded snapshot and restore Date values after JSON hydration.
+    // Skip the render immediately after a fixture/channel switch so old messages
+    // cannot be written into the newly selected conversation's cache key.
+    useEffect(() => {
+        if (messagesIdentityRef.current !== messageCacheIdentity) return;
+        queryClient.setQueryData<ChatMessage[]>(messagesQueryKey, capCachedMessages(messages));
+    }, [queryClient, messagesQueryKey, messageCacheIdentity, messages]);
+
     // ── Seed match state when the fixture changes ───────────────
     useEffect(() => {
         if (!seed) return;
@@ -214,10 +239,12 @@ export function useChannelChat({
         if (!channelId) return;
         let cancelled = false;
 
-        setMessages([]);
-        seenIdsRef.current = new Set();
-        seqRef.current = 0;
-        setLoadingHistory(true);
+        const cached = restoreMessages(queryClient.getQueryData<ChatMessage[]>(messagesQueryKey));
+        messagesIdentityRef.current = messageCacheIdentity;
+        seenIdsRef.current = new Set(cached.map((message) => message.id));
+        seqRef.current = cached.reduce((max, message) => Math.max(max, message.seq), 0);
+        setMessages(cached);
+        setLoadingHistory(cached.length === 0);
 
         const url = fixtureId
             ? `${API_BASE_URL}/channels/${channelId}/messages?fixture_id=${fixtureId}&limit=100&_=${Date.now()}`
@@ -251,7 +278,7 @@ export function useChannelChat({
         return () => {
             cancelled = true;
         };
-    }, [channelId, fixtureId, authHeaders]);
+    }, [channelId, fixtureId, authHeaders, queryClient, messagesQueryKey, messageCacheIdentity]);
 
     // ── Commentary bootstrap (REST) ─────────────────────────────
     useEffect(() => {
