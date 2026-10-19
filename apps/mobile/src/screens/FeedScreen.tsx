@@ -361,8 +361,10 @@ function createStyles(colors: ReturnType<typeof useFanColors>) {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      marginTop: 18,
+      marginTop: 12,
       marginBottom: -FOOTER_BLEED,
+      paddingHorizontal: 14,
+      paddingBottom: 14,
     },
   });
 }
