@@ -19,7 +19,7 @@ export function comradesQueryOptions(userId: string, authToken?: string | null) 
     queryKey,
     queryFn: async ({ client }: QueryFunctionContext) => {
       const incoming = await getUserComrades(userId, authToken);
-      const cached = client.getQueryData<Record<string, unknown>[]>(queryKey);
+      const cached = client.getQueryData<Record<string, any>[]>(queryKey);
       return mergeCachedList(cached, incoming, (item) => {
         const value = item.comrade_id ?? item.id ?? item._id;
         return value === undefined || value === null ? undefined : String(value);
