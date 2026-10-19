@@ -104,7 +104,7 @@ try {
         return {
           viewportWidth: innerWidth, documentWidth: document.documentElement.scrollWidth,
           logo, sidebar, workspace, navbar, chatsHeader, feedColumn, feedHeaderStyle,
-          containerMargins: workspace ? [workspace.x, innerWidth - workspace.right] : null,
+          containerMargins: sidebar && feedColumn ? [sidebar.x, innerWidth - feedColumn.right] : null,
           borders, shadows, channelImages, media,
           login: login && loginRect ? {
             height: loginRect.height, background: getComputedStyle(login).backgroundColor,
