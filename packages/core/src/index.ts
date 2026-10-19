@@ -44,6 +44,8 @@ export type { QueryKeyFactory } from './queries/queryKeys';
 export { useCachedProfile, useCachedComrades, profileQueryOptions, comradesQueryOptions } from './queries/useCachedAccountData';
 export { useAllChannels } from './queries/useAllChannels';
 export { useFeed, feedQueryOptions } from './queries/useFeed';
+export { useInfiniteHistoryGames, historyQueryOptions } from './queries/useHistory';
+export type { HistoryPage } from './queries/useHistory';
 export type { FeedPage } from './queries/useFeed';
 
 export type {
