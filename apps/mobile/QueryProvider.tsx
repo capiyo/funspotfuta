@@ -80,12 +80,18 @@ export function QueryProvider({
             persistOptions={persistOptions}
             onSuccess={() => {
                 restored.current = true;
+                // Hydration is complete now: replay mutations that TanStack
+                // paused while the device was offline before warming reads.
+                void queryClient.resumePausedMutations().catch((e) => console.warn('[QueryProvider] paused mutations resume failed:', e));
                 void prefetchStartupData().catch((e) => console.warn('[QueryProvider] startup prefetch failed:', e));
                 onReady?.();
             }}
             onError={() => {
                 // Restore failed (corrupt snapshot etc.): carry on with an empty cache.
                 restored.current = true;
+                // Hydration is complete now: replay mutations that TanStack
+                // paused while the device was offline before warming reads.
+                void queryClient.resumePausedMutations().catch((e) => console.warn('[QueryProvider] paused mutations resume failed:', e));
                 void prefetchStartupData().catch((e) => console.warn('[QueryProvider] startup prefetch failed:', e));
                 onReady?.();
             }}
