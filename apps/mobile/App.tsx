@@ -1,12 +1,11 @@
 // App.tsx
 //
 // Provider order matters:
-//   AuthProvider       — must come first; LoginModalProvider and everything
-//                        below it reads useAuth()
+//   QueryProvider      — rehydrates the MMKV-backed cache; calls onReady
+//   AuthProvider       — uses the shared query client to clear user data safely
 //   LoginModalProvider — mounts LoginModal globally; every screen calls
 //                        useLoginModal().requireLogin() to gate actions
 //   ToastProvider
-//   QueryProvider      — rehydrates the MMKV-backed cache; calls onReady
 //                        when done
 //   NavigationContainer → RootNavigator
 //
@@ -90,10 +89,10 @@ export default function App() {
   return (
     <View style={{ flex: 1 }} onLayout={onLayout}>
       <SafeAreaProvider>
-        <AuthProvider>
-          <LoginModalProvider>
-            <ToastProvider>
-              <QueryProvider onReady={handleCacheReady}>
+        <QueryProvider onReady={handleCacheReady}>
+          <AuthProvider>
+            <LoginModalProvider>
+              <ToastProvider>
                 {appReady ? (
                   <View style={{ flex: 1, backgroundColor: colors.background }}>
                     <NavigationContainer theme={navTheme}>
@@ -106,10 +105,10 @@ export default function App() {
                     />
                   </View>
                 ) : null}
-              </QueryProvider>
-            </ToastProvider>
-          </LoginModalProvider>
-        </AuthProvider>
+              </ToastProvider>
+            </LoginModalProvider>
+          </AuthProvider>
+        </QueryProvider>
       </SafeAreaProvider>
     </View>
   );
