@@ -82,6 +82,8 @@ Account/profile display data and balance/transaction summaries may be cached, bu
 - [ ] Profile/account: remove direct component fetches; cache display profile per user; preserve cached profile on transient network failure.
 - [ ] Payments: cache only safe display summaries; never cache credentials or auth tokens.
 - [ ] Feed/posts/post comments/likes/followers: migrate every consumer and mutation.
+- [x] Web and mobile FeedScreen now use a shared core infinite-feed hook with one canonical persisted `['feed']` query key and background refresh.
+- [ ] Move post likes, post creation, comments, followers and other feed interactions to shared core mutation hooks.
 - [ ] History/history comments/aftermatch/live events: migrate every consumer and mutation.
 - [ ] Notifications: migrate every consumer and mutation to shared query keys.
 - [x] Add query-cache clearing on logout/account switch in web and mobile; mobile provider order now makes the shared QueryClient available to AuthProvider.
