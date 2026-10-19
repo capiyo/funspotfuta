@@ -900,7 +900,10 @@ export default function MessageScreen() {
               authToken,
             });
             if (r.success) {
-              queryClient.invalidateQueries({ queryKey: FIXTURES_KEY });
+              // Unlock the composer immediately and persist the local vote before
+              // any fixture refresh can return a stale voter list.
+              chat.recordUserVote(sel);
+              await queryClient.invalidateQueries({ queryKey: FIXTURES_KEY });
               await refetchVoteCounts();
             }
             return { success: r.success, message: r.message };
