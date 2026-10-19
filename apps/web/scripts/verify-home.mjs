@@ -110,6 +110,7 @@ try {
             height: loginRect.height, background: getComputedStyle(login).backgroundColor,
             color: getComputedStyle(login).color, radius: getComputedStyle(login).borderRadius,
           } : null,
+          firstFeedCardRight: document.querySelector('.home-screen .feed-column .post-card, .home-screen .feed-column .feed-item')?.getBoundingClientRect().right ?? null,
           cardCount: document.querySelectorAll('.home-screen .match-card').length,
           feedCount: document.querySelectorAll('.home-screen .feed-column .post-card, .home-screen .feed-column .feed-item').length,
         };
@@ -129,9 +130,8 @@ try {
       assert(layout.shadows.length === 0, `Unexpected Home shadows at ${width}px: ${JSON.stringify(layout.shadows)}`);
       assert(layout.containerMargins[0] <= 18 && layout.containerMargins[1] <= 18,
         `Workspace gutters exceed 16px ±2 at ${width}px: ${layout.containerMargins}`);
-      const firstFeedCard = document.querySelector('.home-screen .feed-column .post-card, .home-screen .feed-column .feed-item');
-      if (width === 1920 && firstFeedCard) {
-        const spare = width - firstFeedCard.getBoundingClientRect().right;
+      if (width === 1920 && layout.firstFeedCardRight !== null) {
+        const spare = width - layout.firstFeedCardRight;
         assert(spare < 100, `Feed spare width should be <100px at 1920px, got ${spare}`);
       }
       const chatsWidth = document.querySelector('.home-screen .chats-column')?.getBoundingClientRect().width ?? 0;
