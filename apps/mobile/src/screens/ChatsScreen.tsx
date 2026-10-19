@@ -32,19 +32,18 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { sendChannelMessage } from '../../../../packages/core/src/api/send-channel-messages';
 import {
-  useQuery,
   useQueryClient,
-  keepPreviousData,
 } from '@tanstack/react-query';
 
 import { useAuth } from '@/lib/auth/auth-context';
 import { useLoginModal } from '../modals/Login-modal-context';
 import {
-  getAllFixtures,
   Fixture,
   FanColorPalette,
   FAN_SPACING,
   Voter,
+  useFixtures,
+  queryKeys,
 } from '@funspot/core';
 import {
   MatchCard,
@@ -108,7 +107,7 @@ const EMPTY_COPY: Record<Filter, { title: string; hint: string }> = {
   },
 };
 
-const FIXTURES_KEY = ['fixtures'] as const;
+const FIXTURES_KEY = queryKeys.fixtures();
 const NO_FIXTURES: Fixture[] = [];
 
 const MOCK_COMMENTORS = [
@@ -212,54 +211,7 @@ export default function ChatsScreen() {
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const queryClient = useQueryClient();
 
-  const { data, isPending, isError, error, refetch } = useQuery({
-    queryKey: FIXTURES_KEY,
-    queryFn: async () => {
-      const fresh = await getAllFixtures();
-      return fresh.map((fixture) => {
-        const fixtureId = fixture.matchId || fixture.id;
-        const snapshot = queryClient.getQueryData<{
-          homeVotes: number;
-          awayVotes: number;
-          drawVotes: number;
-          voters: Array<{ userId: string; username: string; selection: string; votedAt?: Date | string; isComrade?: boolean }>;
-          userVoteSelection: string | null;
-        }>(['fixtureVotes', fixtureId, userId ?? 'anonymous']);
-        const merged = new Map<string, Voter>();
-        for (const voter of fixture.voters ?? []) merged.set(voter.userId, voter);
-        for (const voter of snapshot?.voters ?? []) {
-          const serverVoter = merged.get(voter.userId);
-          merged.set(voter.userId, {
-            userId: voter.userId,
-            userName: serverVoter?.userName ?? voter.username,
-            selection: serverVoter?.selection ?? voter.selection,
-            votedAt: serverVoter?.votedAt ?? (voter.votedAt ? new Date(voter.votedAt) : new Date()),
-            isComrade: serverVoter?.isComrade ?? voter.isComrade ?? false,
-            isCorrect: serverVoter?.isCorrect ?? false,
-            pointsAwarded: serverVoter?.pointsAwarded ?? 0,
-          } as Voter);
-        }
-        const voters = [...merged.values()];
-        const myCachedVote = voters.find((voter) => voter.userId === userId);
-        queryClient.setQueryData(['fixtureVotes', fixtureId, userId ?? 'anonymous'], {
-          homeVotes: snapshot?.homeVotes ?? 0,
-          awayVotes: snapshot?.awayVotes ?? 0,
-          drawVotes: snapshot?.drawVotes ?? 0,
-          userVoteSelection: snapshot?.userVoteSelection ?? myCachedVote?.selection ?? null,
-          voters: voters.map((voter) => ({
-            userId: voter.userId,
-            username: voter.userName,
-            selection: voter.selection,
-            votedAt: voter.votedAt,
-            isComrade: voter.isComrade,
-          })),
-        });
-        return { ...fixture, voters };
-      });
-    },
-    placeholderData: keepPreviousData,
-    enabled: activeTab === 'Chats',
-  });
+  const { data, isPending, isError, error, refetch } = useFixtures(userId ?? undefined, activeTab === 'Chats');
   const fixtures = data ?? NO_FIXTURES;
 
   const headerById = useMemo(() => {
