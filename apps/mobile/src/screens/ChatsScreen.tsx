@@ -221,7 +221,7 @@ export default function ChatsScreen() {
         const snapshot = queryClient.getQueryData<{
           voters: Array<{ userId: string; username: string; selection: string; votedAt?: Date | string; isComrade?: boolean }>;
           userVoteSelection: string | null;
-        }>(['fixtureVotes', fixtureId]);
+        }>(['fixtureVotes', fixtureId, userId ?? 'anonymous']);
         if (!snapshot?.voters?.length) return fixture;
         const merged = new Map((fixture.voters ?? []).map((v) => [v.userId, v]));
         for (const voter of snapshot.voters) {
@@ -401,8 +401,8 @@ export default function ChatsScreen() {
           homeVotes: number; awayVotes: number; drawVotes: number;
           userVoteSelection: string | null;
           voters: Array<{ userId: string; username: string; selection: string; votedAt?: Date | string; isComrade?: boolean }>;
-        }>(['fixtureVotes', fixtureId]);
-        queryClient.setQueryData(['fixtureVotes', fixtureId], {
+        }>(['fixtureVotes', fixtureId, userId ?? 'anonymous']);
+        queryClient.setQueryData(['fixtureVotes', fixtureId, userId ?? 'anonymous'], {
           homeVotes: cached?.homeVotes ?? 0,
           awayVotes: cached?.awayVotes ?? 0,
           drawVotes: cached?.drawVotes ?? 0,
