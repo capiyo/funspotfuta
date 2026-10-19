@@ -67,29 +67,71 @@ export default function ComradesScreen({
 
   async function handleAdd(candidate: Record<string, any>) {
     if (!userId || !username || !authToken) return;
-    const id = candidate.id ?? candidate._id;
+    const id = String(candidate.id ?? candidate._id ?? '');
+    if (!id) return;
+    const key = queryKeys.comrades(userId);
+    const previous = queryClient.getQueryData<Record<string, any>[]>(key);
+    const optimistic = {
+      ...candidate,
+      id,
+      comrade_id: id,
+      username: candidate.username ?? 'Unknown',
+      nickname: candidate.nickname ?? candidate.username ?? 'Unknown',
+      club: candidate.club ?? '',
+      country: candidate.country ?? '',
+    };
+    queryClient.setQueryData<Record<string, any>[]>(key, (current = []) =>
+      current.some((item) => String(item.comrade_id ?? item.id ?? item._id) === id)
+        ? current
+        : [...current, optimistic],
+    );
     setBusyId(id);
-    await addComrade({
-      userId,
-      comradeId: id,
-      username,
-      comradeUsername: candidate.username ?? 'Unknown',
-      comradeNickname: candidate.nickname ?? candidate.username ?? 'Unknown',
-      comradeClub: candidate.club ?? '',
-      comradeCountry: candidate.country ?? '',
-      authToken,
-    });
-    setBusyId(null);
-    setResults((prev) => prev.filter((r) => (r.id ?? r._id) !== id));
-    refresh();
+    try {
+      const result = await addComrade({
+        userId,
+        comradeId: id,
+        username,
+        comradeUsername: candidate.username ?? 'Unknown',
+        comradeNickname: candidate.nickname ?? candidate.username ?? 'Unknown',
+        comradeClub: candidate.club ?? '',
+        comradeCountry: candidate.country ?? '',
+        authToken,
+      });
+      if (result.success === false) {
+        queryClient.setQueryData(key, previous);
+        return;
+      }
+      setResults((items) => items.filter((item) => String(item.id ?? item._id) !== id));
+      await refresh();
+    } catch (error) {
+      queryClient.setQueryData(key, previous);
+      throw error;
+    } finally {
+      setBusyId(null);
+    }
   }
 
   async function handleRemove(comradeId: string) {
     if (!userId || !authToken) return;
+    const key = queryKeys.comrades(userId);
+    const previous = queryClient.getQueryData<Record<string, any>[]>(key);
+    queryClient.setQueryData<Record<string, any>[]>(key, (current = []) =>
+      current.filter((item) => String(item.comrade_id ?? item.id ?? item._id) !== comradeId),
+    );
     setBusyId(comradeId);
-    await removeComrade(userId, comradeId, authToken);
-    setBusyId(null);
-    refresh();
+    try {
+      const success = await removeComrade(userId, comradeId, authToken);
+      if (!success) {
+        queryClient.setQueryData(key, previous);
+        return;
+      }
+      await refresh();
+    } catch (error) {
+      queryClient.setQueryData(key, previous);
+      throw error;
+    } finally {
+      setBusyId(null);
+    }
   }
 
   return (
