@@ -222,23 +222,36 @@ export default function ChatsScreen() {
           voters: Array<{ userId: string; username: string; selection: string; votedAt?: Date | string; isComrade?: boolean }>;
           userVoteSelection: string | null;
         }>(['fixtureVotes', fixtureId, userId ?? 'anonymous']);
-        if (!snapshot?.voters?.length) return fixture;
         const merged = new Map<string, Voter>();
         for (const voter of fixture.voters ?? []) merged.set(voter.userId, voter);
-        for (const voter of snapshot.voters) {
-          if (!merged.has(voter.userId)) {
-            merged.set(voter.userId, {
-              userId: voter.userId,
-              userName: voter.username,
-              selection: voter.selection,
-              votedAt: voter.votedAt ? new Date(voter.votedAt) : new Date(),
-              isComrade: voter.isComrade ?? false,
-              isCorrect: false,
-              pointsAwarded: 0,
-            } as Voter);
-          }
+        for (const voter of snapshot?.voters ?? []) {
+          const serverVoter = merged.get(voter.userId);
+          merged.set(voter.userId, {
+            userId: voter.userId,
+            userName: serverVoter?.userName ?? voter.username,
+            selection: serverVoter?.selection ?? voter.selection,
+            votedAt: serverVoter?.votedAt ?? (voter.votedAt ? new Date(voter.votedAt) : new Date()),
+            isComrade: serverVoter?.isComrade ?? voter.isComrade ?? false,
+            isCorrect: serverVoter?.isCorrect ?? false,
+            pointsAwarded: serverVoter?.pointsAwarded ?? 0,
+          } as Voter);
         }
-        return { ...fixture, voters: [...merged.values()] };
+        const voters = [...merged.values()];
+        const myCachedVote = voters.find((voter) => voter.userId === userId);
+        queryClient.setQueryData(['fixtureVotes', fixtureId, userId ?? 'anonymous'], {
+          homeVotes: snapshot?.homeVotes ?? 0,
+          awayVotes: snapshot?.awayVotes ?? 0,
+          drawVotes: snapshot?.drawVotes ?? 0,
+          userVoteSelection: snapshot?.userVoteSelection ?? myCachedVote?.selection ?? null,
+          voters: voters.map((voter) => ({
+            userId: voter.userId,
+            username: voter.userName,
+            selection: voter.selection,
+            votedAt: voter.votedAt,
+            isComrade: voter.isComrade,
+          })),
+        });
+        return { ...fixture, voters };
       });
     },
     placeholderData: keepPreviousData,
