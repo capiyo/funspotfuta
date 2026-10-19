@@ -196,7 +196,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: 16,
+        marginBottom: 12,
     },
     author: {
         flexDirection: 'row',
@@ -211,15 +211,17 @@ const styles = StyleSheet.create({
         gap: FAN_SPACING.sm,
     },
     captionRow: { marginBottom: 0 },
-    mediaRow: { marginTop: 12 },
+    mediaRow: { marginTop: 10 },
     // Negative bottom margin cancels FeedItem's bottom padding so the row
     // sits on the card floor.
     bottomRow: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: FAN_SPACING.sm,
-        marginTop: 18,
+        marginTop: 12,
         marginBottom: -FOOTER_BLEED,
+        paddingHorizontal: 14,
+        paddingBottom: 14,
     },
     actions: {
         flexDirection: 'row',
@@ -233,5 +235,5 @@ const styles = StyleSheet.create({
         alignItems: 'flex-end',
         justifyContent: 'center',
     },
-    follow: { minHeight: 32, justifyContent: 'center' },
+    follow: { minHeight: 36, justifyContent: 'center', paddingHorizontal: 4 },
 });
