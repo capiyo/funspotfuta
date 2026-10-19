@@ -24,6 +24,7 @@ export const queryKeys = {
   comrades: (userId: string) => ['comrades', userId] as const,
   userComrades: (userId: string) => ['userComrades', userId] as const,
   profile: (userId: string) => ['profile', userId] as const,
+  history: (userId?: string) => userId ? ['history', userId] as const : ['history', 'public'] as const,
   historyGames: (userId: string) => ['historyGames', userId] as const,
   historyComments: (gameId: string, userId: string) => ['historyComments', gameId, userId] as const,
   aftermatch: (fixtureId: string, channelId: string) => ['aftermatch', fixtureId, channelId] as const,
