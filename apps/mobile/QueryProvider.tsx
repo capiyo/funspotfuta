@@ -5,7 +5,7 @@
 //   until restore finishes (no fetch-before-restore race).
 // - onSuccess/onError => onReady(): hold your splash on this ONLY, never on
 //   the network (MMKV restore takes milliseconds).
-// - After restore, the main queries are prefetched in parallel so new users
+// - After restore, the main queries are prefetched sequentially so new users
 //   (empty cache) don't wait for a tab to be opened. prefetchQuery skips the
 //   network when fresh cached data exists.
 // - On background/inactive the cache is flushed to disk, but never before the
