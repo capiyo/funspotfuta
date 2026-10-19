@@ -29,7 +29,6 @@ import {
   Heart,
   Lock,
   MessageCircle,
-  Pointer,
   Radio,
   Vote,
 } from 'lucide-react-native';
@@ -45,7 +44,6 @@ import { useAuth } from '@/lib/auth/auth-context';
 import { useLoginModal } from '../modals/Login-modal-context';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
-
 import { ICON, PRESSED_OPACITY } from '@/theme/layout';
 import { FeedItem } from './ui/FeedItem';
 import { LiveBadge } from './ui/LiveBadge';
@@ -69,14 +67,6 @@ const EMPTY_VOTE_PROMPTS = [
   'Pick your winner',
   'Be the first to pick',
 ];
-
-
-// Typography tuned to the mobile-web reference for Chats and Feed.
-function webParityText(role: Parameters<typeof fanText>[0], colors: Parameters<typeof fanText>[1], color?: string) {
-  const base = fanText(role, colors, color);
-  const size = role === 'tag' ? 12 : role === 'caption' ? 13 : role === 'body' ? 14 : role === 'competition' ? 14 : (base.fontSize ?? 12);
-  return { ...base, fontSize: size, lineHeight: Math.round(size * 1.4) };
-}
 
 export interface ChannelHeaderData {
   id?: string;
@@ -272,14 +262,14 @@ export function MatchCard({
                     onError={() => setFailedUri(channel.imageUrl ?? null)}
                   />
                 ) : (
-                  <Text style={webParityText('tag', colors, colors.primary)}>
+                  <Text style={fanText('tag', colors, colors.primary)}>
                     {(channel.name || '?').charAt(0).toUpperCase()}
                   </Text>
                 )}
               </View>
               <Text
                 style={[
-                  webParityText('competition', colors, '#FFFFFF'),
+                  fanText('competition', colors, '#FFFFFF'),
                   styles.channelName,
                   styles.grow,
                 ]}
@@ -290,7 +280,7 @@ export function MatchCard({
             </View>
           ) : (
             <Text
-              style={[webParityText('competition', colors, '#FFFFFF'), styles.grow]}
+              style={[fanText('competition', colors, '#FFFFFF'), styles.grow]}
               numberOfLines={1}
             >
               {fixture.league || 'Unknown league'}
@@ -299,7 +289,7 @@ export function MatchCard({
           {isLive ? (
             <LiveBadge colors={colors} />
           ) : (
-            <Text style={webParityText('tag', colors, colors.textTertiary)}>
+            <Text style={fanText('tag', colors, colors.textTertiary)}>
               {kickoffLabel(fixture.date)}
             </Text>
           )}
@@ -312,14 +302,14 @@ export function MatchCard({
               <Radio size={ICON.sm} color={colors.live} />
               <Text
                 style={[
-                  webParityText('caption', colors, COMMENT_STYLE_COLOR(colors)),
+                  fanText('caption', colors, COMMENT_STYLE_COLOR(colors)),
                   styles.grow,
                 ]}
                 numberOfLines={1}
               >
                 {liveCommentary.text}
               </Text>
-              <Text style={webParityText('tag', colors, colors.textTertiary)}>
+              <Text style={fanText('tag', colors, colors.textTertiary)}>
                 {liveCommentary.minute}&apos;
               </Text>
             </>
@@ -328,7 +318,7 @@ export function MatchCard({
               <MessageCircle size={ICON.sm} color={colors.textTertiary} />
               <Text
                 style={[
-                  webParityText('caption', colors, COMMENT_STYLE_COLOR(colors)),
+                  fanText('caption', colors, COMMENT_STYLE_COLOR(colors)),
                   styles.grow,
                 ]}
                 numberOfLines={1}
@@ -344,7 +334,7 @@ export function MatchCard({
         {/* Result / vote state */}
         {isCompleted ? (
           <View style={styles.resultRow} pointerEvents="none">
-            <Text style={webParityText('caption', colors, COMMENT_STYLE_COLOR(colors))}>
+            <Text style={fanText('caption', colors, COMMENT_STYLE_COLOR(colors))}>
               Winner: {fixtureWinner(fixture)}
             </Text>
           </View>
@@ -352,7 +342,7 @@ export function MatchCard({
           <View style={[styles.lineRow, styles.resultRow]} pointerEvents="none">
             <Check size={ICON.sm} color={colors.primary} />
             <Text
-              style={webParityText('caption', colors, COMMENT_STYLE_COLOR(colors))}
+              style={fanText('caption', colors, COMMENT_STYLE_COLOR(colors))}
             >
               Vote recorded
             </Text>
@@ -378,18 +368,6 @@ export function MatchCard({
               colors={colors}
               onPress={handleVote}
             />
-            <Pressable
-              onPress={handleVote}
-              hitSlop={8}
-              style={({ pressed }) => [styles.pokeButton, pressed && { opacity: PRESSED_OPACITY }]}
-              accessibilityRole="button"
-              accessibilityLabel="Poke on this match"
-            >
-              <View style={[styles.pokeCircle, { backgroundColor: colors.primaryDim }]}>
-                <Pointer size={17} color={colors.primary} />
-              </View>
-              <Text style={[webParityText('tag', colors, colors.primary), styles.pokeLabel]}>Poke</Text>
-            </Pressable>
             <ActionButton
               icon={Heart}
               label={liked ? 'Unlike' : 'Like'}
@@ -417,7 +395,7 @@ export function MatchCard({
               style={[
                 styles.grow,
                 styles.noBorderInput,
-                webParityText('caption', colors, colors.textSecondary),
+                fanText('caption', colors, colors.textSecondary),
               ]}
               colors={colors}
               variant="inline"
@@ -442,7 +420,7 @@ export function MatchCard({
             accessibilityLabel={`Open match details: ${fixtureLabel}`}
           >
             <Text
-              style={webParityText('tag', colors, colors.textTertiary)}
+              style={fanText('tag', colors, colors.textTertiary)}
               numberOfLines={1}
             >
               {captionLabel}
@@ -461,7 +439,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 9,
+    marginBottom: 16,
   },
   previewRow: { marginBottom: 0 },
   resultRow: { marginTop: 10 },
@@ -472,9 +450,9 @@ const styles = StyleSheet.create({
     gap: FAN_SPACING.sm,
   },
   channelAvatar: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
     borderWidth: StyleSheet.hairlineWidth,
     alignItems: 'center',
     justifyContent: 'center',
@@ -494,31 +472,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: FAN_SPACING.sm,
-    marginTop: 12,
+    marginTop: 18,
     marginBottom: -FOOTER_BLEED,
-    paddingHorizontal: 12,
-    paddingBottom: 12,
   },
   actions: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: FAN_SPACING.base,
   },
-  pokeButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 5,
-    minHeight: 30,
-  },
-  pokeCircle: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  pokeLabel: { fontSize: 12, fontWeight: '600' },
   inputCell: {
     flex: 1,
     minWidth: 0,

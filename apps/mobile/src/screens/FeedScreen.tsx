@@ -23,24 +23,22 @@ import {
 import { ImagePlus, Paperclip } from 'lucide-react-native';
 import * as ImagePicker from 'expo-image-picker';
 import {
+  useInfiniteQuery,
   useQueryClient,
   type InfiniteData,
 } from '@tanstack/react-query';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useLoginModal } from '../modals/Login-modal-context';
 import {
+  getPosts,
   toggleLikePost,
   Post,
-  type FeedPage,
-  queryKeys,
-  useFeed,
   isLikedBy,
   FAN_SPACING,
 } from '@funspot/core';
 import { createPost } from '@/lib/api/posts-create';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
-
 import { ICON, LIST_BOTTOM_INSET } from '@/theme/layout';
 import { PostCard } from '@/components/PostCard';
 import { FeedItem } from '@/components/ui/FeedItem';
@@ -56,18 +54,12 @@ import {
 } from '@/components/ui/ListsStates';
 import { useHome, useHomeList } from './home/home-context';
 
-const FEED_KEY = queryKeys.feed();
+const PAGE_SIZE = 10;
+const FEED_KEY = ['feed'] as const;
 // Keep in sync with MatchCard's FOOTER_BLEED.
 const FOOTER_BLEED = 12;
 
-
-
-// Typography tuned to the mobile-web reference for Chats and Feed.
-function webParityText(role: Parameters<typeof fanText>[0], colors: Parameters<typeof fanText>[1], color?: string) {
-  const base = fanText(role, colors, color);
-  const size = role === 'tag' ? 12 : role === 'caption' ? 13 : role === 'body' ? 14 : role === 'competition' ? 14 : (base.fontSize ?? 12);
-  return { ...base, fontSize: size, lineHeight: Math.round(size * 1.4) };
-}
+type FeedPage = { posts: Post[] };
 
 export default function FeedScreen() {
   const colors = useFanColors();
@@ -92,7 +84,17 @@ export default function FeedScreen() {
     hasNextPage,
     fetchNextPage,
     refetch,
-  } = useFeed({ enabled: activeTab === 'Feed' });
+  } = useInfiniteQuery({
+    queryKey: FEED_KEY,
+    queryFn: ({ pageParam }) => getPosts({ page: pageParam, limit: PAGE_SIZE }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.posts.length === PAGE_SIZE ? allPages.length + 1 : undefined,
+    // A failed refetch must not wipe the feed.
+    placeholderData: (prev) => prev,
+    retry: 1,
+    enabled: activeTab === 'Feed',
+  });
 
   const posts = useMemo(
     () => data?.pages.flatMap((p) => p.posts) ?? [],
@@ -196,7 +198,7 @@ export default function FeedScreen() {
           <MiniAvatar colors={colors} label={username ?? '?'} />
           <Text
             style={[
-              webParityText('competition', colors, '#FFFFFF'),
+              fanText('competition', colors, '#FFFFFF'),
               styles.authorName,
               styles.grow,
             ]}
@@ -225,7 +227,7 @@ export default function FeedScreen() {
         <View style={styles.attachment}>
           <Paperclip size={ICON.sm} color={colors.textSecondary} />
           <Text
-            style={[webParityText('caption', colors, colors.textSecondary), styles.grow]}
+            style={[fanText('caption', colors, colors.textSecondary), styles.grow]}
             numberOfLines={1}
           >
             {image.fileName ?? 'Image'}
@@ -335,7 +337,7 @@ function createStyles(colors: ReturnType<typeof useFanColors>) {
     list: { flex: 1 },
     content: { paddingBottom: LIST_BOTTOM_INSET },
     grow: { flex: 1 },
-    banner: { paddingHorizontal: FAN_SPACING.md, paddingVertical: FAN_SPACING.sm },
+    banner: { paddingHorizontal: FAN_SPACING.lg, paddingVertical: FAN_SPACING.md },
     metaRow: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -359,10 +361,8 @@ function createStyles(colors: ReturnType<typeof useFanColors>) {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      marginTop: 12,
+      marginTop: 18,
       marginBottom: -FOOTER_BLEED,
-      paddingHorizontal: 14,
-      paddingBottom: 14,
     },
   });
 }

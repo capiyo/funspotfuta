@@ -5,10 +5,7 @@
 // which means every storage op is async here.
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { mobileStorage } from '@funspot/storage';
-import { getAllFixtures, getVotesByUserStrict, feedQueryOptions, comradesQueryOptions, profileQueryOptions, queryKeys } from '@funspot/core';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 interface AuthState {
   isLoggedIn: boolean;
@@ -70,56 +67,7 @@ const LOGOUT_KEYS = [
 ];
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const queryClient = useQueryClient();
-  const previousUserId = useRef<string | null>(null);
   const [state, setState] = useState<AuthState>(initialState);
-
-  useEffect(() => {
-    if (!state.isInitialized) return;
-    const currentUserId = state.isLoggedIn ? state.userId : null;
-    const previous = previousUserId.current;
-    previousUserId.current = currentUserId;
-    if (previous === null || previous === currentUserId) return;
-
-    // The MMKV persisted query blob is user data too. Clear both memory and
-    // disk on logout or direct account switching.
-    queryClient.clear();
-    void mobileStorage.removeItem('FUNSPOT_QUERY_CACHE');
-  }, [state.isInitialized, state.isLoggedIn, state.userId, queryClient]);
-
-  // Warm account data sequentially after hydration/auth initialization. Each
-  // prefetch uses the same canonical query options as its consuming hook.
-  const prefetchedUserId = useRef<string | null>(null);
-  useEffect(() => {
-    if (!state.isInitialized) return;
-    if (!state.isLoggedIn || !state.userId) {
-      prefetchedUserId.current = null;
-      return;
-    }
-    const currentUserId = state.userId;
-    if (prefetchedUserId.current === currentUserId) return;
-    prefetchedUserId.current = currentUserId;
-    let cancelled = false;
-    void (async () => {
-      try {
-        await queryClient.prefetchQuery({ queryKey: queryKeys.fixtures(), queryFn: getAllFixtures });
-        if (cancelled) return;
-        await queryClient.prefetchInfiniteQuery(feedQueryOptions(10));
-        if (cancelled) return;
-        await queryClient.prefetchQuery({
-          queryKey: queryKeys.userVotes(currentUserId),
-          queryFn: () => getVotesByUserStrict(currentUserId),
-        });
-        if (cancelled) return;
-        await queryClient.prefetchQuery(comradesQueryOptions(currentUserId, state.authToken));
-        if (cancelled) return;
-        await queryClient.prefetchQuery(profileQueryOptions(currentUserId, state.authToken));
-      } catch (error) {
-        console.warn('[query-cache] sequential startup prefetch stopped', error);
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [state.isInitialized, state.isLoggedIn, state.userId, state.authToken, queryClient]);
 
   useEffect(() => {
     (async () => {
@@ -201,11 +149,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await AsyncStorage.multiRemove(LOGOUT_KEYS);
     } finally {
-      queryClient.clear();
-      await mobileStorage.removeItem('FUNSPOT_QUERY_CACHE');
       setState({ ...initialState, isInitialized: true });
     }
-  }, [queryClient]);
+  }, []);
 
   const updateAuthToken = useCallback(
     async (newToken: string, newRefreshToken?: string): Promise<boolean> => {
@@ -247,11 +193,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await AsyncStorage.clear();
     } finally {
-      queryClient.clear();
-      await mobileStorage.removeItem('FUNSPOT_QUERY_CACHE');
       setState({ ...initialState, isInitialized: true });
     }
-  }, [queryClient]);
+  }, []);
 
   const value = useMemo<AuthContextValue>(
     () => ({ ...state, login, logout, updateAuthToken, updateUserData, hasValidSession, clearAllAppData }),

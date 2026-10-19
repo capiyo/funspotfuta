@@ -24,7 +24,6 @@
 //      profiles (see header).
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 import {
   View,
   Text,
@@ -57,8 +56,6 @@ import { useFanColors } from '@/theme/use-fan-colors';
 import {
   getUserBalance,
   getSavedPhone,
-  useCachedProfile,
-  queryKeys,
   type Channel,
   type ChannelMember,
 } from '@funspot/core';
@@ -107,7 +104,6 @@ export default function ProfileModal({
   const styles = createStyles(colors);
   const { userId, username, phone, authToken, logout } = useAuth();
   const toast = useToast();
-  const queryClient = useQueryClient();
 
   // ── Which profile is being viewed ───────────────────────────
   // When non-null, we're viewing another user's profile (member
@@ -153,70 +149,75 @@ export default function ProfileModal({
     setEditing(false);
   }, [visible]);
 
-  // Shared React Query profile data restores from disk before refreshing.
-  // A transient API error must not be interpreted as a missing profile.
-  const profileQuery = useCachedProfile(targetUserId || undefined, authToken);
-
+  // ── Load the profile whenever the target user changes ───────
   useEffect(() => {
     if (!visible || !targetUserId) return;
-    if (profileQuery.isPending && profileQuery.data === undefined) {
+    let cancelled = false;
+
+    (async () => {
       setLoading(true);
-      return;
-    }
-    if (profileQuery.isError && profileQuery.data === undefined) {
-      setLoading(false);
-      return;
-    }
+      try {
+        const res = await fetch(
+          `${API_BASE}/profile/profile/${targetUserId}`,
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              ...(authToken
+                ? { Authorization: `Bearer ${authToken}` }
+                : {}),
+            },
+          },
+        );
 
-    if (profileQuery.data && typeof profileQuery.data === 'object') {
-      const source = profileQuery.data;
-      const u: UserData = {
-        userId: source.userId,
-        username: source.username,
-        phone: source.phone,
-        nickname: source.nickname,
-        clubFan: source.clubFan,
-        countryFan: source.countryFan,
-        numberOfBets: source.numberOfBets,
-        balance: source.balance,
-      };
-      setProfile(u);
-      setProfileExists(true);
-      setEditNickname(u.nickname);
-      setEditClub(u.clubFan);
-      setEditCountry(u.countryFan);
-      setBalance(u.balance);
-      setEditing(false);
-      setLoading(false);
-      return;
-    }
+        if (cancelled) return;
 
-    if (profileQuery.data === null && !profileQuery.isError) {
-      setProfile(null);
-      setProfileExists(false);
-      setEditing(true);
-      setLoading(false);
-      if (isCurrentUser) {
-        void fetchUsersCollectionSnapshot().then((snapshot) => {
-          pendingSnapshot.current = snapshot;
-          if (snapshot.balance > 0) {
-            setBalance(snapshot.balance);
+        if (res.status === 200) {
+          const decoded = await res.json();
+          const raw =
+            Array.isArray(decoded) && decoded.length > 0
+              ? decoded[0]
+              : decoded;
+          if (raw && typeof raw === 'object') {
+            const u = userDataFromJson(raw);
+            if (cancelled) return;
+            setProfile(u);
+            setProfileExists(true);
+            setEditNickname(u.nickname);
+            setEditClub(u.clubFan);
+            setEditCountry(u.countryFan);
+            setBalance(u.balance);
+            setEditing(false);
+            setLoading(false);
+            return;
+          }
+        }
+
+        // 404 or empty array → no profile yet (only for self)
+        if (cancelled) return;
+        setProfile(null);
+        setProfileExists(false);
+        setEditing(true);
+        setLoading(false);
+        if (isCurrentUser) {
+          const snap = await fetchUsersCollectionSnapshot();
+          if (cancelled) return;
+          pendingSnapshot.current = snap;
+          if (snap.balance > 0) {
+            setBalance(snap.balance);
             setBalanceLoading(false);
           }
-        }).catch(() => {
-          // The profile editor remains usable if the optional account snapshot
-          // endpoint is unavailable.
-        });
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
-    }
-  }, [
-    visible,
-    targetUserId,
-    isCurrentUser,
-    profileQuery.data,
-    profileQuery.isError,
-    profileQuery.isPending,
-  ]);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [visible, targetUserId, authToken, isCurrentUser]);
 
   // ── Balance + saved phones (self only) ──────────────────────
   const refreshBalance = useCallback(async () => {
@@ -228,9 +229,8 @@ export default function ProfileModal({
       true,
     );
     setBalance(bal);
-    queryClient.setQueryData(queryKeys.profile(userId), (previous) => previous ? { ...previous, balance: bal } : previous);
     setBalanceLoading(false);
-  }, [userId, authToken, queryClient]);
+  }, [userId, authToken]);
 
   useEffect(() => {
     if (!visible || !isCurrentUser || !userId) return;
@@ -388,16 +388,6 @@ export default function ProfileModal({
       const saved = userDataFromJson(raw);
 
       setProfile(saved);
-      queryClient.setQueryData(queryKeys.profile(userId), {
-        userId: saved.userId,
-        username: saved.username,
-        phone: saved.phone,
-        nickname: saved.nickname,
-        clubFan: saved.clubFan,
-        countryFan: saved.countryFan,
-        numberOfBets: saved.numberOfBets,
-        balance: saved.balance,
-      });
       setProfileExists(true);
       setEditing(false);
       setBalance(saved.balance);

@@ -30,7 +30,6 @@ import {
 } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
-
 import { HIT_SLOP, PRESSED_OPACITY } from '@/theme/layout';
 import { FeedItem } from './ui/FeedItem';
 import { ActionButton } from './ui/ActionButton';
@@ -41,14 +40,6 @@ import { Chip } from './ui/Chip';
 // Pulls the footer down to the card floor (cancels FeedItem's bottom
 // padding). Keep in sync with MatchCard's FOOTER_BLEED.
 const FOOTER_BLEED = 12;
-
-
-// Typography tuned to the mobile-web reference for Chats and Feed.
-function webParityText(role: Parameters<typeof fanText>[0], colors: Parameters<typeof fanText>[1], color?: string) {
-  const base = fanText(role, colors, color);
-  const size = role === 'tag' ? 12 : role === 'caption' ? 13 : role === 'body' ? 14 : role === 'competition' ? 14 : (base.fontSize ?? 12);
-  return { ...base, fontSize: size, lineHeight: Math.round(size * 1.4) };
-}
 
 export function PostCard({
     post,
@@ -100,7 +91,7 @@ export function PostCard({
                         <MiniAvatar colors={colors} label={userName} />
                         <Text
                             style={[
-                                webParityText('competition', colors, '#FFFFFF'),
+                                fanText('competition', colors, '#FFFFFF'),
                                 styles.authorName,
                                 styles.grow,
                             ]}
@@ -114,7 +105,7 @@ export function PostCard({
                             <Chip label="New" colors={colors} variant="tag" tone="primary" />
                         )}
                         {typeTag && <Chip label={typeTag} colors={colors} variant="tag" />}
-                        <Text style={webParityText('tag', colors, colors.textTertiary)}>
+                        <Text style={fanText('tag', colors, colors.textTertiary)}>
                             {formattedDate(post)}
                         </Text>
                     </View>
@@ -123,7 +114,7 @@ export function PostCard({
                 {/* Caption */}
                 {!!caption && (
                     <View style={styles.captionRow} pointerEvents="none">
-                        <Text style={webParityText('body', colors, colors.textPrimary)}>
+                        <Text style={fanText('body', colors, colors.textPrimary)}>
                             {caption}
                         </Text>
                     </View>
@@ -187,7 +178,7 @@ export function PostCard({
                                 accessibilityRole="button"
                                 accessibilityLabel={`Follow ${userName}`}
                             >
-                                <Text style={webParityText('tag', colors, colors.primary)}>
+                                <Text style={fanText('tag', colors, colors.primary)}>
                                     Follow
                                 </Text>
                             </Pressable>
@@ -205,7 +196,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: 10,
+        marginBottom: 16,
     },
     author: {
         flexDirection: 'row',
@@ -220,17 +211,15 @@ const styles = StyleSheet.create({
         gap: FAN_SPACING.sm,
     },
     captionRow: { marginBottom: 0 },
-    mediaRow: { marginTop: 10 },
+    mediaRow: { marginTop: 12 },
     // Negative bottom margin cancels FeedItem's bottom padding so the row
     // sits on the card floor.
     bottomRow: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: FAN_SPACING.sm,
-        marginTop: 10,
+        marginTop: 18,
         marginBottom: -FOOTER_BLEED,
-        paddingHorizontal: 12,
-        paddingBottom: 12,
     },
     actions: {
         flexDirection: 'row',
@@ -244,5 +233,5 @@ const styles = StyleSheet.create({
         alignItems: 'flex-end',
         justifyContent: 'center',
     },
-    follow: { minHeight: 36, justifyContent: 'center', paddingHorizontal: 4 },
+    follow: { minHeight: 32, justifyContent: 'center' },
 });

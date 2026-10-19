@@ -5,7 +5,7 @@
 //   until restore finishes (no fetch-before-restore race).
 // - onSuccess/onError => onReady(): hold your splash on this ONLY, never on
 //   the network (MMKV restore takes milliseconds).
-// - After restore, the main queries are prefetched sequentially so new users
+// - After restore, the main queries are prefetched in parallel so new users
 //   (empty cache) don't wait for a tab to be opened. prefetchQuery skips the
 //   network when fresh cached data exists.
 // - On background/inactive the cache is flushed to disk, but never before the
@@ -13,8 +13,7 @@
 
 import { useEffect, useRef } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
-import { focusManager, onlineManager } from '@tanstack/react-query';
-import NetInfo from '@react-native-community/netinfo';
+import { focusManager } from '@tanstack/react-query';
 import {
     PersistQueryClientProvider,
     persistQueryClientSave,
@@ -23,7 +22,7 @@ import {
     createAppQueryClient,
     PERSIST_OPTIONS,
     getAllFixtures,
-    feedQueryOptions,
+    getPosts,
 } from '@funspot/core';
 import { mobileStorage } from '@funspot/storage';
 
@@ -32,11 +31,15 @@ const { queryClient, persister, persistOptions } = createAppQueryClient(mobileSt
 // Keep in sync with FeedScreen's PAGE_SIZE and query shape.
 const FEED_PAGE_SIZE = 10;
 
-async function prefetchStartupData() {
-    // Load the fixture/vote surface first, then warm the feed in the background.
-    // Existing persisted data renders immediately while these refreshes run.
-    await queryClient.prefetchQuery({ queryKey: ['fixtures'], queryFn: getAllFixtures });
-    await queryClient.prefetchInfiniteQuery(feedQueryOptions(FEED_PAGE_SIZE));
+function prefetchStartupData() {
+    queryClient.prefetchQuery({ queryKey: ['fixtures'], queryFn: getAllFixtures });
+    queryClient.prefetchInfiniteQuery({
+        queryKey: ['feed'],
+        queryFn: ({ pageParam }) => getPosts({ page: pageParam, limit: FEED_PAGE_SIZE }),
+        initialPageParam: 1,
+        getNextPageParam: (lastPage: { posts: unknown[] }, allPages: unknown[]) =>
+            lastPage.posts.length === FEED_PAGE_SIZE ? allPages.length + 1 : undefined,
+    });
 }
 
 function onAppStateChange(status: AppStateStatus) {
@@ -53,9 +56,6 @@ export function QueryProvider({
     const restored = useRef(false);
 
     useEffect(() => {
-        const unsubscribeNetInfo = NetInfo.addEventListener((state) => {
-            onlineManager.setOnline(Boolean(state.isConnected) && state.isInternetReachable !== false);
-        });
         const subscription = AppState.addEventListener('change', (status) => {
             onAppStateChange(status);
 
@@ -69,10 +69,7 @@ export function QueryProvider({
                 });
             }
         });
-        return () => {
-            subscription.remove();
-            unsubscribeNetInfo();
-        };
+        return () => subscription.remove();
     }, []);
 
     return (
@@ -81,19 +78,13 @@ export function QueryProvider({
             persistOptions={persistOptions}
             onSuccess={() => {
                 restored.current = true;
-                // Hydration is complete now: replay mutations that TanStack
-                // paused while the device was offline before warming reads.
-                void queryClient.resumePausedMutations().catch((e) => console.warn('[QueryProvider] paused mutations resume failed:', e));
-                void prefetchStartupData().catch((e) => console.warn('[QueryProvider] startup prefetch failed:', e));
+                prefetchStartupData();
                 onReady?.();
             }}
             onError={() => {
                 // Restore failed (corrupt snapshot etc.): carry on with an empty cache.
                 restored.current = true;
-                // Hydration is complete now: replay mutations that TanStack
-                // paused while the device was offline before warming reads.
-                void queryClient.resumePausedMutations().catch((e) => console.warn('[QueryProvider] paused mutations resume failed:', e));
-                void prefetchStartupData().catch((e) => console.warn('[QueryProvider] startup prefetch failed:', e));
+                prefetchStartupData();
                 onReady?.();
             }}
         >

@@ -30,8 +30,8 @@ import {
   Modal,
 } from 'react-native';
 import { X } from 'lucide-react-native';
-
-import { useInfiniteHistoryGames, type HistoryGame, FAN_SPACING, FAN_RADIUS } from '@funspot/core';
+import { useInfiniteQuery, keepPreviousData } from '@tanstack/react-query';
+import { fetchHistoryGames, HistoryGame, FAN_SPACING, FAN_RADIUS } from '@funspot/core';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RootStackParamList } from '@/navigation/RootNavigator';
@@ -122,12 +122,24 @@ export default function HistoryModal({
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
-  } = useInfiniteHistoryGames(userId ?? undefined, authToken, {
+  } = useInfiniteQuery({
+    queryKey: ['history'],
+    queryFn: ({ pageParam }) =>
+      fetchHistoryGames({
+        limit: PAGE_SIZE,
+        skip: pageParam,
+      }),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.length === PAGE_SIZE ? allPages.length * PAGE_SIZE : undefined,
+    placeholderData: keepPreviousData,
+    retry: 1,
+    // Modal owns its own lifecycle — no activeTab gate. The query fires
+    // when the modal mounts and is cached from then on.
     enabled: visible,
-    pageSize: PAGE_SIZE,
   });
 
-  const games = useMemo(() => data?.pages.flatMap((page) => page.games) ?? [], [data]);
+  const games = useMemo(() => data?.pages.flat() ?? [], [data]);
   const cards = useMemo(
     () => games.map((g) => ({ g, card: toCardData(g) })),
     [games],

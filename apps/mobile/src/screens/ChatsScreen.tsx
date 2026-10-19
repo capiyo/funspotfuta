@@ -32,18 +32,19 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { sendChannelMessage } from '../../../../packages/core/src/api/send-channel-messages';
 import {
+  useQuery,
   useQueryClient,
+  keepPreviousData,
 } from '@tanstack/react-query';
 
 import { useAuth } from '@/lib/auth/auth-context';
 import { useLoginModal } from '../modals/Login-modal-context';
 import {
+  getAllFixtures,
   Fixture,
   FanColorPalette,
   FAN_SPACING,
   Voter,
-  useFixtures,
-  queryKeys,
 } from '@funspot/core';
 import {
   MatchCard,
@@ -107,7 +108,7 @@ const EMPTY_COPY: Record<Filter, { title: string; hint: string }> = {
   },
 };
 
-const FIXTURES_KEY = queryKeys.fixtures();
+const FIXTURES_KEY = ['fixtures'] as const;
 const NO_FIXTURES: Fixture[] = [];
 
 const MOCK_COMMENTORS = [
@@ -211,7 +212,12 @@ export default function ChatsScreen() {
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const queryClient = useQueryClient();
 
-  const { data, isPending, isError, error, refetch } = useFixtures(userId ?? undefined, activeTab === 'Chats');
+  const { data, isPending, isError, error, refetch } = useQuery({
+    queryKey: FIXTURES_KEY,
+    queryFn: getAllFixtures,
+    placeholderData: keepPreviousData,
+    enabled: activeTab === 'Chats',
+  });
   const fixtures = data ?? NO_FIXTURES;
 
   const headerById = useMemo(() => {
@@ -364,27 +370,7 @@ export default function ChatsScreen() {
           isCorrect: false,
           pointsAwarded: 0,
         };
-        const voters = [...(fx.voters ?? []), newVoter];
-        const fixtureId = fx.matchId || fx.id;
-        const cached = queryClient.getQueryData<{
-          homeVotes: number; awayVotes: number; drawVotes: number;
-          userVoteSelection: string | null;
-          voters: Array<{ userId: string; username: string; selection: string; votedAt?: Date | string; isComrade?: boolean }>;
-        }>(['fixtureVotes', fixtureId, userId ?? 'anonymous']);
-        queryClient.setQueryData(['fixtureVotes', fixtureId, userId ?? 'anonymous'], {
-          homeVotes: cached?.homeVotes ?? 0,
-          awayVotes: cached?.awayVotes ?? 0,
-          drawVotes: cached?.drawVotes ?? 0,
-          userVoteSelection: selection,
-          voters: voters.map((v) => ({
-            userId: v.userId,
-            username: v.userName,
-            selection: v.selection,
-            votedAt: v.votedAt,
-            isComrade: v.isComrade,
-          })),
-        });
-        return { ...fx, voters };
+        return { ...fx, voters: [...(fx.voters ?? []), newVoter] };
       }),
     );
   }
