@@ -86,7 +86,7 @@ export function QueryProvider({
             onError={() => {
                 // Restore failed (corrupt snapshot etc.): carry on with an empty cache.
                 restored.current = true;
-                prefetchStartupData();
+                void prefetchStartupData().catch((e) => console.warn('[QueryProvider] startup prefetch failed:', e));
                 onReady?.();
             }}
         >
