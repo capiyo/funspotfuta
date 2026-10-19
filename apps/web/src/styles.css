@@ -2586,3 +2586,6 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
     color: var(--text-2) !important;
   }
 }
+
+@media (min-width: 651px) { body:has(.home-screen) .home-screen .chats-column button.match-card-mobile-league { display: none !important; }
+}
