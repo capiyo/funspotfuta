@@ -230,7 +230,7 @@ export default function ProfileModal({
     setBalance(bal);
     queryClient.setQueryData(queryKeys.profile(userId), (previous) => previous ? { ...previous, balance: bal } : previous);
     setBalanceLoading(false);
-  }, [userId, authToken]);
+  }, [userId, authToken, queryClient]);
 
   useEffect(() => {
     if (!visible || !isCurrentUser || !userId) return;
