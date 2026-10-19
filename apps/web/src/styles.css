@@ -2849,9 +2849,9 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
   }
   body:has(.home-screen) .home-screen .chats-column .match-card-poke-circle {
     display: inline-flex !important;
-    flex: 0 0 30px !important;
-    width: 30px !important;
-    height: 30px !important;
+    flex: 0 0 28px !important;
+    width: 28px !important;
+    height: 28px !important;
     align-items: center !important;
     justify-content: center !important;
     border-radius: 50% !important;
