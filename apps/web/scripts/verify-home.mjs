@@ -129,6 +129,11 @@ try {
       assert(layout.shadows.length === 0, `Unexpected Home shadows at ${width}px: ${JSON.stringify(layout.shadows)}`);
       assert(layout.containerMargins[0] <= 18 && layout.containerMargins[1] <= 18,
         `Workspace gutters exceed 16px ±2 at ${width}px: ${layout.containerMargins}`);
+      const firstFeedCard = document.querySelector('.home-screen .feed-column .post-card, .home-screen .feed-column .feed-item');
+      if (width === 1920 && firstFeedCard) {
+        const spare = width - firstFeedCard.getBoundingClientRect().right;
+        assert(spare < 100, `Feed spare width should be <100px at 1920px, got ${spare}`);
+      }
       const chatsWidth = document.querySelector('.home-screen .chats-column')?.getBoundingClientRect().width ?? 0;
       assert(chatsWidth >= 480 && chatsWidth <= 640,
         `Chats column width at ${width}px is ${chatsWidth}; expected 480–640px`);
