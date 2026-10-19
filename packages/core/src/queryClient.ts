@@ -3,6 +3,7 @@ import { QueryClient } from '@tanstack/react-query';
 import type { PersistQueryClientOptions } from '@tanstack/react-query-persist-client';
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
 import type { KVStorage } from '@funspot/storage';
+import { deserializePersistedClient, serializePersistedClient } from './persistence/serialization';
 
 const DAY = 24 * 60 * 60 * 1000;
 
@@ -146,6 +147,8 @@ export function createAppQueryClient(storage: KVStorage) {
       removeItem: (key: string) => storage.removeItem(key),
     },
     key: 'FUNSPOT_QUERY_CACHE',
+    serialize: serializePersistedClient,
+    deserialize: deserializePersistedClient,
     // Shorter window = less data lost if the app is killed without a
     // background event (crash, dev reload, force-stop).
     throttleTime: 500,
