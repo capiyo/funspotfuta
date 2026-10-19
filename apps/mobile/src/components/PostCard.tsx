@@ -31,12 +31,6 @@ import {
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
 
-// Typography tuned to the mobile-web reference for Chats and Feed.
-function webParityText(role: Parameters<typeof fanText>[0], colors: Parameters<typeof fanText>[1], color?: string) {
-  const base = fanText(role, colors, color);
-  const size = role === 'tag' ? 12 : role === 'caption' ? 13 : role === 'body' ? 14 : role === 'competition' ? 14 : (base.fontSize ?? 12);
-  return { ...base, fontSize: size, lineHeight: Math.round(size * 1.4) };
-}
 import { HIT_SLOP, PRESSED_OPACITY } from '@/theme/layout';
 import { FeedItem } from './ui/FeedItem';
 import { ActionButton } from './ui/ActionButton';
@@ -47,6 +41,14 @@ import { Chip } from './ui/Chip';
 // Pulls the footer down to the card floor (cancels FeedItem's bottom
 // padding). Keep in sync with MatchCard's FOOTER_BLEED.
 const FOOTER_BLEED = 12;
+
+
+// Typography tuned to the mobile-web reference for Chats and Feed.
+function webParityText(role: Parameters<typeof fanText>[0], colors: Parameters<typeof fanText>[1], color?: string) {
+  const base = fanText(role, colors, color);
+  const size = role === 'tag' ? 12 : role === 'caption' ? 13 : role === 'body' ? 14 : role === 'competition' ? 14 : (base.fontSize ?? 12);
+  return { ...base, fontSize: size, lineHeight: Math.round(size * 1.4) };
+}
 
 export function PostCard({
     post,
