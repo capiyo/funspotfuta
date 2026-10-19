@@ -53,6 +53,8 @@ Account/profile display data and balance/transaction summaries may be cached, bu
 - [x] Expand persisted query-key prefixes for AppCache data domains.
 - [x] Persist only successful queries with defined data; bump the persisted-cache buster to `v3`.
 - [x] Set query and mutation network mode to `offlineFirst`; keep query `gcTime` aligned with the 7-day persistence max age.
+- [x] Wire React Native NetInfo to TanStack `onlineManager` and keep `AppState` wired to `focusManager`.
+- [x] Add IndexedDB-backed persistence for web and clear its persisted blob during logout/account switching.
 - [x] Resume paused mutations after mobile persistence hydration.
 - [x] Add a shared query-key factory with user-scoped keys for profile, comrades, votes, messages, history and activity data.
 - [x] Add reusable merge-not-replace and 50-message cache-cap utilities.
