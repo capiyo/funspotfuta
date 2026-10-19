@@ -67,7 +67,8 @@ Account/profile display data and balance/transaction summaries may be cached, bu
 
 ### Domain wiring — not complete
 
-- [ ] Fixtures: inventory all consumers, ensure every web/mobile consumer uses `useFixtures`/shared key, validate API response shapes.
+- [x] Web and mobile ChatsScreen now use the shared core `useFixtures` hook, including cached voter merge and user-scoped vote snapshots.
+- [ ] Fixtures: inventory all remaining consumers, validate every API response shape, and remove any other screen-owned fixture query.
 - [x] Auth initialization now sequentially warms fixtures → feed → user votes → comrades → profile using shared query options; failures stop the sequence without replacing cached data.
 - [ ] Add fixture-by-fixture voter/chat prefetch only where there is an active fixture/channel, then verify request counts and no startup stampede.
 - [ ] Votes and user vote state: wire every query/mutation to canonical user-scoped keys and optimistic rollback.
