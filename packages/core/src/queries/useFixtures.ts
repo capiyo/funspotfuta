@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getAllFixtures, getUserParticipatedGames } from '../api/database-service';
 import type { Fixture, Voter } from '../types/fixture';
@@ -50,7 +51,7 @@ function mergeFixtureVoteSnapshot(
  */
 export function useFixtures(userId?: string, enabled = true) {
   const queryClient = useQueryClient();
-  return useQuery({
+  const query = useQuery({
     queryKey: queryKeys.fixtures(),
     queryFn: getAllFixtures,
     select: (fresh) => fresh.map((fixture) => mergeFixtureVoteSnapshot(fixture, userId, queryClient)),
@@ -59,6 +60,33 @@ export function useFixtures(userId?: string, enabled = true) {
     gcTime: 7 * 24 * 60 * 60 * 1000,
     refetchInterval: 5 * 60 * 1000,
   });
+
+  // Seed a user-scoped vote snapshot from restored fixture voters only when
+  // that vote snapshot is absent. This makes cached voter names available to
+  // chat immediately after a cold start, without overwriting vote counts.
+  useEffect(() => {
+    for (const fixture of query.data ?? []) {
+      const fixtureId = fixture.matchId || fixture.id;
+      const key = queryKeys.fixtureVotes(fixtureId, userId ?? 'anonymous');
+      if (queryClient.getQueryData(key)) continue;
+      const ownVote = fixture.voters.find((voter) => voter.userId === userId);
+      queryClient.setQueryData(key, {
+        homeVotes: 0,
+        awayVotes: 0,
+        drawVotes: 0,
+        userVoteSelection: ownVote?.selection ?? null,
+        voters: fixture.voters.map((voter) => ({
+          userId: voter.userId,
+          username: voter.userName,
+          selection: voter.selection,
+          votedAt: voter.votedAt,
+          isComrade: voter.isComrade,
+        })),
+      });
+    }
+  }, [query.data, userId, queryClient]);
+
+  return query;
 }
 
 export function useHistoryGames(userId?: string) {
