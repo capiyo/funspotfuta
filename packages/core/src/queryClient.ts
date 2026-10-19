@@ -80,8 +80,9 @@ const PERSISTED_KEYS = new Set([
  *
  * Bump `buster` whenever cached data shape changes, or when bad snapshots
  * (e.g. empty arrays cached from swallowed errors) must be discarded.
- * v1 -> v2: flushes empty-fixtures snapshots written by the old
- * catch-and-return-[] queryFns.
+ * v1 -> v2 flushed empty-fixtures snapshots written by old catch-and-return-[]
+ * queryFns. v2 -> v3 also drops unsuccessful query snapshots, which must never
+ * replace a previously successful persisted result.
  */
 export const PERSIST_OPTIONS = {
   buster: 'v3',
