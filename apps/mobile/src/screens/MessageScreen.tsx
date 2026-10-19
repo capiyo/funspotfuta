@@ -925,7 +925,8 @@ export default function MessageScreen() {
               authToken,
             });
             if (r.success && r.votedNow) {
-              queryClient.invalidateQueries({ queryKey: FIXTURES_KEY });
+              chat.recordUserVote(sel);
+              await queryClient.invalidateQueries({ queryKey: FIXTURES_KEY });
               await refetchVoteCounts();
             }
             return {
