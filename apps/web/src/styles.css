@@ -2446,7 +2446,7 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
   }
   .home-screen .workspace {
     display: grid !important;
-    grid-template-columns: 300px minmax(480px, clamp(480px, 34vw, 640px)) minmax(0, 1fr) !important;
+    grid-template-columns: 300px minmax(0, 1fr) !important;
     column-gap: 16px !important;
     align-items: start !important;
   }
