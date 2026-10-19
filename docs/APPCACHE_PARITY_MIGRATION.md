@@ -89,6 +89,8 @@ Account/profile display data and balance/transaction summaries may be cached, bu
 - [x] Web and mobile FeedScreen now use a shared core infinite-feed hook with one canonical persisted `['feed']` query key and background refresh.
 - [ ] Move post likes, post creation, comments, followers and other feed interactions to shared core mutation hooks.
 - [ ] History/history comments/aftermatch/live events: migrate every consumer and mutation.
+- [x] Web and mobile HistoryModal now use a shared paginated history hook with user-scoped cache keys; transient history HTTP errors throw rather than caching an empty list.
+- [ ] Wire history comments, aftermatch and live-event consumers/mutations to shared cache-backed hooks.
 - [ ] Notifications: migrate every consumer and mutation to shared query keys.
 - [x] Add query-cache clearing on logout/account switch in web and mobile; mobile provider order now makes the shared QueryClient available to AuthProvider.
 - [ ] Prove account-switch isolation with automated tests and verify the IndexedDB/MMKV removal path on devices.
