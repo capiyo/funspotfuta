@@ -29,6 +29,8 @@ export * from './api/admin-service';
 export * from './api/posts-service';
 export * from './api/websocket-service';
 export { sendChannelMessage } from './api/send-channel-messages';
+export { useChannelChat } from './api/use-channel-chat';
+export type { SendPayloadExtras, Voter as ChannelChatVoter } from './api/use-channel-chat';
 export type { SendPayloadExtras, SendChannelMessageParams } from './api/send-channel-messages';
 export * from './api/profile-service';
 
