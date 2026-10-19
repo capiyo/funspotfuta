@@ -2954,3 +2954,53 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
   }
 }
 
+
+
+/* Keep the full team names readable and the match footer from overlapping. */
+@media (min-width: 651px) {
+  body:has(.home-screen) .home-screen .chats-column .match-card-teams {
+    flex: 0 1 48% !important;
+    flex-wrap: wrap !important;
+    min-width: 0 !important;
+    max-width: 48% !important;
+    overflow: visible !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    row-gap: 4px !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-team-name {
+    flex: 0 1 auto !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+  }
+}
+@media (max-width: 650px) {
+  body:has(.home-screen) .home-screen .chats-column .match-card-bottom {
+    row-gap: 8px !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-teams {
+    flex: 1 1 100% !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    flex-wrap: wrap !important;
+    justify-content: flex-end !important;
+    overflow: visible !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+    row-gap: 4px !important;
+    margin-left: 0 !important;
+  }
+  body:has(.home-screen) .home-screen .chats-column .match-card-team-name {
+    flex: 0 1 auto !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+  }
+}
