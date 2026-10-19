@@ -3,6 +3,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { useQueryClient } from '@tanstack/react-query';
 import { firebaseAuth } from '../firebase';
+import { indexedDbQueryPersister } from '../query-persistence';
 
 type AuthState = {
   isInitialized: boolean;
@@ -54,16 +55,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!state.isInitialized) return;
-    const identity = JSON.stringify([state.isLoggedIn, state.userId, state.authToken]);
+    const identity = state.isLoggedIn && state.userId ? state.userId : null;
     const previous = previousAuthIdentity.current;
     previousAuthIdentity.current = identity;
     if (previous === null || previous === identity) return;
-    void Promise.all([
-      queryClient.invalidateQueries({ queryKey: ['fixtures'] }),
-      queryClient.invalidateQueries({ queryKey: ['channels'] }),
-      queryClient.invalidateQueries({ queryKey: ['feed'] }),
-    ]);
-  }, [state.isInitialized, state.isLoggedIn, state.userId, state.authToken, queryClient]);
+
+    // Never carry one signed-in user's in-memory or persisted data into a
+    // different account (or a logged-out session).
+    queryClient.clear();
+    void indexedDbQueryPersister.removeClient();
+  }, [state.isInitialized, state.isLoggedIn, state.userId, queryClient]);
 
   useEffect(() => { setState(readStoredState()); }, []);
 
