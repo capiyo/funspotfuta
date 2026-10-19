@@ -31,9 +31,11 @@ const { queryClient, persister, persistOptions } = createAppQueryClient(mobileSt
 // Keep in sync with FeedScreen's PAGE_SIZE and query shape.
 const FEED_PAGE_SIZE = 10;
 
-function prefetchStartupData() {
-    queryClient.prefetchQuery({ queryKey: ['fixtures'], queryFn: getAllFixtures });
-    queryClient.prefetchInfiniteQuery({
+async function prefetchStartupData() {
+    // Load the fixture/vote surface first, then warm the feed in the background.
+    // Existing persisted data renders immediately while these refreshes run.
+    await queryClient.prefetchQuery({ queryKey: ['fixtures'], queryFn: getAllFixtures });
+    await queryClient.prefetchInfiniteQuery({
         queryKey: ['feed'],
         queryFn: ({ pageParam }) => getPosts({ page: pageParam, limit: FEED_PAGE_SIZE }),
         initialPageParam: 1,
@@ -78,7 +80,7 @@ export function QueryProvider({
             persistOptions={persistOptions}
             onSuccess={() => {
                 restored.current = true;
-                prefetchStartupData();
+                void prefetchStartupData().catch((e) => console.warn('[QueryProvider] startup prefetch failed:', e));
                 onReady?.();
             }}
             onError={() => {
