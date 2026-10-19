@@ -8,7 +8,8 @@ const output = path.resolve('docs/verify');
 fs.mkdirSync(output, { recursive: true });
 
 const teams = [
-  ['Arsenal', 'Leeds United', 'upcoming'], ['Genoa', 'Fiorentina', 'live'],
+  ['Manchester City', 'Brighton & Hove Albion', 'upcoming'],
+  ['Wolverhampton Wanderers', 'Borussia Mönchengladbach', 'live'],
   ['Liverpool', 'Manchester City', 'completed'], ['Roma', 'Napoli', 'upcoming'],
   ['Chelsea', 'Everton', 'upcoming'], ['Real Madrid', 'Barcelona', 'completed'],
   ['Inter', 'AC Milan', 'live'], ['Bayern Munich', 'Dortmund', 'upcoming'],
