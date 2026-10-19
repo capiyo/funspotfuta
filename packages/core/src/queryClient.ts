@@ -34,7 +34,7 @@ const PERSISTED_KEYS = new Set([
  * catch-and-return-[] queryFns.
  */
 export const PERSIST_OPTIONS = {
-  buster: 'v3',
+  buster: 'v2',
   dehydrateOptions: {
     shouldDehydrateQuery: (query: {
       queryKey: readonly unknown[];
