@@ -77,16 +77,53 @@ async function removeClient(): Promise<void> {
   }
 }
 
+const WRITE_THROTTLE_MS = 500;
+let pendingClient: PersistedClient | undefined;
+let writeTimer: ReturnType<typeof setTimeout> | undefined;
+let writeInProgress = false;
+let pendingWaiters: Array<() => void> = [];
+
+function scheduleWrite(client: PersistedClient): Promise<void> {
+  pendingClient = client;
+  const completion = new Promise<void>((resolve) => pendingWaiters.push(resolve));
+  if (writeTimer) clearTimeout(writeTimer);
+  writeTimer = setTimeout(() => {
+    writeTimer = undefined;
+    void flushPendingWrite();
+  }, WRITE_THROTTLE_MS);
+  return completion;
+}
+
+async function flushPendingWrite(): Promise<void> {
+  if (writeInProgress || !pendingClient) return;
+  writeInProgress = true;
+  const client = pendingClient;
+  pendingClient = undefined;
+  const waiters = pendingWaiters;
+  pendingWaiters = [];
+  try {
+    await writeClient(client);
+  } catch (error) {
+    if (import.meta.env.DEV) console.warn('[query-cache] IndexedDB persist failed', error);
+  } finally {
+    writeInProgress = false;
+    waiters.forEach((resolve) => resolve());
+    // A newer snapshot may have arrived while IndexedDB was writing. Persist
+    // that latest snapshot next; never let an older write finish last.
+    if (pendingClient && !writeTimer) {
+      writeTimer = setTimeout(() => {
+        writeTimer = undefined;
+        void flushPendingWrite();
+      }, WRITE_THROTTLE_MS);
+    }
+  }
+}
+
 /** IndexedDB-backed TanStack persister; no additional storage dependency. */
 export const indexedDbQueryPersister: Persister = {
-  persistClient: async (client) => {
-    try {
-      await writeClient(client);
-    } catch (error) {
-      // Storage can be disabled (private browsing, quota). Keep the app usable.
-      if (import.meta.env.DEV) console.warn('[query-cache] IndexedDB persist failed', error);
-    }
-  },
+  // Coalesce rapid cache notifications into a single IndexedDB snapshot.
+  // This avoids serializing/writing the whole cache for every small update.
+  persistClient: (client) => scheduleWrite(client),
   restoreClient: async () => {
     try {
       return await readClient();
