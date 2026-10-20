@@ -54,13 +54,15 @@ export function SmartMedia({
                     />
                 ) : (
                     <View style={[styles.videoFallback, { backgroundColor: colors.surfaceSunken }]}>
-                        <PostImage
-                            uri={videoThumbnailUrl ?? ''}
-                            colors={colors}
-                            width={width}
-                            height={height}
-                            accessibilityLabel="Video thumbnail"
-                        />
+                        {videoThumbnailUrl ? (
+                            <PostImage
+                                uri={videoThumbnailUrl}
+                                colors={colors}
+                                width={width}
+                                height={height}
+                                accessibilityLabel="Video thumbnail"
+                            />
+                        ) : null}
                     </View>
                 )}
                 {!videoReady && !videoFailed && !playing && (
