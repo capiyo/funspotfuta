@@ -1495,7 +1495,7 @@ function createStyles(colors: FanColors, bottomInset: number) {
       flexDirection: 'row',
       alignItems: 'center',
       gap: FAN_SPACING.sm,
-      paddingHorizontal: FAN_SPACING.lg,
+      paddingHorizontal: FAN_SPACING.md,
       paddingVertical: FAN_SPACING.sm,
     },
     iconButton: { padding: 4 },
@@ -1512,7 +1512,7 @@ function createStyles(colors: FanColors, bottomInset: number) {
       paddingVertical: FAN_SPACING.xxl,
     },
     messagesContent: {
-      paddingHorizontal: FAN_SPACING.sm,
+      paddingHorizontal: FAN_SPACING.md,
       paddingVertical: FAN_SPACING.sm,
       flexGrow: 1,
     },
