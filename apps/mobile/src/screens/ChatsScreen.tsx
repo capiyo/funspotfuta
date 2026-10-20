@@ -236,7 +236,7 @@ export default function ChatsScreen() {
     useState<Fixture | null>(null);
 
   const channelIds = useMemo(() => channels.map((c) => c.channelId), [channels]);
-  const [channelStartOffset] = useState(() => Math.floor(Math.random() * Math.max(1, channels.length)));
+  const [channelStartOffset] = useState(() => Math.floor(Math.random() * 3));
 
   // Channel of the card whose vote / results modal is open.
   const [sheetChannelId, setSheetChannelId] = useState<string | undefined>();
@@ -525,7 +525,7 @@ export default function ChatsScreen() {
                     onOpenResults={(f) => { setSheetChannelId(cid); setReviewFixture(f); }}
                     onChatClick={() => openChat(fixture, cid)}
                     onLike={handleLike}
-                    onSubmitComment={handleSubmitComment}
+                    onSubmitComment={(selectedFixture, text) => handleSubmitComment(selectedFixture, text, cid)}
                     onOpenLineups={setMatchDetailsFixture}
                   />;
                 }}
