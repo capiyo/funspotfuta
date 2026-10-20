@@ -53,7 +53,7 @@ async function mock(page) {
   }));
   await page.route('**/api/channels/all**', route => route.fulfill({
     status: 200, contentType: 'application/json',
-    body: JSON.stringify({ channels: [] }),
+    body: JSON.stringify([]),
   }));
   await page.route('https://clash-api-m5mr.onrender.com/api/posts**', route => {
     const url = new URL(route.request().url());
