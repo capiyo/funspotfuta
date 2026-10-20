@@ -108,6 +108,7 @@ async function inspect(width, state) {
   await page.waitForFunction(() => document.querySelectorAll('.home-screen .match-card').length >= 8, null, { timeout: 45000 });
   await page.waitForSelector('.home-screen .match-card-channel-avatar', { timeout: 15000 });
   const cards = page.locator('.home-screen .match-card');
+  const cardMeasurements = [];
   for (let i = 0; i < 3; i++) {
     const card = cards.nth(i);
     const structure = await card.evaluate(el => ({
@@ -218,11 +219,31 @@ async function inspect(width, state) {
       'Comment input/prompt extends outside card padding at ' + width + 'px (' + state + '): ' + JSON.stringify({ cell: metrics.inputCell, bottom: metrics.bottomRect, paddingLeft: metrics.paddingLeft, paddingRight: metrics.paddingRight }));
     assert(metrics.logos.length === 2 && metrics.logos.every(l => Math.abs(l.width - 16) <= .5 && Math.abs(l.height - 16) <= .5 && l.radius === '50%'),
       'Team logos/fallbacks are not 16px circular at ' + width + 'px');
+    const intersects = (a, b) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+    cardMeasurements.push({
+      card: i,
+      actionTops: metrics.actionTops,
+      actionsBottom: metrics.actionsBottom,
+      commentBox: { top: metrics.promptRect.top, bottom: metrics.promptRect.bottom, height: metrics.promptRect.height },
+      input: { enabled: metrics.inputEnabled, height: metrics.inputHeight },
+      rowAssertions: {
+        actionsShareRow: Math.max(...metrics.actionTops) - Math.min(...metrics.actionTops) <= 4,
+        commentStartsBelowActions: metrics.promptRect.top >= metrics.actionsBottom - 0.5,
+        teamActionIntersection: intersects(metrics.teamRect, metrics.actionsRect),
+        teamCommentIntersection: intersects(metrics.teamRect, metrics.promptRect),
+        teamNamesFit: metrics.names.every(n => n.scroll <= n.client),
+        inputCellInsidePadding: metrics.inputCell.left >= metrics.bottomRect.left + metrics.paddingLeft - 0.5 && metrics.inputCell.right <= metrics.bottomRect.right - metrics.paddingRight + 0.5,
+      },
+      teamNames: metrics.names,
+      inputCell: metrics.inputCell,
+      cardBottom: metrics.bottomRect,
+      padding: { left: metrics.paddingLeft, right: metrics.paddingRight },
+    });
   }
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth || document.body.scrollWidth > document.body.clientWidth);
   assert(!overflow, 'Horizontal page scroll at ' + width + 'px (' + state + ')');
   if (width === 390 || width === 1280) await page.screenshot({ path: path.join(output, 'chats-card-parity-' + state + '-' + width + '.png'), fullPage: true });
-  results.push({ state, width, cardsChecked: 3, horizontalScroll: false });
+  results.push({ state, width, cardsChecked: 3, horizontalScroll: false, measurements: cardMeasurements });
   await context.close();
 }
 
