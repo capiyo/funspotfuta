@@ -357,20 +357,28 @@ export default function ChatsScreen() {
   function addVoteToCache(fixture: Fixture, sel: Pick) {
     if (!userId) return;
     const selection = sel === 'home' ? 'home_team' : 'away_team';
+    const newVoter: Voter = {
+      userId,
+      userName: username ?? '',
+      selection,
+      votedAt: new Date(),
+      isComrade: false,
+      isCorrect: false,
+      pointsAwarded: 0,
+    };
+    // Update both persisted vote state and the fixture list before leaving the
+    // action sheet, so Messaging can unlock from cache without a vote refetch.
+    queryClient.setQueryData(queryKeys.fixtureVotes(fixture.matchId || fixture.id, userId), (previous: any) => ({
+      homeVotes: previous?.homeVotes ?? 0,
+      awayVotes: previous?.awayVotes ?? 0,
+      drawVotes: previous?.drawVotes ?? 0,
+      userVoteSelection: selection,
+      voters: [newVoter, ...(previous?.voters ?? []).filter((v: Voter) => v.userId !== userId)],
+    }));
     queryClient.setQueryData<Fixture[]>(FIXTURES_KEY, (prev = []) =>
       prev.map((fx) => {
         if (fx.id !== fixture.id && fx.matchId !== fixture.matchId) return fx;
-        if ((fx.voters ?? []).some((v) => v.userId === userId)) return fx;
-        const newVoter: Voter = {
-          userId,
-          userName: username ?? '',
-          selection,
-          votedAt: new Date(),
-          isComrade: false,
-          isCorrect: false,
-          pointsAwarded: 0,
-        };
-        return { ...fx, voters: [...(fx.voters ?? []), newVoter] };
+        return { ...fx, voters: [newVoter, ...(fx.voters ?? []).filter((v) => v.userId !== userId)] };
       }),
     );
   }
@@ -412,7 +420,7 @@ export default function ChatsScreen() {
       alreadyVoted: !!myVote,
       authToken,
     });
-    if (r.success && r.votedNow) addVoteToCache(liveModalFixture, sel);
+    if (r.success) addVoteToCache(liveModalFixture, sel);
     return { success: r.success, message: r.message, newBalance: r.newBalance };
   }
 
