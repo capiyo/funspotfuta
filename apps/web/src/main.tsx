@@ -18,7 +18,7 @@ const queryClient = new QueryClient({
       refetchOnWindowFocus: true,
       refetchOnReconnect: true,
       staleTime: 5 * 60 * 1000,
-      gcTime: 7 * DAY,
+      gcTime: DAY,
       networkMode: 'offlineFirst',
       placeholderData: (previousData: unknown) => previousData,
     },
@@ -34,7 +34,7 @@ createRoot(document.getElementById('root')!).render(
       client={queryClient}
       persistOptions={{
         persister: indexedDbQueryPersister,
-        maxAge: 7 * DAY,
+        maxAge: DAY,
         ...PERSIST_OPTIONS,
       }}
       onSuccess={() => {
