@@ -129,6 +129,7 @@ export function PostCard({
                             videoThumbnailUrl={(post as any).videoThumbnailUrl ?? null}
                             width={(post as any).imageWidth}
                             height={(post as any).imageHeight}
+                            onPress={() => onOpenComments(post, index)}
                         />
                     </View>
                 )}
