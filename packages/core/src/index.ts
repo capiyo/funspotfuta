@@ -31,7 +31,7 @@ export * from './api/websocket-service';
 export { sendChannelMessage } from './api/send-channel-messages';
 export { useChannelChat } from './api/use-channel-chat';
 export type { SendPayloadExtras, Voter as ChannelChatVoter } from './api/use-channel-chat';
-export type { SendPayloadExtras, SendChannelMessageParams } from './api/send-channel-messages';
+export type { SendPayloadExtras as SendChannelMessagePayloadExtras, SendChannelMessageParams } from './api/send-channel-messages';
 export * from './api/profile-service';
 
 // Was './queryClient' — the file is under api/, so the path must match.

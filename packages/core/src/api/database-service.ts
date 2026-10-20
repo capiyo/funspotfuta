@@ -56,12 +56,19 @@ export async function getAllFixtures(): Promise<Fixture[]> {
 // Strict versions throw; the exported ones keep the old tolerant
 // behaviour (return []) for any existing callers that rely on it.
 
+function asRecordArray(value: unknown): Record<string, any>[] {
+  return asArray(value).filter(
+    (item): item is Record<string, any> =>
+      item !== null && typeof item === 'object' && !Array.isArray(item),
+  );
+}
+
 async function fetchVotesByUser(userId: string): Promise<Record<string, any>[]> {
-  return asArray(await fetchJson(`${API_BASE}/votes/votes/user/${userId}`));
+  return asRecordArray(await fetchJson(`${API_BASE}/votes/votes/user/${userId}`));
 }
 
 async function fetchCommentsByUser(userId: string): Promise<Record<string, any>[]> {
-  return asArray(await fetchJson(`${API_BASE}/votes/comments/user/${userId}`));
+  return asRecordArray(await fetchJson(`${API_BASE}/votes/comments/user/${userId}`));
 }
 
 export async function getVotesByUser(userId: string): Promise<Record<string, any>[]> {
