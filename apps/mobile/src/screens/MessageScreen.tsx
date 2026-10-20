@@ -283,6 +283,7 @@ export default function MessageScreen() {
     awayVotes,
     userVoteSelection,
     voters,
+    recordUserVote,
     refetchVoteCounts,
   } = chat;
 
@@ -900,6 +901,9 @@ export default function MessageScreen() {
               authToken,
             });
             if (r.success) {
+              // Unlock the composer immediately from the confirmed vote result;
+              // the count endpoint may lag or omit the user's selection.
+              recordUserVote(sel);
               queryClient.invalidateQueries({ queryKey: FIXTURES_KEY });
               await refetchVoteCounts();
             }
@@ -922,6 +926,8 @@ export default function MessageScreen() {
               authToken,
             });
             if (r.success && r.votedNow) {
+              // A successful pledge can cast the vote as part of the same flow.
+              recordUserVote(sel);
               queryClient.invalidateQueries({ queryKey: FIXTURES_KEY });
               await refetchVoteCounts();
             }
