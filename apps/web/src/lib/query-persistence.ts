@@ -133,6 +133,11 @@ export const indexedDbQueryPersister: Persister = {
     }
   },
   removeClient: async () => {
+    // Prevent a queued snapshot from recreating data after cache invalidation.
+    if (writeTimer) clearTimeout(writeTimer);
+    writeTimer = undefined;
+    pendingClient = undefined;
+    pendingWaiters.splice(0).forEach((resolve) => resolve());
     try {
       await removeClient();
     } catch (error) {
