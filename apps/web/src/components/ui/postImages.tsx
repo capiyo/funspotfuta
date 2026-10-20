@@ -6,12 +6,13 @@ import { ICON } from '@/theme/layout';
 
 type Size = { w: number; h: number };
 const sizeCache = new Map<string, Size>();
-const MIN_RATIO = 4 / 5;
-const MAX_RATIO = 16 / 9;
+const PLACEHOLDER_RATIO = 4 / 5;
+const MIN_RATIO = 1 / 2;
+const MAX_HEIGHT_VH = 70;
 
-function clampedRatio(width: number, height: number): number {
-  if (width <= 0 || height <= 0) return 4 / 5;
-  return Math.max(MIN_RATIO, Math.min(MAX_RATIO, width / height));
+function naturalRatio(width: number, height: number): number {
+  if (width <= 0 || height <= 0) return PLACEHOLDER_RATIO;
+  return Math.max(MIN_RATIO, width / height);
 }
 
 export const PostImage = memo(function PostImage({ uri, colors, width, height, overlay, onPress, accessibilityLabel = 'Post image' }: {
@@ -31,10 +32,10 @@ export const PostImage = memo(function PostImage({ uri, colors, width, height, o
   const [attempt, setAttempt] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const failed = failedUri === uri;
-  const ratio = natural ? clampedRatio(natural.w, natural.h) : 4 / 5;
+  const ratio = natural ? naturalRatio(natural.w, natural.h) : PLACEHOLDER_RATIO;
   const frame: CSSProperties = {
     position: 'relative', display: 'block', width: '100%',
-    aspectRatio: String(ratio), overflow: 'hidden',
+    aspectRatio: String(ratio), maxHeight: `${MAX_HEIGHT_VH}vh`, overflow: 'hidden',
     background: 'transparent',
   };
   const onLoad = (event: SyntheticEvent<HTMLImageElement>) => {
@@ -53,7 +54,7 @@ export const PostImage = memo(function PostImage({ uri, colors, width, height, o
     {!loaded && <div aria-hidden="true" className="post-media-skeleton" style={{ position: 'absolute', inset: 0, zIndex: 0, background: colors.background }} />}
     <img key={attempt} src={uri} alt={accessibilityLabel} loading="eager" decoding="async" onLoad={onLoad}
       onError={() => { if (import.meta.env.DEV) console.error('[PostImage] failed media URL:', uri); if (attempt === 0) window.setTimeout(() => { setAttempt(1); setLoaded(false); }, 3000); else setFailedUri(uri); }}
-      style={{ position: 'absolute', inset: 0, zIndex: 1, display: 'block', width: '100%', height: '100%', objectFit: 'cover' }} />
+      style={{ position: 'absolute', inset: 0, zIndex: 1, display: 'block', width: '100%', height: '100%', objectFit: 'contain' }} />
     {overlay && <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>{overlay}</div>}
   </div>;
   return onPress ? <button type="button" onClick={onPress} aria-label={accessibilityLabel} className="post-image-button" style={{ display: 'block', width: '100%', padding: 0, background: 'transparent', cursor: 'pointer' }}>{content}</button> : content;
