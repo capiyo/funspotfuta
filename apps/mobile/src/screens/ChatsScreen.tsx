@@ -236,6 +236,7 @@ export default function ChatsScreen() {
     useState<Fixture | null>(null);
 
   const channelIds = useMemo(() => channels.map((c) => c.channelId), [channels]);
+  const [channelStartOffset] = useState(() => Math.floor(Math.random() * Math.max(1, channels.length)));
 
   // Channel of the card whose vote / results modal is open.
   const [sheetChannelId, setSheetChannelId] = useState<string | undefined>();
@@ -506,7 +507,7 @@ export default function ChatsScreen() {
             )
           }
           renderItem={({ item: fixture, index }) => {
-            const start = channels.length > 1 ? index % channels.length : 0;
+            const start = channels.length > 1 ? (channelStartOffset + index) % channels.length : 0;
             const slideChannels = channels.length > 1
               ? [...channels.slice(start), ...channels.slice(0, start)]
               : channels;
