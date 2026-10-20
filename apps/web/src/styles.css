@@ -2377,7 +2377,7 @@ body:has(.home-screen) .home-screen .chats-column .match-card .match-card-poke-c
     min-width: 0 !important;
     max-width: none !important;
     margin: 0 !important;
-    padding: 12px !important;
+    padding: 0 !important;
     box-sizing: border-box !important;
     overflow: hidden !important;
   }
