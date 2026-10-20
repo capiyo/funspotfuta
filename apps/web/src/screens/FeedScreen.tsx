@@ -4,6 +4,8 @@ import type { CSSProperties } from 'react';
 import { useQueryClient, type InfiniteData } from '@tanstack/react-query';
 import { isLikedBy, toggleLikePost, queryKeys, useFeed, type FeedPage, type Post, FAN_SPACING } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
+import { useLoginModal } from '@/modals/Login-modal-context';
+import { followUser } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { LIST_BOTTOM_INSET } from '@/theme/layout';
 import { PostCard } from '@/components/PostCard';
@@ -16,7 +18,8 @@ const FEED_KEY = queryKeys.feed();
 export default function FeedScreen() {
   const colors = useFanColors();
   const queryClient = useQueryClient();
-  const { userId, username, isLoggedIn } = useAuth();
+  const { userId, username, isLoggedIn, authToken } = useAuth();
+  const { requireLogin } = useLoginModal();
   const { activeTab } = useHome();
   const { scrollProps, topInset } = useHomeList();
   const [refreshing, setRefreshing] = useState(false);
@@ -128,7 +131,13 @@ export default function FeedScreen() {
                       onLike={(item) => void handleLike(item)}
                       onOpenComments={() => {}}
                       onRepost={() => {}}
-                      onShare={() => {}}
+                      onShare={(item) => {
+                        const url = item.id ? `${window.location.origin}/posts/${item.id}` : window.location.href;
+                        if (navigator.share) void navigator.share({ title: item.userName ?? 'Funspot post', text: item.caption ?? '', url }).catch(() => undefined);
+                        else void navigator.clipboard?.writeText(url);
+                      }}
+                      onFollow={(item) => { if (userId && item.userId && authToken) void followUser(userId, item.userId, authToken); }}
+                      requireLogin={requireLogin}
                     />
                   ) : null
                 ))}
