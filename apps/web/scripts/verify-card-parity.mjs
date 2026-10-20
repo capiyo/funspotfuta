@@ -32,9 +32,15 @@ const widths = [360, 390, 600, 700, 1280, 1920];
 const structures = new Map();
 const results = [];
 const errors = [];
+const authStates = ['guest', 'logged-in-voted', 'logged-in-unvoted'];
 const browser = await chromium.launch({ headless: true });
 
-async function mock(page) {
+async function mock(page, state) {
+  if (state !== 'guest') await page.addInitScript(() => {
+    localStorage.setItem('usertoken', 'playwright-test-token');
+    localStorage.setItem('user', JSON.stringify({ id: 'parity-user', username: 'Parity User' }));
+    localStorage.setItem('isLoggedIn', 'true');
+  });
   await page.addInitScript((teamNames) => {
     const entries = {};
     for (const name of teamNames) entries[name.toLowerCase()] = {
@@ -44,7 +50,7 @@ async function mock(page) {
     localStorage.setItem('funspot.teamLogos.v1', JSON.stringify(entries));
   }, pairs.flat());
   await page.route('**/api/games**', route => route.fulfill({
-    status: 200, contentType: 'application/json', body: JSON.stringify(fixtures),
+    status: 200, contentType: 'application/json', body: JSON.stringify(fixtures.map((fixture, index) => ({ ...fixture, voters: state === 'logged-in-voted' && index < 3 ? [{ userId: 'parity-user', userName: 'Parity User', selection: 'home_team' }] : [] }))),
   }));
   await page.route('**/api/channels/all**', route => route.fulfill({
     status: 200, contentType: 'application/json', body: JSON.stringify(channels),
@@ -86,10 +92,10 @@ const requiredSelectors = [
   '.match-card-teams',
 ];
 
-async function inspect(width) {
+async function inspect(width, state) {
   const context = await browser.newContext({ viewport: { width, height: 1000 }, deviceScaleFactor: 1 });
   const page = await context.newPage();
-  await mock(page);
+  await mock(page, state);
   await page.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 45000 });
   await page.waitForSelector('.home-screen .match-card', { timeout: 45000 });
   await page.waitForFunction(() => document.querySelectorAll('.home-screen .match-card').length >= 8, null, { timeout: 45000 });
@@ -101,7 +107,7 @@ async function inspect(width) {
       classes: [...el.classList].sort(),
       descendants: [...el.querySelectorAll('*')].map(n => ({ tag: n.tagName, classes: [...n.classList].sort() })),
     }));
-    structures.set(width + ':' + i, structure);
+    structures.set(state + ':' + width + ':' + i, structure);
     for (const selector of requiredSelectors) {
       assert(await card.locator(selector).count() === 1,
         'Card ' + i + ' at ' + width + 'px: missing/duplicated ' + selector);
@@ -139,7 +145,12 @@ async function inspect(width) {
         'button[aria-label="Log in to comment"]',
       ];
       const actionTops = actionSelectors.slice(0, 4).map(s => el.querySelector(s).getBoundingClientRect().top);
-      const promptRect = el.querySelector('button[aria-label="Log in to comment"]').getBoundingClientRect();
+      const prompt = el.querySelector('button[aria-label="Log in to comment"]') || el.querySelector('.match-card-input-cell');
+      const promptRect = prompt.getBoundingClientRect();
+      const input = el.querySelector('.match-card-input-cell input');
+      const inputRect = input?.getBoundingClientRect() ?? promptRect;
+      const inputHeight = inputRect.height;
+      const inputCell = el.querySelector('.match-card-input-cell').getBoundingClientRect();
       const teams = el.querySelector('.match-card-teams');
       const tr = teams.getBoundingClientRect();
       const ar = el.querySelector('.match-card-actions').getBoundingClientRect();
@@ -154,7 +165,7 @@ async function inspect(width) {
         previewText, promptText,
         pokeWidth: pokeRect.width, pokeHeight: pokeRect.height, pokeRadius: getComputedStyle(circle).borderRadius,
         pointer: !!poke.querySelector('svg'), pokeText: poke.textContent.trim(),
-        actionTops, promptRect: promptRect.toJSON(), actionsBottom: ar.bottom,
+        actionTops, promptRect: promptRect.toJSON(), inputRect: inputRect.toJSON(), inputHeight, inputCell: inputCell.toJSON(), actionsBottom: ar.bottom,
         teamRect: tr.toJSON(), actionsRect: ar.toJSON(), names, logos,
       };
     });
