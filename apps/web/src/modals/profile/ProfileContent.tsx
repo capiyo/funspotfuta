@@ -966,7 +966,7 @@ export default function ProfileContent({
                     : 'Member'}
                 </span>
               </div>
-              {!inline ? (
+              {!inline && (
                 <button type="button" onClick={onClose}  style={styles.closeBtn}>
                   <X size={14} color={colors.textSecondary} />
                 </button>
