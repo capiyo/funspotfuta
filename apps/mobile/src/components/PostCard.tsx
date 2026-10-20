@@ -17,7 +17,6 @@
 // FeedItem owns the gutter, the card never pads itself.
 
 import { useState } from 'react';
-import { Share } from 'react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Heart, MessageCircle, Repeat2, Share2 } from 'lucide-react-native';
 import {
