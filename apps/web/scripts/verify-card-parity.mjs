@@ -93,6 +93,7 @@ async function inspect(width) {
   await page.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 45000 });
   await page.waitForSelector('.home-screen .match-card', { timeout: 45000 });
   await page.waitForFunction(() => document.querySelectorAll('.home-screen .match-card').length >= 8, null, { timeout: 45000 });
+  await page.waitForSelector('.home-screen .match-card-channel-avatar', { timeout: 15000 });
   const cards = page.locator('.home-screen .match-card');
   for (let i = 0; i < 3; i++) {
     const card = cards.nth(i);
@@ -116,7 +117,7 @@ async function inspect(width) {
       return { width: r.width, height: r.height, radius: s.borderRadius, imageRadius: img ? getComputedStyle(img).borderRadius : null };
     });
     assert(Math.abs(avatar.width - 24) <= .5 && Math.abs(avatar.height - 24) <= .5 && avatar.radius === '50%',
-      'Card ' + i + ': channel image/fallback is not 24px circular at ' + width + 'px');
+      'Card ' + i + ': channel image/fallback is not 24px circular at ' + width + 'px: ' + JSON.stringify(avatar));
     if (avatar.imageRadius !== null) assert(avatar.imageRadius === '50%', 'Channel image is not circular');
     assert(await card.locator('.match-card-league-line').count() === 1, 'Expected exactly one league line');
 
