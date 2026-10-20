@@ -32,10 +32,9 @@ export const PostImage = memo(function PostImage({ uri, colors, width, height, o
   const [loaded, setLoaded] = useState(false);
   const failed = failedUri === uri;
   const ratio = natural ? clampedRatio(natural.w, natural.h) : 4 / 5;
-  const maxHeight = typeof window !== 'undefined' && window.innerWidth <= 650 ? '60vh' : '480px';
   const frame: CSSProperties = {
     position: 'relative', display: 'block', width: '100%',
-    aspectRatio: String(ratio), maxHeight, overflow: 'hidden',
+    aspectRatio: String(ratio), overflow: 'hidden',
     background: 'transparent',
   };
   const onLoad = (event: SyntheticEvent<HTMLImageElement>) => {
