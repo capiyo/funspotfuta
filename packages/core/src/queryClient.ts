@@ -95,7 +95,7 @@ const PERSISTED_KEYS = new Set([
  * replace a previously successful persisted result.
  */
 export const PERSIST_OPTIONS = {
-  buster: 'v5',
+  buster: 'v6',
   dehydrateOptions: {
     shouldDehydrateQuery: (query: {
       queryKey: readonly unknown[];
@@ -137,7 +137,7 @@ export function createAppQueryClient(storage: KVStorage) {
         // back to persisted data rather than treating it as a cache miss.
         networkMode: 'offlineFirst',
         // Keep in memory as long as the on-disk snapshot may live.
-        gcTime: 7 * DAY,
+        gcTime: DAY,
         // Cap the retry cycle at ~3s per delay so cold-start failures settle fast.
         retry: 2,
         retryDelay: (attempt: number) => Math.min(1000 * 2 ** attempt, 3000),
@@ -169,8 +169,8 @@ export function createAppQueryClient(storage: KVStorage) {
 
   const persistOptions: Omit<PersistQueryClientOptions, 'queryClient'> = {
     persister,
-    // Match gcTime so a week-old snapshot is still restorable.
-    maxAge: 7 * DAY,
+    // Bound retained data and align restore lifetime with in-memory GC.
+    maxAge: DAY,
     ...PERSIST_OPTIONS,
   };
 
