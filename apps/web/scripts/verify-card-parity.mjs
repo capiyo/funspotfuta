@@ -219,7 +219,6 @@ async function inspect(width, state) {
       'Comment input/prompt extends outside card padding at ' + width + 'px (' + state + '): ' + JSON.stringify({ cell: metrics.inputCell, bottom: metrics.bottomRect, paddingLeft: metrics.paddingLeft, paddingRight: metrics.paddingRight }));
     assert(metrics.logos.length === 2 && metrics.logos.every(l => Math.abs(l.width - 16) <= .5 && Math.abs(l.height - 16) <= .5 && l.radius === '50%'),
       'Team logos/fallbacks are not 16px circular at ' + width + 'px');
-    const intersects = (a, b) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
     cardMeasurements.push({
       card: i,
       actionTops: metrics.actionTops,
