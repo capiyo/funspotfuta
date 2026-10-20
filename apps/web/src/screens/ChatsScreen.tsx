@@ -249,15 +249,23 @@ export default function ChatsScreen() {
   function addVoteToCache(fixture: Fixture, selection: Pick) {
     if (!userId) return;
     const voteSelection = selection === 'home' ? 'home_team' : 'away_team';
+    const newVoter: Voter = {
+      userId, userName: username ?? '', selection: voteSelection, votedAt: new Date(),
+      isComrade: false, isCorrect: false, pointsAwarded: 0,
+    };
+    // Persist the confirmed selection in the shared QueryClient cache so the
+    // messaging screen can unlock without repeating vote-count/voter requests.
+    queryClient.setQueryData(queryKeys.fixtureVotes(fixture.matchId || fixture.id, userId), (previous: any) => ({
+      homeVotes: previous?.homeVotes ?? 0,
+      awayVotes: previous?.awayVotes ?? 0,
+      drawVotes: previous?.drawVotes ?? 0,
+      userVoteSelection: voteSelection,
+      voters: [newVoter, ...(previous?.voters ?? []).filter((voter: Voter) => voter.userId !== userId)],
+    }));
     queryClient.setQueryData<Fixture[]>(FIXTURES_KEY, (previous = []) =>
       previous.map((current) => {
         if (current.id !== fixture.id && current.matchId !== fixture.matchId) return current;
-        if ((current.voters ?? []).some((voter) => voter.userId === userId)) return current;
-        const newVoter: Voter = {
-          userId, userName: username ?? '', selection: voteSelection, votedAt: new Date(),
-          isComrade: false, isCorrect: false, pointsAwarded: 0,
-        };
-        return { ...current, voters: [...(current.voters ?? []), newVoter] };
+        return { ...current, voters: [newVoter, ...(current.voters ?? []).filter((voter) => voter.userId !== userId)] };
       }),
     );
   }
@@ -282,7 +290,7 @@ export default function ChatsScreen() {
       userId, username, selection, amount, channelId: activeChannelId,
       alreadyVoted: !!myVote, authToken,
     });
-    if (result.success && result.votedNow) addVoteToCache(liveModalFixture, selection);
+    if (result.success) addVoteToCache(liveModalFixture, selection);
     return { success: result.success, message: result.message, newBalance: result.newBalance };
   }
 
