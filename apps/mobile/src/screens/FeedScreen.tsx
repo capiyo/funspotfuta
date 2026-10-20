@@ -30,7 +30,7 @@ import {
   FAN_SPACING,
 } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
-import { ICON, LIST_BOTTOM_INSET } from '@/theme/layout';
+import { LIST_BOTTOM_INSET } from '@/theme/layout';
 import { PostCard } from '@/components/PostCard';
 import {
   EmptyState,
