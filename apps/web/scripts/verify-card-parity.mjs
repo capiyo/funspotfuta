@@ -59,6 +59,14 @@ async function mock(page, state) {
     status: 200, contentType: 'application/json',
     body: JSON.stringify({ posts: [], success: true, stats: {}, pagination: {} }),
   }));
+  await page.route('**/api/votes/votes/user/parity-user', route => route.fulfill({
+    status: 200, contentType: 'application/json',
+    body: JSON.stringify(state === 'logged-in-voted'
+      ? fixtures.slice(0, 3).map((fixture) => ({
+          user_id: 'parity-user', fixture_id: fixture.id, selection: 'home_team',
+        }))
+      : []),
+  }));
   await page.route('https://www.thesportsdb.com/api/v1/json/3/searchteams.php**', route => {
     const name = new URL(route.request().url()).searchParams.get('t') || 'unknown';
     return route.fulfill({
@@ -88,7 +96,6 @@ const requiredSelectors = [
   'button[aria-label="Poke on this match"]',
   'button[aria-label="Like"],button[aria-label="Unlike"]',
   'button[aria-label="Comments"]',
-  'button[aria-label="Log in to comment"]',
   '.match-card-teams',
 ];
 
@@ -110,13 +117,13 @@ async function inspect(width, state) {
     structures.set(state + ':' + width + ':' + i, structure);
     for (const selector of requiredSelectors) {
       assert(await card.locator(selector).count() === 1,
-        'Card ' + i + ' at ' + width + 'px: missing/duplicated ' + selector);
+        'Card ' + i + ' at ' + width + 'px (' + state + '): missing/duplicated ' + selector);
     }
     const inOrder = await card.evaluate((el, selectors) => {
       const nodes = selectors.map(selector => el.querySelector(selector));
       return nodes.every((node, index) => !!node && (index === 0 || !!(nodes[index - 1].compareDocumentPosition(node) & Node.DOCUMENT_POSITION_FOLLOWING)));
     }, requiredSelectors);
-    assert(inOrder, 'Card ' + i + ' at ' + width + 'px: required DOM order differs');
+    assert(inOrder, 'Card ' + i + ' at ' + width + 'px (' + state + '): required DOM order differs');
 
     const avatar = await card.locator('.match-card-channel-avatar').evaluate(el => {
       const r = el.getBoundingClientRect(), s = getComputedStyle(el), img = el.querySelector('img');
@@ -131,7 +138,7 @@ async function inspect(width, state) {
       const channel = el.querySelector('.match-card-channel-avatar').getBoundingClientRect();
       const league = el.querySelector('.match-card-league-line').getBoundingClientRect();
       const preview = el.querySelector('.match-card-comment-preview').getBoundingClientRect();
-      const prompt = el.querySelector('.match-card-prompt-line').getBoundingClientRect();
+      const promptLine = el.querySelector('.match-card-prompt-line').getBoundingClientRect();
       const previewText = getComputedStyle(el.querySelector('.match-card-preview-text')).color;
       const promptText = getComputedStyle(el.querySelector('.match-card-prompt-line')).color;
       const poke = el.querySelector('.match-card-poke');
@@ -145,12 +152,17 @@ async function inspect(width, state) {
         'button[aria-label="Log in to comment"]',
       ];
       const actionTops = actionSelectors.slice(0, 4).map(s => el.querySelector(s).getBoundingClientRect().top);
-      const prompt = el.querySelector('button[aria-label="Log in to comment"]') || el.querySelector('.match-card-input-cell');
-      const promptRect = prompt.getBoundingClientRect();
-      const input = el.querySelector('.match-card-input-cell input');
+      const inputCellElement = el.querySelector('.match-card-input-cell');
+      const guestPrompt = inputCellElement.querySelector('button[aria-label="Log in to comment"]');
+      const input = inputCellElement.querySelector('input');
+      const promptRect = (guestPrompt || inputCellElement).getBoundingClientRect();
       const inputRect = input?.getBoundingClientRect() ?? promptRect;
       const inputHeight = inputRect.height;
-      const inputCell = el.querySelector('.match-card-input-cell').getBoundingClientRect();
+      const inputCell = inputCellElement.getBoundingClientRect();
+      const bottomElement = el.querySelector('.match-card-bottom');
+      const bottomRect = bottomElement.getBoundingClientRect();
+      const bottomStyle = getComputedStyle(bottomElement);
+      const inputEnabled = input ? !input.disabled : null;
       const teams = el.querySelector('.match-card-teams');
       const tr = teams.getBoundingClientRect();
       const ar = el.querySelector('.match-card-actions').getBoundingClientRect();
@@ -161,56 +173,72 @@ async function inspect(width, state) {
       });
       return {
         channelX: channel.x, leagueX: league.x,
-        previewBottom: preview.bottom, promptTop: prompt.top,
+        previewBottom: preview.bottom, promptTop: promptLine.top,
         previewText, promptText,
         pokeWidth: pokeRect.width, pokeHeight: pokeRect.height, pokeRadius: getComputedStyle(circle).borderRadius,
         pointer: !!poke.querySelector('svg'), pokeText: poke.textContent.trim(),
-        actionTops, promptRect: promptRect.toJSON(), inputRect: inputRect.toJSON(), inputHeight, inputCell: inputCell.toJSON(), actionsBottom: ar.bottom,
+        actionTops, promptRect: promptRect.toJSON(), inputRect: inputRect.toJSON(), inputHeight, inputCell: inputCell.toJSON(), actionsBottom: ar.bottom, inputEnabled, bottomRect: bottomRect.toJSON(), paddingLeft: parseFloat(bottomStyle.paddingLeft), paddingRight: parseFloat(bottomStyle.paddingRight),
         teamRect: tr.toJSON(), actionsRect: ar.toJSON(), names, logos,
       };
     });
     assert(Math.abs(metrics.channelX - metrics.leagueX) <= 1, 'League line is not aligned with channel image at ' + width + 'px');
     assert(metrics.promptTop >= metrics.previewBottom - .5, 'Random line is above comment preview at ' + width + 'px');
     assert(metrics.promptText === metrics.previewText, 'Random line color differs from comment at ' + width + 'px');
+    if (state === 'guest') {
+      assert(await card.locator('button[aria-label="Log in to comment"]').count() === 1, 'Guest comment prompt missing at ' + width + 'px');
+    } else {
+      assert(await card.locator('.match-card-input-cell input').count() === 1, 'Logged-in comment input missing at ' + width + 'px (' + state + ')');
+      assert(metrics.inputEnabled === (state === 'logged-in-voted'), 'Input enabled state incorrect at ' + width + 'px (' + state + ')');
+      assert(metrics.inputRect.height >= (width < 651 ? 40 : 0), 'Comment input is shorter than 40px on narrow viewport at ' + width + 'px');
+    }
     assert(Math.abs(metrics.pokeWidth - 28) <= .5 && Math.abs(metrics.pokeHeight - 28) <= .5 && metrics.pokeRadius === '50%',
-      'Poke circle is not 28x28 circular at ' + width + 'px');
-    assert(metrics.pointer && metrics.pokeText === 'Poke', 'Poke Pointer icon/label missing');
+      'Poke circle is not 28x28 circular at ' + width + 'px (' + state + ')');
+    assert(metrics.pointer && metrics.pokeText === 'Poke', 'Poke Pointer icon/label missing at ' + width + 'px (' + state + ')');
     if (width < 651) {
       assert(Math.max(...metrics.actionTops) - Math.min(...metrics.actionTops) <= 4,
         'Vote/Poke/Like/Comments are not on one row at ' + width + 'px: ' + metrics.actionTops.join(','));
       assert(metrics.promptRect.top >= metrics.actionsBottom - 0.5,
-        'Login prompt starts before the action row ends at ' + width + 'px');
+        'Comment input/prompt starts before the action row ends at ' + width + 'px (' + state + ')');
     } else {
-      const desktopTops = [...metrics.actionTops, metrics.promptRect.top, metrics.teamRect.top];
-      assert(Math.max(...desktopTops) - Math.min(...desktopTops) <= 4,
-        'Desktop actions, login prompt and team group are not on one row at ' + width + 'px: ' + desktopTops.join(','));
+      const actionTop = Math.min(...metrics.actionTops);
+      const actionsSameRow = Math.max(...metrics.actionTops) - actionTop <= 4;
+      const promptSameRow = Math.abs(metrics.promptRect.top - actionTop) <= 4;
+      const promptWrappedBelow = metrics.promptRect.top >= metrics.actionsBottom - 0.5;
+      assert(actionsSameRow && (promptSameRow || promptWrappedBelow),
+        'Desktop actions or comment box do not form a clean row/wrap at ' + width + 'px (' + state + '): ' + JSON.stringify({ actionTops: metrics.actionTops, prompt: metrics.promptRect, actionsBottom: metrics.actionsBottom }));
     }
     assert(metrics.names.length === 2 && metrics.names.every(n => n.text && n.scroll <= n.client),
-      'Team names truncated at ' + width + 'px: ' + JSON.stringify(metrics.names));
+      'Team names truncated at ' + width + 'px (' + state + '): ' + JSON.stringify(metrics.names));
     const intersects = (a, b) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
     assert(!intersects(metrics.teamRect, metrics.actionsRect),
-      'Team group overlaps action group at ' + width + 'px');
+      'Team group overlaps action group at ' + width + 'px (' + state + ')');
     assert(!intersects(metrics.teamRect, metrics.promptRect),
-      'Team group overlaps login prompt at ' + width + 'px');
+      'Team group overlaps comment input/prompt at ' + width + 'px (' + state + ')');
+    assert(metrics.inputCell.left >= metrics.bottomRect.left + metrics.paddingLeft - 0.5 && metrics.inputCell.right <= metrics.bottomRect.right - metrics.paddingRight + 0.5,
+      'Comment input/prompt extends outside card padding at ' + width + 'px (' + state + '): ' + JSON.stringify({ cell: metrics.inputCell, bottom: metrics.bottomRect, paddingLeft: metrics.paddingLeft, paddingRight: metrics.paddingRight }));
     assert(metrics.logos.length === 2 && metrics.logos.every(l => Math.abs(l.width - 16) <= .5 && Math.abs(l.height - 16) <= .5 && l.radius === '50%'),
       'Team logos/fallbacks are not 16px circular at ' + width + 'px');
   }
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth || document.body.scrollWidth > document.body.clientWidth);
-  assert(!overflow, 'Horizontal page scroll at ' + width + 'px');
-  if (width === 390 || width === 1280) await page.screenshot({ path: path.join(output, 'chats-card-parity-' + width + '.png'), fullPage: true });
-  results.push({ width, cardsChecked: 3, horizontalScroll: false });
+  assert(!overflow, 'Horizontal page scroll at ' + width + 'px (' + state + ')');
+  if (width === 390 || width === 1280) await page.screenshot({ path: path.join(output, 'chats-card-parity-' + state + '-' + width + '.png'), fullPage: true });
+  results.push({ state, width, cardsChecked: 3, horizontalScroll: false });
   await context.close();
 }
 
 try {
-  for (const width of widths) await inspect(width);
-  for (let i = 0; i < 3; i++) {
-    const reference = structures.get('390:' + i);
-    for (const width of widths) assert.deepEqual(structures.get(width + ':' + i), reference,
-      'Card ' + i + ' structure differs at ' + width + 'px versus 390px');
+  for (const state of authStates) {
+    for (const width of widths) await inspect(width, state);
+    for (let i = 0; i < 3; i++) {
+      const reference = structures.get(state + ':390:' + i);
+      for (const width of widths) assert.deepEqual(structures.get(state + ':' + width + ':' + i), reference,
+        'Card ' + i + ' structure differs at ' + width + 'px versus 390px within ' + state);
+    }
+    assert.deepEqual(structures.get(state + ':390:0'), structures.get(state + ':1280:0'),
+      'Card structure differs at 390px and 1280px within ' + state);
   }
   assert(errors.length === 0, 'Browser errors: ' + errors.join('; '));
-  console.log(JSON.stringify({ passed: true, widths: results, structureParity: true, screenshots: ['docs/verify/chats-card-parity-390.png', 'docs/verify/chats-card-parity-1280.png'] }, null, 2));
+  console.log(JSON.stringify({ passed: true, states: authStates, widths: results, structureParityWithinEachState: true, screenshots: authStates.filter(state => state !== 'guest').flatMap(state => [390, 1280].map(width => 'docs/verify/chats-card-parity-' + state + '-' + width + '.png')) }, null, 2));
 } finally {
   await browser.close();
 }
