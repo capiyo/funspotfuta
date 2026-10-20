@@ -595,8 +595,8 @@ function createStyles(colors: FanColorPalette) {
     list: { flex: 1 },
     content: { paddingBottom: LIST_BOTTOM_INSET },
     header: {
-      paddingHorizontal: GUTTER,
-      paddingVertical: FAN_SPACING.md,
+      paddingHorizontal: FAN_SPACING.md,
+      paddingVertical: FAN_SPACING.sm,
     },
   });
 }
