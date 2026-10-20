@@ -741,6 +741,11 @@ export default function MessageScreen() {
         onRequestClose={() => setPendingImage(null)}
       >
         <View style={styles.overlay}>
+          <KeyboardAvoidingView
+            style={styles.captionKeyboardAvoiding}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={0}
+          >
           <View style={[styles.card, { backgroundColor: colors.surface }]}>
             <View style={styles.captionHeader}>
               <Text style={fanText('body', colors, colors.textPrimary)}>
@@ -792,6 +797,7 @@ export default function MessageScreen() {
               </Pressable>
             </View>
           </View>
+          </KeyboardAvoidingView>
         </View>
       </Modal>
 
@@ -1592,7 +1598,8 @@ function createStyles(colors: FanColors, bottomInset: number) {
       paddingHorizontal: FAN_SPACING.md,
       paddingVertical: FAN_SPACING.xs,
     },
-    overlay: {
+    captionKeyboardAvoiding: { flex: 1, justifyContent: 'center' },
+  overlay: {
       flex: 1,
       backgroundColor: 'rgba(0,0,0,0.5)',
       alignItems: 'center',
