@@ -26,13 +26,16 @@ export function SmartMedia({
     const [videoFailed, setVideoFailed] = useState(false);
     const [videoReady, setVideoReady] = useState(false);
     const [playing, setPlaying] = useState(false);
+    const [measuredVideoRatio, setMeasuredVideoRatio] = useState<number | null>(null);
+    const suppliedRatio = width && height && width > 0 && height > 0 ? width / height : null;
+    const videoRatio = suppliedRatio ?? measuredVideoRatio ?? 4 / 3;
 
     // Render an actual native player for video URLs. The previous implementation
     // only rendered the thumbnail with a play badge, so Android had no player
     // and tapping it could only open the comments callback.
     if (videoUrl) {
         return (
-            <View style={styles.videoFrame}>
+            <View style={[styles.videoFrame, { aspectRatio: videoRatio }]}>
                 {!videoFailed ? (
                     <Video
                         source={{ uri: videoUrl }}
@@ -45,7 +48,12 @@ export function SmartMedia({
                         isMuted={false}
                         useNativeControls
                         progressUpdateIntervalMillis={500}
-                        onReadyForDisplay={() => setVideoReady(true)}
+                        onReadyForDisplay={({ naturalSize }) => {
+                            setVideoReady(true);
+                            if (naturalSize.width > 0 && naturalSize.height > 0) {
+                                setMeasuredVideoRatio(naturalSize.width / naturalSize.height);
+                            }
+                        }}
                         onPlaybackStatusUpdate={(status: AVPlaybackStatus) => {
                             if (status.isLoaded) setPlaying(status.isPlaying);
                             else if (status.error) setVideoFailed(true);
@@ -92,7 +100,6 @@ export function SmartMedia({
 const styles = StyleSheet.create({
     videoFrame: {
         width: '100%',
-        aspectRatio: 4 / 3,
         overflow: 'hidden',
         borderRadius: 12,
         backgroundColor: '#000000',
