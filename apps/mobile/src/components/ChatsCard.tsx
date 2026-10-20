@@ -22,7 +22,7 @@
 // `channel` is optional; when given, a small avatar + channel name replaces
 // the league label in the top-left. Without it the card shows the league.
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import {
   Check,
