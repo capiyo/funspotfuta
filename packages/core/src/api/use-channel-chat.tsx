@@ -637,7 +637,12 @@ export function useChannelChat({
                 webSocketService.send('get.latest.comment', { fixtureId, channelId });
                 webSocketService.requestCurrentMinute({ fixtureId, channelId });
             }
-            void fetchVoteCounts();
+            const cached = queryClient.getQueryData<{ userVoteSelection: string | null }>(
+                queryKeys.fixtureVotes(fixtureId ?? '', userId ?? 'anonymous'),
+            );
+            // Avoid a vote-count round trip every time the Messaging screen is
+            // opened when a confirmed selection is already in persisted cache.
+            if (!cached?.userVoteSelection) void fetchVoteCounts();
         };
 
         webSocketService.on('chat.message', onChatMessage);
