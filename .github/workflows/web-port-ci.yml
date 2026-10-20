@@ -30,7 +30,7 @@ jobs:
           npm run start -- --host 127.0.0.1 > /tmp/funspot-web-preview.log 2>&1 &
           for attempt in $(seq 1 30); do curl --fail --silent http://127.0.0.1:4173/ > /dev/null && break; sleep 1; done
           cd ../..
-          node apps/web/scripts/verify-chats-card.mjs
+          node apps/web/scripts/verify-card-parity.mjs
       - name: Verify Home shell and Feed styling
         run: node apps/web/scripts/verify-home.mjs
       - name: Upload ChatsCard verification screenshots
