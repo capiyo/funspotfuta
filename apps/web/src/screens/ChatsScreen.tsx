@@ -4,6 +4,7 @@
 // browser navigation replace React Native presentation primitives.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import type { Channel, Fixture, FanColorPalette, Voter } from '@funspot/core';
@@ -438,7 +439,7 @@ export default function ChatsScreen() {
 type SwipeChannel = Channel;
 function ChannelSwipeCarousel({ channels: slideChannels, renderSlide }: {
   channels: SwipeChannel[];
-  renderSlide: (channel: SwipeChannel | undefined) => React.ReactNode;
+  renderSlide: (channel: SwipeChannel | undefined) => ReactNode;
 }) {
   const trackRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
