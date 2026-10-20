@@ -107,10 +107,10 @@ async function inspect(width) {
       const card = item.querySelector('.post-card');
       const cr = card.getBoundingClientRect();
       const follow = card.querySelector('button[aria-label^="Follow"]');
-      const actionRow = card.querySelector(':scope > div:last-child');
+      const actionRow = card.querySelector(':scope > div:last-child > div:first-child');
       const fr = follow?.getBoundingClientRect();
       const ar = actionRow?.getBoundingClientRect();
-      const media = [...card.querySelectorAll('.post-image-frame, .post-video-frame, .post-image, .post-image-button')].map(node => {
+      const media = [...card.querySelectorAll('.post-image-frame, .post-video-frame, .post-image')].map(node => {
         const r = node.getBoundingClientRect();
         const s = getComputedStyle(node);
         return { tag: node.tagName, cls: node.className, x: r.x, y: r.y, width: r.width, height: r.height, ratio: s.aspectRatio, maxHeight: s.maxHeight, scrollWidth: node.scrollWidth, clientWidth: node.clientWidth };
