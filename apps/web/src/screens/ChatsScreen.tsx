@@ -253,14 +253,17 @@ export default function ChatsScreen() {
       userId, userName: username ?? '', selection: voteSelection, votedAt: new Date(),
       isComrade: false, isCorrect: false, pointsAwarded: 0,
     };
+    const cacheVoter = {
+      userId, username: username ?? '', selection: voteSelection, isComrade: false, votedAt: new Date(),
+    };
     // Persist the confirmed selection in the shared QueryClient cache so the
     // messaging screen can unlock without repeating vote-count/voter requests.
-    queryClient.setQueryData(queryKeys.fixtureVotes(fixture.matchId || fixture.id, userId), (previous: { homeVotes?: number; awayVotes?: number; drawVotes?: number; userVoteSelection?: string | null; voters?: Voter[] } | undefined) => ({
+    queryClient.setQueryData(queryKeys.fixtureVotes(fixture.matchId || fixture.id, userId), (previous: { homeVotes?: number; awayVotes?: number; drawVotes?: number; userVoteSelection?: string | null; voters?: Array<{ userId: string; username: string; selection: string; isComrade: boolean; votedAt: Date }> } | undefined) => ({
       homeVotes: previous?.homeVotes ?? 0,
       awayVotes: previous?.awayVotes ?? 0,
       drawVotes: previous?.drawVotes ?? 0,
       userVoteSelection: voteSelection,
-      voters: [newVoter, ...(previous?.voters ?? []).filter((voter) => voter.userId !== userId)],
+      voters: [cacheVoter, ...(previous?.voters ?? []).filter((voter) => voter.userId !== userId)],
     }));
     queryClient.setQueryData<Fixture[]>(FIXTURES_KEY, (previous = []) =>
       previous.map((current) => {
