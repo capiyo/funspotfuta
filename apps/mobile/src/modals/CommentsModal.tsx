@@ -479,7 +479,7 @@ export default function PostCommentsModal({
             <View style={styles.backdrop}>
                 <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
                 <KeyboardAvoidingView
-                    behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                     style={styles.kavWrap}
                 >
                     <View style={styles.sheet}>
