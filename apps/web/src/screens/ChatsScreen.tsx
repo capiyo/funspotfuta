@@ -255,12 +255,12 @@ export default function ChatsScreen() {
     };
     // Persist the confirmed selection in the shared QueryClient cache so the
     // messaging screen can unlock without repeating vote-count/voter requests.
-    queryClient.setQueryData(queryKeys.fixtureVotes(fixture.matchId || fixture.id, userId), (previous: any) => ({
+    queryClient.setQueryData(queryKeys.fixtureVotes(fixture.matchId || fixture.id, userId), (previous: { homeVotes?: number; awayVotes?: number; drawVotes?: number; userVoteSelection?: string | null; voters?: Voter[] } | undefined) => ({
       homeVotes: previous?.homeVotes ?? 0,
       awayVotes: previous?.awayVotes ?? 0,
       drawVotes: previous?.drawVotes ?? 0,
       userVoteSelection: voteSelection,
-      voters: [newVoter, ...(previous?.voters ?? []).filter((voter: Voter) => voter.userId !== userId)],
+      voters: [newVoter, ...(previous?.voters ?? []).filter((voter) => voter.userId !== userId)],
     }));
     queryClient.setQueryData<Fixture[]>(FIXTURES_KEY, (previous = []) =>
       previous.map((current) => {
