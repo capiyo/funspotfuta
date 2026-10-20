@@ -8,7 +8,7 @@
 }
 
 .feed-list-masonry > .feed-item {
-  display: inline-flex;
+  display: inline-flex !important;
   width: 100%;
   max-width: 100%;
   break-inside: avoid;
