@@ -434,6 +434,16 @@ export function useChannelChat({
     useEffect(() => {
         if (!channelId || !fixtureId || !userId) return;
         const key = `${channelId}:${fixtureId}:${userId}`;
+        // A confirmed local vote is persisted in the QueryClient cache. Do not
+        // refetch vote counts/voters on every Messaging screen mount; socket
+        // vote.update events and explicit user refreshes can reconcile it.
+        const cached = queryClient.getQueryData<{ userVoteSelection: string | null; voters: Voter[] }>(
+            queryKeys.fixtureVotes(fixtureId, userId),
+        );
+        if (cached?.userVoteSelection && cached.voters?.some((voter) => voter.userId === userId)) {
+            voteCountsFetchedRef.current = key;
+            return;
+        }
         if (voteCountsFetchedRef.current === key) return;
         voteCountsFetchedRef.current = key;
         void (async () => {
