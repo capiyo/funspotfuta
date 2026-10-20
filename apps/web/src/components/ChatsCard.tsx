@@ -346,7 +346,7 @@ export function MatchCard({
     bottomRow: {
       display: 'flex',
       flexDirection: 'row',
-      alignItems: 'center',
+      alignItems: 'flex-start',
       gap: 12,
       rowGap: 6,
       flexWrap: 'wrap',
