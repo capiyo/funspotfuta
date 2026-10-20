@@ -41,6 +41,7 @@ import { useAuth } from '@/lib/auth/auth-context';
 import { useLoginModal } from '../modals/Login-modal-context';
 import {
   getAllFixtures,
+  queryKeys,
   Fixture,
   FanColorPalette,
   FAN_SPACING,
