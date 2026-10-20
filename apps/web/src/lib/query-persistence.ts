@@ -1,5 +1,5 @@
 import type { Persister, PersistedClient } from '@tanstack/query-persist-client-core';
-import { deserializePersistedClient, serializePersistedClient } from '@funspot/core';
+import { compactPersistedClient, deserializePersistedClient, serializePersistedClient } from '@funspot/core';
 
 const DATABASE_NAME = 'funspot-query-cache';
 const STORE_NAME = 'persisted-clients';
@@ -51,7 +51,7 @@ async function writeClient(client: PersistedClient): Promise<void> {
   try {
     await new Promise<void>((resolve, reject) => {
       const transaction = db.transaction(STORE_NAME, 'readwrite');
-      const serialized = serializePersistedClient(client);
+      const serialized = serializePersistedClient(compactPersistedClient(client));
       transaction.objectStore(STORE_NAME).put(serialized, CACHE_KEY);
       transaction.oncomplete = () => resolve();
       transaction.onerror = () => reject(transaction.error ?? new Error('Unable to persist query cache'));
