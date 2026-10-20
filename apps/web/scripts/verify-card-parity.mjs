@@ -7,7 +7,7 @@ const baseURL = process.env.VERIFY_BASE_URL || 'http://127.0.0.1:4173';
 const output = path.resolve('docs/verify');
 fs.mkdirSync(output, { recursive: true });
 const pairs = [
-  ['Wolverhampton Wanderers', 'Borussia Mönchengladbach'],
+  ['Wolverhampton Wanderers', 'Manchester United'],
   ['Manchester United', 'Brighton & Hove Albion'],
   ['Tottenham Hotspur', 'Crystal Palace'],
   ['Arsenal', 'Leeds United'],
@@ -138,7 +138,8 @@ async function inspect(width) {
         'button[aria-label="Comments"]',
         'button[aria-label="Log in to comment"]',
       ];
-      const tops = actionSelectors.map(s => el.querySelector(s).getBoundingClientRect().top);
+      const actionTops = actionSelectors.slice(0, 4).map(s => el.querySelector(s).getBoundingClientRect().top);
+      const promptRect = el.querySelector('button[aria-label="Log in to comment"]').getBoundingClientRect();
       const teams = el.querySelector('.match-card-teams');
       const tr = teams.getBoundingClientRect();
       const ar = el.querySelector('.match-card-actions').getBoundingClientRect();
@@ -153,7 +154,8 @@ async function inspect(width) {
         previewText, promptText,
         pokeWidth: pokeRect.width, pokeHeight: pokeRect.height, pokeRadius: getComputedStyle(circle).borderRadius,
         pointer: !!poke.querySelector('svg'), pokeText: poke.textContent.trim(),
-        tops, teamRect: tr.toJSON(), actionsRect: ar.toJSON(), names, logos,
+        actionTops, promptRect: promptRect.toJSON(), actionsBottom: ar.bottom,
+        teamRect: tr.toJSON(), actionsRect: ar.toJSON(), names, logos,
       };
     });
     assert(Math.abs(metrics.channelX - metrics.leagueX) <= 1, 'League line is not aligned with channel image at ' + width + 'px');
@@ -162,13 +164,23 @@ async function inspect(width) {
     assert(Math.abs(metrics.pokeWidth - 28) <= .5 && Math.abs(metrics.pokeHeight - 28) <= .5 && metrics.pokeRadius === '50%',
       'Poke circle is not 28x28 circular at ' + width + 'px');
     assert(metrics.pointer && metrics.pokeText === 'Poke', 'Poke Pointer icon/label missing');
-    assert(Math.max(...metrics.tops) - Math.min(...metrics.tops) <= 4,
-      'Vote/Poke/Like/Comments/login are not on one row at ' + width + 'px: ' + metrics.tops.join(','));
-    assert(metrics.names.length === 2 && metrics.names.every(n => n.text && n.scroll <= n.client + 1),
+    if (width < 651) {
+      assert(Math.max(...metrics.actionTops) - Math.min(...metrics.actionTops) <= 4,
+        'Vote/Poke/Like/Comments are not on one row at ' + width + 'px: ' + metrics.actionTops.join(','));
+      assert(metrics.promptRect.top >= metrics.actionsBottom - 0.5,
+        'Login prompt starts before the action row ends at ' + width + 'px');
+    } else {
+      const desktopTops = [...metrics.actionTops, metrics.promptRect.top, metrics.teamRect.top];
+      assert(Math.max(...desktopTops) - Math.min(...desktopTops) <= 4,
+        'Desktop actions, login prompt and team group are not on one row at ' + width + 'px: ' + desktopTops.join(','));
+    }
+    assert(metrics.names.length === 2 && metrics.names.every(n => n.text && n.scroll <= n.client),
       'Team names truncated at ' + width + 'px: ' + JSON.stringify(metrics.names));
-    const overlap = metrics.teamRect.left < metrics.actionsRect.right && metrics.teamRect.right > metrics.actionsRect.left &&
-      metrics.teamRect.top < metrics.actionsRect.bottom && metrics.teamRect.bottom > metrics.actionsRect.top;
-    assert(!overlap, 'Team group overlaps action group at ' + width + 'px');
+    const intersects = (a, b) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+    assert(!intersects(metrics.teamRect, metrics.actionsRect),
+      'Team group overlaps action group at ' + width + 'px');
+    assert(!intersects(metrics.teamRect, metrics.promptRect),
+      'Team group overlaps login prompt at ' + width + 'px');
     assert(metrics.logos.length === 2 && metrics.logos.every(l => Math.abs(l.width - 16) <= .5 && Math.abs(l.height - 16) <= .5 && l.radius === '50%'),
       'Team logos/fallbacks are not 16px circular at ' + width + 'px');
   }

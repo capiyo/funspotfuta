@@ -2268,7 +2268,29 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
 .match-card-team-fallback { font-size: 9px; font-weight: 700; }
 .match-card .match-card-open, .match-card .match-card-teams, .match-card .match-card-poke, .match-card .action-button, .match-card .match-card-guest-comment-prompt { pointer-events: auto; }
 .match-card .match-card-content { pointer-events: none; }
-@media (max-width: 650px) { .match-card { --match-card-horizontal-padding: 16px; --match-card-action-min-height: 40px; } }
+@media (max-width: 650px) {
+  .match-card {
+    --match-card-horizontal-padding: 16px;
+    --match-card-action-min-height: 40px;
+  }
+  /* Keep the action controls together, then place the prompt and teams on row two.
+     A long team group moves to its own flex line instead of competing with the prompt. */
+  .match-card .match-card-bottom {
+    row-gap: 8px;
+  }
+  .match-card .match-card-actions {
+    flex: 0 0 100%;
+  }
+  .match-card .match-card-input-cell {
+    flex: 0 1 auto;
+    max-width: 100%;
+  }
+  .match-card .match-card-teams {
+    flex: 0 0 auto !important;
+    max-width: 100%;
+    margin-left: auto;
+  }
+}
 
 /* Circular image exceptions outrank the Home-wide zero-radius reset. */
 body:has(.home-screen) .home-screen .chats-column .match-card .match-card-channel-avatar,
