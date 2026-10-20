@@ -2724,3 +2724,12 @@ body:has(.home-screen) .home-screen .chats-column .match-card .match-card-poke-c
   border-width: 0 !important;
   border-style: none !important;
 }
+
+body:has(.home-screen) .home-screen span.profile-ellipsis {
+  border: none !important;
+  border-top: 0 !important;
+  border-right: 0 !important;
+  border-bottom: 0 !important;
+  border-left: 0 !important;
+  border-width: 0 !important;
+}
