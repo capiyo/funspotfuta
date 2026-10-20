@@ -17,6 +17,7 @@
 // FeedItem owns the gutter, the card never pads itself.
 
 import { useState } from 'react';
+import { Share } from 'react-native';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Heart, MessageCircle, Repeat2, Share2 } from 'lucide-react-native';
 import {
@@ -50,6 +51,8 @@ export function PostCard({
     onOpenComments,
     onRepost,
     onShare,
+    requireLogin,
+    onFollow,
 }: {
     post: Post;
     index: number;
@@ -59,6 +62,8 @@ export function PostCard({
     onOpenComments: (post: Post, index: number) => void;
     onRepost?: (post: Post) => void;
     onShare?: (post: Post) => void;
+    requireLogin?: (after?: () => void) => boolean;
+    onFollow?: (post: Post) => void;
 }) {
     const colors = useFanColors();
     const [following, setFollowing] = useState(false);
@@ -129,7 +134,7 @@ export function PostCard({
                             videoThumbnailUrl={(post as any).videoThumbnailUrl ?? null}
                             width={(post as any).imageWidth}
                             height={(post as any).imageHeight}
-                            onPress={() => onOpenComments(post, index)}
+                            onPress={() => requireLogin ? requireLogin(() => onOpenComments(post, index)) : onOpenComments(post, index)}
                         />
                     </View>
                 )}
@@ -144,7 +149,7 @@ export function PostCard({
                             active={liked}
                             activeColor={colors.away}
                             colors={colors}
-                            onPress={() => onLike(post, index)}
+                            onPress={() => requireLogin ? requireLogin(() => onLike(post, index)) : onLike(post, index)}
                         />
                         <ActionButton
                             icon={MessageCircle}
@@ -157,20 +162,20 @@ export function PostCard({
                             icon={Repeat2}
                             label="Repost"
                             colors={colors}
-                            onPress={() => onRepost?.(post)}
+                            onPress={() => requireLogin ? requireLogin(() => onRepost?.(post)) : onRepost?.(post)}
                         />
                         <ActionButton
                             icon={Share2}
                             label="Share"
                             colors={colors}
-                            onPress={() => onShare?.(post)}
+                            onPress={() => requireLogin ? requireLogin(() => onShare?.(post)) : onShare?.(post)}
                         />
                     </View>
 
                     <View style={styles.rightCell}>
                         {!isOwnPost && !following && (
                             <Pressable
-                                onPress={() => setFollowing(true)}
+                                onPress={() => requireLogin ? requireLogin(() => { setFollowing(true); onFollow?.(post); }) : (setFollowing(true), onFollow?.(post))
                                 hitSlop={HIT_SLOP}
                                 style={({ pressed }) => [
                                     styles.follow,
