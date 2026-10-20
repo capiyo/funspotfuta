@@ -51,6 +51,8 @@ describe('Flutter AppCache parity helpers', () => {
       persister: first.persister,
       ...PERSIST_OPTIONS,
     });
+    // The sync persister throttles writes; wait for its queued write before restoring.
+    await new Promise((resolve) => setTimeout(resolve, 550));
 
     const restarted = new QueryClient({ defaultOptions: { queries: { gcTime: 7 * 24 * 60 * 60 * 1000 } } });
     await persistQueryClientRestore({
@@ -74,6 +76,8 @@ describe('Flutter AppCache parity helpers', () => {
       buster: 'v2',
       dehydrateOptions: PERSIST_OPTIONS.dehydrateOptions,
     });
+    // Ensure the legacy snapshot is actually on disk before checking its buster is rejected.
+    await new Promise((resolve) => setTimeout(resolve, 550));
 
     const restarted = new QueryClient();
     await persistQueryClientRestore({

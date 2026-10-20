@@ -62,5 +62,5 @@ export function mergeCachedList<T>(cached: readonly T[] | undefined, incoming: r
 /** Flutter's LocalDatabase keeps at most 50 chat messages per fixture. */
 export function capCachedMessages<T>(messages: readonly T[], limit = 50): T[] {
   const safeLimit = Number.isFinite(limit) ? Math.max(0, Math.floor(limit)) : 50;
-  return messages.slice(-safeLimit);
+  return safeLimit === 0 ? [] : messages.slice(-safeLimit);
 }

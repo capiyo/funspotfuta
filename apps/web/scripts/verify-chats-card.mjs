@@ -82,7 +82,7 @@ async function inspectDesktop(width) {
       const s = getComputedStyle(circle); const r = circle.getBoundingClientRect();
       return { width: r.width, height: r.height, radius: s.borderRadius, text: el.textContent?.trim() };
     });
-    assert(pokeStyle && Math.abs(pokeStyle.width - 28) <= 1 && Math.abs(pokeStyle.height - 28) <= 1, `Card ${i}: Poke icon target is not 28x28`);
+    assert(pokeStyle && Math.abs(pokeStyle.width - 28) <= 0.5 && Math.abs(pokeStyle.height - 28) <= 0.5, `Card ${i}: Poke icon target must measure 28x28; got ${pokeStyle?.width}x${pokeStyle?.height}`);
     assert(pokeStyle.radius === '50%', `Card ${i}: Poke icon is not circular: ${pokeStyle.radius}`);
     assert(pokeStyle.text === 'Poke', `Card ${i}: Poke label mismatch: ${pokeStyle.text}`);
     const preview = card.locator('.match-card-comment-preview').first();
