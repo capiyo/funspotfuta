@@ -2733,3 +2733,9 @@ body:has(.home-screen) .home-screen span.profile-ellipsis {
   border-left: 0 !important;
   border-width: 0 !important;
 }
+
+/* Home has no decorative borders outside its explicit profile/balance/member cards. */
+body:has(.home-screen) .home-screen *:not(.profile-card):not(.profile-card *):not(.balance-card):not(.balance-card *):not(.member-card):not(.member-card *) {
+  border: 0 !important;
+  border-width: 0 !important;
+}
