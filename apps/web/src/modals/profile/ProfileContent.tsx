@@ -34,6 +34,9 @@ import {
   Shield,
   Globe2,
   Phone,
+  Users,
+  Flag,
+  LogIn,
   Pencil,
   LogOut,
   CheckCircle2,
@@ -893,15 +896,18 @@ export default function ProfileContent({
   const renderGuestFields = () => (
     <div className="profile-guest-fields">
       {[
-        ['Username', guestProfile.username],
-        ['Team nickname', guestProfile.nickname],
-        ['Favorite club', guestProfile.clubFan],
-        ['Country', guestProfile.countryFan],
-        ['Phone', guestProfile.phone],
-      ].map(([label, value]) => (
+        { label: 'Username', value: guestProfile.username, Icon: UserIcon },
+        { label: 'Team Nickname', value: guestProfile.nickname, Icon: Shield },
+        { label: 'Team/Club', value: guestProfile.clubFan, Icon: Globe2 },
+        { label: 'Country You Support', value: guestProfile.countryFan, Icon: Flag },
+        { label: 'Phone', value: guestProfile.phone, Icon: Phone },
+      ].map(({ label, value, Icon }) => (
         <div className="profile-guest-field" key={label}>
-          <span style={{ color: colors.textTertiary }}>{label}</span>
-          <strong style={{ color: colors.textPrimary }}>{value}</strong>
+          <Icon className="profile-guest-field-icon" size={16} aria-hidden="true" />
+          <div className="profile-guest-field-copy">
+            <span style={{ color: colors.textTertiary }}>{label}</span>
+            <strong style={{ color: colors.textPrimary }}>{value}</strong>
+          </div>
         </div>
       ))}
     </div>
@@ -916,7 +922,7 @@ export default function ProfileContent({
             )}
 
             {/* Header */}
-            <div style={styles.headerRow} className="profile-header-row">
+            <div style={styles.headerRow} className={`profile-header-row ${inline && onViewProfile ? 'profile-header-row-clickable' : ''}`} role={inline && onViewProfile ? 'button' : undefined} aria-label={inline && onViewProfile ? 'View profile' : undefined} tabIndex={inline && onViewProfile ? 0 : undefined} onClick={inline && onViewProfile ? onViewProfile : undefined} onKeyDown={inline && onViewProfile ? (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onViewProfile(); } } : undefined}>
               {!isCurrentUser && (
                 <button type="button"
                   onClick={handleBackToSelf}
@@ -960,11 +966,7 @@ export default function ProfileContent({
                     : 'Member'}
                 </span>
               </div>
-              {inline ? (
-                <button type="button" onClick={onViewProfile}  style={styles.viewProfileBtn}>
-                  <span style={{ ...Object.assign({}, styles.viewProfileText, { color: colors.primary }) }} className="profile-header-view-link">View profile</span>
-                </button>
-              ) : (
+              {!inline ? (
                 <button type="button" onClick={onClose}  style={styles.closeBtn}>
                   <X size={14} color={colors.textSecondary} />
                 </button>
@@ -980,9 +982,8 @@ export default function ProfileContent({
                 <div style={styles.center}><span>Loading profile…</span></div>
               ) : !isLoggedIn ? (
                 <div className="profile-guest-preview">
-                  <div className="profile-guest-banner">Preview data - log in to see your own profile</div>
                   {!isLoggedIn && renderGuestFields()}
-                  {!isLoggedIn && <button type="button" className="profile-guest-login" onClick={openLogin}>Log In</button>}
+                  {!isLoggedIn && <button type="button" className="profile-guest-login" onClick={openLogin}><LogIn size={16} aria-hidden="true" />Log In</button>}
                   <div className="profile-guest-channels-heading">
                     <strong>Channels (preview)</strong><span>{visibleChannels.length}</span>
                   </div>
