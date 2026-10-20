@@ -36,7 +36,11 @@ export * from './api/profile-service';
 
 // Was './queryClient' — the file is under api/, so the path must match.
 export { createAppQueryClient, PERSIST_OPTIONS } from './queryClient';
-export { serializePersistedClient, deserializePersistedClient } from './persistence/serialization';
+export {
+  compactPersistedClient,
+  serializePersistedClient,
+  deserializePersistedClient,
+} from './persistence/serialization';
 
 export { useFixtures, useHistoryGames } from './queries/useFixtures';
 export { queryKeys, mergeCachedList, capCachedMessages } from './queries/queryKeys';
