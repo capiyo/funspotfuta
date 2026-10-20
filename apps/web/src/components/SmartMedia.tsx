@@ -19,7 +19,7 @@ export function SmartMedia({ imageUrl, videoUrl, videoThumbnailUrl, width, heigh
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [videoFailed, setVideoFailed] = useState(false);
   const [videoAttempt, setVideoAttempt] = useState(0);
-  const [videoRatio, setVideoRatio] = useState(width && height ? Math.max(4 / 5, Math.min(16 / 9, width / height)) : 4 / 5);
+  const [videoRatio, setVideoRatio] = useState(width && height && width > 0 && height > 0 ? width / height : 4 / 3);
   const [showControls, setShowControls] = useState(false);
 
   useEffect(() => {
@@ -51,7 +51,7 @@ export function SmartMedia({ imageUrl, videoUrl, videoThumbnailUrl, width, heigh
       <video key={videoAttempt} ref={videoRef} src={videoUrl} poster={videoThumbnailUrl ?? undefined}
         playsInline muted loop preload="metadata" controls={showControls}
         onClick={() => setShowControls(true)}
-        onLoadedMetadata={(event) => { const video = event.currentTarget; if (video.videoWidth && video.videoHeight) setVideoRatio(Math.max(4 / 5, Math.min(16 / 9, video.videoWidth / video.videoHeight))); }}
+        onLoadedMetadata={(event) => { const video = event.currentTarget; if (video.videoWidth && video.videoHeight) setVideoRatio(video.videoWidth / video.videoHeight); }}
         onLoadedData={() => { setVideoLoaded(true); setVideoFailed(false); }}
         onError={() => { if (import.meta.env.DEV) console.error('[SmartMedia] failed video URL:', videoUrl); if (videoAttempt === 0) window.setTimeout(() => { setVideoAttempt(1); setVideoLoaded(false); }, 3000); else setVideoFailed(true); }}
         onPlay={(event) => {
@@ -66,7 +66,7 @@ export function SmartMedia({ imageUrl, videoUrl, videoThumbnailUrl, width, heigh
           if (currentlyPlayingVideo === event.currentTarget) currentlyPlayingVideo = null;
           setPaused(true);
         }}
-        style={{ position: 'relative', zIndex: 1, display: 'block', width: '100%', height: '100%', objectFit: 'cover', background: 'transparent' }}
+        style={{ position: 'relative', zIndex: 1, display: 'block', width: '100%', height: '100%', objectFit: 'contain', background: 'transparent' }}
         aria-label="Post video" />
       {!videoLoaded && <div aria-hidden="true" style={{ position: 'absolute', inset: 0, zIndex: 0, background: colors.background, pointerEvents: 'none' }} />}
       {videoFailed && <button type="button" onClick={() => { setVideoAttempt(0); setVideoFailed(false); setVideoLoaded(false); setPaused(true); }} style={{ position: 'absolute', inset: 0, zIndex: 4, background: colors.background, color: colors.textSecondary, cursor: 'pointer' }}>Tap to retry</button>}
