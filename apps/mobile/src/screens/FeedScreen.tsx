@@ -1,27 +1,20 @@
 // screens/FeedScreen.tsx
 //
-// Laid out like ArenaScreen:
-//   - no horizontal padding on the list: FeedItem owns the gutter
-//   - composer is a FeedItem card with the same rows as MatchCard
-//     (meta / input / one-line footer flush with the card floor)
-//   - loading shows composer + skeleton, rendered outside the list
-//   - pull to refresh (progressViewOffset = topInset) and ErrorBanner
-//   - scroll via useHomeList().scrollProps, content padded by topInset
-//   - last card clears the floating tab bar (LIST_BOTTOM_INSET)
-//   - query gated on activeTab === 'Feed'; cached data still renders
-//   - placeholderData + isError so offline shows cached posts or an
-//     explicit offline state
+// Feed-only list, matching the web Home feed column:
+//   - post creation is handled by the dedicated AddPostModal / Post action
+//   - FeedItem owns horizontal gutters
+//   - pull to refresh and paginated loading
+//   - cached posts remain visible after a failed refresh
+//   - the last card clears the floating tab bar
+//   - feed requests are enabled only while the Feed tab is active
 
 import { useCallback, useMemo, useState } from 'react';
 import {
   View,
-  Text,
   FlatList,
   RefreshControl,
   StyleSheet,
 } from 'react-native';
-import { ImagePlus, Paperclip } from 'lucide-react-native';
-import * as ImagePicker from 'expo-image-picker';
 import {
   useInfiniteQuery,
   useQueryClient,
@@ -36,16 +29,9 @@ import {
   isLikedBy,
   FAN_SPACING,
 } from '@funspot/core';
-import { createPost } from '@/lib/api/posts-create';
 import { useFanColors } from '@/theme/use-fan-colors';
-import { fanText } from '@/theme/use-fan-typography';
 import { ICON, LIST_BOTTOM_INSET } from '@/theme/layout';
 import { PostCard } from '@/components/PostCard';
-import { FeedItem } from '@/components/ui/FeedItem';
-import { ActionButton } from '@/components/ui/ActionButton';
-import { MiniAvatar } from '@/components/ui/miniAvatar';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import {
   EmptyState,
   ErrorBanner,
@@ -56,8 +42,6 @@ import { useHome, useHomeList } from './home/home-context';
 
 const PAGE_SIZE = 10;
 const FEED_KEY = ['feed'] as const;
-// Keep in sync with MatchCard's FOOTER_BLEED.
-const FOOTER_BLEED = 12;
 
 type FeedPage = { posts: Post[] };
 
@@ -71,9 +55,6 @@ export default function FeedScreen() {
   const { activeTab } = useHome();
   const { scrollProps, topInset } = useHomeList();
 
-  const [caption, setCaption] = useState('');
-  const [image, setImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
-  const [posting, setPosting] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
   const {
@@ -97,7 +78,7 @@ export default function FeedScreen() {
   });
 
   const posts = useMemo(
-    () => data?.pages.flatMap((p) => p.posts) ?? [],
+    () => data?.pages.flatMap((page) => page.posts) ?? [],
     [data],
   );
 
@@ -115,45 +96,6 @@ export default function FeedScreen() {
     }
   }, [refetch]);
 
-  async function handlePickImage() {
-    if (!isLoggedIn) return requireLogin(handlePickImage);
-    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!permission.granted) return;
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 0.8,
-    });
-    if (!result.canceled && result.assets?.[0]) setImage(result.assets[0]);
-  }
-
-  async function handlePost() {
-    if (!isLoggedIn) return requireLogin(handlePost);
-    if (!userId || !username) return;
-    if (!caption.trim() && !image) return;
-    setPosting(true);
-    try {
-      await createPost({
-        userId,
-        userName: username,
-        caption: caption.trim() || undefined,
-        image: image
-          ? {
-            uri: image.uri,
-            name:
-              image.fileName ??
-              `photo.${image.mimeType?.split('/')[1] ?? 'jpg'}`,
-            type: image.mimeType ?? 'image/jpeg',
-          }
-          : undefined,
-      });
-      setCaption('');
-      setImage(null);
-      await queryClient.invalidateQueries({ queryKey: FEED_KEY });
-    } finally {
-      setPosting(false);
-    }
-  }
-
   async function handleLike(post: Post) {
     if (!isLoggedIn) return requireLogin(() => handleLike(post));
     if (!userId || !username || !post.id) return;
@@ -161,21 +103,21 @@ export default function FeedScreen() {
 
     queryClient.setQueryData<InfiniteData<FeedPage>>(
       FEED_KEY,
-      (prev) =>
-        prev && {
-          ...prev,
-          pages: prev.pages.map((page) => ({
+      (previous) =>
+        previous && {
+          ...previous,
+          pages: previous.pages.map((page) => ({
             ...page,
-            posts: page.posts.map((p) =>
-              p.id === post.id
+            posts: page.posts.map((item) =>
+              item.id === post.id
                 ? {
-                  ...p,
-                  likedBy: wasLiked
-                    ? (p.likedBy ?? []).filter((id) => id !== userId)
-                    : [...(p.likedBy ?? []), userId],
-                  likesCount: (p.likesCount ?? 0) + (wasLiked ? -1 : 1),
-                }
-                : p,
+                    ...item,
+                    likedBy: wasLiked
+                      ? (item.likedBy ?? []).filter((id) => id !== userId)
+                      : [...(item.likedBy ?? []), userId],
+                    likesCount: (item.likesCount ?? 0) + (wasLiked ? -1 : 1),
+                  }
+                : item,
             ),
           })),
         },
@@ -184,86 +126,15 @@ export default function FeedScreen() {
     try {
       await toggleLikePost(post.id, userId, username);
     } catch {
-      queryClient.invalidateQueries({ queryKey: FEED_KEY });
+      void queryClient.invalidateQueries({ queryKey: FEED_KEY });
     }
   }
 
-  const canPost = !!caption.trim() || !!image;
-
-  // Same rows as MatchCard: meta / content / one-line footer.
-  const composer = (
-    <FeedItem colors={colors}>
-      <View style={styles.metaRow}>
-        <View style={[styles.author, styles.grow]}>
-          <MiniAvatar colors={colors} label={username ?? '?'} />
-          <Text
-            style={[
-              fanText('competition', colors, '#FFFFFF'),
-              styles.authorName,
-              styles.grow,
-            ]}
-            numberOfLines={1}
-          >
-            {username ?? 'Fan'}
-          </Text>
-        </View>
-      </View>
-
-      <Input
-        colors={colors}
-        variant="plain"
-        value={caption}
-        onChangeText={setCaption}
-        placeholder={
-          isLoggedIn
-            ? `What's on your mind, ${username ?? 'fan'}?`
-            : 'Log in to post'
-        }
-        multiline
-        editable={isLoggedIn}
-      />
-
-      {image && (
-        <View style={styles.attachment}>
-          <Paperclip size={ICON.sm} color={colors.textSecondary} />
-          <Text
-            style={[fanText('caption', colors, colors.textSecondary), styles.grow]}
-            numberOfLines={1}
-          >
-            {image.fileName ?? 'Image'}
-          </Text>
-        </View>
-      )}
-
-      <View style={styles.bottomRow}>
-        <ActionButton
-          icon={ImagePlus}
-          label="Add image"
-          colors={colors}
-          onPress={handlePickImage}
-        />
-        <Button
-          label="Post"
-          colors={colors}
-          variant="primary"
-          disabled={!canPost}
-          loading={posting}
-          onPress={handlePost}
-        />
-      </View>
-    </FeedItem>
-  );
-
-  const listHeader = (
-    <View>
-      {composer}
-      {loadError && (
-        <View style={styles.banner}>
-          <ErrorBanner colors={colors} message={loadError} />
-        </View>
-      )}
+  const listHeader = loadError ? (
+    <View style={styles.banner}>
+      <ErrorBanner colors={colors} message={loadError} />
     </View>
-  );
+  ) : null;
 
   return (
     <View style={styles.screen}>
@@ -276,7 +147,7 @@ export default function FeedScreen() {
         <FlatList
           style={styles.list}
           data={posts}
-          keyExtractor={(post, i) => post.id ?? String(i)}
+          keyExtractor={(post, index) => post.id ?? String(index)}
           contentContainerStyle={[styles.content, { paddingTop: topInset }]}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
@@ -303,7 +174,7 @@ export default function FeedScreen() {
               <EmptyState
                 colors={colors}
                 title="No posts yet"
-                hint="Be the first to post."
+                hint="Posts will appear here."
               />
             )
           }
@@ -312,17 +183,17 @@ export default function FeedScreen() {
           }
           onEndReachedThreshold={0.5}
           onEndReached={() => {
-            if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+            if (hasNextPage && !isFetchingNextPage) void fetchNextPage();
           }}
           renderItem={({ item: post, index }) => (
             <PostCard
               post={post}
               index={index}
               currentUserId={userId}
-              onLike={(p) => handleLike(p)}
-              onOpenComments={() => { }}
-              onRepost={() => { }}
-              onShare={() => { }}
+              onLike={(item) => void handleLike(item)}
+              onOpenComments={() => {}}
+              onRepost={() => {}}
+              onShare={() => {}}
             />
           )}
         />
@@ -336,33 +207,6 @@ function createStyles(colors: ReturnType<typeof useFanColors>) {
     screen: { flex: 1, backgroundColor: colors.background },
     list: { flex: 1 },
     content: { paddingBottom: LIST_BOTTOM_INSET },
-    grow: { flex: 1 },
     banner: { paddingHorizontal: FAN_SPACING.lg, paddingVertical: FAN_SPACING.md },
-    metaRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      marginBottom: 12,
-    },
-    author: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: FAN_SPACING.sm,
-    },
-    authorName: { fontWeight: 'normal' },
-    attachment: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: FAN_SPACING.xs,
-      marginTop: FAN_SPACING.sm,
-    },
-    // Flush with the card floor, same trick as MatchCard.
-    bottomRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'space-between',
-      marginTop: 18,
-      marginBottom: -FOOTER_BLEED,
-    },
   });
 }
