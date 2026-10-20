@@ -151,7 +151,7 @@ export default function ChatsScreen() {
   }, [data, publicChannels.length, activeTab, refetch, refetchAllChannels]);
 
   const channelPool = useMemo(() => channels.filter((channel) => !!channel.channelId && !!channel.name), [channels]);
-  const [channelStartOffset] = useState(() => Math.floor(Math.random() * Math.max(1, channels.length)));
+  const [channelStartOffset] = useState(() => Math.floor(Math.random() * 3));
   const headerById = useMemo(() => {
     const map = new Map<string, ChannelHeaderData>();
     for (const channel of channelPool) map.set(channel.channelId, channelHeaderOf(channel));
