@@ -46,6 +46,8 @@ export function PostCard({
   onOpenComments,
   onRepost,
   onShare,
+  requireLogin,
+  onFollow,
 }: {
   post: Post;
   index: number;
@@ -55,6 +57,8 @@ export function PostCard({
   onOpenComments: (post: Post, index: number) => void;
   onRepost?: (post: Post) => void;
   onShare?: (post: Post) => void;
+  requireLogin?: (after?: () => void) => boolean;
+  onFollow?: (post: Post) => void;
 }) {
   const colors = useFanColors();
   const [following, setFollowing] = useState(false);
@@ -158,7 +162,7 @@ export function PostCard({
         {/* Layer 1: invisible full-card tap target -> comments */}
         <button
           type="button"
-          onClick={() => onOpenComments(post, index)}
+          onClick={() => requireLogin ? requireLogin(() => onOpenComments(post, index)) : onOpenComments(post, index)}
           aria-label={`Open comments on ${userName}'s post`}
           className="post-card-open"
           style={styles.openTarget}
@@ -254,7 +258,7 @@ export function PostCard({
             {!isOwnPost && !following && (
               <button
                 type="button"
-                onClick={handleFollow}
+                onClick={() => requireLogin ? requireLogin(() => { handleFollow(); onFollow?.(post); }) : (handleFollow(), onFollow?.(post))
                 aria-label={`Follow ${userName}`}
                 style={styles.follow}
                 onMouseEnter={() => undefined}
