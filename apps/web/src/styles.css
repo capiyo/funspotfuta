@@ -2899,9 +2899,9 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
   body:has(.home-screen) .home-screen .chats-column .match-card-teams img,
   body:has(.home-screen) .home-screen .chats-column .match-card-teams .team-logo,
   body:has(.home-screen) .home-screen .chats-column .match-card-team-logo {
-    width: 18px !important;
-    height: 18px !important;
-    flex: 0 0 18px !important;
+    width: 16px !important;
+    height: 16px !important;
+    flex: 0 0 16px !important;
     border-radius: 50% !important;
   }
 
