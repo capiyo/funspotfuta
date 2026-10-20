@@ -925,11 +925,11 @@ export default function MessageScreen() {
               alreadyVoted: hasVoted,
               authToken,
             });
-            if (r.success && r.votedNow) {
-              // A successful pledge can cast the vote as part of the same flow.
+            if (r.success) {
+              // A successful pledge either cast the vote or confirmed an existing one.
               recordUserVote(sel);
               queryClient.invalidateQueries({ queryKey: FIXTURES_KEY });
-              await refetchVoteCounts();
+              if (r.votedNow) await refetchVoteCounts();
             }
             return {
               success: r.success,
