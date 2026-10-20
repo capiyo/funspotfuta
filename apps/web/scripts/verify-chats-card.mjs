@@ -132,12 +132,14 @@ async function inspectDesktop(width) {
 try {
   await inspectDesktop(1280);
   await inspectDesktop(1920);
-  const mobileContext = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1 });
+  const mobileContext = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true });
   const mobile = await mobileContext.newPage();
   await installMocks(mobile);
   await mobile.goto(baseURL, { waitUntil: 'domcontentloaded' });
   await mobile.waitForSelector('.match-card', { timeout: 45000 });
   const mobileState = await mobile.locator('.match-card').first().evaluate(el => ({
+    viewportWidth: window.innerWidth,
+    mobileMediaMatches: window.matchMedia('(max-width: 650px)').matches,
     pokeHidden: getComputedStyle(el.querySelector('.match-card-poke')).display === 'none',
     teamsHidden: getComputedStyle(el.querySelector('.match-card-teams')).display === 'none',
     oldLeagueVisible: getComputedStyle(el.querySelector('.match-card-mobile-league')).display !== 'none',
