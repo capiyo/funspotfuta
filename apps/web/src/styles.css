@@ -2251,7 +2251,7 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
 .match-card-legacy-stack { display: none !important; }
 .match-card-bottom { position: relative; z-index: 2; display: flex; flex-flow: row wrap; align-items: center; gap: 12px; row-gap: 6px; min-width: 0; min-height: var(--match-card-action-min-height); margin-top: 10px; padding: 0 var(--match-card-horizontal-padding) 6px; pointer-events: none; }
 .match-card-actions { display: inline-flex; flex: 0 1 auto; flex-wrap: nowrap; align-items: center; gap: 12px; min-width: 0; white-space: nowrap; pointer-events: none; }
-.match-card .action-button { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 4px; min-height: var(--match-card-action-min-height); padding: 0; color: var(--match-primary); pointer-events: auto; white-space: nowrap; }
+.match-card .action-button { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 4px; min-height: 28px !important; padding: 0 !important; color: var(--match-primary); pointer-events: auto; white-space: nowrap; }
 .match-card .action-button svg { width: 14px; height: 14px; flex: 0 0 auto; }
 .match-card-poke { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 5px; height: 28px; min-height: 28px; padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--match-primary); font-size: 12px; font-weight: 600; white-space: nowrap; pointer-events: auto; }
 .match-card .match-card-poke-circle { display: inline-flex; flex: 0 0 28px !important; width: 28px !important; height: 28px !important; align-items: center; justify-content: center; box-sizing: border-box; border-radius: 50% !important; background: var(--match-primary-dim); color: var(--match-primary); }
