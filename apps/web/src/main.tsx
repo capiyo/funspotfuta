@@ -20,7 +20,7 @@ const queryClient = new QueryClient({
       staleTime: 5 * 60 * 1000,
       gcTime: 7 * DAY,
       networkMode: 'offlineFirst',
-      placeholderData: (previousData) => previousData,
+      placeholderData: (previousData: unknown) => previousData,
     },
     mutations: {
       networkMode: 'offlineFirst',
