@@ -377,7 +377,6 @@ export function MatchCard({
       lineHeight: 1.25,
       flex: 0,
       minWidth: 0,
-      minWidth: 0,
       padding: 0,
       textAlign: 'left',
       whiteSpace: 'nowrap',
