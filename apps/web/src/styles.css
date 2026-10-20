@@ -2240,8 +2240,8 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
 .match-card-content { position: relative; z-index: 1; padding: 12px var(--match-card-horizontal-padding) 0; pointer-events: none; }
 .match-card-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 0; min-height: 24px; margin: 0; }
 .match-card-channel-label { display: flex; flex: 1 1 auto; min-width: 0; align-items: center; gap: 5px; }
-.match-card-channel-avatar { display: inline-flex; flex: 0 0 24px; width: 24px; height: 24px; align-items: center; justify-content: center; overflow: hidden; border: 0; border-radius: 50%; background: var(--match-primary-dim); color: var(--match-primary); }
-.match-card-channel-avatar img { display: block; width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.match-card .match-card-channel-avatar { display: inline-flex; flex: 0 0 24px !important; width: 24px !important; height: 24px !important; align-items: center; justify-content: center; overflow: hidden; border: 0; border-radius: 50% !important; background: var(--match-primary-dim); color: var(--match-primary); }
+.match-card .match-card-channel-avatar img { display: block; width: 100% !important; height: 100% !important; border-radius: 50% !important; object-fit: cover; }
 .match-card-channel-name { display: block; min-width: 0; overflow: hidden; color: var(--text-1, inherit); font-size: 14px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
 .match-card-date { flex: 0 0 auto; margin-left: auto; color: var(--text-3, inherit); font-size: 11px; text-align: right; white-space: nowrap; }
 .match-card-league-line { margin: 2px 0 0; color: var(--text-3, inherit); font-size: 12px; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -2249,21 +2249,22 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
 .match-card-preview-text { display: block; flex: 1 1 auto; min-width: 0; overflow: hidden; color: inherit; font-size: 13px; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }
 .match-card-prompt-line { display: block; min-width: 0; margin-top: 6px; overflow: hidden; color: var(--text-2, inherit); font-size: 12px; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }
 .match-card-legacy-stack { display: none !important; }
-.match-card-bottom { position: relative; z-index: 2; display: flex; flex-flow: row wrap; align-items: center; gap: 12px; row-gap: 6px; min-width: 0; min-height: var(--match-card-action-min-height); margin-top: 10px; padding: 0 var(--match-card-horizontal-padding) 6px; }
-.match-card-actions { display: inline-flex; flex: 0 1 auto; flex-wrap: nowrap; align-items: center; gap: 12px; min-width: 0; white-space: nowrap; }
+.match-card-bottom { position: relative; z-index: 2; display: flex; flex-flow: row wrap; align-items: center; gap: 12px; row-gap: 6px; min-width: 0; min-height: var(--match-card-action-min-height); margin-top: 10px; padding: 0 var(--match-card-horizontal-padding) 6px; pointer-events: none; }
+.match-card-actions { display: inline-flex; flex: 0 1 auto; flex-wrap: nowrap; align-items: center; gap: 12px; min-width: 0; white-space: nowrap; pointer-events: none; }
 .match-card .action-button { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 4px; min-height: var(--match-card-action-min-height); padding: 0; color: var(--match-primary); pointer-events: auto; white-space: nowrap; }
 .match-card .action-button svg { width: 14px; height: 14px; flex: 0 0 auto; }
 .match-card-poke { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 5px; height: 28px; min-height: 28px; padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--match-primary); font-size: 12px; font-weight: 600; white-space: nowrap; pointer-events: auto; }
-.match-card-poke-circle { display: inline-flex; flex: 0 0 28px; width: 28px; height: 28px; align-items: center; justify-content: center; box-sizing: border-box; border-radius: 50%; background: var(--match-primary-dim); color: var(--match-primary); }
+.match-card .match-card-poke-circle { display: inline-flex; flex: 0 0 28px !important; width: 28px !important; height: 28px !important; align-items: center; justify-content: center; box-sizing: border-box; border-radius: 50% !important; background: var(--match-primary-dim); color: var(--match-primary); }
 .match-card-poke-circle svg { width: 16px; height: 16px; color: var(--match-primary); }
-.match-card-input-cell { display: flex; flex: 0 1 auto; min-width: 0; align-items: center; gap: 8px; pointer-events: auto; }
+.match-card-input-cell { display: flex; flex: 0 1 auto; min-width: 0; align-items: center; gap: 8px; pointer-events: none; }
 .match-card-input-cell:has(button[aria-label="Log in to comment"]) { flex: 0 0 auto; }
 .match-card .match-card-guest-comment-prompt { display: inline-block; padding: 0; border: 0; background: transparent; color: var(--text-2, inherit); font-size: 12px; line-height: 1.25; white-space: nowrap; cursor: pointer; pointer-events: auto; }
+.match-card-input-cell input { pointer-events: auto; }
 .match-card-teams { display: flex; flex: 0 0 auto; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 6px; min-width: 0; max-width: 100%; margin-left: auto; padding: 0; border: 0; background: transparent; color: var(--match-primary); font-size: 12px; font-weight: 600; line-height: 1.25; white-space: normal; overflow-wrap: anywhere; pointer-events: auto; }
 .match-card-team-name { display: block; flex: 0 1 auto; min-width: 0; max-width: 100%; overflow-wrap: anywhere; white-space: normal; }
 .match-card-score { display: block; flex: 0 0 auto; color: inherit; font-size: 12px; font-weight: 600; }
-.match-card-team-logo { display: inline-flex; flex: 0 0 16px; width: 16px; height: 16px; align-items: center; justify-content: center; overflow: hidden; border: 0; border-radius: 50%; background: var(--match-primary-dim); color: var(--match-primary); font-size: 9px; font-weight: 700; }
-.match-card-team-logo-image { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
+.match-card .match-card-team-logo { display: inline-flex; flex: 0 0 16px !important; width: 16px !important; height: 16px !important; align-items: center; justify-content: center; overflow: hidden; border: 0; border-radius: 50% !important; background: var(--match-primary-dim); color: var(--match-primary); font-size: 9px; font-weight: 700; }
+.match-card .match-card-team-logo-image { width: 100% !important; height: 100% !important; border-radius: 50% !important; object-fit: cover; }
 .match-card-team-fallback { font-size: 9px; font-weight: 700; }
 .match-card .match-card-open, .match-card .match-card-teams, .match-card .match-card-poke, .match-card .action-button, .match-card .match-card-guest-comment-prompt { pointer-events: auto; }
 .match-card .match-card-content { pointer-events: none; }
