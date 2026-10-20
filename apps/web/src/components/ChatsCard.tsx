@@ -88,10 +88,12 @@ export interface LiveCommentaryEntry {
 
 function TeamLogo({ name, url, colors }: { name: string; url: string | null; colors: ReturnType<typeof useFanColors> }) {
   const [failed, setFailed] = useState(false);
-  if (!url || failed) return <span className="match-card-team-logo match-card-team-fallback" style={{ display: 'inline-flex', flex: '0 0 16px', width: 16, height: 16, alignItems: 'center', justifyContent: 'center', borderRadius: '50%', border: 0, objectFit: 'cover', background: colors.primaryDim, color: colors.primary, fontSize: 9, fontWeight: 700 }}>{name.trim().charAt(0).toUpperCase() || '?'}</span>;
-  return <img className="match-card-team-logo" src={url} alt="" loading="lazy" decoding="async" referrerPolicy="no-referrer" onError={() => setFailed(true)} style={{ display: 'block', flex: '0 0 16px', width: 16, height: 16, borderRadius: '50%', objectFit: 'cover', border: 0, background: 'transparent' }} />;
+  const showFallback = !url || failed;
+  return <span className="match-card-team-logo" aria-label={`${name} logo`} style={{ display: 'inline-flex', flex: '0 0 16px', width: 16, height: 16, alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', borderRadius: '50%', border: 0, background: colors.primaryDim, color: colors.primary, fontSize: 9, fontWeight: 700 }}>
+    <img className="match-card-team-logo-image" src={url ?? undefined} alt="" loading="lazy" decoding="async" referrerPolicy="no-referrer" onError={() => setFailed(true)} style={{ display: showFallback ? 'none' : 'block', position: 'absolute', inset: 0, width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+    <span className="match-card-team-fallback" style={{ display: showFallback ? 'inline' : 'none' }}>{name.trim().charAt(0).toUpperCase() || '?'}</span>
+  </span>;
 }
-
 function kickoffLabel(dateString: string): string {
   const date = new Date(dateString);
   if (Number.isNaN(date.getTime())) return 'TBD';
@@ -196,7 +198,6 @@ export function MatchCard({
 
   const fixtureLabel = `${fixture.homeTeam} vs ${fixture.awayTeam}`;
   // Teams with the score between them, or "vs" before kickoff.
-  const captionLabel = `${fixture.homeTeam} ${hasScores(fixture) ? scoreDisplay(fixture) : 'vs'} ${fixture.awayTeam}`;
   const scoreLabel = hasScores(fixture) ? `${fixture.homeScore} : ${fixture.awayScore}` : 'vs';
   const canComment = !!isLoggedIn && (isCompleted || hasVoted);
 
@@ -259,7 +260,7 @@ export function MatchCard({
       position: 'relative',
       zIndex: 1,
       pointerEvents: 'none',
-      padding: '6px 10px 0',
+      padding: '12px var(--match-card-horizontal-padding) 0',
     },
     lineRow: {
       display: 'flex',
@@ -274,8 +275,8 @@ export function MatchCard({
       alignItems: 'center',
       justifyContent: 'space-between',
       gap: FAN_SPACING.sm,
-      marginBottom: 3,
-      minHeight: 18,
+      marginBottom: 0,
+      minHeight: 24,
       position: 'relative',
       zIndex: 2,
     },
@@ -288,11 +289,11 @@ export function MatchCard({
       minWidth: 0,
     },
     channelAvatar: {
-      width: 18,
-      height: 18,
-      borderRadius: 0,
+      width: 24,
+      height: 24,
+      borderRadius: '50%',
       border: 0,
-      background: colors.background,
+      background: colors.primaryDim,
       display: 'inline-flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -306,15 +307,15 @@ export function MatchCard({
     },
     channelName: {
       ...fanText('competition', colors, colors.textPrimary),
-      fontSize: 13,
+      fontSize: 14,
       fontWeight: 600,
       overflow: 'hidden',
       textOverflow: 'ellipsis',
       whiteSpace: 'nowrap',
     },
     leagueName: {
-      ...fanText('competition', colors, colors.textPrimary),
-      fontSize: 11,
+      ...fanText('competition', colors, colors.textTertiary),
+      fontSize: 12,
       flex: 1,
       minWidth: 0,
       overflow: 'hidden',
@@ -328,10 +329,10 @@ export function MatchCard({
       color: colors.textSecondary, cursor: 'pointer', fontSize: 11, lineHeight: 1.25,
     },
     secondaryText: { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
-    previewRow: { marginBottom: 0 },
+    previewRow: { marginTop: 8, marginBottom: 0 },
     previewText: {
       ...fanText('caption', colors, COMMENT_STYLE_COLOR(colors)),
-      fontSize: 12,
+      fontSize: 13,
       lineHeight: 1.25,
       flex: 1,
       minWidth: 0,
@@ -347,9 +348,12 @@ export function MatchCard({
       display: 'flex',
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 5,
-      marginTop: 3,
-      padding: '0 10px 6px',
+      gap: 12,
+      rowGap: 6,
+      flexWrap: 'wrap',
+      minHeight: 'var(--match-card-action-min-height)',
+      marginTop: 10,
+      padding: '0 var(--match-card-horizontal-padding) 6px',
       position: 'relative',
       zIndex: 2,
     },
@@ -357,7 +361,8 @@ export function MatchCard({
       display: 'flex',
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 5,
+      gap: 12,
+      flexWrap: 'nowrap',
     },
     inputCell: {
       flex: 1,
@@ -368,13 +373,15 @@ export function MatchCard({
       gap: FAN_SPACING.sm,
     },
     guestCommentPrompt: {
-      ...fanText('caption', colors, colors.textTertiary),
-      fontSize: 11,
+      ...fanText('caption', colors, colors.textSecondary),
+      fontSize: 12,
       lineHeight: 1.25,
-      flex: 1,
+      flex: 0,
+      minWidth: 0,
       minWidth: 0,
       padding: 0,
       textAlign: 'left',
+      whiteSpace: 'nowrap',
       background: colors.background,
       cursor: 'pointer',
     },
@@ -403,7 +410,7 @@ export function MatchCard({
           {/* Meta: league or channel on the left, date / live on the right */}
           <div className="match-card-meta" style={styles.metaRow}>
             {channel ? (
-              <div style={styles.channelLabel}>
+              <div className="match-card-channel-label" style={styles.channelLabel}>
                 <span className="match-card-channel-avatar" style={styles.channelAvatar}>
                   {channel.imageUrl && failedUri !== channel.imageUrl ? (
                     <img
@@ -421,22 +428,18 @@ export function MatchCard({
                     </span>
                   )}
                 </span>
-                <span style={styles.channelName}>{channel.name}</span>
+                <span className="match-card-channel-name" style={styles.channelName}>{channel.name}</span>
               </div>
             ) : null}
 
             {isLive ? (
               <LiveBadge colors={colors} />
             ) : (
-              <span style={styles.date}>{kickoffLabel(fixture.date)}</span>
+              <span className="match-card-date" style={styles.date}>{kickoffLabel(fixture.date)}</span>
             )}
           </div>
 
-          <div className="match-card-league-line" style={{ ...styles.leagueName, marginBottom: 6 }}>{fixture.league || 'Unknown league'}</div>
-          <button type="button" onClick={handleLineups} className="match-card-mobile-league" style={styles.secondaryRow} aria-label={`Open match details: ${fixtureLabel}`}>
-            <span style={styles.secondaryText}>{fixture.league || 'Unknown league'}</span>
-            <span style={styles.secondaryText}>{captionLabel}</span>
-          </button>
+          <div className="match-card-league-line" style={{ ...styles.leagueName, marginTop: 2, marginBottom: 0 }}>{fixture.league || 'Unknown league'}</div>
 
           {/* Comment preview / live commentary */}
           <div className="match-card-comment-preview" style={{ ...styles.lineRow, ...styles.previewRow }}>
@@ -458,7 +461,7 @@ export function MatchCard({
             )}
           </div>
 
-          <div className="match-card-prompt-line" style={{ ...styles.previewText, marginTop: 6 }}>
+          <div className="match-card-prompt-line" style={{ ...styles.previewText, fontSize: 12, marginTop: 6 }}>
             {voters.length > 0 ? <VoterList colors={colors} voters={voterItems} emptyLabel="" /> : isCompleted ? 'No votes were cast' : emptyPrompt}
           </div>
 
@@ -518,12 +521,13 @@ export function MatchCard({
           </div>
 
           {/* Middle: comment box */}
-          <div style={styles.inputCell}>
+          <div className="match-card-input-cell" style={styles.inputCell}>
             {!isLoggedIn ? (
               <button
                 type="button"
                 onClick={handleSubmit}
                 aria-label="Log in to comment"
+                className="match-card-guest-comment-prompt"
                 style={styles.guestCommentPrompt}
               >
                 Log in to comment
@@ -549,8 +553,7 @@ export function MatchCard({
               </>
             )}
           </div>
-          {!voters.length && !isCompleted && <span className="match-card-mobile-prediction" style={{ color: colors.primary, fontSize: 11, textAlign: 'right', whiteSpace: 'nowrap', marginLeft: 'auto' }}>{emptyPrompt}</span>}
-          <button type="button" className="match-card-teams" onClick={handleLineups} aria-label={`Open match details: ${fixtureLabel}`} style={{ display: 'flex', flex: '0 1 38%', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'flex-end', gap: 6, minWidth: 0, padding: 0, border: 0, background: 'transparent', color: colors.primary, fontSize: 12, fontWeight: 600, whiteSpace: 'normal', overflow: 'visible', overflowWrap: 'anywhere' }}>
+          <button type="button" className="match-card-teams" onClick={handleLineups} aria-label={`Open match details: ${fixtureLabel}`} style={{ display: 'flex', flex: '0 0 auto', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'flex-end', gap: 6, minWidth: 0, maxWidth: '100%', marginLeft: 'auto', padding: 0, border: 0, background: 'transparent', color: colors.primary, fontSize: 12, fontWeight: 600, whiteSpace: 'normal', overflow: 'visible', overflowWrap: 'anywhere' }}>
             <TeamLogo name={fixture.homeTeam} url={homeLogo} colors={colors} />
             <span className="match-card-team-name" style={{ display: 'block', flex: '0 1 auto', minWidth: 0, maxWidth: '100%', overflow: 'visible', textOverflow: 'clip', whiteSpace: 'normal', overflowWrap: 'anywhere' }}>{fixture.homeTeam}</span>
             <span className="match-card-score" style={{ display: 'block', flex: '0 0 auto', color: 'inherit', fontSize: 12, fontWeight: 600 }}>{scoreLabel}</span>
