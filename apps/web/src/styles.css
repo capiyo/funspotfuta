@@ -2276,13 +2276,13 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
   /* Keep the action controls together, then place the prompt and teams on row two.
      A long team group moves to its own flex line instead of competing with the prompt. */
   .match-card .match-card-bottom {
-    row-gap: 8px;
+    row-gap: 8px !important;
   }
   .match-card .match-card-actions {
     flex: 0 0 100%;
   }
   .match-card .match-card-input-cell {
-    flex: 0 1 auto;
+    flex: 0 0 auto !important;
     max-width: 100%;
   }
   .match-card .match-card-teams {
