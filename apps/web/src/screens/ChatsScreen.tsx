@@ -3,7 +3,7 @@
 // messages intentionally follow the mobile implementation. DOM elements and
 // browser navigation replace React Native presentation primitives.
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import type { Channel, Fixture, FanColorPalette, Voter } from '@funspot/core';
@@ -149,12 +149,8 @@ export default function ChatsScreen() {
     return () => window.clearInterval(timer);
   }, [data, publicChannels.length, activeTab, refetch, refetchAllChannels]);
 
-  const channelPool = useMemo(() => {
-    const merged = new Map<string, Channel>();
-    for (const channel of publicChannels) merged.set(channel.channelId, channel);
-    for (const channel of channels) merged.set(channel.channelId, channel);
-    return [...merged.values()].filter((channel) => !!channel.channelId && !!channel.name);
-  }, [publicChannels, channels]);
+  const channelPool = useMemo(() => channels.filter((channel) => !!channel.channelId && !!channel.name), [channels]);
+  const [channelStartOffset] = useState(() => Math.floor(Math.random() * Math.max(1, channels.length)));
   const headerById = useMemo(() => {
     const map = new Map<string, ChannelHeaderData>();
     for (const channel of channelPool) map.set(channel.channelId, channelHeaderOf(channel));
@@ -348,27 +344,28 @@ export default function ChatsScreen() {
                 <EmptyState colors={colors} title={EMPTY_COPY[filter].title} hint={EMPTY_COPY[filter].hint} />
               )
             ) : filtered.map((fixture, index) => {
-              const channel = channelPool.length > 0 ? channelPool[index % channelPool.length] : undefined;
-              const channelId = channel?.channelId ?? homeChannelId;
+              const slideChannels = channelPool.length > 1
+                ? [...channelPool.slice((channelStartOffset + index) % channelPool.length), ...channelPool.slice(0, (channelStartOffset + index) % channelPool.length)]
+                : channelPool;
               return (
                 <div key={fixture.id || fixture.matchId} className="chats-fixture-row">
-                  <MatchCard
-                    fixture={fixture}
-                    channel={channel ? headerById.get(channel.channelId) : (channelId ? headerById.get(channelId) : undefined)}
-                    comments={commentsOf(fixture)}
-                    channelId={channelId}
-                    onOpenVoteModal={(selectedFixture) => {
-                      setSheetChannelId(channelId);
-                      setModalFixture(selectedFixture);
+                  <ChannelSwipeCarousel
+                    channels={slideChannels}
+                    renderSlide={(channel) => {
+                      const channelId = channel?.channelId ?? homeChannelId;
+                      return <MatchCard
+                        fixture={fixture}
+                        channel={channelId ? headerById.get(channelId) : undefined}
+                        comments={commentsOf(fixture)}
+                        channelId={channelId}
+                        onOpenVoteModal={(selectedFixture) => { setSheetChannelId(channelId); setModalFixture(selectedFixture); }}
+                        onOpenResults={(selectedFixture) => { setSheetChannelId(channelId); setReviewFixture(selectedFixture); }}
+                        onChatClick={() => openChat(fixture, channelId)}
+                        onLike={handleLike}
+                        onSubmitComment={(selectedFixture, text) => handleSubmitComment(selectedFixture, text, channelId)}
+                        onOpenLineups={setMatchDetailsFixture}
+                      />;
                     }}
-                    onOpenResults={(selectedFixture) => {
-                      setSheetChannelId(channelId);
-                      setReviewFixture(selectedFixture);
-                    }}
-                    onChatClick={() => openChat(fixture, channelId)}
-                    onLike={handleLike}
-                    onSubmitComment={(selectedFixture, text) => handleSubmitComment(selectedFixture, text, channelId)}
-                    onOpenLineups={setMatchDetailsFixture}
                   />
                 </div>
               );
@@ -436,4 +433,29 @@ export default function ChatsScreen() {
       )}
     </section>
   );
+}
+
+type SwipeChannel = Channel;
+function ChannelSwipeCarousel({ channels: slideChannels, renderSlide }: {
+  channels: SwipeChannel[];
+  renderSlide: (channel: SwipeChannel | undefined) => React.ReactNode;
+}) {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const count = Math.max(1, slideChannels.length);
+  const onScroll = useCallback(() => {
+    const track = trackRef.current;
+    if (track) setActiveIndex(Math.min(count - 1, Math.round(track.scrollLeft / Math.max(1, track.clientWidth))));
+  }, [count]);
+  return <div style={{ minWidth: 0 }}>
+    <div ref={trackRef} onScroll={onScroll} className="no-scrollbar"
+      aria-label="Channel cards" style={{ display: 'flex', overflowX: 'auto', scrollSnapType: 'x mandatory', overscrollBehaviorX: 'contain', touchAction: 'pan-x pan-y', scrollbarWidth: 'none' }}>
+      {(slideChannels.length ? slideChannels : [undefined]).map((channel, index) => <div key={channel?.channelId ?? 'default'} style={{ flex: '0 0 100%', minWidth: 0, scrollSnapAlign: 'start' }}>
+        {renderSlide(channel)}
+      </div>)}
+    </div>
+    {count > 1 && <div aria-label={`Channel ${activeIndex + 1} of ${count}`} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 6, padding: '8px 0 10px' }}>
+      {slideChannels.map((channel, index) => <span key={channel.channelId} aria-label={channel.name} style={{ display: 'block', width: index === activeIndex ? 7 : 5, height: index === activeIndex ? 7 : 5, borderRadius: '50%', background: index === activeIndex ? 'currentColor' : 'currentColor', opacity: index === activeIndex ? 0.85 : 0.3 }} />)}
+    </div>}
+  </div>;
 }
