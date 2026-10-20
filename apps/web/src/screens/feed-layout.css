@@ -29,11 +29,7 @@
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .feed-post-column:nth-child(2) {
-    display: none;
-  }
-
-  .feed-post-column:first-child > .feed-item:nth-child(even) {
-    /* Single-column mobile layout is populated by the first column only. */
+  .feed-post-column {
+    display: contents;
   }
 }
