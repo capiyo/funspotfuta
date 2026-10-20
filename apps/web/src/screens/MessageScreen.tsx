@@ -223,7 +223,7 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
     messages, connected, loadingHistory, uploadingImage, typingUsers, send,
     sendImage, sendTyping, markRead, matchStatus, homeScore, awayScore,
     timeElapsed, isLive, homeVotes, awayVotes, userVoteSelection, voters,
-    refetchVoteCounts,
+    recordUserVote, refetchVoteCounts,
   } = chat;
 
   const isCompleted = isCompletedStatus(matchStatus);
@@ -753,13 +753,34 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       onVote={async (selection) => {
         if (!userId || !authToken || !username) return { success: false, message: 'Please sign in to vote' };
         const result = await castFixtureVote({ fixtureId: fixture.matchId ?? fixture.id, userId, username, selection, authToken });
-        if (result.success) { queryClient.invalidateQueries({ queryKey: FIXTURES_KEY }); await refetchVoteCounts(); }
+        if (result.success) {
+          // Publish the confirmed vote locally before any network refresh so
+          // the chat composer unlocks immediately and the voter stack updates.
+          recordUserVote(selection);
+          queryClient.setQueryData<Fixture[]>(FIXTURES_KEY, (previous = []) => previous.map((item) => {
+            if (item.id !== fixture.id && item.matchId !== fixture.matchId) return item;
+            const existing = item.voters ?? [];
+            const mine = { userId, userName: username, selection: selection === 'home' ? 'home_team' : 'away_team', votedAt: new Date(), isComrade: false, isCorrect: false, pointsAwarded: 0 };
+            return { ...item, voters: [mine, ...existing.filter((voter) => voter.userId !== userId)] };
+          }));
+          queryClient.invalidateQueries({ queryKey: FIXTURES_KEY });
+        }
         return { success: result.success, message: result.message };
       }}
       onPledge={async (selection, amount) => {
         if (!userId || !username || !authToken) return { success: false, message: 'Please sign in to continue' };
         const result = await createPledge({ fixtureId: fixture.matchId ?? fixture.id, userId, username, selection, amount, channelId: activeChannelId, alreadyVoted: hasVoted, authToken });
-        if (result.success && result.votedNow) { queryClient.invalidateQueries({ queryKey: FIXTURES_KEY }); await refetchVoteCounts(); }
+        if (result.success) {
+          recordUserVote(selection);
+          queryClient.setQueryData<Fixture[]>(FIXTURES_KEY, (previous = []) => previous.map((item) => {
+            if (item.id !== fixture.id && item.matchId !== fixture.matchId) return item;
+            const existing = item.voters ?? [];
+            const mine = { userId, userName: username, selection: selection === 'home' ? 'home_team' : 'away_team', votedAt: new Date(), isComrade: false, isCorrect: false, pointsAwarded: 0 };
+            return { ...item, voters: [mine, ...existing.filter((voter) => voter.userId !== userId)] };
+          }));
+          queryClient.invalidateQueries({ queryKey: FIXTURES_KEY });
+          if (result.votedNow) await refetchVoteCounts();
+        }
         return { success: result.success, message: result.message, newBalance: result.newBalance };
       }}
       onShowJoinGroups={() => undefined}
