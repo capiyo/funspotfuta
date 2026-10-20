@@ -9,6 +9,7 @@ import { LIST_BOTTOM_INSET } from '@/theme/layout';
 import { PostCard } from '@/components/PostCard';
 import { EmptyState, PagingFooter, SkeletonRows } from '@/components/ui/ListsStates';
 import { useHomeList, useHome } from './home/home-context';
+import './feed-layout.css';
 
 const FEED_KEY = queryKeys.feed();
 
@@ -114,7 +115,7 @@ export default function FeedScreen() {
         </div>
       ) : (
         <>
-          <div className="feed-list" data-feed-post-list>
+          <div className="feed-list feed-list-masonry" data-feed-post-list>
             {posts.map((post, index) => (
               <PostCard
                 key={post.id ?? index}
