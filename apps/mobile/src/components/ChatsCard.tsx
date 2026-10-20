@@ -29,6 +29,7 @@ import {
   Heart,
   Lock,
   MessageCircle,
+  Pointer,
   Radio,
   Vote,
 } from 'lucide-react-native';
@@ -86,6 +87,25 @@ export interface LiveCommentaryEntry {
   text: string;
   minute: number;
   timestamp?: string;
+}
+
+function TeamLogo({ name, fixture, side, colors }: { name: string; fixture: Record<string, unknown>; side: 'home' | 'away'; colors: ReturnType<typeof useFanColors> }) {
+  const cap = side === 'home' ? 'Home' : 'Away';
+  const candidates = [
+    `${side}Logo`, `${side}TeamLogo`, `${side}LogoUrl`, `${side}TeamLogoUrl`,
+    `${side}_logo`, `${side}_team_logo`, `${side}_logo_url`, `${side}_team_logo_url`,
+    `${side}Crest`, `${side}TeamCrest`, `${side}Badge`, `${side}TeamBadge`, `${cap}TeamLogo`,
+  ];
+  const raw = candidates.map((key) => fixture[key]).find((value) => typeof value === 'string' && value.trim());
+  const uri = typeof raw === 'string' ? raw.trim() : null;
+  const [failed, setFailed] = useState(false);
+  return (
+    <View style={[styles.teamLogo, { backgroundColor: colors.primaryDim }]}>
+      {uri && !failed ? <Image source={{ uri }} style={styles.teamLogoImage} resizeMode="contain" onError={() => setFailed(true)} /> : (
+        <Text style={[fanText('tag', colors, colors.primary), styles.teamFallback]}>{name.trim().charAt(0).toUpperCase() || '?'}</Text>
+      )}
+    </View>
+  );
 }
 
 function kickoffLabel(dateString: string): string {
@@ -368,6 +388,18 @@ export function MatchCard({
               colors={colors}
               onPress={handleVote}
             />
+            <Pressable
+              onPress={handleVote}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel="Poke on this match"
+              style={({ pressed }) => [styles.pokeButton, pressed && { opacity: PRESSED_OPACITY }]}
+            >
+              <View style={[styles.pokeCircle, { backgroundColor: colors.primaryDim }]}>
+                <Pointer size={ICON.sm} color={colors.primary} />
+              </View>
+              <Text style={fanText('tag', colors, colors.primary)}>Poke</Text>
+            </Pressable>
             <ActionButton
               icon={Heart}
               label={liked ? 'Unlike' : 'Like'}
@@ -419,12 +451,13 @@ export function MatchCard({
             accessibilityRole="link"
             accessibilityLabel={`Open match details: ${fixtureLabel}`}
           >
-            <Text
-              style={fanText('tag', colors, colors.textTertiary)}
-              numberOfLines={1}
-            >
-              {captionLabel}
-            </Text>
+            <View style={styles.teamMatchup}>
+              <TeamLogo name={fixture.homeTeam} fixture={fixture as unknown as Record<string, unknown>} side="home" colors={colors} />
+              <Text style={[fanText('tag', colors, colors.textPrimary), styles.teamName]} numberOfLines={1}>{fixture.homeTeam}</Text>
+              <Text style={fanText('tag', colors, colors.textTertiary)}>{hasScores(fixture) ? scoreDisplay(fixture) : 'vs'}</Text>
+              <Text style={[fanText('tag', colors, colors.textPrimary), styles.teamName]} numberOfLines={1}>{fixture.awayTeam}</Text>
+              <TeamLogo name={fixture.awayTeam} fixture={fixture as unknown as Record<string, unknown>} side="away" colors={colors} />
+            </View>
           </Pressable>
         </View>
       </View>
@@ -487,9 +520,41 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: FAN_SPACING.sm,
   },
+  pokeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    minHeight: 28,
+  },
+  pokeCircle: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  teamMatchup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: 4,
+    maxWidth: '100%',
+  },
+  teamLogo: {
+    width: 16,
+    height: 16,
+    flexShrink: 0,
+    borderRadius: 8,
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  teamLogoImage: { width: '100%', height: '100%' },
+  teamFallback: { fontSize: 9, fontWeight: '700' },
+  teamName: { flexShrink: 1, maxWidth: 74 },
   caption: {
     flexShrink: 0,
-    maxWidth: '40%',
+    maxWidth: '48%',
     minHeight: 32,
     alignItems: 'flex-end',
     justifyContent: 'center',
