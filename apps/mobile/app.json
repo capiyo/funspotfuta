@@ -19,6 +19,7 @@
     },
     "android": {
       "package": "com.tech.Funzy",
+      "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
         "foregroundImage": "./assets/icons/app_icon.png",
         "backgroundColor": "#0B0F1A"
