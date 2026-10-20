@@ -2780,3 +2780,19 @@ body:has(.home-screen) .home-screen *:not(.profile-card):not(.profile-card *):no
   row-gap: 8px !important;
   gap: 8px !important;
 }
+
+
+/* Mobile web: tighten the space between consecutive feed cards. */
+@media (max-width: 650px) {
+  .home-screen .feed-column .feed-list {
+    row-gap: 6px !important;
+    gap: 6px !important;
+  }
+  .home-screen .feed-column .feed-list > .feed-item,
+  .home-screen .feed-column .feed-list .post-card,
+  .home-screen .feed-column .feed-item,
+  .home-screen .post-card {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+}
