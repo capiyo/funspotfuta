@@ -2773,3 +2773,10 @@ body:has(.home-screen) .home-screen *:not(.profile-card):not(.profile-card *):no
     height: 100% !important;
   }
 }
+
+
+/* Tighten vertical spacing between feed cards without changing card content spacing. */
+.home-screen .feed-column .feed-list {
+  row-gap: 8px !important;
+  gap: 8px !important;
+}
