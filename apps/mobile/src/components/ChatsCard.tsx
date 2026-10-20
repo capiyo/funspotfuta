@@ -89,6 +89,35 @@ export interface LiveCommentaryEntry {
   timestamp?: string;
 }
 
+const teamLogoCache = new Map<string, string | null>();
+const teamLogoRequests = new Map<string, Promise<string | null>>();
+
+function lookupTeamLogo(name: string): Promise<string | null> {
+  const key = name.trim().toLowerCase();
+  if (!key) return Promise.resolve(null);
+  if (teamLogoCache.has(key)) return Promise.resolve(teamLogoCache.get(key) ?? null);
+  const pending = teamLogoRequests.get(key);
+  if (pending) return pending;
+  const request = fetch(`https://www.thesportsdb.com/api/v1/json/3/searchteams.php?t=${encodeURIComponent(name.trim())}`)
+    .then(async (response) => {
+      if (!response.ok) return null;
+      const payload: unknown = await response.json();
+      if (!payload || typeof payload !== 'object') return null;
+      const teams = (payload as { teams?: Array<Record<string, unknown>> | null }).teams;
+      const team = Array.isArray(teams) ? teams[0] : undefined;
+      const raw = team?.strBadge ?? team?.strTeamBadge ?? team?.strLogo;
+      return typeof raw === 'string' && raw.trim() ? raw.trim() : null;
+    })
+    .catch(() => null)
+    .then((url) => {
+      teamLogoCache.set(key, url);
+      teamLogoRequests.delete(key);
+      return url;
+    });
+  teamLogoRequests.set(key, request);
+  return request;
+}
+
 function TeamLogo({ name, fixture, side, colors }: { name: string; fixture: Record<string, unknown>; side: 'home' | 'away'; colors: ReturnType<typeof useFanColors> }) {
   const cap = side === 'home' ? 'Home' : 'Away';
   const candidates = [
@@ -97,8 +126,29 @@ function TeamLogo({ name, fixture, side, colors }: { name: string; fixture: Reco
     `${side}Crest`, `${side}TeamCrest`, `${side}Badge`, `${side}TeamBadge`, `${cap}TeamLogo`,
   ];
   const raw = candidates.map((key) => fixture[key]).find((value) => typeof value === 'string' && value.trim());
-  const uri = typeof raw === 'string' ? raw.trim() : null;
+  const direct = typeof raw === 'string' ? raw.trim() : null;
+  const [uri, setUri] = useState<string | null>(() => direct ?? teamLogoCache.get(name.trim().toLowerCase()) ?? null);
   const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    setFailed(false);
+    if (direct) {
+      setUri(direct);
+      return () => { active = false; };
+    }
+    const cached = teamLogoCache.get(name.trim().toLowerCase());
+    if (cached !== undefined) {
+      setUri(cached);
+      return () => { active = false; };
+    }
+    setUri(null);
+    void lookupTeamLogo(name).then((url) => {
+      if (active) setUri(url);
+    });
+    return () => { active = false; };
+  }, [direct, name]);
+
   return (
     <View style={[styles.teamLogo, { backgroundColor: colors.primaryDim }]}>
       {uri && !failed ? <Image source={{ uri }} style={styles.teamLogoImage} resizeMode="contain" onError={() => setFailed(true)} /> : (
