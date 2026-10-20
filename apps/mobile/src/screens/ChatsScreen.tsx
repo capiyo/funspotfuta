@@ -27,6 +27,7 @@
 //     and token here (modalApi), because the shims need both.
 
 import { useCallback, useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
 import { View, FlatList, RefreshControl, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -504,28 +505,29 @@ export default function ChatsScreen() {
               />
             )
           }
-          renderItem={({ item: fixture }) => {
-            const cid =
-              channelIdFor(fixture.matchId || fixture.id, channelIds) ??
-              homeChannelId;
+          renderItem={({ item: fixture, index }) => {
+            const start = channels.length > 1 ? index % channels.length : 0;
+            const slideChannels = channels.length > 1
+              ? [...channels.slice(start), ...channels.slice(0, start)]
+              : channels;
             return (
-              <MatchCard
-                fixture={fixture}
-                channel={cid ? headerById.get(cid) : undefined}
-                comments={commentsOf(fixture)}
-                channelId={cid}
-                onOpenVoteModal={(f) => {
-                  setSheetChannelId(cid);
-                  setModalFixture(f);
+              <ChannelSwipeCarousel
+                channels={slideChannels}
+                renderSlide={(channel) => {
+                  const cid = channel?.channelId ?? homeChannelId;
+                  return <MatchCard
+                    fixture={fixture}
+                    channel={cid ? headerById.get(cid) : undefined}
+                    comments={commentsOf(fixture)}
+                    channelId={cid}
+                    onOpenVoteModal={(f) => { setSheetChannelId(cid); setModalFixture(f); }}
+                    onOpenResults={(f) => { setSheetChannelId(cid); setReviewFixture(f); }}
+                    onChatClick={() => openChat(fixture, cid)}
+                    onLike={handleLike}
+                    onSubmitComment={handleSubmitComment}
+                    onOpenLineups={setMatchDetailsFixture}
+                  />;
                 }}
-                onOpenResults={(f) => {
-                  setSheetChannelId(cid);
-                  setReviewFixture(f);
-                }}
-                onChatClick={() => openChat(fixture, cid)}
-                onLike={handleLike}
-                onSubmitComment={handleSubmitComment}
-                onOpenLineups={setMatchDetailsFixture}
               />
             );
           }}
@@ -611,4 +613,41 @@ function createStyles(colors: FanColorPalette) {
       paddingVertical: FAN_SPACING.sm,
     },
   });
+}
+type SwipeChannel = ReturnType<typeof useHome>['channels'][number];
+function ChannelSwipeCarousel({ channels: slideChannels, renderSlide }: {
+  channels: SwipeChannel[];
+  renderSlide: (channel: SwipeChannel | undefined) => ReactNode;
+}) {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [pageWidth, setPageWidth] = useState(0);
+  const count = Math.max(1, slideChannels.length);
+  return (
+    <View onLayout={(event) => setPageWidth(event.nativeEvent.layout.width)} style={{ minWidth: 0 }}>
+      <FlatList
+        horizontal
+        pagingEnabled
+        data={slideChannels.length ? slideChannels : [undefined]}
+        keyExtractor={(channel, index) => channel?.channelId ?? `no-channel-${index}`}
+        renderItem={({ item, index }) => (
+          <View style={{ width: pageWidth || undefined, minWidth: 0 }}>
+            {renderSlide(item)}
+          </View>
+        )}
+        showsHorizontalScrollIndicator={false}
+        onMomentumScrollEnd={(event) => {
+          if (pageWidth > 0) setActiveIndex(Math.min(count - 1, Math.round(event.nativeEvent.contentOffset.x / pageWidth)));
+        }}
+        getItemLayout={(_, index) => ({ length: pageWidth, offset: pageWidth * index, index })}
+        scrollEnabled={count > 1}
+      />
+      {count > 1 && (
+        <View accessibilityLabel={`Channel ${activeIndex + 1} of ${count}`} style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 6, paddingVertical: 8 }}>
+          {slideChannels.map((channel, index) => (
+            <View key={channel.channelId} accessibilityLabel={channel.name} style={{ width: index === activeIndex ? 7 : 5, height: index === activeIndex ? 7 : 5, borderRadius: 4, backgroundColor: '#4B9B68', opacity: index === activeIndex ? 1 : 0.35 }} />
+          ))}
+        </View>
+      )}
+    </View>
+  );
 }
