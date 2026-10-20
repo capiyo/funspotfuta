@@ -368,12 +368,12 @@ export default function ChatsScreen() {
     };
     // Update both persisted vote state and the fixture list before leaving the
     // action sheet, so Messaging can unlock from cache without a vote refetch.
-    queryClient.setQueryData(queryKeys.fixtureVotes(fixture.matchId || fixture.id, userId), (previous: any) => ({
+    queryClient.setQueryData(queryKeys.fixtureVotes(fixture.matchId || fixture.id, userId), (previous: { homeVotes?: number; awayVotes?: number; drawVotes?: number; userVoteSelection?: string | null; voters?: Voter[] } | undefined) => ({
       homeVotes: previous?.homeVotes ?? 0,
       awayVotes: previous?.awayVotes ?? 0,
       drawVotes: previous?.drawVotes ?? 0,
       userVoteSelection: selection,
-      voters: [newVoter, ...(previous?.voters ?? []).filter((v: Voter) => v.userId !== userId)],
+      voters: [newVoter, ...(previous?.voters ?? []).filter((voter) => voter.userId !== userId)],
     }));
     queryClient.setQueryData<Fixture[]>(FIXTURES_KEY, (prev = []) =>
       prev.map((fx) => {
