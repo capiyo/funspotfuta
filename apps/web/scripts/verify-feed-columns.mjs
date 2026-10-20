@@ -151,7 +151,7 @@ async function inspect(width) {
     };
   });
 
-  const columnCount = metrics.columns ? metrics.columns.trim().split(/\s+/).length : 0;
+  const columnCount = !metrics.columns || metrics.columns === 'none' ? 1 : metrics.columns.trim().split(/\\s+/).length;
   if (width >= 1280) {
     assert.equal(columnCount, 2, width + 'px: expected exactly two grid columns; got ' + metrics.columns);
     assert(Math.abs(metrics.top[0] - metrics.top[1]) <= 4, width + 'px: first two cards do not share a top row');
