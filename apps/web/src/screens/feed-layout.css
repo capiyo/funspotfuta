@@ -1,24 +1,39 @@
-/* CSS columns create independent vertical flows: a tall image in one column
-   cannot increase the gap before a text-only card in the other column. */
+/* Each feed column owns its own vertical flow. A tall image or video in one
+   column never creates a matching row gap in the other column. */
 .feed-list-masonry {
-  display: block;
-  column-count: 2;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
   column-gap: 14px;
-  column-fill: auto;
+  row-gap: 0;
 }
 
-.feed-list-masonry > .feed-item {
-  display: inline-flex !important;
+.feed-post-column {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-width: 0;
+  gap: 0;
+}
+
+.feed-post-column > .feed-item {
+  display: flex;
   width: 100%;
   max-width: 100%;
-  break-inside: avoid;
-  -webkit-column-break-inside: avoid;
-  page-break-inside: avoid;
-  vertical-align: top;
+  min-width: 0;
+  flex: 0 0 auto;
 }
 
 @media (max-width: 650px) {
   .feed-list-masonry {
-    column-count: 1;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .feed-post-column:nth-child(2) {
+    display: none;
+  }
+
+  .feed-post-column:first-child > .feed-item:nth-child(even) {
+    /* Single-column mobile layout is populated by the first column only. */
   }
 }
