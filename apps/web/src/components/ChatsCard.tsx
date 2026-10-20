@@ -36,7 +36,6 @@ import {
 import {
   type Fixture,
   hasScores,
-  scoreDisplay,
   winner as fixtureWinner,
   outcomeColor,
   FAN_SPACING,
