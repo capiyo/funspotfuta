@@ -47,8 +47,7 @@ export function SmartMedia({ imageUrl, videoUrl, videoThumbnailUrl, width, heigh
 
   if (videoUrl) {
     const ratio = videoRatio;
-    const maxHeight = typeof window !== 'undefined' && window.innerWidth <= 650 ? '60vh' : '480px';
-    return <div className="post-video-frame" style={{ position: 'relative', width: '100%', aspectRatio: String(ratio), maxHeight, overflow: 'hidden', background: 'transparent' }}>
+    return <div className="post-video-frame" style={{ position: 'relative', width: '100%', aspectRatio: String(ratio), overflow: 'hidden', background: 'transparent' }}>
       <video key={videoAttempt} ref={videoRef} src={videoUrl} poster={videoThumbnailUrl ?? undefined}
         playsInline muted loop preload="metadata" controls={showControls}
         onClick={() => setShowControls(true)}
