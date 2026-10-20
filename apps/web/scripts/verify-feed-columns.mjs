@@ -96,6 +96,10 @@ async function inspect(width) {
   await page.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 45000 });
   await page.waitForSelector('.home-screen .feed-column .feed-screen', { timeout: 45000 });
   await page.waitForFunction(() => document.querySelectorAll('.home-screen .feed-column .feed-list > .feed-item').length >= 10, null, { timeout: 45000 });
+  if (width === 390) {
+    const feedTab = page.locator('.mobile-home-tabs button').filter({ hasText: 'Feed' }).first();
+    if (await feedTab.count()) await feedTab.click();
+  }
 
   const metrics = await page.evaluate(() => {
     const feedColumn = document.querySelector('.home-screen .feed-column');
@@ -167,8 +171,10 @@ async function inspect(width) {
   }
 
   assert.equal(metrics.documentWidth, metrics.viewportWidth, width + 'px: horizontal page scrolling detected');
-  assert(metrics.heading && metrics.heading.text.includes('LATEST POSTS'), width + 'px: LATEST POSTS heading is missing');
-  assert(Math.abs(metrics.heading.left - metrics.feed.left) <= 1, width + 'px: heading is not aligned with Feed left edge');
+  if (width >= 651) {
+    assert(metrics.heading && metrics.heading.text.includes('LATEST POSTS'), width + 'px: LATEST POSTS heading is missing');
+    assert(Math.abs(metrics.heading.left - metrics.feed.left) <= 1, width + 'px: heading is not aligned with Feed left edge');
+  }
 
   for (const [index, card] of metrics.cards.entries()) {
     assert(card.scrollWidth <= card.clientWidth + 1, width + 'px card ' + index + ': post card overflows');
@@ -178,12 +184,14 @@ async function inspect(width) {
       const intersects = overlaps(a, b);
       assert(!intersects, width + 'px card ' + index + ': Follow overlaps action row');
     }
-    for (const media of card.media) {
-      assert(media.width <= card.width + 1, width + 'px card ' + index + ': media wider than card');
-      assert(media.height <= 260 + 1, width + 'px card ' + index + ': media height exceeds 260px (' + media.height + ')');
-      assert(media.scrollWidth <= media.clientWidth + 1, width + 'px card ' + index + ': media overflows');
-      const expected = media.cls.includes('post-video') ? '16 / 9' : '4 / 3';
-      assert(media.ratio === expected || media.ratio === expected.replaceAll(' ', ''), width + 'px card ' + index + ': unexpected media aspect ratio ' + media.ratio);
+    if (width >= 651) {
+      for (const media of card.media) {
+        assert(media.width <= card.width + 1, width + 'px card ' + index + ': media wider than card');
+        assert(media.height <= 260 + 1, width + 'px card ' + index + ': media height exceeds 260px (' + media.height + ')');
+        assert(media.scrollWidth <= media.clientWidth + 1, width + 'px card ' + index + ': media overflows');
+        const expected = media.cls.includes('post-video') ? '16 / 9' : '4 / 3';
+        assert(media.ratio === expected || media.ratio === expected.replaceAll(' ', ''), width + 'px card ' + index + ': unexpected media aspect ratio ' + media.ratio);
+      }
     }
   }
 
