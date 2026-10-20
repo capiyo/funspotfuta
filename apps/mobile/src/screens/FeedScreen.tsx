@@ -22,11 +22,13 @@ import {
 } from '@tanstack/react-query';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useLoginModal } from '../modals/Login-modal-context';
+import { Share } from 'react-native';
 import {
   getPosts,
   toggleLikePost,
   Post,
   isLikedBy,
+  followUser,
   FAN_SPACING,
 } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
@@ -52,6 +54,7 @@ export default function FeedScreen() {
 
   const { userId, username, isLoggedIn } = useAuth();
   const { requireLogin } = useLoginModal();
+  const { authToken } = useAuth();
   const { activeTab } = useHome();
   const { scrollProps, topInset } = useHomeList();
 
@@ -193,7 +196,9 @@ export default function FeedScreen() {
               onLike={(item) => void handleLike(item)}
               onOpenComments={() => {}}
               onRepost={() => {}}
-              onShare={() => {}}
+              onShare={(post) => { void Share.share({ message: `${post.caption ?? ''}\n${post.id ? `https://funspotfuta.com/posts/${post.id}` : ''}`.trim() }); }}
+              onFollow={(post) => { if (userId && post.userId && authToken) void followUser(userId, post.userId, authToken); }}
+              requireLogin={requireLogin}
             />
           )}
         />
