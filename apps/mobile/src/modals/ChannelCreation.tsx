@@ -29,6 +29,8 @@ import {
     ActivityIndicator,
     StyleSheet,
     Modal,
+    KeyboardAvoidingView,
+    Platform,
 } from 'react-native';
 import {
     X,
@@ -364,6 +366,11 @@ export default function CreateChannelModal({
             statusBarTranslucent
         >
             <Pressable style={styles.backdrop} onPress={onClose}>
+                <KeyboardAvoidingView
+                    style={styles.keyboardAvoiding}
+                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                    keyboardVerticalOffset={0}
+                >
                 <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
                     <View style={styles.handleWrap}>
                         <View style={styles.handle} />
@@ -536,6 +543,7 @@ export default function CreateChannelModal({
                         </Pressable>
                     </View>
                 </Pressable>
+                </KeyboardAvoidingView>
             </Pressable>
         </Modal>
     );
@@ -716,6 +724,7 @@ function withAlpha(hex: string, alpha: number): string {
 // ═══════════════════════════════════════════════════════════════
 
 const styles = StyleSheet.create({
+    keyboardAvoiding: { flex: 1, justifyContent: 'flex-end' },
     backdrop: {
         flex: 1,
         backgroundColor: 'rgba(0,0,0,0.5)',
