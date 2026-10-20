@@ -114,18 +114,20 @@ export default function FeedScreen() {
         </div>
       ) : (
         <>
-          {posts.map((post, index) => (
-            <PostCard
-              key={post.id ?? index}
-              post={post}
-              index={index}
-              currentUserId={userId}
-              onLike={(item) => void handleLike(item)}
-              onOpenComments={() => {}}
-              onRepost={() => {}}
-              onShare={() => {}}
-            />
-          ))}
+          <div className="feed-list" data-feed-post-list>
+            {posts.map((post, index) => (
+              <PostCard
+                key={post.id ?? index}
+                post={post}
+                index={index}
+                currentUserId={userId}
+                onLike={(item) => void handleLike(item)}
+                onOpenComments={() => {}}
+                onRepost={() => {}}
+                onShare={() => {}}
+              />
+            ))}
+          </div>
           <div style={{ textAlign: 'center', padding: FAN_SPACING.lg }}>
             <PagingFooter colors={colors} loading={isFetchingNextPage} />
             {hasNextPage && (
