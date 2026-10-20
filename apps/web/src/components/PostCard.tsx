@@ -216,7 +216,7 @@ export function PostCard({
               videoThumbnailUrl={(post as any).videoThumbnailUrl ?? null}
               width={(post as any).imageWidth}
               height={(post as any).imageHeight}
-              onPress={() => onOpenComments(post, index)}
+              onPress={() => requireLogin ? requireLogin(() => onOpenComments(post, index)) : onOpenComments(post, index)}
             />
           </div>
         )}
@@ -231,7 +231,7 @@ export function PostCard({
               active={liked}
               activeColor={colors.away}
               colors={colors}
-              onPress={() => onLike(post, index)}
+              onPress={() => requireLogin ? requireLogin(() => onLike(post, index)) : onLike(post, index)}
             />
             <ActionButton
               icon={MessageCircle}
@@ -244,13 +244,13 @@ export function PostCard({
               icon={Repeat2}
               label="Repost"
               colors={colors}
-              onPress={() => onRepost?.(post)}
+              onPress={() => requireLogin ? requireLogin(() => onRepost?.(post)) : onRepost?.(post)}
             />
             <ActionButton
               icon={Share2}
               label="Share"
               colors={colors}
-              onPress={() => onShare?.(post)}
+              onPress={() => requireLogin ? requireLogin(() => onShare?.(post)) : onShare?.(post)}
             />
           </div>
 
@@ -258,7 +258,7 @@ export function PostCard({
             {!isOwnPost && !following && (
               <button
                 type="button"
-                onClick={() => requireLogin ? requireLogin(() => { handleFollow(); onFollow?.(post); }) : (handleFollow(), onFollow?.(post))
+                onClick={() => requireLogin ? requireLogin(() => { handleFollow(); onFollow?.(post); }) : (handleFollow(), onFollow?.(post))}
                 aria-label={`Follow ${userName}`}
                 style={styles.follow}
                 onMouseEnter={() => undefined}
