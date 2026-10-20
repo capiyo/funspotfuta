@@ -29,6 +29,8 @@ import {
     ActivityIndicator,
     StyleSheet,
     Modal,
+    KeyboardAvoidingView,
+    Platform,
 } from 'react-native';
 import { launchImageLibrary, Asset } from 'react-native-image-picker';
 import {
@@ -256,6 +258,11 @@ export default function AddPostModal({
             statusBarTranslucent
         >
             <Pressable style={styles.backdrop} onPress={onClose}>
+                <KeyboardAvoidingView
+                    style={styles.keyboardAvoiding}
+                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                    keyboardVerticalOffset={0}
+                >
                 <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
                     <View style={styles.handleWrap}>
                         <View style={styles.handle} />
@@ -499,6 +506,7 @@ export default function AddPostModal({
                         </View>
                     </ScrollView>
                 </Pressable>
+                </KeyboardAvoidingView>
             </Pressable>
         </Modal>
     );
@@ -568,7 +576,8 @@ function MediaAction({
 
 function createStyles(colors: FanColors) {
     return StyleSheet.create({
-        backdrop: {
+        keyboardAvoiding: { flex: 1, justifyContent: 'flex-end' },
+    backdrop: {
             flex: 1,
             backgroundColor: 'rgba(0,0,0,0.5)',
             justifyContent: 'flex-end',
