@@ -116,17 +116,23 @@ export default function FeedScreen() {
       ) : (
         <>
           <div className="feed-list feed-list-masonry" data-feed-post-list>
-            {posts.map((post, index) => (
-              <PostCard
-                key={post.id ?? index}
-                post={post}
-                index={index}
-                currentUserId={userId}
-                onLike={(item) => void handleLike(item)}
-                onOpenComments={() => {}}
-                onRepost={() => {}}
-                onShare={() => {}}
-              />
+            {[0, 1].map((columnIndex) => (
+              <div className="feed-post-column" key={columnIndex}>
+                {posts.map((post, index) => (
+                  index % 2 === columnIndex ? (
+                    <PostCard
+                      key={post.id ?? index}
+                      post={post}
+                      index={index}
+                      currentUserId={userId}
+                      onLike={(item) => void handleLike(item)}
+                      onOpenComments={() => {}}
+                      onRepost={() => {}}
+                      onShare={() => {}}
+                    />
+                  ) : null
+                ))}
+              </div>
             ))}
           </div>
           <div style={{ textAlign: 'center', padding: FAN_SPACING.lg }}>
