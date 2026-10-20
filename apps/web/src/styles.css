@@ -2683,3 +2683,27 @@ body:has(.home-screen) .home-screen .chats-column .match-card .match-card-poke-c
   .home-screen .profile-sidebar-rich .profile-guest-preview .profile-member-card > div { min-width: 0 !important; }
   .home-screen .profile-sidebar-rich .profile-guest-preview .profile-member-card button { min-height: 40px !important; }
 }
+
+/* Authenticated comment inputs use the same responsive second row as the guest prompt. */
+.match-card-input-cell:has(input) {
+  flex: 1 1 160px;
+  min-width: 0;
+  max-width: 100%;
+}
+.match-card-input-cell:has(input) input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+@media (max-width: 650px) {
+  .match-card .match-card-input-cell:has(input) {
+    flex: 1 1 160px !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+  .match-card .match-card-input-cell:has(input) input {
+    min-height: 40px;
+    width: 100%;
+  }
+}
