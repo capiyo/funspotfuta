@@ -450,7 +450,7 @@ export function useChannelChat({
             await fetchVoteCounts();
             await fetchVoters();
         })();
-    }, [channelId, fixtureId, userId, fetchVoteCounts, fetchVoters]);
+    }, [channelId, fixtureId, userId, queryClient, fetchVoteCounts, fetchVoters]);
 
     // ── Socket connect + subscriptions ──────────────────────────
     useEffect(() => {
