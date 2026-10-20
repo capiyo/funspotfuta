@@ -144,7 +144,7 @@ try {
     oldPredictionVisible: getComputedStyle(el.querySelector('.match-card-mobile-prediction')).display !== 'none',
     overflow: document.documentElement.scrollWidth > document.documentElement.clientWidth,
   }));
-  assert(mobileState.pokeHidden && mobileState.teamsHidden && mobileState.oldLeagueVisible && mobileState.oldPredictionVisible && !mobileState.overflow, '390px mobile layout differs from the pre-change layout');
+  assert(mobileState.pokeHidden && mobileState.teamsHidden && mobileState.oldLeagueVisible && mobileState.oldPredictionVisible && !mobileState.overflow, `390px mobile layout differs from the pre-change layout: ${JSON.stringify(mobileState)}`);
   await mobile.screenshot({ path: 'docs/verify/chats-card-390.png', fullPage: true });
   await mobileContext.close();
   assert(errors.length === 0, `Browser errors: ${errors.join('; ')}`);
