@@ -985,6 +985,7 @@ export default function ProfileContent({
                   {!isLoggedIn && renderGuestFields()}
                   {!isLoggedIn && <button type="button" className="profile-guest-login" onClick={openLogin}><LogIn size={16} aria-hidden="true" />Log In</button>}
                   <div className="profile-guest-channels-heading">
+                    <Users size={16} aria-hidden="true" />
                     <strong>Channels (preview)</strong><span>{visibleChannels.length}</span>
                   </div>
                   <ChannelLeaderboard channels={visibleChannels} currentUserId={isLoggedIn ? (userId ?? '') : 'guest_fan'} onViewMember={isLoggedIn ? handleViewMember : () => undefined} />
