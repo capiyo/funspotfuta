@@ -2739,3 +2739,37 @@ body:has(.home-screen) .home-screen *:not(.profile-card):not(.profile-card *):no
   border: 0 !important;
   border-width: 0 !important;
 }
+
+
+/* Hide the scrollbar chrome without disabling wheel, trackpad, touch or keyboard scrolling. */
+@media (min-width: 651px) {
+  .home-screen .home-columns {
+    min-height: 0 !important;
+    height: 100% !important;
+  }
+  .home-screen .home-column {
+    min-height: 0 !important;
+    height: 100% !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior-y: contain;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+  }
+  .home-screen .home-column::-webkit-scrollbar,
+  .home-screen .chats-fixture-list::-webkit-scrollbar,
+  .home-screen .feed-screen::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+  .home-screen .chats-column > section,
+  .home-screen .chats-fixture-list,
+  .home-screen .feed-column .feed-screen {
+    min-height: 0 !important;
+    max-height: 100% !important;
+  }
+  .home-screen .chats-column > section {
+    height: 100% !important;
+  }
+}
