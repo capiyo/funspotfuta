@@ -174,7 +174,7 @@ export function PostCard({
                     <View style={styles.rightCell}>
                         {!isOwnPost && !following && (
                             <Pressable
-                                onPress={() => requireLogin ? requireLogin(() => { setFollowing(true); onFollow?.(post); }) : (setFollowing(true), onFollow?.(post))
+                                onPress={() => requireLogin ? requireLogin(() => { setFollowing(true); onFollow?.(post); }) : (setFollowing(true), onFollow?.(post))}
                                 hitSlop={HIT_SLOP}
                                 style={({ pressed }) => [
                                     styles.follow,
