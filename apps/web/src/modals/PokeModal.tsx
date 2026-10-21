@@ -79,7 +79,7 @@ export function PokeModal({ fixture, userId, username, authToken, onClose }: Pro
   }, [fixture, selectedMarket]);
 
   useEffect(() => {
-    if (options.length && !options.some((option) => option.value === selection)) setSelection(options[0].value);
+    if (options.length && !options.some((option) => option.value === selection)) setSelection(options[0].value as 'home_team' | 'away_team');
   }, [options, selection]);
 
   async function submitPoke() {
@@ -161,7 +161,7 @@ export function PokeModal({ fixture, userId, username, authToken, onClose }: Pro
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 12 }}>
           {options.map((option) => (
-            <button key={option.value} type="button" onClick={() => setSelection(option.value)} aria-pressed={selection === option.value}
+            <button key={option.value} type="button" onClick={() => setSelection(option.value as 'home_team' | 'away_team')} aria-pressed={selection === option.value}
               style={{ ...buttonStyle, border: selection === option.value ? '2px solid var(--primary, #36c875)' : '1px solid var(--border, #454950)', background: selection === option.value ? 'var(--primary-dim, rgba(54,200,117,.15))' : 'transparent', color: 'inherit' }}>
               {option.label}
             </button>
