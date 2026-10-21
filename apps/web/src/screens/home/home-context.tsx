@@ -13,7 +13,6 @@ import type { TabName } from '@/components/FloatingPillTabBar';
 
 export const MAX_CHANNELS = 3;
 const SCROLL_THRESHOLD = 6;
-const SHOW_ON_REVERSE_THRESHOLD = 1;
 const ACTIVE_CHANNEL_KEY = 'home.activeChannelId';
 const ACTIVE_TAB_KEY = 'home.activeTab';
 const NO_CHANNELS: Channel[] = [];
@@ -150,46 +149,40 @@ export function HomeProvider({ children }: { children: ReactNode }) {
   const isAdminOfAnyChannel = useMemo(() => channels.some((channel) => channel.isAdmin), [channels]);
 
   const [headerVisible, setHeaderVisible] = useState(true);
-  // Chats and Feed are separate scroll containers. Keep independent baselines so
-  // switching panes never compares unrelated scroll offsets.
-  const lastScrollBySource = useRef<WeakMap<HTMLElement, number>>(new WeakMap());
-  const fallbackLastScroll = useRef(0);
+  // Keep direction state per actual scroll element. Chats and Feed have
+  // independent offsets, and browsers can emit many tiny scroll events.
+  const scrollState = useRef<WeakMap<HTMLElement, { lastOffset: number; downDistance: number }>>(new WeakMap());
+  const fallbackState = useRef({ lastOffset: 0, downDistance: 0 });
   const reportScroll = useCallback((offsetY: number, source?: HTMLElement) => {
     const offset = Math.max(0, offsetY);
+    const state = source
+      ? (scrollState.current.get(source) ?? { lastOffset: offset, downDistance: 0 })
+      : fallbackState.current;
+
     if (offset <= 0) {
+      state.lastOffset = 0;
+      state.downDistance = 0;
       setHeaderVisible(true);
-      if (source) lastScrollBySource.current.set(source, 0);
-      else fallbackLastScroll.current = 0;
-      return;
+    } else {
+      const delta = offset - state.lastOffset;
+      if (delta > 0) {
+        state.downDistance += delta;
+        if (state.downDistance >= SCROLL_THRESHOLD) setHeaderVisible(false);
+      } else if (delta < 0) {
+        // Detect direction reversal from each native/browser event, not from a
+        // stale threshold anchor. Even a small upward movement restores controls.
+        state.downDistance = 0;
+        setHeaderVisible(true);
+      }
+      state.lastOffset = offset;
     }
 
-    const previous = source
-      ? lastScrollBySource.current.get(source)
-      : fallbackLastScroll.current;
-    if (previous === undefined) {
-      if (source) lastScrollBySource.current.set(source, offset);
-      else fallbackLastScroll.current = offset;
-      return;
-    }
-
-    const diff = offset - previous;
-    if (diff > SCROLL_THRESHOLD) {
-      setHeaderVisible(false);
-      if (source) lastScrollBySource.current.set(source, offset);
-      else fallbackLastScroll.current = offset;
-    } else if (diff < -SHOW_ON_REVERSE_THRESHOLD) {
-      // Recover on even a small upward reversal; requiring another full
-      // threshold here was leaving the header and floating tabs hidden.
-      setHeaderVisible(true);
-      if (source) lastScrollBySource.current.set(source, offset);
-      else fallbackLastScroll.current = offset;
-    }
-    // Keep the downward anchor until the threshold is crossed, so small
-    // native scroll events accumulate instead of preventing the hide action.
+    if (source) scrollState.current.set(source, state);
+    else fallbackState.current = state;
   }, []);
   const resetHeaderOnTabChange = useCallback(() => {
-    lastScrollBySource.current = new WeakMap();
-    fallbackLastScroll.current = 0;
+    scrollState.current = new WeakMap();
+    fallbackState.current = { lastOffset: 0, downDistance: 0 };
     setHeaderVisible(true);
   }, []);
 
