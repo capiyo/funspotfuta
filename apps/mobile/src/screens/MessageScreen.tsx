@@ -72,7 +72,6 @@ import {
 } from 'lucide-react-native';
 import {
   getUserChannels,
-  getAllFixtures,
   Channel,
   Fixture,
   ChatMessage,
@@ -169,7 +168,9 @@ export default function MessageScreen() {
   const [activeChannelId, setActiveChannelId] = useState<string | null>(
     routeChannelId ?? null,
   );
-  const [autoFixture, setAutoFixture] = useState<Fixture | null>(null);
+  // Chats passes a fixtureId explicitly. Without one this is a channel-wide
+  // group chat, matching the nullable fixture context used by the Dart screen.
+  const [loadedRouteFixture, setLoadedRouteFixture] = useState<Fixture | null>(null);
   const [draft, setDraft] = useState('');
   const [replyTo, setReplyTo] = useState<ChatMessage | null>(null);
   const [optionsFor, setOptionsFor] = useState<ChatMessage | null>(null);
@@ -232,20 +233,26 @@ export default function MessageScreen() {
   }, [queryClient, routeFixtureId]);
 
   useEffect(() => {
-    if (routeFixtureId || !activeChannelId) return;
-    getAllFixtures().then((all) => {
-      const live = all.find(
-        (f) =>
-          f.status === 'live' ||
-          f.status === 'half_time' ||
-          f.status === 'upcoming' ||
-          f.status === 'soon',
-      );
-      setAutoFixture(live ?? all[0] ?? null);
-    });
-  }, [routeFixtureId, activeChannelId]);
+    if (!routeFixtureId || routeFixture) return;
+    let alive = true;
+    getAllFixtures()
+      .then((all) => {
+        if (!alive) return;
+        setLoadedRouteFixture(
+          all.find((f) => f.id === routeFixtureId || f.matchId === routeFixtureId) ?? null,
+        );
+      })
+      .catch(() => undefined);
+    return () => {
+      alive = false;
+    };
+  }, [routeFixtureId, routeFixture]);
 
-  const fixture = routeFixture ?? autoFixture;
+  const fixture =
+    routeFixture ??
+    (loadedRouteFixture?.id === routeFixtureId || loadedRouteFixture?.matchId === routeFixtureId
+      ? loadedRouteFixture
+      : null);
   const fixtureId = fixture?.matchId ?? fixture?.id ?? null;
 
   // ── Chat hook ──────────────────────────────────────────────
