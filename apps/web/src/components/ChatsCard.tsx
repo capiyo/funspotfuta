@@ -239,7 +239,9 @@ export function MatchCard({
     }
   }
 
-  const isTyping = draft.trim().length > 0;
+  // Collapse action counts and team names as soon as the user enters text.
+  // Clearing the draft after a successful send restores the full card footer.
+  const isTyping = draft.length > 0;
 
   const placeholder = !isLoggedIn
     ? 'Log in to comment'
