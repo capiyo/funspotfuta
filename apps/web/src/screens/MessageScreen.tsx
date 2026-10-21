@@ -208,6 +208,7 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
     (loadedRouteFixture?.id === routeFixtureId || loadedRouteFixture?.matchId === routeFixtureId
       ? loadedRouteFixture
       : null);
+// Keep an explicit route fixture ID scoped during lookup; never briefly use the group room.
   const fixtureId = fixture?.matchId ?? fixture?.id ?? routeFixtureId ?? null;
   const chat = useChannelChat({
     channelId: activeChannelId,
