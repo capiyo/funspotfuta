@@ -208,7 +208,7 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
     (loadedRouteFixture?.id === routeFixtureId || loadedRouteFixture?.matchId === routeFixtureId
       ? loadedRouteFixture
       : null);
-  const fixtureId = fixture?.matchId ?? fixture?.id ?? null;
+  const fixtureId = fixture?.matchId ?? fixture?.id ?? routeFixtureId ?? null;
   const chat = useChannelChat({
     channelId: activeChannelId,
     fixtureId,
