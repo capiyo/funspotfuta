@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type { CSSProperties } from 'react';
 import type { Fixture } from '@funspot/core';
-import { fetchBalance, fetchSubFixtures, API_BASE_URL, type SubFixtureMarket } from '@funspot/core/src/api/vote-modal-shims';
+import { fetchBalance, fetchSubFixtures, fetchSubFixturePledges, fetchVoters, API_BASE_URL, type SubFixtureMarket } from '@funspot/core/src/api/vote-modal-shims';
 
 type Props = {
   fixture: Fixture;
@@ -43,6 +43,7 @@ export function PokeModal({ fixture, userId, username, authToken, onClose }: Pro
   const [selection, setSelection] = useState<'home_team' | 'away_team'>('home_team');
   const [stake, setStake] = useState('5');
   const [balance, setBalance] = useState<number | null>(null);
+  const [pokers, setPokers] = useState<Array<{ userName?: string; user_name?: string; starter_name?: string; selection?: string; amount?: number; starter_amount?: number }>>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState('');
@@ -81,6 +82,20 @@ export function PokeModal({ fixture, userId, username, authToken, onClose }: Pro
   useEffect(() => {
     if (options.length && !options.some((option) => option.value === selection)) setSelection(options[0].value as 'home_team' | 'away_team');
   }, [options, selection]);
+
+  useEffect(() => {
+    let active = true;
+    const fixtureId = fixture.matchId || fixture.id;
+    const request = marketId === 'main_fixture'
+      ? fetchVoters(fixtureId, authToken)
+      : fetchSubFixturePledges(marketId, fixtureId, authToken);
+    request.then((rows) => {
+      if (active) setPokers(rows as Array<{ userName?: string; user_name?: string; starter_name?: string; selection?: string; amount?: number; starter_amount?: number }>);
+    }).catch(() => {
+      if (active) setPokers([]);
+    });
+    return () => { active = false; };
+  }, [authToken, fixture.id, fixture.matchId, marketId]);
 
   async function submitPoke() {
     setError('');
@@ -168,6 +183,18 @@ export function PokeModal({ fixture, userId, username, authToken, onClose }: Pro
           ))}
         </div>
         {selectedMarket && options.length === 0 && <p style={{ color: 'var(--muted, #a7abb3)', fontSize: 13 }}>This sub-fixture has no Home/Away options, so it cannot be poked.</p>}
+
+        <section aria-label="Pokers" style={{ marginTop: 18 }}>
+          <h3 style={{ margin: '0 0 8px', fontSize: 14 }}>Pokers ({pokers.length})</h3>
+          {pokers.length === 0
+            ? <p style={{ margin: 0, color: 'var(--muted, #a7abb3)', fontSize: 12 }}>No pokes listed yet.</p>
+            : <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 6 }}>
+                {pokers.map((poker, index) => <li key={String(poker.userName ?? poker.user_name ?? poker.starter_name ?? index) + '-' + index} style={{ display: 'flex', justifyContent: 'space-between', gap: 10, fontSize: 12, padding: '7px 0', borderBottom: '1px solid var(--border, #35383e)' }}>
+                  <span>{poker.userName ?? poker.user_name ?? poker.starter_name ?? 'Fan'} · {poker.selection === 'home_team' ? fixture.homeTeam : poker.selection === 'away_team' ? fixture.awayTeam : poker.selection ?? '—'}</span>
+                  <strong>{poker.amount ?? poker.starter_amount ?? 0} pts</strong>
+                </li>)}
+              </ul>}
+        </section>
 
         <label style={{ display: 'block', marginTop: 16, fontSize: 13, fontWeight: 700 }} htmlFor="poke-stake">Points to stake (minimum 5)</label>
         <input id="poke-stake" type="number" min={5} step={1} value={stake} onChange={(event) => setStake(event.target.value)} style={{ ...fieldStyle, marginTop: 7 }} />
