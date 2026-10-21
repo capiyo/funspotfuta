@@ -123,6 +123,7 @@ export function MatchCard({
   likesCount = 0,
   liked = false,
   onOpenVoteModal,
+  onOpenPokeModal,
   onOpenResults,
   onChatClick,
   onLike,
@@ -140,6 +141,7 @@ export function MatchCard({
   liked?: boolean;
   onOpen?: (fixture: Fixture) => void;
   onOpenVoteModal?: (fixture: Fixture) => void;
+  onOpenPokeModal?: (fixture: Fixture) => void;
   onOpenResults?: (fixture: Fixture) => void;
   onChatClick?: (fixture: Fixture) => void;
   onLike?: (fixture: Fixture) => void;
@@ -500,7 +502,7 @@ export function MatchCard({
               colors={colors}
               onPress={handleVote}
             />
-            <button type="button" className="match-card-poke" aria-label="Poke on this match" onClick={handleVote} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, height: 28, minHeight: 28, padding: 0, border: 0, borderRadius: 0, background: 'transparent', color: colors.primary, fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap' }}>
+            <button type="button" className="match-card-poke" aria-label="Poke on this match" onClick={() => { if (!isLoggedIn) return requireLogin(() => onOpenPokeModal?.(fixture)); onOpenPokeModal?.(fixture); }} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, height: 28, minHeight: 28, padding: 0, border: 0, borderRadius: 0, background: 'transparent', color: colors.primary, fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap' }}>
               <span className="match-card-poke-circle" style={{ display: 'inline-flex', flex: '0 0 28px', width: 28, minWidth: 28, maxWidth: 28, height: 28, minHeight: 28, maxHeight: 28, boxSizing: 'border-box', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', background: colors.primaryDim, color: colors.primary }}><Pointer size={16} aria-hidden="true" /></span><span>Poke</span>
             </button>
             <ActionButton
