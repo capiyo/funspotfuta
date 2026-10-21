@@ -293,6 +293,8 @@ export function MatchCard({
     setDraft('');
   }
 
+  const isTyping = draft.trim().length > 0;
+
   const placeholder = !isLoggedIn
     ? 'Log in to comment'
     : canComment
@@ -431,7 +433,7 @@ export function MatchCard({
 
         {/* One line: actions, comment box, teams + score */}
         <View style={styles.bottomRow}>
-          <View style={styles.actions}>
+          {!isTyping && <View style={styles.actions}>
             <ActionButton
               icon={Vote}
               label={isCompleted ? 'Results' : 'Vote'}
@@ -467,7 +469,7 @@ export function MatchCard({
               colors={colors}
               onPress={handleChat}
             />
-          </View>
+          </View>}
 
           {/* Middle: comment box */}
           <View style={styles.inputCell}>
@@ -489,10 +491,11 @@ export function MatchCard({
               onSubmitEditing={handleSubmit}
               returnKeyType="send"
             />
+            {isTyping && <Pressable onPress={handleSubmit} disabled={!canComment} accessibilityRole="button" accessibilityLabel="Send comment" style={({ pressed }) => ({ paddingHorizontal: 10, paddingVertical: 7, borderRadius: 16, backgroundColor: canComment ? colors.primary : colors.primaryDim, opacity: pressed ? PRESSED_OPACITY : 1 })}><Text style={fanText('tag', colors, '#FFFFFF')}>Send</Text></Pressable>}
           </View>
 
           {/* Right: Home vs Away + score → match details */}
-          <Pressable
+          {!isTyping && <Pressable
             onPress={handleLineups}
             hitSlop={8}
             style={({ pressed }) => [
@@ -509,7 +512,7 @@ export function MatchCard({
               <Text style={[fanText('tag', colors, colors.textPrimary), styles.teamName]} numberOfLines={1}>{fixture.awayTeam}</Text>
               <TeamLogo name={fixture.awayTeam} fixture={fixture as unknown as Record<string, unknown>} side="away" colors={colors} />
             </View>
-          </Pressable>
+          </Pressable>}
         </View>
       </View>
     </FeedItem>
