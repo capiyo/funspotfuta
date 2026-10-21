@@ -551,6 +551,7 @@ export function MatchCard({
                   onKeyDown={handleCommentKeyDown}
                   style={styles.input}
                 />
+                {isTyping && <button type="button" onClick={handleSubmit} disabled={!canComment} aria-label="Send comment" title="Send comment" style={{ flex: '0 0 auto', padding: '6px 10px', border: 0, borderRadius: 16, background: canComment ? colors.primary : colors.primaryDim, color: '#fff', cursor: canComment ? 'pointer' : 'not-allowed' }}>Send</button>}
               </>
             )}
           </div>
