@@ -237,6 +237,8 @@ export function MatchCard({
     }
   }
 
+  const isTyping = draft.trim().length > 0;
+
   const placeholder = !isLoggedIn
     ? 'Log in to comment'
     : canComment
@@ -490,7 +492,7 @@ export function MatchCard({
 
         {/* One line: actions, comment box, teams + score */}
         <div className="match-card-bottom" style={styles.bottomRow}>
-          <div className="match-card-actions" style={styles.actions}>
+          {!isTyping && <div className="match-card-actions" style={styles.actions}>
             <ActionButton
               icon={Vote}
               label={isCompleted ? 'Results' : 'Vote'}
@@ -517,7 +519,7 @@ export function MatchCard({
               colors={colors}
               onPress={handleChat}
             />
-          </div>
+          </div>}
 
           {/* Middle: comment box */}
           <div className="match-card-input-cell" style={styles.inputCell}>
@@ -552,13 +554,13 @@ export function MatchCard({
               </>
             )}
           </div>
-          <button type="button" className="match-card-teams" onClick={handleLineups} aria-label={`Open match details: ${fixtureLabel}`} style={{ display: 'flex', flex: '0 0 auto', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'flex-end', gap: 6, minWidth: 0, maxWidth: '100%', marginLeft: 'auto', padding: 0, border: 0, background: 'transparent', color: colors.primary, fontSize: 12, fontWeight: 600, whiteSpace: 'normal', overflow: 'visible', overflowWrap: 'anywhere' }}>
+          {!isTyping && <button type="button" className="match-card-teams" onClick={handleLineups} aria-label={`Open match details: ${fixtureLabel}`} style={{ display: 'flex', flex: '0 0 auto', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'flex-end', gap: 6, minWidth: 0, maxWidth: '100%', marginLeft: 'auto', padding: 0, border: 0, background: 'transparent', color: colors.primary, fontSize: 12, fontWeight: 600, whiteSpace: 'normal', overflow: 'visible', overflowWrap: 'anywhere' }}>
             <TeamLogo name={fixture.homeTeam} url={homeLogo} colors={colors} />
             <span className="match-card-team-name" style={{ display: 'block', flex: '0 1 auto', minWidth: 0, maxWidth: '100%', overflow: 'visible', textOverflow: 'clip', whiteSpace: 'normal', overflowWrap: 'anywhere' }}>{fixture.homeTeam}</span>
             <span className="match-card-score" style={{ display: 'block', flex: '0 0 auto', color: 'inherit', fontSize: 12, fontWeight: 600 }}>{scoreLabel}</span>
             <span className="match-card-team-name" style={{ display: 'block', flex: '0 1 auto', minWidth: 0, maxWidth: '100%', overflow: 'visible', textOverflow: 'clip', whiteSpace: 'normal', overflowWrap: 'anywhere' }}>{fixture.awayTeam}</span>
             <TeamLogo name={fixture.awayTeam} url={awayLogo} colors={colors} />
-          </button>
+          </button>}
         </div>
       </div>
     </FeedItem>
