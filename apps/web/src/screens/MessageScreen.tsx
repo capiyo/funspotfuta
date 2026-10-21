@@ -1,7 +1,7 @@
 /*
  * MessageScreen browser port, matching apps/mobile/src/screens/MessageScreen.tsx.
  *
- * State is screen-local: active channel, auto-selected fixture, draft/reply,
+ * State is screen-local: active channel, route-provided fixture (if any), draft/reply,
  * message context actions, attachment menu, voting/review/details/comrades
  * dialogs, voter visibility, pending image/caption, image viewer, and the
  * remote flag that controls optional voting tabs.
@@ -125,7 +125,9 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
   const routeFixtureId = searchParams.get('fixtureId');
   const legacyEmbed = !!props.channel && !routeParams.channelId && !searchParams.get('channelId');
   const [activeChannelId, setActiveChannelId] = useState<string | null>(routeChannelId ?? null);
-  const [autoFixture, setAutoFixture] = useState<Fixture | null>(null);
+  // A missing fixtureId means channel-wide group chat. Do not infer fixture
+  // context from another match in the same channel.
+  const [loadedRouteFixture, setLoadedRouteFixture] = useState<Fixture | null>(null);
   const [draft, setDraft] = useState('');
   const [replyTo, setReplyTo] = useState<ChatMessage | null>(null);
   const [optionsFor, setOptionsFor] = useState<ChatMessage | null>(null);
@@ -185,24 +187,27 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
     return cached.find((fixture) => fixture.id === routeFixtureId || fixture.matchId === routeFixtureId) ?? null;
   }, [queryClient, routeFixtureId]);
 
-  // Match the mobile behavior: when no fixture was passed, find the active
-  // fixture for this channel, falling back to the first available fixture.
+  // Chats passes a fixture ID explicitly. Resolve that exact fixture if it
+  // is not cached, but never auto-select a fixture for AppHeader group chats.
   useEffect(() => {
-    if (routeFixtureId || !activeChannelId) return;
+    if (!routeFixtureId || routeFixture) return;
     let alive = true;
     getAllFixtures()
       .then((fixtures) => {
         if (!alive) return;
-        const active = fixtures.find((fixture) =>
-          fixture.status === 'live' || fixture.status === 'half_time' ||
-          fixture.status === 'upcoming' || fixture.status === 'soon');
-        setAutoFixture(active ?? fixtures[0] ?? null);
+        setLoadedRouteFixture(
+          fixtures.find((fixture) => fixture.id === routeFixtureId || fixture.matchId === routeFixtureId) ?? null,
+        );
       })
       .catch(() => undefined);
     return () => { alive = false; };
-  }, [routeFixtureId, activeChannelId]);
+  }, [routeFixtureId, routeFixture]);
 
-  const fixture = routeFixture ?? autoFixture;
+  const fixture =
+    routeFixture ??
+    (loadedRouteFixture?.id === routeFixtureId || loadedRouteFixture?.matchId === routeFixtureId
+      ? loadedRouteFixture
+      : null);
   const fixtureId = fixture?.matchId ?? fixture?.id ?? null;
   const chat = useChannelChat({
     channelId: activeChannelId,
