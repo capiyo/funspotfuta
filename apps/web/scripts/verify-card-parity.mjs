@@ -53,7 +53,11 @@ async function mock(page, state) {
     status: 200, contentType: 'application/json', body: JSON.stringify(fixtures.map((fixture, index) => ({ ...fixture, voters: state === 'logged-in-voted' && index < 3 ? [{ userId: 'parity-user', userName: 'Parity User', selection: 'home_team' }] : [] }))),
   }));
   await page.route('**/api/channels/all**', route => route.fulfill({
-    status: 200, contentType: 'application/json', body: JSON.stringify(channels),
+    status: 200, contentType: 'application/json', body: JSON.stringify({ channels }),
+  }));
+  await page.route('**/api/channels/user/parity-user', route => route.fulfill({
+    status: 200, contentType: 'application/json',
+    body: JSON.stringify({ channels: state === 'guest' ? [] : channels }),
   }));
   await page.route('**/api/posts**', route => route.fulfill({
     status: 200, contentType: 'application/json',
@@ -80,14 +84,16 @@ async function mock(page, state) {
   }));
   await page.route('https://images.test/**', route => route.fulfill({
     status: 200, contentType: 'image/png',
-    body: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jx0cAAAAASUVORK5CYII=', 'base64'),
+    body: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC0lEQVR42mP8/x8AAwMCAO+jx0cAAAAASUVORK5CYII=', 'base64'),
+  }));
+  await page.route('https://picsum.photos/**', route => route.fulfill({
+    status: 200, contentType: 'image/png',
+    body: Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC0lEQVR42mP8/x8AAwMCAO+jx0cAAAAASUVORK5CYII=', 'base64'),
   }));
   page.on('pageerror', error => errors.push(error.message));
 }
 
-const requiredSelectors = [
-  '.match-card-channel-avatar',
-  '.match-card-channel-name',
+const sharedRequiredSelectors = [
   '.match-card-date',
   '.match-card-league-line',
   '.match-card-comment-preview',
@@ -106,7 +112,14 @@ async function inspect(width, state) {
   await page.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 45000 });
   await page.waitForSelector('.home-screen .match-card', { timeout: 45000 });
   await page.waitForFunction(() => document.querySelectorAll('.home-screen .match-card').length >= 8, null, { timeout: 45000 });
-  await page.waitForSelector('.home-screen .match-card-channel-avatar', { timeout: 15000 });
+  if (state !== 'guest') {
+    await page.waitForSelector('.home-screen .match-card-channel-avatar', { timeout: 15000 });
+  } else {
+    await page.waitForFunction(() => !document.querySelector('.home-screen .match-card-channel-avatar'), null, { timeout: 15000 });
+  }
+  const requiredSelectors = state === 'guest'
+    ? sharedRequiredSelectors
+    : ['.match-card-channel-avatar', '.match-card-channel-name', ...sharedRequiredSelectors];
   const cards = page.locator('.home-screen .match-card');
   const cardMeasurements = [];
   for (let i = 0; i < 3; i++) {
@@ -126,17 +139,22 @@ async function inspect(width, state) {
     }, requiredSelectors);
     assert(inOrder, 'Card ' + i + ' at ' + width + 'px (' + state + '): required DOM order differs');
 
-    const avatar = await card.locator('.match-card-channel-avatar').evaluate(el => {
-      const r = el.getBoundingClientRect(), s = getComputedStyle(el), img = el.querySelector('img');
-      return { width: r.width, height: r.height, radius: s.borderRadius, imageRadius: img ? getComputedStyle(img).borderRadius : null };
-    });
-    assert(Math.abs(avatar.width - 24) <= .5 && Math.abs(avatar.height - 24) <= .5 && avatar.radius === '50%',
-      'Card ' + i + ': channel image/fallback is not 24px circular at ' + width + 'px: ' + JSON.stringify(avatar));
-    if (avatar.imageRadius !== null) assert(avatar.imageRadius === '50%', 'Channel image is not circular');
+    if (state !== 'guest') {
+      const avatar = await card.locator('.match-card-channel-avatar').evaluate(el => {
+        const r = el.getBoundingClientRect(), s = getComputedStyle(el), img = el.querySelector('img');
+        return { width: r.width, height: r.height, radius: s.borderRadius, imageRadius: img ? getComputedStyle(img).borderRadius : null };
+      });
+      assert(Math.abs(avatar.width - 24) <= .5 && Math.abs(avatar.height - 24) <= .5 && avatar.radius === '50%',
+        'Card ' + i + ': channel image/fallback is not 24px circular at ' + width + 'px: ' + JSON.stringify(avatar));
+      if (avatar.imageRadius !== null) assert(avatar.imageRadius === '50%', 'Channel image is not circular');
+    } else {
+      assert(await card.locator('.match-card-channel-name').count() === 0, 'Guest card unexpectedly shows a joined channel');
+    }
     assert(await card.locator('.match-card-league-line').count() === 1, 'Expected exactly one league line');
 
-    const metrics = await card.evaluate(el => {
-      const channel = el.querySelector('.match-card-channel-avatar').getBoundingClientRect();
+    const metrics = await card.evaluate((el, hasChannel) => {
+      const channelNode = hasChannel ? el.querySelector('.match-card-channel-avatar') : el.querySelector('.match-card-league-line');
+      const channel = channelNode.getBoundingClientRect();
       const league = el.querySelector('.match-card-league-line').getBoundingClientRect();
       const preview = el.querySelector('.match-card-comment-preview').getBoundingClientRect();
       const promptLine = el.querySelector('.match-card-prompt-line').getBoundingClientRect();
@@ -181,8 +199,8 @@ async function inspect(width, state) {
         actionTops, promptRect: promptRect.toJSON(), inputRect: inputRect.toJSON(), inputHeight, inputCell: inputCell.toJSON(), actionsBottom: ar.bottom, inputEnabled, bottomRect: bottomRect.toJSON(), paddingLeft: parseFloat(bottomStyle.paddingLeft), paddingRight: parseFloat(bottomStyle.paddingRight),
         teamRect: tr.toJSON(), actionsRect: ar.toJSON(), names, logos,
       };
-    });
-    assert(Math.abs(metrics.channelX - metrics.leagueX) <= 1, 'League line is not aligned with channel image at ' + width + 'px');
+    }, state !== 'guest');
+    assert(Math.abs(metrics.channelX - metrics.leagueX) <= 1, 'League line is not aligned with channel image or league label at ' + width + 'px');
     assert(metrics.promptTop >= metrics.previewBottom - .5, 'Random line is above comment preview at ' + width + 'px');
     assert(metrics.promptText === metrics.previewText, 'Random line color differs from comment at ' + width + 'px');
     if (state === 'guest') {
