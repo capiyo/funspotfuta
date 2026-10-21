@@ -72,6 +72,7 @@ import {
 } from 'lucide-react-native';
 import {
   getUserChannels,
+  getAllFixtures,
   Channel,
   Fixture,
   ChatMessage,
