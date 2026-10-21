@@ -18,6 +18,7 @@ import { channelHeaderOf } from '@/modals/channelHeader';
 import { SegmentedControl } from '@/components/ui/Segmentedcontrol';
 import { EmptyState, ErrorBanner, SkeletonRows } from '@/components/ui/ListsStates';
 import { SwipeableVotePledgeModal } from '@/modals/actionModal';
+import { PokeModal } from '@/modals/PokeModal';
 import { AftermatchReviewModal } from '@/modals/AftermatchModal';
 import { MatchDetailsModal } from '@/modals/match/matchDetailsModals';
 import { useFanColors } from '@/theme/use-fan-colors';
@@ -178,6 +179,7 @@ export default function ChatsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState<Filter>('all');
   const [modalFixture, setModalFixture] = useState<Fixture | null>(null);
+  const [pokeModalFixture, setPokeModalFixture] = useState<Fixture | null>(null);
   const [reviewFixture, setReviewFixture] = useState<Fixture | null>(null);
   const [matchDetailsFixture, setMatchDetailsFixture] = useState<Fixture | null>(null);
 
@@ -377,6 +379,7 @@ export default function ChatsScreen() {
                         comments={commentsOf(fixture)}
                         channelId={channelId}
                         onOpenVoteModal={(selectedFixture) => { setSheetChannelId(channelId); setModalFixture(selectedFixture); }}
+                        onOpenPokeModal={(selectedFixture) => setPokeModalFixture(selectedFixture)}
                         onOpenResults={(selectedFixture) => { setSheetChannelId(channelId); setReviewFixture(selectedFixture); }}
                         onChatClick={() => openChat(fixture, channelId)}
                         onLike={handleLike}
@@ -432,6 +435,16 @@ export default function ChatsScreen() {
           placeSubFixturePledge={modalApi.placeSubFixturePledge}
           matchSubFixturePledge={modalApi.matchSubFixturePledge}
           matchMainPledge={modalApi.matchMainPledge}
+        />
+      )}
+
+      {pokeModalFixture && userId && userId !== 'guest' && (
+        <PokeModal
+          fixture={pokeModalFixture}
+          userId={userId}
+          username={username ?? ''}
+          authToken={authToken}
+          onClose={() => setPokeModalFixture(null)}
         />
       )}
 
