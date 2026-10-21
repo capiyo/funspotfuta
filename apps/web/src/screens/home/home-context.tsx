@@ -13,6 +13,7 @@ import type { TabName } from '@/components/FloatingPillTabBar';
 
 export const MAX_CHANNELS = 3;
 const SCROLL_THRESHOLD = 6;
+const SHOW_ON_REVERSE_THRESHOLD = 1;
 const ACTIVE_CHANNEL_KEY = 'home.activeChannelId';
 const ACTIVE_TAB_KEY = 'home.activeTab';
 const NO_CHANNELS: Channel[] = [];
@@ -58,7 +59,7 @@ type HomeCtx = {
   activeTab: TabName;
   setActiveTab: (tab: TabName) => void;
   headerVisible: boolean;
-  reportScroll: (offsetY: number) => void;
+  reportScroll: (offsetY: number, source?: HTMLElement) => void;
   scrollProps: HomeScrollProps;
   resetHeaderOnTabChange: () => void;
 };
@@ -149,26 +150,46 @@ export function HomeProvider({ children }: { children: ReactNode }) {
   const isAdminOfAnyChannel = useMemo(() => channels.some((channel) => channel.isAdmin), [channels]);
 
   const [headerVisible, setHeaderVisible] = useState(true);
-  const lastScrollY = useRef(0);
-  const dragging = useRef(false);
-  const momentum = useRef(false);
-  const gestureAware = useRef(false);
-  const reportScroll = useCallback((offsetY: number) => {
-    if (offsetY <= 0) {
+  // Chats and Feed are separate scroll containers. Keep independent baselines so
+  // switching panes never compares unrelated scroll offsets.
+  const lastScrollBySource = useRef<WeakMap<HTMLElement, number>>(new WeakMap());
+  const fallbackLastScroll = useRef(0);
+  const reportScroll = useCallback((offsetY: number, source?: HTMLElement) => {
+    const offset = Math.max(0, offsetY);
+    if (offset <= 0) {
       setHeaderVisible(true);
-      lastScrollY.current = 0;
+      if (source) lastScrollBySource.current.set(source, 0);
+      else fallbackLastScroll.current = 0;
       return;
     }
-    const userDriven = !gestureAware.current || dragging.current || momentum.current;
-    if (!userDriven) { lastScrollY.current = offsetY; return; }
-    const diff = offsetY - lastScrollY.current;
-    if (diff > SCROLL_THRESHOLD) { setHeaderVisible(false); lastScrollY.current = offsetY; }
-    else if (diff < -SCROLL_THRESHOLD) { setHeaderVisible(true); lastScrollY.current = offsetY; }
+
+    const previous = source
+      ? lastScrollBySource.current.get(source)
+      : fallbackLastScroll.current;
+    if (previous === undefined) {
+      if (source) lastScrollBySource.current.set(source, offset);
+      else fallbackLastScroll.current = offset;
+      return;
+    }
+
+    const diff = offset - previous;
+    if (diff > SCROLL_THRESHOLD) {
+      setHeaderVisible(false);
+      if (source) lastScrollBySource.current.set(source, offset);
+      else fallbackLastScroll.current = offset;
+    } else if (diff < -SHOW_ON_REVERSE_THRESHOLD) {
+      // Recover on even a small upward reversal; requiring another full
+      // threshold here was leaving the header and floating tabs hidden.
+      setHeaderVisible(true);
+      if (source) lastScrollBySource.current.set(source, offset);
+      else fallbackLastScroll.current = offset;
+    }
+    // Keep the downward anchor until the threshold is crossed, so small
+    // native scroll events accumulate instead of preventing the hide action.
   }, []);
   const resetHeaderOnTabChange = useCallback(() => {
-    lastScrollY.current = 0;
-    dragging.current = false;
-    momentum.current = false;
+    lastScrollBySource.current = new WeakMap();
+    fallbackLastScroll.current = 0;
     setHeaderVisible(true);
   }, []);
 
@@ -183,15 +204,13 @@ export function HomeProvider({ children }: { children: ReactNode }) {
   }, [resetHeaderOnTabChange]);
 
   const scrollProps = useMemo<HomeScrollProps>(() => ({
-    onScroll: (event) => reportScroll(event.currentTarget.scrollTop),
+    onScroll: (event) => reportScroll(event.currentTarget.scrollTop, event.currentTarget),
     onScrollBeginDrag: (event) => {
-      gestureAware.current = true;
-      dragging.current = true;
-      lastScrollY.current = Math.max(0, event.currentTarget.scrollTop);
+      if (event.currentTarget.scrollTop <= 0) setHeaderVisible(true);
     },
-    onScrollEndDrag: () => { dragging.current = false; },
-    onMomentumScrollBegin: () => { momentum.current = true; },
-    onMomentumScrollEnd: () => { momentum.current = false; },
+    onScrollEndDrag: () => {},
+    onMomentumScrollBegin: () => {},
+    onMomentumScrollEnd: () => {},
     scrollEventThrottle: 16,
   }), [reportScroll]);
 
