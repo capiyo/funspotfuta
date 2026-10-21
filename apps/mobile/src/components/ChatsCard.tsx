@@ -245,6 +245,7 @@ export function MatchCard({
         return {
           id: v.userId,
           name: v.userName,
+          uri: `https://i.pravatar.cc/150?u=${encodeURIComponent(v.userId || 'guest')}`,
           team:
             kind === 'home'
               ? fixture.homeTeam
