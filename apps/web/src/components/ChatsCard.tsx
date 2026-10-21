@@ -183,6 +183,7 @@ export function MatchCard({
         return {
           id: voter.userId,
           name: voter.userName,
+          uri: `https://i.pravatar.cc/150?u=${encodeURIComponent(voter.userId || 'guest')}`,
           team:
             kind === 'home'
               ? fixture.homeTeam
