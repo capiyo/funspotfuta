@@ -220,7 +220,24 @@ export default function ChatsScreen() {
     placeholderData: keepPreviousData,
     enabled: activeTab === 'Chats',
   });
-  const fixtures = data ?? NO_FIXTURES;
+    const fixtures = useMemo(() => (data ?? NO_FIXTURES).map((fixture) => {
+    if (!userId) return fixture;
+    const cached = queryClient.getQueryData<{ voters?: Array<{ userId: string; username?: string; userName?: string; selection: string; isComrade?: boolean; votedAt?: Date }> }>(
+      queryKeys.fixtureVotes(fixture.matchId || fixture.id, userId),
+    );
+    if (!cached?.voters?.length) return fixture;
+    const localVoters: Voter[] = cached.voters.map((voter) => ({
+      userId: voter.userId,
+      userName: voter.userName ?? voter.username ?? 'Fan',
+      selection: voter.selection,
+      isCorrect: null,
+      pointsAwarded: null,
+      isComrade: voter.isComrade ?? false,
+      votedAt: voter.votedAt ? new Date(voter.votedAt) : new Date(),
+    }));
+    const merged = [...localVoters, ...(fixture.voters ?? []).filter((voter) => !localVoters.some((local) => local.userId === voter.userId))];
+    return { ...fixture, voters: merged };
+  }), [data, userId, queryClient]);
 
   const headerById = useMemo(() => {
     const map = new Map<string, ChannelHeaderData>();
