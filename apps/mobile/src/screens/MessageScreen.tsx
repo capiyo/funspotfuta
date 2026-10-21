@@ -254,7 +254,7 @@ export default function MessageScreen() {
     (loadedRouteFixture?.id === routeFixtureId || loadedRouteFixture?.matchId === routeFixtureId
       ? loadedRouteFixture
       : null);
-  const fixtureId = fixture?.matchId ?? fixture?.id ?? null;
+  const fixtureId = fixture?.matchId ?? fixture?.id ?? routeFixtureId ?? null;
 
   // ── Chat hook ──────────────────────────────────────────────
   const chat = useChannelChat({
