@@ -8,6 +8,7 @@ import { Avatar } from './Avatar';
 export interface VoterItem {
   id: string;
   name: string;
+  uri?: string | null;
   team: string;
   color: string;
 }
@@ -37,7 +38,7 @@ export function VoterList({ colors, voters, emptyLabel, onPress }: {
         if (!voter) return <span key={`empty-${i}`} style={{ flex: 1 }} />;
         const { icon, name } = splitFanName(voter.name);
         return <span key={voter.id} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: FAN_SPACING.sm, minWidth: 0 }}>
-          <Avatar colors={colors} size="sm" label={icon || initials(name)} borderColor={voter.color} />
+          <Avatar colors={colors} size="sm" label={icon || initials(name)} uri={voter.uri} borderColor={voter.color} />
           <span style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
             <span style={{ ...fanText('caption', colors, colors.textPrimary), overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</span>
             <span style={{ ...fanText('tag', colors, voter.color), overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{voter.team}</span>
