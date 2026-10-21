@@ -254,6 +254,7 @@ export default function MessageScreen() {
     (loadedRouteFixture?.id === routeFixtureId || loadedRouteFixture?.matchId === routeFixtureId
       ? loadedRouteFixture
       : null);
+// Keep an explicit route fixture ID scoped during lookup; never briefly use the group room.
   const fixtureId = fixture?.matchId ?? fixture?.id ?? routeFixtureId ?? null;
 
   // ── Chat hook ──────────────────────────────────────────────
