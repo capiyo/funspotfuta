@@ -526,7 +526,7 @@ export function MatchCard({
               <TeamLogo name={fixture.awayTeam} url={awayLogo} colors={colors} />
             </button>
           </div>
-          {!isTyping && <div className="match-card-actions" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', alignItems: 'center', gap: 4, width: '100%' }}>
+          <div className="match-card-actions" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', alignItems: 'center', gap: 4, width: '100%' }}>
             <div className="match-card-action-slot" style={{ display: 'flex', justifyContent: 'center', minWidth: 0 }}><ActionButton icon={Vote} label={isCompleted ? 'Results' : 'Vote'} count={fixture.votes} colors={colors} onPress={handleVote} /></div>
             <div className="match-card-action-slot" style={{ display: 'flex', justifyContent: 'center', minWidth: 0 }}>
               <button type="button" className="match-card-poke" aria-label="Poke on this match" onClick={() => { if (!isLoggedIn) return requireLogin(() => onOpenPokeModal?.(fixture)); onOpenPokeModal?.(fixture); }} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, height: 28, minHeight: 28, padding: 0, border: 0, borderRadius: 0, background: 'transparent', color: colors.primary, fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap' }}>
@@ -535,7 +535,7 @@ export function MatchCard({
             </div>
             <div className="match-card-action-slot" style={{ display: 'flex', justifyContent: 'center', minWidth: 0 }}><ActionButton icon={Heart} label={liked ? 'Unlike' : 'Like'} count={likesCount} active={liked} activeColor={colors.away} colors={colors} onPress={handleLike} /></div>
             <div className="match-card-action-slot" style={{ display: 'flex', justifyContent: 'center', minWidth: 0 }}><ActionButton icon={MessageCircle} label="Comments" count={commentsCount ?? pool.length} colors={colors} onPress={handleChat} /></div>
-          </div>}
+          </div>
         </div>
       </div>
     </FeedItem>
