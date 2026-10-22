@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useLoginModal } from '@/modals/Login-modal-context';
@@ -55,11 +55,29 @@ function LoginRoute() {
 
 function ResponsiveMessageRoute() {
   const mobile = useMobileWebLayout();
+  const navigate = useNavigate();
+  const close = useCallback(() => {
+    if (window.history.length > 1) navigate(-1);
+    else navigate('/');
+  }, [navigate]);
+
+  useEffect(() => {
+    if (mobile) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      event.preventDefault();
+      close();
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [mobile, close]);
+
   return <ProtectedRoute>
     {mobile ? <MessageScreen /> : <>
       <HomeScreen />
-      <div className="desktop-message-overlay" role="presentation">
-        <div className="desktop-message-dialog">
+      <div className="desktop-message-overlay" role="presentation"
+        onMouseDown={(event) => { if (event.target === event.currentTarget) close(); }}>
+        <div className="desktop-message-dialog" role="dialog" aria-modal="true" aria-label="Messaging">
           <MessageScreen />
         </div>
       </div>
