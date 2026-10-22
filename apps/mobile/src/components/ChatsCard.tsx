@@ -44,7 +44,7 @@ import {
 import { useAuth } from '@/lib/auth/auth-context';
 import { useLoginModal } from '../modals/Login-modal-context';
 import { useFanColors } from '@/theme/use-fan-colors';
-import { fanText } from '@/theme/use-fan-typography';
+import { fanText as baseFanText } from '@/theme/use-fan-typography';
 import { ICON, PRESSED_OPACITY } from '@/theme/layout';
 import { FeedItem } from './ui/FeedItem';
 import { LiveBadge } from './ui/LiveBadge';
@@ -55,6 +55,33 @@ import { VoterList } from './ui/Voterstack';
 // How far the footer is pulled down to reach the card floor (cancels
 // FeedItem's bottom padding). Raise it if there is still a gap.
 const FOOTER_BLEED = 12;
+
+// Match the mobile-web ChatsCard typography at a 390px viewport.
+// Web uses DM Sans for normal text and Saira Condensed only for score text;
+// baseFanText resolves those same bundled font families for React Native.
+const MATCH_FONT_SIZE = {
+  body: 14,
+  caption: 12,
+  tag: 12,
+  button: 12,
+  competition: 14,
+  title: 15,
+  microLabel: 12,
+} as const;
+
+function fanText(
+  role: Parameters<typeof baseFanText>[0],
+  colors: Parameters<typeof baseFanText>[1],
+  colorOverride?: string,
+) {
+  const base = baseFanText(role, colors, colorOverride);
+  const fontSize = MATCH_FONT_SIZE[role] ?? base.fontSize;
+  return {
+    ...base,
+    fontSize,
+    lineHeight: Math.round(fontSize * 1.25),
+  };
+}
 
 const COMMENT_STYLE_COLOR = (colors: ReturnType<typeof useFanColors>) =>
   colors.textSecondary;
