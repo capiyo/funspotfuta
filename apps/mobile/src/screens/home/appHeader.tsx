@@ -34,6 +34,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useQueryClient } from '@tanstack/react-query';
 import { Channel, FanColorPalette, FAN_SPACING, FAN_RADIUS } from '@funspot/core';
+import { getProfile } from '@funspot/core/src/api/profile-service';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useLoginModal } from '../../modals/Login-modal-context';
 import { useFanColors } from '@/theme/use-fan-colors';
@@ -107,6 +108,20 @@ export function AppHeader({ onAddChannel }: { onAddChannel?: () => void }) {
 
     const avatarUri = `https://i.pravatar.cc/150?u=${userId ?? 'guest'}`;
     const hasJoinedChannels = channels.length > 0;
+
+    async function joinAfterProfileCheck(channel: Channel) {
+        if (!userId || !authToken) return;
+        try {
+            const profile = await getProfile(userId, authToken);
+            if (!profile) {
+                setProfileOpen(true);
+                return;
+            }
+            await joinChannel(channel);
+        } catch (error) {
+            console.error('Could not verify profile before channel join:', error);
+        }
+    }
 
     function openChat(channel: Channel) {
         navigation.navigate('Chat', {
@@ -201,10 +216,10 @@ export function AppHeader({ onAddChannel }: { onAddChannel?: () => void }) {
                                 style={styles.chip}
                                 onPress={() => {
                                     if (!isLoggedIn) {
-                                        requireLogin(() => void joinChannel(channel));
+                                        requireLogin(() => void joinAfterProfileCheck(channel));
                                         return;
                                     }
-                                    void joinChannel(channel);
+                                    void joinAfterProfileCheck(channel);
                                 }}
                             >
                                 <Text style={styles.chipText}>{channel.name}</Text>
