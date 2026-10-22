@@ -839,7 +839,7 @@ export default function ProfileModal({
                         </ScrollView>
 
                         {/* Channel leaderboard tabs */}
-                        {channels.length > 0 && isCurrentUser && (
+                        {isCurrentUser && (
                             <View style={styles.leaderboardSection}>
                                 <ChannelLeaderboard
                                     channels={channels}
