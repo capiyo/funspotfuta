@@ -190,14 +190,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           phone: opts?.phone,
           refreshToken: opts?.refreshToken,
         });
-        // Keep legacy keys in sync for older app code during the migration.
-        await Promise.all([
+        // The synchronous app cache is the source of truth for startup. Keep
+        // legacy keys in sync best-effort while other app code is migrated.
+        const legacySync = Promise.all([
           AsyncStorage.setItem('usertoken', authToken),
           AsyncStorage.setItem('user', JSON.stringify(userData)),
           AsyncStorage.setItem('isLoggedIn', 'true'),
           opts?.phone ? AsyncStorage.setItem('phone', opts.phone) : AsyncStorage.removeItem('phone'),
           opts?.refreshToken ? AsyncStorage.setItem('refreshToken', opts.refreshToken) : AsyncStorage.removeItem('refreshToken'),
         ]);
+        void legacySync.catch(() => undefined);
 
         setState({
           isLoggedIn: true,
