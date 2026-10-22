@@ -17,6 +17,7 @@ import {
     Pressable,
     StyleSheet,
     FlatList,
+    PanResponder,
 } from 'react-native';
 import { Star, Users, Crown, Award } from 'lucide-react-native';
 import {
@@ -253,6 +254,27 @@ export function ChannelLeaderboard({
     const styles = createStyles(colors);
     const [activeTab, setActiveTab] = useState(0);
 
+    // Horizontal swipes change channels; vertical movement remains available
+    // to the members list below.
+    const swipeResponder = useMemo(
+        () => PanResponder.create({
+            onMoveShouldSetPanResponder: (_event, gesture) =>
+                visibleChannels.length > 1 &&
+                Math.abs(gesture.dx) > 24 &&
+                Math.abs(gesture.dx) > Math.abs(gesture.dy) * 1.25,
+            onPanResponderRelease: (_event, gesture) => {
+                if (Math.abs(gesture.dx) < 45) return;
+                setActiveTab((current) =>
+                    Math.max(0, Math.min(
+                        visibleChannels.length - 1,
+                        current + (gesture.dx < 0 ? 1 : -1),
+                    )),
+                );
+            },
+        }),
+        [visibleChannels.length],
+    );
+
     // Cap at 3 tabs — matches the Flutter source's
     // `_userChannels.length.clamp(0, 3)`.
     const visibleChannels = useMemo(() => channels.slice(0, 3), [channels]);
@@ -323,7 +345,8 @@ export function ChannelLeaderboard({
                 })}
             </View>
 
-            {/* Channel header */}
+            {/* Swipeable channel panel */}
+            <View style={styles.swipePanel} {...swipeResponder.panHandlers}>
             <View
                 style={[
                     styles.channelHeader,
@@ -406,6 +429,24 @@ export function ChannelLeaderboard({
                     />
                 )}
             />
+            </View>
+            {visibleChannels.length > 1 && (
+                <View style={styles.pageDots} accessibilityLabel={`Channel ${activeTab + 1} of ${visibleChannels.length}`}>
+                    {visibleChannels.map((channel, index) => (
+                        <Pressable
+                            key={channel.channelId || index}
+                            accessibilityRole="button"
+                            accessibilityLabel={`Show ${channel.name}`}
+                            onPress={() => setActiveTab(index)}
+                            style={[
+                                styles.pageDot,
+                                { backgroundColor: index === activeTab ? colors.primary : colors.border },
+                                index === activeTab && styles.pageDotActive,
+                            ]}
+                        />
+                    ))}
+                </View>
+            )}
         </View>
     );
 }
@@ -417,6 +458,16 @@ export function ChannelLeaderboard({
 function createStyles(colors: FanColors) {
     return StyleSheet.create({
         wrap: { flex: 1 },
+        swipePanel: { flex: 1, minHeight: 0 },
+        pageDots: {
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: FAN_SPACING.xs,
+            paddingTop: FAN_SPACING.xs,
+        },
+        pageDot: { width: 5, height: 5, borderRadius: 3 },
+        pageDotActive: { width: 14 },
 
         emptyWrap: {
             flex: 1,
