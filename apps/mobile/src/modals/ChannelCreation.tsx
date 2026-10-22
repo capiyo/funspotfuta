@@ -907,7 +907,7 @@ const styles = StyleSheet.create({
         borderRadius: 999,
     },
     statusPillText: {
-        color: 'white',
+        color: colors.textPrimary,
         fontSize: 7,
         fontWeight: '700',
         letterSpacing: 0.3,
@@ -936,11 +936,10 @@ const styles = StyleSheet.create({
         paddingVertical: 4,
         borderRadius: 999,
         backgroundColor: withAlpha(MEMBER_ACCENT, 0.1),
-        borderWidth: 0.5,
-        borderColor: withAlpha(MEMBER_ACCENT, 0.35),
+        borderWidth: 0,
         maxWidth: 180,
     },
-    chipText: { color: 'white', fontSize: 11 },
+    chipText: { color: colors.textPrimary, fontSize: 11 },
     chipClose: {
         width: 16,
         height: 16,
