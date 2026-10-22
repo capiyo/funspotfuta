@@ -2933,3 +2933,87 @@ body:has(.home-screen) .home-screen *:not(.profile-card):not(.profile-card *):no
     overflow-wrap: normal !important;
   }
 }
+
+
+/* Chats footer layout: input left and fixture names right, actions evenly fill the row below. */
+.match-card .match-card-bottom {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  flex-wrap: nowrap !important;
+  gap: 8px !important;
+  min-height: 64px !important;
+  margin-top: 14px !important;
+  padding-bottom: 10px !important;
+  overflow: visible !important;
+}
+.match-card .match-card-footer-top {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  gap: 10px !important;
+}
+.match-card .match-card-footer-top .match-card-input-cell {
+  flex: 1 1 0% !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  overflow: hidden !important;
+}
+.match-card .match-card-footer-top .match-card-teams {
+  flex: 0 1 48% !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: 48% !important;
+  margin-left: auto !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+}
+.match-card .match-card-footer-top .match-card-team-name {
+  min-width: 0 !important;
+  max-width: 74px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  overflow-wrap: normal !important;
+}
+.match-card .match-card-actions {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  align-items: center !important;
+  gap: 4px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+.match-card .match-card-actions .match-card-action-slot {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 0 !important;
+}
+.match-card .match-card-actions .action-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  padding: 4px !important;
+  min-width: 0 !important;
+  white-space: nowrap !important;
+}
+@media (max-width: 650px) {
+  .match-card .match-card-bottom {
+    overflow: visible !important;
+    overflow-x: visible !important;
+    padding-bottom: 10px !important;
+    gap: 8px !important;
+  }
+  .match-card .match-card-footer-top { gap: 6px !important; }
+  .match-card .match-card-footer-top .match-card-teams { max-width: 52% !important; flex-basis: 52% !important; }
+  .match-card .match-card-footer-top .match-card-team-name { max-width: 56px !important; }
+  .match-card .match-card-actions { gap: 0 !important; }
+  .match-card .match-card-actions .action-button { font-size: 11px !important; padding: 3px 1px !important; }
+  .match-card .match-card-actions .match-card-poke { gap: 3px !important; font-size: 11px !important; }
+}
