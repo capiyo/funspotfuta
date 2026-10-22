@@ -198,7 +198,7 @@ try {
   // that gate and the follow-up sign-in modal so route controls are interactable.
   if (await page.getByRole('dialog', { name: 'Notifications Required' }).count()) {
     await page.getByRole('button', { name: 'Continue without notifications' }).click();
-    await page.getByRole('button', { name: 'Close sign in' }).click();
+    await page.getByRole('button', { name: 'Close sign in' }).last().click();
   }
 
   // Comments are a real route: a full-screen page on mobile web and a modal
