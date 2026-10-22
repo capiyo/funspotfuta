@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { Bell, ChevronDown, Menu, Plus, RefreshCw } from 'lucide-react';
 import type { Channel } from '@funspot/core';
+import { getProfile } from '@funspot/core/src/api/profile-service';
 import { FAN_RADIUS } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useLoginModal } from '@/modals/Login-modal-context';
@@ -167,6 +168,19 @@ export function AppHeader(props: HeaderProps = {}) {
     if (import.meta.env.DEV) console.error('[AppHeader] channels', { joined: joinedChannels.length, browsable: allChannels.length, loading: !!props.loadingChannels || !!publicChannelsQuery.isLoading });
   }, [joinedChannels.length, allChannels.length, props.loadingChannels, publicChannelsQuery.isLoading]);
 
+  async function joinAfterProfileCheck(channel: Channel) {
+    if (!userId || !authToken) return;
+    try {
+      const profile = await getProfile(userId, authToken);
+      if (!profile) {
+        setProfileOpen(true);
+        return;
+      }
+      await joinChannel(channel);
+    } catch (error) {
+      console.error('Could not verify profile before channel join:', error);
+    }
+  }
   function openChat(channel: Channel) {
     navigate(`/messages/${encodeURIComponent(channel.channelId)}`, {
       state: { channelId: channel.channelId, channelName: channel.name, userId, username, authToken },
@@ -178,10 +192,10 @@ export function AppHeader(props: HeaderProps = {}) {
   }
   function join(channel: Channel) {
     if (!loggedIn) {
-      requireLogin(() => { void joinChannel(channel); });
+      requireLogin(() => { void joinAfterProfileCheck(channel); });
       return;
     }
-    void joinChannel(channel);
+    void joinAfterProfileCheck(channel);
   }
   function handleChipContextMenu(event: ReactMouseEvent<HTMLButtonElement>, channel: Channel) {
     event.preventDefault();
