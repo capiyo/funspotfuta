@@ -4,6 +4,7 @@ import { getAuth } from '@react-native-firebase/auth';
 import {
     getMessaging,
     requestPermission,
+    hasPermission,
     getToken,
     onMessage,
     setBackgroundMessageHandler,
@@ -21,7 +22,24 @@ export const firebaseMessaging = getMessaging();
 const AUTHORIZED = 1;
 const PROVISIONAL = 2;
 
+export async function hasNotificationPermission(): Promise<boolean> {
+    if (Platform.OS === 'android' && Platform.Version >= 33) {
+        const granted = await PermissionsAndroid.check(
+            PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+        );
+        if (!granted) return false;
+    }
+    try {
+        const authStatus = await hasPermission(firebaseMessaging);
+        return authStatus === AUTHORIZED || authStatus === PROVISIONAL;
+    } catch {
+        return false;
+    }
+}
+
 export async function requestNotificationPermission(): Promise<boolean> {
+    if (await hasNotificationPermission()) return true;
+
     if (Platform.OS === 'android' && Platform.Version >= 33) {
         const granted = await PermissionsAndroid.request(
             PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
