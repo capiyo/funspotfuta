@@ -370,6 +370,15 @@ export function MatchCard({
           )}
         </View>
 
+        {/* Competition / tournament type, e.g. Premier League or Serie A */}
+        <Text
+          style={[fanText('tag', colors, colors.textTertiary), styles.leagueName]}
+          numberOfLines={1}
+          pointerEvents="none"
+        >
+          {fixture.league || 'Unknown league'}
+        </Text>
+
         {/* Comment preview / live commentary */}
         <View style={[styles.lineRow, styles.previewRow]} pointerEvents="none">
           {isLive && liveCommentary ? (
@@ -531,6 +540,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   previewRow: { marginBottom: 0 },
+  leagueName: { marginTop: 2, marginBottom: 0, fontSize: 11, lineHeight: 14 },
   resultRow: { marginTop: 10 },
   stackRow: { marginTop: 14 },
   channelLabel: {
