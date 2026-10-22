@@ -210,7 +210,7 @@ try {
         `Mobile comments is not full-screen at ${width}px: ${JSON.stringify(mobileComments)}`);
       assert(!mobileComments.homeMounted && mobileComments.back,
         `Mobile comments should be a page with a back action: ${JSON.stringify(mobileComments)}`);
-      await page.getByRole('button', { name: 'Back to feed' }).evaluate(element => (element as HTMLButtonElement).click());
+      await page.getByRole('button', { name: 'Back to feed' }).evaluate(element => element.click());
     } else {
       await page.waitForSelector('[role="dialog"][aria-label="Comments"]', { timeout: 15000 });
       const desktopComments = await page.evaluate(() => ({
@@ -222,7 +222,7 @@ try {
         `Desktop comments is not presented as a modal at ${width}px: ${JSON.stringify(desktopComments)}`);
       assert(desktopComments.homeMounted && desktopComments.close,
         `Desktop comments modal should sit over Home and provide close: ${JSON.stringify(desktopComments)}`);
-      await page.getByRole('button', { name: 'Close comments' }).evaluate(element => (element as HTMLButtonElement).click());
+      await page.getByRole('button', { name: 'Close comments' }).evaluate(element => element.click());
     }
     await page.waitForURL(url => url.pathname === '/', { timeout: 10000 });
   }
