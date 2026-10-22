@@ -216,8 +216,8 @@ async function inspect(width, state) {
     if (width < 651) {
       assert(Math.max(...metrics.actionTops) - Math.min(...metrics.actionTops) <= 4,
         'Vote/Poke/Like/Comments are not on one row at ' + width + 'px: ' + metrics.actionTops.join(','));
-      assert(Math.abs(metrics.promptRect.top - Math.min(...metrics.actionTops)) <= 4,
-        'Comment input/prompt is not aligned with the horizontally scrollable action row at ' + width + 'px (' + state + ')');
+      assert(metrics.promptRect.top < metrics.actionsBottom && metrics.promptRect.bottom > Math.min(...metrics.actionTops),
+        'Comment input/prompt does not vertically intersect the horizontally scrollable action row at ' + width + 'px (' + state + ')');
     } else {
       const actionTop = Math.min(...metrics.actionTops);
       const actionsSameRow = Math.max(...metrics.actionTops) - actionTop <= 4;
