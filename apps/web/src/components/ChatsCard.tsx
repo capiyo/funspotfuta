@@ -494,78 +494,48 @@ export function MatchCard({
           </div>}
         </div>
 
-        {/* One line: actions, comment box, teams + score */}
-        <div className="match-card-bottom" style={styles.bottomRow}>
-          {!isTyping && <div className="match-card-actions" style={styles.actions}>
-            <ActionButton
-              icon={Vote}
-              label={isCompleted ? 'Results' : 'Vote'}
-              count={fixture.votes}
-              colors={colors}
-              onPress={handleVote}
-            />
-            <button type="button" className="match-card-poke" aria-label="Poke on this match" onClick={() => { if (!isLoggedIn) return requireLogin(() => onOpenPokeModal?.(fixture)); onOpenPokeModal?.(fixture); }} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, height: 28, minHeight: 28, padding: 0, border: 0, borderRadius: 0, background: 'transparent', color: colors.primary, fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap' }}>
-              <span className="match-card-poke-circle" style={{ display: 'inline-flex', flex: '0 0 28px', width: 28, minWidth: 28, maxWidth: 28, height: 28, minHeight: 28, maxHeight: 28, boxSizing: 'border-box', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', background: colors.primaryDim, color: colors.primary }}><Pointer size={16} aria-hidden="true" /></span><span>Poke</span>
+        {/* Footer top row: comment input left, fixture teams right. */}
+        <div className="match-card-bottom" style={{ ...styles.bottomRow, flexDirection: 'column', alignItems: 'stretch', flexWrap: 'nowrap', gap: 8, marginTop: 14, paddingBottom: 10 }}>
+          <div className="match-card-footer-top" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 10, minWidth: 0, width: '100%' }}>
+            <div className="match-card-input-cell" style={{ ...styles.inputCell, flex: '1 1 0%', minWidth: 0 }}>
+              {!isLoggedIn ? (
+                <button type="button" onClick={handleSubmit} aria-label="Log in to comment" className="match-card-guest-comment-prompt" style={styles.guestCommentPrompt}>Log in to comment</button>
+              ) : (
+                <>
+                  {!canComment && <Lock size={ICON.sm} color={colors.textTertiary} />}
+                  <Input
+                    colors={colors}
+                    variant="inline"
+                    value={draft}
+                    onChange={(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => setDraft(event.target.value)}
+                    disabled={!canComment}
+                    placeholder={placeholder}
+                    aria-label={placeholder}
+                    onKeyDown={handleCommentKeyDown}
+                    style={styles.input}
+                  />
+                  {isTyping && <button type="button" onClick={handleSubmit} disabled={!canComment} aria-label="Send comment" title="Send comment" style={{ flex: '0 0 auto', padding: '6px 10px', border: 0, borderRadius: 16, background: canComment ? colors.primary : colors.primaryDim, color: '#fff', cursor: canComment ? 'pointer' : 'not-allowed' }}>Send</button>}
+                </>
+              )}
+            </div>
+            <button type="button" className="match-card-teams" onClick={handleLineups} aria-label={`Open match details: ${fixtureLabel}`} style={{ display: 'flex', flex: '0 1 48%', flexWrap: 'nowrap', alignItems: 'center', justifyContent: 'flex-end', gap: 4, minWidth: 0, maxWidth: '48%', marginLeft: 'auto', padding: 0, border: 0, background: 'transparent', color: colors.textPrimary, fontSize: 12, fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden' }}>
+              <TeamLogo name={fixture.homeTeam} url={homeLogo} colors={colors} />
+              <span className="match-card-team-name" style={{ display: 'block', flex: '0 1 auto', minWidth: 0, maxWidth: 74, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: colors.textPrimary, fontSize: 12, fontWeight: 500 }}>{fixture.homeTeam}</span>
+              <span className="match-card-score" style={{ display: 'block', flex: '0 0 auto', color: colors.textTertiary, fontSize: 12, fontWeight: 500 }}>{scoreLabel}</span>
+              <span className="match-card-team-name" style={{ display: 'block', flex: '0 1 auto', minWidth: 0, maxWidth: 74, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: colors.textPrimary, fontSize: 12, fontWeight: 500 }}>{fixture.awayTeam}</span>
+              <TeamLogo name={fixture.awayTeam} url={awayLogo} colors={colors} />
             </button>
-            <ActionButton
-              icon={Heart}
-              label={liked ? 'Unlike' : 'Like'}
-              count={likesCount}
-              active={liked}
-              activeColor={colors.away}
-              colors={colors}
-              onPress={handleLike}
-            />
-            <ActionButton
-              icon={MessageCircle}
-              label="Comments"
-              count={commentsCount ?? pool.length}
-              colors={colors}
-              onPress={handleChat}
-            />
-          </div>}
-
-          {/* Middle: comment box */}
-          <div className="match-card-input-cell" style={styles.inputCell}>
-            {!isLoggedIn ? (
-              <button
-                type="button"
-                onClick={handleSubmit}
-                aria-label="Log in to comment"
-                className="match-card-guest-comment-prompt"
-                style={styles.guestCommentPrompt}
-              >
-                Log in to comment
-              </button>
-            ) : (
-              <>
-                {!canComment && (
-                  <Lock size={ICON.sm} color={colors.textTertiary} />
-                )}
-                <Input
-                  colors={colors}
-                  variant="inline"
-                  value={draft}
-                  onChange={(event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-                    setDraft(event.target.value)
-                  }
-                  disabled={!canComment}
-                  placeholder={placeholder}
-                  aria-label={placeholder}
-                  onKeyDown={handleCommentKeyDown}
-                  style={styles.input}
-                />
-                {isTyping && <button type="button" onClick={handleSubmit} disabled={!canComment} aria-label="Send comment" title="Send comment" style={{ flex: '0 0 auto', padding: '6px 10px', border: 0, borderRadius: 16, background: canComment ? colors.primary : colors.primaryDim, color: '#fff', cursor: canComment ? 'pointer' : 'not-allowed' }}>Send</button>}
-              </>
-            )}
           </div>
-          {!isTyping && <button type="button" className="match-card-teams" onClick={handleLineups} aria-label={`Open match details: ${fixtureLabel}`} style={{ display: 'flex', flex: '0 1 auto', flexWrap: 'nowrap', alignItems: 'center', justifyContent: 'flex-end', gap: 4, minWidth: 0, maxWidth: '48%', marginLeft: 'auto', padding: 0, border: 0, background: 'transparent', color: colors.textPrimary, fontSize: 12, fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden' }}>
-            <TeamLogo name={fixture.homeTeam} url={homeLogo} colors={colors} />
-            <span className="match-card-team-name" style={{ display: 'block', flex: '0 1 auto', minWidth: 0, maxWidth: 74, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: colors.textPrimary, fontSize: 12, fontWeight: 500 }}>{fixture.homeTeam}</span>
-            <span className="match-card-score" style={{ display: 'block', flex: '0 0 auto', color: colors.textTertiary, fontSize: 12, fontWeight: 500 }}>{scoreLabel}</span>
-            <span className="match-card-team-name" style={{ display: 'block', flex: '0 1 auto', minWidth: 0, maxWidth: 74, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: colors.textPrimary, fontSize: 12, fontWeight: 500 }}>{fixture.awayTeam}</span>
-            <TeamLogo name={fixture.awayTeam} url={awayLogo} colors={colors} />
-          </button>}
+          {!isTyping && <div className="match-card-actions" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', alignItems: 'center', gap: 4, width: '100%' }}>
+            <div className="match-card-action-slot" style={{ display: 'flex', justifyContent: 'center', minWidth: 0 }}><ActionButton icon={Vote} label={isCompleted ? 'Results' : 'Vote'} count={fixture.votes} colors={colors} onPress={handleVote} /></div>
+            <div className="match-card-action-slot" style={{ display: 'flex', justifyContent: 'center', minWidth: 0 }}>
+              <button type="button" className="match-card-poke" aria-label="Poke on this match" onClick={() => { if (!isLoggedIn) return requireLogin(() => onOpenPokeModal?.(fixture)); onOpenPokeModal?.(fixture); }} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, height: 28, minHeight: 28, padding: 0, border: 0, borderRadius: 0, background: 'transparent', color: colors.primary, fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap' }}>
+                <span className="match-card-poke-circle" style={{ display: 'inline-flex', flex: '0 0 24px', width: 24, minWidth: 24, height: 24, boxSizing: 'border-box', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', background: colors.primaryDim, color: colors.primary }}><Pointer size={15} aria-hidden="true" /></span><span>Poke</span>
+              </button>
+            </div>
+            <div className="match-card-action-slot" style={{ display: 'flex', justifyContent: 'center', minWidth: 0 }}><ActionButton icon={Heart} label={liked ? 'Unlike' : 'Like'} count={likesCount} active={liked} activeColor={colors.away} colors={colors} onPress={handleLike} /></div>
+            <div className="match-card-action-slot" style={{ display: 'flex', justifyContent: 'center', minWidth: 0 }}><ActionButton icon={MessageCircle} label="Comments" count={commentsCount ?? pool.length} colors={colors} onPress={handleChat} /></div>
+          </div>}
         </div>
       </div>
     </FeedItem>
