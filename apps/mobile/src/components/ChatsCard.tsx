@@ -374,7 +374,6 @@ export function MatchCard({
         <Text
           style={[fanText('tag', colors, colors.textTertiary), styles.leagueName]}
           numberOfLines={1}
-          pointerEvents="none"
         >
           {fixture.league || 'Unknown league'}
         </Text>
