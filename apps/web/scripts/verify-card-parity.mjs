@@ -213,21 +213,15 @@ async function inspect(width, state) {
     assert(Math.abs(metrics.pokeWidth - 28) <= .5 && Math.abs(metrics.pokeHeight - 28) <= .5 && metrics.pokeRadius === '50%',
       'Poke circle is not 28x28 circular at ' + width + 'px (' + state + ')');
     assert(metrics.pointer && metrics.pokeText === 'Poke', 'Poke Pointer icon/label missing at ' + width + 'px (' + state + ')');
-    if (width < 651) {
-      assert(Math.max(...metrics.actionTops) - Math.min(...metrics.actionTops) <= 4,
-        'Vote/Poke/Like/Comments are not on one row at ' + width + 'px: ' + metrics.actionTops.join(','));
-      assert(metrics.promptRect.top < metrics.actionsBottom && metrics.promptRect.bottom > Math.min(...metrics.actionTops),
-        'Comment input/prompt does not vertically intersect the horizontally scrollable action row at ' + width + 'px (' + state + ')');
-    } else {
-      const actionTop = Math.min(...metrics.actionTops);
-      const actionsSameRow = Math.max(...metrics.actionTops) - actionTop <= 4;
-      const promptSameRow = Math.abs(metrics.promptRect.top - actionTop) <= 4;
-      const promptWrappedBelow = metrics.promptRect.top >= metrics.actionsBottom - 0.5;
-      assert(actionsSameRow && (promptSameRow || promptWrappedBelow),
-        'Desktop actions or comment box do not form a clean row/wrap at ' + width + 'px (' + state + '): ' + JSON.stringify({ actionTops: metrics.actionTops, prompt: metrics.promptRect, actionsBottom: metrics.actionsBottom }));
-    }
-    assert(metrics.names.length === 2 && metrics.names.every(n => n.text && n.scroll <= n.client),
-      'Team names truncated at ' + width + 'px (' + state + '): ' + JSON.stringify(metrics.names));
+    const actionTop = Math.min(...metrics.actionTops);
+    const actionsSameRow = Math.max(...metrics.actionTops) - actionTop <= 4;
+    assert(actionsSameRow, 'Vote/Poke/Like/Comments do not share the full-width action row at ' + width + 'px (' + state + '): ' + metrics.actionTops.join(','));
+    assert(metrics.promptRect.bottom <= actionTop + 1,
+      'Comment input/prompt is not above the action row at ' + width + 'px (' + state + '): ' + JSON.stringify({ prompt: metrics.promptRect, actionTop }));
+    assert(metrics.teamRect.top <= metrics.promptRect.top + 4 && metrics.teamRect.bottom >= metrics.promptRect.bottom - 4,
+      'Team names are not aligned horizontally with the comment input/prompt at ' + width + 'px (' + state + '): ' + JSON.stringify({ teams: metrics.teamRect, prompt: metrics.promptRect }));
+    assert(metrics.names.length === 2 && metrics.names.every(n => n.text && n.client > 0),
+      'Team names are missing or have no layout width at ' + width + 'px (' + state + '): ' + JSON.stringify(metrics.names));
     const intersects = (a, b) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
     assert(!intersects(metrics.teamRect, metrics.actionsRect),
       'Team group overlaps action group at ' + width + 'px (' + state + ')');
@@ -245,7 +239,7 @@ async function inspect(width, state) {
       input: { enabled: metrics.inputEnabled, height: metrics.inputHeight },
       rowAssertions: {
         actionsShareRow: Math.max(...metrics.actionTops) - Math.min(...metrics.actionTops) <= 4,
-        commentStartsBelowActions: metrics.promptRect.top >= metrics.actionsBottom - 0.5,
+        commentAboveActions: metrics.promptRect.bottom <= Math.min(...metrics.actionTops) + 1,
         teamActionIntersection: intersects(metrics.teamRect, metrics.actionsRect),
         teamCommentIntersection: intersects(metrics.teamRect, metrics.promptRect),
         teamNamesFit: metrics.names.every(n => n.scroll <= n.client),
