@@ -35,7 +35,7 @@ import {
   castFixtureVote, createPledge, matchMainPledge as actionMatchMainPledge,
 } from '@funspot/core/src/api/vote-actions';
 
-type Filter = 'all' | 'live' | 'upcoming' | 'completed';
+type Filter = 'all' | 'live' | 'upcoming';
 type Pick = 'home' | 'away';
 type ActionResult = { success: boolean; message?: string; newBalance?: number };
 
@@ -43,7 +43,6 @@ const EMPTY_COPY: Record<Filter, { title: string; hint: string }> = {
   all: { title: 'No fixtures right now', hint: 'Check back soon.' },
   live: { title: 'Nothing live at the moment', hint: 'Live matches show up here.' },
   upcoming: { title: 'No upcoming fixtures', hint: 'New fixtures appear as they are scheduled.' },
-  completed: { title: 'No completed matches yet', hint: 'Finished matches appear here.' },
 };
 const FIXTURES_KEY = queryKeys.fixtures();
 const NO_FIXTURES: Fixture[] = [];
@@ -96,14 +95,10 @@ function isLiveFixture(fixture: Fixture) {
 function isUpcomingFixture(fixture: Fixture) {
   return fixture.status === 'upcoming' || fixture.status === 'soon';
 }
-function isCompletedFixture(fixture: Fixture) {
-  return fixture.status === 'completed' || fixture.status === 'finished';
-}
 function matchesFilter(fixture: Fixture, filter: Filter) {
-  if (filter === 'all') return true;
-  if (filter === 'live') return isLiveFixture(fixture);
-  if (filter === 'upcoming') return isUpcomingFixture(fixture);
-  return isCompletedFixture(fixture);
+  if (isLiveFixture(fixture)) return filter === 'all' || filter === 'live';
+  if (isUpcomingFixture(fixture)) return filter === 'all' || filter === 'upcoming';
+  return false;
 }
 function statusRank(fixture: Fixture) {
   if (isLiveFixture(fixture)) return 0;
@@ -219,7 +214,6 @@ export default function ChatsScreen() {
     { value: 'all' as const, label: 'All' },
     { value: 'live' as const, label: liveCount > 0 ? `Live · ${liveCount}` : 'Live' },
     { value: 'upcoming' as const, label: 'Upcoming' },
-    { value: 'completed' as const, label: 'Completed' },
   ], [liveCount]);
   const filtered = useMemo(() => {
     const matched = fixtures.filter((fixture) => matchesFilter(fixture, filter));
