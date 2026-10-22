@@ -41,6 +41,14 @@ export function LoginModalProvider({ children }: { children: ReactNode }) {
     }
     if (autoPrompted.current || open) return;
     autoPrompted.current = true;
+
+    // Browser permission persists across launches. Never show the gate again
+    // when the browser already reports notifications as granted.
+    if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+      setGated(false);
+      setOpen(true);
+      return;
+    }
     setGated(true);
   }, [isInitialized, isLoggedIn, open]);
 
