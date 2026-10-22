@@ -2908,6 +2908,21 @@ body:has(.home-screen) .home-screen *:not(.profile-card):not(.profile-card *):no
   .desktop-message-overlay { display: none !important; }
 }
 
+/* Team names must never be ellipsized at tablet/desktop widths either. Let the team group wrap below the action row when space is constrained. */
+.match-card .match-card-teams {
+  max-width: none !important;
+  overflow: visible !important;
+  flex-wrap: wrap !important;
+  white-space: normal !important;
+}
+.match-card .match-card-team-name {
+  max-width: none !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+}
+
 /* Keep full team names readable; the footer itself is horizontally scrollable on narrow screens. */
 @media (max-width: 650px) {
   .match-card .match-card-teams { max-width: none !important; }
