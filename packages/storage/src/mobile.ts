@@ -5,17 +5,21 @@ import type { KVStorage } from './types';
 // (falls back to AsyncStorage below if you'd rather not add a native dep)
 const mmkv = new MMKV({ id: 'app-cache' });
 
-export const mobileStorage: KVStorage = {
-  getItem(key) {
+/** Synchronous MMKV access for startup-critical values such as auth state. */
+export const mobileCache = {
+  getItem(key: string): string | null {
     return mmkv.getString(key) ?? null;
   },
-  setItem(key, value) {
+  setItem(key: string, value: string): void {
     mmkv.set(key, value);
   },
-  removeItem(key) {
+  removeItem(key: string): void {
     mmkv.delete(key);
   },
 };
+
+/** Async-compatible persistence contract used by the shared query cache. */
+export const mobileStorage: KVStorage = mobileCache;
 
 /**
  * Drop-in alternative if you don't want the MMKV native dependency yet.
