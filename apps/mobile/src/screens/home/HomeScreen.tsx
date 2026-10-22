@@ -14,9 +14,10 @@
 // taps it.
 
 import { ComponentType, useEffect, useMemo, useRef, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { View, Animated, Easing, StyleSheet } from 'react-native';
 import { AppHeader } from './appHeader';
-import { ChannelCreationModal } from '@/modals/ChannelCreationModal';
+import CreateChannelModal from '@/modals/ChannelCreation';
 import { FloatingPillTabBar, TabName } from '@/components/FloatingPillTabBar';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { FanColorPalette } from '@funspot/core';
@@ -35,6 +36,7 @@ const HEADER_HIDE_OFFSET = -8;
 
 function HomeInner() {
     const colors = useFanColors();
+    const queryClient = useQueryClient();
     const styles = useMemo(() => createStyles(colors), [colors]);
     const { headerVisible, activeTab, setActiveTab } = useHome();
 
@@ -118,9 +120,13 @@ function HomeInner() {
                     <FloatingPillTabBar active={activeTab} onChange={changeTab} />
                 </Animated.View>
 
-                {showCreateChannel && (
-                    <ChannelCreationModal onClose={() => setShowCreateChannel(false)} />
-                )}
+                <CreateChannelModal
+                    visible={showCreateChannel}
+                    onClose={() => setShowCreateChannel(false)}
+                    onChannelCreated={() => {
+                        void queryClient.invalidateQueries({ queryKey: ['channels'] });
+                    }}
+                />
             </View>
         </HeaderInsetContext.Provider>
     );
