@@ -2796,3 +2796,72 @@ body:has(.home-screen) .home-screen *:not(.profile-card):not(.profile-card *):no
     margin-bottom: 0 !important;
   }
 }
+
+
+/* Mobile web Chats footer mirrors the native single-row order: Vote, Poke, Like, Comments, input, teams. */
+@media (max-width: 650px) {
+  .match-card .match-card-bottom {
+    display: flex !important;
+    flex-flow: row nowrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+    min-width: 0 !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    flex-wrap: nowrap !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    padding-bottom: 6px !important;
+  }
+  .match-card .match-card-bottom::-webkit-scrollbar { display: none !important; }
+  .match-card .match-card-actions {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    flex-flow: row nowrap !important;
+    align-items: center !important;
+    gap: 8px !important;
+    width: auto !important;
+  }
+  .match-card .match-card-input-cell,
+  .match-card .match-card-input-cell:has(input) {
+    display: flex !important;
+    flex: 0 0 88px !important;
+    width: 88px !important;
+    min-width: 88px !important;
+    max-width: 88px !important;
+    overflow: hidden !important;
+    gap: 4px !important;
+  }
+  .match-card .match-card-input-cell input {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    font-size: 11px !important;
+  }
+  .match-card .match-card-guest-comment-prompt {
+    max-width: 88px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-size: 11px !important;
+  }
+  .match-card .match-card-teams {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    width: max-content !important;
+    max-width: 180px !important;
+    margin-left: 0 !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    white-space: nowrap !important;
+  }
+  .match-card .match-card-team-name {
+    max-width: 54px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    overflow-wrap: normal !important;
+  }
+}
