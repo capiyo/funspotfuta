@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { AlertCircle, MessageCircle, Reply, Send, X } from 'lucide-react';
+import { AlertCircle, ArrowLeft, MessageCircle, Reply, Send, X } from 'lucide-react';
 import { FAN_SPACING, FAN_RADIUS } from '@funspot/core';
 import { NotificationService } from '@/lib/api/notification-service';
 import { useAuth } from '@/lib/auth/auth-context';
@@ -95,6 +95,7 @@ export interface PostCommentsModalProps {
   postUserId?: string;
   postUserName?: string;
   postCaption?: string;
+  presentation?: 'page' | 'modal';
 }
 
 export default function PostCommentsModal({
@@ -254,12 +255,20 @@ export default function PostCommentsModal({
 
   if (!visible) return null;
   return createPortal(
-    <div className="fixed inset-0 z-[900] flex items-end justify-center bg-black/50 sm:items-center"
-      onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}>
-      <section ref={dialogRef} role="dialog" aria-modal="true" aria-label="Comments"
-        className="flex w-full flex-col overflow-hidden border sm:max-w-2xl"
-        style={{ maxHeight: '88vh', height: '88vh', borderTopLeftRadius: FAN_RADIUS.xl, borderTopRightRadius: FAN_RADIUS.xl, background: colors.surface, borderColor: colors.border, color: colors.textPrimary }}>
-        <div className="flex justify-center py-3"><div className="h-1 w-9 rounded-full" style={{ background: colors.border }} /></div>
+    <div
+      className={presentation === 'page'
+        ? 'comments-page-overlay fixed inset-0 z-[900] flex items-stretch justify-center'
+        : 'fixed inset-0 z-[900] flex items-end justify-center bg-black/50 sm:items-center'}
+      onMouseDown={presentation === 'modal' ? (event) => { if (event.target === event.currentTarget) onClose(); } : undefined}
+      style={presentation === 'page' ? { background: colors.surface } : undefined}>
+      <section ref={dialogRef} role={presentation === 'page' ? 'main' : 'dialog'} aria-modal={presentation === 'modal' ? true : undefined} aria-label="Comments"
+        className={presentation === 'page'
+          ? 'comments-page-sheet flex w-full flex-col overflow-hidden'
+          : 'flex w-full flex-col overflow-hidden border sm:max-w-2xl'}
+        style={presentation === 'page'
+          ? { maxHeight: '100dvh', height: '100dvh', borderRadius: 0, background: colors.surface, borderColor: colors.border, color: colors.textPrimary }
+          : { maxHeight: '88vh', height: '88vh', borderTopLeftRadius: FAN_RADIUS.xl, borderTopRightRadius: FAN_RADIUS.xl, background: colors.surface, borderColor: colors.border, color: colors.textPrimary }}>
+        <div className={presentation === 'page' ? 'comments-page-handle hidden' : 'flex justify-center py-3'}><div className="h-1 w-9 rounded-full" style={{ background: colors.border }} /></div>
         <header className="flex items-center gap-3 border-b px-5 pb-3" style={{ borderColor: colors.border }}>
           <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ background: colors.primaryDim }}>
             <MessageCircle size={18} color={colors.primary} />
@@ -270,8 +279,8 @@ export default function PostCommentsModal({
               {comments.length} {comments.length === 1 ? 'response' : 'responses'}
             </p>
           </div>
-          <button type="button" onClick={onClose} aria-label="Close comments" className="flex h-8 w-8 items-center justify-center rounded-full border"
-            style={{ background: colors.surfaceSunken, borderColor: colors.border }}><X size={15} color={colors.textSecondary} /></button>
+          <button type="button" onClick={onClose} aria-label={presentation === 'page' ? 'Back to feed' : 'Close comments'} className="flex h-8 w-8 items-center justify-center rounded-full border"
+            style={{ background: colors.surfaceSunken, borderColor: colors.border }}>{presentation === 'page' ? <ArrowLeft size={17} color={colors.textSecondary} /> : <X size={15} color={colors.textSecondary} />}</button>
         </header>
         <div ref={listRef} className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-5 py-4" style={{ gap: FAN_SPACING.md }}>
           {loading && comments.length === 0 ? <div className="flex h-full flex-col items-center justify-center gap-3 py-12" role="status">

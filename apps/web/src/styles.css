@@ -2865,3 +2865,56 @@ body:has(.home-screen) .home-screen *:not(.profile-card):not(.profile-card *):no
     overflow-wrap: normal !important;
   }
 }
+
+
+/* Responsive overlays: mobile Comments/Messaging are routed full pages; desktop keeps Home behind modal dialogs. */
+.desktop-message-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 850;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgb(0 0 0 / 52%);
+}
+.desktop-message-dialog {
+  width: min(100%, 760px);
+  max-height: 88dvh;
+  overflow: hidden;
+  border: 1px solid var(--home-border, #333);
+  border-radius: 14px;
+  box-shadow: 0 20px 70px rgb(0 0 0 / 28%);
+}
+.desktop-message-dialog .message-screen {
+  width: 100%;
+  height: min(88dvh, 900px) !important;
+  min-height: 0 !important;
+  max-height: 88dvh !important;
+  border-radius: 14px;
+}
+@media (max-width: 650px) {
+  .comments-page-overlay { background: var(--home-background, inherit); }
+  .comments-page-sheet {
+    width: 100% !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    max-width: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+  }
+}
+@media (max-width: 650px) {
+  .desktop-message-overlay { display: none !important; }
+}
+
+/* Keep full team names readable; the footer itself is horizontally scrollable on narrow screens. */
+@media (max-width: 650px) {
+  .match-card .match-card-teams { max-width: none !important; }
+  .match-card .match-card-team-name {
+    max-width: none !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    overflow-wrap: normal !important;
+  }
+}

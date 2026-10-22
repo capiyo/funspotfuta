@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { useQueryClient, type InfiniteData } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { isLikedBy, toggleLikePost, queryKeys, useFeed, type FeedPage, type Post, FAN_SPACING } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useLoginModal } from '@/modals/Login-modal-context';
@@ -18,6 +19,7 @@ const FEED_KEY = queryKeys.feed();
 export default function FeedScreen() {
   const colors = useFanColors();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const { userId, username, isLoggedIn, authToken } = useAuth();
   const { requireLogin } = useLoginModal();
   const { activeTab } = useHome();
@@ -129,7 +131,12 @@ export default function FeedScreen() {
                       index={index}
                       currentUserId={userId}
                       onLike={(item) => void handleLike(item)}
-                      onOpenComments={() => {}}
+                      onOpenComments={(item) => {
+                        if (!item.id) return;
+                        navigate(`/comments/${encodeURIComponent(item.id)}`, {
+                          state: { postUserId: item.userId, postUserName: item.userName, postCaption: item.caption },
+                        });
+                      }}
                       onRepost={() => {}}
                       onShare={(item) => {
                         const url = item.id ? `${window.location.origin}/posts/${item.id}` : window.location.href;
