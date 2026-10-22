@@ -188,6 +188,7 @@ export function MatchCard({
   likesCount = 0,
   liked = false,
   onOpenVoteModal,
+  onOpenPokeModal,
   onOpenResults,
   onChatClick,
   onLike,
@@ -205,6 +206,7 @@ export function MatchCard({
   liked?: boolean;
   onOpen?: (fixture: Fixture) => void;
   onOpenVoteModal?: (fixture: Fixture) => void;
+  onOpenPokeModal?: (fixture: Fixture) => void;
   onOpenResults?: (fixture: Fixture) => void;
   onChatClick?: (fixture: Fixture) => void;
   onLike?: (fixture: Fixture) => void;
@@ -442,7 +444,7 @@ export function MatchCard({
               onPress={handleVote}
             />
             <Pressable
-              onPress={handleVote}
+              onPress={() => { if (!isLoggedIn) return requireLogin(() => onOpenPokeModal?.(fixture)); onOpenPokeModal?.(fixture); }}
               hitSlop={8}
               accessibilityRole="button"
               accessibilityLabel="Poke on this match"
