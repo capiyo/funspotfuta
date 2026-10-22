@@ -98,11 +98,11 @@ const sharedRequiredSelectors = [
   '.match-card-league-line',
   '.match-card-comment-preview',
   '.match-card-prompt-line',
+  '.match-card-teams',
   'button[aria-label="Vote"],button[aria-label="Results"]',
   'button[aria-label="Poke on this match"]',
   'button[aria-label="Like"],button[aria-label="Unlike"]',
   'button[aria-label="Comments"]',
-  '.match-card-teams',
 ];
 
 async function inspect(width, state) {
