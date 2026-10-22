@@ -3052,3 +3052,19 @@ body:has(.home-screen) .home-screen *:not(.profile-card):not(.profile-card *):no
     overflow-wrap: anywhere !important;
   }
 }
+
+/* Keep the guest login prompt readable on mobile web instead of truncating it to an ellipsis. */
+@media (max-width: 650px) {
+  .match-card .match-card-footer-top .match-card-guest-comment-prompt {
+    display: block !important;
+    flex: 0 1 auto !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+    overflow-wrap: normal !important;
+    text-align: left !important;
+    line-height: 1.25 !important;
+  }
+}
