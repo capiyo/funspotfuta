@@ -26,7 +26,7 @@ import {
 import LoginModal from '@/modals/LoginModal';
 import NotificationGate from '@/modals/NotificationGate';
 import { useAuth } from '@/lib/auth/auth-context';
-import { requestNotificationPermission, requestFcmToken } from '@/lib/firebase';
+import { hasNotificationPermission, requestNotificationPermission, requestFcmToken } from '@/lib/firebase';
 import { registerToken } from '@funspot/core';
 
 type LoginModalCtx = {
@@ -72,12 +72,18 @@ export function LoginModalProvider({ children }: { children: ReactNode }) {
         autoPromptedRef.current = true;
 
         (async () => {
+            // Check the OS permission state first; requesting an already
+            // granted permission on every cold launch is unnecessary.
+            const alreadyGranted = await hasNotificationPermission();
+            if (alreadyGranted) {
+                setGated(false);
+                setOpen(true);
+                return;
+            }
             const granted = await requestNotificationPermission();
             if (granted) {
                 setOpen(true);
             } else {
-                // Block here rather than silently skipping — matches the Dart
-                // gate dialog that requires the user to grant before proceeding.
                 setGated(true);
             }
         })();
