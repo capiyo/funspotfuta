@@ -89,7 +89,7 @@ export function PokeModal({ visible, fixture, userId, username, authToken, onClo
           <Text style={styles.label}>Fixture / sub-fixture</Text>
           <View style={styles.optionsWrap}>
             <Pressable onPress={() => setMarketId('main_fixture')} style={[styles.choice, marketId === 'main_fixture' && styles.selected]}><Text style={styles.choiceText}>Main fixture</Text></Pressable>
-            {markets.map((market) => <Pressable key={market.id} onPress={() => setMarketId(market.id)} style={[styles.choice, marketId === market.id && styles.selected]}><Text style={styles.choiceText}>{market.name}</Text></Pressable>)}
+            {markets.map((market) => <Pressable key={market.id} onPress={() => setMarketId(market.id)} style={[styles.choice, marketId === market.id && styles.selected]}><Text style={styles.choiceText}>{market.marketType.replace(/([A-Z])/g, ' $1').trim()}</Text></Pressable>)}
           </View>
           <Text style={styles.label}>Pick a side</Text>
           <View style={styles.optionsWrap}>{options.map((option) => <Pressable key={option.value} onPress={() => setSelection(option.value)} style={[styles.choice, selection === option.value && styles.selected]}><Text style={styles.choiceText}>{option.label}</Text></Pressable>)}</View>
@@ -124,10 +124,10 @@ function createStyles(colors: FanColorPalette) {
     selected: { borderColor: colors.primary, backgroundColor: colors.primaryDim },
     choiceText: { color: colors.textPrimary, fontSize: 13 },
     input: { borderWidth: 1, borderColor: colors.border, color: colors.textPrimary, backgroundColor: colors.surfaceSunken, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 10 },
-    error: { color: colors.error, marginTop: 10, fontSize: 13 },
+    error: { color: colors.away, marginTop: 10, fontSize: 13 },
     success: { color: colors.primary, marginTop: 10, fontSize: 13, fontWeight: '700' },
     primaryButton: { marginTop: 14, backgroundColor: colors.primary, padding: 13, borderRadius: 9, alignItems: 'center' },
-    primaryText: { color: colors.onPrimary, fontWeight: '800' },
+    primaryText: { color: colors.textInverse, fontWeight: '800' },
     pokerRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 8, paddingVertical: 10, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
     note: { color: colors.textTertiary, fontSize: 11, marginTop: 14, lineHeight: 16 },
   });
