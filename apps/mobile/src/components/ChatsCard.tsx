@@ -441,88 +441,52 @@ export function MatchCard({
           />
         </View>
 
-        {/* One line: actions, comment box, teams + score */}
+        {/* Footer top row: comment input left, fixture teams right. */}
         <View style={styles.bottomRow}>
-          {!isTyping && <View style={styles.actions}>
-            <ActionButton
-              icon={Vote}
-              label={isCompleted ? 'Results' : 'Vote'}
-              count={fixture.votes}
-              colors={colors}
-              onPress={handleVote}
-            />
-            <Pressable
-              onPress={() => { if (!isLoggedIn) return requireLogin(() => onOpenPokeModal?.(fixture)); onOpenPokeModal?.(fixture); }}
-              hitSlop={8}
-              accessibilityRole="button"
-              accessibilityLabel="Poke on this match"
-              style={({ pressed }) => [styles.pokeButton, pressed && { opacity: PRESSED_OPACITY }]}
-            >
-              <View style={[styles.pokeCircle, { backgroundColor: colors.primaryDim }]}>
-                <Pointer size={ICON.sm} color={colors.primary} />
-              </View>
-              <Text style={fanText('tag', colors, colors.primary)}>Poke</Text>
-            </Pressable>
-            <ActionButton
-              icon={Heart}
-              label={liked ? 'Unlike' : 'Like'}
-              count={likesCount}
-              active={liked}
-              activeColor={colors.away}
-              colors={colors}
-              onPress={handleLike}
-            />
-            <ActionButton
-              icon={MessageCircle}
-              label="Comments"
-              count={commentsCount ?? pool.length}
-              colors={colors}
-              onPress={handleChat}
-            />
-          </View>}
-
-          {/* Middle: comment box */}
-          <View style={styles.inputCell}>
-            {!canComment && (
-              <Lock size={ICON.sm} color={colors.textTertiary} />
-            )}
-            <Input
-              style={[
-                styles.grow,
-                styles.noBorderInput,
-                fanText('caption', colors, colors.textSecondary),
-              ]}
-              colors={colors}
-              variant="inline"
-              value={draft}
-              onChangeText={setDraft}
-              editable={canComment}
-              placeholder={placeholder}
-              onSubmitEditing={handleSubmit}
-              returnKeyType="send"
-            />
-            {isTyping && <Pressable onPress={handleSubmit} disabled={!canComment} accessibilityRole="button" accessibilityLabel="Send comment" style={({ pressed }) => ({ paddingHorizontal: 10, paddingVertical: 7, borderRadius: 16, backgroundColor: canComment ? colors.primary : colors.primaryDim, opacity: pressed ? PRESSED_OPACITY : 1 })}><Text style={fanText('tag', colors, '#FFFFFF')}>Send</Text></Pressable>}
-          </View>
-
-          {/* Right: Home vs Away + score → match details */}
-          {!isTyping && <Pressable
-            onPress={handleLineups}
-            hitSlop={8}
-            style={({ pressed }) => [
-              styles.caption,
-              pressed && { opacity: PRESSED_OPACITY },
-            ]}
-            accessibilityRole="link"
-            accessibilityLabel={`Open match details: ${fixtureLabel}`}
-          >
-            <View style={styles.teamMatchup}>
-              <TeamLogo name={fixture.homeTeam} fixture={fixture as unknown as Record<string, unknown>} side="home" colors={colors} />
-              <Text style={[fanText('tag', colors, colors.textPrimary), styles.teamName]} numberOfLines={1}>{fixture.homeTeam}</Text>
-              <Text style={fanText('tag', colors, colors.textTertiary)}>{hasScores(fixture) ? scoreDisplay(fixture) : 'vs'}</Text>
-              <Text style={[fanText('tag', colors, colors.textPrimary), styles.teamName]} numberOfLines={1}>{fixture.awayTeam}</Text>
-              <TeamLogo name={fixture.awayTeam} fixture={fixture as unknown as Record<string, unknown>} side="away" colors={colors} />
+          <View style={styles.footerTopRow}>
+            <View style={styles.inputCell}>
+              {!canComment && <Lock size={ICON.sm} color={colors.textTertiary} />}
+              <Input
+                style={[styles.grow, styles.noBorderInput, fanText('caption', colors, colors.textSecondary)]}
+                colors={colors}
+                variant="inline"
+                value={draft}
+                onChangeText={setDraft}
+                editable={canComment}
+                placeholder={placeholder}
+                onSubmitEditing={handleSubmit}
+                returnKeyType="send"
+                accessibilityLabel={placeholder}
+              />
+              {isTyping && <Pressable onPress={handleSubmit} disabled={!canComment} accessibilityRole="button" accessibilityLabel="Send comment" style={({ pressed }) => ({ paddingHorizontal: 10, paddingVertical: 7, borderRadius: 16, backgroundColor: canComment ? colors.primary : colors.primaryDim, opacity: pressed ? PRESSED_OPACITY : 1 })}><Text style={fanText('tag', colors, '#FFFFFF')}>Send</Text></Pressable>}
             </View>
-          </Pressable>}
+            <Pressable
+              onPress={handleLineups}
+              hitSlop={8}
+              style={({ pressed }) => [styles.caption, pressed && { opacity: PRESSED_OPACITY }]}
+              accessibilityRole="link"
+              accessibilityLabel={`Open match details: ${fixtureLabel}`}
+            >
+              <View style={styles.teamMatchup}>
+                <TeamLogo name={fixture.homeTeam} fixture={fixture as unknown as Record<string, unknown>} side="home" colors={colors} />
+                <Text style={[fanText('tag', colors, colors.textPrimary), styles.teamName]} numberOfLines={1}>{fixture.homeTeam}</Text>
+                <Text style={fanText('tag', colors, colors.textTertiary)}>{hasScores(fixture) ? scoreDisplay(fixture) : 'vs'}</Text>
+                <Text style={[fanText('tag', colors, colors.textPrimary), styles.teamName]} numberOfLines={1}>{fixture.awayTeam}</Text>
+                <TeamLogo name={fixture.awayTeam} fixture={fixture as unknown as Record<string, unknown>} side="away" colors={colors} />
+              </View>
+            </Pressable>
+          </View>
+          <View style={styles.actions}>
+            <View style={styles.actionSlot}><ActionButton icon={Vote} label={isCompleted ? 'Results' : 'Vote'} count={fixture.votes} colors={colors} onPress={handleVote} /></View>
+            <View style={styles.actionSlot}>
+              <Pressable onPress={() => { if (!isLoggedIn) return requireLogin(() => onOpenPokeModal?.(fixture)); onOpenPokeModal?.(fixture); }} hitSlop={8} accessibilityRole="button" accessibilityLabel="Poke on this match" style={({ pressed }) => [styles.pokeButton, pressed && { opacity: PRESSED_OPACITY }]}>
+                <View style={[styles.pokeCircle, { backgroundColor: colors.primaryDim }]}><Pointer size={ICON.sm} color={colors.primary} /></View>
+                <Text style={fanText('tag', colors, colors.primary)}>Poke</Text>
+              </Pressable>
+            </View>
+            <View style={styles.actionSlot}><ActionButton icon={Heart} label={liked ? 'Unlike' : 'Like'} count={likesCount} active={liked} activeColor={colors.away} colors={colors} onPress={handleLike} /></View>
+            <View style={styles.actionSlot}><ActionButton icon={MessageCircle} label="Comments" count={commentsCount ?? pool.length} colors={colors} onPress={handleChat} /></View>
+          </View>
         </View>
       </View>
     </FeedItem>
@@ -563,20 +527,33 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: FAN_SPACING.sm,
   },
-  // One horizontal line: actions | comment box | teams + score.
-  // Negative bottom margin cancels FeedItem's bottom padding so the row
-  // sits on the card floor. Tune FOOTER_BLEED if a gap remains.
+  // Slightly taller footer: input + teams on row one, four equal actions on row two.
   bottomRow: {
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    gap: FAN_SPACING.sm,
+    marginTop: 20,
+    marginBottom: -FOOTER_BLEED + 4,
+  },
+  footerTopRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: FAN_SPACING.sm,
-    marginTop: 18,
-    marginBottom: -FOOTER_BLEED,
+    width: '100%',
+    minWidth: 0,
   },
   actions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: FAN_SPACING.base,
+    width: '100%',
+    gap: 0,
+    minHeight: 32,
+  },
+  actionSlot: {
+    flex: 1,
+    minWidth: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   inputCell: {
     flex: 1,
@@ -600,6 +577,7 @@ const styles = StyleSheet.create({
   },
   teamMatchup: {
     flexDirection: 'row',
+    minWidth: 0,
     alignItems: 'center',
     justifyContent: 'flex-end',
     gap: 4,
@@ -616,9 +594,11 @@ const styles = StyleSheet.create({
   },
   teamLogoImage: { width: '100%', height: '100%' },
   teamFallback: { fontSize: 9, fontWeight: '700' },
-  teamName: { flexShrink: 1, maxWidth: 74 },
+  teamName: { flexShrink: 1, minWidth: 0, maxWidth: 74 },
   caption: {
     flexShrink: 0,
+    flex: 0.95,
+    minWidth: 0,
     maxWidth: '48%',
     minHeight: 32,
     alignItems: 'flex-end',
