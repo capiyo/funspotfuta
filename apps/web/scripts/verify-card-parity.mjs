@@ -204,7 +204,33 @@ async function inspect(width, state) {
     assert(metrics.promptTop >= metrics.previewBottom - .5, 'Random line is above comment preview at ' + width + 'px');
     assert(metrics.promptText === metrics.previewText, 'Random line color differs from comment at ' + width + 'px');
     if (state === 'guest') {
-      assert(await card.locator('button[aria-label="Log in to comment"]').count() === 1, 'Guest comment prompt missing at ' + width + 'px');
+      const guestPrompt = card.locator('button[aria-label="Log in to comment"]');
+      assert(await guestPrompt.count() === 1, 'Guest comment prompt missing at ' + width + 'px');
+      assert((await guestPrompt.innerText()).trim() === 'Log in to comment',
+        'Guest comment prompt text is missing or altered at ' + width + 'px');
+      const guestPromptMetrics = await guestPrompt.evaluate(el => {
+        const rect = el.getBoundingClientRect();
+        const style = getComputedStyle(el);
+        return {
+          width: rect.width,
+          height: rect.height,
+          display: style.display,
+          visibility: style.visibility,
+          opacity: Number(style.opacity),
+          color: style.color,
+          text: el.textContent?.trim() ?? '',
+          clipped: el.scrollWidth > el.clientWidth + 1,
+        };
+      });
+      assert(guestPromptMetrics.width > 0 && guestPromptMetrics.height > 0
+        && guestPromptMetrics.display !== 'none'
+        && guestPromptMetrics.visibility !== 'hidden'
+        && guestPromptMetrics.opacity > 0,
+      'Guest comment prompt is not visibly rendered at ' + width + 'px: ' + JSON.stringify(guestPromptMetrics));
+      if (width <= 390) {
+        assert(!guestPromptMetrics.clipped,
+          'Guest comment prompt is clipped on narrow mobile web at ' + width + 'px: ' + JSON.stringify(guestPromptMetrics));
+      }
     } else {
       assert(await card.locator('.match-card-input-cell input').count() === 1, 'Logged-in comment input missing at ' + width + 'px (' + state + ')');
       assert(metrics.inputEnabled === (state === 'logged-in-voted'), 'Input enabled state incorrect at ' + width + 'px (' + state + ')');
