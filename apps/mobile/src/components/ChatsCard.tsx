@@ -469,9 +469,9 @@ export function MatchCard({
             >
               <View style={styles.teamMatchup}>
                 <TeamLogo name={fixture.homeTeam} fixture={fixture as unknown as Record<string, unknown>} side="home" colors={colors} />
-                <Text style={[fanText('tag', colors, colors.textPrimary), styles.teamName]} numberOfLines={1}>{fixture.homeTeam}</Text>
+                <Text style={[fanText('tag', colors, colors.textPrimary), styles.teamName]} numberOfLines={2}>{fixture.homeTeam}</Text>
                 <Text style={fanText('tag', colors, colors.textTertiary)}>{hasScores(fixture) ? scoreDisplay(fixture) : 'vs'}</Text>
-                <Text style={[fanText('tag', colors, colors.textPrimary), styles.teamName]} numberOfLines={1}>{fixture.awayTeam}</Text>
+                <Text style={[fanText('tag', colors, colors.textPrimary), styles.teamName]} numberOfLines={2}>{fixture.awayTeam}</Text>
                 <TeamLogo name={fixture.awayTeam} fixture={fixture as unknown as Record<string, unknown>} side="away" colors={colors} />
               </View>
             </Pressable>
