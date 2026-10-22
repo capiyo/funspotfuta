@@ -260,7 +260,7 @@ export default function AddPostModal({
             <Pressable style={styles.backdrop} onPress={onClose}>
                 <KeyboardAvoidingView
                     style={styles.keyboardAvoiding}
-                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                    behavior={Platform.OS === 'ios' ? 'padding' : undefined}
                     keyboardVerticalOffset={0}
                 >
                 <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
