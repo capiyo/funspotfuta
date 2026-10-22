@@ -194,6 +194,13 @@ try {
   for (const width of [1280, 1440, 1920]) desktop.push(await inspect(width));
   const narrow = await inspect(390);
 
+  // The unauthenticated app initially displays its notification gate. Dismiss
+  // that gate and the follow-up sign-in modal so route controls are interactable.
+  if (await page.getByRole('dialog', { name: 'Notifications Required' }).count()) {
+    await page.getByRole('button', { name: 'Continue without notifications' }).click();
+    await page.getByRole('button', { name: 'Close sign in' }).click();
+  }
+
   // Comments are a real route: a full-screen page on mobile web and a modal
   // over Home on desktop. Verify both presentations and their back/close paths.
   for (const width of [390, 1280]) {
