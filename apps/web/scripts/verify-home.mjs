@@ -127,7 +127,7 @@ try {
             return {
               leagueCount: leagues.length, leagueVisible: leagues.length === 1 && getComputedStyle(leagues[0]).display !== 'none',
               secondaryVisible: secondary ? getComputedStyle(secondary).display !== 'none' : false,
-              adjacentVotePoke: !!vote && !!poke && vote.nextElementSibling === poke,
+              adjacentVotePoke: !!vote && !!poke && vote.closest('.match-card-action-slot')?.parentElement === poke.closest('.match-card-action-slot')?.parentElement && Math.abs([...actions.children].indexOf(vote.closest('.match-card-action-slot')) - [...actions.children].indexOf(poke.closest('.match-card-action-slot'))) === 1,
               teamOverlap: !!(t && l && t.left < l.right && t.right > l.left && t.top < l.bottom && t.bottom > l.top),
               teamRight: t?.right ?? null, cardRight: c.right, names,
             };
