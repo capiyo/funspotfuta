@@ -447,7 +447,7 @@ export function MatchCard({
             <View style={styles.inputCell}>
               {!isLoggedIn ? (
                 <Pressable
-                  onPress={() => requireLogin(handleSubmit)}
+                  onPress={handleSubmit}
                   accessibilityRole="button"
                   accessibilityLabel="Log in to comment"
                   hitSlop={8}
