@@ -91,7 +91,7 @@ import {
   matchMainPledge as actionMatchMainPledge,
 } from '../../../../packages/core/src/api/vote-actions';
 
-type Filter = 'all' | 'live' | 'upcoming' | 'completed';
+type Filter = 'all' | 'live' | 'upcoming';
 type Pick = 'home' | 'away';
 type ActionResult = { success: boolean; message?: string; newBalance?: number };
 
@@ -104,10 +104,6 @@ const EMPTY_COPY: Record<Filter, { title: string; hint: string }> = {
   upcoming: {
     title: 'No upcoming fixtures',
     hint: 'New fixtures appear as they are scheduled.',
-  },
-  completed: {
-    title: 'No completed matches yet',
-    hint: 'Finished matches appear here.',
   },
 };
 
@@ -177,14 +173,10 @@ function isLiveFixture(f: Fixture) {
 function isUpcomingFixture(f: Fixture) {
   return f.status === 'upcoming' || f.status === 'soon';
 }
-function isCompletedFixture(f: Fixture) {
-  return f.status === 'completed' || f.status === 'finished';
-}
 function matchesFilter(f: Fixture, filter: Filter) {
-  if (filter === 'all') return true;
-  if (filter === 'live') return isLiveFixture(f);
-  if (filter === 'upcoming') return isUpcomingFixture(f);
-  return isCompletedFixture(f);
+  if (isLiveFixture(f)) return filter === 'all' || filter === 'live';
+  if (isUpcomingFixture(f)) return filter === 'all' || filter === 'upcoming';
+  return false;
 }
 function statusRank(f: Fixture) {
   if (isLiveFixture(f)) return 0;
@@ -307,7 +299,6 @@ export default function ChatsScreen() {
         label: liveCount > 0 ? `Live · ${liveCount}` : 'Live',
       },
       { value: 'upcoming' as const, label: 'Upcoming' },
-      { value: 'completed' as const, label: 'Completed' },
     ],
     [liveCount],
   );
