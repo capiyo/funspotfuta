@@ -61,6 +61,7 @@ import {
   SkeletonRows,
 } from '@/components/ui/ListsStates';
 import { SwipeableVotePledgeModal } from '@/modals/actionModal';
+import { PokeModal } from '@/modals/PokeModal';
 import { AftermatchReviewModal } from '@/modals/AftermatchModal';
 import { MatchDetailsModal } from '@/modals/match/matchDetailsModals';
 
@@ -248,6 +249,7 @@ export default function ChatsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [filter, setFilter] = useState<Filter>('all');
   const [modalFixture, setModalFixture] = useState<Fixture | null>(null);
+  const [pokeModalFixture, setPokeModalFixture] = useState<Fixture | null>(null);
   const [reviewFixture, setReviewFixture] = useState<Fixture | null>(null);
   const [matchDetailsFixture, setMatchDetailsFixture] =
     useState<Fixture | null>(null);
@@ -539,6 +541,7 @@ export default function ChatsScreen() {
                     comments={commentsOf(fixture)}
                     channelId={cid}
                     onOpenVoteModal={(f) => { setSheetChannelId(cid); setModalFixture(f); }}
+                    onOpenPokeModal={(f) => setPokeModalFixture(f)}
                     onOpenResults={(f) => { setSheetChannelId(cid); setReviewFixture(f); }}
                     onChatClick={() => openChat(fixture, cid)}
                     onLike={handleLike}
@@ -591,6 +594,17 @@ export default function ChatsScreen() {
           placeSubFixturePledge={modalApi.placeSubFixturePledge}
           matchSubFixturePledge={modalApi.matchSubFixturePledge}
           matchMainPledge={modalApi.matchMainPledge}
+        />
+      )}
+
+      {pokeModalFixture && userId && userId !== 'guest' && (
+        <PokeModal
+          visible
+          fixture={pokeModalFixture}
+          userId={userId}
+          username={username ?? ''}
+          authToken={authToken}
+          onClose={() => setPokeModalFixture(null)}
         />
       )}
 
