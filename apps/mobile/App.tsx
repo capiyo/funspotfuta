@@ -55,9 +55,12 @@ export default function App() {
     SairaCondensed_800ExtraBold,
   });
 
-  const onLayout = useCallback(async () => {
-    if (cacheReady) await SplashScreen.hideAsync();
-  }, [cacheReady]);
+  const onFirstContentLayout = useCallback(() => {
+    // Hide only after the cache-restored app surface has actually mounted and
+    // laid out. The outer root can lay out before cache restoration completes,
+    // and that early event must not be the one responsible for dismissing splash.
+    void SplashScreen.hideAsync();
+  }, []);
 
   const dark = colors.background === '#0F1E27';
   const navTheme = {
@@ -73,14 +76,14 @@ export default function App() {
   };
 
   return (
-    <View style={{ flex: 1 }} onLayout={onLayout}>
+    <View style={{ flex: 1 }}>
       <SafeAreaProvider>
         <AuthProvider>
           <LoginModalProvider>
             <ToastProvider>
               <QueryProvider onReady={handleCacheReady}>
                 {cacheReady ? (
-                  <View style={{ flex: 1, backgroundColor: colors.background }}>
+                  <View style={{ flex: 1, backgroundColor: colors.background }} onLayout={onFirstContentLayout}>
                     <NavigationContainer theme={navTheme}>
                       <RootNavigator />
                     </NavigationContainer>
