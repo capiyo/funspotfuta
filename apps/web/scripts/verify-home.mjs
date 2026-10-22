@@ -206,7 +206,7 @@ try {
         homeMounted: !!document.querySelector('.home-screen'),
         back: !!document.querySelector('button[aria-label="Back to feed"]'),
       }));
-      assert(mobileComments.sheet && Math.abs(mobileComments.sheet.height - innerHeight) <= 1,
+      assert(mobileComments.sheet && Math.abs(mobileComments.sheet.height - 1000) <= 1,
         `Mobile comments is not full-screen at ${width}px: ${JSON.stringify(mobileComments)}`);
       assert(!mobileComments.homeMounted && mobileComments.back,
         `Mobile comments should be a page with a back action: ${JSON.stringify(mobileComments)}`);
@@ -218,7 +218,7 @@ try {
         homeMounted: !!document.querySelector('.home-screen'),
         close: !!document.querySelector('button[aria-label="Close comments"]'),
       }));
-      assert(desktopComments.dialog && desktopComments.dialog.height > 300 && desktopComments.dialog.height < innerHeight,
+      assert(desktopComments.dialog && desktopComments.dialog.height > 300 && desktopComments.dialog.height < 1000,
         `Desktop comments is not presented as a modal at ${width}px: ${JSON.stringify(desktopComments)}`);
       assert(desktopComments.homeMounted && desktopComments.close,
         `Desktop comments modal should sit over Home and provide close: ${JSON.stringify(desktopComments)}`);
