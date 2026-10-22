@@ -3034,3 +3034,21 @@ body:has(.home-screen) .home-screen *:not(.profile-card):not(.profile-card *):no
     width: auto !important;
   }
 }
+
+/* Preserve complete fixture names in the constrained right-hand footer cell by wrapping text instead of clipping it. */
+.match-card .match-card-footer-top .match-card-team-name {
+  max-width: 74px !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+}
+@media (max-width: 650px) {
+  .match-card .match-card-footer-top .match-card-team-name {
+    max-width: 74px !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+  }
+}
