@@ -5,7 +5,7 @@
 // which means every storage op is async here.
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { mobileStorage } from '@funspot/storage';
+import { mobileCache } from '@funspot/storage';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 interface AuthState {
@@ -56,10 +56,10 @@ const AUTH_CACHE_KEYS = {
 
 function readCachedSession(): AuthState {
   try {
-    const authToken = mobileStorage.getItem(AUTH_CACHE_KEYS.token);
-    const userString = mobileStorage.getItem(AUTH_CACHE_KEYS.user);
-    const phone = mobileStorage.getItem(AUTH_CACHE_KEYS.phone);
-    const refreshToken = mobileStorage.getItem(AUTH_CACHE_KEYS.refreshToken);
+    const authToken = mobileCache.getItem(AUTH_CACHE_KEYS.token);
+    const userString = mobileCache.getItem(AUTH_CACHE_KEYS.user);
+    const phone = mobileCache.getItem(AUTH_CACHE_KEYS.phone);
+    const refreshToken = mobileCache.getItem(AUTH_CACHE_KEYS.refreshToken);
     if (!authToken || !userString) return initialState;
     const userData: unknown = JSON.parse(userString);
     if (!userData || typeof userData !== 'object') return initialState;
@@ -81,16 +81,16 @@ function readCachedSession(): AuthState {
 }
 
 function writeCachedSession(values: { authToken: string; user: string; phone?: string; refreshToken?: string }) {
-  mobileStorage.setItem(AUTH_CACHE_KEYS.token, values.authToken);
-  mobileStorage.setItem(AUTH_CACHE_KEYS.user, values.user);
-  if (values.phone) mobileStorage.setItem(AUTH_CACHE_KEYS.phone, values.phone);
-  else mobileStorage.removeItem(AUTH_CACHE_KEYS.phone);
-  if (values.refreshToken) mobileStorage.setItem(AUTH_CACHE_KEYS.refreshToken, values.refreshToken);
-  else mobileStorage.removeItem(AUTH_CACHE_KEYS.refreshToken);
+  mobileCache.setItem(AUTH_CACHE_KEYS.token, values.authToken);
+  mobileCache.setItem(AUTH_CACHE_KEYS.user, values.user);
+  if (values.phone) mobileCache.setItem(AUTH_CACHE_KEYS.phone, values.phone);
+  else mobileCache.removeItem(AUTH_CACHE_KEYS.phone);
+  if (values.refreshToken) mobileCache.setItem(AUTH_CACHE_KEYS.refreshToken, values.refreshToken);
+  else mobileCache.removeItem(AUTH_CACHE_KEYS.refreshToken);
 }
 
 function clearCachedSession() {
-  Object.values(AUTH_CACHE_KEYS).forEach((key) => mobileStorage.removeItem(key));
+  Object.values(AUTH_CACHE_KEYS).forEach((key) => mobileCache.removeItem(key));
 }
 
 const LOGOUT_KEYS = [
@@ -232,8 +232,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async (newToken: string, newRefreshToken?: string): Promise<boolean> => {
       if (!state.isLoggedIn) return false;
       try {
-        mobileStorage.setItem(AUTH_CACHE_KEYS.token, newToken);
-        if (newRefreshToken) mobileStorage.setItem(AUTH_CACHE_KEYS.refreshToken, newRefreshToken);
+        mobileCache.setItem(AUTH_CACHE_KEYS.token, newToken);
+        if (newRefreshToken) mobileCache.setItem(AUTH_CACHE_KEYS.refreshToken, newRefreshToken);
         await AsyncStorage.setItem('usertoken', newToken);
         if (newRefreshToken) await AsyncStorage.setItem('refreshToken', newRefreshToken);
         setState((s) => ({ ...s, authToken: newToken, refreshToken: newRefreshToken ?? s.refreshToken }));
@@ -247,16 +247,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const updateUserData = useCallback(async (userId: string, username: string, phone?: string) => {
     try {
-      const userString = mobileStorage.getItem(AUTH_CACHE_KEYS.user) ?? await AsyncStorage.getItem('user');
+      const userString = mobileCache.getItem(AUTH_CACHE_KEYS.user) ?? await AsyncStorage.getItem('user');
       if (userString) {
         const userData: unknown = JSON.parse(userString);
         if (!userData || typeof userData !== 'object') throw new Error('Invalid stored user');
         const nextUser = { ...(userData as Record<string, unknown>), id: userId, username, ...(phone ? { phone } : {}) };
-        mobileStorage.setItem(AUTH_CACHE_KEYS.user, JSON.stringify(nextUser));
+        mobileCache.setItem(AUTH_CACHE_KEYS.user, JSON.stringify(nextUser));
         await AsyncStorage.setItem('user', JSON.stringify(nextUser));
       }
       if (phone) {
-        mobileStorage.setItem(AUTH_CACHE_KEYS.phone, phone);
+        mobileCache.setItem(AUTH_CACHE_KEYS.phone, phone);
         await AsyncStorage.setItem('phone', phone);
       }
       setState((s) => ({ ...s, userId, username, phone: phone ?? s.phone }));
