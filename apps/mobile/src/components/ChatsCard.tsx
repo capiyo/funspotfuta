@@ -299,6 +299,7 @@ export function MatchCard({
   }
 
   function handleVote() {
+    if (isLive) return;
     if (!isLoggedIn) return requireLogin(handleVote);
     if (isCompleted) onOpenResults?.(fixture);
     else onOpenVoteModal?.(fixture);
@@ -518,9 +519,9 @@ export function MatchCard({
             </Pressable>
           </View>
           <View style={styles.actions}>
-            <View style={styles.actionSlot}><ActionButton icon={Vote} label={isCompleted ? 'Results' : 'Vote'} count={fixture.votes} colors={colors} onPress={handleVote} /></View>
+            <View style={styles.actionSlot}><ActionButton icon={Vote} label={isLive ? 'Live' : isCompleted ? 'Results' : 'Vote'} count={fixture.votes} colors={colors} onPress={handleVote} /></View>
             <View style={styles.actionSlot}>
-              <Pressable onPress={() => { if (!isLoggedIn) return requireLogin(() => onOpenPokeModal?.(fixture)); onOpenPokeModal?.(fixture); }} hitSlop={8} accessibilityRole="button" accessibilityLabel="Poke on this match" style={({ pressed }) => [styles.pokeButton, pressed && { opacity: PRESSED_OPACITY }]}>
+              <Pressable disabled={isLive} onPress={() => { if (isLive) return; if (!isLoggedIn) return requireLogin(() => onOpenPokeModal?.(fixture)); onOpenPokeModal?.(fixture); }} hitSlop={8} accessibilityRole="button" accessibilityLabel={isLive ? "Poking unavailable for live matches" : "Poke on this match"} accessibilityState={{ disabled: isLive }} style={({ pressed }) => [styles.pokeButton, isLive && { opacity: 0.45 }, pressed && !isLive && { opacity: PRESSED_OPACITY }]}>
                 <View style={[styles.pokeCircle, { backgroundColor: colors.primaryDim }]}><Pointer size={ICON.sm} color={colors.primary} /></View>
                 <Text style={fanText('tag', colors, colors.primary)}>Poke</Text>
               </Pressable>
