@@ -292,6 +292,8 @@ export default function AddPostModal({
                     <ScrollView
                         style={styles.body}
                         contentContainerStyle={styles.bodyContent}
+                        keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+                        automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
                         keyboardShouldPersistTaps="handled"
                     >
                         {/* Caption */}
@@ -584,6 +586,7 @@ function createStyles(colors: FanColors) {
         },
         sheet: {
             maxHeight: '85%',
+            flexShrink: 1,
             backgroundColor: colors.surface,
             borderTopLeftRadius: 24,
             borderTopRightRadius: 24,
@@ -649,7 +652,7 @@ function createStyles(colors: FanColors) {
         },
 
         // Body
-        body: { flexGrow: 0 },
+        body: { flexGrow: 0, flexShrink: 1, maxHeight: '75%' },
         bodyContent: {
             paddingHorizontal: FAN_SPACING.lg,
             paddingBottom: FAN_SPACING.xl,
