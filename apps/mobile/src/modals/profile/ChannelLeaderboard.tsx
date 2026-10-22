@@ -254,6 +254,12 @@ export function ChannelLeaderboard({
     const styles = createStyles(colors);
     const [activeTab, setActiveTab] = useState(0);
 
+
+
+    // Cap at 3 tabs — matches the Flutter source's
+    // `_userChannels.length.clamp(0, 3)`.
+    const visibleChannels = useMemo(() => channels.slice(0, 3), [channels]);
+
     // Horizontal swipes change channels; vertical movement remains available
     // to the members list below.
     const swipeResponder = useMemo(
@@ -274,10 +280,6 @@ export function ChannelLeaderboard({
         }),
         [visibleChannels.length],
     );
-
-    // Cap at 3 tabs — matches the Flutter source's
-    // `_userChannels.length.clamp(0, 3)`.
-    const visibleChannels = useMemo(() => channels.slice(0, 3), [channels]);
 
     if (visibleChannels.length === 0) {
         return (
