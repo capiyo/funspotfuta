@@ -218,8 +218,10 @@ async function inspect(width, state) {
     assert(actionsSameRow, 'Vote/Poke/Like/Comments do not share the full-width action row at ' + width + 'px (' + state + '): ' + metrics.actionTops.join(','));
     assert(metrics.promptRect.bottom <= actionTop + 1,
       'Comment input/prompt is not above the action row at ' + width + 'px (' + state + '): ' + JSON.stringify({ prompt: metrics.promptRect, actionTop }));
-    assert(metrics.teamRect.top <= metrics.promptRect.top + 4 && metrics.teamRect.bottom >= metrics.promptRect.bottom - 4,
-      'Team names are not aligned horizontally with the comment input/prompt at ' + width + 'px (' + state + '): ' + JSON.stringify({ teams: metrics.teamRect, prompt: metrics.promptRect }));
+    const teamCenterY = metrics.teamRect.top + metrics.teamRect.height / 2;
+    const promptCenterY = metrics.promptRect.top + metrics.promptRect.height / 2;
+    assert(Math.abs(teamCenterY - promptCenterY) <= 4,
+      'Team names and comment input/prompt are not vertically centered in the same horizontal row at ' + width + 'px (' + state + '): ' + JSON.stringify({ teams: metrics.teamRect, prompt: metrics.promptRect }));
     assert(metrics.names.length === 2 && metrics.names.every(n => n.text && n.client > 0),
       'Team names are missing or have no layout width at ' + width + 'px (' + state + '): ' + JSON.stringify(metrics.names));
     const intersects = (a, b) => a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
