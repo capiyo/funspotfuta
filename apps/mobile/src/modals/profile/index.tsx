@@ -46,6 +46,8 @@ import {
     Plus,
     Minus,
     Wallet,
+    ChevronDown,
+    ChevronUp,
 } from 'lucide-react-native';
 import {
     FAN_SPACING,
@@ -119,6 +121,7 @@ export default function ProfileModal({
     const [balance, setBalance] = useState(0);
     const [balanceLoading, setBalanceLoading] = useState(true);
     const [paymentVisible, setPaymentVisible] = useState(true);
+    const [channelsExpanded, setChannelsExpanded] = useState(false);
 
     const [savedTopupPhone, setSavedTopupPhone] = useState<string | null>(null);
     const [savedWithdrawPhone, setSavedWithdrawPhone] = useState<string | null>(
@@ -143,6 +146,7 @@ export default function ProfileModal({
         if (!visible) return;
         setViewingMember(null);
         setEditing(false);
+        setChannelsExpanded(false);
     }, [visible]);
 
     // Load profile whenever target changes
@@ -838,14 +842,39 @@ export default function ProfileModal({
                             )}
                         </ScrollView>
 
-                        {/* Channel leaderboard tabs */}
+                        {/* Collapsible channel leaderboard */}
                         {isCurrentUser && (
                             <View style={styles.leaderboardSection}>
-                                <ChannelLeaderboard
-                                    channels={channels}
-                                    currentUserId={userId ?? ''}
-                                    onViewMember={handleViewMember}
-                                />
+                                <Pressable
+                                    accessibilityRole="button"
+                                    accessibilityState={{ expanded: channelsExpanded }}
+                                    accessibilityLabel={channelsExpanded ? 'Collapse channels' : 'Expand channels'}
+                                    onPress={() => setChannelsExpanded((expanded) => !expanded)}
+                                    style={styles.channelsSectionHeader}
+                                >
+                                    <View style={styles.channelsSectionTitleWrap}>
+                                        <Text style={[styles.channelsSectionTitle, { color: colors.textPrimary }]}>
+                                            My Channels
+                                        </Text>
+                                        <Text style={[styles.channelsSectionSubtitle, { color: colors.textTertiary }]}>
+                                            {channels.length === 0
+                                                ? 'Join a channel to see its leaderboard'
+                                                : `${channels.length} channel${channels.length === 1 ? '' : 's'} · tap to ${channelsExpanded ? 'collapse' : 'expand'}`}
+                                        </Text>
+                                    </View>
+                                    {channelsExpanded
+                                        ? <ChevronUp size={18} color={colors.textSecondary} />
+                                        : <ChevronDown size={18} color={colors.textSecondary} />}
+                                </Pressable>
+                                {channelsExpanded && (
+                                    <View style={styles.expandedChannels}>
+                                        <ChannelLeaderboard
+                                            channels={channels}
+                                            currentUserId={userId ?? ''}
+                                            onViewMember={handleViewMember}
+                                        />
+                                    </View>
+                                )}
                             </View>
                         )}
                     </Pressable>
@@ -1059,6 +1088,22 @@ function createStyles(colors: FanColors) {
             borderWidth: 0.5,
         },
         fieldInput: { flex: 1, fontSize: 12, paddingVertical: 4 },
+
+        channelsSectionHeader: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingHorizontal: FAN_SPACING.sm,
+            paddingVertical: FAN_SPACING.md,
+            gap: FAN_SPACING.md,
+        },
+        channelsSectionTitleWrap: { flex: 1, gap: 3 },
+        channelsSectionTitle: { fontSize: 12, fontWeight: '700' },
+        channelsSectionSubtitle: { fontSize: 10 },
+        expandedChannels: {
+            height: 300,
+            minHeight: 220,
+            paddingBottom: FAN_SPACING.sm,
+        },
 
         // Leaderboard section
         leaderboardSection: {
