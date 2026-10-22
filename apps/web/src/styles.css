@@ -3017,3 +3017,20 @@ body:has(.home-screen) .home-screen *:not(.profile-card):not(.profile-card *):no
   .match-card .match-card-actions .action-button { font-size: 11px !important; padding: 3px 1px !important; }
   .match-card .match-card-actions .match-card-poke { gap: 3px !important; font-size: 11px !important; }
 }
+
+/* Override the older narrow-screen horizontal footer rule after the new two-row layout. */
+@media (max-width: 650px) {
+  .match-card .match-card-bottom .match-card-actions {
+    display: grid !important;
+    flex: 0 0 auto !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    flex-flow: initial !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+  }
+  .match-card .match-card-bottom .match-card-actions .match-card-action-slot {
+    flex: initial !important;
+    width: auto !important;
+  }
+}
