@@ -445,20 +445,34 @@ export function MatchCard({
         <View style={styles.bottomRow}>
           <View style={styles.footerTopRow}>
             <View style={styles.inputCell}>
-              {!canComment && <Lock size={ICON.sm} color={colors.textTertiary} />}
-              <Input
-                style={[styles.grow, styles.noBorderInput, fanText('caption', colors, colors.textSecondary)]}
-                colors={colors}
-                variant="inline"
-                value={draft}
-                onChangeText={setDraft}
-                editable={canComment}
-                placeholder={placeholder}
-                onSubmitEditing={handleSubmit}
-                returnKeyType="send"
-                accessibilityLabel={placeholder}
-              />
-              {isTyping && <Pressable onPress={handleSubmit} disabled={!canComment} accessibilityRole="button" accessibilityLabel="Send comment" style={({ pressed }) => ({ paddingHorizontal: 10, paddingVertical: 7, borderRadius: 16, backgroundColor: canComment ? colors.primary : colors.primaryDim, opacity: pressed ? PRESSED_OPACITY : 1 })}><Text style={fanText('tag', colors, '#FFFFFF')}>Send</Text></Pressable>}
+              {!isLoggedIn ? (
+                <Pressable
+                  onPress={() => requireLogin(handleSubmit)}
+                  accessibilityRole="button"
+                  accessibilityLabel="Log in to comment"
+                  hitSlop={8}
+                  style={({ pressed }) => [styles.guestCommentPrompt, pressed && { opacity: PRESSED_OPACITY }]}
+                >
+                  <Text numberOfLines={1} style={fanText('caption', colors, colors.textSecondary)}>Log in to comment</Text>
+                </Pressable>
+              ) : (
+                <>
+                  {!canComment && <Lock size={ICON.sm} color={colors.textTertiary} />}
+                  <Input
+                    style={[styles.grow, styles.noBorderInput, fanText('caption', colors, colors.textSecondary)]}
+                    colors={colors}
+                    variant="inline"
+                    value={draft}
+                    onChangeText={setDraft}
+                    editable={canComment}
+                    placeholder={placeholder}
+                    onSubmitEditing={handleSubmit}
+                    returnKeyType="send"
+                    accessibilityLabel={placeholder}
+                  />
+                  {isTyping && <Pressable onPress={handleSubmit} disabled={!canComment} accessibilityRole="button" accessibilityLabel="Send comment" style={({ pressed }) => ({ paddingHorizontal: 10, paddingVertical: 7, borderRadius: 16, backgroundColor: canComment ? colors.primary : colors.primaryDim, opacity: pressed ? PRESSED_OPACITY : 1 })}><Text style={fanText('tag', colors, '#FFFFFF')}>Send</Text></Pressable>}
+                </>
+              )}
             </View>
             <Pressable
               onPress={handleLineups}
@@ -561,6 +575,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: FAN_SPACING.sm,
+  },
+  guestCommentPrompt: {
+    flex: 1,
+    minWidth: 0,
+    justifyContent: 'center',
+    alignSelf: 'stretch',
+    paddingVertical: 4,
   },
   pokeButton: {
     flexDirection: 'row',
