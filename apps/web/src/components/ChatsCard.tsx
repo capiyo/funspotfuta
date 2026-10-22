@@ -382,7 +382,7 @@ export function MatchCard({
       ...fanText('caption', colors, colors.textSecondary),
       fontSize: 12,
       lineHeight: 1.25,
-      flex: 0,
+      flex: '1 1 auto',
       minWidth: 0,
       padding: 0,
       textAlign: 'left',
