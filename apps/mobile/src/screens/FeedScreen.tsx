@@ -34,6 +34,7 @@ import {
 import { useFanColors } from '@/theme/use-fan-colors';
 import { LIST_BOTTOM_INSET } from '@/theme/layout';
 import { PostCard } from '@/components/PostCard';
+import PostCommentsModal from '@/modals/CommentsModal';
 import {
   EmptyState,
   ErrorBanner,
@@ -56,6 +57,7 @@ export default function FeedScreen() {
   const { scrollProps, topInset } = useHomeList();
 
   const [refreshing, setRefreshing] = useState(false);
+  const [selectedCommentPost, setSelectedCommentPost] = useState<Post | null>(null);
 
   const {
     data,
@@ -181,7 +183,7 @@ export default function FeedScreen() {
               index={index}
               currentUserId={userId}
               onLike={(item) => void handleLike(item)}
-              onOpenComments={() => {}}
+              onOpenComments={(item) => { if (item.id) setSelectedCommentPost(item); }}
               onRepost={() => {}}
               onShare={(post) => { void Share.share({ message: `${post.caption ?? ''}\n${post.id ? `https://funspotfuta.com/posts/${post.id}` : ''}`.trim() }); }}
               onFollow={(post) => { if (userId && post.userId && authToken) void followUser(userId, post.userId, authToken); }}
@@ -190,6 +192,14 @@ export default function FeedScreen() {
           )}
         />
       )}
+      <PostCommentsModal
+        visible={selectedCommentPost !== null}
+        postId={selectedCommentPost?.id ?? ''}
+        postUserId={selectedCommentPost?.userId}
+        postUserName={selectedCommentPost?.userName}
+        postCaption={selectedCommentPost?.caption}
+        onClose={() => setSelectedCommentPost(null)}
+      />
     </View>
   );
 }
