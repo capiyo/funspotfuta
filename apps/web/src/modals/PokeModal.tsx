@@ -14,13 +14,14 @@ type Props = {
 };
 
 const backdropStyle: CSSProperties = {
-  position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,.58)',
-  display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16,
+  position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,.55)',
+  display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', padding: 0,
 };
 const panelStyle: CSSProperties = {
-  width: 'min(100%, 480px)', maxHeight: 'min(88vh, 760px)', overflowY: 'auto',
+  width: 'min(100%, 448px)', height: '78vh', maxHeight: '78vh', overflowY: 'auto',
   background: 'var(--surface, #17191d)', color: 'var(--text, #f7f7f7)',
-  borderRadius: 14, padding: 20, boxShadow: '0 20px 70px rgba(0,0,0,.4)',
+  borderRadius: '18px 18px 0 0', padding: '8px 16px 16px', boxSizing: 'border-box',
+  boxShadow: '0 -12px 48px rgba(0,0,0,.25)',
 };
 const buttonStyle: CSSProperties = {
   minHeight: 42, border: 0, borderRadius: 8, padding: '10px 14px',
@@ -198,6 +199,7 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
   return (
     <div style={backdropStyle} role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !submitting) onClose(); }}>
       <section role="dialog" aria-modal="true" aria-labelledby="poke-modal-title" style={panelStyle}>
+        <div aria-hidden="true" style={{ width: 32, height: 4, borderRadius: 999, background: 'var(--border, #454950)', margin: '0 auto 12px' }} />
         <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
           <div>
             <div style={{ color: 'var(--muted, #a7abb3)', fontSize: 12, marginBottom: 5 }}>POKE WITH POINTS</div>
