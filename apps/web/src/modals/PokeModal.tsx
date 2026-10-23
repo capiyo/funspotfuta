@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
+import { getOpenSubFixtureBets, getUserSubFixtureBets, fillSubFixtureBet } from '@funspot/core/src/api/sub-fixture-service';
+import type { SubFixturePledge } from '@funspot/core/src/types/betting';
 import type { CSSProperties } from 'react';
 import type { Fixture } from '@funspot/core';
 import { fetchBalance, fetchSubFixtures, fetchSubFixturePledges, fetchVoters, API_BASE_URL, type SubFixtureMarket } from '@funspot/core/src/api/vote-modal-shims';
@@ -38,6 +40,9 @@ function normalizedOption(option: string, fixture: Fixture): 'home_team' | 'away
 }
 
 export function PokeModal({ fixture, userId, username, authToken, onClose }: Props) {
+  const [tab, setTab] = useState<'open' | 'matched' | 'subfixtures'>('open');
+  const [openPokes, setOpenPokes] = useState<SubFixturePledge[]>([]);
+  const [matchedPokes, setMatchedPokes] = useState<SubFixturePledge[]>([]);
   const [markets, setMarkets] = useState<SubFixtureMarket[]>([]);
   const [marketId, setMarketId] = useState('main_fixture');
   const [selection, setSelection] = useState<'home_team' | 'away_team'>('home_team');
@@ -66,6 +71,18 @@ export function PokeModal({ fixture, userId, username, authToken, onClose }: Pro
     });
     return () => { active = false; };
   }, [authToken, fixture.id, fixture.matchId, userId]);
+
+  useEffect(() => {
+    let active = true;
+    const matchId = fixture.matchId || fixture.id;
+    Promise.all([getOpenSubFixtureBets(matchId, authToken || undefined), getUserSubFixtureBets(userId, authToken || undefined)])
+      .then(([open, mine]) => {
+        if (!active) return;
+        setOpenPokes(open.filter((p) => p.status.toLowerCase() === 'open' && p.matchId === matchId));
+        setMatchedPokes(mine.filter((p) => p.status.toLowerCase() !== 'open'));
+      }).catch(() => {});
+    return () => { active = false; };
+  }, [fixture.id, fixture.matchId, userId, authToken]);
 
   const selectedMarket = useMemo(() => markets.find((market) => market.id === marketId), [marketId, markets]);
   const options = useMemo(() => {
@@ -168,7 +185,7 @@ export function PokeModal({ fixture, userId, username, authToken, onClose }: Pro
           <strong style={{ fontSize: 22 }}>{loading ? 'Loading…' : balance === null ? 'Unavailable' : balance.toLocaleString()}</strong>
         </div>
 
-        <label style={{ display: 'block', marginTop: 16, fontSize: 13, fontWeight: 700 }} htmlFor="poke-market">Fixture / sub-fixture</label>
+        {tab==='subfixtures' && <label style={{ display: 'block', marginTop: 16, fontSize: 13, fontWeight: 700 }} htmlFor="poke-market">Fixture / sub-fixture</label>
         <select id="poke-market" value={marketId} onChange={(event) => { setMarketId(event.target.value); setError(''); }} style={{ ...fieldStyle, marginTop: 7 }}>
           <option value="main_fixture">Main fixture</option>
           {markets.map((market) => <option key={market.id} value={market.id}>{market.marketType || 'Sub-fixture'}{market.line == null ? '' : ` (${market.line})`}</option>)}
@@ -197,7 +214,7 @@ export function PokeModal({ fixture, userId, username, authToken, onClose }: Pro
         </section>
 
         <label style={{ display: 'block', marginTop: 16, fontSize: 13, fontWeight: 700 }} htmlFor="poke-stake">Points to stake (minimum 5)</label>
-        <input id="poke-stake" type="number" min={5} step={1} value={stake} onChange={(event) => setStake(event.target.value)} style={{ ...fieldStyle, marginTop: 7 }} />
+        {tab==='subfixtures' && <input id="poke-stake" type="number" min={5} step={1} value={stake} onChange={(event) => setStake(event.target.value)} style={{ ...fieldStyle, marginTop: 7 }} />
 
         {error && <p role="alert" style={{ color: '#ff7777', fontSize: 13 }}>{error}</p>}
         {message && <p role="status" style={{ color: 'var(--primary, #36c875)', fontWeight: 700 }}>{message}</p>}
