@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { getOpenSubFixtureBets, getUserSubFixtureBets, fillSubFixtureBet } from '@funspot/core/src/api/sub-fixture-service';
-import type { SubFixturePledge } from '@funspot/core/src/types/betting';
+import { createPoke, getOpenPokes, getUserPokes, matchPoke, type Poke } from '@funspot/core/src/api/pokes-service';
 import type { CSSProperties } from 'react';
 import type { Fixture } from '@funspot/core';
 import { fetchBalance, fetchSubFixtures, fetchSubFixturePledges, fetchVoters, API_BASE_URL, type SubFixtureMarket } from '@funspot/core/src/api/vote-modal-shims';
@@ -41,8 +40,8 @@ function normalizedOption(option: string, fixture: Fixture): 'home_team' | 'away
 
 export function PokeModal({ fixture, userId, username, authToken, onClose }: Props) {
   const [tab, setTab] = useState<'open' | 'matched' | 'subfixtures'>('open');
-  const [openPokes, setOpenPokes] = useState<SubFixturePledge[]>([]);
-  const [matchedPokes, setMatchedPokes] = useState<SubFixturePledge[]>([]);
+  const [openPokes, setOpenPokes] = useState<Poke[]>([]);
+  const [matchedPokes, setMatchedPokes] = useState<Poke[]>([]);
   const [markets, setMarkets] = useState<SubFixtureMarket[]>([]);
   const [marketId, setMarketId] = useState('main_fixture');
   const [selection, setSelection] = useState<'home_team' | 'away_team'>('home_team');
@@ -75,7 +74,7 @@ export function PokeModal({ fixture, userId, username, authToken, onClose }: Pro
   useEffect(() => {
     let active = true;
     const matchId = fixture.matchId || fixture.id;
-    Promise.all([getOpenSubFixtureBets(matchId, authToken || undefined), getUserSubFixtureBets(userId, authToken || undefined)])
+    Promise.all([getOpenPokes(matchId, authToken || undefined), getUserPokes(userId, authToken || undefined)])
       .then(([open, mine]) => {
         if (!active) return;
         setOpenPokes(open.filter((p) => p.status.toLowerCase() === 'open' && p.matchId === matchId));
