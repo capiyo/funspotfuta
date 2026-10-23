@@ -15,7 +15,7 @@ type Props = {
 
 const backdropStyle: CSSProperties = {
   position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,.55)',
-  display: 'flex', alignItems: 'flex-end', justifyContent: 'flex-end', padding: 0,
+  display: 'flex', alignItems: 'flex-end', justifyContent: 'center', padding: 0,
 };
 const panelStyle: CSSProperties = {
   width: 'min(100%, 448px)', height: '78vh', maxHeight: '78vh', overflowY: 'auto',
