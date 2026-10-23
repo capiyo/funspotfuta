@@ -158,11 +158,9 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
         getOpenPokes(matchId, authToken ?? undefined, channelId, marketId),
         getUserPokes(userId, authToken ?? undefined),
       ]);
-      setBalance((current) => {
-        const next = current === null ? null : Math.max(0, current - poke.amount);
-        if (next !== null) writeCachedChannelMemberPoints(queryClient, userId, channelId, next);
-        return next;
-      });
+      const nextBalance = balance === null ? null : Math.max(0, balance - poke.amount);
+      setBalance(nextBalance);
+      if (nextBalance !== null) writeCachedChannelMemberPoints(queryClient, userId, channelId, nextBalance);
       setOpenPokes(open.filter((item) => item.status.toLowerCase() === 'open' && item.matchId === matchId));
       setMatchedPokes(mine.filter((item) => item.status.toLowerCase() !== 'open'));
       setMessage('Poke matched successfully.');
@@ -212,11 +210,9 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
         getOpenPokes(matchId, authToken ?? undefined, channelId, marketId),
         getUserPokes(userId, authToken ?? undefined),
       ]);
-      setBalance((current) => {
-        const next = current === null ? null : Math.max(0, current - amount);
-        if (next !== null) writeCachedChannelMemberPoints(queryClient, userId, channelId, next);
-        return next;
-      });
+      const nextBalance = balance === null ? null : Math.max(0, balance - amount);
+      setBalance(nextBalance);
+      if (nextBalance !== null) writeCachedChannelMemberPoints(queryClient, userId, channelId, nextBalance);
       setOpenPokes(open.filter((poke) => poke.status.toLowerCase() === 'open' && poke.matchId === matchId));
       setMatchedPokes(mine.filter((poke) => poke.status.toLowerCase() !== 'open'));
       setMessage('Poke was successful!');
