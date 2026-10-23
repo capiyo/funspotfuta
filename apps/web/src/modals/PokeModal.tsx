@@ -9,6 +9,7 @@ type Props = {
   userId: string;
   username: string;
   authToken?: string | null;
+  channelId?: string;
   onClose: () => void;
 };
 
@@ -38,7 +39,7 @@ function normalizedOption(option: string, fixture: Fixture): 'home_team' | 'away
   return null;
 }
 
-export function PokeModal({ fixture, userId, username, authToken, onClose }: Props) {
+export function PokeModal({ fixture, userId, username, authToken, channelId, onClose }: Props) {
   const [tab, setTab] = useState<'open' | 'matched' | 'subfixtures'>('open');
   const [openPokes, setOpenPokes] = useState<Poke[]>([]);
   const [matchedPokes, setMatchedPokes] = useState<Poke[]>([]);
@@ -74,14 +75,14 @@ export function PokeModal({ fixture, userId, username, authToken, onClose }: Pro
   useEffect(() => {
     let active = true;
     const matchId = fixture.matchId || fixture.id;
-    Promise.all([getOpenPokes(matchId, authToken || undefined), getUserPokes(userId, authToken || undefined)])
+    Promise.all([getOpenPokes(matchId, authToken || undefined, channelId, marketId), getUserPokes(userId, authToken || undefined)])
       .then(([open, mine]) => {
         if (!active) return;
         setOpenPokes(open.filter((p) => p.status.toLowerCase() === 'open' && p.matchId === matchId));
         setMatchedPokes(mine.filter((p) => p.status.toLowerCase() !== 'open'));
       }).catch(() => {});
     return () => { active = false; };
-  }, [fixture.id, fixture.matchId, userId, authToken]);
+  }, [fixture.id, fixture.matchId, userId, authToken, channelId, marketId]);
 
   const selectedMarket = useMemo(() => markets.find((market) => market.id === marketId), [marketId, markets]);
   const options = useMemo(() => {
@@ -114,7 +115,7 @@ export function PokeModal({ fixture, userId, username, authToken, onClose }: Pro
   }, [authToken, fixture.id, fixture.matchId, marketId]);
 
   async function matchExistingPoke(poke: Poke) {
-    if (poke.userId === userId || submitting) return;
+    if (poke.userId === userId || submitting || !channelId) return;
     setError('');
     setMessage('');
     setSubmitting(true);
@@ -129,7 +130,7 @@ export function PokeModal({ fixture, userId, username, authToken, onClose }: Pro
       const matchId = fixture.matchId || fixture.id;
       const [points, open, mine] = await Promise.all([
         getUserPoints(userId, authToken ?? undefined),
-        getOpenPokes(matchId, authToken ?? undefined),
+        getOpenPokes(matchId, authToken ?? undefined, channelId, marketId),
         getUserPokes(userId, authToken ?? undefined),
       ]);
       setBalance(points);
@@ -144,6 +145,7 @@ export function PokeModal({ fixture, userId, username, authToken, onClose }: Pro
   }
 
   async function submitPoke() {
+    if (!channelId) { setError('Choose a channel before creating or matching a poke.'); return; }
     setError('');
     setMessage('');
     const amount = Number(stake);
@@ -174,11 +176,12 @@ export function PokeModal({ fixture, userId, username, authToken, onClose }: Pro
         amount,
         token: authToken ?? undefined,
         marketId: selectedMarket?.id ?? 'main_fixture',
+        channelId,
       });
       const matchId = fixture.matchId || fixture.id;
       const [points, open, mine] = await Promise.all([
         getUserPoints(userId, authToken ?? undefined),
-        getOpenPokes(matchId, authToken ?? undefined),
+        getOpenPokes(matchId, authToken ?? undefined, channelId, marketId),
         getUserPokes(userId, authToken ?? undefined),
       ]);
       setBalance(points);
