@@ -17,7 +17,7 @@ import {
   setPin,
   registerUser,
 } from '@funspot/core';
-import { firebaseAuth } from '@/lib/firebase';
+import { firebaseAuth, missingFirebaseEnvVars } from '@/lib/firebase';
 import { useAuth } from '@/lib/auth/auth-context';
 import {
   buildE164,
@@ -225,8 +225,13 @@ export default function LoginModal({ visible = true, onClose, onSuccess }: Login
   if (validationError) return;
   if (!acceptTerms) { toast('Please accept Terms & Conditions', { warn: true });
   return; }
-    if (!firebaseAuth) { toast('Firebase is not configured. Please try again later.', { error: true });
-  return; }
+    if (!firebaseAuth) {
+      const detail = missingFirebaseEnvVars.length
+        ? ` Missing Netlify build variables: ${missingFirebaseEnvVars.join(', ')}. Check the deploy context and redeploy.`
+        : ' Firebase initialized without an Auth instance; check the Firebase app configuration.';
+      toast(`Firebase is not configured.${detail}`, { error: true });
+      return;
+    }
     setLoading(true);
   const e164 = buildE164(phoneInput, country.dial);
     setVerifiedPhone(e164); otpHandledRef.current = false;
