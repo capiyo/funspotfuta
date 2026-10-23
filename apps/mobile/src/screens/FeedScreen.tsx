@@ -16,7 +16,6 @@ import {
   StyleSheet,
 } from 'react-native';
 import {
-  useInfiniteQuery,
   useQueryClient,
   type InfiniteData,
 } from '@tanstack/react-query';
@@ -24,12 +23,13 @@ import { useAuth } from '@/lib/auth/auth-context';
 import { useLoginModal } from '../modals/Login-modal-context';
 import { Share } from 'react-native';
 import {
-  getPosts,
   toggleLikePost,
   Post,
   isLikedBy,
   followUser,
   FAN_SPACING,
+  useFeed,
+  type FeedPage,
 } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { LIST_BOTTOM_INSET } from '@/theme/layout';
@@ -42,10 +42,7 @@ import {
 } from '@/components/ui/ListsStates';
 import { useHome, useHomeList } from './home/home-context';
 
-const PAGE_SIZE = 10;
 const FEED_KEY = ['feed'] as const;
-
-type FeedPage = { posts: Post[] };
 
 export default function FeedScreen() {
   const colors = useFanColors();
@@ -68,17 +65,7 @@ export default function FeedScreen() {
     hasNextPage,
     fetchNextPage,
     refetch,
-  } = useInfiniteQuery({
-    queryKey: FEED_KEY,
-    queryFn: ({ pageParam }) => getPosts({ page: pageParam, limit: PAGE_SIZE }),
-    initialPageParam: 1,
-    getNextPageParam: (lastPage, allPages) =>
-      lastPage.posts.length === PAGE_SIZE ? allPages.length + 1 : undefined,
-    // A failed refetch must not wipe the feed.
-    placeholderData: (prev) => prev,
-    retry: 1,
-    enabled: activeTab === 'Feed',
-  });
+  } = useFeed({ enabled: activeTab === 'Feed' });
 
   const posts = useMemo(
     () => data?.pages.flatMap((page) => page.posts) ?? [],
