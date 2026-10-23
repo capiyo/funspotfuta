@@ -75,7 +75,9 @@ function fanText(
   colorOverride?: string,
 ) {
   const base = baseFanText(role, colors, colorOverride);
-  const fontSize = MATCH_FONT_SIZE[role] ?? base.fontSize;
+  const fontSize = role in MATCH_FONT_SIZE
+    ? MATCH_FONT_SIZE[role as keyof typeof MATCH_FONT_SIZE]
+    : base.fontSize;
   return {
     ...base,
     fontSize,
