@@ -18,7 +18,6 @@ export function LoginModalProvider({ children }: { children: ReactNode }) {
   const [gated, setGated] = useState(false);
   const pending = useRef<(() => void) | undefined>(undefined);
   const wasLoggedIn = useRef(isLoggedIn);
-  const autoPrompted = useRef(false);
 
   const requireLogin = useCallback((after?: () => void): boolean => {
     if (isLoggedIn) {
@@ -26,31 +25,18 @@ export function LoginModalProvider({ children }: { children: ReactNode }) {
       return true;
     }
     pending.current = after;
-    setOpen(true);
-    setGated(false);
+    setOpen(false);
+    setGated(true);
     return false;
   }, [isLoggedIn]);
 
   useEffect(() => {
-    if (!isInitialized) return;
-    if (isLoggedIn) {
-      autoPrompted.current = false;
-      setGated(false);
-      setOpen(false);
-      return;
-    }
-    if (autoPrompted.current || open) return;
-    autoPrompted.current = true;
-
-    // Browser permission persists across launches. Never show the gate again
-    // when the browser already reports notifications as granted.
-    if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-      setGated(false);
-      setOpen(true);
-      return;
-    }
-    setGated(true);
-  }, [isInitialized, isLoggedIn, open]);
+    // Keep the public Home/feed usable for guests. The notification gate is
+    // shown only after a user explicitly requests a login-gated action.
+    if (!isInitialized || !isLoggedIn) return;
+    setGated(false);
+    setOpen(false);
+  }, [isInitialized, isLoggedIn]);
 
   useEffect(() => {
     if (isLoggedIn && !wasLoggedIn.current) {
