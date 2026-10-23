@@ -13,7 +13,7 @@
 
 import { useEffect, useRef } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
-import { focusManager } from '@tanstack/react-query';
+import { focusManager, hydrate } from '@tanstack/react-query';
 import {
     PersistQueryClientProvider,
     persistQueryClientSave,
@@ -21,12 +21,36 @@ import {
 import {
     createAppQueryClient,
     PERSIST_OPTIONS,
+    deserializePersistedClient,
     getAllFixtures,
     getPosts,
 } from '@funspot/core';
 import { mobileStorage } from '@funspot/storage';
 
 const { queryClient, persister, persistOptions } = createAppQueryClient(mobileStorage);
+
+// MMKV is synchronous. Hydrate the in-memory QueryClient before React mounts,
+// so cached screens can render on the very first frame instead of waiting for
+// PersistQueryClientProvider's async restore lifecycle.
+const CACHE_MAX_AGE = 24 * 60 * 60 * 1000;
+function hydrateFromSynchronousAppCache(): void {
+    try {
+        const serialized = mobileStorage.getItem('FUNSPOT_QUERY_CACHE');
+        if (!serialized) return;
+        const persisted = deserializePersistedClient(serialized);
+        if (
+            !Number.isFinite(persisted.timestamp) ||
+            Date.now() - persisted.timestamp > CACHE_MAX_AGE ||
+            persisted.timestamp > Date.now() + 60_000 ||
+            persisted.buster !== PERSIST_OPTIONS.buster
+        ) return;
+        hydrate(queryClient, persisted.clientState);
+    } catch (error) {
+        if (__DEV__) console.warn('[query-cache] synchronous startup hydration failed', error);
+    }
+}
+
+hydrateFromSynchronousAppCache();
 
 // Keep in sync with FeedScreen's PAGE_SIZE and query shape.
 const FEED_PAGE_SIZE = 10;
