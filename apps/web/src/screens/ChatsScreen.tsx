@@ -10,7 +10,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import type { Channel, Fixture, FanColorPalette, Voter } from '@funspot/core';
 import { FAN_SPACING, useFixtures, queryKeys } from '@funspot/core';
 import { useAllChannels } from '@/hooks/useAllChannels';
-import { sendChannelMessage } from '@funspot/core/src/api/send-channel-messages';
+import { sendChannelMessage } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useLoginModal } from '@/modals/Login-modal-context';
 import { MatchCard, type LatestComment, type ChannelHeaderData } from '@/components/ChatsCard';
@@ -30,10 +30,10 @@ import {
   getSavedPhone as shimGetSavedPhone, savePhone as shimSavePhone,
   getUserPhone as shimGetUserPhone, placeSubFixturePledge as shimPlaceSubFixturePledge,
   matchSubFixturePledge as shimMatchSubFixturePledge,
-} from '@funspot/core/src/api/vote-modal-shims';
+} from '@funspot/core';
 import {
   castFixtureVote, createPledge, matchMainPledge as actionMatchMainPledge,
-} from '@funspot/core/src/api/vote-actions';
+} from '@funspot/core';
 
 type Filter = 'all' | 'live' | 'upcoming';
 type Pick = 'home' | 'away';
