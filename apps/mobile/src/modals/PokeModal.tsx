@@ -7,7 +7,7 @@ import { useFanColors } from '@/theme/use-fan-colors';
 
 type Props = { visible: boolean; fixture: Fixture; userId: string; username: string; authToken?: string | null; onClose: () => void };
 
-export function PokeModal({ visible, fixture, userId, username, authToken, onClose }: Props) {
+export function PokeModal({ visible, fixture, userId, username, authToken, channelId, onClose }: Props) {
   const colors = useFanColors();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const [tab, setTab] = useState<'open' | 'matched' | 'subfixtures'>('open');
@@ -52,14 +52,14 @@ export function PokeModal({ visible, fixture, userId, username, authToken, onClo
     if (!visible) return;
     let active = true;
     const matchId = fixture.matchId || fixture.id;
-    Promise.all([getOpenPokes(matchId, authToken || undefined), getUserPokes(userId, authToken || undefined)])
+    Promise.all([getOpenPokes(matchId, authToken || undefined, channelId, marketId), getUserPokes(userId, authToken || undefined)])
       .then(([open, mine]) => {
         if (!active) return;
         setOpenPokes(open.filter((p) => p.status.toLowerCase() === 'open' && p.matchId === matchId));
         setMatchedPokes(mine.filter((p) => p.status.toLowerCase() !== 'open'));
       }).catch(() => {});
     return () => { active = false; };
-  }, [visible, fixture.id, fixture.matchId, userId, authToken]);
+  }, [visible, fixture.id, fixture.matchId, userId, authToken, channelId, marketId]);
 
   const selectedMarket = markets.find((market) => market.id === marketId);
   const options = useMemo(() => {
@@ -73,6 +73,7 @@ export function PokeModal({ visible, fixture, userId, username, authToken, onClo
   }, [selectedMarket, fixture.homeTeam, fixture.awayTeam]);
 
   async function submitPoke() {
+    if (!channelId) { setError('Choose a channel before creating or matching a poke.'); return; }
     setError(''); setMessage('');
     const amount = Number(stake);
     if (!Number.isInteger(amount) || amount < 5) return setError('The minimum poke is 5 points.');
@@ -89,11 +90,12 @@ export function PokeModal({ visible, fixture, userId, username, authToken, onClo
         amount,
         token: authToken ?? undefined,
         marketId: selectedMarket?.id ?? 'main_fixture',
+        channelId,
       });
       const matchId = fixture.matchId || fixture.id;
       const [points, open, mine] = await Promise.all([
         getUserPoints(userId, authToken ?? undefined),
-        getOpenPokes(matchId, authToken ?? undefined),
+        getOpenPokes(matchId, authToken ?? undefined, channelId, marketId),
         getUserPokes(userId, authToken ?? undefined),
       ]);
       setBalance(points);
@@ -116,7 +118,7 @@ export function PokeModal({ visible, fixture, userId, username, authToken, onClo
         </View>
         {tab === 'open' && <View style={styles.listSection}>
           <Text style={styles.label}>Open pokes · {openPokes.length}</Text>
-          {openPokes.length ? openPokes.map((p) => <View key={p.id} style={styles.pokerRow}><View style={{flex:1}}><Text style={styles.choiceText}>{p.userName} · {p.selection}</Text><Text style={styles.muted}>{p.amount} pts</Text></View><Pressable disabled={p.userId === userId || submitting} onPress={() => void (async () => { setSubmitting(true); setError(''); try { await matchPoke({pokeId:p.id,userId,userName:username,selection:p.selection === 'home' ? 'away' : 'home',amount:p.amount,token:authToken || undefined}); setMessage('Poke matched successfully'); const [points,open,mine]=await Promise.all([getUserPoints(userId,authToken || undefined),getOpenPokes(fixture.matchId || fixture.id,authToken || undefined),getUserPokes(userId,authToken || undefined)]); setBalance(points); setOpenPokes(open.filter(x=>x.status.toLowerCase()==='open' && x.matchId===(fixture.matchId || fixture.id))); setMatchedPokes(mine.filter(x=>x.status.toLowerCase()!=='open')); } catch(e) { setError(e instanceof Error?e.message:'Could not match poke'); } finally { setSubmitting(false); } })()} style={[styles.matchButton, (p.userId === userId || submitting) && {opacity:0.45}]}><Text style={styles.primaryText}>Match</Text></Pressable></View>) : <Text style={styles.muted}>No open pokes for this fixture yet.</Text>}
+          {openPokes.length ? openPokes.map((p) => <View key={p.id} style={styles.pokerRow}><View style={{flex:1}}><Text style={styles.choiceText}>{p.userName} · {p.selection}</Text><Text style={styles.muted}>{p.amount} pts</Text></View><Pressable disabled={p.userId === userId || submitting} onPress={() => void (async () => { setSubmitting(true); setError(''); try { if (!channelId) throw new Error('Choose a channel before matching a poke.'); await matchPoke({pokeId:p.id,userId,userName:username,selection:p.selection === 'home' ? 'away' : 'home',amount:p.amount,token:authToken || undefined}); setMessage('Poke matched successfully'); const [points,open,mine]=await Promise.all([getUserPoints(userId,authToken || undefined),getOpenPokes(fixture.matchId || fixture.id,authToken || undefined,channelId,marketId),getUserPokes(userId,authToken || undefined)]); setBalance(points); setOpenPokes(open.filter(x=>x.status.toLowerCase()==='open' && x.matchId===(fixture.matchId || fixture.id))); setMatchedPokes(mine.filter(x=>x.status.toLowerCase()!=='open')); } catch(e) { setError(e instanceof Error?e.message:'Could not match poke'); } finally { setSubmitting(false); } })()} style={[styles.matchButton, (p.userId === userId || submitting) && {opacity:0.45}]}><Text style={styles.primaryText}>Match</Text></Pressable></View>) : <Text style={styles.muted}>No open pokes for this fixture yet.</Text>}
         </View>}
         {tab === 'matched' && <View style={styles.listSection}><Text style={styles.label}>Matched pokes · {matchedPokes.length}</Text>{matchedPokes.length ? matchedPokes.map(p => <View key={p.id} style={styles.pokerRow}><View style={{flex:1}}><Text style={styles.choiceText}>{p.userName} · {p.selection}</Text><Text style={styles.muted}>{p.amount} pts · {p.status}</Text><Text style={styles.muted}>{p.finisherName ? 'Matched with '+p.finisherName : 'Outcome pending'}</Text></View></View>) : <Text style={styles.muted}>Your matched pokes will appear here.</Text>}</View>}
 
