@@ -43,14 +43,14 @@ async function request(path: string, token?: string, body?: unknown): Promise<an
   if (!response.ok || payload?.success === false) throw new Error(String(payload?.message ?? payload?.error ?? 'Poke request failed'));
   return payload;
 }
-export async function getOpenPokes(matchId: string, token?: string, channelId?: string, marketId?: string): Promise<Poke[]> {
-  if (channelId) {
-    const suffix = marketId && marketId !== 'main_fixture' ? `?market_id=${encodeURIComponent(marketId)}` : '';
-    const payload = await request(`/channel/${encodeURIComponent(channelId)}/${encodeURIComponent(matchId)}/pokes${suffix}`, token);
-    const open = payload?.open ?? payload?.data?.open ?? payload?.pokes?.open ?? [];
-    return Array.isArray(open) ? open.map((p: Record<string, unknown>) => fromJson(p)) : [];
-  }
-  return rows(await request(`/poke/user/__open__?fixture_id=${encodeURIComponent(matchId)}`, token));
+export async function getOpenPokes(matchId: string, token: string | undefined, channelId: string | undefined, marketId?: string): Promise<Poke[]> {
+  // Open pokes are scoped to a channel and fixture by the Axum API. There is
+  // no global "__open__" user endpoint, so never call a guessed fallback URL.
+  if (!channelId) return [];
+  const suffix = marketId && marketId !== 'main_fixture' ? `?market_id=${encodeURIComponent(marketId)}` : '';
+  const payload = await request(`/channel/${encodeURIComponent(channelId)}/${encodeURIComponent(matchId)}/pokes${suffix}`, token);
+  const open = payload?.open ?? payload?.data?.open ?? payload?.pokes?.open ?? [];
+  return Array.isArray(open) ? open.map((p: Record<string, unknown>) => fromJson(p)) : [];
 }
 export async function getUserPokes(userId: string, token?: string): Promise<Poke[]> {
   return rows(await request(`/poke/user/${encodeURIComponent(userId)}`, token));
