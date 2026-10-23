@@ -185,7 +185,7 @@ export function PokeModal({ fixture, userId, username, authToken, onClose }: Pro
           <strong style={{ fontSize: 22 }}>{loading ? 'Loading…' : balance === null ? 'Unavailable' : balance.toLocaleString()}</strong>
         </div>
 
-        {tab==='subfixtures' && <label style={{ display: 'block', marginTop: 16, fontSize: 13, fontWeight: 700 }} htmlFor="poke-market">Fixture / sub-fixture</label>
+        {tab==='subfixtures' && <div><label style={{ display: 'block', marginTop: 16, fontSize: 13, fontWeight: 700 }} htmlFor="poke-market">Fixture / sub-fixture</label>
         <select id="poke-market" value={marketId} onChange={(event) => { setMarketId(event.target.value); setError(''); }} style={{ ...fieldStyle, marginTop: 7 }}>
           <option value="main_fixture">Main fixture</option>
           {markets.map((market) => <option key={market.id} value={market.id}>{market.marketType || 'Sub-fixture'}{market.line == null ? '' : ` (${market.line})`}</option>)}
@@ -214,7 +214,7 @@ export function PokeModal({ fixture, userId, username, authToken, onClose }: Pro
         </section>
 
         <label style={{ display: 'block', marginTop: 16, fontSize: 13, fontWeight: 700 }} htmlFor="poke-stake">Points to stake (minimum 5)</label>
-        {tab==='subfixtures' && <input id="poke-stake" type="number" min={5} step={1} value={stake} onChange={(event) => setStake(event.target.value)} style={{ ...fieldStyle, marginTop: 7 }} />
+        <input id="poke-stake" type="number" min={5} step={1} value={stake} onChange={(event) => setStake(event.target.value)} style={{ ...fieldStyle, marginTop: 7 }} />
 
         {error && <p role="alert" style={{ color: '#ff7777', fontSize: 13 }}>{error}</p>}
         {message && <p role="status" style={{ color: 'var(--primary, #36c875)', fontWeight: 700 }}>{message}</p>}
@@ -227,7 +227,7 @@ export function PokeModal({ fixture, userId, username, authToken, onClose }: Pro
         </footer>
         <p style={{ color: 'var(--muted, #a7abb3)', fontSize: 11, lineHeight: 1.45, marginBottom: 0 }}>
           Pokes send <code>action: "poke"</code> and <code>stake_type: "points"</code> to the existing endpoint. The backend must recognize these fields and apply points accounting.
-        </p>
+        </p></div>}
       </section>
     </div>
   );
