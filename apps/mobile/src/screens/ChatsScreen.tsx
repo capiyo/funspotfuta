@@ -652,7 +652,7 @@ function ChannelSwipeCarousel({ channels: slideChannels, renderSlide }: {
         const nextWidth = Math.round(event.nativeEvent.layout.width);
         setPageWidth((current) => current === nextWidth ? current : nextWidth);
       }}
-      style={{ minWidth: 0, width: '100%', flex: 1 }}
+      style={{ minWidth: 0, width: '100%' }}
     >
       <FlatList
         horizontal
