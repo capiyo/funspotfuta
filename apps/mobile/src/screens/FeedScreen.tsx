@@ -195,9 +195,9 @@ export default function FeedScreen() {
       <PostCommentsModal
         visible={selectedCommentPost !== null}
         postId={selectedCommentPost?.id ?? ''}
-        postUserId={selectedCommentPost?.userId}
-        postUserName={selectedCommentPost?.userName}
-        postCaption={selectedCommentPost?.caption}
+        postUserId={selectedCommentPost?.userId ?? undefined}
+        postUserName={selectedCommentPost?.userName ?? undefined}
+        postCaption={selectedCommentPost?.caption ?? undefined}
         onClose={() => setSelectedCommentPost(null)}
       />
     </View>
