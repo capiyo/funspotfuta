@@ -5,7 +5,7 @@
 // Google-font hook completion before mounting navigation made every cold resume
 // show a blank/splash delay even when useful screen data was already cached.
 
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 import { View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import {
@@ -39,10 +39,6 @@ SplashScreen.preventAutoHideAsync();
 
 export default function App() {
   const colors = useFanColors();
-  const [cacheReady, setCacheReady] = useState(false);
-
-  const handleCacheReady = useCallback(() => setCacheReady(true), []);
-
   // Font files are bundled locally; load them without making the cached app
   // wait to mount its navigation tree. Text can use fallback fonts briefly.
   useFonts({
@@ -81,15 +77,13 @@ export default function App() {
         <AuthProvider>
           <LoginModalProvider>
             <ToastProvider>
-              <QueryProvider onReady={handleCacheReady}>
-                {cacheReady ? (
-                  <View style={{ flex: 1, backgroundColor: colors.background }} onLayout={onFirstContentLayout}>
-                    <NavigationContainer theme={navTheme}>
-                      <RootNavigator />
-                    </NavigationContainer>
-                    <StatusBar style={dark ? 'light' : 'dark'} />
-                  </View>
-                ) : null}
+              <QueryProvider>
+                <View style={{ flex: 1, backgroundColor: colors.background }} onLayout={onFirstContentLayout}>
+                  <NavigationContainer theme={navTheme}>
+                    <RootNavigator />
+                  </NavigationContainer>
+                  <StatusBar style={dark ? 'light' : 'dark'} />
+                </View>
               </QueryProvider>
             </ToastProvider>
           </LoginModalProvider>
