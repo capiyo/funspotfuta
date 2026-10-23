@@ -233,7 +233,7 @@ export function PokeModal({ fixture, userId, username, authToken, onClose }: Pro
             </div>
           ))}
         </section>}
-        {tab==='subfixtures' && <div><label style={{ display: 'block', marginTop: 16, fontSize: 13, fontWeight: 700 }} htmlFor="poke-market">Fixture / sub-fixture</label>
+        <div><label style={{ display: 'block', marginTop: 16, fontSize: 13, fontWeight: 700 }} htmlFor="poke-market">Fixture / sub-fixture</label>
         <select id="poke-market" value={marketId} onChange={(event) => { setMarketId(event.target.value); setError(''); }} style={{ ...fieldStyle, marginTop: 7 }}>
           <option value="main_fixture">Main fixture</option>
           {markets.map((market) => <option key={market.id} value={market.id}>{market.marketType || 'Sub-fixture'}{market.line == null ? '' : ` (${market.line})`}</option>)}
@@ -273,7 +273,7 @@ export function PokeModal({ fixture, userId, username, authToken, onClose }: Pro
             {submitting ? 'Poking…' : 'Poke'}
           </button>
         </footer>
-        </div>}
+        </div>
       </section>
     </div>
   );
