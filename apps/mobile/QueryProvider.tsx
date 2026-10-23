@@ -25,7 +25,7 @@ import {
     getAllFixtures,
     getPosts,
 } from '@funspot/core';
-import { mobileStorage } from '@funspot/storage';
+import { mobileCache, mobileStorage } from '@funspot/storage';
 
 const { queryClient, persister, persistOptions } = createAppQueryClient(mobileStorage);
 
@@ -35,7 +35,7 @@ const { queryClient, persister, persistOptions } = createAppQueryClient(mobileSt
 const CACHE_MAX_AGE = 24 * 60 * 60 * 1000;
 function hydrateFromSynchronousAppCache(): void {
     try {
-        const serialized = mobileStorage.getItem('FUNSPOT_QUERY_CACHE');
+        const serialized = mobileCache.getItem('FUNSPOT_QUERY_CACHE');
         if (!serialized) return;
         const persisted = deserializePersistedClient(serialized);
         if (
