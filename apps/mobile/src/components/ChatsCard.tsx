@@ -22,13 +22,14 @@
 // `channel` is optional; when given, a small avatar + channel name replaces
 // the league label in the top-left. Without it the card shows the league.
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import {
   Check,
   Heart,
   Lock,
   MessageCircle,
+  Pointer,
   Radio,
   Vote,
 } from 'lucide-react-native';
@@ -43,7 +44,7 @@ import {
 import { useAuth } from '@/lib/auth/auth-context';
 import { useLoginModal } from '../modals/Login-modal-context';
 import { useFanColors } from '@/theme/use-fan-colors';
-import { fanText } from '@/theme/use-fan-typography';
+import { fanText as baseFanText } from '@/theme/use-fan-typography';
 import { ICON, PRESSED_OPACITY } from '@/theme/layout';
 import { FeedItem } from './ui/FeedItem';
 import { LiveBadge } from './ui/LiveBadge';
@@ -54,6 +55,35 @@ import { VoterList } from './ui/Voterstack';
 // How far the footer is pulled down to reach the card floor (cancels
 // FeedItem's bottom padding). Raise it if there is still a gap.
 const FOOTER_BLEED = 12;
+
+// Match the mobile-web ChatsCard typography at a 390px viewport.
+// Web uses DM Sans for normal text and Saira Condensed only for score text;
+// baseFanText resolves those same bundled font families for React Native.
+const MATCH_FONT_SIZE = {
+  body: 14,
+  caption: 12,
+  tag: 12,
+  button: 12,
+  competition: 14,
+  title: 15,
+  microLabel: 12,
+} as const;
+
+function fanText(
+  role: Parameters<typeof baseFanText>[0],
+  colors: Parameters<typeof baseFanText>[1],
+  colorOverride?: string,
+) {
+  const base = baseFanText(role, colors, colorOverride);
+  const fontSize = (role in MATCH_FONT_SIZE
+    ? MATCH_FONT_SIZE[role as keyof typeof MATCH_FONT_SIZE]
+    : base.fontSize) ?? 14;
+  return {
+    ...base,
+    fontSize,
+    lineHeight: Math.round(fontSize * 1.25),
+  };
+}
 
 const COMMENT_STYLE_COLOR = (colors: ReturnType<typeof useFanColors>) =>
   colors.textSecondary;
@@ -88,6 +118,75 @@ export interface LiveCommentaryEntry {
   timestamp?: string;
 }
 
+const teamLogoCache = new Map<string, string | null>();
+const teamLogoRequests = new Map<string, Promise<string | null>>();
+
+function lookupTeamLogo(name: string): Promise<string | null> {
+  const key = name.trim().toLowerCase();
+  if (!key) return Promise.resolve(null);
+  if (teamLogoCache.has(key)) return Promise.resolve(teamLogoCache.get(key) ?? null);
+  const pending = teamLogoRequests.get(key);
+  if (pending) return pending;
+  const request = fetch(`https://www.thesportsdb.com/api/v1/json/3/searchteams.php?t=${encodeURIComponent(name.trim())}`)
+    .then(async (response) => {
+      if (!response.ok) return null;
+      const payload: unknown = await response.json();
+      if (!payload || typeof payload !== 'object') return null;
+      const teams = (payload as { teams?: Array<Record<string, unknown>> | null }).teams;
+      const team = Array.isArray(teams) ? teams[0] : undefined;
+      const raw = team?.strBadge ?? team?.strTeamBadge ?? team?.strLogo;
+      return typeof raw === 'string' && raw.trim() ? raw.trim() : null;
+    })
+    .catch(() => null)
+    .then((url) => {
+      teamLogoCache.set(key, url);
+      teamLogoRequests.delete(key);
+      return url;
+    });
+  teamLogoRequests.set(key, request);
+  return request;
+}
+
+function TeamLogo({ name, fixture, side, colors }: { name: string; fixture: Record<string, unknown>; side: 'home' | 'away'; colors: ReturnType<typeof useFanColors> }) {
+  const cap = side === 'home' ? 'Home' : 'Away';
+  const candidates = [
+    `${side}Logo`, `${side}TeamLogo`, `${side}LogoUrl`, `${side}TeamLogoUrl`,
+    `${side}_logo`, `${side}_team_logo`, `${side}_logo_url`, `${side}_team_logo_url`,
+    `${side}Crest`, `${side}TeamCrest`, `${side}Badge`, `${side}TeamBadge`, `${cap}TeamLogo`,
+  ];
+  const raw = candidates.map((key) => fixture[key]).find((value) => typeof value === 'string' && value.trim());
+  const direct = typeof raw === 'string' ? raw.trim() : null;
+  const [uri, setUri] = useState<string | null>(() => direct ?? teamLogoCache.get(name.trim().toLowerCase()) ?? null);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    setFailed(false);
+    if (direct) {
+      setUri(direct);
+      return () => { active = false; };
+    }
+    const cached = teamLogoCache.get(name.trim().toLowerCase());
+    if (cached !== undefined) {
+      setUri(cached);
+      return () => { active = false; };
+    }
+    setUri(null);
+    void lookupTeamLogo(name).then((url) => {
+      if (active) setUri(url);
+    });
+    return () => { active = false; };
+  }, [direct, name]);
+
+  return (
+    <View style={[styles.teamLogo, { backgroundColor: colors.primaryDim }]}>
+      {uri && !failed ? <Image source={{ uri }} style={styles.teamLogoImage} resizeMode="contain" onError={() => setFailed(true)} /> : (
+        <Text style={[fanText('tag', colors, colors.primary), styles.teamFallback]}>{name.trim().charAt(0).toUpperCase() || '?'}</Text>
+      )}
+    </View>
+  );
+}
+
 function kickoffLabel(dateString: string): string {
   const d = new Date(dateString);
   if (Number.isNaN(d.getTime())) return 'TBD';
@@ -118,6 +217,7 @@ export function MatchCard({
   likesCount = 0,
   liked = false,
   onOpenVoteModal,
+  onOpenPokeModal,
   onOpenResults,
   onChatClick,
   onLike,
@@ -135,6 +235,7 @@ export function MatchCard({
   liked?: boolean;
   onOpen?: (fixture: Fixture) => void;
   onOpenVoteModal?: (fixture: Fixture) => void;
+  onOpenPokeModal?: (fixture: Fixture) => void;
   onOpenResults?: (fixture: Fixture) => void;
   onChatClick?: (fixture: Fixture) => void;
   onLike?: (fixture: Fixture) => void;
@@ -175,6 +276,7 @@ export function MatchCard({
         return {
           id: v.userId,
           name: v.userName,
+          uri: `https://i.pravatar.cc/150?u=${encodeURIComponent(v.userId || 'guest')}`,
           team:
             kind === 'home'
               ? fixture.homeTeam
@@ -199,6 +301,7 @@ export function MatchCard({
   }
 
   function handleVote() {
+    if (isLive) return;
     if (!isLoggedIn) return requireLogin(handleVote);
     if (isCompleted) onOpenResults?.(fixture);
     else onOpenVoteModal?.(fixture);
@@ -221,6 +324,8 @@ export function MatchCard({
     onSubmitComment?.(fixture, text);
     setDraft('');
   }
+
+  const isTyping = draft.trim().length > 0;
 
   const placeholder = !isLoggedIn
     ? 'Log in to comment'
@@ -295,6 +400,14 @@ export function MatchCard({
           )}
         </View>
 
+        {/* Competition / tournament type, e.g. Premier League or Serie A */}
+        <Text
+          style={[fanText('tag', colors, colors.textTertiary), styles.leagueName]}
+          numberOfLines={1}
+        >
+          {fixture.league || 'Unknown league'}
+        </Text>
+
         {/* Comment preview / live commentary */}
         <View style={[styles.lineRow, styles.previewRow]} pointerEvents="none">
           {isLive && liveCommentary ? (
@@ -358,74 +471,66 @@ export function MatchCard({
           />
         </View>
 
-        {/* One line: actions, comment box, teams + score */}
+        {/* Footer top row: comment input left, fixture teams right. */}
         <View style={styles.bottomRow}>
-          <View style={styles.actions}>
-            <ActionButton
-              icon={Vote}
-              label={isCompleted ? 'Results' : 'Vote'}
-              count={fixture.votes}
-              colors={colors}
-              onPress={handleVote}
-            />
-            <ActionButton
-              icon={Heart}
-              label={liked ? 'Unlike' : 'Like'}
-              count={likesCount}
-              active={liked}
-              activeColor={colors.away}
-              colors={colors}
-              onPress={handleLike}
-            />
-            <ActionButton
-              icon={MessageCircle}
-              label="Comments"
-              count={commentsCount ?? pool.length}
-              colors={colors}
-              onPress={handleChat}
-            />
-          </View>
-
-          {/* Middle: comment box */}
-          <View style={styles.inputCell}>
-            {!canComment && (
-              <Lock size={ICON.sm} color={colors.textTertiary} />
-            )}
-            <Input
-              style={[
-                styles.grow,
-                styles.noBorderInput,
-                fanText('caption', colors, colors.textSecondary),
-              ]}
-              colors={colors}
-              variant="inline"
-              value={draft}
-              onChangeText={setDraft}
-              editable={canComment}
-              placeholder={placeholder}
-              onSubmitEditing={handleSubmit}
-              returnKeyType="send"
-            />
-          </View>
-
-          {/* Right: Home vs Away + score → match details */}
-          <Pressable
-            onPress={handleLineups}
-            hitSlop={8}
-            style={({ pressed }) => [
-              styles.caption,
-              pressed && { opacity: PRESSED_OPACITY },
-            ]}
-            accessibilityRole="link"
-            accessibilityLabel={`Open match details: ${fixtureLabel}`}
-          >
-            <Text
-              style={fanText('tag', colors, colors.textTertiary)}
-              numberOfLines={1}
+          <View style={styles.footerTopRow}>
+            <View style={styles.inputCell}>
+              {!isLoggedIn ? (
+                <Pressable
+                  onPress={handleSubmit}
+                  accessibilityRole="button"
+                  accessibilityLabel="Log in to comment"
+                  hitSlop={8}
+                  style={({ pressed }) => [styles.guestCommentPrompt, pressed && { opacity: PRESSED_OPACITY }]}
+                >
+                  <Text numberOfLines={1} style={fanText('caption', colors, colors.textSecondary)}>Log in to comment</Text>
+                </Pressable>
+              ) : (
+                <>
+                  {!canComment && <Lock size={ICON.sm} color={colors.textTertiary} />}
+                  <Input
+                    style={[styles.grow, styles.noBorderInput, fanText('caption', colors, colors.textSecondary)]}
+                    colors={colors}
+                    variant="inline"
+                    value={draft}
+                    onChangeText={setDraft}
+                    editable={canComment}
+                    placeholder={placeholder}
+                    onSubmitEditing={handleSubmit}
+                    returnKeyType="send"
+                    accessibilityLabel={placeholder}
+                  />
+                  {isTyping && <Pressable onPress={handleSubmit} disabled={!canComment} accessibilityRole="button" accessibilityLabel="Send comment" style={({ pressed }) => ({ paddingHorizontal: 10, paddingVertical: 7, borderRadius: 16, backgroundColor: canComment ? colors.primary : colors.primaryDim, opacity: pressed ? PRESSED_OPACITY : 1 })}><Text style={fanText('tag', colors, '#FFFFFF')}>Send</Text></Pressable>}
+                </>
+              )}
+            </View>
+            <Pressable
+              onPress={handleLineups}
+              hitSlop={8}
+              style={({ pressed }) => [styles.caption, pressed && { opacity: PRESSED_OPACITY }]}
+              accessibilityRole="link"
+              accessibilityLabel={`Open match details: ${fixtureLabel}`}
             >
-              {captionLabel}
-            </Text>
-          </Pressable>
+              <View style={styles.teamMatchup}>
+                <TeamLogo name={fixture.homeTeam} fixture={fixture as unknown as Record<string, unknown>} side="home" colors={colors} />
+                <Text style={[fanText('tag', colors, colors.textPrimary), styles.teamName]} numberOfLines={2}>{fixture.homeTeam}</Text>
+                <Text style={fanText('tag', colors, colors.textTertiary)}>{hasScores(fixture) ? scoreDisplay(fixture) : 'vs'}</Text>
+                <Text style={[fanText('tag', colors, colors.textPrimary), styles.teamName]} numberOfLines={2}>{fixture.awayTeam}</Text>
+                <TeamLogo name={fixture.awayTeam} fixture={fixture as unknown as Record<string, unknown>} side="away" colors={colors} />
+              </View>
+            </Pressable>
+          </View>
+          <View style={styles.actions}>
+            <View style={styles.actionSlot}><ActionButton icon={Vote} label={isLive ? 'Live' : isCompleted ? 'Results' : 'Vote'} count={fixture.votes} colors={colors} onPress={handleVote} /></View>
+            <View style={styles.actionSlot}>
+              <Pressable disabled={isLive} onPress={() => { if (isLive) return; if (!isLoggedIn) return requireLogin(() => onOpenPokeModal?.(fixture)); onOpenPokeModal?.(fixture); }} hitSlop={8} accessibilityRole="button" accessibilityLabel={isLive ? "Poking unavailable for live matches" : "Poke on this match"} accessibilityState={{ disabled: isLive }} style={({ pressed }) => [styles.pokeButton, isLive && { opacity: 0.45 }, pressed && !isLive && { opacity: PRESSED_OPACITY }]}>
+                <View style={[styles.pokeCircle, { backgroundColor: colors.primaryDim }]}><Pointer size={ICON.sm} color={colors.primary} /></View>
+                <Text style={fanText('tag', colors, colors.primary)}>Poke</Text>
+              </Pressable>
+            </View>
+            <View style={styles.actionSlot}><ActionButton icon={Heart} label={liked ? 'Unlike' : 'Like'} count={likesCount} active={liked} activeColor={colors.away} colors={colors} onPress={handleLike} /></View>
+            <View style={styles.actionSlot}><ActionButton icon={MessageCircle} label="Comments" count={commentsCount ?? pool.length} colors={colors} onPress={handleChat} /></View>
+          </View>
         </View>
       </View>
     </FeedItem>
@@ -442,6 +547,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   previewRow: { marginBottom: 0 },
+  leagueName: { marginTop: 2, marginBottom: 0, fontSize: 11, lineHeight: 14 },
   resultRow: { marginTop: 10 },
   stackRow: { marginTop: 14 },
   channelLabel: {
@@ -465,20 +571,33 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: FAN_SPACING.sm,
   },
-  // One horizontal line: actions | comment box | teams + score.
-  // Negative bottom margin cancels FeedItem's bottom padding so the row
-  // sits on the card floor. Tune FOOTER_BLEED if a gap remains.
+  // Slightly taller footer: input + teams on row one, four equal actions on row two.
   bottomRow: {
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    gap: FAN_SPACING.sm,
+    marginTop: 20,
+    marginBottom: -FOOTER_BLEED + 4,
+  },
+  footerTopRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: FAN_SPACING.sm,
-    marginTop: 18,
-    marginBottom: -FOOTER_BLEED,
+    width: '100%',
+    minWidth: 0,
   },
   actions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: FAN_SPACING.base,
+    width: '100%',
+    gap: 0,
+    minHeight: 32,
+  },
+  actionSlot: {
+    flex: 1,
+    minWidth: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   inputCell: {
     flex: 1,
@@ -487,9 +606,51 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: FAN_SPACING.sm,
   },
+  guestCommentPrompt: {
+    flex: 1,
+    minWidth: 0,
+    justifyContent: 'center',
+    alignSelf: 'stretch',
+    paddingVertical: 4,
+  },
+  pokeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    minHeight: 28,
+  },
+  pokeCircle: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  teamMatchup: {
+    flexDirection: 'row',
+    minWidth: 0,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: 4,
+    maxWidth: '100%',
+  },
+  teamLogo: {
+    width: 16,
+    height: 16,
+    flexShrink: 0,
+    borderRadius: 8,
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  teamLogoImage: { width: '100%', height: '100%' },
+  teamFallback: { fontSize: 9, fontWeight: '700' },
+  teamName: { flexShrink: 1, minWidth: 0, maxWidth: 74 },
   caption: {
     flexShrink: 0,
-    maxWidth: '40%',
+    flex: 0.95,
+    minWidth: 0,
+    maxWidth: '48%',
     minHeight: 32,
     alignItems: 'flex-end',
     justifyContent: 'center',

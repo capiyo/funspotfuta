@@ -1,0 +1,3082 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root{font-family:"DM Sans",ui-sans-serif,system-ui,sans-serif;color:#f3f4f6;background:#0b1020;font-synthesis:none;text-rendering:optimizeLegibility}
+*{box-sizing:border-box}body{margin:0;min-width:320px;min-height:100vh;background:#0b1020}button,input{font:inherit}button{cursor:pointer}button:disabled{opacity:.55;cursor:not-allowed}a{color:inherit;text-decoration:none}
+.app-shell{height:100vh;display:flex;flex-direction:column;overflow:hidden;background:#0b1020}.navbar{height:66px;flex:none;display:flex;align-items:center;gap:22px;padding:0 22px;border-bottom:1px solid #252d41;background:#11182a}.brand{font-weight:900;font-size:20px;color:#f6c453;white-space:nowrap}.navbar-channels{display:flex;align-items:center;gap:8px;min-width:0;flex:1;overflow-x:auto}.channel-chip{border:1px solid transparent;background:transparent;color:#9ca8bc;padding:8px 11px;border-radius:9px;white-space:nowrap}.channel-chip:hover,.channel-chip.active{background:#1c2941;color:#f6c453;border-color:#34415a}.navbar-actions{display:flex;align-items:center;gap:10px;white-space:nowrap}.username{font-size:13px;color:#b9c4d6}.button{border:1px solid #eab746;background:#eab746;color:#171b27;border-radius:9px;padding:10px 14px;font-weight:750}.button:hover{filter:brightness(1.05)}.button-quiet{background:transparent;color:#d7deea;border-color:#34415a}.workspace{flex:1;min-height:0;display:flex}.profile-sidebar{width:244px;flex:none;border-right:1px solid #252d41;background:#101729;padding:26px 16px;overflow-y:auto}.profile-avatar,.mini-avatar{display:grid;place-items:center;width:44px;height:44px;border-radius:50%;background:#263955;color:#f6c453;font-weight:800}.profile-sidebar h2{font-size:17px;margin:14px 0 4px}.muted{color:#8e9bb1;font-size:12px;line-height:1.5}.sidebar-divider{height:1px;background:#252d41;margin:24px 0}.sidebar-label,.eyebrow{font-size:10px;letter-spacing:.14em;font-weight:800;color:#8190a8;margin:0 0 12px}.sidebar-channel{display:block;width:100%;text-align:left;border:0;border-radius:8px;background:transparent;color:#c7d0df;padding:10px;margin:3px 0}.sidebar-channel:hover,.sidebar-channel.selected{background:#1c2941;color:#f6c453}.sidebar-join{margin-top:18px;width:100%}.home-columns{flex:1;min-width:0;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}.home-column{min-width:0;min-height:0;overflow-y:auto}.chats-column{border-right:1px solid #252d41}.pane-content{padding:22px 20px;min-height:100%}.pane-heading{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #252d41;padding-bottom:17px;margin-bottom:16px}.pane-heading h1{font-size:24px;line-height:1.2;margin:0}.count{background:#202d43;color:#f6c453;border-radius:99px;padding:5px 10px;font-size:12px}.chat-layout{display:flex;flex-direction:column;gap:12px}.channel-list{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}.channel-row{display:flex;align-items:center;gap:10px;text-align:left;min-width:155px;max-width:220px;padding:10px;border:1px solid #28344b;border-radius:10px;background:#111a2d;color:#dce4f0}.channel-row.selected{border-color:#eab746;background:#1c2941}.channel-avatar{width:32px;height:32px;flex:none;display:grid;place-items:center;border-radius:9px;background:#263955;color:#f6c453;font-weight:800}.channel-row-copy{display:flex;flex-direction:column;gap:4px;min-width:0;flex:1}.channel-row-copy strong{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.channel-row-copy small,.post-author small,.message-heading small{font-size:10px;color:#8998af}.message-pane{border:1px solid #28344b;border-radius:12px;overflow:hidden;min-height:360px}.message-screen{height:100%;min-height:360px;display:flex;flex-direction:column}.message-heading{display:flex;align-items:center;gap:10px;padding:13px;border-bottom:1px solid #28344b;background:#111a2d}.message-heading>div{display:flex;flex-direction:column;gap:3px}.message-list{flex:1;min-height:220px;max-height:calc(100vh - 360px);overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:9px}.message-status{text-align:center;margin:auto}.message-bubble{align-self:flex-start;max-width:88%;background:#1b263a;border-radius:10px;padding:9px 11px}.message-bubble.own{align-self:flex-end;background:#2a3d50}.message-bubble strong{font-size:11px;color:#f6c453}.message-bubble p{font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere;margin:5px 0}.message-bubble time{display:block;text-align:right;color:#8794a9;font-size:9px}.message-composer{display:flex;gap:8px;padding:10px;border-top:1px solid #28344b}.message-composer input,.login-form input{min-width:0;flex:1;border:1px solid #33415a;background:#0c1425;color:#f3f4f6;border-radius:9px;padding:11px;outline:none}.message-composer input:focus,.login-form input:focus{border-color:#eab746}.feed-list{display:flex;flex-direction:column;gap:14px}.post-card{border:1px solid #28344b;background:#111a2d;border-radius:12px;padding:14px}.post-author{display:flex;align-items:center;gap:9px}.post-author>div{display:flex;flex-direction:column;gap:3px}.post-author strong{font-size:12px}.mini-avatar{width:34px;height:34px;font-size:12px}.post-caption{font-size:13px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere;color:#dbe3ef}.post-image{display:block;width:100%;max-height:380px;object-fit:contain;border-radius:8px;margin-top:10px;background:#0b1020}.empty-state,.error-state{border:1px dashed #34415a;border-radius:12px;padding:24px;text-align:center;color:#9ca8bc}.empty-state h2{font-size:16px;color:#e2e8f0}.empty-state p,.error-state p{font-size:12px}.skeleton-list{display:flex;flex-direction:column;gap:12px}.skeleton-row,.skeleton-post{border-radius:10px;background:linear-gradient(90deg,#182238,#25314a,#182238);background-size:200% 100%;animation:shimmer 1.4s infinite}.skeleton-row{height:54px}.skeleton-post{height:150px}.loading-screen{height:100vh;display:grid;place-items:center}.spinner{width:32px;height:32px;border:3px solid #34415a;border-top-color:#eab746;border-radius:50%;animation:spin .8s linear infinite}.toast{position:fixed;right:18px;bottom:18px;z-index:50;display:flex;flex-direction:column;gap:4px;max-width:320px;border:1px solid #34415a;border-radius:12px;padding:14px;background:#172238;color:#e8edf5;text-align:left;box-shadow:0 12px 38px #0006}.toast strong{font-size:13px}.toast span{font-size:12px;color:#a9b5c8}.login-page{min-height:100vh;display:grid;place-items:center;padding:22px}.login-card{width:min(100%,420px);border:1px solid #29364d;background:#111a2d;border-radius:18px;padding:30px;box-shadow:0 20px 70px #0005}.login-card h1{font-size:24px;margin:28px 0 8px}.login-form{display:flex;flex-direction:column;gap:12px;margin-top:24px}.login-form label{font-size:12px;color:#bdc8d9}.phone-input{display:flex;gap:8px;align-items:center}.phone-input span{padding:12px;border:1px solid #33415a;border-radius:9px;color:#f6c453}.phone-input input{width:100%}.button-wide{width:100%;margin-top:8px}.error-message{font-size:12px;color:#ff9b9b;margin-top:14px}.small{font-size:11px;margin-top:18px}.text-button{background:transparent;border:0;color:#eab746;padding:8px}
+@keyframes spin{to{transform:rotate(360deg)}}@keyframes shimmer{to{background-position:-200% 0}}
+@media(max-width:900px){.profile-sidebar{width:190px}.navbar{gap:12px;padding:0 12px}.pane-content{padding:16px 12px}.home-columns{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.mobile-home-tabs{display:none}.push-status{flex:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 16px;background:#172238;color:#dbe3ef;font-size:12px}.push-status button{background:transparent;border:0;color:inherit;font-size:18px}.mobile-tab-hidden{display:block}@media(max-width:650px){.app-shell{height:auto;min-height:100vh;overflow:visible}.navbar{height:auto;min-height:60px;flex-wrap:wrap;padding:12px}.navbar-channels{order:3;flex-basis:100%;max-width:100%}.workspace{flex-direction:column}.profile-sidebar{width:100%;padding:12px 16px;border-right:0;border-bottom:1px solid #252d41;display:grid;grid-template-columns:auto 1fr;column-gap:12px;align-items:center}.profile-avatar{grid-row:span 2}.profile-sidebar h2{margin:0}.profile-sidebar>p{margin:3px 0}.profile-sidebar .sidebar-divider,.profile-sidebar .sidebar-label,.profile-sidebar .sidebar-channel{display:none}.sidebar-join{grid-column:1/-1;margin-top:8px}.mobile-home-tabs{display:block;flex:none;padding:8px 0}.mobile-home-tabs .floating-pill-wrap{position:static;display:flex;justify-content:center;padding:0 12px}.home-columns{display:flex;flex:1;min-height:0;flex-direction:column;overflow:hidden}.home-column{display:none;flex:1;min-height:0;overflow-y:auto}.home-column.mobile-tab-active{display:block}.chats-column{border-right:0;border-bottom:0}.pane-content{padding:18px 12px}.message-list{max-height:340px}.feed-column{min-height:320px}}
+
+.push-status{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 18px;background:#18243a;border-bottom:1px solid #34415a;color:#e4ebf6;font-size:12px}.push-status button{border:0;background:transparent;color:#eab746;font-size:18px}
+
+/* Keep the two desktop panes independently scrollable; on phones the tabbed
+   workspace owns the remaining viewport instead of growing with its content. */
+@media (min-width: 651px) {
+  .home-screen { height: 100vh; min-height: 0; }
+  .workspace { flex: 1; min-height: 0; overflow: hidden; }
+  .profile-sidebar { min-height: 0; overflow-y: auto; }
+  .home-columns { min-height: 0; overflow: hidden; }
+  .home-column { height: 100%; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+}
+@media (max-width: 650px) {
+  .app-shell.home-screen { height: 100dvh; min-height: 0; overflow: hidden; }
+  .workspace { flex: 1; min-height: 0; overflow: hidden; }
+  .profile-sidebar { flex: none; }
+  .home-columns { flex: 1; height: 0; min-height: 0; overflow: hidden; }
+  .home-column { height: 100%; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
+}
+
+
+/* Homepage panes own scrolling; prevent a second document scrollbar. */
+body:has(.home-screen) {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.home-screen .workspace {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.home-screen .profile-sidebar {
+  overflow: hidden;
+}
+
+.home-screen .home-column {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.home-screen .feed-screen,
+.home-screen .chats-fixture-list {
+  min-height: 0;
+  overscroll-behavior: contain;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--home-scrollbar-thumb, currentColor) var(--home-scrollbar-track, transparent);
+}
+
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--home-scrollbar-track, transparent);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--home-scrollbar-thumb, currentColor);
+  border: 2px solid var(--home-scrollbar-track, transparent);
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--home-scrollbar-thumb, currentColor);
+}
+
+
+/* Full profile sidebar; the logged-out preview is intentionally read-only. */
+.profile-sidebar-rich {
+  width: 300px;
+  flex: 0 0 300px;
+  display: block;
+  padding: 16px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--home-scrollbar-thumb) var(--home-scrollbar-track);
+}
+.home-screen .profile-sidebar-rich {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.profile-sidebar-rich .sidebar-divider {
+  display: block;
+  height: 1px;
+  background: var(--home-border);
+  margin: 18px 0;
+}
+.profile-sidebar-rich .sidebar-label {
+  display: block;
+  margin: 0 0 10px;
+  font-size: 11px;
+  letter-spacing: .14em;
+}
+.mock-signin {
+  width: 100%;
+  margin: 0 0 18px;
+}
+.mock-profile-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  color: var(--home-text-primary);
+}
+.mock-profile-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+}
+.mock-profile-avatar {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex: none;
+  border: 0;
+  border-radius: 50%;
+  background: var(--home-page-bg);
+  color: var(--home-primary);
+  font-size: 18px;
+  font-weight: 800;
+}
+.mock-profile-identity-copy,
+.mock-channel-copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 4px;
+}
+.mock-profile-identity-copy strong {
+  font-size: 16px;
+}
+.mock-profile-identity-copy span,
+.mock-profile-fandom span,
+.mock-channel-copy span {
+  color: var(--home-text-tertiary);
+  font-size: 12px;
+}
+.mock-profile-fandom {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.mock-profile-fandom span {
+  padding: 5px 8px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--home-page-bg);
+}
+.mock-profile-balance {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px;
+  align-items: center;
+  padding: 12px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--home-page-bg);
+}
+.mock-profile-balance > span {
+  color: var(--home-text-tertiary);
+  font-size: 12px;
+}
+.mock-profile-balance > strong {
+  font-size: 15px;
+}
+.mock-profile-wallet-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+.mock-profile-wallet-actions button {
+  flex: 1;
+  border: 0;
+  border-radius: 8px;
+  padding: 7px;
+  background: var(--home-page-bg);
+  color: var(--home-text-secondary);
+  font-size: 12px;
+}
+.mock-profile-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+}
+.mock-profile-stats > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 8px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--home-page-bg);
+}
+.mock-profile-stats span {
+  color: var(--home-text-tertiary);
+  font-size: 11px;
+}
+.mock-profile-stats strong {
+  font-size: 15px;
+}
+.mock-readonly-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  opacity: .58;
+}
+.mock-channel-row,
+.mock-leaderboard-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 9px;
+  border: 0;
+  border-radius: 9px;
+  background: var(--home-page-bg);
+}
+.mock-channel-avatar,
+.mock-leaderboard-rank {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border-radius: 8px;
+  background: var(--home-page-bg);
+  color: var(--home-primary);
+  font-size: 12px;
+  font-weight: 800;
+}
+.mock-channel-copy strong {
+  overflow: hidden;
+  color: var(--home-text-primary);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mock-profile-note {
+  margin: 0;
+  color: var(--home-text-tertiary);
+  font-size: 11px;
+  line-height: 1.5;
+  text-align: center;
+}
+@media (max-width: 900px) and (min-width: 651px) {
+  .profile-sidebar-rich {
+    width: 280px;
+    flex-basis: 280px;
+    padding: 14px;
+  }
+}
+@media (max-width: 650px) {
+  .profile-sidebar-rich {
+    width: 100%;
+    flex: none;
+    padding: 12px 16px;
+    border-right: 0;
+    border: 0;
+  }
+  .profile-sidebar-rich .sidebar-divider,
+  .profile-sidebar-rich .sidebar-label {
+    display: block;
+  }
+}
+
+
+/* Home is one uninterrupted surface. All panes remain scrollable without visible rails. */
+.home-screen {
+  --home-page-bg: var(--home-scrollbar-track);
+  background: var(--home-page-bg) !important;
+}
+.no-scrollbar {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+.no-scrollbar::-webkit-scrollbar,
+.no-scrollbar *::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+.home-screen,
+.home-screen *,
+body:has(.home-screen) *,
+body:has(.home-screen) .fixed,
+body:has(.home-screen) .fixed * {
+  box-shadow: none !important;
+  outline: 0 !important;
+  border-width: 0 !important;
+  border-style: none !important;
+  border-radius: 0 !important;
+}
+.home-screen *::before,
+.home-screen *::after,
+body:has(.home-screen) *::before,
+body:has(.home-screen) *::after,
+body:has(.home-screen) .fixed *::before,
+body:has(.home-screen) .fixed *::after {
+  box-shadow: none !important;
+  outline: 0 !important;
+  border-width: 0 !important;
+  background: transparent !important;
+}
+.home-screen .home-avatar,
+.home-screen .profile-avatar,
+.home-screen .mini-avatar,
+.home-screen .mock-profile-avatar,
+.home-screen .mock-profile-identity img,
+.home-screen .navbar [aria-label*="Account menu"],
+.home-screen .navbar [aria-label*="Account menu"] img {
+  border-radius: 50% !important;
+}
+.home-screen > header,
+.home-screen .navbar,
+.home-screen .workspace,
+.home-screen .profile-sidebar,
+.home-screen .profile-sidebar-rich,
+.home-screen .home-columns,
+.home-screen .home-column,
+.home-screen .pane-content,
+.home-screen .pane-heading,
+.home-screen .mobile-home-tabs,
+.home-screen .feed-screen,
+.home-screen .feed-item,
+.home-screen .post-card,
+.home-screen .chats-fixture-list,
+.home-screen .chats-fixture-row,
+.home-screen .chats-list-footer {
+  background: var(--home-page-bg) !important;
+  background-color: var(--home-page-bg) !important;
+}
+.home-screen .navbar {
+  box-shadow: none !important;
+}
+.home-screen .workspace,
+.home-screen .home-columns,
+.home-screen .home-column,
+.home-screen .profile-sidebar,
+.home-screen .feed-screen,
+.home-screen .chats-fixture-list,
+.home-screen [class*="overflow-y-auto"],
+.home-screen [class*="overflow-auto"],
+body:has(.home-screen) .fixed [class*="overflow-y-auto"],
+body:has(.home-screen) .fixed [class*="overflow-auto"] {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+.home-screen .workspace::-webkit-scrollbar,
+.home-screen .home-columns::-webkit-scrollbar,
+.home-screen .home-column::-webkit-scrollbar,
+.home-screen .profile-sidebar::-webkit-scrollbar,
+.home-screen .feed-screen::-webkit-scrollbar,
+.home-screen .chats-fixture-list::-webkit-scrollbar,
+.home-screen [class*="overflow-y-auto"]::-webkit-scrollbar,
+.home-screen [class*="overflow-auto"]::-webkit-scrollbar,
+body:has(.home-screen) .fixed [class*="overflow-y-auto"]::-webkit-scrollbar,
+body:has(.home-screen) .fixed [class*="overflow-auto"]::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+.home-screen .feed-item,
+.home-screen .post-card{
+  margin-bottom: 14px !important;
+}
+.home-screen .skeleton-row,
+.home-screen .skeleton-post {
+  background: var(--home-text-tertiary) !important;
+  background-image: none !important;
+  opacity: 0.14;
+  animation: none !important;
+}
+.home-screen .profile-sidebar,
+.home-screen .profile-sidebar-rich {
+  border: 0 !important;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+.home-screen .pane-heading {
+  border: 0 !important;
+}
+.home-screen .chats-column {
+  border: 0 !important;
+}
+.home-screen hr,
+.home-screen [class*="divide-"],
+.home-screen [class*="ring-"],
+.home-screen [class*="outline-"],
+.home-screen [class*="border-"],
+body:has(.home-screen) .fixed hr,
+body:has(.home-screen) .fixed [class*="divide-"],
+body:has(.home-screen) .fixed [class*="ring-"],
+body:has(.home-screen) .fixed [class*="outline-"],
+body:has(.home-screen) .fixed [class*="border-"] {
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+body:has(.home-screen) {
+  height: 100vh;
+  overflow: hidden;
+}
+@media (max-width: 650px) {
+  .home-screen .home-columns {
+    display: flex;
+    flex-direction: column;
+  }
+  .home-screen .home-column {
+    flex: 1;
+    min-height: 0;
+  }
+}
+
+
+/* Narrow Home uses tabs and a compact identity strip instead of a tall sidebar. */
+.home-screen .profile-sidebar-rich * {
+  background: var(--home-page-bg) !important;
+  background-color: var(--home-page-bg) !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+.home-screen .profile-sidebar-rich .mock-signin {
+  color: var(--home-primary) !important;
+}
+.home-screen .profile-sidebar-rich .mock-profile-balance,
+.home-screen .profile-sidebar-rich .mock-profile-stats > div,
+.home-screen .profile-sidebar-rich .mock-channel-row,
+.home-screen .profile-sidebar-rich .mock-leaderboard-row,
+.home-screen .profile-sidebar-rich .mock-profile-fandom span {
+  background: var(--home-page-bg) !important;
+  background-color: var(--home-page-bg) !important;
+}
+@media (max-width: 650px) {
+  .home-screen .profile-sidebar-rich {
+    width: 100%;
+    flex: none;
+    max-height: 140px;
+    overflow: hidden !important;
+    padding-top: 8px;
+    padding-bottom: 8px;
+  }
+  .home-screen .profile-sidebar-rich > div {
+    max-height: 124px;
+    overflow: hidden;
+  }
+  .home-screen .profile-sidebar-rich .mock-profile-fandom,
+  .home-screen .profile-sidebar-rich .mock-profile-balance,
+  .home-screen .profile-sidebar-rich .mock-profile-stats,
+  .home-screen .profile-sidebar-rich .mock-readonly-list,
+  .home-screen .profile-sidebar-rich .mock-profile-note,
+  .home-screen .profile-sidebar-rich .sidebar-divider,
+  .home-screen .profile-sidebar-rich .sidebar-label {
+    display: none !important;
+  }
+}
+
+body:has(.home-screen) .home-avatar,
+body:has(.home-screen) .profile-avatar,
+body:has(.home-screen) .mini-avatar,
+body:has(.home-screen) .mock-profile-avatar,
+body:has(.home-screen) .fixed .home-avatar {
+  border-radius: 50% !important;
+}
+
+.home-screen *,
+body:has(.home-screen) .fixed * {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+.home-screen *::-webkit-scrollbar,
+body:has(.home-screen) *::-webkit-scrollbar,
+body:has(.home-screen) .fixed *::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+
+/* Final Home surface contract: the page background is the only surface. */
+.home-screen,
+.home-screen .navbar,
+.home-screen .workspace,
+.home-screen .profile-sidebar,
+.home-screen .profile-sidebar-rich,
+.home-screen .home-columns,
+.home-screen .home-column,
+.home-screen .pane-content,
+.home-screen .pane-heading,
+.home-screen .mobile-home-tabs,
+.home-screen .feed-screen,
+.home-screen .feed-item,
+.home-screen .post-card,
+.home-screen .chats-fixture-list,
+.home-screen .chats-fixture-row,
+.home-screen .chats-list-footer,
+.home-screen .profile-sidebar-rich .mock-profile-balance,
+.home-screen .profile-sidebar-rich .mock-profile-stats > div,
+.home-screen .profile-sidebar-rich .mock-channel-row,
+.home-screen .profile-sidebar-rich .mock-leaderboard-row,
+.home-screen .profile-sidebar-rich .mock-profile-fandom span {
+  background: var(--home-page-bg) !important;
+  background-color: var(--home-page-bg) !important;
+  background-image: none !important;
+}
+.home-screen .navbar {
+  border: 0 !important;
+  box-shadow: none !important;
+}
+.home-screen .home-column,
+.home-screen .chats-column,
+.home-screen .feed-column,
+.home-screen .profile-sidebar,
+.home-screen .profile-sidebar-rich,
+.home-screen .pane-heading,
+.home-screen .chats-list-footer,
+.home-screen .feed-item,
+.home-screen .post-card,
+.home-screen .chats-fixture-row,
+.home-screen .profile-sidebar-rich *,
+body:has(.home-screen) [role="dialog"],
+body:has(.home-screen) [role="dialog"] *,
+body:has(.home-screen) .fixed [role="dialog"],
+body:has(.home-screen) .fixed [role="dialog"] * {
+  border: 0 !important;
+  border-width: 0 !important;
+  border-style: none !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+  border-radius: 0 !important;
+}
+.home-screen button,
+.home-screen input,
+.home-screen textarea,
+.home-screen img,
+.home-screen video,
+.home-screen footer,
+.home-screen [class*="card"],
+.home-screen [class*="row"],
+.home-screen [class*="footer"],
+body:has(.home-screen) .fixed button,
+body:has(.home-screen) .fixed input,
+body:has(.home-screen) .fixed textarea,
+body:has(.home-screen) .fixed img,
+body:has(.home-screen) .fixed video,
+body:has(.home-screen) .fixed footer,
+body:has(.home-screen) .fixed [class*="overflow"] {
+  border: 0 !important;
+  border-width: 0 !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+  border-radius: 0 !important;
+}
+.home-screen .home-avatar,
+.home-screen .profile-avatar,
+.home-screen .mini-avatar,
+.home-screen .mock-profile-avatar,
+.home-screen .mock-profile-identity img,
+.home-screen .navbar [aria-label*="Account menu"],
+.home-screen .navbar [aria-label*="Account menu"] img,
+body:has(.home-screen) .fixed .home-avatar {
+  border-radius: 50% !important;
+}
+.home-screen *::before,
+.home-screen *::after,
+body:has(.home-screen) .fixed *::before,
+body:has(.home-screen) .fixed *::after {
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+  background-image: none !important;
+}
+.no-scrollbar,
+.no-scrollbar * {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+.no-scrollbar::-webkit-scrollbar,
+.no-scrollbar *::-webkit-scrollbar,
+.home-screen *::-webkit-scrollbar,
+body:has(.home-screen) .fixed *::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+.home-screen,
+body:has(.home-screen) {
+  scrollbar-gutter: auto !important;
+}
+body:has(.home-screen) {
+  height: 100vh;
+  overflow: hidden !important;
+}
+@media (max-width: 650px) {
+  .app-shell.home-screen {
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden !important;
+  }
+  .home-screen .workspace {
+    min-height: 0;
+    overflow: hidden;
+  }
+  .home-screen .profile-sidebar-rich {
+    width: 100%;
+    flex: none;
+    max-height: 140px;
+    overflow: hidden !important;
+  }
+  .home-screen .home-columns {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .home-screen .home-column {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+}
+
+
+/* Portals used by Home modals render under document.body, outside .home-screen. */
+body:has(.home-screen) * {
+  border: 0 !important;
+  border-width: 0 !important;
+  border-style: none !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+  border-radius: 0 !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+body:has(.home-screen) *::before,
+body:has(.home-screen) *::after {
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+  background: transparent !important;
+  background-image: none !important;
+}
+body:has(.home-screen) .home-avatar,
+body:has(.home-screen) .profile-avatar,
+body:has(.home-screen) .mini-avatar,
+body:has(.home-screen) .mock-profile-avatar,
+body:has(.home-screen) .mock-profile-identity img,
+body:has(.home-screen) .navbar [aria-label*="Account menu"],
+body:has(.home-screen) .navbar [aria-label*="Account menu"] img {
+  border-radius: 50% !important;
+}
+body:has(.home-screen) *::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+
+/* Legacy base selectors above are shared by non-Home routes. On Home, colors
+   come only from the active theme palette rather than legacy hex literals. */
+.home-screen .brand {
+  color: var(--home-primary) !important;
+}
+.home-screen .username,
+.home-screen .muted,
+.home-screen .channel-row-copy small,
+.home-screen .post-author small,
+.home-screen .message-heading small,
+.home-screen .sidebar-label,
+.home-screen .eyebrow {
+  color: var(--home-text-tertiary) !important;
+}
+.home-screen .channel-chip,
+.home-screen .sidebar-channel,
+.home-screen .navbar .button,
+.home-screen .profile-sidebar-rich .button,
+.home-screen .button-quiet {
+  color: var(--home-text-secondary) !important;
+  background: var(--home-page-bg) !important;
+  border: 0 !important;
+  filter: none !important;
+}
+.home-screen .channel-chip:hover,
+.home-screen .channel-chip.active,
+.home-screen .sidebar-channel:hover,
+.home-screen .sidebar-channel.selected,
+.home-screen .mock-signin,
+.home-screen .navbar .button {
+  color: var(--home-primary) !important;
+  background: var(--home-page-bg) !important;
+}
+.home-screen .profile-avatar,
+.home-screen .mini-avatar,
+.home-screen .channel-avatar {
+  color: var(--home-primary) !important;
+  background: var(--home-page-bg) !important;
+}
+.home-screen .count {
+  color: var(--home-primary) !important;
+  background: var(--home-page-bg) !important;
+}
+.home-screen .post-caption {
+  color: var(--home-text-primary) !important;
+}
+.home-screen .empty-state,
+.home-screen .error-state,
+.home-screen .empty-state p,
+.home-screen .error-state p {
+  color: var(--home-text-tertiary) !important;
+}
+.home-screen .empty-state h2,
+.home-screen .error-state h2 {
+  color: var(--home-text-primary) !important;
+}
+.home-screen .push-status {
+  color: var(--home-text-secondary) !important;
+  background: var(--home-page-bg) !important;
+}
+
+.home-screen .profile-sidebar-rich .mock-signin {
+  color: var(--home-primary) !important;
+  background: var(--home-page-bg) !important;
+}
+
+/* Final Home contract: one theme-colored surface, no visual dividers or scroll chrome. */
+body:has(.home-screen),
+body:has(.home-screen) .home-screen,
+body:has(.home-screen) .home-screen .navbar,
+body:has(.home-screen) .home-screen .workspace,
+body:has(.home-screen) .home-screen .profile-sidebar,
+body:has(.home-screen) .home-screen .profile-sidebar-rich,
+body:has(.home-screen) .home-screen .home-columns,
+body:has(.home-screen) .home-screen .home-column,
+body:has(.home-screen) .home-screen .pane-content,
+body:has(.home-screen) .home-screen .pane-heading,
+body:has(.home-screen) .home-screen .mobile-home-tabs,
+body:has(.home-screen) .home-screen .feed-screen,
+body:has(.home-screen) .home-screen .feed-item,
+body:has(.home-screen) .home-screen .post-card,
+body:has(.home-screen) .home-screen .chats-fixture-list,
+body:has(.home-screen) .home-screen .chats-fixture-row,
+body:has(.home-screen) .home-screen .chats-list-footer,
+body:has(.home-screen) .home-screen .post-image-frame,
+body:has(.home-screen) .home-screen .post-video-frame {
+  background: var(--home-page-bg) !important;
+  background-color: var(--home-page-bg) !important;
+  background-image: none !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+  border-radius: 0 !important;
+}
+body:has(.home-screen) .home-screen,
+body:has(.home-screen) .home-screen *,
+body:has(.home-screen) .fixed,
+body:has(.home-screen) .fixed * {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+  scrollbar-gutter: auto !important;
+}
+body:has(.home-screen) .home-screen *::-webkit-scrollbar,
+body:has(.home-screen) .fixed *::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+body:has(.home-screen) .home-screen *,
+body:has(.home-screen) .fixed * {
+  border-width: 0 !important;
+  border-style: none !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+  border-radius: 0 !important;
+}
+body:has(.home-screen) .home-screen *::before,
+body:has(.home-screen) .home-screen *::after,
+body:has(.home-screen) .fixed *::before,
+body:has(.home-screen) .fixed *::after {
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+  background-image: none !important;
+}
+body:has(.home-screen) .home-screen .home-avatar,
+body:has(.home-screen) .home-screen .profile-avatar,
+body:has(.home-screen) .home-screen .mini-avatar,
+body:has(.home-screen) .home-screen .mock-profile-avatar,
+body:has(.home-screen) .home-screen .mock-profile-identity img,
+body:has(.home-screen) .home-screen .navbar [aria-label*="Account menu"],
+body:has(.home-screen) .home-screen .navbar [aria-label*="Account menu"] img,
+body:has(.home-screen) .fixed .home-avatar,
+body:has(.home-screen) .fixed .profile-avatar,
+body:has(.home-screen) .fixed .mini-avatar {
+  border-radius: 50% !important;
+}
+body:has(.home-screen) .home-screen .navbar {
+  background: var(--home-page-bg) !important;
+}
+body:has(.home-screen) .home-screen .profile-sidebar,
+body:has(.home-screen) .home-screen .profile-sidebar-rich {
+  width: 300px;
+  max-width: 300px;
+  flex: 0 0 300px;
+  background: var(--home-page-bg) !important;
+}
+@media (max-width: 900px) and (min-width: 651px) {
+  body:has(.home-screen) .home-screen .profile-sidebar,
+  body:has(.home-screen) .home-screen .profile-sidebar-rich {
+    width: 300px;
+    max-width: 300px;
+    flex-basis: 300px;
+  }
+}
+@media (max-width: 650px) {
+  body:has(.home-screen) .home-screen .profile-sidebar,
+  body:has(.home-screen) .home-screen .profile-sidebar-rich {
+    width: 100%;
+    max-width: none;
+    flex-basis: auto;
+  }
+}
+
+/* Only feed media has rounded clipping; all other Home elements stay square. */
+body:has(.home-screen) .home-screen .feed-column .post-image-frame,
+body:has(.home-screen) .home-screen .feed-column .post-video-frame {
+  border-radius: 8px !important;
+  overflow: hidden !important;
+}
+body:has(.home-screen) .home-screen .feed-column .post-image-frame img,
+body:has(.home-screen) .home-screen .feed-column .post-video-frame video {
+  border-radius: 8px !important;
+}
+
+
+/* Narrow Home follows the mobile header, profile drawer and floating two-tab pill. */
+.mobile-home-header { display: none; flex: none; position: relative; z-index: 40; width: 100%; }
+.mobile-home-header-row { display: flex; min-height: 44px; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 16px 4px; }
+.mobile-home-brand { flex: none; font-size: 15px; font-weight: 700; letter-spacing: -0.3px; line-height: 1.2; text-decoration: none; }
+.mobile-home-header-actions { display: flex; min-width: 0; flex: none; align-items: center; gap: 12px; }
+.mobile-home-icon-button { position: relative; display: inline-flex; width: 28px; height: 28px; flex: none; align-items: center; justify-content: center; padding: 0; background: transparent; }
+.mobile-home-notification-count { position: absolute; top: -3px; right: -5px; min-width: 15px; height: 15px; padding: 0 3px; border-radius: 999px !important; color: #fff; font-size: 9px; font-weight: 700; line-height: 15px; text-align: center; }
+.mobile-home-menu-button { display: inline-flex; width: 28px; height: 28px; flex: none; align-items: center; justify-content: center; overflow: hidden; padding: 0; border-radius: 50% !important; }
+.mobile-home-menu-button img { width: 100%; height: 100%; object-fit: cover; border-radius: 50% !important; }
+.mobile-home-join { padding: 0; background: transparent; font-size: 15px; font-weight: 700; letter-spacing: -0.3px; }
+.mobile-home-channel-row { display: flex; width: 100%; align-items: center; gap: 8px; overflow-x: auto; padding: 6px 12px 8px; white-space: nowrap; }
+.mobile-home-channel-chip { display: inline-flex; min-height: 26px; flex: none; align-items: center; gap: 4px; border-bottom: 1.5px solid transparent !important; padding: 4px 6px; background: transparent; font-size: 10px; font-weight: 500; }
+.mobile-home-channel-chip small { font-size: 8px; font-weight: 400; }
+.mobile-home-create-channel { gap: 3px; font-weight: 600; }
+.mobile-profile-drawer-backdrop { position: fixed; inset: 0; z-index: 1000; display: flex; justify-content: flex-end; background: rgba(0,0,0,.4); }
+.mobile-profile-drawer { display: flex; width: min(88vw, 360px); height: 100%; min-height: 0; flex-direction: column; padding-top: max(env(safe-area-inset-top), 8px); padding-bottom: env(safe-area-inset-bottom); overflow: hidden; border-radius: 12px 0 0 12px !important; }
+.mobile-profile-drawer-heading { display: flex; flex: none; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; }
+.mobile-profile-drawer-heading strong { font-size: 17px; font-weight: 700; }
+.mobile-profile-drawer-heading button { display: inline-flex; width: 32px; height: 32px; align-items: center; justify-content: center; background: transparent; }
+.mobile-profile-drawer-scroll { min-height: 0; flex: 1; overflow-y: auto; overscroll-behavior: contain; padding: 0 16px 24px; }
+.mobile-profile-drawer .profile-sidebar-rich,
+body:has(.home-screen) .mobile-profile-drawer .profile-sidebar-rich { display: block !important; width: 100% !important; max-width: none !important; min-height: 0; max-height: none !important; flex: none !important; overflow: visible !important; padding: 0 !important; background: transparent !important; }
+.mobile-profile-drawer .profile-sidebar-rich .mock-signin { margin-bottom: 18px; }
+.mobile-profile-drawer .profile-sidebar-rich .sidebar-divider { display: block !important; height: 1px; margin: 16px 0; background: var(--home-border, #555) !important; opacity: .35; }
+.mobile-profile-drawer .profile-sidebar-rich .sidebar-label { display: block !important; margin: 0 0 10px; }
+.mobile-profile-drawer .mock-profile-avatar,
+.mobile-profile-drawer .mock-channel-avatar,
+.mobile-profile-drawer .mock-profile-identity img,
+.mobile-profile-drawer .profile-avatar,
+.mobile-profile-drawer .mini-avatar { border-radius: 50% !important; }
+.mobile-profile-drawer-actions { display: flex; flex-direction: column; gap: 16px; margin-top: 16px; }
+.mobile-profile-drawer-actions > button { width: 100%; padding: 12px 0; background: transparent; text-align: left; font-size: 13px; font-weight: 600; }
+.mobile-profile-drawer-channel-list { display: flex; flex-direction: column; gap: 2px; }
+.mobile-profile-drawer-label { margin-bottom: 6px; font-size: 10px; letter-spacing: .12em; }
+.mobile-profile-drawer-channel-list button { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 0; background: transparent; text-align: left; font-size: 13px; }
+.mobile-profile-drawer-channel-list button span { font-size: 11px; }
+.mobile-profile-drawer button:focus-visible,
+.mobile-home-header button:focus-visible,
+.mobile-home-channel-row button:focus-visible,
+.floating-pill button:focus-visible { outline: 2px solid var(--home-primary, #2bb673) !important; outline-offset: 3px; }
+
+@media (max-width: 650px) {
+  .home-screen { display: flex; height: 100dvh !important; min-height: 0 !important; flex-direction: column; overflow: hidden !important; }
+  .desktop-home-header { display: none !important; }
+  .mobile-home-header { display: block !important; }
+  .home-screen .workspace { display: flex; min-height: 0; flex: 1; overflow: hidden; }
+  .home-screen .profile-sidebar-rich,
+  .home-screen .workspace > .profile-sidebar { display: none !important; }
+  .home-screen .home-columns { display: flex; width: 100%; min-width: 0; min-height: 0; flex: 1; flex-direction: column; overflow: hidden; }
+  .home-screen .home-column { display: none; width: 100%; min-width: 0; height: 100%; min-height: 0; flex: 1; overflow-x: hidden; overflow-y: auto; }
+  .home-screen .home-column.mobile-tab-active { display: block !important; }
+  .home-screen .mobile-home-tabs { display: block !important; position: fixed !important; z-index: 80; right: 0; bottom: calc(16px + env(safe-area-inset-bottom)); left: 0; width: 100%; padding: 0 12px; pointer-events: none; }
+  .home-screen .mobile-home-tabs .floating-pill-wrap { position: static !important; display: flex; justify-content: center; padding: 0; pointer-events: none; }
+  .home-screen .floating-pill { display: inline-flex; align-items: center; gap: 4px; padding: 4px !important; border: 0 !important; border-radius: 999px !important; box-shadow: 0 4px 10px rgba(0,0,0,.25) !important; pointer-events: auto; }
+  .home-screen .floating-pill-item { display: inline-flex; align-items: center; justify-content: center; gap: 4px; min-height: 38px; padding: 10px 16px !important; border-radius: 999px !important; font-size: 12px; transition: background-color 220ms ease, color 220ms ease, transform 220ms ease; }
+  .home-screen .floating-pill-item.active { transform: scale(1); }
+  .home-screen .floating-pill-item:not(.active) { transform: scale(.98); }
+  .home-screen .floating-pill-item span { font-size: 12px; }
+  .home-screen .chats-column,
+  .home-screen .feed-column { border: 0 !important; }
+  .home-screen .pane-content { padding-right: 12px; padding-left: 12px; }
+  .home-screen .post-image-frame,
+  .home-screen .post-video-frame { border-radius: 8px !important; overflow: hidden !important; }
+  .mobile-profile-drawer-backdrop { padding-top: env(safe-area-inset-top); }
+}
+
+
+/* Mobile Home uses the same short fade/slide used by the native overlay. */
+@media (max-width: 650px) {
+  .mobile-home-header { transition: opacity 260ms ease, transform 260ms ease; }
+  .mobile-home-header.home-header-visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+  .mobile-home-header.home-header-hidden { opacity: 0; transform: translateY(-8px); pointer-events: none; }
+  .home-screen .mobile-home-tabs { transition: opacity 260ms ease, transform 260ms ease; }
+  .home-screen .mobile-home-tabs.home-header-visible { opacity: 1; transform: translateY(0); }
+  .home-screen .mobile-home-tabs.home-header-hidden { opacity: 0; transform: translateY(24px); pointer-events: none; }
+  body:has(.home-screen) .mobile-profile-drawer { border-radius: 12px 0 0 12px !important; }
+}
+
+
+/* Restore only the radii and shadow that the mobile Home UI actually uses. */
+body:has(.home-screen) .home-screen .floating-pill {
+  border-radius: 999px !important;
+  box-shadow: 0 4px 10px rgba(0,0,0,.25) !important;
+}
+body:has(.home-screen) .home-screen .floating-pill-item {
+  border-radius: 999px !important;
+}
+body:has(.home-screen) .home-screen .mobile-home-menu-button,
+body:has(.home-screen) .home-screen .mobile-home-menu-button img,
+body:has(.home-screen) .home-screen .mobile-home-notification-count {
+  border-radius: 50% !important;
+}
+
+
+/* Home layout refinements: compact cards, bounded media and a natural-width channel rail. */
+@media (min-width: 651px) {
+  .home-screen .chats-fixture-row,
+  .home-screen .feed-screen .post-card,
+  .home-screen .feed-screen > .feed-item { max-width: 560px; margin-left: auto; margin-right: auto; }
+  .home-screen .post-image-frame, .home-screen .post-video-frame { max-height: 480px !important; }
+  .home-screen .chats-fixture-row, .home-screen .feed-screen .post-card { margin-bottom: 8px; }
+}
+.home-screen .mobile-native-menu-items { display: flex; flex-direction: column; }
+.home-screen .mobile-native-menu-items > button { width: 100%; min-height: 42px; padding: 10px 0; background: transparent; text-align: left; font-size: 13px; font-weight: 600; }
+
+
+/* Home surface is flat: media is the sole corner-radius exception. */
+body:has(.home-screen) .home-screen,
+body:has(.home-screen) .home-screen *,
+body:has(.home-screen) .mobile-profile-drawer,
+body:has(.home-screen) .mobile-profile-drawer * {
+  border-radius: 0 !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+body:has(.home-screen) .home-screen .post-image-frame,
+body:has(.home-screen) .home-screen .post-video-frame,
+body:has(.home-screen) .mobile-profile-drawer .post-image-frame,
+body:has(.home-screen) .mobile-profile-drawer .post-video-frame {
+  border-radius: 8px !important;
+}
+body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !important; }
+
+
+/* Shared compact menu popover for mobile and desktop. */
+.home-menu-popover {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  overscroll-behavior: contain;
+}
+.home-menu-item {
+  display: flex !important;
+  width: 100%;
+  min-height: 44px;
+  flex: none;
+  align-items: center;
+  padding: 12px !important;
+  margin: 0;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  text-align: left;
+  white-space: normal;
+  line-height: 1.25;
+  font-size: 13px;
+  cursor: pointer;
+}
+.home-menu-item:hover,
+.home-menu-item:focus-visible { background: var(--home-primary-muted, transparent) !important; outline-offset: -2px; }
+@media (min-width: 651px) {
+  .home-screen .home-columns { gap: 16px; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .home-screen .chats-column { border-right: 0 !important; }
+  .home-screen .chats-column .pane-content,
+  .home-screen .feed-column .pane-content { padding-left: 0 !important; padding-right: 0 !important; }
+  .home-screen .chats-column .chats-fixture-row { max-width: 640px; margin-left: 0 !important; margin-right: auto !important; }
+  .home-screen .feed-column .post-card,
+  .home-screen .feed-column .feed-screen > .feed-item { max-width: 640px; margin-left: auto !important; margin-right: 0 !important; }
+  .home-screen .feed-column .feed-list { align-items: flex-end; }
+}
+
+
+/* Shared profile shell: the profile body is rendered identically in the
+   desktop sidebar and the menu modal; only this outer container changes. */
+.profile-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, .62);
+}
+.profile-modal-shell {
+  width: min(420px, 100%);
+  max-height: 85vh;
+  overflow-y: auto;
+  scrollbar-width: none;
+  background: var(--fan-background, #0b2026);
+  border-radius: 12px;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, .35);
+}
+.profile-modal-shell::-webkit-scrollbar,
+.profile-sidebar-rich::-webkit-scrollbar { display: none; }
+.profile-sidebar-rich {
+  width: 300px;
+  min-width: 300px;
+  height: 100%;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+@media (max-width: 650px) {
+  .profile-modal-backdrop {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .profile-modal-shell {
+    width: 100%;
+    height: 78vh;
+    max-height: 78vh;
+    overflow-y: auto;
+    border-radius: 18px 18px 0 0;
+  }
+}
+
+
+/* Guest profile preview shares the same profile and leaderboard surfaces. */
+.profile-guest-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 16px 18px;
+}
+.profile-guest-banner {
+  padding: 11px 12px;
+  border: 1px solid var(--home-primary, #2bb673);
+  color: var(--home-primary, #2bb673);
+  font-size: 12px;
+  line-height: 1.4;
+}
+.profile-guest-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.profile-guest-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+  padding: 11px 12px;
+  border: 1px solid var(--fan-border, rgba(255,255,255,.14));
+  background: var(--fan-surface, transparent);
+}
+.profile-guest-field > span { font-size: 10px; }
+.profile-guest-field > strong { font-size: 12px; font-weight: 650; }
+.profile-guest-login {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 42px;
+  border: 0;
+  background: var(--home-primary, #2bb673);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 750;
+  cursor: pointer;
+}
+.profile-guest-channels-heading {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 4px 0;
+  color: var(--fan-text-primary, inherit);
+  font-size: 13px;
+}
+.profile-guest-channels-heading > span {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  min-width: 22px;
+  height: 22px;
+  border: 1px solid var(--fan-border, rgba(255,255,255,.14));
+  border-radius: 999px;
+  font-size: 11px;
+}
+.profile-guest-preview .profile-guest-fields > .profile-guest-field,
+.profile-guest-preview .profile-guest-channels-heading { box-sizing: border-box; }
+
+
+/* Desktop Home: bounded equal columns and width-safe cards. Mobile rules above stay unchanged. */
+@media (min-width: 651px) {
+  body:has(.home-screen) { overflow: hidden; }
+  .home-screen,
+  .home-screen .workspace,
+  .home-screen .profile-sidebar-rich,
+  .home-screen .home-columns,
+  .home-screen .home-column,
+  .home-screen .chats-column,
+  .home-screen .feed-column,
+  .home-screen .pane-content,
+  .home-screen .chats-fixture-list,
+  .home-screen .feed-screen,
+  .home-screen .chats-fixture-list > *,
+  .home-screen .feed-screen > *,
+  .home-screen .chats-fixture-row,
+  .home-screen .feed-item,
+  .home-screen .post-card,
+  .home-screen .post-card > * {
+    min-width: 0;
+    box-sizing: border-box;
+  }
+  .home-screen .workspace {
+    display: grid;
+    grid-template-columns: 300px minmax(0, 1fr);
+    column-gap: 12px;
+    width: 100%;
+    padding: 0 12px;
+    overflow: hidden;
+  }
+  .home-screen .profile-sidebar-rich {
+    width: 300px;
+    max-width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .home-screen .home-columns {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    column-gap: 16px;
+    align-items: stretch;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    overflow: hidden;
+  }
+  .home-screen .chats-column,
+  .home-screen .feed-column {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    margin: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-width: none;
+    overscroll-behavior: contain;
+  }
+  .home-screen .chats-column::-webkit-scrollbar,
+  .home-screen .feed-column::-webkit-scrollbar,
+  .home-screen .chats-fixture-list::-webkit-scrollbar,
+  .home-screen .feed-screen::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+  .home-screen .chats-column .pane-content,
+  .home-screen .feed-column .pane-content {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  .home-screen .chats-column > section,
+  .home-screen .chats-column .chats-fixture-list,
+  .home-screen .feed-column .feed-screen {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-x: hidden;
+  }
+  .home-screen .chats-column .chats-fixture-list > div,
+  .home-screen .chats-column .chats-list-header,
+  .home-screen .chats-column .chats-fixture-row,
+  .home-screen .feed-column .feed-list,
+  .home-screen .feed-column .feed-item,
+  .home-screen .feed-column .post-card {
+    width: 100%;
+    min-width: 0;
+    max-width: 760px;
+    box-sizing: border-box;
+    margin-inline: auto !important;
+  }
+  .home-screen .chats-column .chats-fixture-row,
+  .home-screen .feed-column .feed-item {
+    margin-bottom: 8px;
+  }
+  .home-screen .chats-column .chats-fixture-list > div:has(> .segmented-control),
+  .home-screen .chats-column .segmented-control {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+  .home-screen .chats-column .segmented-control {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
+  }
+  .home-screen .segmented-control > button {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    padding-inline: 4px;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+  .home-screen .segmented-control > button > span {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+  }
+  .home-screen .post-card {
+    width: 100%;
+    max-width: 760px;
+    margin: 0 auto;
+  }
+  .home-screen .post-card > [style*="padding"] {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  .home-screen .post-card > div,
+  .home-screen .post-card .post-card-open{
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+  .home-screen .post-image-frame,
+  .home-screen .post-video-frame {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    aspect-ratio: 4 / 5;
+    box-sizing: border-box;
+    overflow: hidden;
+    border-radius: 8px !important;
+  }
+  .home-screen .post-image-frame img,
+  .home-screen .post-video-frame video {
+    width: 100%;
+    max-width: 100%;
+  }
+  .home-screen .post-card .authorName,
+  .home-screen .post-card .post-caption {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+
+/* Desktop Home: exactly 5px between full-width Chats and Feed cards. */
+@media (min-width: 651px) {
+  .home-screen .home-columns {
+    column-gap: 5px !important;
+    gap: 5px !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  }
+  .home-screen .chats-column,
+  .home-screen .feed-column {
+    min-width: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+  }
+  .home-screen .chats-column .pane-content,
+  .home-screen .feed-column .pane-content {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  .home-screen .chats-column .chats-fixture-list,
+  .home-screen .chats-column .chats-fixture-list > div,
+  .home-screen .chats-column .chats-list-header,
+  .home-screen .chats-column .chats-fixture-row,
+  .home-screen .feed-column .feed-screen,
+  .home-screen .feed-column .feed-list,
+  .home-screen .feed-column .feed-item,
+  .home-screen .feed-column .post-card {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    box-sizing: border-box !important;
+  }
+  .home-screen .chats-column .chats-fixture-list > div,
+  .home-screen .chats-column .chats-fixture-row,
+  .home-screen .feed-column .feed-item {
+    margin-bottom: 4px !important;
+  }
+  .home-screen .chats-column .chats-fixture-row{
+    overflow: hidden;
+  }
+  .home-screen .chats-column .segmented-control,
+  .home-screen .chats-column .chats-fixture-list > div:has(> .segmented-control) {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    max-height: 30px !important;
+    margin: 0 0 4px !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+  .home-screen .chats-column .segmented-control {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    gap: 0 !important;
+  }
+  .home-screen .chats-column .segmented-control > button {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    padding: 0 4px !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+  }
+  .home-screen .chats-column .segmented-control > button > span {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-size: 11px !important;
+    line-height: 30px !important;
+  }
+}
+
+
+@media (min-width: 651px) {
+  .home-screen .home-columns {
+    margin-left: 8px !important;
+    margin-right: 12px !important;
+  }
+}
+
+
+/* Desktop header aligns its first brand edge with the profile sidebar content. */
+@media (min-width: 651px) {
+  .home-screen .navbar {
+    padding-left: 16px !important;
+    padding-right: 12px !important;
+  }
+}
+
+.profile-channel-track{display:flex;flex-direction:row;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-ms-overflow-style:none;min-width:0;overscroll-behavior-x:contain;touch-action:pan-x;cursor:grab}.profile-channel-track::-webkit-scrollbar{display:none}.profile-channel-track:active{cursor:grabbing}.profile-channel-panel{flex:0 0 100%;width:100%;min-width:0;scroll-snap-align:start;box-sizing:border-box}.profile-channel-panel>*{min-width:0;max-width:100%;box-sizing:border-box}
+
+
+/* Desktop Home header: align the logo with the sidebar's 12px inner inset. */
+@media (min-width: 651px) {
+  .home-screen .desktop-home-header > div {
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+  .home-screen .desktop-home-header nav {
+    max-width: min(62vw, 900px);
+    min-width: 0;
+  }
+  .home-screen .desktop-home-header nav > div {
+    gap: 16px;
+    scrollbar-width: none;
+  }
+  .home-screen .desktop-home-header nav > div::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+
+/* Final desktop Chats rhythm and column sizing. Narrow Home intentionally unchanged. */
+@media (min-width: 651px) {
+  .home-screen .home-columns {
+    grid-template-columns: minmax(0, clamp(440px, 30vw, 560px)) minmax(0, 1fr) !important;
+    column-gap: 5px !important;
+    gap: 5px !important;
+    justify-content: start !important;
+    overflow-x: clip !important;
+  }
+  .home-screen .chats-column,
+  .home-screen .feed-column {
+    min-width: 0 !important;
+    width: auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow-x: clip !important;
+  }
+  .home-screen .chats-column .pane-content,
+  .home-screen .feed-column .pane-content {
+    width: 100% !important;
+    min-width: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    box-sizing: border-box !important;
+  }
+  .home-screen .chats-column .chats-fixture-list,
+  .home-screen .chats-column .chats-fixture-list > div,
+  .home-screen .chats-column .chats-list-header,
+  .home-screen .chats-column .chats-fixture-row{
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    box-sizing: border-box !important;
+  }
+  .home-screen .chats-column .chats-fixture-row,
+  .home-screen .chats-column .chats-fixture-list > div {
+    margin-bottom: 8px !important;
+  }
+  .home-screen .chats-column .segmented-control,
+  .home-screen .chats-column .chats-fixture-list > div:has(> .segmented-control) {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    height: 30px !important;
+    min-height: 30px !important;
+    max-height: 30px !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+  .home-screen .chats-column .segmented-control {
+    display: grid !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  }
+  .home-screen .chats-column .segmented-control > button {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+  .home-screen .feed-column .feed-screen,
+  .home-screen .feed-column .feed-list,
+  .home-screen .feed-column .feed-item,
+  .home-screen .feed-column .post-card {
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+  }
+  .home-screen .feed-column .post-card,
+  .home-screen .feed-column .feed-screen > .feed-item {
+    width: 100% !important;
+    max-width: 840px !important;
+    margin-left: 0 !important;
+    margin-right: auto !important;
+  }
+  .home-screen .feed-column .feed-list {
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+  .home-screen .feed-column .feed-item { margin-bottom: 0 !important; }
+  html, body { overflow-x: clip !important; }
+}
+
+
+/* Desktop-only match-card layout; the mobile markup and dimensions remain unchanged. */
+@media (min-width: 651px) {
+  .chats-column .feed-item { margin-bottom: 4px !important; gap: 0 !important; }
+}
+
+
+/* Desktop Home layout system — presentation-only; preserve the narrow layout. */
+@media (min-width: 651px) {
+  :root {
+    --bg: var(--home-page-bg, #0b1020);
+    --surface: var(--home-surface, #11182a);
+    --text-1: var(--home-text-primary, #f3f4f6);
+    --text-2: var(--home-text-secondary, #9ca8bc);
+    --text-3: var(--home-text-tertiary, #8190a8);
+    --primary: var(--home-primary, #eab746);
+    --primary-dim: var(--home-primary-dim, #202d43);
+  }
+
+  .home-screen {
+    --bg: var(--home-page-bg, #0b1020);
+    --home-surface: color-mix(in srgb, var(--home-page-bg) 96%, white 4%);
+    --surface: var(--home-surface);
+    --text-1: var(--home-text-primary, #f3f4f6);
+    --text-2: var(--home-text-secondary, #9ca8bc);
+    --text-3: var(--home-text-tertiary, #8190a8);
+    --primary: var(--home-primary, #eab746);
+    --primary-dim: var(--home-primary-dim, #202d43);
+    width: 100%;
+    overflow: hidden;
+    color: var(--text-1);
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+
+  .home-screen .desktop-home-header {
+    position: sticky !important;
+    top: 0;
+    z-index: 50;
+    height: 56px;
+    min-height: 56px;
+    padding-top: 0 !important;
+    background: var(--bg) !important;
+    border: 0 !important;
+  }
+
+  .home-screen .desktop-home-header > div {
+    width: 100% !important;
+    max-width: 1680px !important;
+    height: 56px;
+    min-height: 56px !important;
+    margin-inline: auto !important;
+    padding-inline: 16px !important;
+    gap: 24px !important;
+  }
+
+  .home-screen .desktop-home-header > div > a {
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif !important;
+    font-size: 22px !important;
+    font-weight: 600 !important;
+    line-height: 1 !important;
+    letter-spacing: -0.035em;
+    color: var(--primary) !important;
+  }
+
+  .home-screen .desktop-home-header nav {
+    flex: 1 1 auto !important;
+    width: auto !important;
+    max-width: none !important;
+    min-width: 0 !important;
+  }
+
+  .home-screen .desktop-home-header nav > div {
+    gap: 16px !important;
+    align-items: center !important;
+    padding-block: 0 !important;
+  }
+
+  .home-screen .desktop-home-header nav button {
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    border: 0 !important;
+    background: transparent !important;
+    color: var(--text-2);
+  }
+
+  .home-screen .desktop-home-header nav button:hover {
+    color: var(--text-1) !important;
+  }
+
+  .home-screen .desktop-home-header nav button[aria-current="page"] {
+    color: var(--primary) !important;
+  }
+
+  .home-screen .desktop-home-header nav button img,
+  .home-screen .desktop-home-header nav button .channel-image,
+  .home-screen .desktop-home-header nav button [data-channel-image] {
+    width: 20px !important;
+    height: 20px !important;
+    flex: 0 0 20px !important;
+    border-radius: 50% !important;
+    object-fit: cover !important;
+  }
+
+  .home-screen .desktop-home-header .navbar-actions,
+  .home-screen .desktop-home-header > div > div:last-child {
+    align-items: center !important;
+    gap: 16px !important;
+    margin-left: auto !important;
+  }
+
+  .home-screen .desktop-home-header button[aria-label="Account menu"],
+  .home-screen .desktop-home-header button[aria-label^="Account menu"] {
+    border-radius: 50% !important;
+  }
+
+  .home-screen .desktop-home-header button[aria-label="Open menu"],
+  .home-screen .desktop-home-header button[aria-label="Refresh channels"],
+  .home-screen .desktop-home-header button[aria-label="Notifications"] {
+    background: transparent !important;
+    color: var(--text-2) !important;
+  }
+
+  .home-screen .desktop-home-header button[aria-label="Open menu"]:hover,
+  .home-screen .desktop-home-header button[aria-label="Refresh channels"]:hover,
+  .home-screen .desktop-home-header button[aria-label="Notifications"]:hover {
+    background: var(--surface) !important;
+  }
+
+  .home-screen .desktop-home-header button:not([aria-label]) {
+    border-radius: 0 !important;
+  }
+
+  .home-screen .workspace {
+    width: 100%;
+    max-width: 1680px;
+    margin-inline: auto;
+    padding: 12px 16px 0;
+    display: grid !important;
+    grid-template-columns: 300px minmax(0, 1fr);
+    gap: 16px;
+    overflow: hidden;
+    background: var(--bg) !important;
+  }
+
+  .home-screen .profile-sidebar-rich {
+    position: sticky;
+    top: 68px;
+    width: 300px !important;
+    height: calc(100vh - 80px);
+    max-height: calc(100vh - 80px);
+    min-height: 0;
+    flex: 0 0 300px !important;
+    padding: 12px 0 !important;
+    margin: 0 !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    scrollbar-width: none !important;
+    background: var(--bg) !important;
+  }
+
+  .home-screen .profile-sidebar-rich::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .home-screen .home-columns {
+    display: grid !important;
+    grid-template-columns: minmax(420px, clamp(420px, 28vw, 520px)) minmax(0, 1fr) !important;
+    column-gap: 16px !important;
+    gap: 16px !important;
+    min-width: 0;
+    min-height: 0;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    background: var(--bg) !important;
+  }
+
+  .home-screen .home-column {
+    min-width: 0 !important;
+    min-height: 0;
+    height: 100%;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    scrollbar-width: none !important;
+    background: var(--bg) !important;
+  }
+
+  .home-screen .home-column::-webkit-scrollbar,
+  .home-screen .feed-screen::-webkit-scrollbar,
+  .home-screen .chats-fixture-list::-webkit-scrollbar {
+    display: none !important;
+  }
+
+  .home-screen .chats-column,
+  .home-screen .feed-column {
+    border: 0 !important;
+  }
+
+  .home-screen .chats-column .pane-content,
+  .home-screen .feed-column .pane-content {
+    padding: 0 !important;
+  }
+
+  .home-screen .chats-column .chats-fixture-list > div:first-child > div {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    height: 44px !important;
+    min-height: 44px !important;
+    max-height: 44px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: var(--bg) !important;
+  }
+
+  .home-screen .chats-column .segmented-control {
+    height: 44px !important;
+    min-height: 44px !important;
+    max-height: 44px !important;
+    align-items: stretch;
+    background: var(--bg) !important;
+  }
+
+  .home-screen .chats-column .segmented-control > button {
+    position: relative;
+    height: 44px !important;
+    min-height: 44px !important;
+    padding: 0 8px !important;
+    color: var(--text-2) !important;
+    background: var(--bg) !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    text-transform: capitalize;
+  }
+
+  .home-screen .chats-column .segmented-control > button[aria-pressed="true"],
+  .home-screen .chats-column .segmented-control > button[aria-selected="true"],
+  .home-screen .chats-column .segmented-control > button[data-state="active"] {
+    color: var(--primary) !important;
+  }
+
+  .home-screen .chats-column .segmented-control > button[aria-pressed="true"]::after,
+  .home-screen .chats-column .segmented-control > button[aria-selected="true"]::after,
+  .home-screen .chats-column .segmented-control > button[data-state="active"]::after {
+    position: absolute;
+    right: 8px;
+    bottom: 0;
+    left: 8px;
+    height: 2px;
+    content: "";
+    background: var(--primary);
+  }
+
+  .home-screen .feed-column::before {
+    content: "LATEST POSTS";
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    height: 44px;
+    min-height: 44px;
+    padding: 0 12px;
+    background: var(--bg) !important;
+    color: var(--text-3);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+  }
+
+  .home-screen .feed-column .feed-screen {
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    padding: 0 0 16px !important;
+    background: var(--bg) !important;
+  }
+
+  .home-screen .feed-column .feed-list {
+    gap: 16px !important;
+    align-items: stretch !important;
+  }
+
+  .home-screen .feed-column .post-card,
+  .home-screen .feed-column .feed-item,
+  .home-screen .feed-column .feed-screen > .feed-item {
+    width: 100% !important;
+    max-width: 760px !important;
+    margin: 0 !important;
+    padding: 12px !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: var(--bg) !important;
+    color: var(--text-1) !important;
+    box-shadow: none !important;
+  }
+
+  .home-screen .feed-column .post-card:hover,
+  .home-screen .feed-column .feed-item:hover {
+    background: var(--surface) !important;
+  }
+
+  .home-screen .feed-column .post-author {
+    display: flex;
+    align-items: center;
+    gap: 8px !important;
+    min-height: 36px;
+  }
+
+  .home-screen .feed-column .post-author .mini-avatar,
+  .home-screen .feed-column .post-author img {
+    width: 28px !important;
+    height: 28px !important;
+    flex: 0 0 28px !important;
+    border-radius: 50% !important;
+    object-fit: cover;
+  }
+
+  .home-screen .feed-column .post-author strong,
+  .home-screen .feed-column .post-author a {
+    color: var(--text-1) !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+  }
+
+  .home-screen .feed-column .post-author small,
+  .home-screen .feed-column .post-author time {
+    margin-left: auto;
+    color: var(--text-3) !important;
+    font-size: 12px !important;
+    font-weight: 400 !important;
+  }
+
+  .home-screen .feed-column .post-caption {
+    margin-top: 6px !important;
+    color: var(--text-1) !important;
+    font-size: 14px !important;
+    line-height: 1.45 !important;
+  }
+
+  .home-screen .feed-column .post-image,
+  .home-screen .feed-column .post-image-frame,
+  .home-screen .feed-column .post-video-frame {
+    display: block;
+    width: 100% !important;
+    max-height: 420px !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+  }
+
+  .home-screen .feed-column .post-image-frame > img,
+  .home-screen .feed-column .post-video-frame > video {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 420px !important;
+    border-radius: 8px !important;
+    object-fit: cover !important;
+  }
+
+  .home-screen .feed-column .post-card button,
+  .home-screen .feed-column .feed-item button {
+    color: var(--text-2);
+  }
+
+  .home-screen .feed-column .post-card button[class*="follow"],
+  .home-screen .feed-column .feed-item button[class*="follow"] {
+    color: var(--primary) !important;
+  }
+
+  .home-screen .feed-column .post-card svg,
+  .home-screen .feed-column .feed-item svg {
+    width: 18px !important;
+    height: 18px !important;
+  }
+
+  .home-screen .feed-column .profile-guest-login,
+  .home-screen .profile-sidebar-rich .profile-guest-login {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    height: 36px !important;
+    min-height: 36px !important;
+    padding: 0 12px !important;
+    border: 0 !important;
+    border-radius: 8px !important;
+    background: var(--primary) !important;
+    color: var(--home-text-on-primary, #111) !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+  }
+
+  .home-screen .profile-sidebar-rich .profile-channel-tabbar [role="tab"] {
+    min-height: 28px !important;
+    font-size: 11px !important;
+  }
+
+  .home-screen .profile-sidebar-rich .profile-channel-tabbar [role="tab"] > span {
+    font-size: 11px !important;
+  }
+
+  .home-screen .profile-sidebar-rich .sidebar-divider {
+    height: 0 !important;
+    margin: 8px 0 !important;
+    background: transparent !important;
+  }
+
+  .home-screen .profile-sidebar-rich .profile-guest-field,
+  .home-screen .profile-sidebar-rich .profile-guest-banner,
+  .home-screen .profile-sidebar-rich .profile-guest-login,
+  .home-screen .profile-sidebar-rich .profile-sidebar-post-action .button {
+    border: 0 !important;
+  }
+
+  .home-screen .feed-column .post-card a,
+  .home-screen .feed-column .feed-item a,
+  .home-screen .profile-sidebar-rich .profile-header-view-link {
+    color: var(--text-1) !important;
+  }
+
+  .home-screen .profile-sidebar-rich .profile-header-view-link:hover,
+  .home-screen .feed-column a:hover {
+    color: var(--primary) !important;
+  }
+}
+
+
+
+@media (min-width: 651px) {
+  .home-screen .desktop-home-header .desktop-channel-avatar {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 20px !important;
+    height: 20px !important;
+    flex: 0 0 20px !important;
+    overflow: hidden;
+    border-radius: 50% !important;
+    background: var(--primary-dim) !important;
+    color: var(--primary) !important;
+    font-size: 10px !important;
+    font-weight: 600 !important;
+    line-height: 1 !important;
+  }
+
+  .home-screen .chats-column .chats-fixture-list > div:first-child > div {
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 5 !important;
+    height: 44px !important;
+    min-height: 44px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: var(--bg) !important;
+  }
+
+  .home-screen .chats-column .segmented-control > button[aria-pressed="true"]::after,
+  .home-screen .chats-column .segmented-control > button[aria-selected="true"]::after,
+  .home-screen .chats-column .segmented-control > button[data-state="active"]::after {
+    background: var(--primary) !important;
+  }
+}
+
+
+@media (min-width: 651px) {
+  .home-screen .feed-column .post-card > div[style*="padding"] > div:first-child {
+    min-height: 36px !important;
+    margin-bottom: 0 !important;
+    gap: 8px !important;
+    align-items: center !important;
+  }
+
+  .home-screen .feed-column .post-card > div[style*="padding"] > div:first-child > div:first-child {
+    min-width: 0 !important;
+    gap: 8px !important;
+    align-items: center !important;
+  }
+
+  .home-screen .feed-column .post-card .mini-avatar {
+    width: 28px !important;
+    height: 28px !important;
+    flex: 0 0 28px !important;
+    border-radius: 50% !important;
+    border: 0 !important;
+  }
+
+  .home-screen .feed-column .post-card > div[style*="padding"] > div:first-child > div:first-child > span:last-child {
+    color: var(--text-1) !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+  }
+
+  .home-screen .feed-column .post-card > div[style*="padding"] > div:first-child > div:last-child > span {
+    color: var(--text-3) !important;
+    font-size: 12px !important;
+  }
+
+  .home-screen .feed-column .post-card > div[style*="padding"] > div:nth-child(2) {
+    margin-top: 6px !important;
+    color: var(--text-1) !important;
+    font-size: 14px !important;
+    line-height: 1.45 !important;
+  }
+
+  .home-screen .feed-column .post-card > div[style*="margin-top"] {
+    margin-top: 8px !important;
+  }
+
+  .home-screen .feed-column .post-card > div[style*="padding"] {
+    padding: 0 !important;
+  }
+
+  .home-screen .feed-column .post-card:hover,
+  .home-screen .feed-column .post-card:hover > div:not(.post-card-open) {
+    background: var(--surface) !important;
+  }
+
+  .home-screen .feed-column .post-card .post-card-open {
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .home-screen .feed-column .post-card > div:last-child {
+    margin-top: 8px !important;
+    padding: 0 !important;
+    gap: 16px !important;
+  }
+
+  .home-screen .feed-column .post-card > div:last-child > div:first-child {
+    gap: 16px !important;
+  }
+
+  .home-screen .feed-column .post-card > div:last-child button {
+    min-height: 28px !important;
+    padding: 0 !important;
+    color: var(--text-2) !important;
+  }
+
+  .home-screen .feed-column .post-card > div:last-child button:last-child {
+    color: var(--primary) !important;
+  }
+}
+
+
+@media (min-width: 651px) {
+  .home-screen .desktop-home-header.home-has-scrolled {
+    box-shadow: 0 1px 0 var(--home-border) !important;
+  }
+}
+
+
+@media (min-width: 651px) {
+  .home-screen .mobile-home-tabs .floating-pill {
+    box-shadow: none !important;
+  }
+}
+
+
+@media (min-width: 651px) {
+  body:has(.home-screen) .home-screen .mobile-home-tabs .floating-pill {
+    box-shadow: none !important;
+  }
+}
+
+
+/* Desktop wide-workspace and full-width Chats card contract (2026-10-19). */
+@media (min-width: 651px) {
+  .home-screen .workspace {
+    width: 100% !important;
+    max-width: none !important;
+    margin-inline: 0 !important;
+    padding-inline: 12px !important;
+    box-sizing: border-box !important;
+  }
+  .home-screen .desktop-home-header .desktop-home-header-inner,
+  .home-screen .desktop-home-header > div,
+  .home-screen .desktop-home-header .navbar-inner {
+    width: 100% !important;
+    max-width: none !important;
+    margin-inline: 0 !important;
+    padding-inline: 12px !important;
+    box-sizing: border-box !important;
+  }
+  .home-screen .workspace {
+    display: grid !important;
+    grid-template-columns: 300px minmax(0, 1fr) !important;
+    column-gap: 16px !important;
+    align-items: start !important;
+  }
+  .home-screen .profile-sidebar-rich {
+    width: 300px !important;
+    min-width: 300px !important;
+    max-width: 300px !important;
+    margin: 0 !important;
+    padding-inline: 0 !important;
+  }
+  .home-screen .home-columns {
+    display: grid !important;
+    grid-template-columns: minmax(480px, clamp(480px, 34vw, 640px)) minmax(0, 1fr) !important;
+    column-gap: 16px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+  }
+  .home-screen .chats-column {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    margin: 0 !important;
+  }
+  .home-screen .feed-column {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    margin: 0 !important;
+  }
+  .home-screen .feed-column .post-card,
+  .home-screen .feed-column .feed-item {
+    width: 100% !important;
+    max-width: 840px !important;
+    margin-left: 0 !important;
+    margin-right: auto !important;
+    box-sizing: border-box !important;
+  }
+  .home-screen .chats-column .chats-fixture-list,
+  .home-screen .chats-column .chats-fixture-list > div[aria-live="polite"],
+  .home-screen .chats-column .chats-fixture-row,
+  .home-screen .chats-column .segmented-control {
+    width: 100% !important;
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    box-sizing: border-box !important;
+  }
+}
+
+@media (min-width: 1800px) { .home-screen .home-columns { grid-template-columns: 640px minmax(0, 1fr) !important; } .home-screen .chats-column { min-width: 640px !important; } }
+
+@media (min-width: 1800px) { body:has(.home-screen) .home-screen .workspace > main.home-columns { grid-template-columns: 640px minmax(0, 1fr) !important; } body:has(.home-screen) .home-screen .workspace > main.home-columns > .chats-column { width: 640px !important; min-width: 640px !important; max-width: 640px !important; } }
+
+@media (min-width: 651px) { body:has(.home-screen) .home-screen .workspace > main.home-columns { grid-template-columns: 640px minmax(0, 1fr) !important; } body:has(.home-screen) .home-screen .workspace > main.home-columns > .chats-column { width: 640px !important; min-width: 640px !important; max-width: 640px !important; } }
+
+@media (min-width: 651px) { body:has(.home-screen) .home-screen .workspace > main.home-columns { display: grid !important; grid-template-columns: 640px minmax(0, 1fr) !important; } }
+
+@media (min-width: 1800px) { body:has(.home-screen) .home-screen .feed-column { padding-left: 80px !important; box-sizing: border-box !important; } }
+
+/* Profile typography: improve legibility on narrow screens without changing layout. */
+@media (max-width: 650px) {
+  .profile-header-row .profile-header-name-column > span:first-child { font-size: 16px !important; }
+  .profile-header-row .profile-header-name-column > span:last-child { font-size: 12px !important; }
+  .profile-guest-preview { gap: 14px !important; padding: 14px 16px 20px !important; }
+  .profile-guest-banner { font-size: 13px !important; line-height: 1.45 !important; padding: 12px !important; }
+  .profile-guest-field { gap: 5px !important; padding: 12px !important; }
+  .profile-guest-field > span { font-size: 12px !important; }
+  .profile-guest-field > strong { font-size: 14px !important; line-height: 1.35 !important; }
+  .profile-guest-login { min-height: 44px !important; font-size: 14px !important; }
+  .profile-guest-channels-heading { font-size: 14px !important; }
+  .profile-guest-channels-heading > span { font-size: 12px !important; }
+  .profile-channel-tabbar [role="tab"],
+  .profile-channel-tabbar [role="tab"] > span { font-size: 12px !important; }
+  .profile-member-card,
+  .profile-member-card * { line-height: 1.4; }
+}
+
+/* Laptop/desktop typography and spacing follow the mobile-web card reference. */
+@media (min-width: 651px) {
+
+  /* Match the mobile-web profile's readable type scale on laptop and desktop. */
+  body:has(.home-screen) .home-screen .profile-sidebar-rich .profile-header-row .profile-header-name-column > span:first-child {
+    font-size: 16px !important;
+    line-height: 1.35 !important;
+  }
+  body:has(.home-screen) .home-screen .profile-sidebar-rich .profile-header-row .profile-header-name-column > span:last-child {
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+  }
+  body:has(.home-screen) .home-screen .profile-sidebar-rich .profile-guest-preview {
+    gap: 14px !important;
+    padding: 14px 16px 20px !important;
+  }
+  body:has(.home-screen) .home-screen .profile-sidebar-rich .profile-guest-banner {
+    font-size: 13px !important;
+    line-height: 1.45 !important;
+    padding: 12px !important;
+  }
+  body:has(.home-screen) .home-screen .profile-sidebar-rich .profile-guest-field {
+    gap: 5px !important;
+    padding: 12px !important;
+  }
+  body:has(.home-screen) .home-screen .profile-sidebar-rich .profile-guest-field > span {
+    font-size: 12px !important;
+    line-height: 1.4 !important;
+  }
+  body:has(.home-screen) .home-screen .profile-sidebar-rich .profile-guest-field > strong {
+    font-size: 14px !important;
+    line-height: 1.35 !important;
+  }
+  body:has(.home-screen) .home-screen .profile-sidebar-rich .profile-guest-login {
+    min-height: 44px !important;
+    font-size: 14px !important;
+  }
+  body:has(.home-screen) .home-screen .profile-sidebar-rich .profile-guest-channels-heading {
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+  }
+  body:has(.home-screen) .home-screen .profile-sidebar-rich .profile-guest-channels-heading > span,
+  body:has(.home-screen) .home-screen .profile-sidebar-rich .profile-channel-tabbar [role="tab"],
+  body:has(.home-screen) .home-screen .profile-sidebar-rich .profile-channel-tabbar [role="tab"] > span {
+    font-size: 12px !important;
+  }
+  body:has(.home-screen) .home-screen .profile-sidebar-rich .profile-member-card,
+  body:has(.home-screen) .home-screen .profile-sidebar-rich .profile-member-card * {
+    line-height: 1.4 !important;
+  }
+}
+
+/* One Chats card for every viewport; only sizing variables change responsively. */
+.match-card { --match-card-horizontal-padding: 12px; --match-card-action-min-height: 28px; position: relative; width: 100%; min-width: 0; margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--match-primary); line-height: 1.25; }
+.home-screen .chats-column .feed-item:has(.match-card) { margin-bottom: 4px !important; gap: 0 !important; border: 0 !important; box-shadow: none !important; }
+.match-card-open { position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%; padding: 0; border: 0; background: transparent; cursor: pointer; }
+.match-card-content { position: relative; z-index: 1; padding: 12px var(--match-card-horizontal-padding) 0; pointer-events: none; }
+.match-card-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; min-width: 0; min-height: 24px; margin: 0; }
+.match-card-channel-label { display: flex; flex: 1 1 auto; min-width: 0; align-items: center; gap: 5px; }
+.match-card .match-card-channel-avatar { display: inline-flex; flex: 0 0 24px !important; width: 24px !important; height: 24px !important; align-items: center; justify-content: center; overflow: hidden; border: 0; border-radius: 50% !important; background: var(--match-primary-dim); color: var(--match-primary); }
+.match-card .match-card-channel-avatar img { display: block; width: 100% !important; height: 100% !important; border-radius: 50% !important; object-fit: cover; }
+.match-card-channel-name { display: block; min-width: 0; overflow: hidden; color: var(--text-1, inherit); font-size: 14px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.match-card-date { flex: 0 0 auto; margin-left: auto; color: var(--text-3, inherit); font-size: 11px; text-align: right; white-space: nowrap; }
+.match-card-league-line { margin: 2px 0 0; color: var(--text-3, inherit); font-size: 12px; line-height: 1.25; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.match-card-comment-preview { display: flex; min-width: 0; align-items: center; gap: 6px; margin-top: 8px; color: var(--text-2, inherit); }
+.match-card-preview-text { display: block; flex: 1 1 auto; min-width: 0; overflow: hidden; color: inherit; font-size: 13px; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }
+.match-card-prompt-line { display: block; min-width: 0; margin-top: 6px; overflow: hidden; color: var(--text-2, inherit); font-size: 12px; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }
+.match-card-legacy-stack { display: none !important; }
+.match-card-bottom { position: relative; z-index: 2; display: flex; flex-flow: row wrap; align-items: center; gap: 12px; row-gap: 6px; min-width: 0; min-height: var(--match-card-action-min-height); margin-top: 10px; padding: 0 var(--match-card-horizontal-padding) 6px; pointer-events: none; }
+.match-card-actions { display: inline-flex; flex: 0 1 auto; flex-wrap: nowrap; align-items: center; gap: 12px; min-width: 0; white-space: nowrap; pointer-events: none; }
+.match-card .action-button { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 4px; min-height: 28px !important; padding: 0 !important; color: var(--match-primary); pointer-events: auto; white-space: nowrap; }
+.match-card .action-button svg { width: 14px; height: 14px; flex: 0 0 auto; }
+.match-card-poke { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 5px; height: 28px; min-height: 28px; padding: 0; border: 0; border-radius: 0; background: transparent; color: var(--match-primary); font-size: 12px; font-weight: 600; white-space: nowrap; pointer-events: auto; }
+.match-card .match-card-poke-circle { display: inline-flex; flex: 0 0 28px !important; width: 28px !important; height: 28px !important; align-items: center; justify-content: center; box-sizing: border-box; border-radius: 50% !important; background: var(--match-primary-dim); color: var(--match-primary); }
+.match-card-poke-circle svg { width: 16px; height: 16px; color: var(--match-primary); }
+.match-card-input-cell { display: flex; flex: 0 1 auto; min-width: 0; align-items: center; gap: 8px; pointer-events: none; }
+.match-card-input-cell:has(button[aria-label="Log in to comment"]) { flex: 0 0 auto; }
+.match-card .match-card-guest-comment-prompt { display: inline-block; padding: 0; border: 0; background: transparent; color: var(--text-2, inherit); font-size: 12px; line-height: 1.25; white-space: nowrap; cursor: pointer; pointer-events: auto; }
+.match-card-input-cell input { pointer-events: auto; }
+.match-card-teams { display: flex; flex: 0 0 auto; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 6px; min-width: 0; max-width: 100%; margin-left: auto; padding: 0; border: 0; background: transparent; color: var(--match-primary); font-size: 12px; font-weight: 600; line-height: 1.25; white-space: normal; overflow-wrap: anywhere; pointer-events: auto; }
+.match-card-team-name { display: block; flex: 0 1 auto; min-width: 0; max-width: 100%; overflow-wrap: anywhere; white-space: normal; }
+.match-card-score { display: block; flex: 0 0 auto; color: inherit; font-size: 12px; font-weight: 600; }
+.match-card .match-card-team-logo { display: inline-flex; flex: 0 0 16px !important; width: 16px !important; height: 16px !important; align-items: center; justify-content: center; overflow: hidden; border: 0; border-radius: 50% !important; background: var(--match-primary-dim); color: var(--match-primary); font-size: 9px; font-weight: 700; }
+.match-card .match-card-team-logo-image { width: 100% !important; height: 100% !important; border-radius: 50% !important; object-fit: cover; }
+.match-card-team-fallback { font-size: 9px; font-weight: 700; }
+.match-card .match-card-open, .match-card .match-card-teams, .match-card .match-card-poke, .match-card .action-button, .match-card .match-card-guest-comment-prompt { pointer-events: auto; }
+.match-card .match-card-content { pointer-events: none; }
+@media (max-width: 650px) {
+  .match-card {
+    --match-card-horizontal-padding: 16px;
+    --match-card-action-min-height: 40px;
+  }
+  /* Keep the action controls together, then place the prompt and teams on row two.
+     A long team group moves to its own flex line instead of competing with the prompt. */
+  .match-card .match-card-bottom {
+    row-gap: 8px !important;
+  }
+  .match-card .match-card-actions {
+    flex: 0 0 100%;
+  }
+  .match-card .match-card-input-cell {
+    flex: 0 0 auto !important;
+    max-width: 100%;
+  }
+  .match-card .match-card-teams {
+    flex: 0 0 auto !important;
+    max-width: 100%;
+    margin-left: auto;
+  }
+}
+
+/* Circular image exceptions outrank the Home-wide zero-radius reset. */
+body:has(.home-screen) .home-screen .chats-column .match-card .match-card-channel-avatar,
+body:has(.home-screen) .home-screen .chats-column .match-card .match-card-team-logo,
+body:has(.home-screen) .home-screen .chats-column .match-card .match-card-poke-circle {
+  border-radius: 50% !important;
+}
+body:has(.home-screen) .home-screen .chats-column .match-card .match-card-channel-avatar {
+  width: 24px !important;
+  height: 24px !important;
+  flex-basis: 24px !important;
+}
+body:has(.home-screen) .home-screen .chats-column .match-card .match-card-channel-avatar img,
+body:has(.home-screen) .home-screen .chats-column .match-card .match-card-team-logo-image {
+  border-radius: 50% !important;
+}
+body:has(.home-screen) .home-screen .chats-column .match-card .match-card-team-logo {
+  width: 16px !important;
+  height: 16px !important;
+  flex-basis: 16px !important;
+}
+body:has(.home-screen) .home-screen .chats-column .match-card .match-card-poke-circle {
+  width: 28px !important;
+  height: 28px !important;
+  flex-basis: 28px !important;
+}
+
+
+/* Desktop Feed columns: grid preserves DOM order as additional pages append. */
+@media (min-width: 651px) {
+  .home-screen .home-columns {
+    grid-template-columns: minmax(0, clamp(440px, 30vw, 560px)) minmax(0, 1fr) !important;
+    column-gap: 24px !important;
+    gap: 24px !important;
+    margin-left: 0 !important;
+    margin-right: 16px !important;
+    padding-right: 0 !important;
+  }
+  .home-screen .feed-column {
+    min-width: 0 !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    container-type: inline-size;
+    container-name: feed-pane;
+  }
+  .home-screen .feed-column::before {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  .home-screen .feed-column .feed-screen {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 0 16px !important;
+    overflow-x: hidden !important;
+    container-type: inline-size;
+    container-name: feed-wrapper;
+  }
+  .home-screen .feed-column .feed-list {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    column-gap: 16px !important;
+    row-gap: 16px !important;
+    align-items: start !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  .home-screen .feed-column .feed-list > .feed-item {
+    display: flex !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    align-self: start !important;
+    box-sizing: border-box !important;
+  }
+  .home-screen .feed-column .feed-list .post-card {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+  }
+  .home-screen .feed-column .feed-list .post-card > div[style*="padding"] {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    box-sizing: border-box !important;
+  }
+  .home-screen .feed-column .feed-list .post-card > div[style*="margin-top"] {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+    box-sizing: border-box !important;
+  }
+  .home-screen .feed-column .feed-list .post-card .post-caption,
+  .home-screen .feed-column .feed-list .post-card [style*="white-space: pre-wrap"] {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+    white-space: pre-wrap !important;
+    font-size: max(11px, 1em) !important;
+  }
+  .home-screen .feed-column .feed-list .post-card > div:first-of-type:not(.post-card-open) {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+  .home-screen .feed-column .feed-list .post-card > div[style*="justify-content: space-between"] {
+    min-width: 0 !important;
+    max-width: 100% !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+  }
+  .home-screen .feed-column .feed-list .post-card > div[style*="justify-content: space-between"] > div {
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+  .home-screen .feed-column .feed-list .post-card > div[style*="justify-content: space-between"] > div:first-child > span:last-child {
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+  .home-screen .feed-column .feed-list .post-card > div:last-child {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    padding: 0 12px 12px !important;
+    box-sizing: border-box !important;
+  }
+  .home-screen .feed-column .feed-list .post-card > div:last-child > div:first-child {
+    display: flex !important;
+    flex: 1 1 180px !important;
+    flex-wrap: wrap !important;
+    gap: 8px !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+  .home-screen .feed-column .feed-list .post-card > div:last-child > div:last-child {
+    flex: 0 1 auto !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+  .home-screen .feed-column .feed-list .post-card button,
+  .home-screen .feed-column .feed-list .post-card button span {
+    min-width: 0;
+    max-width: 100%;
+    font-size: max(11px, 1em) !important;
+  }
+  .home-screen .feed-column .feed-list .post-card .post-image-frame,
+  .home-screen .feed-column .feed-list .post-card .post-video-frame,
+  .home-screen .feed-column .feed-list .post-card .post-image,
+  .home-screen .feed-column .feed-list .post-card .post-image-button {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 260px !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+  }
+  .home-screen .feed-column .feed-list .post-card .post-image-frame {
+    aspect-ratio: 4 / 3 !important;
+    height: auto !important;
+  }
+  .home-screen .feed-column .feed-list .post-card .post-video-frame {
+    aspect-ratio: 16 / 9 !important;
+    height: auto !important;
+  }
+  .home-screen .feed-column .feed-list .post-card .post-image-frame img,
+  .home-screen .feed-column .feed-list .post-card .post-video-frame video {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100% !important;
+    max-height: 260px !important;
+    object-fit: cover !important;
+    border-radius: 8px !important;
+  }
+}
+@container feed-wrapper (min-width: 560px) {
+  .home-screen .feed-column .feed-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+}
+@media (min-width: 1280px) {
+  .home-screen .home-columns { margin-right: 24px !important; }
+}
+@media (max-width: 650px) {
+  .home-screen .feed-column { container-type: normal !important; }
+  .home-screen .feed-column .feed-screen { container-type: normal !important; }
+}
+
+/* Desktop profile sidebar reference-card treatment. Narrow layout remains unchanged. */
+@media (min-width: 651px) {
+  .home-screen .workspace { padding-top: 0 !important; }
+  .home-screen .profile-sidebar-rich {
+    position: relative !important;
+    top: 0 !important;
+    padding: 0 16px 16px !important;
+    margin: 0 !important;
+    height: calc(100vh - 68px) !important;
+    max-height: calc(100vh - 68px) !important;
+    box-sizing: border-box !important;
+    overflow-y: auto !important;
+  }
+  .home-screen .profile-sidebar-rich::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    width: 1px;
+    background: var(--home-border);
+    opacity: .45;
+    pointer-events: none;
+  }
+  .home-screen .profile-sidebar-rich .profile-header-row {
+    min-height: 60px !important;
+    margin: 0 0 8px !important;
+    padding: 0 4px !important;
+    gap: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+  }
+  .home-screen .profile-sidebar-rich .profile-header-row-clickable { cursor: pointer; }
+  .home-screen .profile-sidebar-rich .profile-header-row-clickable:focus-visible {
+    outline: 2px solid var(--primary) !important;
+    outline-offset: 2px;
+  }
+  .home-screen .profile-sidebar-rich .profile-header-view-link { display: none !important; }
+  .home-screen .profile-sidebar-rich .profile-guest-preview {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    padding: 0 0 16px !important;
+    overflow: visible !important;
+  }
+  .home-screen .profile-sidebar-rich .profile-guest-banner { display: none !important; }
+  .home-screen .profile-sidebar-rich .profile-guest-fields {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 8px !important;
+    margin: 0 !important;
+  }
+  .home-screen .profile-sidebar-rich .profile-guest-field {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 10px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 48px !important;
+    padding: 8px 10px !important;
+    border: 1px solid color-mix(in srgb, var(--primary) 24%, var(--border)) !important;
+    border-width: 1px !important;
+    border-style: solid !important;
+    border-radius: 12px !important;
+    background: color-mix(in srgb, var(--primary-dim) 22%, var(--surface)) !important;
+    box-sizing: border-box !important;
+  }
+  .home-screen .profile-sidebar-rich .profile-guest-field-icon {
+    flex: 0 0 16px !important;
+    color: var(--primary) !important;
+    width: 16px !important;
+    height: 16px !important;
+  }
+  .home-screen .profile-sidebar-rich .profile-guest-field-copy {
+    display: flex !important;
+    flex: 1 1 auto !important;
+    flex-direction: column !important;
+    min-width: 0 !important;
+    gap: 2px !important;
+  }
+  .home-screen .profile-sidebar-rich .profile-guest-field > .profile-guest-field-copy > span {
+    font-size: 11px !important;
+    line-height: 1.25 !important;
+    color: var(--text-3) !important;
+  }
+  .home-screen .profile-sidebar-rich .profile-guest-field > .profile-guest-field-copy > strong {
+    font-size: 12px !important;
+    line-height: 1.3 !important;
+    font-weight: 600 !important;
+    overflow-wrap: anywhere !important;
+    color: var(--text-1) !important;
+  }
+  .home-screen .profile-sidebar-rich .profile-guest-login {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    width: 100% !important;
+    min-height: 44px !important;
+    height: 44px !important;
+    margin: 8px 0 12px !important;
+    padding: 0 12px !important;
+    border: 0 !important;
+    border-radius: 12px !important;
+    background: var(--primary) !important;
+    color: var(--text-on-primary, var(--surface)) !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    box-shadow: none !important;
+    transition: filter 120ms ease, transform 120ms ease !important;
+  }
+  .home-screen .profile-sidebar-rich .profile-guest-login:hover { filter: brightness(1.06) !important; }
+  .home-screen .profile-sidebar-rich .profile-guest-login:active { transform: scale(.98); }
+  .home-screen .profile-sidebar-rich .profile-guest-login:focus-visible {
+    outline: 2px solid var(--primary) !important;
+    outline-offset: 3px !important;
+  }
+  .home-screen .profile-sidebar-rich .profile-guest-login:disabled { opacity: .5 !important; cursor: not-allowed; }
+  .home-screen .profile-sidebar-rich .profile-guest-channels-heading {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    min-height: 28px !important;
+    margin-top: 0 !important;
+    padding: 0 2px !important;
+    font-size: 13px !important;
+    color: var(--text-1) !important;
+  }
+  .home-screen .profile-sidebar-rich .profile-guest-channels-heading::before {
+    content: "";
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    flex: 0 0 16px;
+    background: var(--primary);
+    mask: none;
+  }
+  .home-screen .profile-sidebar-rich .profile-guest-channels-heading > strong { flex: 1 1 auto; }
+  .home-screen .profile-sidebar-rich .profile-guest-channels-heading > span {
+    min-width: 22px !important;
+    height: 22px !important;
+    border: 0 !important;
+    border-radius: 999px !important;
+    background: var(--primary-dim) !important;
+    color: var(--primary) !important;
+  }
+  .home-screen .profile-sidebar-rich .profile-channel-tabbar,
+  .home-screen .profile-sidebar-rich .profile-channel-tabbar [role="tab"],
+  .home-screen .profile-sidebar-rich .profile-channel-tabbar [role="tab"] > span,
+  .home-screen .profile-sidebar-rich .profile-guest-preview .profile-member-card {
+    border: 1px solid color-mix(in srgb, var(--primary) 18%, var(--border)) !important;
+    border-width: 1px !important;
+    border-style: solid !important;
+    border-radius: 10px !important;
+  }
+  .home-screen .profile-sidebar-rich .profile-channel-tabbar {
+    display: flex !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    border-radius: 10px !important;
+  }
+  .home-screen .profile-sidebar-rich .profile-channel-tabbar [role="tab"] {
+    min-width: 0 !important;
+    min-height: 44px !important;
+    flex: 1 1 0 !important;
+    padding: 6px 3px !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    font-size: 11px !important;
+  }
+  .home-screen .profile-sidebar-rich .profile-guest-preview .profile-member-card {
+    border-color: color-mix(in srgb, var(--primary) 12%, var(--border)) !important;
+    border-width: 1px !important;
+    border-style: solid !important;
+    border-radius: 12px !important;
+    background: color-mix(in srgb, var(--surface) 70%, transparent) !important;
+  }
+  .home-screen .profile-sidebar-rich .profile-guest-preview .profile-member-card * {
+    font-size: max(11px, 1em) !important;
+  }
+  .home-screen .profile-sidebar-rich .profile-guest-preview .profile-member-card > div { min-width: 0 !important; }
+  .home-screen .profile-sidebar-rich .profile-guest-preview .profile-member-card button { min-height: 40px !important; }
+}
+
+/* Authenticated comment inputs use the same responsive second row as the guest prompt. */
+.match-card-input-cell:has(input) {
+  flex: 1 1 160px;
+  min-width: 0;
+  max-width: 100%;
+}
+.match-card-input-cell:has(input) input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+@media (max-width: 650px) {
+  .match-card .match-card-input-cell:has(input) {
+    flex: 1 1 160px !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+  .match-card .match-card-input-cell:has(input) input {
+    min-height: 40px;
+    width: 100%;
+  }
+}
+
+
+/* Keep the Home surface visually flat: profile preview cards and channel
+   tabs are content groups, not bordered panels. */
+.home-screen .profile-sidebar-rich .profile-guest-field,
+.home-screen .profile-sidebar-rich .profile-channel-tabbar,
+.home-screen .profile-sidebar-rich .profile-ellipsis {
+  border: 0 !important;
+  border-width: 0 !important;
+  border-style: none !important;
+}
+
+.home-screen .profile-ellipsis {
+  border: 0 !important;
+  border-width: 0 !important;
+  border-style: none !important;
+}
+
+body:has(.home-screen) .home-screen span.profile-ellipsis {
+  border: none !important;
+  border-top: 0 !important;
+  border-right: 0 !important;
+  border-bottom: 0 !important;
+  border-left: 0 !important;
+  border-width: 0 !important;
+}
+
+/* Home has no decorative borders outside its explicit profile/balance/member cards. */
+body:has(.home-screen) .home-screen *:not(.profile-card):not(.profile-card *):not(.balance-card):not(.balance-card *):not(.member-card):not(.member-card *) {
+  border: 0 !important;
+  border-width: 0 !important;
+}
+
+
+/* Hide the scrollbar chrome without disabling wheel, trackpad, touch or keyboard scrolling. */
+@media (min-width: 651px) {
+  .home-screen .home-columns {
+    min-height: 0 !important;
+    height: 100% !important;
+  }
+  .home-screen .home-column {
+    min-height: 0 !important;
+    height: 100% !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    overscroll-behavior-y: contain;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+  }
+  .home-screen .home-column::-webkit-scrollbar,
+  .home-screen .chats-fixture-list::-webkit-scrollbar,
+  .home-screen .feed-screen::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+  .home-screen .chats-column > section,
+  .home-screen .chats-fixture-list,
+  .home-screen .feed-column .feed-screen {
+    min-height: 0 !important;
+    max-height: 100% !important;
+  }
+  .home-screen .chats-column > section {
+    height: 100% !important;
+  }
+}
+
+
+/* Tighten vertical spacing between feed cards without changing card content spacing. */
+.home-screen .feed-column .feed-list {
+  row-gap: 8px !important;
+  gap: 8px !important;
+}
+
+
+/* Mobile web: tighten the space between consecutive feed cards. */
+@media (max-width: 650px) {
+  .home-screen .feed-column .feed-list {
+    row-gap: 6px !important;
+    gap: 6px !important;
+  }
+  .home-screen .feed-column .feed-list > .feed-item,
+  .home-screen .feed-column .feed-list .post-card,
+  .home-screen .feed-column .feed-item,
+  .home-screen .post-card {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+}
+
+
+/* Mobile web Chats footer mirrors the native single-row order: Vote, Poke, Like, Comments, input, teams. */
+@media (max-width: 650px) {
+  .match-card .match-card-bottom {
+    display: flex !important;
+    flex-flow: row nowrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+    min-width: 0 !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    flex-wrap: nowrap !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+    padding-bottom: 6px !important;
+  }
+  .match-card .match-card-bottom::-webkit-scrollbar { display: none !important; }
+  .match-card .match-card-actions {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    flex-flow: row nowrap !important;
+    align-items: center !important;
+    gap: 8px !important;
+    width: auto !important;
+  }
+  .match-card .match-card-input-cell,
+  .match-card .match-card-input-cell:has(input) {
+    display: flex !important;
+    flex: 0 0 88px !important;
+    width: 88px !important;
+    min-width: 88px !important;
+    max-width: 88px !important;
+    overflow: hidden !important;
+    gap: 4px !important;
+  }
+  .match-card .match-card-input-cell input {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    font-size: 11px !important;
+  }
+  .match-card .match-card-guest-comment-prompt {
+    max-width: 88px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    font-size: 11px !important;
+  }
+  .match-card .match-card-teams {
+    display: flex !important;
+    flex: 0 0 auto !important;
+    width: max-content !important;
+    max-width: 180px !important;
+    margin-left: 0 !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    white-space: nowrap !important;
+  }
+  .match-card .match-card-team-name {
+    max-width: 54px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    overflow-wrap: normal !important;
+  }
+}
+
+
+/* Responsive overlays: mobile Comments/Messaging are routed full pages; desktop keeps Home behind modal dialogs. */
+.desktop-message-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 850;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgb(0 0 0 / 52%);
+}
+.desktop-message-dialog {
+  width: min(100%, 760px);
+  max-height: 88dvh;
+  overflow: hidden;
+  border: 1px solid var(--home-border, #333);
+  border-radius: 14px;
+  box-shadow: 0 20px 70px rgb(0 0 0 / 28%);
+}
+.desktop-message-dialog .message-screen {
+  width: 100%;
+  height: min(88dvh, 900px) !important;
+  min-height: 0 !important;
+  max-height: 88dvh !important;
+  border-radius: 14px;
+}
+@media (max-width: 650px) {
+  .comments-page-overlay { background: var(--home-background, inherit); }
+  .comments-page-sheet {
+    width: 100% !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    max-width: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+  }
+}
+@media (max-width: 650px) {
+  .desktop-message-overlay { display: none !important; }
+}
+
+/* Team names must never be ellipsized at tablet/desktop widths either. Let the team group wrap below the action row when space is constrained. */
+.match-card .match-card-teams {
+  max-width: none !important;
+  overflow: visible !important;
+  flex-wrap: wrap !important;
+  white-space: normal !important;
+}
+.match-card .match-card-team-name {
+  max-width: none !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+}
+
+/* Keep full team names readable; the footer itself is horizontally scrollable on narrow screens. */
+@media (max-width: 650px) {
+  .match-card .match-card-teams { max-width: none !important; }
+  .match-card .match-card-team-name {
+    max-width: none !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    overflow-wrap: normal !important;
+  }
+}
+
+
+/* Chats footer layout: input left and fixture names right, actions evenly fill the row below. */
+.match-card .match-card-bottom {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  flex-wrap: nowrap !important;
+  gap: 8px !important;
+  min-height: 64px !important;
+  margin-top: 14px !important;
+  padding-bottom: 10px !important;
+  overflow: visible !important;
+}
+.match-card .match-card-footer-top {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  gap: 10px !important;
+}
+.match-card .match-card-footer-top .match-card-input-cell {
+  flex: 1 1 0% !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  overflow: hidden !important;
+}
+.match-card .match-card-footer-top .match-card-teams {
+  flex: 0 1 48% !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: 48% !important;
+  margin-left: auto !important;
+  flex-wrap: nowrap !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+}
+.match-card .match-card-footer-top .match-card-team-name {
+  min-width: 0 !important;
+  max-width: 74px !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+  overflow-wrap: normal !important;
+}
+.match-card .match-card-actions {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  align-items: center !important;
+  gap: 4px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+.match-card .match-card-actions .match-card-action-slot {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 0 !important;
+}
+.match-card .match-card-actions .action-button {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 4px !important;
+  padding: 4px !important;
+  min-width: 0 !important;
+  white-space: nowrap !important;
+}
+@media (max-width: 650px) {
+  .match-card .match-card-bottom {
+    overflow: visible !important;
+    overflow-x: visible !important;
+    padding-bottom: 10px !important;
+    gap: 8px !important;
+  }
+  .match-card .match-card-footer-top { gap: 6px !important; }
+  .match-card .match-card-footer-top .match-card-teams { max-width: 52% !important; flex-basis: 52% !important; }
+  .match-card .match-card-footer-top .match-card-team-name { max-width: 56px !important; }
+  .match-card .match-card-actions { gap: 0 !important; }
+  .match-card .match-card-actions .action-button { font-size: 11px !important; padding: 3px 1px !important; }
+  .match-card .match-card-actions .match-card-poke { gap: 3px !important; font-size: 11px !important; }
+}
+
+/* Override the older narrow-screen horizontal footer rule after the new two-row layout. */
+@media (max-width: 650px) {
+  .match-card .match-card-bottom .match-card-actions {
+    display: grid !important;
+    flex: 0 0 auto !important;
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    flex-flow: initial !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    overflow: visible !important;
+  }
+  .match-card .match-card-bottom .match-card-actions .match-card-action-slot {
+    flex: initial !important;
+    width: auto !important;
+  }
+}
+
+/* Preserve complete fixture names in the constrained right-hand footer cell by wrapping text instead of clipping it. */
+.match-card .match-card-footer-top .match-card-team-name {
+  max-width: 74px !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+}
+@media (max-width: 650px) {
+  .match-card .match-card-footer-top .match-card-team-name {
+    max-width: 74px !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: normal !important;
+    overflow-wrap: anywhere !important;
+  }
+}
+
+/* Keep the guest login prompt readable on mobile web instead of truncating it to an ellipsis. */
+@media (max-width: 650px) {
+  .match-card .match-card-footer-top .match-card-input-cell:has(.match-card-guest-comment-prompt) {
+    flex: 1 1 0% !important;
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    overflow: visible !important;
+  }
+  .match-card .match-card-footer-top .match-card-guest-comment-prompt {
+    display: block !important;
+    flex: 1 1 0% !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    padding: 4px 0 !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    white-space: nowrap !important;
+    overflow-wrap: normal !important;
+    text-align: left !important;
+    line-height: 1.25 !important;
+    font-size: 12px !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+}

@@ -20,6 +20,7 @@ export interface VoterItem {
     id: string;
     /** May start with an emoji, e.g. "🔥 FireStriker" */
     name: string;
+    uri?: string | null;
     /** Team (or "Draw") this person picked */
     team: string;
     /** Pick colour, used for the avatar ring and the team text */
@@ -78,6 +79,7 @@ export function VoterList({
                                 colors={colors}
                                 size="sm"
                                 label={icon || initials(name)}
+                                uri={v.uri}
                                 borderColor={v.color}
                             />
                             <View style={styles.text}>

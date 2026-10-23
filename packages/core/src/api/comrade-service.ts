@@ -52,17 +52,13 @@ export async function addComrade(p: AddComradeParams): Promise<Record<string, an
 
 // GET /api/comrades/comrades/:userId
 export async function getUserComrades(userId: string, authToken?: string): Promise<Record<string, any>[]> {
-  try {
-    const res = await fetch(`${API_BASE}/comrades/comrades/${userId}`, { headers: headers(authToken) });
-    if (res.status === 404) return [];
-    if (!res.ok) return [];
-    return await res.json();
-  } catch (e) {
-    console.error('getUserComrades failed:', e);
-    return [];
-  }
+  const res = await fetch(`${API_BASE}/comrades/comrades/${userId}`, { headers: headers(authToken) });
+  if (res.status === 404) return [];
+  if (!res.ok) throw new Error(`GET user comrades failed: HTTP ${res.status}`);
+  const data: unknown = await res.json();
+  if (!Array.isArray(data)) throw new Error('Invalid user comrades response: expected an array');
+  return data as Record<string, any>[];
 }
-
 export interface ComradeStats {
   count: number;
   max_comrades: number;

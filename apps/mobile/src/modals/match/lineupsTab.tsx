@@ -271,8 +271,10 @@ export function LineupsTab({
 
             {/* Pitch */}
             <ScrollView
-                style={{ flex: 1 }}
+                style={styles.pitchScroller}
                 contentContainerStyle={styles.pitchScroll}
+                showsVerticalScrollIndicator={false}
+                contentInsetAdjustmentBehavior="never"
             >
                 <PitchView
                     homeTeam={fixture.homeTeam}
@@ -353,7 +355,14 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'flex-start',
     },
+    pitchScroller: {
+        flex: 1,
+        minHeight: 0,
+    },
     pitchScroll: {
+        flexGrow: 1,
+        alignItems: 'stretch',
+        justifyContent: 'flex-start',
         paddingLeft: FAN_SPACING.base,
         paddingRight: FAN_SPACING.base,
         paddingTop: FAN_SPACING.sm,

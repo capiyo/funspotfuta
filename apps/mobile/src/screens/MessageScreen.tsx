@@ -169,7 +169,9 @@ export default function MessageScreen() {
   const [activeChannelId, setActiveChannelId] = useState<string | null>(
     routeChannelId ?? null,
   );
-  const [autoFixture, setAutoFixture] = useState<Fixture | null>(null);
+  // Chats passes a fixtureId explicitly. Without one this is a channel-wide
+  // group chat, matching the nullable fixture context used by the Dart screen.
+  const [loadedRouteFixture, setLoadedRouteFixture] = useState<Fixture | null>(null);
   const [draft, setDraft] = useState('');
   const [replyTo, setReplyTo] = useState<ChatMessage | null>(null);
   const [optionsFor, setOptionsFor] = useState<ChatMessage | null>(null);
@@ -232,21 +234,28 @@ export default function MessageScreen() {
   }, [queryClient, routeFixtureId]);
 
   useEffect(() => {
-    if (routeFixtureId || !activeChannelId) return;
-    getAllFixtures().then((all) => {
-      const live = all.find(
-        (f) =>
-          f.status === 'live' ||
-          f.status === 'half_time' ||
-          f.status === 'upcoming' ||
-          f.status === 'soon',
-      );
-      setAutoFixture(live ?? all[0] ?? null);
-    });
-  }, [routeFixtureId, activeChannelId]);
+    if (!routeFixtureId || routeFixture) return;
+    let alive = true;
+    getAllFixtures()
+      .then((all) => {
+        if (!alive) return;
+        setLoadedRouteFixture(
+          all.find((f) => f.id === routeFixtureId || f.matchId === routeFixtureId) ?? null,
+        );
+      })
+      .catch(() => undefined);
+    return () => {
+      alive = false;
+    };
+  }, [routeFixtureId, routeFixture]);
 
-  const fixture = routeFixture ?? autoFixture;
-  const fixtureId = fixture?.matchId ?? fixture?.id ?? null;
+  const fixture =
+    routeFixture ??
+    (loadedRouteFixture?.id === routeFixtureId || loadedRouteFixture?.matchId === routeFixtureId
+      ? loadedRouteFixture
+      : null);
+// Keep an explicit route fixture ID scoped during lookup; never briefly use the group room.
+  const fixtureId = fixture?.matchId ?? fixture?.id ?? routeFixtureId ?? null;
 
   // ── Chat hook ──────────────────────────────────────────────
   const chat = useChannelChat({
@@ -283,6 +292,7 @@ export default function MessageScreen() {
     awayVotes,
     userVoteSelection,
     voters,
+    recordUserVote,
     refetchVoteCounts,
   } = chat;
 
@@ -740,6 +750,11 @@ export default function MessageScreen() {
         onRequestClose={() => setPendingImage(null)}
       >
         <View style={styles.overlay}>
+          <KeyboardAvoidingView
+            style={styles.captionKeyboardAvoiding}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={0}
+          >
           <View style={[styles.card, { backgroundColor: colors.surface }]}>
             <View style={styles.captionHeader}>
               <Text style={fanText('body', colors, colors.textPrimary)}>
@@ -791,6 +806,7 @@ export default function MessageScreen() {
               </Pressable>
             </View>
           </View>
+          </KeyboardAvoidingView>
         </View>
       </Modal>
 
@@ -900,6 +916,9 @@ export default function MessageScreen() {
               authToken,
             });
             if (r.success) {
+              // Unlock the composer immediately from the confirmed vote result;
+              // the count endpoint may lag or omit the user's selection.
+              recordUserVote(sel);
               queryClient.invalidateQueries({ queryKey: FIXTURES_KEY });
               await refetchVoteCounts();
             }
@@ -921,9 +940,11 @@ export default function MessageScreen() {
               alreadyVoted: hasVoted,
               authToken,
             });
-            if (r.success && r.votedNow) {
+            if (r.success) {
+              // A successful pledge either cast the vote or confirmed an existing one.
+              recordUserVote(sel);
               queryClient.invalidateQueries({ queryKey: FIXTURES_KEY });
-              await refetchVoteCounts();
+              if (r.votedNow) await refetchVoteCounts();
             }
             return {
               success: r.success,
@@ -1495,7 +1516,7 @@ function createStyles(colors: FanColors, bottomInset: number) {
       flexDirection: 'row',
       alignItems: 'center',
       gap: FAN_SPACING.sm,
-      paddingHorizontal: FAN_SPACING.lg,
+      paddingHorizontal: FAN_SPACING.md,
       paddingVertical: FAN_SPACING.sm,
     },
     iconButton: { padding: 4 },
@@ -1512,7 +1533,7 @@ function createStyles(colors: FanColors, bottomInset: number) {
       paddingVertical: FAN_SPACING.xxl,
     },
     messagesContent: {
-      paddingHorizontal: FAN_SPACING.sm,
+      paddingHorizontal: FAN_SPACING.md,
       paddingVertical: FAN_SPACING.sm,
       flexGrow: 1,
     },
@@ -1586,7 +1607,8 @@ function createStyles(colors: FanColors, bottomInset: number) {
       paddingHorizontal: FAN_SPACING.md,
       paddingVertical: FAN_SPACING.xs,
     },
-    overlay: {
+    captionKeyboardAvoiding: { flex: 1, justifyContent: 'center' },
+  overlay: {
       flex: 1,
       backgroundColor: 'rgba(0,0,0,0.5)',
       alignItems: 'center',

@@ -14,12 +14,17 @@
     "react-native-svg": "15.2.0"
   },
   "scripts": {
-    "typecheck:core": "npm run typecheck --workspace=@funspot/core",
-    "typecheck:web": "npm run typecheck --workspace=funspot-web 2>/dev/null || cd apps/web && npx tsc --noEmit",
-    "dev:web": "npm run dev --workspace=funspot-web",
-    "dev:mobile": "npm run start --workspace=funspot-mobile"
+    "typecheck:core": "cd packages/core && npx tsc --noEmit",
+    "typecheck:web": "cd apps/web && npx tsc --noEmit",
+    "dev:web": "cd apps/web && npm run dev",
+    "dev:mobile": "cd apps/mobile && npm run start",
+    "build:web": "cd apps/web && npm run build",
+    "lint:web": "cd apps/web && npm run lint",
+    "typecheck:mobile": "cd apps/mobile && npx tsc --noEmit",
+    "test:core": "vitest run packages/core/src/queries/queryKeys.test.ts"
   },
   "devDependencies": {
-    "turbo": "^2.10.13"
+    "turbo": "^2.10.13",
+    "vitest": "^2.1.9"
   }
 }

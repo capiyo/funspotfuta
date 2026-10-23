@@ -1,0 +1,15 @@
+# Netlify configuration for the Vite React web app in this npm-workspaces monorepo.
+# Keep the repository root as the base so @funspot/core and the root lockfile resolve.
+[build]
+  base = "."
+  command = "npm run build:web"
+  publish = "apps/web/dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# React Router client-side routes should resolve to the Vite app shell.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

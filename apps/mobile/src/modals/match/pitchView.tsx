@@ -516,9 +516,9 @@ interface PlayerDotProps {
     isHome: boolean;
 }
 
-const DOT_SIZE = 34;
+const DOT_SIZE = 30;
 // Approximate height of the [gap + name chip] block below/above the dot.
-const LABEL_BLOCK_HEIGHT = 21;
+const LABEL_BLOCK_HEIGHT = 18;
 
 function PlayerDot({ player, position, color, isHome }: PlayerDotProps) {
     const colors = useFanColors();
@@ -835,7 +835,7 @@ export interface PitchViewProps {
     awayPlayers: SimplifiedPlayer[];
 }
 
-const PITCH_ASPECT_RATIO = 0.68;
+const PITCH_ASPECT_RATIO = 0.82;
 
 export function PitchView({
     homeTeam,
@@ -1100,15 +1100,15 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     playerDotText: {
-        fontSize: 12,
-        fontWeight: '800',
+        fontSize: 11,
+        fontWeight: '700',
         color: '#FFFFFF',
     },
     playerLabel: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 5,
-        paddingVertical: 2,
+        paddingHorizontal: 4,
+        paddingVertical: 1,
         borderRadius: 4,
     },
     playerCaptain: {

@@ -1,0 +1,42 @@
+name: Web port validation
+on:
+  push:
+    branches: [web-port-from-master]
+  pull_request:
+    branches: [master]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm install --no-audit --no-fund
+      - run: npm run test:core
+      - run: npm run typecheck:core
+      - run: npm run typecheck:web
+      - run: npm run typecheck:mobile
+      - run: npm run lint:web
+      - run: npm run build:web
+      - name: Install Playwright and Chromium
+        run: |
+          npm install --no-save --no-audit --no-fund playwright
+          npx playwright install --with-deps chromium
+      - name: Verify ChatsCard at desktop and mobile widths
+        run: |
+          cd apps/web
+          npm run start -- --host 127.0.0.1 > /tmp/funspot-web-preview.log 2>&1 &
+          for attempt in $(seq 1 30); do curl --fail --silent http://127.0.0.1:4173/ > /dev/null && break; sleep 1; done
+          cd ../..
+          node apps/web/scripts/verify-chats-card.mjs
+      - name: Verify Home shell and Feed styling
+        run: node apps/web/scripts/verify-home.mjs
+      - name: Upload ChatsCard verification screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chats-card-verification-screenshots
+          path: docs/verify/*.png
+          if-no-files-found: warn

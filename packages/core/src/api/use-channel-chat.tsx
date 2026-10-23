@@ -14,17 +14,19 @@
 // Delivery itself lives in ./send-channel-message so other screens
 // (e.g. the Arena match card comment box) send with the exact same payload.
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { capCachedMessages, queryKeys } from '../queries/queryKeys';
 import { webSocketService } from './websocket-service';
 import {
     sendChannelMessage,
     type SendPayloadExtras,
 } from './send-channel-messages';
 import {
-    ChatMessage,
+    type ChatMessage,
     chatMessageFromJson,
     chatMessageCommentary,
-} from '@funspot/core';
+} from '../types/chat-message';
 
 export type { SendPayloadExtras };
 
@@ -83,8 +85,29 @@ export function useChannelChat({
     fixtureStatus = null,
     seed = null,
 }: Params) {
+    const queryClient = useQueryClient();
+    const cachedVotes = fixtureId
+        ? queryClient.getQueryData<{ homeVotes: number; awayVotes: number; drawVotes: number; userVoteSelection: string | null; voters: Voter[] }>(queryKeys.fixtureVotes(fixtureId, userId ?? 'anonymous'))
+        : undefined;
+    const messagesQueryKey = useMemo(() => queryKeys.chatMessages(fixtureId ?? 'overall', channelId ?? 'none', userId ?? undefined), [fixtureId, channelId, userId]);
+    const messageCacheIdentity = `${channelId ?? ''}:${fixtureId ?? ''}:${userId ?? 'public'}`;
+    const restoreMessages = (cached: ChatMessage[] | undefined): ChatMessage[] => capCachedMessages(
+        (cached ?? []).map((message, index) => {
+            const rawTimestamp = message.timestamp as unknown;
+            const timestamp = rawTimestamp instanceof Date ? rawTimestamp : new Date(String(rawTimestamp ?? ''));
+            return {
+                ...message,
+                timestamp: Number.isNaN(timestamp.getTime()) ? new Date(0) : timestamp,
+                seq: Number.isFinite(message.seq) ? message.seq : index + 1,
+            };
+        }),
+    );
+
     // ── Messages ────────────────────────────────────────────────
-    const [messages, setMessages] = useState<ChatMessage[]>([]);
+    const [messages, setMessages] = useState<ChatMessage[]>(() => restoreMessages(
+        queryClient.getQueryData<ChatMessage[]>(messagesQueryKey),
+    ));
+    const messagesIdentityRef = useRef(messageCacheIdentity);
     const [connected, setConnected] = useState(false);
     const [loadingHistory, setLoadingHistory] = useState(false);
     const [uploadingImage, setUploadingImage] = useState(false);
@@ -100,13 +123,44 @@ export function useChannelChat({
     const [isLive, setIsLive] = useState(seed?.isLive ?? false);
 
     // ── Live vote state ─────────────────────────────────────────
-    const [homeVotes, setHomeVotes] = useState(0);
-    const [awayVotes, setAwayVotes] = useState(0);
-    const [drawVotes, setDrawVotes] = useState(0);
+    const [homeVotes, setHomeVotes] = useState(cachedVotes?.homeVotes ?? 0);
+    const [awayVotes, setAwayVotes] = useState(cachedVotes?.awayVotes ?? 0);
+    const [drawVotes, setDrawVotes] = useState(cachedVotes?.drawVotes ?? 0);
     const [userVoteSelection, setUserVoteSelection] = useState<string | null>(
-        null,
+        cachedVotes?.userVoteSelection ?? null,
     );
-    const [voters, setVoters] = useState<Voter[]>([]);
+    const [voters, setVoters] = useState<Voter[]>(cachedVotes?.voters ?? []);
+
+    // Vote identity and voter names survive navigation, backgrounding and cold starts.
+    // Keep this snapshot separate from the periodically refreshed fixture payload.
+    const voteCacheIdentity = `${fixtureId ?? ""}:${userId ?? "anonymous"}`;
+    const persistedFixtureIdRef = useRef(voteCacheIdentity);
+    useEffect(() => {
+        if (persistedFixtureIdRef.current !== voteCacheIdentity) {
+            persistedFixtureIdRef.current = voteCacheIdentity;
+            return;
+        }
+        if (!fixtureId) return;
+        queryClient.setQueryData(queryKeys.fixtureVotes(fixtureId, userId ?? 'anonymous'), {
+            homeVotes,
+            awayVotes,
+            drawVotes,
+            userVoteSelection,
+            voters,
+        });
+    }, [queryClient, fixtureId, userId, voteCacheIdentity, homeVotes, awayVotes, drawVotes, userVoteSelection, voters]);
+
+    // Restore the cached vote snapshot whenever the selected fixture changes.
+    useEffect(() => {
+        const snapshot = fixtureId
+            ? queryClient.getQueryData<{ homeVotes: number; awayVotes: number; drawVotes: number; userVoteSelection: string | null; voters: Voter[] }>(queryKeys.fixtureVotes(fixtureId, userId ?? 'anonymous'))
+            : undefined;
+        setHomeVotes(snapshot?.homeVotes ?? 0);
+        setAwayVotes(snapshot?.awayVotes ?? 0);
+        setDrawVotes(snapshot?.drawVotes ?? 0);
+        setUserVoteSelection(snapshot?.userVoteSelection ?? null);
+        setVoters(snapshot?.voters ?? []);
+    }, [queryClient, fixtureId, userId]);
 
     // ── Internals ───────────────────────────────────────────────
     const seqRef = useRef(0);
@@ -161,6 +215,14 @@ export function useChannelChat({
         [authToken],
     );
 
+    // Persist a bounded snapshot and restore Date values after JSON hydration.
+    // Skip the render immediately after a fixture/channel switch so old messages
+    // cannot be written into the newly selected conversation's cache key.
+    useEffect(() => {
+        if (messagesIdentityRef.current !== messageCacheIdentity) return;
+        queryClient.setQueryData<ChatMessage[]>(messagesQueryKey, capCachedMessages(messages));
+    }, [queryClient, messagesQueryKey, messageCacheIdentity, messages]);
+
     // ── Seed match state when the fixture changes ───────────────
     useEffect(() => {
         if (!seed) return;
@@ -177,10 +239,12 @@ export function useChannelChat({
         if (!channelId) return;
         let cancelled = false;
 
-        setMessages([]);
-        seenIdsRef.current = new Set();
-        seqRef.current = 0;
-        setLoadingHistory(true);
+        const cached = restoreMessages(queryClient.getQueryData<ChatMessage[]>(messagesQueryKey));
+        messagesIdentityRef.current = messageCacheIdentity;
+        seenIdsRef.current = new Set(cached.map((message) => message.id));
+        seqRef.current = cached.reduce((max, message) => Math.max(max, message.seq), 0);
+        setMessages(cached);
+        setLoadingHistory(cached.length === 0);
 
         const url = fixtureId
             ? `${API_BASE_URL}/channels/${channelId}/messages?fixture_id=${fixtureId}&limit=100&_=${Date.now()}`
@@ -214,7 +278,7 @@ export function useChannelChat({
         return () => {
             cancelled = true;
         };
-    }, [channelId, fixtureId, authHeaders]);
+    }, [channelId, fixtureId, authHeaders, queryClient, messagesQueryKey, messageCacheIdentity]);
 
     // ── Commentary bootstrap (REST) ─────────────────────────────
     useEffect(() => {
@@ -312,21 +376,81 @@ export function useChannelChat({
                     if (b.userId === userId) return 1;
                     return a.username.localeCompare(b.username);
                 });
-            setVoters(parsed);
+            // Some API responses lag immediately after a successful vote. Merge
+            // instead of replacing with an empty/stale list so the voter stack
+            // never flashes away while the backend catches up.
+            setVoters((previous) => {
+                const merged = new Map(previous.map((v) => [v.userId, v]));
+                for (const voter of parsed) merged.set(voter.userId, voter);
+                return [...merged.values()].sort((a, b) => {
+                    if (a.userId === userId) return -1;
+                    if (b.userId === userId) return 1;
+                    return a.username.localeCompare(b.username);
+                });
+            });
         } catch {
             /* silent */
         }
     }, [fixtureId, userId, authHeaders]);
 
+    const recordUserVote = useCallback((selection: string) => {
+        if (!fixtureId || !userId) return;
+        const normalized = toFrontendSelection(selection);
+        setUserVoteSelection(normalized);
+        setVoters((previous) => {
+            const existing = previous.find((v) => v.userId === userId);
+            const mine: Voter = {
+                userId,
+                username: username ?? existing?.username ?? 'You',
+                selection: normalized,
+                isComrade: existing?.isComrade ?? false,
+                votedAt: new Date(),
+            };
+            return [mine, ...previous.filter((v) => v.userId !== userId)];
+        });
+        queryClient.setQueryData<{
+            homeVotes: number; awayVotes: number; drawVotes: number;
+            userVoteSelection: string | null; voters: Voter[];
+        }>(['fixtureVotes', fixtureId, userId], (previous) => {
+            const existing = previous?.voters ?? [];
+            const mine: Voter = {
+                userId,
+                username: username ?? existing.find((v) => v.userId === userId)?.username ?? 'You',
+                selection: normalized,
+                isComrade: existing.find((v) => v.userId === userId)?.isComrade ?? false,
+                votedAt: new Date(),
+            };
+            return {
+                homeVotes: previous?.homeVotes ?? 0,
+                awayVotes: previous?.awayVotes ?? 0,
+                drawVotes: previous?.drawVotes ?? 0,
+                userVoteSelection: normalized,
+                voters: [mine, ...existing.filter((v) => v.userId !== userId)],
+            };
+        });
+    }, [fixtureId, userId, username, queryClient]);
+
     // Initial fetch (once per channel+fixture)
     useEffect(() => {
         if (!channelId || !fixtureId || !userId) return;
-        const key = `${channelId}:${fixtureId}`;
+        const key = `${channelId}:${fixtureId}:${userId}`;
+        // A confirmed local vote is persisted in the QueryClient cache. Do not
+        // refetch vote counts/voters on every Messaging screen mount; socket
+        // vote.update events and explicit user refreshes can reconcile it.
+        const cached = queryClient.getQueryData<{ userVoteSelection: string | null; voters: Voter[] }>(
+            queryKeys.fixtureVotes(fixtureId, userId),
+        );
+        if (cached?.userVoteSelection && cached.voters?.some((voter) => voter.userId === userId)) {
+            voteCountsFetchedRef.current = key;
+            return;
+        }
         if (voteCountsFetchedRef.current === key) return;
         voteCountsFetchedRef.current = key;
-        void fetchVoteCounts();
-        void fetchVoters();
-    }, [channelId, fixtureId, userId, fetchVoteCounts, fetchVoters]);
+        void (async () => {
+            await fetchVoteCounts();
+            await fetchVoters();
+        })();
+    }, [channelId, fixtureId, userId, queryClient, fetchVoteCounts, fetchVoters]);
 
     // ── Socket connect + subscriptions ──────────────────────────
     useEffect(() => {
@@ -513,7 +637,12 @@ export function useChannelChat({
                 webSocketService.send('get.latest.comment', { fixtureId, channelId });
                 webSocketService.requestCurrentMinute({ fixtureId, channelId });
             }
-            void fetchVoteCounts();
+            const cached = queryClient.getQueryData<{ userVoteSelection: string | null }>(
+                queryKeys.fixtureVotes(fixtureId ?? '', userId ?? 'anonymous'),
+            );
+            // Avoid a vote-count round trip every time the Messaging screen is
+            // opened when a confirmed selection is already in persisted cache.
+            if (!cached?.userVoteSelection) void fetchVoteCounts();
         };
 
         webSocketService.on('chat.message', onChatMessage);
@@ -746,6 +875,7 @@ export function useChannelChat({
         // imperative refetch
         refetchVoteCounts: fetchVoteCounts,
         refetchVoters: fetchVoters,
+        recordUserVote,
     };
 }
 

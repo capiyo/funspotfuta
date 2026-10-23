@@ -29,6 +29,8 @@ import {
     ActivityIndicator,
     StyleSheet,
     Modal,
+    KeyboardAvoidingView,
+    Platform,
 } from 'react-native';
 import { launchImageLibrary, Asset } from 'react-native-image-picker';
 import {
@@ -256,6 +258,11 @@ export default function AddPostModal({
             statusBarTranslucent
         >
             <Pressable style={styles.backdrop} onPress={onClose}>
+                <KeyboardAvoidingView
+                    style={styles.keyboardAvoiding}
+                    behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                    keyboardVerticalOffset={0}
+                >
                 <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
                     <View style={styles.handleWrap}>
                         <View style={styles.handle} />
@@ -285,6 +292,8 @@ export default function AddPostModal({
                     <ScrollView
                         style={styles.body}
                         contentContainerStyle={styles.bodyContent}
+                        keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+                        automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
                         keyboardShouldPersistTaps="handled"
                     >
                         {/* Caption */}
@@ -499,6 +508,7 @@ export default function AddPostModal({
                         </View>
                     </ScrollView>
                 </Pressable>
+                </KeyboardAvoidingView>
             </Pressable>
         </Modal>
     );
@@ -568,13 +578,15 @@ function MediaAction({
 
 function createStyles(colors: FanColors) {
     return StyleSheet.create({
-        backdrop: {
+        keyboardAvoiding: { flex: 1, justifyContent: 'flex-end' },
+    backdrop: {
             flex: 1,
             backgroundColor: 'rgba(0,0,0,0.5)',
             justifyContent: 'flex-end',
         },
         sheet: {
             maxHeight: '85%',
+            flexShrink: 1,
             backgroundColor: colors.surface,
             borderTopLeftRadius: 24,
             borderTopRightRadius: 24,
@@ -640,7 +652,7 @@ function createStyles(colors: FanColors) {
         },
 
         // Body
-        body: { flexGrow: 0 },
+        body: { flexGrow: 0, flexShrink: 1, maxHeight: '75%' },
         bodyContent: {
             paddingHorizontal: FAN_SPACING.lg,
             paddingBottom: FAN_SPACING.xl,
