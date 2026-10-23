@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { createPoke, getOpenPokes, getUserPokes, matchPoke, type Poke } from '@funspot/core/src/api/pokes-service';
+import { createPoke, getOpenPokes, getUserPokes, getUserPoints, matchPoke, type Poke } from '@funspot/core';
 import type { CSSProperties } from 'react';
 import type { Fixture } from '@funspot/core';
-import { fetchBalance, fetchSubFixtures, fetchSubFixturePledges, fetchVoters, API_BASE_URL, type SubFixtureMarket } from '@funspot/core/src/api/vote-modal-shims';
+import { fetchSubFixtures, fetchSubFixturePledges, fetchVoters, API_BASE_URL, type SubFixtureMarket } from '@funspot/core';
 
 type Props = {
   fixture: Fixture;
@@ -57,7 +57,7 @@ export function PokeModal({ fixture, userId, username, authToken, onClose }: Pro
     let active = true;
     setLoading(true);
     Promise.all([
-      fetchBalance(userId, authToken),
+      getUserPoints(userId, authToken ?? undefined),
       fetchSubFixtures(fixture.matchId || fixture.id, authToken),
     ]).then(([points, availableMarkets]) => {
       if (!active) return;
