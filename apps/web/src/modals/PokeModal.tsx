@@ -113,6 +113,36 @@ export function PokeModal({ fixture, userId, username, authToken, onClose }: Pro
     return () => { active = false; };
   }, [authToken, fixture.id, fixture.matchId, marketId]);
 
+  async function matchExistingPoke(poke: Poke) {
+    if (poke.userId === userId || submitting) return;
+    setError('');
+    setMessage('');
+    setSubmitting(true);
+    try {
+      await matchPoke({
+        pokeId: poke.id,
+        userId,
+        userName: username,
+        selection: poke.selection === 'home' ? 'away' : 'home',
+        token: authToken ?? undefined,
+      });
+      const matchId = fixture.matchId || fixture.id;
+      const [points, open, mine] = await Promise.all([
+        getUserPoints(userId, authToken ?? undefined),
+        getOpenPokes(matchId, authToken ?? undefined),
+        getUserPokes(userId, authToken ?? undefined),
+      ]);
+      setBalance(points);
+      setOpenPokes(open.filter((item) => item.status.toLowerCase() === 'open' && item.matchId === matchId));
+      setMatchedPokes(mine.filter((item) => item.status.toLowerCase() !== 'open'));
+      setMessage('Poke matched successfully.');
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : 'Could not match poke.');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   async function submitPoke() {
     setError('');
     setMessage('');
@@ -178,6 +208,31 @@ export function PokeModal({ fixture, userId, username, authToken, onClose }: Pro
           <strong style={{ fontSize: 22 }}>{loading ? 'Loading…' : balance === null ? 'Unavailable' : balance.toLocaleString()}</strong>
         </div>
 
+        <div role="tablist" aria-label="Poke views" style={{ display: 'flex', gap: 6, marginTop: 16 }}>
+          {([{ id: 'open', label: 'Open Pokes' }, { id: 'matched', label: 'Matched Pokes' }, { id: 'subfixtures', label: 'Sub-fixtures' }] as const).map((item) => (
+            <button key={item.id} type="button" role="tab" aria-selected={tab === item.id} onClick={() => setTab(item.id)}
+              style={{ ...buttonStyle, flex: 1, minHeight: 36, padding: '7px 8px', color: 'inherit', background: tab === item.id ? 'var(--primary-dim, rgba(54,200,117,.15))' : 'transparent', border: tab === item.id ? '1px solid var(--primary, #36c875)' : '1px solid transparent' }}>
+              {item.label}
+            </button>
+          ))}
+        </div>
+        {tab === 'open' && <section style={{ marginTop: 14 }}>
+          <h3 style={{ margin: '0 0 8px', fontSize: 14 }}>Open pokes · {openPokes.length}</h3>
+          {openPokes.length === 0 ? <p style={{ margin: 0, color: 'var(--muted, #a7abb3)', fontSize: 12 }}>No open pokes for this fixture yet.</p> : openPokes.map((poke) => (
+            <div key={poke.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 0', borderBottom: '1px solid var(--border, #35383e)' }}>
+              <div style={{ flex: 1, minWidth: 0 }}><strong>{poke.userName}</strong><div style={{ color: 'var(--muted, #a7abb3)', fontSize: 12 }}>{poke.selection === 'home' ? fixture.homeTeam : fixture.awayTeam} · {poke.amount} pts</div></div>
+              <button type="button" disabled={poke.userId === userId || submitting} onClick={() => void matchExistingPoke(poke)} style={{ ...buttonStyle, minHeight: 34, padding: '6px 10px', background: 'var(--primary, #36c875)', color: '#07170d', opacity: poke.userId === userId || submitting ? .5 : 1 }}>Match</button>
+            </div>
+          ))}
+        </section>}
+        {tab === 'matched' && <section style={{ marginTop: 14 }}>
+          <h3 style={{ margin: '0 0 8px', fontSize: 14 }}>Matched pokes · {matchedPokes.length}</h3>
+          {matchedPokes.length === 0 ? <p style={{ margin: 0, color: 'var(--muted, #a7abb3)', fontSize: 12 }}>No matched pokes yet.</p> : matchedPokes.map((poke) => (
+            <div key={poke.id} style={{ padding: '9px 0', borderBottom: '1px solid var(--border, #35383e)' }}>
+              <strong>{poke.userName}</strong><div style={{ color: 'var(--muted, #a7abb3)', fontSize: 12 }}>{poke.selection === 'home' ? fixture.homeTeam : fixture.awayTeam} · {poke.amount} pts · {poke.status}</div>
+            </div>
+          ))}
+        </section>}
         {tab==='subfixtures' && <div><label style={{ display: 'block', marginTop: 16, fontSize: 13, fontWeight: 700 }} htmlFor="poke-market">Fixture / sub-fixture</label>
         <select id="poke-market" value={marketId} onChange={(event) => { setMarketId(event.target.value); setError(''); }} style={{ ...fieldStyle, marginTop: 7 }}>
           <option value="main_fixture">Main fixture</option>
@@ -218,9 +273,7 @@ export function PokeModal({ fixture, userId, username, authToken, onClose }: Pro
             {submitting ? 'Poking…' : 'Poke'}
           </button>
         </footer>
-        <p style={{ color: 'var(--muted, #a7abb3)', fontSize: 11, lineHeight: 1.45, marginBottom: 0 }}>
-          Pokes send <code>action: "poke"</code> and <code>stake_type: "points"</code> to the existing endpoint. The backend must recognize these fields and apply points accounting.
-        </p></div>}
+        </div>}
       </section>
     </div>
   );
