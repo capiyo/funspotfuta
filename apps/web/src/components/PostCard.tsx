@@ -159,15 +159,7 @@ export function PostCard({
   return (
     <FeedItem colors={colors}>
       <div className="post-card" style={styles.card}>
-        {/* Layer 1: invisible full-card tap target -> comments */}
-        <button
-          type="button"
-          onClick={() => requireLogin ? requireLogin(() => onOpenComments(post, index)) : onOpenComments(post, index)}
-          aria-label={`Open comments on ${userName}'s post`}
-          className="post-card-open"
-          style={styles.openTarget}
-        />
-
+        {/* Card content stays free of invisible overlays so action buttons receive taps. */}
         {/* Layer 2: content */}
         <div style={styles.content as CSSProperties}>
           {/* Meta: author on the left, tags / date on the right */}
