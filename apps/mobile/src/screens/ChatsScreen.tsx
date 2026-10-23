@@ -647,14 +647,21 @@ function ChannelSwipeCarousel({ channels: slideChannels, renderSlide }: {
   const [pageWidth, setPageWidth] = useState(0);
   const count = Math.max(1, slideChannels.length);
   return (
-    <View onLayout={(event) => setPageWidth(event.nativeEvent.layout.width)} style={{ minWidth: 0 }}>
+    <View
+      onLayout={(event) => {
+        const nextWidth = Math.round(event.nativeEvent.layout.width);
+        setPageWidth((current) => current === nextWidth ? current : nextWidth);
+      }}
+      style={{ minWidth: 0, width: '100%', flex: 1 }}
+    >
       <FlatList
         horizontal
         pagingEnabled
+        style={{ width: '100%', flexGrow: 0 }}
         data={slideChannels.length ? slideChannels : [undefined]}
         keyExtractor={(channel, index) => channel?.channelId ?? `no-channel-${index}`}
-        renderItem={({ item, index }) => (
-          <View style={{ width: pageWidth || undefined, minWidth: 0 }}>
+        renderItem={({ item }) => (
+          <View style={{ width: pageWidth > 0 ? pageWidth : '100%', minWidth: 0 }}>
             {renderSlide(item)}
           </View>
         )}
@@ -662,7 +669,11 @@ function ChannelSwipeCarousel({ channels: slideChannels, renderSlide }: {
         onMomentumScrollEnd={(event) => {
           if (pageWidth > 0) setActiveIndex(Math.min(count - 1, Math.round(event.nativeEvent.contentOffset.x / pageWidth)));
         }}
-        getItemLayout={(_, index) => ({ length: pageWidth, offset: pageWidth * index, index })}
+        getItemLayout={(_, index) => ({
+          length: pageWidth,
+          offset: pageWidth * index,
+          index,
+        })}
         scrollEnabled={count > 1}
       />
       {count > 1 && (
