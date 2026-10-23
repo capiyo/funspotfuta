@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { createPoke, getOpenPokes, getUserPokes, getUserPoints, matchPoke, type Poke } from '@funspot/core';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import type { Fixture, FanColorPalette } from '@funspot/core';
 import { API_BASE_URL, fetchSubFixtures, fetchSubFixturePledges, fetchVoters, type SubFixtureMarket } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
@@ -10,6 +10,7 @@ type Props = { visible: boolean; fixture: Fixture; userId: string; username: str
 export function PokeModal({ visible, fixture, userId, username, authToken, channelId, onClose }: Props) {
   const colors = useFanColors();
   const styles = useMemo(() => createStyles(colors), [colors]);
+  const { height: screenH } = useWindowDimensions();
   const [tab, setTab] = useState<'open' | 'matched' | 'subfixtures'>('open');
   const [openPokes, setOpenPokes] = useState<Poke[]>([]);
   const [matchedPokes, setMatchedPokes] = useState<Poke[]>([]);
@@ -106,9 +107,10 @@ export function PokeModal({ visible, fixture, userId, username, authToken, chann
     finally { setSubmitting(false); }
   }
 
-  return <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
-    <View style={styles.backdrop}>
-      <View style={styles.panel}>
+  return <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+    <Pressable style={styles.backdrop} onPress={onClose}>
+      <Pressable style={[styles.panel, { height: screenH * 0.72 }]} onPress={() => { }}>
+        <View style={styles.handleWrap}><View style={styles.handle} /></View>
         <View style={styles.header}>
           <View style={{ flex: 1 }}><Text style={styles.eyebrow}>POKE WITH POINTS</Text><Text style={styles.title}>{fixture.homeTeam} vs {fixture.awayTeam}</Text></View>
           <Pressable onPress={onClose} disabled={submitting} accessibilityLabel="Close poke modal"><Text style={styles.close}>×</Text></Pressable>
@@ -140,15 +142,17 @@ export function PokeModal({ visible, fixture, userId, username, authToken, chann
           {pokers.length ? pokers.map((poker, index) => <View key={`${poker.userName ?? poker.user_name ?? poker.starter_name ?? 'poker'}-${index}`} style={styles.pokerRow}><Text style={styles.choiceText}>{poker.userName ?? poker.user_name ?? poker.starter_name ?? 'Fan'}</Text><Text style={styles.muted}>{poker.selection ?? '—'} · {poker.amount ?? poker.starter_amount ?? 0} pts</Text></View>) : <Text style={styles.muted}>No pokes recorded yet.</Text>}
           
         </ScrollView>
-      </View>
-    </View>
+      </Pressable>
+    </Pressable>
   </Modal>;
 }
 
 function createStyles(colors: FanColorPalette) {
   return StyleSheet.create({
-    backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.62)', justifyContent: 'center', padding: 16 },
-    panel: { maxHeight: '90%', backgroundColor: colors.background, borderRadius: 16, padding: 18 },
+    backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.55)', justifyContent: 'flex-end' },
+    panel: { backgroundColor: colors.background, borderTopLeftRadius: 20, borderTopRightRadius: 20, overflow: 'hidden', paddingHorizontal: 18, paddingBottom: 12 },
+    handleWrap: { alignItems: 'center', paddingTop: 8, paddingBottom: 8 },
+    handle: { width: 32, height: 4, borderRadius: 999, backgroundColor: colors.border },
     header: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, marginBottom: 14 },
     eyebrow: { color: colors.primary, fontSize: 11, fontWeight: '800', marginBottom: 5 },
     title: { color: colors.textPrimary, fontSize: 19, fontWeight: '800' },
