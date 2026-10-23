@@ -31,7 +31,7 @@ import type { ReactNode } from 'react';
 import { View, FlatList, RefreshControl, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { sendChannelMessage } from '../../../../packages/core/src/api/send-channel-messages';
+import { sendChannelMessage } from '@funspot/core';
 import {
   useQuery,
   useQueryClient,
@@ -84,12 +84,12 @@ import {
   getUserPhone as shimGetUserPhone,
   placeSubFixturePledge as shimPlaceSubFixturePledge,
   matchSubFixturePledge as shimMatchSubFixturePledge,
-} from '../../../../packages/core/src/api/vote-modal-shims';
+} from '@funspot/core';
 import {
   castFixtureVote,
   createPledge,
   matchMainPledge as actionMatchMainPledge,
-} from '../../../../packages/core/src/api/vote-actions';
+} from '@funspot/core';
 
 type Filter = 'all' | 'live' | 'upcoming';
 type Pick = 'home' | 'away';
