@@ -195,36 +195,23 @@ try {
   for (const width of [1280, 1440, 1920]) desktop.push(await inspect(width));
   const narrow = await inspect(390);
 
-  // Comments are a real route: a full-screen page on mobile web and a modal
-  // over Home on desktop. Verify both presentations and their back/close paths.
+  // Comments must be a modal over Home at every responsive breakpoint.
+  // Verify mobile-web and desktop modal semantics plus their close paths.
   for (const width of [390, 1280]) {
     await page.setViewportSize({ width, height: 1000 });
     await page.goto(`${baseURL}/comments/home-post-0`, { waitUntil: 'domcontentloaded', timeout: 45000 });
-    if (width < 651) {
-      await page.waitForSelector('.comments-page-sheet[role="main"]', { timeout: 15000 });
-      const mobileComments = await page.evaluate(() => ({
-        sheet: document.querySelector('.comments-page-sheet')?.getBoundingClientRect().toJSON(),
-        homeMounted: !!document.querySelector('.home-screen'),
-        back: !!document.querySelector('button[aria-label="Back to feed"]'),
-      }));
-      assert(mobileComments.sheet && Math.abs(mobileComments.sheet.height - 1000) <= 1,
-        `Mobile comments is not full-screen at ${width}px: ${JSON.stringify(mobileComments)}`);
-      assert(!mobileComments.homeMounted && mobileComments.back,
-        `Mobile comments should be a page with a back action: ${JSON.stringify(mobileComments)}`);
-      await page.getByRole('button', { name: 'Back to feed' }).evaluate(element => element.click());
-    } else {
-      await page.waitForSelector('[role="dialog"][aria-label="Comments"]', { timeout: 15000 });
-      const desktopComments = await page.evaluate(() => ({
-        dialog: document.querySelector('[role="dialog"][aria-label="Comments"]')?.getBoundingClientRect().toJSON(),
-        homeMounted: !!document.querySelector('.home-screen'),
-        close: !!document.querySelector('button[aria-label="Close comments"]'),
-      }));
-      assert(desktopComments.dialog && desktopComments.dialog.height > 300 && desktopComments.dialog.height < 1000,
-        `Desktop comments is not presented as a modal at ${width}px: ${JSON.stringify(desktopComments)}`);
-      assert(desktopComments.homeMounted && desktopComments.close,
-        `Desktop comments modal should sit over Home and provide close: ${JSON.stringify(desktopComments)}`);
-      await page.getByRole('button', { name: 'Close comments' }).evaluate(element => element.click());
-    }
+    await page.waitForSelector('[role="dialog"][aria-label="Comments"]', { timeout: 15000 });
+    const commentsModal = await page.evaluate(() => ({
+      dialog: document.querySelector('[role="dialog"][aria-label="Comments"]')?.getBoundingClientRect().toJSON(),
+      homeMounted: !!document.querySelector('.home-screen'),
+      close: !!document.querySelector('button[aria-label="Close comments"]'),
+      ariaModal: document.querySelector('[role="dialog"][aria-label="Comments"]')?.getAttribute('aria-modal'),
+    }));
+    assert(commentsModal.dialog && commentsModal.dialog.height > 300 && commentsModal.dialog.height < 1000,
+      `Comments is not presented as a modal at ${width}px: ${JSON.stringify(commentsModal)}`);
+    assert(commentsModal.homeMounted && commentsModal.close && commentsModal.ariaModal === 'true',
+      `Comments modal should overlay Home and provide an accessible close action at ${width}px: ${JSON.stringify(commentsModal)}`);
+    await page.getByRole('button', { name: 'Close comments' }).evaluate(element => element.click());
     await page.waitForURL(url => url.pathname === '/', { timeout: 10000 });
   }
 
