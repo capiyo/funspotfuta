@@ -1,16 +1,39 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { createPoke, getOpenPokes, getUserPokes, getUserPoints, matchPoke, type Poke } from '@funspot/core';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
-import type { Fixture, FanColorPalette } from '@funspot/core';
+import type { Channel, Fixture, FanColorPalette } from '@funspot/core';
+import { queryKeys } from '@funspot/core';
 import { API_BASE_URL, fetchSubFixtures, fetchSubFixturePledges, fetchVoters, type SubFixtureMarket } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
 
 type Props = { visible: boolean; fixture: Fixture; userId: string; username: string; authToken?: string | null; channelId?: string; onClose: () => void };
 
+function cachedChannelMemberPoints(channels: Channel[] | undefined, channelId: string | undefined, userId: string): number | null {
+  const member = channels?.find((channel) => channel.channelId === channelId)?.members.find((item) => item.userId === userId);
+  return typeof member?.seasonPoints === 'number' && Number.isFinite(member.seasonPoints) ? member.seasonPoints : null;
+}
+
+function writeCachedChannelMemberPoints(
+  queryClient: ReturnType<typeof useQueryClient>,
+  userId: string,
+  channelId: string | undefined,
+  points: number,
+): void {
+  if (!channelId) return;
+  queryClient.setQueryData<Channel[]>(queryKeys.channels(userId), (channels) => channels?.map((channel) => (
+    channel.channelId !== channelId ? channel : {
+      ...channel,
+      members: channel.members.map((member) => member.userId === userId ? { ...member, seasonPoints: points } : member),
+    }
+  )));
+}
+
 export function PokeModal({ visible, fixture, userId, username, authToken, channelId, onClose }: Props) {
   const colors = useFanColors();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const { height: screenH } = useWindowDimensions();
+  const queryClient = useQueryClient();
   const [tab, setTab] = useState<'open' | 'matched' | 'subfixtures'>('open');
   const [openPokes, setOpenPokes] = useState<Poke[]>([]);
   const [matchedPokes, setMatchedPokes] = useState<Poke[]>([]);
@@ -29,7 +52,12 @@ export function PokeModal({ visible, fixture, userId, username, authToken, chann
     if (!visible) return;
     let active = true;
     setLoading(true); setError(''); setMessage('');
-    Promise.all([getUserPoints(userId, authToken ?? undefined), fetchSubFixtures(fixture.matchId || fixture.id, authToken)])
+    const cachedPoints = cachedChannelMemberPoints(queryClient.getQueryData<Channel[]>(queryKeys.channels(userId)), channelId, userId);
+    if (cachedPoints !== null) setBalance(cachedPoints);
+    Promise.all([
+      cachedPoints !== null ? Promise.resolve(cachedPoints) : getUserPoints(userId, authToken ?? undefined),
+      fetchSubFixtures(fixture.matchId || fixture.id, authToken),
+    ])
       .then(([points, available]) => {
         if (!active) return;
         setBalance(points);
@@ -38,7 +66,7 @@ export function PokeModal({ visible, fixture, userId, username, authToken, chann
       .catch((reason: unknown) => { if (active) setError(reason instanceof Error ? reason.message : 'Could not load points and sub-fixtures.'); })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [visible, authToken, fixture.id, fixture.matchId, userId]);
+  }, [visible, authToken, fixture.id, fixture.matchId, userId, channelId, queryClient]);
 
   useEffect(() => {
     if (!visible) return;
@@ -94,12 +122,15 @@ export function PokeModal({ visible, fixture, userId, username, authToken, chann
         channelId,
       });
       const matchId = fixture.matchId || fixture.id;
-      const [points, open, mine] = await Promise.all([
-        getUserPoints(userId, authToken ?? undefined),
+      const [open, mine] = await Promise.all([
         getOpenPokes(matchId, authToken ?? undefined, channelId, marketId),
         getUserPokes(userId, authToken ?? undefined),
       ]);
-      setBalance(points);
+      setBalance((current) => {
+        const next = current === null ? null : Math.max(0, current - amount);
+        if (next !== null) writeCachedChannelMemberPoints(queryClient, userId, channelId, next);
+        return next;
+      });
       setOpenPokes(open.filter((poke) => poke.status.toLowerCase() === 'open' && poke.matchId === matchId));
       setMatchedPokes(mine.filter((poke) => poke.status.toLowerCase() !== 'open'));
       setMessage('Poke was successful!');
@@ -120,7 +151,7 @@ export function PokeModal({ visible, fixture, userId, username, authToken, chann
         </View>
         {tab === 'open' && <View style={styles.listSection}>
           <Text style={styles.label}>Open pokes · {openPokes.length}</Text>
-          {openPokes.length ? openPokes.map((p) => <View key={p.id} style={styles.pokerRow}><View style={{flex:1}}><Text style={styles.choiceText}>{p.userName} · {p.selection}</Text><Text style={styles.muted}>{p.amount} pts</Text></View><Pressable disabled={p.userId === userId || submitting} onPress={() => void (async () => { setSubmitting(true); setError(''); try { if (!channelId) throw new Error('Choose a channel before matching a poke.'); await matchPoke({pokeId:p.id,userId,userName:username,selection:p.selection === 'home' ? 'away' : 'home',amount:p.amount,token:authToken || undefined}); setMessage('Poke matched successfully'); const [points,open,mine]=await Promise.all([getUserPoints(userId,authToken || undefined),getOpenPokes(fixture.matchId || fixture.id,authToken || undefined,channelId,marketId),getUserPokes(userId,authToken || undefined)]); setBalance(points); setOpenPokes(open.filter(x=>x.status.toLowerCase()==='open' && x.matchId===(fixture.matchId || fixture.id))); setMatchedPokes(mine.filter(x=>x.status.toLowerCase()!=='open')); } catch(e) { setError(e instanceof Error?e.message:'Could not match poke'); } finally { setSubmitting(false); } })()} style={[styles.matchButton, (p.userId === userId || submitting) && {opacity:0.45}]}><Text style={styles.primaryText}>Match</Text></Pressable></View>) : <Text style={styles.muted}>No open pokes for this fixture yet.</Text>}
+          {openPokes.length ? openPokes.map((p) => <View key={p.id} style={styles.pokerRow}><View style={{flex:1}}><Text style={styles.choiceText}>{p.userName} · {p.selection}</Text><Text style={styles.muted}>{p.amount} pts</Text></View><Pressable disabled={p.userId === userId || submitting} onPress={() => void (async () => { setSubmitting(true); setError(''); try { if (!channelId) throw new Error('Choose a channel before matching a poke.'); await matchPoke({pokeId:p.id,userId,userName:username,selection:p.selection === 'home' ? 'away' : 'home',amount:p.amount,token:authToken || undefined}); setMessage('Poke matched successfully'); const [open,mine]=await Promise.all([getOpenPokes(fixture.matchId || fixture.id,authToken || undefined,channelId,marketId),getUserPokes(userId,authToken || undefined)]); setBalance((current)=>{const next=current===null?null:Math.max(0,current-p.amount); if(next!==null) writeCachedChannelMemberPoints(queryClient,userId,channelId,next); return next;}); setOpenPokes(open.filter(x=>x.status.toLowerCase()==='open' && x.matchId===(fixture.matchId || fixture.id))); setMatchedPokes(mine.filter(x=>x.status.toLowerCase()!=='open')); } catch(e) { setError(e instanceof Error?e.message:'Could not match poke'); } finally { setSubmitting(false); } })()} style={[styles.matchButton, (p.userId === userId || submitting) && {opacity:0.45}]}><Text style={styles.primaryText}>Match</Text></Pressable></View>) : <Text style={styles.muted}>No open pokes for this fixture yet.</Text>}
         </View>}
         {tab === 'matched' && <View style={styles.listSection}><Text style={styles.label}>Matched pokes · {matchedPokes.length}</Text>{matchedPokes.length ? matchedPokes.map(p => <View key={p.id} style={styles.pokerRow}><View style={{flex:1}}><Text style={styles.choiceText}>{p.userName} · {p.selection}</Text><Text style={styles.muted}>{p.amount} pts · {p.status}</Text><Text style={styles.muted}>{p.finisherName ? 'Matched with '+p.finisherName : 'Outcome pending'}</Text></View></View>) : <Text style={styles.muted}>Your matched pokes will appear here.</Text>}</View>}
 
