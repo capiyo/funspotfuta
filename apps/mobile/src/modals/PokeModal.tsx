@@ -5,7 +5,7 @@ import type { Fixture, FanColorPalette } from '@funspot/core';
 import { API_BASE_URL, fetchSubFixtures, fetchSubFixturePledges, fetchVoters, type SubFixtureMarket } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
 
-type Props = { visible: boolean; fixture: Fixture; userId: string; username: string; authToken?: string | null; onClose: () => void };
+type Props = { visible: boolean; fixture: Fixture; userId: string; username: string; authToken?: string | null; channelId?: string; onClose: () => void };
 
 export function PokeModal({ visible, fixture, userId, username, authToken, channelId, onClose }: Props) {
   const colors = useFanColors();
