@@ -669,11 +669,13 @@ function ChannelSwipeCarousel({ channels: slideChannels, renderSlide }: {
         onMomentumScrollEnd={(event) => {
           if (pageWidth > 0) setActiveIndex(Math.min(count - 1, Math.round(event.nativeEvent.contentOffset.x / pageWidth)));
         }}
-        getItemLayout={(_, index) => ({
-          length: pageWidth,
-          offset: pageWidth * index,
-          index,
-        })}
+        getItemLayout={pageWidth > 0
+          ? (_, index) => ({
+              length: pageWidth,
+              offset: pageWidth * index,
+              index,
+            })
+          : undefined}
         scrollEnabled={count > 1}
       />
       {count > 1 && (
