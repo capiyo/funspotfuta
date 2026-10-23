@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { createPoke, getOpenPokes, getUserPokes, getUserPoints, matchPoke, type Poke } from '@funspot/core';
 import type { CSSProperties } from 'react';
-import type { Fixture } from '@funspot/core';
+import type { Channel, Fixture } from '@funspot/core';
+import { queryKeys } from '@funspot/core';
 import { fetchSubFixtures, fetchSubFixturePledges, fetchVoters, API_BASE_URL, type SubFixtureMarket } from '@funspot/core';
 
 type Props = {
@@ -40,7 +42,28 @@ function normalizedOption(option: string, fixture: Fixture): 'home_team' | 'away
   return null;
 }
 
+function cachedChannelMemberPoints(channels: Channel[] | undefined, channelId: string | undefined, userId: string): number | null {
+  const member = channels?.find((channel) => channel.channelId === channelId)?.members.find((item) => item.userId === userId);
+  return typeof member?.seasonPoints === 'number' && Number.isFinite(member.seasonPoints) ? member.seasonPoints : null;
+}
+
+function writeCachedChannelMemberPoints(
+  queryClient: ReturnType<typeof useQueryClient>,
+  userId: string,
+  channelId: string | undefined,
+  points: number,
+): void {
+  if (!channelId) return;
+  queryClient.setQueryData<Channel[]>(queryKeys.channels(userId), (channels) => channels?.map((channel) => (
+    channel.channelId !== channelId ? channel : {
+      ...channel,
+      members: channel.members.map((member) => member.userId === userId ? { ...member, seasonPoints: points } : member),
+    }
+  )));
+}
+
 export function PokeModal({ fixture, userId, username, authToken, channelId, onClose }: Props) {
+  const queryClient = useQueryClient();
   const [tab, setTab] = useState<'open' | 'matched' | 'subfixtures'>('open');
   const [openPokes, setOpenPokes] = useState<Poke[]>([]);
   const [matchedPokes, setMatchedPokes] = useState<Poke[]>([]);
@@ -58,8 +81,10 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
   useEffect(() => {
     let active = true;
     setLoading(true);
+    const cachedPoints = cachedChannelMemberPoints(queryClient.getQueryData<Channel[]>(queryKeys.channels(userId)), channelId, userId);
+    if (cachedPoints !== null) setBalance(cachedPoints);
     Promise.all([
-      getUserPoints(userId, authToken ?? undefined),
+      cachedPoints !== null ? Promise.resolve(cachedPoints) : getUserPoints(userId, authToken ?? undefined),
       fetchSubFixtures(fixture.matchId || fixture.id, authToken),
     ]).then(([points, availableMarkets]) => {
       if (!active) return;
@@ -71,7 +96,7 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
       if (active) setLoading(false);
     });
     return () => { active = false; };
-  }, [authToken, fixture.id, fixture.matchId, userId]);
+  }, [authToken, fixture.id, fixture.matchId, userId, channelId, queryClient]);
 
   useEffect(() => {
     let active = true;
@@ -129,12 +154,15 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
         token: authToken ?? undefined,
       });
       const matchId = fixture.matchId || fixture.id;
-      const [points, open, mine] = await Promise.all([
-        getUserPoints(userId, authToken ?? undefined),
+      const [open, mine] = await Promise.all([
         getOpenPokes(matchId, authToken ?? undefined, channelId, marketId),
         getUserPokes(userId, authToken ?? undefined),
       ]);
-      setBalance(points);
+      setBalance((current) => {
+        const next = current === null ? null : Math.max(0, current - poke.amount);
+        if (next !== null) writeCachedChannelMemberPoints(queryClient, userId, channelId, next);
+        return next;
+      });
       setOpenPokes(open.filter((item) => item.status.toLowerCase() === 'open' && item.matchId === matchId));
       setMatchedPokes(mine.filter((item) => item.status.toLowerCase() !== 'open'));
       setMessage('Poke matched successfully.');
@@ -180,12 +208,15 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
         channelId,
       });
       const matchId = fixture.matchId || fixture.id;
-      const [points, open, mine] = await Promise.all([
-        getUserPoints(userId, authToken ?? undefined),
+      const [open, mine] = await Promise.all([
         getOpenPokes(matchId, authToken ?? undefined, channelId, marketId),
         getUserPokes(userId, authToken ?? undefined),
       ]);
-      setBalance(points);
+      setBalance((current) => {
+        const next = current === null ? null : Math.max(0, current - amount);
+        if (next !== null) writeCachedChannelMemberPoints(queryClient, userId, channelId, next);
+        return next;
+      });
       setOpenPokes(open.filter((poke) => poke.status.toLowerCase() === 'open' && poke.matchId === matchId));
       setMatchedPokes(mine.filter((poke) => poke.status.toLowerCase() !== 'open'));
       setMessage('Poke was successful!');
