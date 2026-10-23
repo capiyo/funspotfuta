@@ -81,15 +81,25 @@ export function PokeModal({ visible, fixture, userId, username, authToken, onClo
     if (!options.some((option) => option.value === selection)) return setError('Choose Home or Away.');
     setSubmitting(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/sub_fixtures/sub-fixture/bet`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}) },
-        body: JSON.stringify({ match_id: fixture.matchId || fixture.id, market_id: selectedMarket?.id ?? 'main_fixture', starter_id: userId, starter_name: username, selection, amount, action: 'poke', stake_type: 'points' }),
+      await createPoke({
+        matchId: fixture.matchId || fixture.id,
+        userId,
+        userName: username,
+        selection: selection === 'home_team' ? 'home' : 'away',
+        amount,
+        token: authToken ?? undefined,
+        marketId: selectedMarket?.id ?? 'main_fixture',
       });
-      const result = await response.json().catch(() => ({}));
-      if (!response.ok || result?.success === false) throw new Error(result?.message || result?.error || `Poke request failed (${response.status}).`);
+      const matchId = fixture.matchId || fixture.id;
+      const [points, open, mine] = await Promise.all([
+        getUserPoints(userId, authToken ?? undefined),
+        getOpenPokes(matchId, authToken ?? undefined),
+        getUserPokes(userId, authToken ?? undefined),
+      ]);
+      setBalance(points);
+      setOpenPokes(open.filter((poke) => poke.status.toLowerCase() === 'open' && poke.matchId === matchId));
+      setMatchedPokes(mine.filter((poke) => poke.status.toLowerCase() !== 'open'));
       setMessage('Poke was successful!');
-      setBalance((current) => current === null ? null : current - amount);
     } catch (reason) { setError(reason instanceof Error ? reason.message : 'Could not submit poke.'); }
     finally { setSubmitting(false); }
   }
