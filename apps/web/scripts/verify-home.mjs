@@ -205,7 +205,7 @@ try {
       await page.waitForSelector('.home-screen .feed-column.mobile-tab-active', { timeout: 10000 });
     }
     await page.waitForSelector('.home-screen .feed-column .post-card', { timeout: 45000 });
-    await page.locator('.home-screen .feed-column button').filter({ hasText: 'Comments' }).first().click();
+    await page.locator('.home-screen .feed-column button[aria-label="Comments"]').first().click();
     await page.waitForURL(url => /^\/comments\//.test(url.pathname), { timeout: 10000 });
     await page.waitForSelector('[role="dialog"][aria-label="Comments"]', { timeout: 15000 });
     const commentsModal = await page.evaluate(() => ({
