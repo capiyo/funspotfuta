@@ -11,7 +11,7 @@ import { AppHeader } from './appHeader';
 import CreateChannelModal from '@/modals/ChannelCreation';
 import { FloatingPillTabBar, TabName } from '@/components/FloatingPillTabBar';
 import { useFanColors } from '@/theme/use-fan-colors';
-import { FanColorPalette } from '@funspot/core';
+import { FanColorPalette, feedQueryOptions } from '@funspot/core';
 import { HomeProvider, useHome } from './home-context';
 import { HeaderInsetContext } from './header-inset';
 import ChatsScreen from '@/screens/ChatsScreen';
@@ -37,6 +37,15 @@ function HomeInner() {
     const anim = useRef(new Animated.Value(1)).current;
     const tabOpacity = useRef(new Animated.Value(1)).current;
     const previousTab = useRef(activeTab);
+
+    // Start the feed request during cold start, alongside the initial Chats
+    // fixture request. FeedScreen is mounted lazily on mobile, so prefetching
+    // here prevents the first Feed tap from being the first network request.
+    useEffect(() => {
+        void queryClient.prefetchInfiniteQuery(feedQueryOptions()).catch((error: unknown) => {
+            if (__DEV__) console.warn('[startup] feed prefetch failed', error);
+        });
+    }, [queryClient]);
 
     useEffect(() => {
         Animated.timing(anim, {
