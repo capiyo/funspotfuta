@@ -18,6 +18,15 @@ export { getAllChannels } from './api/channels-service';
 export * from './api/comrade-service';
 
 export * from './api/bet-service';
+export * from './api/pokes-service';
+export { castFixtureVote, createPledge, matchMainPledge } from './api/vote-actions';
+export type { ActionResult as VoteActionResult, CastFixtureVoteParams, CreatePledgeParams, MatchMainPledgeParams } from './api/vote-actions';
+export {
+  fetchVoters, fetchPledges, fetchSubFixtures, fetchSubFixturePledges,
+  fetchBets, fetchBalance, topUp, withdraw, getSavedPhone, savePhone,
+  getUserPhone, placeSubFixturePledge, matchSubFixturePledge, API_BASE_URL,
+} from './api/vote-modal-shims';
+export type { SubFixtureMarket, SubFixturePledge as VoteModalSubFixturePledge, Bettor, PayResult } from './api/vote-modal-shims';
 export * from './api/sub-fixture-service';
 export * from './api/sub-fixture-votes-service';
 export type { Voter } from './types/fixture';
