@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
+import { getOpenSubFixtureBets, getUserSubFixtureBets, fillSubFixtureBet } from '../../../../packages/core/src/api/sub-fixture-service';
+import type { SubFixturePledge } from '../../../../packages/core/src/types/betting';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import type { Fixture, FanColorPalette } from '@funspot/core';
 import { API_BASE_URL, fetchBalance, fetchSubFixtures, fetchSubFixturePledges, fetchVoters, type SubFixtureMarket } from '../../../../packages/core/src/api/vote-modal-shims';
@@ -9,6 +11,9 @@ type Props = { visible: boolean; fixture: Fixture; userId: string; username: str
 export function PokeModal({ visible, fixture, userId, username, authToken, onClose }: Props) {
   const colors = useFanColors();
   const styles = useMemo(() => createStyles(colors), [colors]);
+  const [tab, setTab] = useState<'open' | 'matched' | 'subfixtures'>('open');
+  const [openPokes, setOpenPokes] = useState<SubFixturePledge[]>([]);
+  const [matchedPokes, setMatchedPokes] = useState<SubFixturePledge[]>([]);
   const [markets, setMarkets] = useState<SubFixtureMarket[]>([]);
   const [marketId, setMarketId] = useState('main_fixture');
   const [selection, setSelection] = useState<'home_team' | 'away_team'>('home_team');
@@ -43,6 +48,19 @@ export function PokeModal({ visible, fixture, userId, username, authToken, onClo
     request.then((rows) => { if (active) setPokers(rows as typeof pokers); }).catch(() => { if (active) setPokers([]); });
     return () => { active = false; };
   }, [visible, authToken, fixture.id, fixture.matchId, marketId]);
+
+  useEffect(() => {
+    if (!visible) return;
+    let active = true;
+    const matchId = fixture.matchId || fixture.id;
+    Promise.all([getOpenSubFixtureBets(matchId, authToken || undefined), getUserSubFixtureBets(userId, authToken || undefined)])
+      .then(([open, mine]) => {
+        if (!active) return;
+        setOpenPokes(open.filter((p) => p.status.toLowerCase() === 'open' && p.matchId === matchId));
+        setMatchedPokes(mine.filter((p) => p.status.toLowerCase() !== 'open'));
+      }).catch(() => {});
+    return () => { active = false; };
+  }, [visible, fixture.id, fixture.matchId, userId, authToken]);
 
   const selectedMarket = markets.find((market) => market.id === marketId);
   const options = useMemo(() => {
@@ -84,6 +102,15 @@ export function PokeModal({ visible, fixture, userId, username, authToken, onClo
           <View style={{ flex: 1 }}><Text style={styles.eyebrow}>POKE WITH POINTS</Text><Text style={styles.title}>{fixture.homeTeam} vs {fixture.awayTeam}</Text></View>
           <Pressable onPress={onClose} disabled={submitting} accessibilityLabel="Close poke modal"><Text style={styles.close}>×</Text></Pressable>
         </View>
+                <View style={styles.tabs}>
+          {([{id:'open',label:'Open Pokes'},{id:'matched',label:'Matched Pokes'},{id:'subfixtures',label:'Sub-fixtures'}] as const).map((item) => <Pressable key={item.id} onPress={() => setTab(item.id)} style={[styles.tab, tab === item.id && styles.tabActive]}><Text style={[styles.tabText, tab === item.id && styles.tabTextActive]}>{item.label}</Text></Pressable>)}
+        </View>
+        {tab === 'open' && <View style={styles.listSection}>
+          <Text style={styles.label}>Open pokes · {openPokes.length}</Text>
+          {openPokes.length ? openPokes.map((p) => <View key={p.id} style={styles.pokerRow}><View style={{flex:1}}><Text style={styles.choiceText}>{p.userName} · {p.selection}</Text><Text style={styles.muted}>{p.amount} pts</Text></View><Pressable disabled={p.userId === userId || submitting} onPress={() => void (async () => { setSubmitting(true); setError(''); try { const result = await fillSubFixtureBet({betId:p.id,matchId:p.matchId,marketId:p.marketId,finisherId:userId,finisherName:username,selection:p.selection === 'home_team' || p.selection === 'home' ? 'away' : 'home',amount:p.amount,authToken:authToken || undefined}); if (result.success === false) throw new Error(result.message || 'Could not match poke'); setMessage('Poke matched successfully'); const [open,mine]=await Promise.all([getOpenSubFixtureBets(fixture.matchId || fixture.id,authToken || undefined),getUserSubFixtureBets(userId,authToken || undefined)]); setOpenPokes(open.filter(x=>x.status.toLowerCase()==='open')); setMatchedPokes(mine.filter(x=>x.status.toLowerCase()!=='open')); } catch(e) { setError(e instanceof Error?e.message:'Could not match poke'); } finally { setSubmitting(false); } })()} style={[styles.matchButton, (p.userId === userId || submitting) && {opacity:0.45}]}><Text style={styles.primaryText}>Match</Text></Pressable></View>) : <Text style={styles.muted}>No open pokes for this fixture yet.</Text>}
+        </View>}
+        {tab === 'matched' && <View style={styles.listSection}><Text style={styles.label}>Matched pokes · {matchedPokes.length}</Text>{matchedPokes.length ? matchedPokes.map(p => <View key={p.id} style={styles.pokerRow}><View style={{flex:1}}><Text style={styles.choiceText}>{p.userName} · {p.selection}</Text><Text style={styles.muted}>{p.amount} pts · {p.status}</Text><Text style={styles.muted}>{p.finisherName ? 'Matched with '+p.finisherName : 'Outcome pending'}</Text></View></View>) : <Text style={styles.muted}>Your matched pokes will appear here.</Text>}</View>}
+
         <ScrollView keyboardShouldPersistTaps="handled">
           <View style={styles.balance}><Text style={styles.muted}>Available points</Text><Text style={styles.balanceValue}>{loading ? 'Loading…' : balance === null ? 'Unavailable' : balance.toLocaleString()}</Text></View>
           <Text style={styles.label}>Fixture / sub-fixture</Text>
@@ -115,6 +142,13 @@ function createStyles(colors: FanColorPalette) {
     eyebrow: { color: colors.primary, fontSize: 11, fontWeight: '800', marginBottom: 5 },
     title: { color: colors.textPrimary, fontSize: 19, fontWeight: '800' },
     close: { color: colors.textPrimary, fontSize: 30, lineHeight: 32 },
+    tabs: { flexDirection: 'row', gap: 4, marginBottom: 12, backgroundColor: colors.surfaceSunken, padding: 4, borderRadius: 10 },
+    tab: { flex: 1, paddingVertical: 9, paddingHorizontal: 3, borderRadius: 7, alignItems: 'center' },
+    tabActive: { backgroundColor: colors.primary },
+    tabText: { color: colors.textSecondary, fontSize: 10, fontWeight: '700', textAlign: 'center' },
+    tabTextActive: { color: colors.textInverse },
+    listSection: { marginBottom: 14 },
+    matchButton: { backgroundColor: colors.primary, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 7, alignSelf: 'center' },
     balance: { backgroundColor: colors.surfaceSunken, padding: 13, borderRadius: 10, marginBottom: 12 },
     balanceValue: { color: colors.textPrimary, fontSize: 23, fontWeight: '800', marginTop: 3 },
     muted: { color: colors.textSecondary, fontSize: 12 },
