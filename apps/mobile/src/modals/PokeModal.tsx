@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
-import { createPoke, getOpenPokes, getUserPokes, matchPoke, type Poke } from '../../../../packages/core/src/api/pokes-service';
+import { createPoke, getOpenPokes, getUserPokes, getUserPoints, matchPoke, type Poke } from '@funspot/core';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import type { Fixture, FanColorPalette } from '@funspot/core';
-import { API_BASE_URL, fetchBalance, fetchSubFixtures, fetchSubFixturePledges, fetchVoters, type SubFixtureMarket } from '../../../../packages/core/src/api/vote-modal-shims';
+import { API_BASE_URL, fetchSubFixtures, fetchSubFixturePledges, fetchVoters, type SubFixtureMarket } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
 
 type Props = { visible: boolean; fixture: Fixture; userId: string; username: string; authToken?: string | null; onClose: () => void };
@@ -28,7 +28,7 @@ export function PokeModal({ visible, fixture, userId, username, authToken, onClo
     if (!visible) return;
     let active = true;
     setLoading(true); setError(''); setMessage('');
-    Promise.all([fetchBalance(userId, authToken), fetchSubFixtures(fixture.matchId || fixture.id, authToken)])
+    Promise.all([getUserPoints(userId, authToken ?? undefined), fetchSubFixtures(fixture.matchId || fixture.id, authToken)])
       .then(([points, available]) => {
         if (!active) return;
         setBalance(points);
