@@ -87,17 +87,17 @@ function HomeInner() {
                                 pointerEvents={active ? 'auto' : 'none'}
                                 accessibilityElementsHidden={!active}
                                 importantForAccessibility={active ? 'auto' : 'no-hide-descendants'}
-                                style={[styles.pane, !active && styles.paneHidden]}
+                                style={[styles.pane, { zIndex: active ? 1 : 0 }]}
                             >
-                                {active ? (
-                                    <Animated.View style={[styles.activePane, { opacity: tabOpacity }]}>
-                                        <Screen />
-                                    </Animated.View>
-                                ) : (
-                                    <View style={styles.inactivePane}>
-                                        <Screen />
-                                    </View>
-                                )}
+                                <Animated.View
+                                    pointerEvents={active ? 'auto' : 'none'}
+                                    style={[
+                                        styles.activePane,
+                                        { opacity: active ? tabOpacity : 0 },
+                                    ]}
+                                >
+                                    <Screen />
+                                </Animated.View>
                             </View>
                         );
                     })}
@@ -161,9 +161,7 @@ function createStyles(colors: FanColorPalette) {
         screen: { flex: 1, backgroundColor: colors.background, overflow: 'hidden' },
         tabs: { flex: 1, position: 'relative' },
         pane: { ...StyleSheet.absoluteFillObject, flex: 1, backgroundColor: colors.background },
-        paneHidden: { display: 'none' },
         activePane: { flex: 1, backgroundColor: colors.background },
-        inactivePane: { flex: 1, backgroundColor: colors.background },
         headerOverlay: {
             position: 'absolute',
             top: 0,
