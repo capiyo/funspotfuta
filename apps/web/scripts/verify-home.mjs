@@ -195,11 +195,18 @@ try {
   for (const width of [1280, 1440, 1920]) desktop.push(await inspect(width));
   const narrow = await inspect(390);
 
-  // Comments must be a modal over Home at every responsive breakpoint.
-  // Verify mobile-web and desktop modal semantics plus their close paths.
+  // Clicking the Feed action must open the comments modal over Home at every
+  // responsive breakpoint (not just make the deep link render correctly).
   for (const width of [390, 1280]) {
     await page.setViewportSize({ width, height: 1000 });
-    await page.goto(`${baseURL}/comments/home-post-0`, { waitUntil: 'domcontentloaded', timeout: 45000 });
+    await page.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 45000 });
+    await page.waitForSelector('.home-screen .feed-column .post-card', { timeout: 45000 });
+    if (width < 651) {
+      await page.locator('.mobile-home-tabs').getByText('Feed', { exact: true }).click();
+      await page.waitForSelector('.home-screen .feed-column.mobile-tab-active', { timeout: 10000 });
+    }
+    await page.locator('.home-screen .feed-column button').filter({ hasText: 'Comments' }).first().click();
+    await page.waitForURL(url => /^\/comments\//.test(url.pathname), { timeout: 10000 });
     await page.waitForSelector('[role="dialog"][aria-label="Comments"]', { timeout: 15000 });
     const commentsModal = await page.evaluate(() => ({
       dialog: document.querySelector('[role="dialog"][aria-label="Comments"]')?.getBoundingClientRect().toJSON(),
