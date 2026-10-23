@@ -78,15 +78,7 @@ export function PostCard({
 
     return (
         <FeedItem colors={colors}>
-            {/* Layer 1: invisible full-card tap target → comments */}
-            <Pressable
-                onPress={() => onOpenComments(post, index)}
-                style={StyleSheet.absoluteFill}
-                android_ripple={{ color: colors.border, borderless: false }}
-                accessibilityRole="button"
-                accessibilityLabel={`Open comments on ${userName}'s post`}
-            />
-
+            {/* No full-card overlay: keep footer actions reliably tappable on Android. */}
             {/* Layer 2: content */}
             <View pointerEvents="box-none">
                 {/* Meta: author on the left, tags / date on the right */}
