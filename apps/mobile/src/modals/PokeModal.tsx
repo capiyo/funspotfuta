@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { getOpenSubFixtureBets, getUserSubFixtureBets, fillSubFixtureBet } from '../../../../packages/core/src/api/sub-fixture-service';
-import type { SubFixturePledge } from '../../../../packages/core/src/types/betting';
+import { createPoke, getOpenPokes, getUserPokes, matchPoke, type Poke } from '../../../../packages/core/src/api/pokes-service';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import type { Fixture, FanColorPalette } from '@funspot/core';
 import { API_BASE_URL, fetchBalance, fetchSubFixtures, fetchSubFixturePledges, fetchVoters, type SubFixtureMarket } from '../../../../packages/core/src/api/vote-modal-shims';
@@ -12,8 +11,8 @@ export function PokeModal({ visible, fixture, userId, username, authToken, onClo
   const colors = useFanColors();
   const styles = useMemo(() => createStyles(colors), [colors]);
   const [tab, setTab] = useState<'open' | 'matched' | 'subfixtures'>('open');
-  const [openPokes, setOpenPokes] = useState<SubFixturePledge[]>([]);
-  const [matchedPokes, setMatchedPokes] = useState<SubFixturePledge[]>([]);
+  const [openPokes, setOpenPokes] = useState<Poke[]>([]);
+  const [matchedPokes, setMatchedPokes] = useState<Poke[]>([]);
   const [markets, setMarkets] = useState<SubFixtureMarket[]>([]);
   const [marketId, setMarketId] = useState('main_fixture');
   const [selection, setSelection] = useState<'home_team' | 'away_team'>('home_team');
@@ -53,7 +52,7 @@ export function PokeModal({ visible, fixture, userId, username, authToken, onClo
     if (!visible) return;
     let active = true;
     const matchId = fixture.matchId || fixture.id;
-    Promise.all([getOpenSubFixtureBets(matchId, authToken || undefined), getUserSubFixtureBets(userId, authToken || undefined)])
+    Promise.all([getOpenPokes(matchId, authToken || undefined), getUserPokes(userId, authToken || undefined)])
       .then(([open, mine]) => {
         if (!active) return;
         setOpenPokes(open.filter((p) => p.status.toLowerCase() === 'open' && p.matchId === matchId));
@@ -107,7 +106,7 @@ export function PokeModal({ visible, fixture, userId, username, authToken, onClo
         </View>
         {tab === 'open' && <View style={styles.listSection}>
           <Text style={styles.label}>Open pokes · {openPokes.length}</Text>
-          {openPokes.length ? openPokes.map((p) => <View key={p.id} style={styles.pokerRow}><View style={{flex:1}}><Text style={styles.choiceText}>{p.userName} · {p.selection}</Text><Text style={styles.muted}>{p.amount} pts</Text></View><Pressable disabled={p.userId === userId || submitting} onPress={() => void (async () => { setSubmitting(true); setError(''); try { const result = await fillSubFixtureBet({betId:p.id,matchId:p.matchId,marketId:p.marketId,finisherId:userId,finisherName:username,selection:p.selection === 'home_team' || p.selection === 'home' ? 'away' : 'home',amount:p.amount,authToken:authToken || undefined}); if (result.success === false) throw new Error(result.message || 'Could not match poke'); setMessage('Poke matched successfully'); const [open,mine]=await Promise.all([getOpenSubFixtureBets(fixture.matchId || fixture.id,authToken || undefined),getUserSubFixtureBets(userId,authToken || undefined)]); setOpenPokes(open.filter(x=>x.status.toLowerCase()==='open')); setMatchedPokes(mine.filter(x=>x.status.toLowerCase()!=='open')); } catch(e) { setError(e instanceof Error?e.message:'Could not match poke'); } finally { setSubmitting(false); } })()} style={[styles.matchButton, (p.userId === userId || submitting) && {opacity:0.45}]}><Text style={styles.primaryText}>Match</Text></Pressable></View>) : <Text style={styles.muted}>No open pokes for this fixture yet.</Text>}
+          {openPokes.length ? openPokes.map((p) => <View key={p.id} style={styles.pokerRow}><View style={{flex:1}}><Text style={styles.choiceText}>{p.userName} · {p.selection}</Text><Text style={styles.muted}>{p.amount} pts</Text></View><Pressable disabled={p.userId === userId || submitting} onPress={() => void (async () => { setSubmitting(true); setError(''); try { const result = await matchPoke({pokeId:p.id,userId,userName:username,selection:p.selection === 'home' ? 'away' : 'home',amount:p.amount,token:authToken || undefined}); if (result.success === false) throw new Error(result.message || 'Could not match poke'); setMessage('Poke matched successfully'); const [open,mine]=await Promise.all([getOpenPokes(fixture.matchId || fixture.id,authToken || undefined),getUserPokes(userId,authToken || undefined)]); setOpenPokes(open.filter(x=>x.status.toLowerCase()==='open')); setMatchedPokes(mine.filter(x=>x.status.toLowerCase()!=='open')); } catch(e) { setError(e instanceof Error?e.message:'Could not match poke'); } finally { setSubmitting(false); } })()} style={[styles.matchButton, (p.userId === userId || submitting) && {opacity:0.45}]}><Text style={styles.primaryText}>Match</Text></Pressable></View>) : <Text style={styles.muted}>No open pokes for this fixture yet.</Text>}
         </View>}
         {tab === 'matched' && <View style={styles.listSection}><Text style={styles.label}>Matched pokes · {matchedPokes.length}</Text>{matchedPokes.length ? matchedPokes.map(p => <View key={p.id} style={styles.pokerRow}><View style={{flex:1}}><Text style={styles.choiceText}>{p.userName} · {p.selection}</Text><Text style={styles.muted}>{p.amount} pts · {p.status}</Text><Text style={styles.muted}>{p.finisherName ? 'Matched with '+p.finisherName : 'Outcome pending'}</Text></View></View>) : <Text style={styles.muted}>Your matched pokes will appear here.</Text>}</View>}
 
@@ -127,7 +126,7 @@ export function PokeModal({ visible, fixture, userId, username, authToken, onClo
           <Pressable onPress={() => void submitPoke()} disabled={loading || submitting} style={[styles.primaryButton, (loading || submitting) && { opacity: 0.6 }]}><Text style={styles.primaryText}>{submitting ? 'Sending poke…' : 'Poke'}</Text></Pressable>
           <Text style={styles.label}>Pokers</Text>
           {pokers.length ? pokers.map((poker, index) => <View key={`${poker.userName ?? poker.user_name ?? poker.starter_name ?? 'poker'}-${index}`} style={styles.pokerRow}><Text style={styles.choiceText}>{poker.userName ?? poker.user_name ?? poker.starter_name ?? 'Fan'}</Text><Text style={styles.muted}>{poker.selection ?? '—'} · {poker.amount ?? poker.starter_amount ?? 0} pts</Text></View>) : <Text style={styles.muted}>No pokes recorded yet.</Text>}
-          <Text style={styles.note}>This uses the existing sub-fixture endpoint with action="poke" and stake_type="points"; the backend must support these fields for points to be recorded correctly.</Text>
+          
         </ScrollView>
       </View>
     </View>
