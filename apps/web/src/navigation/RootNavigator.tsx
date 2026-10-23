@@ -86,7 +86,6 @@ function ResponsiveMessageRoute() {
 }
 
 function ResponsiveCommentsRoute() {
-  const mobile = useMobileWebLayout();
   const { postId = '' } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -101,10 +100,10 @@ function ResponsiveCommentsRoute() {
     postUserId={state.postUserId}
     postUserName={state.postUserName}
     postCaption={state.postCaption}
-    presentation={mobile ? 'page' : 'modal'}
+    presentation="modal"
     onClose={close}
   />;
-  return mobile ? comments : <><HomeScreen />{comments}</>;
+  return <><HomeScreen />{comments}</>;
 }
 
 export default function RootNavigator() {
