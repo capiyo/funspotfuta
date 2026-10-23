@@ -596,7 +596,8 @@ export default function ChatsScreen() {
           username={username ?? ''}
           authToken={authToken}
           onClose={() => setPokeModalFixture(null)}
-        />
+        
+          channelId={activeChannelId}/>
       )}
 
       {reviewFixture && activeChannelId && (
