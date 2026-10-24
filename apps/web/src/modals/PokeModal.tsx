@@ -297,7 +297,7 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 12 }}>
           {options.map((option) => (
-            <button key={option.value} type="button" onClick={() => { setSelection(option.value); setError(''); setMessage(''); }} aria-label={`Select ${option.label}`} aria-pressed={selection === option.value}
+            <button key={option.value} type="button" onClick={() => { setSelection(option.value as 'home_team' | 'away_team'); setError(''); setMessage(''); }} aria-label={`Select ${option.label}`} aria-pressed={selection === option.value}
               style={{ ...buttonStyle, border: selection === option.value ? '2px solid var(--primary)' : '1px solid var(--border)', background: selection === option.value ? 'var(--primary-dim)' : 'transparent', color: 'inherit' }}>
               {option.label}
             </button>
