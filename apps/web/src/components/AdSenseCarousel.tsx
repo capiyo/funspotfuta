@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AdSenseAd } from '@/components/AdSenseAd';
+import { useFanColors } from '@/theme/use-fan-colors';
 
 type AdSenseCarouselProps = {
   placement: 'chats' | 'leaderboard';
@@ -19,6 +20,7 @@ export default function AdSenseCarousel({
   enabled = true,
   label = 'Sponsored carousel',
 }: AdSenseCarouselProps) {
+  const colors = useFanColors();
   const viewportRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -57,15 +59,15 @@ export default function AdSenseCarousel({
   if (slides.length === 0) return null;
 
   return (
-    <section className="w-full min-w-0 py-1" aria-label={label}>
+    <section className="w-full min-w-0" aria-label={label} style={{ background: colors.surface, borderRadius: 8, padding: 3, marginBottom: 3, overflow: 'hidden' }}>
       <div
         ref={viewportRef}
-        className="no-scrollbar flex snap-x snap-mandatory gap-3 overflow-x-auto px-2"
+        className="no-scrollbar flex snap-x snap-mandatory gap-2 overflow-x-auto px-1"
         onScroll={(event) => {
           const node = event.currentTarget;
           const first = node.firstElementChild;
           if (!first) return;
-          const slideWidth = first.getBoundingClientRect().width + 12;
+          const slideWidth = first.getBoundingClientRect().width + 8;
           if (slideWidth > 0) {
             setActiveIndex(Math.min(slides.length - 1, Math.max(0, Math.round(node.scrollLeft / slideWidth))));
           }
@@ -83,7 +85,7 @@ export default function AdSenseCarousel({
         ))}
       </div>
       {slides.length > 1 && (
-        <div className="flex items-center justify-center gap-2 pt-1" aria-label="Carousel pages">
+        <div className="flex items-center justify-center gap-2 pt-0.5" aria-label="Carousel pages">
           {slides.map((slide, index) => (
             <button
               key={slide.key}
@@ -104,7 +106,7 @@ export default function AdSenseCarousel({
                 height: 5,
                 padding: 0,
                 border: 0,
-                background: activeIndex === index ? 'var(--home-primary, #16a34a)' : 'var(--home-text-tertiary, #737373)',
+                background: activeIndex === index ? colors.primary : colors.textTertiary,
                 opacity: activeIndex === index ? 1 : 0.45,
                 transition: 'width 160ms ease',
               }}
