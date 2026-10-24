@@ -28,8 +28,8 @@
 //   - The modal's payment / phone / sub-fixture props are bound to the user id
 //     and token here (modalApi), because the shims need both.
 //
-// Still not ported: carousel, video upload/playback, comrade cards, archive
-// modal on username tap, delete message.
+// Still not ported: video upload/playback, comrade cards, archive modal on
+// username tap, delete message. The sponsored carousel is now shared with the leaderboard.
 
 import {
   useCallback,
