@@ -1,5 +1,5 @@
 // Browser feed: post creation lives in the dedicated AddPostModal, not in the feed column.
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { CSSProperties } from 'react';
 import { useQueryClient, type InfiniteData } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
@@ -10,6 +10,7 @@ import { followUser } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { LIST_BOTTOM_INSET } from '@/theme/layout';
 import { PostCard } from '@/components/PostCard';
+import { AdSenseAd } from '@/components/AdSenseAd';
 import { EmptyState, PagingFooter, SkeletonRows } from '@/components/ui/ListsStates';
 import { useHomeList, useHome } from './home/home-context';
 import './feed-layout.css';
@@ -125,8 +126,8 @@ export default function FeedScreen() {
               <div className="feed-post-column" key={columnIndex}>
                 {posts.map((post, index) => (
                   index % 2 === columnIndex ? (
+                    <Fragment key={post.id ?? index}>
                     <PostCard
-                      key={post.id ?? index}
                       post={post}
                       index={index}
                       currentUserId={userId}
@@ -146,6 +147,14 @@ export default function FeedScreen() {
                       onFollow={(item) => { if (userId && item.userId && authToken) void followUser(userId, item.userId, authToken); }}
                       requireLogin={requireLogin}
                     />
+                    {(index + 1) % 3 === 0 && (
+                      <AdSenseAd
+                        slotId={['5454601642', '9051548379', '3164796870', '1372263706', '7379268852'][Math.floor(index / 3) % 5]}
+                        placement="feed"
+                        enabled={window.matchMedia('(min-width: 651px)').matches || activeTab === 'Feed'}
+                      />
+                    )}
+                    </Fragment>
                   ) : null
                 ))}
               </div>
