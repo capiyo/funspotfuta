@@ -14,7 +14,6 @@ import { sendChannelMessage } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useLoginModal } from '@/modals/Login-modal-context';
 import { MatchCard, type LatestComment, type ChannelHeaderData } from '@/components/ChatsCard';
-import AdSenseCarousel from '@/components/AdSenseCarousel';
 import { channelHeaderOf } from '@/modals/channelHeader';
 import { EmptyState, ErrorBanner, SkeletonRows } from '@/components/ui/ListsStates';
 import { SwipeableVotePledgeModal } from '@/modals/actionModal';
@@ -321,7 +320,6 @@ export default function ChatsScreen() {
           onScroll={scrollProps.onScroll}
           aria-label="Fixtures"
         >
-          <AdSenseCarousel placement="chats" slots={['5454601642']} enabled />
           {loadError && <ErrorBanner colors={colors} message={loadError} />}
           <div aria-live="polite">
             {chatFixtures.length === 0 ? (
