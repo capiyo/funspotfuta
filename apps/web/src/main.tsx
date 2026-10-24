@@ -10,7 +10,11 @@ import './styles.css';
 
 // Load the live publisher script only in production builds. Development and
 // automated browser checks must not create live ad impressions.
-if (import.meta.env.PROD && import.meta.env.VITE_ADSENSE_ENABLED !== 'false') {
+if (
+  import.meta.env.PROD
+  && import.meta.env.VITE_ADSENSE_ENABLED !== 'false'
+  && ['funspot.co.ke', 'www.funspot.co.ke'].includes(window.location.hostname)
+) {
   const adsenseScript = document.createElement('script');
   adsenseScript.async = true;
   adsenseScript.crossOrigin = 'anonymous';
