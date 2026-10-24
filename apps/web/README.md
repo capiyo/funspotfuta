@@ -21,9 +21,9 @@ Track every port and validation item in `../../docs/PORT_MAP.md` and `../../docs
 
 ## Google crawling and AdSense (web only)
 
-- `public/ads.txt` authorizes the Funspot AdSense publisher account. Confirm the publisher and slot configuration in the AdSense console before production traffic.
+- `public/ads.txt` authorizes the publisher account used by the Flutter implementation. Confirm the site is approved and these existing ad units are active in AdSense; approval and fill rates are controlled by Google.
 - `public/robots.txt` permits public crawling and excludes chat, login, and comments routes from indexing.
 - `public/privacy.html` provides a public privacy disclosure for advertising and cookie technologies.
 - The web entry point loads the AdSense script. Ad units are implemented only under `apps/web`; do not copy AdSense or AdMob IDs into `apps/mobile`.
-- Set `VITE_ADSENSE_ENABLED=false` only if you need to disable production ads; production enables AdSense by default. Set `VITE_SITE_URL=https://funspot.co.ke` to the canonical production origin (for example, the full `https://` origin with no path) in the production build environment. The build then generates `dist/sitemap.xml` and adds its absolute URL to `dist/robots.txt`. The build deliberately does not guess the production domain when this value is missing.
+- Set `VITE_ADSENSE_ENABLED=false` only if you need to disable production ads; production enables AdSense by default. Set `VITE_SITE_URL=https://funspot.co.ke` to the canonical production origin (for example, the full `https://` origin with no path) in the production build environment. The build then generates `dist/sitemap.xml` and adds its absolute URL to `dist/robots.txt`. The build defaults to `https://funspot.co.ke` if this variable is unset, so preview-host URLs are never emitted into the canonical sitemap.
 - AdSense approval and serving are controlled by Google; adding these files does not guarantee approval or filled ads. Review the privacy policy against the deployed data practices and configure a Google-certified consent-management platform where required.
