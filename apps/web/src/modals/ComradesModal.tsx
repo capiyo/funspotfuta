@@ -157,7 +157,7 @@ export default function ComradesModal({ visible, onClose }: { visible: boolean; 
     justifyContent: 'space-between',
     gap: 12,
     borderRadius: 12,
-    border: `1px solid ${colors.border}`,
+    border: 0,
     background: colors.surface,
     padding: '10px 12px',
     marginBottom: 8,
