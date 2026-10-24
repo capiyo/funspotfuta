@@ -2,8 +2,7 @@
 //
 // Presentation, plus vote / pledge handlers aligned with the Flutter flow
 // (fixture_page.dart: _processVote / _processPledge).
-//   - status filter is a SegmentedControl
-//   - loading / empty / error use the shared list states
+// //   - loading / empty / error use the shared list states
 //   - no horizontal padding on the list: FeedItem owns the gutter
 //   - last card clears the floating tab bar (LIST_BOTTOM_INSET)
 //   - commentsOf() mocks two comments per fixture
@@ -54,7 +53,7 @@ import {
   ChannelHeaderData,
 } from '@/components/ChatsCard';
 import { channelHeaderOf } from '../modals/channelHeader';
-import { SegmentedControl } from '@/components/ui/Segmentedcontrol';
+import AdCarousel from '@/components/AdCarousel';
 import {
   EmptyState,
   ErrorBanner,
@@ -93,21 +92,8 @@ import {
   matchMainPledge as actionMatchMainPledge,
 } from '@funspot/core';
 
-type Filter = 'all' | 'live' | 'upcoming';
 type Pick = 'home' | 'away';
 type ActionResult = { success: boolean; message?: string; newBalance?: number };
-
-const EMPTY_COPY: Record<Filter, { title: string; hint: string }> = {
-  all: { title: 'No fixtures right now', hint: 'Check back soon.' },
-  live: {
-    title: 'Nothing live at the moment',
-    hint: 'Live matches show up here.',
-  },
-  upcoming: {
-    title: 'No upcoming fixtures',
-    hint: 'New fixtures appear as they are scheduled.',
-  },
-};
 
 const FIXTURES_KEY = ['fixtures'] as const;
 const NO_FIXTURES: Fixture[] = [];
@@ -241,7 +227,6 @@ export default function ChatsScreen() {
   }, [channels]);
 
   const [refreshing, setRefreshing] = useState(false);
-  const [filter, setFilter] = useState<Filter>('all');
   const [modalFixture, setModalFixture] = useState<Fixture | null>(null);
   const [pokeModalFixture, setPokeModalFixture] = useState<Fixture | null>(null);
   const [reviewFixture, setReviewFixture] = useState<Fixture | null>(null);
@@ -290,31 +275,10 @@ export default function ChatsScreen() {
     }
   }, [refetch]);
 
-  const liveCount = useMemo(
-    () => fixtures.filter(isLiveFixture).length,
-    [fixtures],
-  );
-
-  const filterOptions = useMemo(
-    () => [
-      { value: 'all' as const, label: 'All' },
-      {
-        value: 'live' as const,
-        label: liveCount > 0 ? `Live · ${liveCount}` : 'Live',
-      },
-      { value: 'upcoming' as const, label: 'Upcoming' },
-    ],
-    [liveCount],
-  );
-
-  const filtered = useMemo(() => {
-    const matched = fixtures.filter((f) => matchesFilter(f, filter));
-    if (filter !== 'all') return matched;
-    return matched
-      .map((f, i) => ({ f, i }))
-      .sort((a, b) => statusRank(a.f) - statusRank(b.f) || a.i - b.i)
-      .map(({ f }) => f);
-  }, [fixtures, filter]);
+  const chatFixtures = useMemo(() => fixtures
+    .map((fixture, index) => ({ fixture, index }))
+    .sort((a, b) => statusRank(a.fixture) - statusRank(b.fixture) || a.index - b.index)
+    .map(({ fixture }) => fixture), [fixtures]);
 
   const openChat = useCallback(
     (fixture?: Fixture, channelId?: string) => {
@@ -467,29 +431,18 @@ export default function ChatsScreen() {
     };
   }, [userId, username, authToken]);
 
-  const listHeader = (
-    <View style={styles.header}>
-      <SegmentedControl
-        options={filterOptions}
-        value={filter}
-        onChange={setFilter}
-        colors={colors}
-      />
-      {loadError && <ErrorBanner colors={colors} message={loadError} />}
-    </View>
-  );
-
   return (
     <View style={styles.screen}>
       {isPending ? (
         <View style={{ paddingTop: topInset }}>
-          {listHeader}
+          <AdCarousel />
+          {loadError && <ErrorBanner colors={colors} message={loadError} />}
           <SkeletonRows colors={colors} />
         </View>
       ) : (
         <FlatList
           style={styles.list}
-          data={filtered}
+          data={chatFixtures}
           keyExtractor={(fixture) => fixture.id || fixture.matchId}
           contentContainerStyle={[styles.content, { paddingTop: topInset }]}
           showsVerticalScrollIndicator={false}
@@ -504,7 +457,7 @@ export default function ChatsScreen() {
               colors={[colors.primary]}
             />
           }
-          ListHeaderComponent={listHeader}
+          ListHeaderComponent={<View><AdCarousel />{loadError && <ErrorBanner colors={colors} message={loadError} />}</View>}
           ListEmptyComponent={
             isError ? (
               <EmptyState
@@ -515,8 +468,8 @@ export default function ChatsScreen() {
             ) : (
               <EmptyState
                 colors={colors}
-                title={EMPTY_COPY[filter].title}
-                hint={EMPTY_COPY[filter].hint}
+                title={'No fixtures right now'}
+                hint={'New fixtures appear here as they are scheduled.'}
               />
             )
           }
@@ -663,10 +616,6 @@ function createStyles(colors: FanColorPalette) {
     screen: { flex: 1, backgroundColor: colors.background },
     list: { flex: 1 },
     content: { paddingBottom: LIST_BOTTOM_INSET },
-    header: {
-      paddingHorizontal: FAN_SPACING.md,
-      paddingVertical: FAN_SPACING.sm,
-    },
   });
 }
 type SwipeChannel = ReturnType<typeof useHome>['channels'][number];
