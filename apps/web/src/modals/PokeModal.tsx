@@ -126,9 +126,13 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
       { value: 'home_team', label: fixture.homeTeam },
       { value: 'away_team', label: fixture.awayTeam },
     ];
-    const parsed = selectedMarket.options.map((option) => ({
-      value: normalizedOption(option, fixture), label: option,
-    })).filter((option): option is { value: 'home_team' | 'away_team'; label: string } => option.value !== null);
+    const parsed = selectedMarket.options.map((option) => {
+      const value = normalizedOption(option, fixture);
+      return value === null ? null : {
+        value,
+        label: value === 'home_team' ? fixture.homeTeam : fixture.awayTeam,
+      };
+    }).filter((option): option is { value: 'home_team' | 'away_team'; label: string } => option !== null);
     return parsed;
   }, [fixture, selectedMarket]);
 
@@ -293,7 +297,7 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 12 }}>
           {options.map((option) => (
-            <button key={option.value} type="button" onClick={() => setSelection(option.value as 'home_team' | 'away_team')} aria-pressed={selection === option.value}
+            <button key={option.value} type="button" onClick={() => { setSelection(option.value); setError(''); setMessage(''); }} aria-label={`Select ${option.label}`} aria-pressed={selection === option.value}
               style={{ ...buttonStyle, border: selection === option.value ? '2px solid var(--primary)' : '1px solid var(--border)', background: selection === option.value ? 'var(--primary-dim)' : 'transparent', color: 'inherit' }}>
               {option.label}
             </button>
