@@ -935,7 +935,7 @@ export function SwipeableVotePledgeModal(props: Props) {
     const {
         visible, fixture, userId, username, authToken, isLoggedIn,
         hasUserVoted, userVoteSelection, channelId,
-        showPledgesTab = true, showSubFixturesTab = true, showBetsTab = false,
+        showPledgesTab = true, showSubFixturesTab = true, showBetsTab = true,
         onClose, onVote, onPledge, onShowJoinGroups,
         fetchVoters, fetchPledges, fetchSubFixtures, fetchSubFixturePledges,
         fetchBets, fetchBalance, topUp, withdraw,
@@ -1500,7 +1500,7 @@ export function SwipeableVotePledgeModal(props: Props) {
             <View style={{ flex: 1 }}>
                 <Pressable style={styles.backdrop} onPress={onClose}>
                     <Pressable
-                        style={[styles.sheet, { height: screenH * 0.82, maxHeight: '100%' }]}
+                        style={[styles.sheet, { height: screenH * 0.5, maxHeight: '50dvh' }]}
                         onPress={() => { }}
                     >
                         <HandleBar colors={colors} styles={styles} />
