@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AdSenseAd } from '@/components/AdSenseAd';
 import { useFanColors } from '@/theme/use-fan-colors';
+import { getAllFixtures, type Fixture } from '@funspot/core';
 
 type AdSenseCarouselProps = {
   placement: 'chats' | 'leaderboard';
@@ -9,7 +10,9 @@ type AdSenseCarouselProps = {
   label?: string;
 };
 
-type Slide = { type: 'ad'; key: string; slot: string };
+type Slide =
+  | { type: 'ad'; key: string; slot: string }
+  | { type: 'fixture'; key: string; fixture: Fixture };
 
 const AD_INTERVAL_MS = 6000;
 
@@ -23,6 +26,16 @@ export default function AdSenseCarousel({
   const colors = useFanColors();
   const viewportRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [fixtures, setFixtures] = useState<Fixture[]>([]);
+
+  useEffect(() => {
+    if (placement !== 'chats') return;
+    let alive = true;
+    getAllFixtures()
+      .then((items) => { if (alive) setFixtures(items.slice(0, slots.length)); })
+      .catch(() => undefined);
+    return () => { alive = false; };
+  }, [placement, slots.length]);
 
   const adsAllowed =
     enabled &&
@@ -30,10 +43,23 @@ export default function AdSenseCarousel({
     import.meta.env.VITE_ADSENSE_ENABLED !== 'false' &&
     ['funspot.co.ke', 'www.funspot.co.ke'].includes(window.location.hostname);
 
-  const slides = useMemo<Slide[]>(() =>
-    (adsAllowed ? slots : []).map((slot) => ({ type: 'ad', key: `ad-${slot}`, slot })),
-    [adsAllowed, slots],
-  );
+  const slides = useMemo<Slide[]>(() => {
+    const adSlides: Slide[] = (placement === 'chats' && adsAllowed ? slots : adsAllowed ? slots : [])
+      .map((slot) => ({ type: 'ad', key: `ad-${slot}`, slot }));
+    if (placement !== 'chats') return adSlides;
+    const fixtureSlides: Slide[] = fixtures.map((fixture) => ({
+      type: 'fixture',
+      key: `fixture-${fixture.matchId ?? fixture.id}`,
+      fixture,
+    }));
+    const mixed: Slide[] = [];
+    const count = Math.max(adSlides.length, fixtureSlides.length);
+    for (let index = 0; index < count; index += 1) {
+      if (adSlides[index]) mixed.push(adSlides[index]);
+      if (fixtureSlides[index]) mixed.push(fixtureSlides[index]);
+    }
+    return mixed;
+  }, [adsAllowed, fixtures, placement, slots]);
 
   useEffect(() => {
     if (slides.length < 2) return;
@@ -78,9 +104,20 @@ export default function AdSenseCarousel({
           <div
             key={slide.key}
             className="w-full min-w-0 shrink-0 snap-start"
-            aria-label={`Advertisement slide ${index + 1}`}
+            aria-label={slide.type === 'ad' ? `Advertisement slide ${index + 1}` : `${slide.fixture.homeTeam} versus ${slide.fixture.awayTeam}`}
           >
-            <AdSenseAd slotId={slide.slot} placement={placement} />
+            {slide.type === 'ad' ? (
+              <AdSenseAd slotId={slide.slot} placement={placement} />
+            ) : (
+              <div
+                className="flex min-h-[68px] w-full items-center justify-center gap-3 px-3 py-2"
+                style={{ background: colors.surface, color: colors.textPrimary }}
+              >
+                <span className="min-w-0 flex-1 truncate text-right text-xs font-semibold">{slide.fixture.homeTeam}</span>
+                <span className="shrink-0 text-[10px] font-semibold" style={{ color: colors.textTertiary }}>VS</span>
+                <span className="min-w-0 flex-1 truncate text-xs font-semibold">{slide.fixture.awayTeam}</span>
+              </div>
+            )}
           </div>
         ))}
       </div>
