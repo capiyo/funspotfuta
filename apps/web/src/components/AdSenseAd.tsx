@@ -68,7 +68,10 @@ export function AdSenseAd({ slotId, placement, enabled = true }: AdSenseAdProps)
     return () => window.clearInterval(poll);
   }, [enabled]);
 
-  if ((!import.meta.env.PROD || import.meta.env.VITE_ADSENSE_ENABLED !== 'true') || !enabled) return null;
+  // Production ads are enabled by default on the verified canonical domains.
+  // Set VITE_ADSENSE_ENABLED=false only to disable manually placed units; the
+  // global loader remains scoped to funspot.co.ke/www.funspot.co.ke in main.tsx.
+  if (!import.meta.env.PROD || import.meta.env.VITE_ADSENSE_ENABLED === 'false' || !enabled) return null;
 
   return (
     <aside
