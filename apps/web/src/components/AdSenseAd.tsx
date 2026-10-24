@@ -8,7 +8,7 @@ type AdSenseAdProps = {
   slotId: string;
   // Google prohibits AdSense placements on pages primarily focused on
   // private communications (DMs/live chat), so messaging is intentionally excluded.
-  placement: 'feed' | 'leaderboard' | 'voting';
+  placement: 'feed' | 'chats' | 'leaderboard' | 'voting';
   enabled?: boolean;
 };
 
