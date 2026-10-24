@@ -34,6 +34,7 @@ import {
 import { useFanColors } from '@/theme/use-fan-colors';
 import { LIST_BOTTOM_INSET } from '@/theme/layout';
 import { PostCard } from '@/components/PostCard';
+import AdCarousel from '@/components/AdCarousel';
 import PostCommentsModal from '@/modals/CommentsModal';
 import {
   EmptyState,
@@ -44,6 +45,10 @@ import {
 import { useHome, useHomeList } from './home/home-context';
 
 const FEED_KEY = ['feed'] as const;
+
+type FeedRow =
+  | { type: 'post'; key: string; post: Post; postIndex: number }
+  | { type: 'ad'; key: string };
 
 export default function FeedScreen() {
   const colors = useFanColors();
@@ -73,6 +78,18 @@ export default function FeedScreen() {
     () => data?.pages.flatMap((page) => page.posts) ?? [],
     [data],
   );
+
+  // Insert a sponsored carousel after each group of three posts in the feed stream.
+  const feedRows = useMemo<FeedRow[]>(() => {
+    const rows: FeedRow[] = [];
+    posts.forEach((post, postIndex) => {
+      rows.push({ type: 'post', key: post.id ?? `post-${postIndex}`, post, postIndex });
+      if ((postIndex + 1) % 3 === 0 && postIndex < posts.length - 1) {
+        rows.push({ type: 'ad', key: `feed-ad-after-${post.id ?? postIndex}` });
+      }
+    });
+    return rows;
+  }, [posts]);
 
   const loadError =
     isError && posts.length === 0
@@ -138,8 +155,8 @@ export default function FeedScreen() {
       ) : (
         <FlatList
           style={styles.list}
-          data={posts}
-          keyExtractor={(post, index) => post.id ?? String(index)}
+          data={feedRows}
+          keyExtractor={(row) => row.key}
           contentContainerStyle={[styles.content, { paddingTop: topInset }]}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
@@ -177,15 +194,17 @@ export default function FeedScreen() {
           onEndReached={() => {
             if (hasNextPage && !isFetchingNextPage) void fetchNextPage();
           }}
-          renderItem={({ item: post, index }) => (
+          renderItem={({ item: row }) => row.type === 'ad' ? (
+            <AdCarousel />
+          ) : (
             <PostCard
-              post={post}
-              index={index}
+              post={row.post}
+              index={row.postIndex}
               currentUserId={userId}
               onLike={(item) => void handleLike(item)}
               onOpenComments={(item) => { if (item.id) setSelectedCommentPost(item); }}
               onRepost={() => {}}
-              onShare={(post) => { void Share.share({ message: `${post.caption ?? ''}\n${post.id ? `https://funspotfuta.com/posts/${post.id}` : ''}`.trim() }); }}
+              onShare={(post) => { void Share.share({ message: (post.caption ?? '') + '\n' + (post.id ? 'https://funspotfuta.com/posts/' + post.id : '') }); }}
               onFollow={(post) => { if (userId && post.userId && authToken) void followUser(userId, post.userId, authToken); }}
               requireLogin={requireLogin}
             />
