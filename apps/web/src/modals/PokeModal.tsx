@@ -2,7 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { createPoke, getOpenPokes, getUserPokes, getUserPoints, matchPoke, type Poke } from '@funspot/core';
 import type { CSSProperties, TouchEvent as ReactTouchEvent } from 'react';
-import type { Channel, Fixture } from '@funspot/core';
+import type { Channel, Fixture, FanColorPalette } from '@funspot/core';
+import { useFanColors } from '@/theme/use-fan-colors';
 import { queryKeys } from '@funspot/core';
 import { fetchSubFixtures, fetchSubFixturePledges, fetchVoters, API_BASE_URL, type SubFixtureMarket } from '@funspot/core';
 
@@ -19,12 +20,16 @@ const backdropStyle: CSSProperties = {
   position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,.55)',
   display: 'flex', alignItems: 'flex-end', justifyContent: 'center', padding: 0,
 };
-const panelStyle: CSSProperties = {
+const panelStyle = (colors: FanColorPalette): CSSProperties => ({
   width: 'min(100%, 448px)', height: '78vh', maxHeight: '78vh', overflowY: 'auto',
-  background: 'var(--surface, #17191d)', color: 'var(--text, #f7f7f7)',
+  background: colors.background, color: colors.textPrimary,
   borderRadius: '18px 18px 0 0', padding: '8px 16px 16px', boxSizing: 'border-box',
   boxShadow: '0 -12px 48px rgba(0,0,0,.25)',
-};
+  '--surface': colors.surface, '--text': colors.textPrimary, '--primary': colors.primary,
+  '--primary-dim': colors.primaryDim, '--muted': colors.textTertiary,
+  '--border': colors.border, '--background': colors.surfaceSunken,
+  '--surface-sunken': colors.surfaceSunken, '--text-secondary': colors.textSecondary,
+} as CSSProperties);
 const buttonStyle: CSSProperties = {
   minHeight: 42, border: 0, borderRadius: 8, padding: '10px 14px',
   fontWeight: 700, cursor: 'pointer',
@@ -63,6 +68,7 @@ function writeCachedChannelMemberPoints(
 }
 
 export function PokeModal({ fixture, userId, username, authToken, channelId, onClose }: Props) {
+  const colors = useFanColors();
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<'open' | 'matched' | 'subfixtures'>('open');
   const [openPokes, setOpenPokes] = useState<Poke[]>([]);
@@ -233,25 +239,30 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
 
   return (
     <div style={backdropStyle} role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !submitting) onClose(); }}>
-      <section role="dialog" aria-modal="true" aria-labelledby="poke-modal-title" style={panelStyle} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+      <section role="dialog" aria-modal="true" aria-labelledby="poke-modal-title" style={panelStyle(colors)} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
         <div aria-hidden="true" style={{ width: 32, height: 4, borderRadius: 999, background: 'var(--border, #454950)', margin: '0 auto 12px' }} />
-        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
-          <div>
-            <div style={{ color: 'var(--primary, #36c875)', fontSize: 11, fontWeight: 800, marginBottom: 5 }}>POKE THIS MATCH</div>
-            <h2 id="poke-modal-title" style={{ fontSize: 18, lineHeight: 1.3, margin: 0 }}>{fixture.homeTeam} vs {fixture.awayTeam}</h2>
-            <div style={{ color: 'var(--muted, #a7abb3)', fontSize: 11, marginTop: 4 }}>Stake points. Someone takes the other side.</div>
+        <header style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+          <div aria-hidden="true" style={{ width: 36, height: 36, flex: '0 0 36px', display: 'grid', placeItems: 'center', borderRadius: '50%', background: 'var(--primary-dim)', color: 'var(--primary)', fontSize: 17 }}>✦</div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <h2 id="poke-modal-title" style={{ fontSize: 16, lineHeight: 1.3, margin: 0, fontWeight: 800 }}>Poke</h2>
+            <div style={{ color: 'var(--muted)', fontSize: 11, marginTop: 3 }}>{fixture.league || 'Match'}</div>
           </div>
-          <button type="button" aria-label="Close poke modal" onClick={onClose} disabled={submitting} style={{ ...buttonStyle, minHeight: 32, padding: '4px 10px', background: 'transparent', color: 'inherit', fontSize: 22 }}>×</button>
+          <button type="button" aria-label="Close poke modal" onClick={onClose} disabled={submitting} style={{ ...buttonStyle, minHeight: 32, padding: '4px 10px', background: 'var(--surface-sunken)', color: 'var(--text-secondary)', fontSize: 20 }}>×</button>
         </header>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 0 14px', marginBottom: 12, borderBottom: '1px solid var(--border)' }}>
+          <div style={{ flex: 1, minWidth: 0, color: 'var(--primary)', fontSize: 13, fontWeight: 800, overflowWrap: 'anywhere' }}>{fixture.homeTeam}</div>
+          <div style={{ flex: '0 0 auto', display: 'grid', justifyItems: 'center', gap: 4, color: 'var(--muted)', fontSize: 10, fontWeight: 800 }}>VS{(fixture.isLive || fixture.status === 'live') && <span style={{ color: '#fff', background: '#e34b4b', borderRadius: 99, padding: '2px 6px', fontSize: 8 }}>LIVE</span>}</div>
+          <div style={{ flex: 1, minWidth: 0, textAlign: 'right', color: 'var(--away, #e87979)', fontSize: 13, fontWeight: 800, overflowWrap: 'anywhere' }}>{fixture.awayTeam}</div>
+        </div>
 
         <div style={{ marginTop: 12, padding: 12, borderRadius: 10, background: 'var(--primary-dim, rgba(54,200,117,.15))', border: '1px solid var(--primary, #36c875)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}><div><div style={{ fontSize: 11, color: 'var(--muted, #a7abb3)' }}>Your points</div><strong style={{ fontSize: 19 }}>{loading ? 'Loading…' : balance === null ? 'Unavailable' : `${balance.toLocaleString()} pts`}</strong></div><span style={{ color: 'var(--primary, #36c875)', fontSize: 10, fontWeight: 800 }}>MIN 5 PTS</span></div>
         </div>
 
-        <div role="tablist" aria-label="Poke views" style={{ display: 'flex', gap: 6, marginTop: 16 }}>
+        <div role="tablist" aria-label="Poke views" style={{ display: 'flex', gap: 4, marginTop: 4, padding: 3, borderRadius: 10, background: 'var(--surface-sunken)', border: '1px solid var(--border)' }}>
           {([{ id: 'open', label: 'Open Pokes' }, { id: 'matched', label: 'Matched Pokes' }, { id: 'subfixtures', label: 'Sub-fixtures' }] as const).map((item) => (
             <button key={item.id} type="button" role="tab" aria-selected={tab === item.id} onClick={() => setTab(item.id)}
-              style={{ ...buttonStyle, flex: 1, minHeight: 36, padding: '7px 8px', color: 'inherit', background: tab === item.id ? 'var(--primary-dim, rgba(54,200,117,.15))' : 'transparent', border: tab === item.id ? '1px solid var(--primary, #36c875)' : '1px solid transparent' }}>
+              style={{ ...buttonStyle, flex: 1, minHeight: 36, padding: '7px 6px', fontSize: 11, color: tab === item.id ? 'var(--text)' : 'var(--muted)', background: tab === item.id ? 'var(--surface)' : 'transparent', border: '1px solid transparent', boxShadow: tab === item.id ? '0 1px 3px rgba(0,0,0,.12)' : 'none' }}>
               {item.label}
             </button>
           ))}
