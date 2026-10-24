@@ -227,7 +227,8 @@ export default function LeaderboardScreen({
     >
       <Pressable style={styles.backdrop} onPress={onClose}>
         <Pressable
-          style={[styles.sheet, { width: '100%', height: '85dvh', maxHeight: '85dvh' }]}
+          className="leaderboard-modal-sheet"
+          style={[styles.sheet, { width: '100%', alignSelf: 'stretch', height: '85dvh', maxHeight: '85dvh', flex: 0, flexDirection: 'column', minWidth: 0, minHeight: 0 }]}
           onPress={(e) => e.stopPropagation()}
           onTouchStart={(event: { nativeEvent: { pageX: number } }) => handleSwipeStart(event.nativeEvent.pageX)}
           onTouchEnd={(event: { nativeEvent: { pageX: number } }) => handleSwipeEnd(event.nativeEvent.pageX)}
@@ -298,8 +299,9 @@ export default function LeaderboardScreen({
             </View>
           ) : tab === 'leaderboard' || !hasFixture ? (
             <ScrollView
-              style={styles.screen}
-              contentContainerStyle={styles.content}
+              className="leaderboard-scroll"
+              style={[styles.screen, { flex: 1, minHeight: 0, minWidth: 0, width: '100%', alignSelf: 'stretch' }]}
+              contentContainerStyle={[styles.content, { width: '100%', alignItems: 'stretch', flexGrow: 1 }]}
             >
               {loading ? (
                 <ActivityIndicator
@@ -1552,7 +1554,10 @@ function createStyles(colors: FanColors) {
       width: '100%',
       height: '85dvh',
       maxHeight: '85dvh',
-      flex: 1,
+      flex: 0,
+      flexDirection: 'column',
+      minWidth: 0,
+      minHeight: 0,
       alignSelf: 'stretch',
       borderTopLeftRadius: FAN_RADIUS.xl,
       borderTopRightRadius: FAN_RADIUS.xl,
@@ -1600,7 +1605,7 @@ function createStyles(colors: FanColors) {
       padding: 6,
       backgroundColor: colors.surfaceSunken,
     },
-    screen: { flex: 1, minHeight: 0, backgroundColor: colors.background },
+    screen: { flex: 1, minHeight: 0, minWidth: 0, width: '100%', alignSelf: 'stretch', backgroundColor: colors.background },
     content: {
       flexDirection: 'column',
       alignItems: 'stretch',
@@ -1802,9 +1807,12 @@ function createStyles(colors: FanColors) {
       marginTop: FAN_SPACING.sm,
     },
     statRow: {
+      width: '100%',
       flexDirection: 'row',
+      flexWrap: 'nowrap',
       justifyContent: 'space-between',
       alignItems: 'center',
+      minWidth: 0,
       paddingVertical: 3,
     },
     statLabel: {
@@ -1812,7 +1820,11 @@ function createStyles(colors: FanColors) {
     },
     ratingRow: {
       flexDirection: 'row',
+      flexWrap: 'nowrap',
       alignItems: 'center',
+      justifyContent: 'flex-end',
+      alignSelf: 'flex-end',
+      minWidth: 0,
       gap: 3,
     },
     statValue: {
