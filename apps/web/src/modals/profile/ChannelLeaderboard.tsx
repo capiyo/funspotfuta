@@ -21,6 +21,7 @@ import {
     memberVoteAccuracy,
 } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
+import { AdSenseAd } from '@/components/AdSenseAd';
 
 type FanColors = ReturnType<typeof useFanColors>;
 
@@ -343,6 +344,7 @@ export function ChannelLeaderboard({
                 </section>;
               })}
             </div>
+            <AdSenseAd slotId="7379268852" placement="leaderboard" />
         </div>
     );
 }
