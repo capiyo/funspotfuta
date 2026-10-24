@@ -50,7 +50,7 @@ import { useChannelChat, type Voter } from '@/lib/api/use-channel-chat';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useToast } from '@/lib/toast/toast-context';
 import { useFanColors } from '@/theme/use-fan-colors';
-import { AdSenseAd } from '@/components/AdSenseAd';
+import AdSenseCarousel from '@/components/AdSenseCarousel';
 import { fanText } from '@/theme/use-fan-typography';
 import { SwipeableVotePledgeModal } from '@/modals/actionModal';
 import { AftermatchReviewModal } from '@/modals/AftermatchModal';
@@ -477,22 +477,12 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       </button>
     </header>
 
-    {/* Flutter parity: swipeable sponsored carousel sits between the messaging header and fixture controls. */}
-    <div
-      aria-label="Sponsored carousel"
-      className="flex shrink-0 snap-x snap-mandatory gap-3 overflow-x-auto px-2"
-      style={{ scrollbarWidth: 'none' }}
-    >
-      {[
-        { slot: '9051548379', key: 'message-ad-a' },
-        { slot: '3164796870', key: 'message-ad-b' },
-        { slot: '1372263706', key: 'message-ad-c' },
-      ].map(({ slot, key }) => (
-        <div key={key} className="w-full shrink-0 snap-start">
-          <AdSenseAd slotId={slot} placement="chats" />
-        </div>
-      ))}
-    </div>
+    {/* Same swipeable ad carousel flow as native: between messaging header and fixture controls. */}
+    <AdSenseCarousel
+      placement="chats"
+      label="Messaging advertisements"
+      slots={['9051548379', '3164796870', '1372263706']}
+    />
 
     {/* Vote strip: chips open the vote/review dialog; totals open voter details. */}
     {fixture && fixtureId && <VoteStrip
