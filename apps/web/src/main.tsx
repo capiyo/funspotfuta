@@ -10,7 +10,7 @@ import './styles.css';
 
 // Load the live publisher script only in production builds. Development and
 // automated browser checks must not create live ad impressions.
-if (import.meta.env.PROD && import.meta.env.VITE_ADSENSE_ENABLED === 'true') {
+if (import.meta.env.PROD && import.meta.env.VITE_ADSENSE_ENABLED !== 'false') {
   const adsenseScript = document.createElement('script');
   adsenseScript.async = true;
   adsenseScript.crossOrigin = 'anonymous';
