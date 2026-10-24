@@ -457,74 +457,7 @@ export default function MessageScreen() {
       {/* Automatic fixture/ad carousel at the top of messaging. */}
       <AdCarousel />
 
-      {/* Header */}
-      <View style={styles.header}>
-        <Pressable
-          onPress={handleBack}
-          hitSlop={8}
-          style={({ pressed }) => [
-            styles.iconButton,
-            pressed && { opacity: PRESSED_OPACITY },
-          ]}
-        >
-          <ArrowLeft size={18} color={colors.textPrimary} />
-        </Pressable>
-
-        {fixture && (
-          <Pressable
-            onPress={() => setMatchDetailsOpen(true)}
-            hitSlop={6}
-            style={styles.iconButton}
-          >
-            <Info size={15} color={colors.textPrimary} />
-          </Pressable>
-        )}
-
-        <View style={styles.grow}>
-          {fixture ? (
-            <MatchStatusBar
-              colors={colors}
-              fixture={fixture}
-              status={matchStatus}
-              homeScore={homeScore}
-              awayScore={awayScore}
-              isLive={isLive}
-              timeElapsed={timeElapsed}
-              onPress={openVoteOrReview}
-            />
-          ) : (
-            <Text style={fanText('body', colors, colors.textPrimary)}>
-              Chat
-            </Text>
-          )}
-        </View>
-
-        <Pressable
-          onPress={() => {
-            navigation.navigate('Tabs', { initialTab: 'Feed' });
-          }}
-          hitSlop={8}
-          style={styles.feedButton}
-          accessibilityRole="button"
-          accessibilityLabel="Open Feeds"
-        >
-          <Text style={fanText('tag', colors, colors.primary)}>Feeds</Text>
-        </Pressable>
-      </View>
-
-
-
-      {/* Vote strip */}
-      {fixture && fixtureId && (
-        <VoteStrip
-          colors={colors}
-          fixture={fixture}
-          homeVotes={homeVotes}
-          awayVotes={awayVotes}
-          onOpenModal={openVoteOrReview}
-          onPressTotals={() => setShowVoters((v) => !v)}
-        />
-      )}
+      {/* Messaging starts with the shared horizontal ad/fixture carousel; no extra header or vote strip. */}
 
       {!activeChannelId ? (
         <View style={styles.emptyChannels}>
