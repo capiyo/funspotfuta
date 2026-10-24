@@ -414,6 +414,13 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
   return <main
       className="message-screen flex min-h-0 flex-col"
       style={pageStyle}>
+    {/* Automatic fixture/ad carousel at the top of messaging. */}
+    <AdSenseCarousel
+      placement="chats"
+      label="Messaging fixtures and advertisements"
+      slots={['9051548379', '3164796870', '1372263706']}
+    />
+
     {/* (a) Own header and match layout */}
     <header
       className="flex shrink-0 items-center gap-2 border-b px-3 py-3 sm:px-5"
@@ -476,13 +483,6 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
         <span className="text-[11px] font-semibold" style={{ color: colors.textPrimary }}>Comrades</span>
       </button>
     </header>
-
-    {/* Same swipeable ad carousel flow as native: between messaging header and fixture controls. */}
-    <AdSenseCarousel
-      placement="chats"
-      label="Messaging advertisements"
-      slots={['9051548379', '3164796870', '1372263706']}
-    />
 
     {/* Vote strip: chips open the vote/review dialog; totals open voter details. */}
     {fixture && fixtureId && <VoteStrip
