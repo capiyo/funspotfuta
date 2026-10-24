@@ -114,7 +114,7 @@ import { Input } from '@/components/ui/input';
 import { SwipeableVotePledgeModal } from '@/modals/actionModal';
 import { AftermatchReviewModal } from '@/modals/AftermatchModal';
 import { MatchDetailsModal } from '@/modals/match/matchDetailsModals';
-import LeaderboardModal from '@/modals/LeaderboardModal';
+import ComradesModal from '@/modals/ComradesModal';
 import type { RootStackParamList } from '@/navigation/RootNavigator';
 
 type FanColors = ReturnType<typeof useFanColors>;
@@ -517,7 +517,7 @@ export default function MessageScreen() {
           hitSlop={8}
           style={styles.comradesButton}
           accessibilityRole="button"
-          accessibilityLabel="Open Comrades leaderboard"
+          accessibilityLabel="Open Comrades"
         >
           <Users size={16} color={colors.textPrimary} />
           <Text style={fanText('tag', colors, colors.textPrimary)}>Comrades</Text>
@@ -1019,10 +1019,9 @@ export default function MessageScreen() {
         />
       )}
 
-      {/* Comrades / leaderboard */}
-      <LeaderboardModal
+      {/* Comrades directory — profile search and add-to-channel actions */}
+      <ComradesModal
         visible={leaderboardOpen}
-        channelId={activeChannelId ?? undefined}
         onClose={() => setLeaderboardOpen(false)}
       />
     </SafeAreaView>
