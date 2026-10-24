@@ -3,43 +3,25 @@ import { getAuth } from 'firebase/auth';
 import { getStorage } from 'firebase/storage';
 import { getMessaging, isSupported } from 'firebase/messaging';
 
+// These public client settings match the working Flutter app's generated
+// FirebaseOptions.web for project funzy-d56d7. Build-time variables can override
+// them, but a missing Netlify variable must not silently disable authentication.
 export const webFirebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || 'AIzaSyCWMGz6AIRXgu7GVZiJWlkvO6tVZADf5tY',
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || 'funzy-d56d7.firebaseapp.com',
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || 'funzy-d56d7',
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || 'funzy-d56d7.firebasestorage.app',
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '661929781606',
+  appId: import.meta.env.VITE_FIREBASE_APP_ID || '1:661929781606:web:3f306a659ae64ac7f780a7',
 };
 
-// Vite injects VITE_* values during the Netlify build. .env.example is documentation
-// only; it is not loaded as configuration and must never be imported by the app.
-const requiredFirebaseEnv = {
-  VITE_FIREBASE_API_KEY: webFirebaseConfig.apiKey,
-  VITE_FIREBASE_AUTH_DOMAIN: webFirebaseConfig.authDomain,
-  VITE_FIREBASE_PROJECT_ID: webFirebaseConfig.projectId,
-  VITE_FIREBASE_APP_ID: webFirebaseConfig.appId,
-} as const;
+export const missingFirebaseEnvVars: string[] = [];
 
-export const missingFirebaseEnvVars = Object.entries(requiredFirebaseEnv)
-  .filter(([, value]) => !value?.trim())
-  .map(([name]) => name);
-
-const configured = missingFirebaseEnvVars.length === 0;
-
-if (!configured) {
-  console.error(
-    '[Firebase] Missing build-time environment variables:',
-    missingFirebaseEnvVars.join(', '),
-    'Check Netlify variable scopes for this deploy context, then trigger a new deploy.',
-  );
-}
-
-export const firebaseApp = getApps().length ? getApp() : configured ? initializeApp(webFirebaseConfig) : null;
-export const firebaseAuth = firebaseApp ? getAuth(firebaseApp) : null;
-export const firebaseStorage = firebaseApp ? getStorage(firebaseApp) : null;
+export const firebaseApp = getApps().length ? getApp() : initializeApp(webFirebaseConfig);
+export const firebaseAuth = getAuth(firebaseApp);
+export const firebaseStorage = getStorage(firebaseApp);
 
 export async function getFirebaseMessaging() {
-  if (!firebaseApp || !('serviceWorker' in navigator) || !(await isSupported())) return null;
+  if (!('serviceWorker' in navigator) || !(await isSupported())) return null;
   return getMessaging(firebaseApp);
 }
