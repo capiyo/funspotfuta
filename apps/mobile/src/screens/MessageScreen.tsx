@@ -456,6 +456,9 @@ export default function MessageScreen() {
   // ── Render ─────────────────────────────────────────────────
   return (
     <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}>
+      {/* Automatic fixture/ad carousel at the top of messaging. */}
+      <AdCarousel />
+
       {/* Header */}
       <View style={styles.header}>
         <Pressable
@@ -521,7 +524,7 @@ export default function MessageScreen() {
         </Pressable>
       </View>
 
-      <AdCarousel />
+
 
       {/* Vote strip */}
       {fixture && fixtureId && (
