@@ -16,6 +16,7 @@ import {
 } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
 import { colors } from '@/theme';
+import AdSenseCarousel from '@/components/AdSenseCarousel';
 
 export default function ComradesModal({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const { userId, username, authToken } = useAuth();
@@ -245,6 +246,13 @@ export default function ComradesModal({ visible, onClose }: { visible: boolean; 
         </header>
 
         <div className="overflow-y-auto px-4 pb-8" style={{ maxHeight: 'calc(85vh - 58px)' }}>
+          <div className="mb-3">
+            <AdSenseCarousel
+              placement="chats"
+              label="Comrades sponsored carousel"
+              slots={['9051548379', '3164796870', '1372263706']}
+            />
+          </div>
           {stats && (
             <p className="mb-4 text-[11px]" style={{ color: colors.textMuted }}>
               {stats.count}/{stats.max_comrades} · {stats.remaining} remaining
