@@ -260,7 +260,7 @@ function CTA({
                 tone === 'ghost' && {
                     borderWidth: 0,
                     borderColor: colors.border,
-                    backgroundColor: colors.inputSurface,
+                    backgroundColor: colors.surfaceSunken,
                 },
                 isDisabled && { opacity: 0.5 },
                 pressed && !isDisabled && { opacity: PRESSED_OPACITY },
@@ -521,7 +521,9 @@ function TabBar({
                     {
                         width: `${widthPct}%` as any,
                         left: `${active * widthPct}%` as any,
-                        backgroundColor: colors.primary,
+                        backgroundColor: colors.surface,
+                        shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 3,
+                        shadowOffset: { width: 0, height: 1 }, elevation: 1,
                     },
                 ]}
             />
@@ -535,7 +537,7 @@ function TabBar({
                     >
                         <Text
                             numberOfLines={1}
-                            style={fanText('caption', colors, on ? colors.background : colors.textSecondary)}
+                            style={fanText('caption', colors, on ? colors.textPrimary : colors.textTertiary)}
                         >
                             {label}
                         </Text>
