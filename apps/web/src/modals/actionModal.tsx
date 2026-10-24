@@ -536,7 +536,10 @@ function TabBar({
                     >
                         <Text
                             numberOfLines={1}
-                            style={fanText('caption', colors, on ? colors.textPrimary : colors.textTertiary)}
+                            style={[
+                                fanText('caption', colors, on ? colors.textPrimary : colors.textTertiary),
+                                { fontSize: screenW < 380 ? 9 : 11, flexShrink: 1, textAlign: 'center', includeFontPadding: false },
+                            ]}
                         >
                             {label}
                         </Text>
@@ -2450,7 +2453,10 @@ function createStyles(colors: FanColorPalette) {
         },
         tabButton: {
             flex: 1,
+            minWidth: 0,
             alignItems: 'center',
+            justifyContent: 'center',
+            paddingHorizontal: 1,
             paddingVertical: FAN_SPACING.sm,
             zIndex: 1,
         },
