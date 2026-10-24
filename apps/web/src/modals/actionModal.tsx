@@ -1461,8 +1461,8 @@ export function SwipeableVotePledgeModal(props: Props) {
     if (channelId.length === 0) {
         return (
             <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-                <Pressable style={styles.backdrop} onPress={onClose}>
-                    <Pressable className="action-modal-sheet" style={[styles.sheet, { width: '100%', alignSelf: 'stretch', flex: 1, minWidth: 0, minHeight: 0, height: screenH * 0.82, maxHeight: '82dvh' }]} onPress={() => { }}>
+                <Pressable className="action-modal-backdrop" style={[styles.backdrop, { width: '100%', minWidth: 0, alignItems: 'stretch' }]} onPress={onClose}>
+                    <Pressable className="action-modal-sheet" style={[styles.sheet, { width: '100%', maxWidth: '100%', alignSelf: 'stretch', marginLeft: 'auto', marginRight: 'auto', flex: 1, minWidth: 0, minHeight: 0, height: screenH * 0.82, maxHeight: '82dvh' }]} onPress={() => { }}>
                         <HandleBar colors={colors} styles={styles} />
                         <View style={styles.joinGroupBox}>
                             <View style={styles.joinGroupIconWrap}>
