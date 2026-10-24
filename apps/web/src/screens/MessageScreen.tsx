@@ -55,7 +55,6 @@ import { fanText } from '@/theme/use-fan-typography';
 import { SwipeableVotePledgeModal } from '@/modals/actionModal';
 import { AftermatchReviewModal } from '@/modals/AftermatchModal';
 import { MatchDetailsModal } from '@/modals/match/matchDetailsModals';
-import ComradesModal from '@/modals/ComradesModal';
 
 type FanColors = ReturnType<typeof useFanColors>;
 const FIXTURES_KEY = ['fixtures'] as const;
@@ -136,7 +135,6 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
   const [voteModalOpen, setVoteModalOpen] = useState(false);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [matchDetailsOpen, setMatchDetailsOpen] = useState(false);
-  const [leaderboardOpen, setLeaderboardOpen] = useState(false);
   const [showVoters, setShowVoters] = useState(false);
   const [pendingImage, setPendingImage] = useState<WebImageAsset | null>(null);
   const [caption, setCaption] = useState('');
@@ -472,15 +470,6 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       className="shrink-0 rounded-full px-3 py-2 text-xs font-semibold"
       style={{ color: colors.primary, background: colors.primaryDim }}>
         Feeds
-      </button>
-      <button
-      type="button"
-      onClick={() => setLeaderboardOpen(true)}
-      aria-label="Open Comrades"
-      className="flex shrink-0 items-center justify-center gap-1 rounded-full px-2 py-2"
-      style={{ background: colors.surfaceSunken }}>
-        <Users size={16} color={colors.textPrimary}/>
-        <span className="text-[11px] font-semibold" style={{ color: colors.textPrimary }}>Comrades</span>
       </button>
     </header>
 
@@ -839,9 +828,6 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       username={username ?? ''}
       authToken={authToken}
       onClose={() => setMatchDetailsOpen(false)}/>}
-    <ComradesModal
-      visible={leaderboardOpen}
-      onClose={() => setLeaderboardOpen(false)}/>
   </main>;
 }
 
