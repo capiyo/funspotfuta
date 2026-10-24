@@ -6,8 +6,8 @@ const ADSENSE_LAYOUT_KEY = '-fb+5w+4e-db+86';
 type AdSenseAdProps = {
   /** Existing AdSense in-feed unit slot created for the Funspot publisher. */
   slotId: string;
-  // Google prohibits AdSense placements on pages primarily focused on
-  // private communications (DMs/live chat), so messaging is intentionally excluded.
+  // Keep ads out of private direct-message screens. The `chats` placement is
+  // only for the public fixture/discussion list, above its interactive cards.
   placement: 'feed' | 'chats' | 'leaderboard' | 'voting';
   enabled?: boolean;
 };
