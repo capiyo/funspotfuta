@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { createPoke, getOpenPokes, getUserPokes, getUserPoints, matchPoke, type Poke } from '@funspot/core';
 import type { CSSProperties } from 'react';
@@ -77,6 +77,10 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const tabOrder = ['open', 'matched', 'subfixtures'] as const;
+  function onTouchStart(event: React.TouchEvent<HTMLElement>) { const touch = event.touches[0]; touchStart.current = touch ? { x: touch.clientX, y: touch.clientY } : null; }
+  function onTouchEnd(event: React.TouchEvent<HTMLElement>) { const start = touchStart.current; touchStart.current = null; const touch = event.changedTouches[0]; if (!start || !touch) return; const dx = touch.clientX - start.x; const dy = touch.clientY - start.y; if (Math.abs(dx) < 65 || Math.abs(dx) < Math.abs(dy) * 1.25) return; setTab((current) => { const index = tabOrder.indexOf(current); return tabOrder[Math.max(0, Math.min(tabOrder.length - 1, index + (dx < 0 ? 1 : -1)))]; }); }
 
   useEffect(() => {
     let active = true;
@@ -225,12 +229,13 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
 
   return (
     <div style={backdropStyle} role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !submitting) onClose(); }}>
-      <section role="dialog" aria-modal="true" aria-labelledby="poke-modal-title" style={panelStyle}>
+      <section role="dialog" aria-modal="true" aria-labelledby="poke-modal-title" style={panelStyle} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
         <div aria-hidden="true" style={{ width: 32, height: 4, borderRadius: 999, background: 'var(--border, #454950)', margin: '0 auto 12px' }} />
         <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
           <div>
-            <div style={{ color: 'var(--muted, #a7abb3)', fontSize: 12, marginBottom: 5 }}>POKE WITH POINTS</div>
-            <h2 id="poke-modal-title" style={{ fontSize: 20, lineHeight: 1.3, margin: 0 }}>{fixture.homeTeam} vs {fixture.awayTeam}</h2>
+            <div style={{ color: 'var(--primary, #36c875)', fontSize: 11, fontWeight: 800, marginBottom: 5 }}>POKE THIS MATCH</div>
+            <h2 id="poke-modal-title" style={{ fontSize: 18, lineHeight: 1.3, margin: 0 }}>{fixture.homeTeam} vs {fixture.awayTeam}</h2>
+            <div style={{ color: 'var(--muted, #a7abb3)', fontSize: 11, marginTop: 4 }}>Stake points. Someone takes the other side.</div>
           </div>
           <button type="button" aria-label="Close poke modal" onClick={onClose} disabled={submitting} style={{ ...buttonStyle, minHeight: 32, padding: '4px 10px', background: 'transparent', color: 'inherit', fontSize: 22 }}>×</button>
         </header>
@@ -238,6 +243,10 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
         <div style={{ marginTop: 18, padding: 12, borderRadius: 8, background: 'var(--background, #202329)' }}>
           <div style={{ fontSize: 12, color: 'var(--muted, #a7abb3)' }}>Available points</div>
           <strong style={{ fontSize: 22 }}>{loading ? 'Loading…' : balance === null ? 'Unavailable' : balance.toLocaleString()}</strong>
+        </div>
+
+        <div style={{ marginTop: 12, padding: 12, borderRadius: 10, background: 'var(--primary-dim, rgba(54,200,117,.15))', border: '1px solid var(--primary, #36c875)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}><div><div style={{ fontSize: 11, color: 'var(--muted, #a7abb3)' }}>Your points</div><strong style={{ fontSize: 19 }}>{loading ? 'Loading…' : balance === null ? 'Unavailable' : `${balance.toLocaleString()} pts`}</strong></div><span style={{ color: 'var(--primary, #36c875)', fontSize: 10, fontWeight: 800 }}>MIN 5 PTS</span></div>
         </div>
 
         <div role="tablist" aria-label="Poke views" style={{ display: 'flex', gap: 6, marginTop: 16 }}>
@@ -265,7 +274,7 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
             </div>
           ))}
         </section>}
-        <div><label style={{ display: 'block', marginTop: 16, fontSize: 13, fontWeight: 700 }} htmlFor="poke-market">Fixture / sub-fixture</label>
+        {tab === 'subfixtures' && <div><label style={{ display: 'block', marginTop: 16, fontSize: 13, fontWeight: 700 }} htmlFor="poke-market">Fixture / sub-fixture</label>
         <select id="poke-market" value={marketId} onChange={(event) => { setMarketId(event.target.value); setError(''); }} style={{ ...fieldStyle, marginTop: 7 }}>
           <option value="main_fixture">Main fixture</option>
           {markets.map((market) => <option key={market.id} value={market.id}>{market.marketType || 'Sub-fixture'}{market.line == null ? '' : ` (${market.line})`}</option>)}
@@ -296,6 +305,11 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
         <label style={{ display: 'block', marginTop: 16, fontSize: 13, fontWeight: 700 }} htmlFor="poke-stake">Points to stake (minimum 5)</label>
         <input id="poke-stake" type="number" min={5} step={1} value={stake} onChange={(event) => setStake(event.target.value)} style={{ ...fieldStyle, marginTop: 7 }} />
 
+        <div style={{ marginTop: 10, padding: 10, borderRadius: 8, background: 'var(--background, #202329)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, fontSize: 12 }}><span style={{ color: 'var(--muted, #a7abb3)' }}>Your pick</span><strong>{selection === 'home_team' ? fixture.homeTeam : fixture.awayTeam}</strong></div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, marginTop: 7, fontSize: 12 }}><span style={{ color: 'var(--muted, #a7abb3)' }}>Opponent stake</span><strong>{Number.isInteger(Number(stake)) && Number(stake) >= 5 ? `${Number(stake)} points to match` : '—'}</strong></div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, marginTop: 7, paddingTop: 7, borderTop: '1px solid var(--border, #454950)', fontSize: 12 }}><span style={{ color: 'var(--muted, #a7abb3)' }}>If you win</span><strong style={{ color: 'var(--primary, #36c875)' }}>{balance !== null && Number.isInteger(Number(stake)) && Number(stake) >= 5 && Number(stake) <= balance ? `${balance + Number(stake)} pts balance` : '—'}</strong></div>
+        </div>
         {error && <p role="alert" style={{ color: '#ff7777', fontSize: 13 }}>{error}</p>}
         {message && <p role="status" style={{ color: 'var(--primary, #36c875)', fontWeight: 700 }}>{message}</p>}
         <footer style={{ display: 'flex', gap: 8, marginTop: 18 }}>
@@ -305,7 +319,7 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
             {submitting ? 'Poking…' : 'Poke'}
           </button>
         </footer>
-        </div>
+        </div>}
       </section>
     </div>
   );
