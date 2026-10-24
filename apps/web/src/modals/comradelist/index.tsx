@@ -9,6 +9,7 @@ import { useAuth } from '@/lib/auth/auth-context';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { useToast } from '@/lib/toast/toast-context';
 import { NotificationService } from '@/lib/api/notification-service';
+import AdSenseCarousel from '@/components/AdSenseCarousel';
 import { ComradeCard } from './comradeCard';
 import { comradeProfileFromJson, type ComradeProfile } from './types';
 
@@ -262,6 +263,9 @@ export default function ComradeListModal({
 
         <div className="overflow-y-auto p-3 sm:p-4" style={{ maxHeight: 'calc(85vh - 72px)' }}>
           {screen === 'list' && <>
+            <div className="px-4 pt-2">
+              <AdSenseCarousel placement="chats" label="Comrades sponsored carousel" slots={['9051548379', '3164796870', '1372263706']} />
+            </div>
             <div className="mb-3 flex items-center gap-2 rounded-xl border px-3" style={{ ...border, background: colors.surface }}>
               <Search size={15} style={{ color: colors.textTertiary }} />
               <input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Search name, username or club…" aria-label="Search comrades"
