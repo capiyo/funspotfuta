@@ -8,11 +8,10 @@ import App from './App';
 import { indexedDbQueryPersister } from './lib/query-persistence';
 import './styles.css';
 
-// Load the live publisher script only in production builds. Development and
-// automated browser checks must not create live ad impressions.
+// Load the live publisher script only on the production domain, never on
+// localhost or preview deployments.
 if (
   import.meta.env.PROD
-  && import.meta.env.VITE_ADSENSE_ENABLED !== 'false'
   && ['funspot.co.ke', 'www.funspot.co.ke'].includes(window.location.hostname)
 ) {
   const adsenseScript = document.createElement('script');
