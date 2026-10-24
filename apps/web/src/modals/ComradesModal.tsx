@@ -17,6 +17,12 @@ import { colors } from '@/theme';
 export default function ComradesModal({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const { userId, username, authToken } = useAuth();
   const dialogRef = useRef<HTMLDivElement>(null);
+  const swipeStartY = useRef<number | null>(null);
+  const handleSheetTouchEnd = (y: number) => {
+    const start = swipeStartY.current;
+    swipeStartY.current = null;
+    if (start !== null && y - start > 90) onClose();
+  };
   const queryClient = useQueryClient();
   const comradesQuery = useCachedComrades(userId ?? undefined, authToken);
   const comrades = comradesQuery.data ?? [];
@@ -172,6 +178,8 @@ export default function ComradesModal({ visible, onClose }: { visible: boolean; 
       onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}
     >
       <section
+        onTouchStart={(event) => { swipeStartY.current = event.touches[0]?.clientY ?? null; }}
+        onTouchEnd={(event) => handleSheetTouchEnd(event.changedTouches[0]?.clientY ?? 0)}
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
