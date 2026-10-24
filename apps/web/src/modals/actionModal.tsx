@@ -1462,7 +1462,7 @@ export function SwipeableVotePledgeModal(props: Props) {
         return (
             <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
                 <Pressable style={styles.backdrop} onPress={onClose}>
-                    <Pressable style={[styles.sheet, { width: '100%', height: screenH * 0.82, maxHeight: '82dvh' }]} onPress={() => { }}>
+                    <Pressable className="action-modal-sheet" style={[styles.sheet, { width: '100%', alignSelf: 'stretch', flex: 1, minWidth: 0, minHeight: 0, height: screenH * 0.82, maxHeight: '82dvh' }]} onPress={() => { }}>
                         <HandleBar colors={colors} styles={styles} />
                         <View style={styles.joinGroupBox}>
                             <View style={styles.joinGroupIconWrap}>
@@ -1498,7 +1498,7 @@ export function SwipeableVotePledgeModal(props: Props) {
             <View style={{ flex: 1 }}>
                 <Pressable style={styles.backdrop} onPress={onClose}>
                     <Pressable
-                        style={[styles.sheet, { width: '100%', height: screenH * 0.82, maxHeight: '82dvh' }]}
+                        className="action-modal-sheet" style={[styles.sheet, { width: '100%', alignSelf: 'stretch', flex: 1, minWidth: 0, minHeight: 0, height: screenH * 0.82, maxHeight: '82dvh' }]}
                         onPress={() => { }}
                     >
                         <HandleBar colors={colors} styles={styles} />
@@ -1569,7 +1569,7 @@ export function SwipeableVotePledgeModal(props: Props) {
                         )}
 
                         {/* Body */}
-                        <View style={{ flex: 1, overflow: 'hidden' }}>
+                        <View style={{ flex: 1, minWidth: 0, minHeight: 0, width: '100%', alignSelf: 'stretch', overflow: 'hidden' }}>
                             <ScrollView
                                 className="no-scrollbar"
                                 contentContainerStyle={{
@@ -2446,6 +2446,9 @@ function createStyles(colors: FanColorPalette) {
 
         // Layout
         tabBody: {
+            width: '100%',
+            alignSelf: 'stretch',
+            minWidth: 0,
             paddingHorizontal: FAN_SPACING.lg,
             paddingTop: FAN_SPACING.xs,
             gap: FAN_SPACING.sm,
