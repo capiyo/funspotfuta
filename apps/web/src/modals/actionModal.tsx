@@ -996,7 +996,6 @@ export function SwipeableVotePledgeModal(props: Props) {
     }, [showPledges, showSubFixtures, showBets]);
 
     const [tab, setTab] = useState(0);
-    const pagerRef = useRef<HTMLDivElement>(null);
     const pendingRetryRef = useRef<(() => void) | null>(null);
 
     // Vote
@@ -1453,13 +1452,8 @@ export function SwipeableVotePledgeModal(props: Props) {
     }
 
     // ── Tab swipe ───────────────────────────────────────────────
-    function onPagerEnd(e: React.UIEvent<HTMLDivElement>) {
-        const i = Math.round(e.currentTarget.scrollLeft / screenW);
-        if (i !== tab) setTab(i);
-    }
     function jumpTo(i: number) {
         setTab(i);
-        pagerRef.current?.scrollTo({ left: i * screenW, behavior: 'smooth' });
     }
 
 
@@ -1578,32 +1572,20 @@ export function SwipeableVotePledgeModal(props: Props) {
                         <View style={{ flex: 1, overflow: 'hidden' }}>
                             <ScrollView
                                 className="no-scrollbar"
-                                ref={pagerRef}
-                                horizontal
-                                pagingEnabled
-                                showsHorizontalScrollIndicator={false}
-                                onScroll={onPagerEnd}
+                                contentContainerStyle={{
+                                    paddingBottom: FAN_SPACING.xl,
+                                    paddingTop: FAN_SPACING.xs,
+                                    width: '100%',
+                                    alignItems: 'stretch',
+                                }}
                                 keyboardShouldPersistTaps="handled"
-                                style={{ flex: 1 }}
+                                showsVerticalScrollIndicator={false}
+                                style={{ flex: 1, minHeight: 0, width: '100%' }}
                             >
-                                {tabs.map((_, i) => (
-                                    <View key={i} style={{ width: screenW, flex: 1 }}>
-                                        <ScrollView
-                                            className="no-scrollbar"
-                                            contentContainerStyle={{
-                                                paddingBottom: FAN_SPACING.xl,
-                                                paddingTop: FAN_SPACING.xs,
-                                            }}
-                                            keyboardShouldPersistTaps="handled"
-                                            showsVerticalScrollIndicator={false}
-                                        >
-                                            {i === 0 && renderVotesTab()}
-                                            {i === 1 && showPledges && renderPledgesTab()}
-                                            {i === 2 && showSubFixtures && renderSubFixturesTab()}
-                                            {i === 3 && showBets && renderBetsTab()}
-                                        </ScrollView>
-                                    </View>
-                                ))}
+                                {tab === 0 && renderVotesTab()}
+                                {tab === 1 && showPledges && renderPledgesTab()}
+                                {tab === 2 && showSubFixtures && renderSubFixturesTab()}
+                                {tab === 3 && showBets && renderBetsTab()}
                             </ScrollView>
 
                             {isLive && <LiveOverlay colors={colors} styles={styles} />}
