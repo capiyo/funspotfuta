@@ -44,7 +44,6 @@ import {
   queryKeys,
   Fixture,
   FanColorPalette,
-  FAN_SPACING,
   Voter,
 } from '@funspot/core';
 import {
@@ -67,7 +66,7 @@ import LeaderboardModal from '@/modals/LeaderboardModal';
 import { WeeklyLeaderboardModal } from '@/modals/WeeklyLeaderboardModal';
 
 import { useFanColors } from '@/theme/use-fan-colors';
-import { GUTTER, LIST_BOTTOM_INSET } from '@/theme/layout';
+import { LIST_BOTTOM_INSET } from '@/theme/layout';
 import { RootStackParamList } from '@/navigation/RootNavigator';
 import { useHome, useHomeList } from './home/home-context';
 // TODO: export these from @funspot/core instead of reaching into its src.
