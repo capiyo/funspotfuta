@@ -3276,3 +3276,51 @@ body:has(.home-screen) .home-screen *:not(.profile-card):not(.profile-card *):no
     max-width: 100vw !important;
   }
 }
+
+
+/* PokeModal-style viewport root for the web Action sheet. */
+.action-modal-viewport {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  max-width: 100vw !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: flex-end !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+.action-modal-viewport > * {
+  flex: 1 1 auto !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  align-self: stretch !important;
+  box-sizing: border-box !important;
+}
+.action-modal-viewport .action-modal-backdrop {
+  width: 100% !important;
+  min-width: 0 !important;
+  max-width: 100% !important;
+  flex: 1 1 auto !important;
+  align-self: stretch !important;
+}
+.action-modal-viewport .action-modal-sheet {
+  width: 100% !important;
+  max-width: 448px !important;
+  min-width: 0 !important;
+  margin-inline: auto !important;
+  align-self: center !important;
+  box-sizing: border-box !important;
+}
+@media (max-width: 650px) {
+  .action-modal-viewport .action-modal-sheet {
+    width: 100% !important;
+    max-width: 100vw !important;
+    align-self: stretch !important;
+  }
+}
