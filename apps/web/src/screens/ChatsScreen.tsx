@@ -14,6 +14,7 @@ import { sendChannelMessage } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useLoginModal } from '@/modals/Login-modal-context';
 import { MatchCard, type LatestComment, type ChannelHeaderData } from '@/components/ChatsCard';
+import { AdSenseAd } from '@/components/AdSenseAd';
 import { channelHeaderOf } from '@/modals/channelHeader';
 import { SegmentedControl } from '@/components/ui/Segmentedcontrol';
 import { EmptyState, ErrorBanner, SkeletonRows } from '@/components/ui/ListsStates';
@@ -353,6 +354,11 @@ export default function ChatsScreen() {
           onScroll={scrollProps.onScroll}
           aria-label="Fixtures"
         >
+          <AdSenseAd
+            slotId="5454601642"
+            placement="chats"
+            enabled={window.matchMedia('(min-width: 651px)').matches || activeTab === 'Chats'}
+          />
           <div>{listHeader}</div>
           <div aria-live="polite">
             {filtered.length === 0 ? (
