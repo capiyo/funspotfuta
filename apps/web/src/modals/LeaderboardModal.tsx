@@ -156,6 +156,14 @@ export default function LeaderboardScreen({
 
   // Two-tab layout when a fixture is present, single-tab otherwise.
   const [tab, setTab] = useState<'leaderboard' | 'votes'>('leaderboard');
+  const swipeStartX = useRef<number | null>(null);
+  const handleSwipeStart = (x: number) => { swipeStartX.current = x; };
+  const handleSwipeEnd = (x: number) => {
+    const start = swipeStartX.current;
+    swipeStartX.current = null;
+    if (!hasFixture || start === null || Math.abs(x - start) < 55) return;
+    setTab(x < start ? 'votes' : 'leaderboard');
+  };
   const hasFixture = !!fixture;
 
   // Reset to leaderboard tab whenever the modal re-opens, so a
@@ -217,7 +225,12 @@ export default function LeaderboardScreen({
       statusBarTranslucent
     >
       <Pressable style={styles.backdrop} onPress={onClose}>
-        <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
+        <Pressable
+          style={styles.sheet}
+          onPress={(e) => e.stopPropagation()}
+          onTouchStart={(event) => handleSwipeStart(event.nativeEvent.pageX)}
+          onTouchEnd={(event) => handleSwipeEnd(event.nativeEvent.pageX)}
+        >
           <View style={styles.handleWrap}>
             <View style={styles.handle} />
           </View>
@@ -1614,7 +1627,7 @@ function createStyles(colors: FanColors) {
       padding: 3,
       borderRadius: FAN_RADIUS.md,
       backgroundColor: colors.surfaceSunken,
-      borderWidth: 0.5,
+      borderWidth: 0,
       borderColor: colors.border,
     },
     tabButton: {
@@ -1832,7 +1845,7 @@ function createStyles(colors: FanColors) {
       paddingVertical: FAN_SPACING.sm,
       borderRadius: FAN_RADIUS.md,
       backgroundColor: colors.surfaceSunken,
-      borderWidth: 0.5,
+      borderWidth: 0,
       borderColor: colors.border,
     },
     summaryRow: {
@@ -1879,7 +1892,7 @@ function createStyles(colors: FanColors) {
       paddingHorizontal: 8,
       paddingVertical: 3,
       borderRadius: 14,
-      borderWidth: 0.5,
+      borderWidth: 0,
       maxWidth: 160,
     },
     filterChipText: {
@@ -1942,7 +1955,7 @@ function createStyles(colors: FanColors) {
     },
     activityCard: {
       borderRadius: FAN_RADIUS.sm,
-      borderWidth: 0.5,
+      borderWidth: 0,
       padding: FAN_SPACING.sm,
       marginBottom: FAN_SPACING.sm,
     },
