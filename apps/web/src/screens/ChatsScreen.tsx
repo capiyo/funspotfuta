@@ -21,6 +21,8 @@ import { SwipeableVotePledgeModal } from '@/modals/actionModal';
 import { PokeModal } from '@/modals/PokeModal';
 import { AftermatchReviewModal } from '@/modals/AftermatchModal';
 import { MatchDetailsModal } from '@/modals/match/matchDetailsModals';
+import LeaderboardModal from '@/modals/LeaderboardModal';
+import { WeeklyLeaderboardModal } from '@/modals/WeeklyLeaderboardModal';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { LIST_BOTTOM_INSET, GUTTER } from '@/theme/layout';
 import { useHome, useHomeList } from '@/screens/home/home-context';
@@ -177,6 +179,8 @@ export default function ChatsScreen() {
   const [pokeModalFixture, setPokeModalFixture] = useState<Fixture | null>(null);
   const [reviewFixture, setReviewFixture] = useState<Fixture | null>(null);
   const [matchDetailsFixture, setMatchDetailsFixture] = useState<Fixture | null>(null);
+  const [leaderboardChannel, setLeaderboardChannel] = useState<{ id: string; name: string } | null>(null);
+  const [weeklyChannel, setWeeklyChannel] = useState<{ id: string; name: string } | null>(null);
 
   // Each open vote sheet remembers the channel associated with that fixture.
   const [sheetChannelId, setSheetChannelId] = useState<string | undefined>();
@@ -376,6 +380,17 @@ export default function ChatsScreen() {
                         onOpenPokeModal={(selectedFixture) => setPokeModalFixture(selectedFixture)}
                         onOpenResults={(selectedFixture) => { setSheetChannelId(channelId); setReviewFixture(selectedFixture); }}
                         onChatClick={() => openChat(fixture, channelId)}
+                        onChannelPress={() => {
+                          const open = () => setLeaderboardChannel({ id: channelId, name: headerById.get(channelId)?.name ?? 'Channel' });
+                          if (!isLoggedIn) return requireLogin(open);
+                          open();
+                        }}
+                        onChannelLongPress={() => openChat(fixture, channelId)}
+                        onWeeklyLeaderboardPress={() => {
+                          const open = () => setWeeklyChannel({ id: channelId, name: headerById.get(channelId)?.name ?? 'Channel' });
+                          if (!isLoggedIn) return requireLogin(open);
+                          open();
+                        }}
                         onLike={handleLike}
                         onSubmitComment={(selectedFixture, text) => handleSubmitComment(selectedFixture, text, channelId)}
                         onOpenLineups={setMatchDetailsFixture}
@@ -450,6 +465,20 @@ export default function ChatsScreen() {
           onClose={() => setReviewFixture(null)}
         />
       )}
+      {leaderboardChannel && (
+        <LeaderboardModal
+          visible
+          channelId={leaderboardChannel.id}
+          channelName={leaderboardChannel.name}
+          onClose={() => setLeaderboardChannel(null)}
+        />
+      )}
+      <WeeklyLeaderboardModal
+        visible={!!weeklyChannel}
+        channelId={weeklyChannel?.id ?? null}
+        channelName={weeklyChannel?.name ?? 'Channel'}
+        onClose={() => setWeeklyChannel(null)}
+      />
       {matchDetailsFixture && (
         <MatchDetailsModal
           visible fixture={matchDetailsFixture} userId={userId ?? ''}
