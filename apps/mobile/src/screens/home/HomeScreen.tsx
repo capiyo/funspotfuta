@@ -5,6 +5,7 @@
 // incoming screen's width or flex measurements.
 
 import { ComponentType, useEffect, useMemo, useRef, useState } from 'react';
+import { useRoute, type RouteProp } from '@react-navigation/native';
 import { useQueryClient } from '@tanstack/react-query';
 import { View, Animated, Easing, StyleSheet } from 'react-native';
 import { AppHeader } from './appHeader';
@@ -25,11 +26,12 @@ const TABS: { name: TabName; Screen: ComponentType }[] = [
 const TAB_BAR_HIDE_OFFSET = 24;
 const HEADER_HIDE_OFFSET = -8;
 
-function HomeInner() {
+function HomeInner({ initialTab }: { initialTab?: TabName }) {
     const colors = useFanColors();
     const queryClient = useQueryClient();
     const styles = useMemo(() => createStyles(colors), [colors]);
     const { headerVisible, activeTab, setActiveTab } = useHome();
+    useEffect(() => { if (initialTab) setActiveTab(initialTab); }, [initialTab, setActiveTab]);
 
     const [showCreateChannel, setShowCreateChannel] = useState(false);
     const [visited, setVisited] = useState<Set<TabName>>(() => new Set([activeTab]));
@@ -149,9 +151,10 @@ function HomeInner() {
 }
 
 export default function HomeScreen() {
+    const route = useRoute<RouteProp<{ Tabs: { initialTab?: 'Chats' | 'Feed' } | undefined }, 'Tabs'>>();
     return (
         <HomeProvider>
-            <HomeInner />
+            <HomeInner initialTab={route.params?.initialTab} />
         </HomeProvider>
     );
 }
