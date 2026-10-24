@@ -10,7 +10,7 @@
 // `members: ChannelMember[]` explicitly via the `Channel` re-export that
 // types/channel.ts provides.
 
-import { useMemo, useState } from 'react';
+import { Fragment, useMemo, useState } from 'react';
 import {
     View,
     Text,
@@ -28,6 +28,7 @@ import {
     memberVoteAccuracy,
 } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
+import AdCarousel from '@/components/AdCarousel';
 import AdCarousel from '@/components/AdCarousel';
 
 type FanColors = ReturnType<typeof useFanColors>;
