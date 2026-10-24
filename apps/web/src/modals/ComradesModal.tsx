@@ -92,7 +92,7 @@ export default function ComradesModal({ visible, onClose }: { visible: boolean; 
 
   async function handleAdd(candidate: Record<string, any>) {
     if (!userId || !username || !authToken) return;
-    const id = String(candidate.id ?? candidate._id ?? '');
+    const id = String(candidate.id ?? candidate._id ?? candidate.user_id ?? candidate.userId ?? '');
     if (!id) return;
     const key = queryKeys.comrades(userId);
     const previous = queryClient.getQueryData<Record<string, any>[]>(key);
@@ -127,7 +127,7 @@ export default function ComradesModal({ visible, onClose }: { visible: boolean; 
         else queryClient.removeQueries({ queryKey: key, exact: true });
         return;
       }
-      setResults((items) => items.filter((item) => String(item.id ?? item._id) !== id));
+      setResults((items) => items.filter((item) => String(item.id ?? item._id ?? item.user_id ?? item.userId) !== id));
       await refresh();
     } catch (error) {
       if (previous) queryClient.setQueryData(key, previous);
