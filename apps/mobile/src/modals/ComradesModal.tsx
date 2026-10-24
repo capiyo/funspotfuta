@@ -183,7 +183,7 @@ export default function ComradesScreen({
                 <Text style={styles.sectionLabel}>Add profiles to channel</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                   {channels.map((channel) => (
-                    <Pressable key={channel.channelId} onPress={() => setSelectedChannelId(channel.channelId)} style={{ marginRight: 8, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 18, backgroundColor: selectedChannelId === channel.channelId ? colors.primaryDim : colors.surface, borderWidth: 1, borderColor: selectedChannelId === channel.channelId ? colors.primary : colors.border }}>
+                    <Pressable key={channel.channelId} onPress={() => setSelectedChannelId(channel.channelId)} style={{ marginRight: 8, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 18, backgroundColor: selectedChannelId === channel.channelId ? colors.surface : colors.surface, borderWidth: 1, borderColor: selectedChannelId === channel.channelId ? colors.green : colors.border }}>
                       <Text style={{ color: selectedChannelId === channel.channelId ? colors.primary : colors.textPrimary, fontSize: 11 }}>{channel.name}{channel.isAdmin ? ' · Admin' : ''}</Text>
                     </Pressable>
                   ))}
@@ -205,7 +205,7 @@ export default function ComradesScreen({
                           <Text style={styles.addButtonText}>Comrade</Text>
                         </Pressable>
                         <Pressable
-                          style={[styles.addButton, { backgroundColor: colors.surfaceSunken, opacity: channels.some((channel) => channel.channelId === selectedChannelId && channel.isAdmin) ? 1 : 0.45 }]}
+                          style={[styles.addButton, { backgroundColor: colors.bg, opacity: channels.some((channel) => channel.channelId === selectedChannelId && channel.isAdmin) ? 1 : 0.45 }]}
                           disabled={busyId === id || !channels.some((channel) => channel.channelId === selectedChannelId && channel.isAdmin)}
                           onPress={() => handleAddToChannel(r)}
                         >
