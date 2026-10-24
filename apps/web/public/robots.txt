@@ -1,3 +1,8 @@
+User-agent: AdsBot-Google
+Allow: /
+Disallow: /login
+Disallow: /comments/
+
 User-agent: *
 Allow: /
 Disallow: /messages/
