@@ -39,7 +39,6 @@ import {
 
 import { FAN_SPACING, FAN_RADIUS, type FanColorPalette } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
-import { AdSenseAd } from '@/components/AdSenseAd';
 import { fanText } from '@/theme/use-fan-typography';
 import { useToast } from '@/lib/toast/toast-context';
 import { ICON, PRESSED_OPACITY } from '@/theme/layout';
@@ -1595,7 +1594,6 @@ export function SwipeableVotePledgeModal(props: Props) {
                                             showsVerticalScrollIndicator={false}
                                         >
                                             {i === 0 && renderVotesTab()}
-                                            {i === 0 && <AdSenseAd slotId="3164796870" placement="voting" enabled={visible} />}
                                             {i === 1 && showPledges && renderPledgesTab()}
                                             {i === 2 && showSubFixtures && renderSubFixturesTab()}
                                             {i === 3 && showBets && renderBetsTab()}
