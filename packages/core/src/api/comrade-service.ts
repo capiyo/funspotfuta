@@ -521,3 +521,56 @@ export async function postComment(p: PostCommentParams): Promise<{ success: bool
     return { success: false, message: `Network error: ${e?.message ?? e}` };
   }
 }
+
+export interface WeeklyChannelLeader {
+  userId: string;
+  username: string;
+  pointsGained: number;
+  rank: number;
+}
+
+/**
+ * GET /api/channels/:channelId/leaderboard/weekly
+ * The API must return weekly deltas (not season totals). Accept common response
+ * envelope/field variants, but deliberately reject lifetime-only point fields.
+ */
+export async function getChannelWeeklyLeaderboard(
+  channelId: string,
+  authToken?: string | null,
+): Promise<WeeklyChannelLeader[]> {
+  if (!channelId) return [];
+  try {
+    const res = await fetch(
+      `${API_BASE}/channels/${encodeURIComponent(channelId)}/leaderboard/weekly?days=7`,
+      { headers: headers(authToken) },
+    );
+    if (!res.ok) return [];
+    const body: unknown = await res.json();
+    const root = body && typeof body === 'object' ? body as Record<string, unknown> : {};
+    const candidate = Array.isArray(body)
+      ? body
+      : Array.isArray(root.leaderboard)
+        ? root.leaderboard
+        : Array.isArray(root.members)
+          ? root.members
+          : Array.isArray(root.data)
+            ? root.data
+            : [];
+    return candidate
+      .filter((row): row is Record<string, unknown> => !!row && typeof row === 'object')
+      .map((row) => {
+        const userId = String(row.user_id ?? row.userId ?? row.id ?? '');
+        const username = String(row.username ?? row.user_name ?? row.nickname ?? 'Anonymous');
+        const rawPoints = row.points_gained ?? row.pointsGained ?? row.weekly_points
+          ?? row.weeklyPoints ?? row.points_earned ?? row.pointsEarned ?? row.weekly_gain;
+        const pointsGained = typeof rawPoints === 'number' ? rawPoints
+          : typeof rawPoints === 'string' && rawPoints.trim() !== '' ? Number(rawPoints) : NaN;
+        return { userId, username, pointsGained, rank: 0 };
+      })
+      .filter((row) => Number.isFinite(row.pointsGained) && row.pointsGained > 0)
+      .sort((a, b) => b.pointsGained - a.pointsGained || a.username.localeCompare(b.username))
+      .map((row, index) => ({ ...row, rank: index + 1 }));
+  } catch {
+    return [];
+  }
+}
