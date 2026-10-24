@@ -91,11 +91,6 @@ function isLiveFixture(fixture: Fixture) {
 function isUpcomingFixture(fixture: Fixture) {
   return fixture.status === 'upcoming' || fixture.status === 'soon';
 }
-function matchesFilter(fixture: Fixture, filter: Filter) {
-  if (isLiveFixture(fixture)) return filter === 'all' || filter === 'live';
-  if (isUpcomingFixture(fixture)) return filter === 'all' || filter === 'upcoming';
-  return false;
-}
 function statusRank(fixture: Fixture) {
   if (isLiveFixture(fixture)) return 0;
   if (isUpcomingFixture(fixture)) return 1;
@@ -316,7 +311,7 @@ export default function ChatsScreen() {
     <section aria-label="Chats and fixtures" style={{ ...panelStyle(colors), display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
       {isPending || ((data?.length ?? 0) === 0 && isFetching) ? (
         <div className="no-scrollbar" style={{ paddingTop: topInset, minHeight: 0, overflowY: 'auto' }} aria-busy="true">
-          <AdSenseCarousel placement="chats" slots={['5454601642']} enabled={window.matchMedia('(min-width: 651px)').matches || activeTab === 'Chats'} />
+          <AdSenseCarousel placement="chats" slots={['5454601642']} enabled />
           {loadError && <ErrorBanner colors={colors} message={loadError} />}
           <SkeletonRows colors={colors} />
         </div>
@@ -327,7 +322,7 @@ export default function ChatsScreen() {
           onScroll={scrollProps.onScroll}
           aria-label="Fixtures"
         >
-          <AdSenseCarousel placement="chats" slots={['5454601642']} enabled={window.matchMedia('(min-width: 651px)').matches || true} />
+          <AdSenseCarousel placement="chats" slots={['5454601642']} enabled />
           {loadError && <ErrorBanner colors={colors} message={loadError} />}
           <div aria-live="polite">
             {chatFixtures.length === 0 ? (
@@ -380,7 +375,7 @@ export default function ChatsScreen() {
               );
             })}
           </div>
-          {(isError || isAllChannelsError || filtered.length === 0 || channelPool.length === 0) && <div className="chats-list-footer">
+          {(isError || isAllChannelsError || chatFixtures.length === 0 || channelPool.length === 0) && <div className="chats-list-footer">
             <button type="button" onClick={() => void onRefresh()} disabled={refreshing}
               aria-label="Refresh fixtures" aria-busy={refreshing} className="secondary-button">
               {refreshing ? 'Refreshing…' : 'Refresh'}
@@ -404,7 +399,7 @@ export default function ChatsScreen() {
           hasUserVoted={!!myVote}
           userVoteSelection={myVote?.selection}
           channelId={activeChannelId ?? ''}
-          showPledgesTab showSubFixturesTab showBetsTab
+          showPledgesTab showSubFixturesTab
           onClose={() => setModalFixture(null)}
           onVote={handleModalVote}
           onPledge={handleModalPledge}
