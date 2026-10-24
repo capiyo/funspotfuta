@@ -27,7 +27,7 @@ const panelStyle = (colors: FanColorPalette): CSSProperties => ({
   boxShadow: '0 -12px 48px rgba(0,0,0,.25)',
   '--surface': colors.surface, '--text': colors.textPrimary, '--primary': colors.primary,
   '--primary-dim': colors.primaryDim, '--muted': colors.textTertiary,
-  '--border': colors.border, '--background': colors.surfaceSunken,
+  '--border': colors.border, '--background': colors.surfaceSunken, '--away': colors.away,
   '--surface-sunken': colors.surfaceSunken, '--text-secondary': colors.textSecondary,
 } as CSSProperties);
 const buttonStyle: CSSProperties = {
