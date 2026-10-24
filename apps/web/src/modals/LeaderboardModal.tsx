@@ -19,7 +19,7 @@
 // The channel picker is kept (the Flutter modal doesn't have one) so
 // the user can hop channels from inside this modal.
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import {
   View,
@@ -328,7 +328,7 @@ export default function LeaderboardScreen({
                     />
                   )}
                   {members.map((row, index) => (
-                    <React.Fragment key={row.id}>
+                    <Fragment key={row.id}>
                     <MemberCard
                       colors={colors}
                       styles={styles}
@@ -345,7 +345,7 @@ export default function LeaderboardScreen({
                       }
                     />
                     {index === 4 && <AdSenseCarousel placement="leaderboard" label="Leaderboard advertisements" enabled={visible} slots={['3164796870', '1372263706', '7379268852']} />}
-                    </React.Fragment>
+                    </Fragment>
                   ))}
                 </>
               )}
