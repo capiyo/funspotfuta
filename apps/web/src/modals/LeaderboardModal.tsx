@@ -1602,6 +1602,9 @@ function createStyles(colors: FanColors) {
     },
     screen: { flex: 1, minHeight: 0, backgroundColor: colors.background },
     content: {
+      flexDirection: 'column',
+      alignItems: 'stretch',
+      width: '100%',
       paddingHorizontal: FAN_SPACING.md,
       paddingBottom: FAN_SPACING.xxl,
     },
@@ -1655,6 +1658,8 @@ function createStyles(colors: FanColors) {
 
     // ── Champion card ──────────────────────────────────
     championCard: {
+      width: '100%',
+      alignSelf: 'stretch',
       borderRadius: FAN_RADIUS.lg,
       borderWidth: 1,
       padding: FAN_SPACING.md,
@@ -1756,6 +1761,8 @@ function createStyles(colors: FanColors) {
 
     // ── Member card ────────────────────────────────────
     memberCard: {
+      width: '100%',
+      alignSelf: 'stretch',
       borderRadius: FAN_RADIUS.md,
       borderWidth: 1,
       padding: FAN_SPACING.md,
