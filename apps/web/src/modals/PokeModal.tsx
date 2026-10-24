@@ -21,7 +21,7 @@ const backdropStyle: CSSProperties = {
   display: 'flex', alignItems: 'flex-end', justifyContent: 'center', padding: 0,
 };
 const panelStyle = (colors: FanColorPalette): CSSProperties => ({
-  width: 'min(100%, 448px)', height: '78vh', maxHeight: '78vh', overflowY: 'auto',
+  width: 'min(100%, 448px)', height: '50dvh', maxHeight: '50dvh', display: 'flex', flexDirection: 'column', overflow: 'hidden',
   background: colors.background, color: colors.textPrimary,
   borderRadius: '18px 18px 0 0', padding: '8px 16px 16px', boxSizing: 'border-box',
   boxShadow: '0 -12px 48px rgba(0,0,0,.25)',
@@ -267,7 +267,8 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
             </button>
           ))}
         </div>
-        {tab === 'open' && <section style={{ marginTop: 14 }}>
+        <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', overscrollBehavior: 'contain', paddingBottom: 8 }}>
+        {tab === 'open' && <section style={{ marginTop: 8 }}>
           <h3 style={{ margin: '0 0 8px', fontSize: 14 }}>Open pokes · {openPokes.length}</h3>
           {openPokes.length === 0 ? <p style={{ margin: 0, color: 'var(--muted, #a7abb3)', fontSize: 12 }}>No open pokes for this fixture yet.</p> : openPokes.map((poke) => (
             <div key={poke.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 0', borderBottom: '1px solid var(--border, #35383e)' }}>
@@ -276,7 +277,7 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
             </div>
           ))}
         </section>}
-        {tab === 'matched' && <section style={{ marginTop: 14 }}>
+        {tab === 'matched' && <section style={{ marginTop: 8 }}>
           <h3 style={{ margin: '0 0 8px', fontSize: 14 }}>Matched pokes · {matchedPokes.length}</h3>
           {matchedPokes.length === 0 ? <p style={{ margin: 0, color: 'var(--muted, #a7abb3)', fontSize: 12 }}>No matched pokes yet.</p> : matchedPokes.map((poke) => (
             <div key={poke.id} style={{ padding: '9px 0', borderBottom: '1px solid var(--border, #35383e)' }}>
@@ -330,6 +331,7 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
           </button>
         </footer>
         </div>}
+        </div>
       </section>
     </div>
   );
