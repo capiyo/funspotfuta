@@ -4,10 +4,9 @@ import { fileURLToPath } from 'node:url';
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const distDir = path.resolve(scriptDir, '../dist');
-const configuredOrigin = process.env.VITE_SITE_URL
-  || (process.env.VERCEL_PROJECT_PRODUCTION_URL
-    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : (process.env.CONTEXT === 'production' && process.env.URL ? process.env.URL : 'https://funspot.co.ke'));
+// Canonical production origin is explicit; provider preview URLs must never
+// leak into the public sitemap.
+const configuredOrigin = process.env.VITE_SITE_URL || 'https://funspot.co.ke';
 
 function normalizeOrigin(value) {
   try {
