@@ -542,7 +542,7 @@ export async function getChannelWeeklyLeaderboard(
   try {
     const res = await fetch(
       `${API_BASE}/channels/${encodeURIComponent(channelId)}/leaderboard/weekly?days=7`,
-      { headers: headers(authToken) },
+      { headers: headers(authToken ?? undefined) },
     );
     if (!res.ok) return [];
     const body: unknown = await res.json();
