@@ -29,10 +29,14 @@ export function AdSenseAd({ slotId, placement, enabled = true }: AdSenseAdProps)
   const [status, setStatus] = useState<'pending' | 'filled' | 'unfilled'>('pending');
 
   useEffect(() => {
-    if (!import.meta.env.PROD || !enabled || !adRef.current) return;
+    if (!import.meta.env.PROD || !enabled || !adRef.current) {
+      if (!enabled) pushedRef.current = false;
+      return;
+    }
 
     if (!pushedRef.current) {
       pushedRef.current = true;
+      setStatus('pending');
       try {
         window.adsbygoogle = window.adsbygoogle || [];
         window.adsbygoogle.push({});
