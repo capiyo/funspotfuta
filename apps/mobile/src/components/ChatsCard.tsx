@@ -220,6 +220,9 @@ export function MatchCard({
   onOpenPokeModal,
   onOpenResults,
   onChatClick,
+  onChannelPress,
+  onChannelLongPress,
+  onWeeklyLeaderboardPress,
   onLike,
   onSubmitComment,
   onOpenLineups,
@@ -238,6 +241,9 @@ export function MatchCard({
   onOpenPokeModal?: (fixture: Fixture) => void;
   onOpenResults?: (fixture: Fixture) => void;
   onChatClick?: (fixture: Fixture) => void;
+  onChannelPress?: () => void;
+  onChannelLongPress?: () => void;
+  onWeeklyLeaderboardPress?: () => void;
   onLike?: (fixture: Fixture) => void;
   onSubmitComment?: (fixture: Fixture, text: string) => void;
   onOpenLineups?: (fixture: Fixture) => void;
@@ -347,9 +353,16 @@ export function MatchCard({
       {/* Layer 2 — content */}
       <View pointerEvents="box-none">
         {/* Meta: league or channel on the left, date / live on the right */}
-        <View style={styles.metaRow} pointerEvents="none">
+        <View style={styles.metaRow}>
           {channel ? (
-            <View style={[styles.channelLabel, styles.grow]}>
+            <Pressable
+              style={[styles.channelLabel, styles.grow]}
+              onPress={onChannelPress}
+              onLongPress={onChannelLongPress}
+              delayLongPress={450}
+              accessibilityRole="button"
+              accessibilityLabel={`Open ${channel.name} leaderboard; long press for chat`}
+            >
               <View
                 style={[
                   styles.channelAvatar,
@@ -382,7 +395,7 @@ export function MatchCard({
               >
                 {channel.name}
               </Text>
-            </View>
+            </Pressable>
           ) : (
             <Text
               style={[fanText('competition', colors, '#FFFFFF'), styles.grow]}
@@ -399,6 +412,17 @@ export function MatchCard({
             </Text>
           )}
         </View>
+        {channel?.leaderName && (
+          <Pressable
+            style={styles.weeklyLeader}
+            onPress={onWeeklyLeaderboardPress}
+            accessibilityRole="button"
+            accessibilityLabel={`Open weekly leaderboard for ${channel.name}`}
+          >
+            <Text style={styles.weeklyLeaderName} numberOfLines={1}>Leader: {channel.leaderName}</Text>
+            <Text style={styles.weeklyLeaderPoints}>{(channel.leaderPoints ?? 0).toLocaleString()} pts</Text>
+          </Pressable>
+        )}
 
         {/* Competition / tournament type, e.g. Premier League or Serie A */}
         <Text
@@ -550,6 +574,9 @@ const styles = StyleSheet.create({
   leagueName: { marginTop: 2, marginBottom: 0, fontSize: 11, lineHeight: 14 },
   resultRow: { marginTop: 10 },
   stackRow: { marginTop: 14 },
+  weeklyLeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, paddingVertical: 3, paddingHorizontal: 0, zIndex: 3 },
+  weeklyLeaderName: { color: '#8A8A8A', fontSize: 11, fontWeight: '600', flex: 1 },
+  weeklyLeaderPoints: { color: '#16A34A', fontSize: 11, fontWeight: '800' },
   channelLabel: {
     flexDirection: 'row',
     alignItems: 'center',
