@@ -3088,3 +3088,50 @@ body:has(.home-screen) .home-screen *:not(.profile-card):not(.profile-card *):no
   outline: 0;
   box-shadow: none;
 }
+
+
+/* Modal layout exceptions: Home's flat-surface reset must not collapse modal
+   content or override the component theme's own layout primitives. */
+.action-modal-sheet,
+.leaderboard-modal-sheet {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  box-sizing: border-box !important;
+}
+.action-modal-sheet {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+.action-modal-sheet .no-scrollbar,
+.leaderboard-modal-sheet .leaderboard-scroll {
+  display: block !important;
+  flex: 1 1 0% !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  min-height: 0 !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  overscroll-behavior: contain;
+  box-sizing: border-box !important;
+}
+.leaderboard-modal-sheet {
+  flex: 0 1 auto !important;
+  width: 100% !important;
+  height: 85dvh !important;
+  max-height: 85dvh !important;
+}
+@media (max-width: 650px) {
+  .action-modal-sheet {
+    height: 82dvh !important;
+    max-height: 82dvh !important;
+  }
+  .leaderboard-modal-sheet {
+    width: 100% !important;
+    height: 85dvh !important;
+    max-height: 85dvh !important;
+  }
+}
