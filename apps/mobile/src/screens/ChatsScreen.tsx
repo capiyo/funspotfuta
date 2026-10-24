@@ -429,7 +429,6 @@ export default function ChatsScreen() {
     <View style={styles.screen}>
       {isPending ? (
         <View style={{ paddingTop: topInset }}>
-          <AdCarousel />
           {loadError && <ErrorBanner colors={colors} message={loadError} />}
           <SkeletonRows colors={colors} />
         </View>
@@ -451,7 +450,7 @@ export default function ChatsScreen() {
               colors={[colors.primary]}
             />
           }
-          ListHeaderComponent={<View><AdCarousel />{loadError && <ErrorBanner colors={colors} message={loadError} />}</View>}
+          ListHeaderComponent={<View>{loadError && <ErrorBanner colors={colors} message={loadError} />}</View>}
           ListEmptyComponent={
             isError ? (
               <EmptyState
