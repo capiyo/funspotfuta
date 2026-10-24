@@ -21,7 +21,7 @@ import {
     memberVoteAccuracy,
 } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
-import { AdSenseAd } from '@/components/AdSenseAd';
+import AdSenseCarousel from '@/components/AdSenseCarousel';
 
 type FanColors = ReturnType<typeof useFanColors>;
 
@@ -339,12 +339,11 @@ export function ChannelLeaderboard({
                     </div>
                   </div>
                   <div style={rn({ display: 'flex', flexDirection: 'column', gap: 6, minWidth: 0 })}>
-                    {members.map((member, index) => <MemberCard key={member.userId || index} colors={colors} styles={styles} member={member} rank={index + 1} maxPoints={panelMaxPoints} isYou={member.userId === currentUserId} onViewProfile={() => onViewMember(member)} />)}
+                    {members.map((member, index) => <React.Fragment key={member.userId || index}><MemberCard colors={colors} styles={styles} member={member} rank={index + 1} maxPoints={panelMaxPoints} isYou={member.userId === currentUserId} onViewProfile={() => onViewMember(member)} />{index === 4 && <AdSenseCarousel placement="leaderboard" label="Sponsored members list" slots={['7379268852']} />}</React.Fragment>)}
                   </div>
                 </section>;
               })}
             </div>
-            <AdSenseAd slotId="7379268852" placement="leaderboard" />
         </div>
     );
 }
