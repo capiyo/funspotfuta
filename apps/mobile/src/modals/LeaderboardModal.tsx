@@ -32,7 +32,6 @@ import {
   RefreshControl,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import AdCarousel from '@/components/AdCarousel';
 import {
   X,
   Trophy,
@@ -252,9 +251,6 @@ export default function LeaderboardScreen({
             </Pressable>
           </View>
 
-          {/* Flutter parity: sponsored carousel sits in the leaderboard header. */}
-          <AdCarousel />
-
           {/* Channel picker — only shown when the parent didn't lock us
               to a channel via the `channelId` prop. */}
           {!channelId && channels.length > 0 && (
@@ -330,9 +326,9 @@ export default function LeaderboardScreen({
                       }
                     />
                   )}
-                  {members.map((row) => (
+                  {members.map((row, index) => (
+                    <React.Fragment key={row.id}>
                     <MemberCard
-                      key={row.id}
                       colors={colors}
                       styles={styles}
                       row={row}
@@ -347,6 +343,8 @@ export default function LeaderboardScreen({
                         })
                       }
                     />
+                    {index === 4 && <View style={{ marginVertical: 8 }}><AdCarousel /></View>}
+                    </React.Fragment>
                   ))}
                 </>
               )}
