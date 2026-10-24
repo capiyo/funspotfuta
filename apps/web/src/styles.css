@@ -3080,3 +3080,11 @@ body:has(.home-screen) .home-screen *:not(.profile-card):not(.profile-card *):no
     visibility: visible !important;
   }
 }
+
+
+/* Borderless widget surfaces — consistent on desktop web and mobile web. */
+:where(.match-card,.chat-card,.fixture-card,.leaderboard-card,.leaderboard-row,.comrade-card,.comrades-row,.vote-card,.voter-card,.widget-card,.widget,[data-widget]) {
+  border: 0 !important;
+  outline: 0;
+  box-shadow: none;
+}
