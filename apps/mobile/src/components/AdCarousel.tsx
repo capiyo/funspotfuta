@@ -88,8 +88,8 @@ export default function AdCarousel() {
       renderItem={({ item }) => <View style={[styles.slide, { width }]}>
         {item.type === 'ad' ? (
           <NativeAdView nativeAd={item.ad} style={[styles.ad, { backgroundColor: colors.surface }]}>
-            <View style={styles.labelRow}><Text style={[styles.label, { color: colors.textTertiary }]}>ADVERTISEMENT</Text><NativeAsset assetType={NativeAssetType.ADVERTISER} /></View>
-            <View style={styles.content}><NativeMediaView style={styles.media} /><View style={styles.copy}><NativeAsset assetType={NativeAssetType.HEADLINE} /><NativeAsset assetType={NativeAssetType.BODY} /></View><NativeAsset assetType={NativeAssetType.CALL_TO_ACTION} /></View>
+            <View style={styles.labelRow}><Text style={[styles.label, { color: colors.textTertiary }]}>ADVERTISEMENT</Text><NativeAsset assetType={NativeAssetType.ADVERTISER}><Text style={[styles.advertiser, { color: colors.textTertiary }]}>{item.ad.advertiser ?? ''}</Text></NativeAsset></View>
+            <View style={styles.content}><NativeMediaView style={styles.media} /><View style={styles.copy}><NativeAsset assetType={NativeAssetType.HEADLINE}><Text style={[styles.headline, { color: colors.textPrimary }]}>{item.ad.headline ?? ''}</Text></NativeAsset><NativeAsset assetType={NativeAssetType.BODY}><Text style={[styles.body, { color: colors.textSecondary }]}>{item.ad.body ?? ''}</Text></NativeAsset></View><NativeAsset assetType={NativeAssetType.CALL_TO_ACTION}><Text style={[styles.cta, { backgroundColor: colors.primary, color: colors.surface }]}>{item.ad.callToAction ?? 'Learn more'}</Text></NativeAsset></View>
           </NativeAdView>
         ) : (
           <View style={[styles.fixture, { backgroundColor: colors.surface }]}>
