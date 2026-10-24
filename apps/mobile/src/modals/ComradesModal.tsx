@@ -19,6 +19,9 @@ import {
   addComrade,
   removeComrade,
   searchPotentialComrades,
+  getUserChannels,
+  addMembersToChannel,
+  Channel,
   ComradeStats,
 } from '@funspot/core';
 import { colors } from '@/theme';
@@ -37,6 +40,9 @@ export default function ComradesScreen({
   const [results, setResults] = useState<Record<string, any>[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [channels, setChannels] = useState<Channel[]>([]);
+  const [selectedChannelId, setSelectedChannelId] = useState('');
+  const [notice, setNotice] = useState('');
   const swipeStartY = useRef<number | null>(null);
   const handleSheetTouchEnd = (y: number) => {
     const start = swipeStartY.current;
@@ -59,6 +65,12 @@ export default function ComradesScreen({
   useEffect(() => {
     if (!visible) return;
     refresh();
+    if (userId && authToken) {
+      getUserChannels(userId, authToken).then((items) => {
+        setChannels(items);
+        setSelectedChannelId((current) => current || items.find((item) => item.isAdmin)?.channelId || items[0]?.channelId || '');
+      }).catch(() => setChannels([]));
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible, userId]);
 
@@ -89,6 +101,21 @@ export default function ComradesScreen({
     setBusyId(null);
     setResults((prev) => prev.filter((r) => (r.id ?? r._id) !== id));
     refresh();
+  }
+
+  async function handleAddToChannel(candidate: Record<string, any>) {
+    if (!authToken || !selectedChannelId) { setNotice('Choose a channel first.'); return; }
+    const channel = channels.find((item) => item.channelId === selectedChannelId);
+    if (!channel?.isAdmin) { setNotice('Only channel admins can add members.'); return; }
+    const id = String(candidate.id ?? candidate._id ?? candidate.user_id ?? candidate.userId ?? '');
+    const name = String(candidate.username ?? candidate.user_name ?? '');
+    if (!id || !name) { setNotice('This profile is missing its ID or username.'); return; }
+    setBusyId(id);
+    try {
+      const ok = await addMembersToChannel(selectedChannelId, [{ id, username: name }], authToken);
+      setNotice(ok ? `Added @${name} to ${channel.name}.` : 'Could not add this user to the channel.');
+    } catch { setNotice('Could not add this user to the channel.'); }
+    finally { setBusyId(null); }
   }
 
   async function handleRemove(comradeId: string) {
@@ -149,6 +176,20 @@ export default function ComradesScreen({
               </Pressable>
             </View>
 
+            {channels.length > 0 && (
+              <View style={{ marginBottom: 12 }}>
+                <Text style={styles.sectionLabel}>Add profiles to channel</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  {channels.map((channel) => (
+                    <Pressable key={channel.channelId} onPress={() => setSelectedChannelId(channel.channelId)} style={{ marginRight: 8, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 18, backgroundColor: selectedChannelId === channel.channelId ? colors.primaryDim : colors.surface, borderWidth: 1, borderColor: selectedChannelId === channel.channelId ? colors.primary : colors.border }}>
+                      <Text style={{ color: selectedChannelId === channel.channelId ? colors.primary : colors.textPrimary, fontSize: 11 }}>{channel.name}{channel.isAdmin ? ' · Admin' : ''}</Text>
+                    </Pressable>
+                  ))}
+                </ScrollView>
+              </View>
+            )}
+            {notice ? <Text style={{ color: colors.green, fontSize: 11, marginBottom: 10 }}>{notice}</Text> : null}
+
             {results.length > 0 && (
               <View style={{ marginBottom: 16 }}>
                 <Text style={styles.sectionLabel}>Results</Text>
@@ -157,13 +198,18 @@ export default function ComradesScreen({
                   return (
                     <View key={id} style={styles.row}>
                       <Text style={styles.rowText}>{r.username}</Text>
-                      <Pressable
-                        style={styles.addButton}
-                        disabled={busyId === id}
-                        onPress={() => handleAdd(r)}
-                      >
-                        <Text style={styles.addButtonText}>Add</Text>
-                      </Pressable>
+                      <View style={{ flexDirection: 'row', gap: 6 }}>
+                        <Pressable style={styles.addButton} disabled={busyId === id} onPress={() => handleAdd(r)}>
+                          <Text style={styles.addButtonText}>Comrade</Text>
+                        </Pressable>
+                        <Pressable
+                          style={[styles.addButton, { backgroundColor: colors.surfaceSunken, opacity: channels.some((channel) => channel.channelId === selectedChannelId && channel.isAdmin) ? 1 : 0.45 }]}
+                          disabled={busyId === id || !channels.some((channel) => channel.channelId === selectedChannelId && channel.isAdmin)}
+                          onPress={() => handleAddToChannel(r)}
+                        >
+                          <Text style={[styles.addButtonText, { color: colors.textPrimary }]}>Add to channel</Text>
+                        </Pressable>
+                      </View>
                     </View>
                   );
                 })}
