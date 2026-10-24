@@ -415,7 +415,7 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
     {/* Automatic fixture/ad carousel at the top of messaging. */}
     <AdSenseCarousel
       placement="chats"
-      label="Messaging fixtures and advertisements"
+      label="Messaging advertisements"
       slots={['9051548379', '3164796870', '1372263706']}
     />
 
