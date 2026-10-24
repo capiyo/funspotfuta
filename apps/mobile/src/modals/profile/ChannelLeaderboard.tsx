@@ -28,6 +28,7 @@ import {
     memberVoteAccuracy,
 } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
+import AdCarousel from '@/components/AdCarousel';
 
 type FanColors = ReturnType<typeof useFanColors>;
 
@@ -416,6 +417,7 @@ export function ChannelLeaderboard({
                     </Text>
                 }
                 renderItem={({ item, index }) => (
+                    <View>
                     <MemberCard
                         colors={colors}
                         styles={styles}
@@ -429,6 +431,8 @@ export function ChannelLeaderboard({
                                 : undefined
                         }
                     />
+                    {index === 4 && <View style={{ marginVertical: 8 }}><AdCarousel /></View>}
+                    </View>
                 )}
             />
             </View>
