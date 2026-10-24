@@ -31,7 +31,6 @@ export function AdSenseAd({ slotId, placement, enabled = true }: AdSenseAdProps)
   useEffect(() => {
     if (
       !import.meta.env.PROD
-      || import.meta.env.VITE_ADSENSE_ENABLED === 'false'
       || !['funspot.co.ke', 'www.funspot.co.ke'].includes(window.location.hostname)
       || !enabled
       || !adRef.current
