@@ -316,7 +316,7 @@ export default function ComradesModal({ visible, onClose }: { visible: boolean; 
                       <button
                         type="button"
                         className="rounded-full px-3 py-1 text-[11px] font-bold disabled:opacity-60"
-                        style={{ background: colors.surfaceSunken, color: colors.textPrimary }}
+                        style={{ background: colors.surface, color: colors.textPrimary }}
                         disabled={!selectedChannelId || channelBusyId === id || !channels.some((channel) => channel.channelId === selectedChannelId && channel.isAdmin)}
                         onClick={() => void handleAddToChannel(candidate)}
                       >
