@@ -423,8 +423,8 @@ export function MatchCard({
             accessibilityRole="button"
             accessibilityLabel={`Open weekly leaderboard for ${channel.name}`}
           >
-            <Text style={styles.weeklyLeaderName} numberOfLines={1}>Leader: {channel.leaderName}</Text>
-            <Text style={styles.weeklyLeaderPoints}>{(channel.leaderPoints ?? 0).toLocaleString()} pts</Text>
+            <Text style={[styles.weeklyLeaderName, { color: colors.textSecondary }]} numberOfLines={1}>Leader: {channel.leaderName}</Text>
+            <Text style={[styles.weeklyLeaderPoints, { color: colors.primary }]}>{(channel.leaderPoints ?? 0).toLocaleString()} pts</Text>
           </Pressable>
         )}
 
@@ -579,8 +579,8 @@ const styles = StyleSheet.create({
   resultRow: { marginTop: 10 },
   stackRow: { marginTop: 14 },
   weeklyLeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, paddingVertical: 3, paddingHorizontal: 0, zIndex: 3 },
-  weeklyLeaderName: { color: colors.textSecondary, fontSize: 11, fontWeight: '600', flex: 1 },
-  weeklyLeaderPoints: { color: colors.primary, fontSize: 11, fontWeight: '800' },
+  weeklyLeaderName: { fontSize: 11, fontWeight: '600', flex: 1 },
+  weeklyLeaderPoints: { fontSize: 11, fontWeight: '800' },
   channelLabel: {
     flexDirection: 'row',
     alignItems: 'center',
