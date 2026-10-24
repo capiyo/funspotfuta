@@ -107,6 +107,7 @@ import {
 import { useAuth } from '@/lib/auth/auth-context';
 import { useToast } from '@/lib/toast/toast-context';
 import { useFanColors } from '@/theme/use-fan-colors';
+import { useHome } from './home/home-context';
 import { fanText } from '@/theme/use-fan-typography';
 import { PRESSED_OPACITY } from '@/theme/layout';
 import { Input } from '@/components/ui/input';
@@ -162,6 +163,7 @@ export default function MessageScreen() {
     route.params ?? {};
 
   const { userId, username, authToken, isLoggedIn } = useAuth();
+  const { setActiveTab } = useHome();
   const toast = useToast();
   const queryClient = useQueryClient();
 
@@ -498,13 +500,30 @@ export default function MessageScreen() {
         </View>
 
         <Pressable
+          onPress={() => {
+            setActiveTab('Feed');
+            navigation.navigate('Tabs');
+          }}
+          hitSlop={8}
+          style={styles.feedButton}
+          accessibilityRole="button"
+          accessibilityLabel="Open Feeds"
+        >
+          <Text style={fanText('tag', colors, colors.primary)}>Feeds</Text>
+        </Pressable>
+        <Pressable
           onPress={() => setLeaderboardOpen(true)}
           hitSlop={8}
-          style={styles.iconButton}
+          style={styles.comradesButton}
+          accessibilityRole="button"
+          accessibilityLabel="Open Comrades leaderboard"
         >
           <Users size={16} color={colors.textPrimary} />
+          <Text style={fanText('tag', colors, colors.textPrimary)}>Comrades</Text>
         </Pressable>
       </View>
+
+      <AdCarousel />
 
       {/* Vote strip */}
       {fixture && fixtureId && (
@@ -1520,6 +1539,8 @@ function createStyles(colors: FanColors, bottomInset: number) {
       paddingVertical: FAN_SPACING.sm,
     },
     iconButton: { padding: 4 },
+    feedButton: { paddingHorizontal: 8, paddingVertical: 6, borderRadius: 8, backgroundColor: colors.primary + '14' },
+    comradesButton: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 6, paddingVertical: 6 },
     emptyChannels: {
       flex: 1,
       alignItems: 'center',
