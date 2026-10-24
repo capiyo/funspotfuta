@@ -327,9 +327,9 @@ export default function LeaderboardScreen({
                       }
                     />
                   )}
-                  {members.map((row) => (
+                  {members.map((row, index) => (
+                    <React.Fragment key={row.id}>
                     <MemberCard
-                      key={row.id}
                       colors={colors}
                       styles={styles}
                       row={row}
@@ -344,15 +344,11 @@ export default function LeaderboardScreen({
                         })
                       }
                     />
+                    {index === 4 && <AdSenseCarousel placement="leaderboard" label="Leaderboard advertisements" enabled={visible} slots={['3164796870', '1372263706', '7379268852']} />}
+                    </React.Fragment>
                   ))}
                 </>
               )}
-              <AdSenseCarousel
-                placement="leaderboard"
-                label="Leaderboard advertisements"
-                enabled={visible}
-                slots={['3164796870', '1372263706', '7379268852']}
-              />
             </ScrollView>
           ) : (
             <VotersTab
