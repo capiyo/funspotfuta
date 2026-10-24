@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { createPoke, getOpenPokes, getUserPokes, getUserPoints, matchPoke, type Poke } from '@funspot/core';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
@@ -46,6 +46,10 @@ export function PokeModal({ visible, fixture, userId, username, authToken, chann
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState('');
+  const touchStart = useRef<{ x: number; y: number } | null>(null);
+  const tabOrder = ['open', 'matched', 'subfixtures'] as const;
+  function handleTouchStart(event: { nativeEvent: { pageX: number; pageY: number } }) { touchStart.current = { x: event.nativeEvent.pageX, y: event.nativeEvent.pageY }; }
+  function handleTouchEnd(event: { nativeEvent: { pageX: number; pageY: number } }) { const start = touchStart.current; touchStart.current = null; if (!start) return; const dx = event.nativeEvent.pageX - start.x; const dy = event.nativeEvent.pageY - start.y; if (Math.abs(dx) < 65 || Math.abs(dx) < Math.abs(dy) * 1.25) return; setTab((current) => { const index = tabOrder.indexOf(current); return tabOrder[Math.max(0, Math.min(tabOrder.length - 1, index + (dx < 0 ? 1 : -1)))]; }); }
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -138,13 +142,14 @@ export function PokeModal({ visible, fixture, userId, username, authToken, chann
 
   return <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
     <Pressable style={styles.backdrop} onPress={onClose}>
-      <Pressable style={[styles.panel, { height: screenH * 0.72 }]} onPress={() => { }}>
+      <Pressable style={[styles.panel, { height: screenH * 0.82 }]} onPress={() => { }} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
         <View style={styles.handleWrap}><View style={styles.handle} /></View>
         <View style={styles.header}>
-          <View style={{ flex: 1 }}><Text style={styles.eyebrow}>POKE WITH POINTS</Text><Text style={styles.title}>{fixture.homeTeam} vs {fixture.awayTeam}</Text></View>
+          <View style={{ flex: 1 }}><Text style={styles.eyebrow}>POKE THIS MATCH</Text><Text style={styles.title}>{fixture.homeTeam} vs {fixture.awayTeam}</Text><Text style={styles.muted}>Stake points. Someone takes the other side.</Text></View>
           <Pressable onPress={onClose} disabled={submitting} accessibilityLabel="Close poke modal"><Text style={styles.close}>×</Text></Pressable>
         </View>
-                <View style={styles.tabs}>
+                <View style={styles.pointsSummary}><View style={{ flex: 1 }}><Text style={styles.muted}>Your points</Text><Text style={styles.balanceValue}>{loading ? 'Loading…' : balance === null ? 'Unavailable' : `${balance.toLocaleString()} pts`}</Text></View><Text style={styles.minimum}>MIN 5 PTS</Text></View>
+        <View style={styles.tabs}>
           {([{id:'open',label:'Open Pokes'},{id:'matched',label:'Matched Pokes'},{id:'subfixtures',label:'Sub-fixtures'}] as const).map((item) => <Pressable key={item.id} onPress={() => setTab(item.id)} style={[styles.tab, tab === item.id && styles.tabActive]}><Text style={[styles.tabText, tab === item.id && styles.tabTextActive]}>{item.label}</Text></Pressable>)}
         </View>
         {tab === 'open' && <View style={styles.listSection}>
@@ -153,8 +158,8 @@ export function PokeModal({ visible, fixture, userId, username, authToken, chann
         </View>}
         {tab === 'matched' && <View style={styles.listSection}><Text style={styles.label}>Matched pokes · {matchedPokes.length}</Text>{matchedPokes.length ? matchedPokes.map(p => <View key={p.id} style={styles.pokerRow}><View style={{flex:1}}><Text style={styles.choiceText}>{p.userName} · {p.selection}</Text><Text style={styles.muted}>{p.amount} pts · {p.status}</Text><Text style={styles.muted}>{p.finisherName ? 'Matched with '+p.finisherName : 'Outcome pending'}</Text></View></View>) : <Text style={styles.muted}>Your matched pokes will appear here.</Text>}</View>}
 
-        <ScrollView keyboardShouldPersistTaps="handled">
-          <View style={styles.balance}><Text style={styles.muted}>Available points</Text><Text style={styles.balanceValue}>{loading ? 'Loading…' : balance === null ? 'Unavailable' : balance.toLocaleString()}</Text></View>
+        {tab === 'subfixtures' && <ScrollView keyboardShouldPersistTaps="handled">
+  
           <Text style={styles.label}>Fixture / sub-fixture</Text>
           <View style={styles.optionsWrap}>
             <Pressable onPress={() => setMarketId('main_fixture')} style={[styles.choice, marketId === 'main_fixture' && styles.selected]}><Text style={styles.choiceText}>Main fixture</Text></Pressable>
@@ -164,13 +169,14 @@ export function PokeModal({ visible, fixture, userId, username, authToken, chann
           <View style={styles.optionsWrap}>{options.map((option) => <Pressable key={option.value} onPress={() => setSelection(option.value)} style={[styles.choice, selection === option.value && styles.selected]}><Text style={styles.choiceText}>{option.label}</Text></Pressable>)}</View>
           <Text style={styles.label}>Stake (minimum 5 points)</Text>
           <TextInput value={stake} onChangeText={setStake} keyboardType="number-pad" editable={!submitting} style={styles.input} placeholder="5" placeholderTextColor={colors.textTertiary} />
+          <View style={styles.projection}><View style={styles.projectionRow}><Text style={styles.muted}>Your pick</Text><Text style={styles.choiceText}>{selection === 'home_team' ? fixture.homeTeam : fixture.awayTeam}</Text></View><View style={styles.projectionRow}><Text style={styles.muted}>Opponent stake</Text><Text style={styles.choiceText}>{Number.isInteger(Number(stake)) && Number(stake) >= 5 ? `${Number(stake)} points to match` : '—'}</Text></View><View style={[styles.projectionRow, styles.projectionTotal]}><Text style={styles.muted}>If you win</Text><Text style={[styles.choiceText, { color: colors.primary, fontWeight: '800' }]}>{balance !== null && Number.isInteger(Number(stake)) && Number(stake) >= 5 && Number(stake) <= balance ? `${balance + Number(stake)} pts balance` : '—'}</Text></View></View>
           {!!error && <Text style={styles.error}>{error}</Text>}
           {!!message && <Text style={styles.success}>{message}</Text>}
           <Pressable onPress={() => void submitPoke()} disabled={loading || submitting} style={[styles.primaryButton, (loading || submitting) && { opacity: 0.6 }]}><Text style={styles.primaryText}>{submitting ? 'Sending poke…' : 'Poke'}</Text></Pressable>
           <Text style={styles.label}>Pokers</Text>
           {pokers.length ? pokers.map((poker, index) => <View key={`${poker.userName ?? poker.user_name ?? poker.starter_name ?? 'poker'}-${index}`} style={styles.pokerRow}><Text style={styles.choiceText}>{poker.userName ?? poker.user_name ?? poker.starter_name ?? 'Fan'}</Text><Text style={styles.muted}>{poker.selection ?? '—'} · {poker.amount ?? poker.starter_amount ?? 0} pts</Text></View>) : <Text style={styles.muted}>No pokes recorded yet.</Text>}
           
-        </ScrollView>
+        </ScrollView>}
       </Pressable>
     </Pressable>
   </Modal>;
@@ -186,6 +192,11 @@ function createStyles(colors: FanColorPalette) {
     eyebrow: { color: colors.primary, fontSize: 11, fontWeight: '800', marginBottom: 5 },
     title: { color: colors.textPrimary, fontSize: 19, fontWeight: '800' },
     close: { color: colors.textPrimary, fontSize: 30, lineHeight: 32 },
+    pointsSummary: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12, padding: 12, backgroundColor: colors.primaryDim, borderColor: colors.borderActive, borderWidth: StyleSheet.hairlineWidth, borderRadius: 10 },
+    minimum: { color: colors.primary, fontSize: 10, fontWeight: '800' },
+    projection: { marginTop: 10, padding: 10, backgroundColor: colors.surfaceSunken, borderRadius: 8, gap: 7 },
+    projectionRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+    projectionTotal: { paddingTop: 7, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border },
     tabs: { flexDirection: 'row', gap: 4, marginBottom: 12, backgroundColor: colors.surfaceSunken, padding: 4, borderRadius: 10 },
     tab: { flex: 1, paddingVertical: 9, paddingHorizontal: 3, borderRadius: 7, alignItems: 'center' },
     tabActive: { backgroundColor: colors.primary },
