@@ -146,8 +146,14 @@ export function PokeModal({ visible, fixture, userId, username, authToken, chann
       <Pressable style={[styles.panel, { height: screenH * 0.82 }]} onPress={() => { }} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
         <View style={styles.handleWrap}><View style={styles.handle} /></View>
         <View style={styles.header}>
-          <View style={{ flex: 1 }}><Text style={styles.eyebrow}>POKE THIS MATCH</Text><Text style={styles.title}>{fixture.homeTeam} vs {fixture.awayTeam}</Text><Text style={styles.muted}>Stake points. Someone takes the other side.</Text></View>
-          <Pressable onPress={onClose} disabled={submitting} accessibilityLabel="Close poke modal"><Text style={styles.close}>×</Text></Pressable>
+          <View style={styles.headerIcon}><Text style={{ color: colors.primary, fontSize: 17 }}>✦</Text></View>
+          <View style={{ flex: 1, minWidth: 0 }}><Text style={styles.title}>Poke</Text><Text style={styles.muted}>{fixture.league || 'Match'}</Text></View>
+          <Pressable onPress={onClose} disabled={submitting} accessibilityRole="button" accessibilityLabel="Close poke modal" style={styles.closeButton}><Text style={styles.close}>×</Text></Pressable>
+        </View>
+        <View style={styles.matchHeader}>
+          <View style={styles.matchSide}><Text style={[styles.matchName, { color: colors.primary }]}>{fixture.homeTeam}</Text></View>
+          <View style={styles.matchCenter}><Text style={styles.versus}>VS</Text>{(fixture.isLive || fixture.status === 'live') && <Text style={styles.liveBadge}>LIVE</Text>}</View>
+          <View style={[styles.matchSide, { alignItems: 'flex-end' }]}><Text style={[styles.matchName, { color: colors.away }]}>{fixture.awayTeam}</Text></View>
         </View>
                 <View style={styles.pointsSummary}><View style={{ flex: 1 }}><Text style={styles.muted}>Your points</Text><Text style={styles.balanceValue}>{loading ? 'Loading…' : balance === null ? 'Unavailable' : `${balance.toLocaleString()} pts`}</Text></View><Text style={styles.minimum}>MIN 5 PTS</Text></View>
         <View style={styles.tabs}>
@@ -189,20 +195,28 @@ function createStyles(colors: FanColorPalette) {
     panel: { backgroundColor: colors.background, borderTopLeftRadius: 20, borderTopRightRadius: 20, overflow: 'hidden', paddingHorizontal: 18, paddingBottom: 12 },
     handleWrap: { alignItems: 'center', paddingTop: 8, paddingBottom: 8 },
     handle: { width: 32, height: 4, borderRadius: 999, backgroundColor: colors.border },
-    header: { flexDirection: 'row', alignItems: 'flex-start', gap: 12, marginBottom: 14 },
+    header: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 },
+    headerIcon: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.primaryDim },
+    closeButton: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surfaceSunken },
+    matchHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingTop: 10, paddingBottom: 14, marginBottom: 12, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
+    matchSide: { flex: 1, minWidth: 0 },
+    matchName: { fontSize: 13, fontWeight: '800' },
+    matchCenter: { alignItems: 'center', gap: 4 },
+    versus: { color: colors.textTertiary, fontSize: 10, fontWeight: '800' },
+    liveBadge: { color: '#fff', backgroundColor: colors.away, fontSize: 8, fontWeight: '800', overflow: 'hidden', borderRadius: 10, paddingHorizontal: 6, paddingVertical: 2 },
     eyebrow: { color: colors.primary, fontSize: 11, fontWeight: '800', marginBottom: 5 },
-    title: { color: colors.textPrimary, fontSize: 19, fontWeight: '800' },
+    title: { color: colors.textPrimary, fontSize: 16, fontWeight: '800' },
     close: { color: colors.textPrimary, fontSize: 30, lineHeight: 32 },
     pointsSummary: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12, padding: 12, backgroundColor: colors.primaryDim, borderColor: colors.borderActive, borderWidth: StyleSheet.hairlineWidth, borderRadius: 10 },
     minimum: { color: colors.primary, fontSize: 10, fontWeight: '800' },
     projection: { marginTop: 10, padding: 10, backgroundColor: colors.surfaceSunken, borderRadius: 8, gap: 7 },
     projectionRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
     projectionTotal: { paddingTop: 7, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border },
-    tabs: { flexDirection: 'row', gap: 4, marginBottom: 12, backgroundColor: colors.surfaceSunken, padding: 4, borderRadius: 10 },
+    tabs: { flexDirection: 'row', gap: 4, marginBottom: 12, backgroundColor: colors.surfaceSunken, borderColor: colors.border, borderWidth: StyleSheet.hairlineWidth, padding: 3, borderRadius: 10 },
     tab: { flex: 1, paddingVertical: 9, paddingHorizontal: 3, borderRadius: 7, alignItems: 'center' },
-    tabActive: { backgroundColor: colors.primary },
-    tabText: { color: colors.textSecondary, fontSize: 10, fontWeight: '700', textAlign: 'center' },
-    tabTextActive: { color: colors.textInverse },
+    tabActive: { backgroundColor: colors.surface, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 3, shadowOffset: { width: 0, height: 1 }, elevation: 1 },
+    tabText: { color: colors.textTertiary, fontSize: 10, fontWeight: '500', textAlign: 'center' },
+    tabTextActive: { color: colors.textPrimary, fontWeight: '700' },
     listSection: { marginBottom: 14 },
     matchButton: { backgroundColor: colors.primary, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 7, alignSelf: 'center' },
     balance: { backgroundColor: colors.surfaceSunken, padding: 13, borderRadius: 10, marginBottom: 12 },
