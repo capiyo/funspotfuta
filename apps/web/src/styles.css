@@ -3303,6 +3303,30 @@ body:has(.home-screen) .home-screen *:not(.profile-card):not(.profile-card *):no
   box-sizing: border-box !important;
 }
 .action-modal-viewport .action-modal-backdrop {
+  position: absolute !important;
+  inset: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: flex-end !important;
+  width: 100% !important;
+  height: 100% !important;
+  min-height: 100% !important;
+}
+.action-modal-viewport .action-modal-sheet {
+  flex: 0 0 auto !important;
+  height: 82dvh !important;
+  max-height: 82dvh !important;
+  margin-top: auto !important;
+  margin-bottom: 0 !important;
+  padding-bottom: env(safe-area-inset-bottom) !important;
+  text-align: left;
+}
+.action-modal-viewport .action-modal-sheet > * {
+  box-sizing: border-box !important;
+  min-width: 0 !important;
+}
+.action-modal-viewport .action-modal-backdrop {
   width: 100% !important;
   min-width: 0 !important;
   max-width: 100% !important;
