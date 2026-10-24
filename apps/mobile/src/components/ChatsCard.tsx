@@ -22,7 +22,7 @@
 // `channel` is optional; when given, a small avatar + channel name replaces
 // the league label in the top-left. Without it the card shows the league.
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import {
   Check,
@@ -252,6 +252,7 @@ export function MatchCard({
   const { userId, isLoggedIn } = useAuth();
   const { requireLogin } = useLoginModal();
   const [draft, setDraft] = useState('');
+  const longChannelPressFired = useRef(false);
   const [failedUri, setFailedUri] = useState<string | null>(null);
 
   // Random pick, fixed for this card's lifetime.
@@ -357,8 +358,11 @@ export function MatchCard({
           {channel ? (
             <Pressable
               style={[styles.channelLabel, styles.grow]}
-              onPress={onChannelPress}
-              onLongPress={onChannelLongPress}
+              onPress={() => {
+                if (longChannelPressFired.current) { longChannelPressFired.current = false; return; }
+                onChannelPress?.();
+              }}
+              onLongPress={() => { longChannelPressFired.current = true; onChannelLongPress?.(); }}
               delayLongPress={450}
               accessibilityRole="button"
               accessibilityLabel={`Open ${channel.name} leaderboard; long press for chat`}
@@ -575,8 +579,8 @@ const styles = StyleSheet.create({
   resultRow: { marginTop: 10 },
   stackRow: { marginTop: 14 },
   weeklyLeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, paddingVertical: 3, paddingHorizontal: 0, zIndex: 3 },
-  weeklyLeaderName: { color: '#8A8A8A', fontSize: 11, fontWeight: '600', flex: 1 },
-  weeklyLeaderPoints: { color: '#16A34A', fontSize: 11, fontWeight: '800' },
+  weeklyLeaderName: { color: colors.textSecondary, fontSize: 11, fontWeight: '600', flex: 1 },
+  weeklyLeaderPoints: { color: colors.primary, fontSize: 11, fontWeight: '800' },
   channelLabel: {
     flexDirection: 'row',
     alignItems: 'center',
