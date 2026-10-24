@@ -470,14 +470,14 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       type="button"
       onClick={() => setLeaderboardOpen(true)}
       aria-label="Comrades and leaderboard"
-      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
+      className="flex shrink-0 items-center justify-center gap-1 rounded-full px-2 py-2"
       style={{ background: colors.surfaceSunken }}>
-<Users size={16} color={colors.textPrimary}/>
-</button>
+        <Users size={16} color={colors.textPrimary}/>
+        <span className="text-[11px] font-semibold" style={{ color: colors.textPrimary }}>Comrades</span>
+      </button>
     </header>
 
-    {/* Flutter parity: the message header carousel position is directly below the header.
-        Keep this public discussion placement out of the private direct-message list. */}
+    {/* Flutter parity: swipeable sponsored carousel sits between the messaging header and fixture controls. */}
     <div
       aria-label="Sponsored carousel"
       className="flex shrink-0 snap-x snap-mandatory gap-3 overflow-x-auto px-2"
