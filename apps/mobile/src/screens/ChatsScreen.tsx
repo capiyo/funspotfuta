@@ -161,11 +161,6 @@ function isLiveFixture(f: Fixture) {
 function isUpcomingFixture(f: Fixture) {
   return f.status === 'upcoming' || f.status === 'soon';
 }
-function matchesFilter(f: Fixture, filter: Filter) {
-  if (isLiveFixture(f)) return filter === 'all' || filter === 'live';
-  if (isUpcomingFixture(f)) return filter === 'all' || filter === 'upcoming';
-  return false;
-}
 function statusRank(f: Fixture) {
   if (isLiveFixture(f)) return 0;
   if (isUpcomingFixture(f)) return 1;
@@ -536,7 +531,6 @@ export default function ChatsScreen() {
           channelId={activeChannelId ?? ''}
           showPledgesTab
           showSubFixturesTab
-          showBetsTab
           onClose={() => setModalFixture(null)}
           onVote={handleModalVote}
           onPledge={handleModalPledge}
