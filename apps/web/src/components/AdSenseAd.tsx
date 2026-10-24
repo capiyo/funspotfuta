@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useFanColors } from '@/theme/use-fan-colors';
 
 const ADSENSE_CLIENT_ID = 'ca-pub-4829747375056254';
 const ADSENSE_LAYOUT_KEY = '-fb+5w+4e-db+86';
@@ -26,6 +27,7 @@ declare global {
  * labelled separately from interactive voting/chat controls.
  */
 export function AdSenseAd({ slotId, placement, enabled = true }: AdSenseAdProps) {
+  const colors = useFanColors();
   const adRef = useRef<HTMLElement | null>(null);
   const pushedRef = useRef(false);
   const [status, setStatus] = useState<'pending' | 'filled' | 'unfilled'>('pending');
@@ -89,16 +91,18 @@ export function AdSenseAd({ slotId, placement, enabled = true }: AdSenseAdProps)
         display: status === 'unfilled' ? 'none' : 'block',
         width: '100%',
         minWidth: 0,
-        margin: '12px 0',
-        padding: '8px 0',
+        margin: '0',
+        padding: '3px 0',
+        background: colors.surface,
+        borderRadius: 6,
         overflow: 'hidden',
       }}
     >
       <div
         style={{
-          color: 'var(--home-text-tertiary, #737373)',
-          fontSize: 10,
-          lineHeight: '14px',
+          color: colors.textTertiary,
+          fontSize: 9,
+          lineHeight: '11px',
           letterSpacing: '0.04em',
           textTransform: 'uppercase',
           marginBottom: 4,
@@ -110,7 +114,7 @@ export function AdSenseAd({ slotId, placement, enabled = true }: AdSenseAdProps)
       <ins
         ref={(node) => { adRef.current = node; }}
         className="adsbygoogle"
-        style={{ display: 'block', width: '100%', minHeight: 100 }}
+        style={{ display: 'block', width: '100%', minHeight: 64 }}
         data-ad-client={ADSENSE_CLIENT_ID}
         data-ad-slot={slotId}
         data-ad-format="fluid"
