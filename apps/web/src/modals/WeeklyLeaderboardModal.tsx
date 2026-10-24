@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, View } from '@/lib/native-web-compat';
-import { Trophy, X } from 'lucide-react-native';
+import { Trophy, X } from 'lucide-react';
 import { getChannelWeeklyLeaderboard, type WeeklyChannelLeader } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useFanColors } from '@/theme/use-fan-colors';
