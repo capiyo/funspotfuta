@@ -1,5 +1,6 @@
 User-agent: AdsBot-Google
 Allow: /
+Allow: /ads.txt
 Disallow: /login
 Disallow: /comments/
 
