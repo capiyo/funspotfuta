@@ -50,6 +50,7 @@ import { useChannelChat, type Voter } from '@/lib/api/use-channel-chat';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useToast } from '@/lib/toast/toast-context';
 import { useFanColors } from '@/theme/use-fan-colors';
+import { useHome } from '@/screens/home/home-context';
 import { AdSenseAd } from '@/components/AdSenseAd';
 import { fanText } from '@/theme/use-fan-typography';
 import { SwipeableVotePledgeModal } from '@/modals/actionModal';
@@ -112,6 +113,7 @@ function isUpcomingStatus(status: string): boolean {
 export default function MessageScreen(props: { channel?: Channel; userId?: string | null; username?: string | null; authToken?: string | null } = {}) {
   const colors = useFanColors();
   const navigate = useNavigate();
+  const { setActiveTab } = useHome();
   const routeParams = useParams<RouteParams>();
   const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
@@ -460,7 +462,7 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       </div>
       <button
       type="button"
-      onClick={() => navigate('/')}
+      onClick={() => { setActiveTab('Feed'); navigate('/'); }}
       aria-label="Open Feeds"
       className="shrink-0 rounded-full px-3 py-2 text-xs font-semibold"
       style={{ color: colors.primary, background: colors.primaryDim }}>
@@ -478,8 +480,20 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
 
     {/* Flutter parity: the message header carousel position is directly below the header.
         Keep this public discussion placement out of the private direct-message list. */}
-    <div className="shrink-0 px-2">
-      <AdSenseAd slotId="9051548379" placement="chats" />
+    <div
+      aria-label="Sponsored carousel"
+      className="flex shrink-0 snap-x snap-mandatory gap-3 overflow-x-auto px-2"
+      style={{ scrollbarWidth: 'none' }}
+    >
+      {[
+        { slot: '9051548379', key: 'message-ad-a' },
+        { slot: '3164796870', key: 'message-ad-b' },
+        { slot: '1372263706', key: 'message-ad-c' },
+      ].map(({ slot, key }) => (
+        <div key={key} className="w-full shrink-0 snap-start">
+          <AdSenseAd slotId={slot} placement="chats" />
+        </div>
+      ))}
     </div>
 
     {/* Vote strip: chips open the vote/review dialog; totals open voter details. */}
