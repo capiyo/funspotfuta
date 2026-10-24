@@ -73,7 +73,12 @@ export function AdSenseAd({ slotId, placement, enabled = true }: AdSenseAdProps)
   // Production ads are enabled by default on the verified canonical domains.
   // Set VITE_ADSENSE_ENABLED=false only to disable manually placed units; the
   // global loader remains scoped to funspot.co.ke/www.funspot.co.ke in main.tsx.
-  if (!import.meta.env.PROD || import.meta.env.VITE_ADSENSE_ENABLED === 'false' || !enabled) return null;
+  if (
+    !import.meta.env.PROD
+    || import.meta.env.VITE_ADSENSE_ENABLED === 'false'
+    || !enabled
+    || !['funspot.co.ke', 'www.funspot.co.ke'].includes(window.location.hostname)
+  ) return null;
 
   return (
     <aside
