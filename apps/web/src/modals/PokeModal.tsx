@@ -21,7 +21,7 @@ const backdropStyle: CSSProperties = {
   display: 'flex', alignItems: 'flex-end', justifyContent: 'center', padding: 0,
 };
 const panelStyle = (colors: FanColorPalette): CSSProperties => ({
-  width: 'min(100%, 448px)', height: '50dvh', maxHeight: '50dvh', display: 'flex', flexDirection: 'column', overflow: 'hidden',
+  width: '100%', maxWidth: 448, height: '82dvh', maxHeight: '82dvh', display: 'flex', flexDirection: 'column', overflow: 'hidden',
   background: colors.surface, color: colors.textPrimary,
   borderRadius: '16px 16px 0 0', padding: '6px 12px 8px', boxSizing: 'border-box',
   boxShadow: '0 -12px 48px rgba(0,0,0,.25)',
