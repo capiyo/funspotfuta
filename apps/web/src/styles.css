@@ -305,8 +305,8 @@ body:has(.home-screen) {
 .home-screen,
 .home-screen *,
 body:has(.home-screen) *,
-body:has(.home-screen) .fixed,
-body:has(.home-screen) .fixed * {
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)),
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)) * {
   box-shadow: none !important;
   outline: 0 !important;
   border-width: 0 !important;
@@ -317,8 +317,8 @@ body:has(.home-screen) .fixed * {
 .home-screen *::after,
 body:has(.home-screen) *::before,
 body:has(.home-screen) *::after,
-body:has(.home-screen) .fixed *::before,
-body:has(.home-screen) .fixed *::after {
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)) *::before,
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)) *::after {
   box-shadow: none !important;
   outline: 0 !important;
   border-width: 0 !important;
@@ -363,8 +363,8 @@ body:has(.home-screen) .fixed *::after {
 .home-screen .chats-fixture-list,
 .home-screen [class*="overflow-y-auto"],
 .home-screen [class*="overflow-auto"],
-body:has(.home-screen) .fixed [class*="overflow-y-auto"],
-body:has(.home-screen) .fixed [class*="overflow-auto"] {
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)) [class*="overflow-y-auto"],
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)) [class*="overflow-auto"] {
   scrollbar-width: none !important;
   -ms-overflow-style: none !important;
 }
@@ -376,8 +376,8 @@ body:has(.home-screen) .fixed [class*="overflow-auto"] {
 .home-screen .chats-fixture-list::-webkit-scrollbar,
 .home-screen [class*="overflow-y-auto"]::-webkit-scrollbar,
 .home-screen [class*="overflow-auto"]::-webkit-scrollbar,
-body:has(.home-screen) .fixed [class*="overflow-y-auto"]::-webkit-scrollbar,
-body:has(.home-screen) .fixed [class*="overflow-auto"]::-webkit-scrollbar {
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)) [class*="overflow-y-auto"]::-webkit-scrollbar,
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)) [class*="overflow-auto"]::-webkit-scrollbar {
   display: none !important;
   width: 0 !important;
   height: 0 !important;
@@ -410,11 +410,11 @@ body:has(.home-screen) .fixed [class*="overflow-auto"]::-webkit-scrollbar {
 .home-screen [class*="ring-"],
 .home-screen [class*="outline-"],
 .home-screen [class*="border-"],
-body:has(.home-screen) .fixed hr,
-body:has(.home-screen) .fixed [class*="divide-"],
-body:has(.home-screen) .fixed [class*="ring-"],
-body:has(.home-screen) .fixed [class*="outline-"],
-body:has(.home-screen) .fixed [class*="border-"] {
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)) hr,
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)) [class*="divide-"],
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)) [class*="ring-"],
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)) [class*="outline-"],
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)) [class*="border-"] {
   border: 0 !important;
   outline: 0 !important;
   box-shadow: none !important;
@@ -481,18 +481,18 @@ body:has(.home-screen) .home-avatar,
 body:has(.home-screen) .profile-avatar,
 body:has(.home-screen) .mini-avatar,
 body:has(.home-screen) .mock-profile-avatar,
-body:has(.home-screen) .fixed .home-avatar {
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)) .home-avatar {
   border-radius: 50% !important;
 }
 
 .home-screen *,
-body:has(.home-screen) .fixed * {
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)) * {
   scrollbar-width: none !important;
   -ms-overflow-style: none !important;
 }
 .home-screen *::-webkit-scrollbar,
 body:has(.home-screen) *::-webkit-scrollbar,
-body:has(.home-screen) .fixed *::-webkit-scrollbar {
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)) *::-webkit-scrollbar {
   display: none !important;
   width: 0 !important;
   height: 0 !important;
@@ -542,8 +542,8 @@ body:has(.home-screen) .fixed *::-webkit-scrollbar {
 .home-screen .profile-sidebar-rich *,
 body:has(.home-screen) [role="dialog"],
 body:has(.home-screen) [role="dialog"] *,
-body:has(.home-screen) .fixed [role="dialog"],
-body:has(.home-screen) .fixed [role="dialog"] * {
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)) [role="dialog"],
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)) [role="dialog"] * {
   border: 0 !important;
   border-width: 0 !important;
   border-style: none !important;
@@ -560,13 +560,13 @@ body:has(.home-screen) .fixed [role="dialog"] * {
 .home-screen [class*="card"],
 .home-screen [class*="row"],
 .home-screen [class*="footer"],
-body:has(.home-screen) .fixed button,
-body:has(.home-screen) .fixed input,
-body:has(.home-screen) .fixed textarea,
-body:has(.home-screen) .fixed img,
-body:has(.home-screen) .fixed video,
-body:has(.home-screen) .fixed footer,
-body:has(.home-screen) .fixed [class*="overflow"] {
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)) button,
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)) input,
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)) textarea,
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)) img,
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)) video,
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)) footer,
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)) [class*="overflow"] {
   border: 0 !important;
   border-width: 0 !important;
   box-shadow: none !important;
@@ -580,13 +580,13 @@ body:has(.home-screen) .fixed [class*="overflow"] {
 .home-screen .mock-profile-identity img,
 .home-screen .navbar [aria-label*="Account menu"],
 .home-screen .navbar [aria-label*="Account menu"] img,
-body:has(.home-screen) .fixed .home-avatar {
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)) .home-avatar {
   border-radius: 50% !important;
 }
 .home-screen *::before,
 .home-screen *::after,
-body:has(.home-screen) .fixed *::before,
-body:has(.home-screen) .fixed *::after {
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)) *::before,
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)) *::after {
   border: 0 !important;
   box-shadow: none !important;
   outline: 0 !important;
@@ -600,7 +600,7 @@ body:has(.home-screen) .fixed *::after {
 .no-scrollbar::-webkit-scrollbar,
 .no-scrollbar *::-webkit-scrollbar,
 .home-screen *::-webkit-scrollbar,
-body:has(.home-screen) .fixed *::-webkit-scrollbar {
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)) *::-webkit-scrollbar {
   display: none !important;
   width: 0 !important;
   height: 0 !important;
@@ -773,20 +773,20 @@ body:has(.home-screen) .home-screen .post-video-frame {
 }
 body:has(.home-screen) .home-screen,
 body:has(.home-screen) .home-screen *,
-body:has(.home-screen) .fixed,
-body:has(.home-screen) .fixed * {
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)),
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)) * {
   scrollbar-width: none !important;
   -ms-overflow-style: none !important;
   scrollbar-gutter: auto !important;
 }
 body:has(.home-screen) .home-screen *::-webkit-scrollbar,
-body:has(.home-screen) .fixed *::-webkit-scrollbar {
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)) *::-webkit-scrollbar {
   display: none !important;
   width: 0 !important;
   height: 0 !important;
 }
 body:has(.home-screen) .home-screen *,
-body:has(.home-screen) .fixed * {
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)) * {
   border-width: 0 !important;
   border-style: none !important;
   box-shadow: none !important;
@@ -795,8 +795,8 @@ body:has(.home-screen) .fixed * {
 }
 body:has(.home-screen) .home-screen *::before,
 body:has(.home-screen) .home-screen *::after,
-body:has(.home-screen) .fixed *::before,
-body:has(.home-screen) .fixed *::after {
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)) *::before,
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)) *::after {
   border: 0 !important;
   box-shadow: none !important;
   outline: 0 !important;
@@ -809,9 +809,9 @@ body:has(.home-screen) .home-screen .mock-profile-avatar,
 body:has(.home-screen) .home-screen .mock-profile-identity img,
 body:has(.home-screen) .home-screen .navbar [aria-label*="Account menu"],
 body:has(.home-screen) .home-screen .navbar [aria-label*="Account menu"] img,
-body:has(.home-screen) .fixed .home-avatar,
-body:has(.home-screen) .fixed .profile-avatar,
-body:has(.home-screen) .fixed .mini-avatar {
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)) .home-avatar,
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)) .profile-avatar,
+body:has(.home-screen) .fixed:not(:has(.action-modal-sheet)):not(:has(.leaderboard-modal-sheet)) .mini-avatar {
   border-radius: 50% !important;
 }
 body:has(.home-screen) .home-screen .navbar {
