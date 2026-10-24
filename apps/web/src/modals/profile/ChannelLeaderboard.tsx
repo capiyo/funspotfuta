@@ -339,7 +339,7 @@ export function ChannelLeaderboard({
                     </div>
                   </div>
                   <div style={rn({ display: 'flex', flexDirection: 'column', gap: 6, minWidth: 0 })}>
-                    {members.map((member, index) => <Fragment key={member.userId || index}><MemberCard colors={colors} styles={styles} member={member} rank={index + 1} maxPoints={panelMaxPoints} isYou={member.userId === currentUserId} onViewProfile={() => onViewMember(member)} />{index === 4 && <AdSenseCarousel placement="leaderboard" label="Sponsored members list" slots={['7379268852']} />}</React.Fragment>)}
+                    {members.map((member, index) => <Fragment key={member.userId || index}><MemberCard colors={colors} styles={styles} member={member} rank={index + 1} maxPoints={panelMaxPoints} isYou={member.userId === currentUserId} onViewProfile={() => onViewMember(member)} />{index === 4 && <AdSenseCarousel placement="leaderboard" label="Sponsored members list" slots={['7379268852']} />}</Fragment>)}
                   </div>
                 </section>;
               })}
