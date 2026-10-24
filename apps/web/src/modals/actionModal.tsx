@@ -28,7 +28,7 @@ import {
     Text,
     Pressable,
     TextInput,
-    Modal,
+    Modal as NativeModal,
     ScrollView,
     StyleSheet,
     ActivityIndicator,
@@ -42,7 +42,55 @@ import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
 import { useToast } from '@/lib/toast/toast-context';
 import { ICON, PRESSED_OPACITY } from '@/theme/layout';
+
 import NotificationService from '@/lib/api/notification-service';
+
+/**
+ * The native-web-compat Modal portal was constraining the action sheet to a
+ * narrow, left-aligned portal child on mobile browsers. Match PokeModal's
+ * viewport-fixed web shell while retaining the native Modal on iOS/Android.
+ */
+type ModalShellProps = {
+    visible: boolean;
+    transparent?: boolean;
+    animationType?: 'none' | 'slide' | 'fade';
+    onRequestClose?: () => void;
+    children: React.ReactNode;
+};
+
+function Modal({ visible, transparent = true, animationType = 'slide', onRequestClose, children }: ModalShellProps) {
+    if (Platform.OS === 'web') {
+        if (!visible) return null;
+        return (
+            <div
+                className="action-modal-viewport"
+                role="presentation"
+                onMouseDown={(event) => {
+                    if (event.target === event.currentTarget) onRequestClose?.();
+                }}
+                style={{
+                    position: 'fixed',
+                    inset: 0,
+                    zIndex: 1000,
+                    width: '100vw',
+                    height: '100dvh',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'stretch',
+                    justifyContent: 'flex-end',
+                    margin: 0,
+                    padding: 0,
+                    background: transparent ? 'transparent' : undefined,
+                    boxSizing: 'border-box',
+                }}
+            >
+                {children}
+            </div>
+        );
+    }
+    return <NativeModal visible={visible} transparent={transparent} animationType={animationType} onRequestClose={onRequestClose}>{children}</NativeModal>;
+}
+
 
 // ─────────────────────────────────────────────────────────────
 //  TYPES
