@@ -22,7 +22,7 @@
 // channel is optional; when given, a small avatar + channel name replaces
 // the league label in the top-left. Without it the card shows the league.
 
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import type { ChangeEvent, CSSProperties, KeyboardEvent } from 'react';
 import {
   Check,
@@ -126,6 +126,9 @@ export function MatchCard({
   onOpenPokeModal,
   onOpenResults,
   onChatClick,
+  onChannelPress,
+  onChannelLongPress,
+  onWeeklyLeaderboardPress,
   onLike,
   onSubmitComment,
   onOpenLineups,
@@ -144,6 +147,9 @@ export function MatchCard({
   onOpenPokeModal?: (fixture: Fixture) => void;
   onOpenResults?: (fixture: Fixture) => void;
   onChatClick?: (fixture: Fixture) => void;
+  onChannelPress?: () => void;
+  onChannelLongPress?: () => void;
+  onWeeklyLeaderboardPress?: () => void;
   onLike?: (fixture: Fixture) => void;
   onSubmitComment?: (fixture: Fixture, text: string) => void;
   onOpenLineups?: (fixture: Fixture) => void;
@@ -152,6 +158,27 @@ export function MatchCard({
   const { userId, isLoggedIn } = useAuth();
   const { requireLogin } = useLoginModal();
   const [draft, setDraft] = useState('');
+  const channelPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const longChannelPressFired = useRef(false);
+  function startChannelPress() {
+    longChannelPressFired.current = false;
+    if (channelPressTimer.current) clearTimeout(channelPressTimer.current);
+    channelPressTimer.current = setTimeout(() => {
+      longChannelPressFired.current = true;
+      onChannelLongPress?.();
+    }, 500);
+  }
+  function endChannelPress() {
+    if (channelPressTimer.current) clearTimeout(channelPressTimer.current);
+    channelPressTimer.current = null;
+  }
+  function handleChannelPress() {
+    if (longChannelPressFired.current) {
+      longChannelPressFired.current = false;
+      return;
+    }
+    onChannelPress?.();
+  }
   const [failedUri, setFailedUri] = useState<string | null>(null);
   const homeLogo = useTeamLogo(fixture.homeTeam, fixture as unknown as Record<string, unknown>, 'home');
   const awayLogo = useTeamLogo(fixture.awayTeam, fixture as unknown as Record<string, unknown>, 'away');
@@ -416,7 +443,18 @@ export function MatchCard({
           {/* Meta: league or channel on the left, date / live on the right */}
           <div className="match-card-meta" style={styles.metaRow}>
             {channel ? (
-              <div className="match-card-channel-label" style={styles.channelLabel}>
+              <button
+                type="button"
+                className="match-card-channel-label"
+                style={{ ...styles.channelLabel, border: 0, padding: 0, background: 'transparent', color: 'inherit', textAlign: 'left', cursor: 'pointer', position: 'relative', zIndex: 3, pointerEvents: 'auto' }}
+                aria-label={`Open ${channel.name} leaderboard; long press for chat`}
+                onClick={handleChannelPress}
+                onPointerDown={startChannelPress}
+                onPointerUp={endChannelPress}
+                onPointerLeave={endChannelPress}
+                onPointerCancel={endChannelPress}
+                onContextMenu={(event) => { event.preventDefault(); longChannelPressFired.current = true; endChannelPress(); onChannelLongPress?.(); }}
+              >
                 <span className="match-card-channel-avatar" style={styles.channelAvatar}>
                   {channel.imageUrl && failedUri !== channel.imageUrl ? (
                     <img
@@ -435,7 +473,7 @@ export function MatchCard({
                   )}
                 </span>
                 <span className="match-card-channel-name" style={styles.channelName}>{channel.name}</span>
-              </div>
+              </button>
             ) : null}
 
             {isLive ? (
@@ -445,6 +483,18 @@ export function MatchCard({
             )}
           </div>
 
+          {channel?.leaderName && (
+            <button
+              type="button"
+              className="match-card-weekly-leader"
+              onClick={onWeeklyLeaderboardPress}
+              aria-label={`Open weekly leaderboard for ${channel.name}`}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, width: '100%', border: 0, padding: '3px 0', background: 'transparent', textAlign: 'left', cursor: 'pointer', position: 'relative', zIndex: 3, pointerEvents: 'auto' }}
+            >
+              <span style={{ color: colors.textSecondary, fontSize: 11, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Leader: {channel.leaderName}</span>
+              <span style={{ color: colors.primary, fontSize: 11, fontWeight: 800, flexShrink: 0 }}>{(channel.leaderPoints ?? 0).toLocaleString()} pts</span>
+            </button>
+          )}
           <div className="match-card-league-line" style={{ ...styles.leagueName, marginTop: 2, marginBottom: 0 }}>{fixture.league || 'Unknown league'}</div>
 
           {/* Comment preview / live commentary */}
