@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { FlatList, Platform, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import { NativeAd, NativeAdView, NativeAsset, NativeAssetType, NativeMediaView, TestIds, mobileAds } from 'react-native-google-mobile-ads';
+import { NativeAd, NativeAdView, NativeAsset, NativeAssetType, NativeMediaView, TestIds, MobileAds } from 'react-native-google-mobile-ads';
 import { getAllFixtures, type Fixture } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
 
@@ -28,7 +28,7 @@ export default function AdCarousel() {
     const created: NativeAd[] = [];
     const loadAds = async () => {
       try {
-        await mobileAds().initialize();
+        await MobileAds().initialize();
         if (!alive) return;
         const unitIds = __DEV__ ? [TestIds.NATIVE, TestIds.NATIVE, TestIds.NATIVE] : [...PRODUCTION_UNITS];
         const results = await Promise.all(unitIds.map(async (unitId, i) => {
@@ -73,8 +73,8 @@ export default function AdCarousel() {
       getItemLayout={(_, itemIndex) => ({ length: width, offset: width * itemIndex, index: itemIndex })}
       renderItem={({ item }) => <View style={[styles.slide, { width }]}>
         {item.type === 'ad' ? <NativeAdView nativeAd={item.ad} style={[styles.ad, { backgroundColor: colors.surface }]}>
-          <View style={styles.labelRow}><Text style={[styles.label, { color: colors.textTertiary }]}>ADVERTISEMENT</Text><NativeAsset assetType={NativeAssetType.ADVERTISER} style={[styles.advertiser, { color: colors.textTertiary }]} /></View>
-          <View style={styles.content}><NativeMediaView style={styles.media} /><View style={styles.copy}><NativeAsset assetType={NativeAssetType.HEADLINE} style={[styles.headline, { color: colors.textPrimary }]} /><NativeAsset assetType={NativeAssetType.BODY} style={[styles.body, { color: colors.textSecondary }]} /></View><NativeAsset assetType={NativeAssetType.CALL_TO_ACTION} style={[styles.cta, { backgroundColor: colors.primary, color: '#fff' }]} /></View>
+          <View style={styles.labelRow}><Text style={[styles.label, { color: colors.textTertiary }]}>ADVERTISEMENT</Text><NativeAsset assetType={NativeAssetType.ADVERTISER} /></View>
+          <View style={styles.content}><NativeMediaView style={styles.media} /><View style={styles.copy}><NativeAsset assetType={NativeAssetType.HEADLINE} /><NativeAsset assetType={NativeAssetType.BODY} /></View><NativeAsset assetType={NativeAssetType.CALL_TO_ACTION} /></View>
         </NativeAdView> : <View style={[styles.fixture, { backgroundColor: colors.surface }]}>
           <View style={styles.team}><Text style={[styles.teamName, { color: colors.textPrimary }]} numberOfLines={1}>{item.fixture.homeTeam}</Text><Text style={[styles.teamLabel, { color: colors.textTertiary }]}>HOME</Text></View>
           <View style={styles.center}><Text style={[styles.vs, { color: colors.primary }]}>VS</Text><Text style={[styles.status, { color: colors.textTertiary }]} numberOfLines={1}>{item.fixture.status || 'Fixture'}</Text></View>
