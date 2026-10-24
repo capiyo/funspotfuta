@@ -114,7 +114,6 @@ import { Input } from '@/components/ui/input';
 import { SwipeableVotePledgeModal } from '@/modals/actionModal';
 import { AftermatchReviewModal } from '@/modals/AftermatchModal';
 import { MatchDetailsModal } from '@/modals/match/matchDetailsModals';
-import ComradesModal from '@/modals/ComradesModal';
 import type { RootStackParamList } from '@/navigation/RootNavigator';
 
 type FanColors = ReturnType<typeof useFanColors>;
@@ -180,7 +179,6 @@ export default function MessageScreen() {
   const [voteModalOpen, setVoteModalOpen] = useState(false);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [matchDetailsOpen, setMatchDetailsOpen] = useState(false);
-  const [leaderboardOpen, setLeaderboardOpen] = useState(false);
   const [showVoters, setShowVoters] = useState(false);
   const [pendingImage, setPendingImage] = useState<RNImageAsset | null>(null);
   const [caption, setCaption] = useState('');
@@ -511,16 +509,6 @@ export default function MessageScreen() {
           accessibilityLabel="Open Feeds"
         >
           <Text style={fanText('tag', colors, colors.primary)}>Feeds</Text>
-        </Pressable>
-        <Pressable
-          onPress={() => setLeaderboardOpen(true)}
-          hitSlop={8}
-          style={styles.comradesButton}
-          accessibilityRole="button"
-          accessibilityLabel="Open Comrades"
-        >
-          <Users size={16} color={colors.textPrimary} />
-          <Text style={fanText('tag', colors, colors.textPrimary)}>Comrades</Text>
         </Pressable>
       </View>
 
@@ -1019,11 +1007,6 @@ export default function MessageScreen() {
         />
       )}
 
-      {/* Comrades directory — profile search and add-to-channel actions */}
-      <ComradesModal
-        visible={leaderboardOpen}
-        onClose={() => setLeaderboardOpen(false)}
-      />
     </SafeAreaView>
   );
 }
