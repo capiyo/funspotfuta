@@ -1,6 +1,6 @@
 // RN port of funspot-next/app/(app)/comrades/page.tsx — as a MODAL.
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -37,6 +37,12 @@ export default function ComradesScreen({
   const [results, setResults] = useState<Record<string, any>[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const swipeStartY = useRef<number | null>(null);
+  const handleSheetTouchEnd = (y: number) => {
+    const start = swipeStartY.current;
+    swipeStartY.current = null;
+    if (start !== null && y - start > 90) onClose();
+  };
 
   async function refresh() {
     if (!userId) return;
@@ -102,7 +108,12 @@ export default function ComradesScreen({
       statusBarTranslucent
     >
       <Pressable style={styles.backdrop} onPress={onClose}>
-        <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
+        <Pressable
+          style={styles.sheet}
+          onPress={(e) => e.stopPropagation()}
+          onTouchStart={(event) => { swipeStartY.current = event.nativeEvent.pageY; }}
+          onTouchEnd={(event) => handleSheetTouchEnd(event.nativeEvent.pageY)}
+        >
           <View style={styles.handleWrap}>
             <View style={styles.handle} />
           </View>
