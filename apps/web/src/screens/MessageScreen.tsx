@@ -55,7 +55,7 @@ import { fanText } from '@/theme/use-fan-typography';
 import { SwipeableVotePledgeModal } from '@/modals/actionModal';
 import { AftermatchReviewModal } from '@/modals/AftermatchModal';
 import { MatchDetailsModal } from '@/modals/match/matchDetailsModals';
-import ComradesScreen from '@/modals/ComradesModal';
+import LeaderboardModal from '@/modals/LeaderboardModal';
 
 type FanColors = ReturnType<typeof useFanColors>;
 const FIXTURES_KEY = ['fixtures'] as const;
@@ -839,8 +839,9 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       username={username ?? ''}
       authToken={authToken}
       onClose={() => setMatchDetailsOpen(false)}/>}
-    <ComradesScreen
+    <LeaderboardModal
       visible={leaderboardOpen}
+      channelId={activeChannelId ?? undefined}
       onClose={() => setLeaderboardOpen(false)}/>
   </main>;
 }

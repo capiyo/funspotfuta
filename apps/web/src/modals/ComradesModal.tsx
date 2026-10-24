@@ -13,7 +13,6 @@ import {
 } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
 import { colors } from '@/theme';
-import AdSenseCarousel from '@/components/AdSenseCarousel';
 
 export default function ComradesModal({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const { userId, username, authToken } = useAuth();
@@ -203,14 +202,6 @@ export default function ComradesModal({ visible, onClose }: { visible: boolean; 
             <X size={14} color={colors.textMuted} />
           </button>
         </header>
-
-        {/* Match the native leaderboard's swipeable sponsored carousel. */}
-        <AdSenseCarousel
-          placement="leaderboard"
-          label="Comrades leaderboard advertisements"
-          enabled={visible}
-          slots={['3164796870', '1372263706', '7379268852']}
-        />
 
         <div className="overflow-y-auto px-4 pb-8" style={{ maxHeight: 'calc(85vh - 58px)' }}>
           {stats && (
