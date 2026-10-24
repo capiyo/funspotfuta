@@ -10,6 +10,9 @@ import {
   type ComradeStats,
   useCachedComrades,
   queryKeys,
+  getUserChannels,
+  addMembersToChannel,
+  type Channel,
 } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
 import { colors } from '@/theme';
@@ -30,6 +33,10 @@ export default function ComradesModal({ visible, onClose }: { visible: boolean; 
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Record<string, any>[]>([]);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [channels, setChannels] = useState<Channel[]>([]);
+  const [selectedChannelId, setSelectedChannelId] = useState('');
+  const [channelBusyId, setChannelBusyId] = useState<string | null>(null);
+  const [notice, setNotice] = useState('');
 
   async function refresh() {
     if (!userId) return;
@@ -66,6 +73,12 @@ export default function ComradesModal({ visible, onClose }: { visible: boolean; 
   useEffect(() => {
     if (!visible) return;
     void refresh();
+    if (userId && authToken) {
+      getUserChannels(userId, authToken).then((items) => {
+        setChannels(items);
+        setSelectedChannelId((current) => current || items.find((item) => item.isAdmin)?.channelId || items[0]?.channelId || '');
+      }).catch(() => setChannels([]));
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible, userId]);
 
@@ -122,6 +135,34 @@ export default function ComradesModal({ visible, onClose }: { visible: boolean; 
       throw error;
     } finally {
       setBusyId(null);
+    }
+  }
+
+  async function handleAddToChannel(candidate: Record<string, any>) {
+    if (!selectedChannelId || !authToken) {
+      setNotice('Choose a channel first.');
+      return;
+    }
+    const channel = channels.find((item) => item.channelId === selectedChannelId);
+    if (!channel?.isAdmin) {
+      setNotice('Only channel admins can add members.');
+      return;
+    }
+    const id = String(candidate.id ?? candidate._id ?? candidate.user_id ?? candidate.userId ?? '');
+    const name = String(candidate.username ?? candidate.user_name ?? '');
+    if (!id || !name) {
+      setNotice('This profile is missing its user ID or username.');
+      return;
+    }
+    setChannelBusyId(id);
+    setNotice('');
+    try {
+      const ok = await addMembersToChannel(selectedChannelId, [{ id, username: name }], authToken);
+      setNotice(ok ? `Added @${name} to ${channel.name}.` : 'Could not add this user to the channel.');
+    } catch {
+      setNotice('Could not add this user to the channel.');
+    } finally {
+      setChannelBusyId(null);
     }
   }
 
@@ -230,23 +271,50 @@ export default function ComradesModal({ visible, onClose }: { visible: boolean; 
             </button>
           </form>
 
+          {channels.length > 0 && (
+            <div className="mb-3 flex items-center gap-2">
+              <label htmlFor="comrades-channel-select" className="shrink-0 text-[11px]" style={{ color: colors.textMuted }}>Add to channel</label>
+              <select
+                id="comrades-channel-select"
+                value={selectedChannelId}
+                onChange={(event) => setSelectedChannelId(event.target.value)}
+                className="min-w-0 flex-1 rounded-full px-3 py-2 text-xs"
+                style={{ background: colors.surface, color: colors.textPrimary, border: 0 }}
+              >
+                {channels.map((channel) => <option key={channel.channelId} value={channel.channelId}>{channel.name}{channel.isAdmin ? ' · Admin' : ''}</option>)}
+              </select>
+            </div>
+          )}
+          {notice && <p role="status" className="mb-3 text-[11px]" style={{ color: colors.green }}>{notice}</p>}
+
           {results.length > 0 && (
             <section className="mb-4">
-              <h3 className="mb-2 text-[11px]" style={{ color: colors.textMuted }}>Results</h3>
+              <h3 className="mb-2 text-[11px]" style={{ color: colors.textMuted }}>Users from profiles</h3>
               {results.map((candidate) => {
                 const id = String(candidate.id ?? candidate._id ?? '');
                 return (
                   <div key={id} style={rowStyle}>
                     <span className="text-[13px] text-white">{candidate.username}</span>
-                    <button
-                      type="button"
-                      className="rounded-full px-3 py-1 text-[11px] font-bold disabled:opacity-60"
-                      style={{ background: colors.green, color: '#000' }}
-                      disabled={busyId === id}
-                      onClick={() => void handleAdd(candidate)}
-                    >
-                      {busyId === id ? 'Adding…' : 'Add'}
-                    </button>
+                    <div className="flex shrink-0 gap-2">
+                      <button
+                        type="button"
+                        className="rounded-full px-3 py-1 text-[11px] font-bold disabled:opacity-60"
+                        style={{ background: colors.green, color: '#000' }}
+                        disabled={busyId === id}
+                        onClick={() => void handleAdd(candidate)}
+                      >
+                        {busyId === id ? 'Adding…' : 'Comrade'}
+                      </button>
+                      <button
+                        type="button"
+                        className="rounded-full px-3 py-1 text-[11px] font-bold disabled:opacity-60"
+                        style={{ background: colors.surfaceSunken, color: colors.textPrimary }}
+                        disabled={!selectedChannelId || channelBusyId === id || !channels.some((channel) => channel.channelId === selectedChannelId && channel.isAdmin)}
+                        onClick={() => void handleAddToChannel(candidate)}
+                      >
+                        {channelBusyId === id ? 'Adding…' : 'Add to channel'}
+                      </button>
+                    </div>
                   </div>
                 );
               })}
