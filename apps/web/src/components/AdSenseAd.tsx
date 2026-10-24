@@ -29,7 +29,7 @@ export function AdSenseAd({ slotId, placement, enabled = true }: AdSenseAdProps)
   const [status, setStatus] = useState<'pending' | 'filled' | 'unfilled'>('pending');
 
   useEffect(() => {
-    if ((!import.meta.env.PROD || import.meta.env.VITE_ADSENSE_ENABLED !== 'true') || !enabled || !adRef.current) {
+    if ((!import.meta.env.PROD || import.meta.env.VITE_ADSENSE_ENABLED === 'false') || !enabled || !adRef.current) {
       if (!enabled) pushedRef.current = false;
       return;
     }
