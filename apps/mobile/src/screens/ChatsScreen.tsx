@@ -64,6 +64,8 @@ import { SwipeableVotePledgeModal } from '@/modals/actionModal';
 import { PokeModal } from '@/modals/PokeModal';
 import { AftermatchReviewModal } from '@/modals/AftermatchModal';
 import { MatchDetailsModal } from '@/modals/match/matchDetailsModals';
+import LeaderboardModal from '@/modals/LeaderboardModal';
+import { WeeklyLeaderboardModal } from '@/modals/WeeklyLeaderboardModal';
 
 import { useFanColors } from '@/theme/use-fan-colors';
 import { GUTTER, LIST_BOTTOM_INSET } from '@/theme/layout';
@@ -245,6 +247,8 @@ export default function ChatsScreen() {
   const [reviewFixture, setReviewFixture] = useState<Fixture | null>(null);
   const [matchDetailsFixture, setMatchDetailsFixture] =
     useState<Fixture | null>(null);
+  const [leaderboardChannel, setLeaderboardChannel] = useState<{ id: string; name: string } | null>(null);
+  const [weeklyChannel, setWeeklyChannel] = useState<{ id: string; name: string } | null>(null);
 
   const channelIds = useMemo(() => channels.map((c) => c.channelId), [channels]);
   const [channelStartOffset] = useState(() => Math.floor(Math.random() * 3));
@@ -535,6 +539,19 @@ export default function ChatsScreen() {
                     onOpenPokeModal={(f) => setPokeModalFixture(f)}
                     onOpenResults={(f) => { setSheetChannelId(cid); setReviewFixture(f); }}
                     onChatClick={() => openChat(fixture, cid)}
+                    onChannelPress={() => {
+                      if (!cid) return;
+                      const open = () => setLeaderboardChannel({ id: cid, name: headerById.get(cid)?.name ?? 'Channel' });
+                      if (!isLoggedIn) return requireLogin(open);
+                      open();
+                    }}
+                    onChannelLongPress={() => openChat(fixture, cid)}
+                    onWeeklyLeaderboardPress={() => {
+                      if (!cid) return;
+                      const open = () => setWeeklyChannel({ id: cid, name: headerById.get(cid)?.name ?? 'Channel' });
+                      if (!isLoggedIn) return requireLogin(open);
+                      open();
+                    }}
                     onLike={handleLike}
                     onSubmitComment={(selectedFixture, text) => handleSubmitComment(selectedFixture, text, cid)}
                     onOpenLineups={setMatchDetailsFixture}
@@ -613,6 +630,20 @@ export default function ChatsScreen() {
         />
       )}
 
+      {leaderboardChannel && (
+        <LeaderboardModal
+          visible
+          channelId={leaderboardChannel.id}
+          channelName={leaderboardChannel.name}
+          onClose={() => setLeaderboardChannel(null)}
+        />
+      )}
+      <WeeklyLeaderboardModal
+        visible={!!weeklyChannel}
+        channelId={weeklyChannel?.id ?? null}
+        channelName={weeklyChannel?.name ?? 'Channel'}
+        onClose={() => setWeeklyChannel(null)}
+      />
       {matchDetailsFixture && (
         <MatchDetailsModal
           visible
