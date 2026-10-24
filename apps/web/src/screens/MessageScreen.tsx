@@ -50,7 +50,6 @@ import { useChannelChat, type Voter } from '@/lib/api/use-channel-chat';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useToast } from '@/lib/toast/toast-context';
 import { useFanColors } from '@/theme/use-fan-colors';
-import { useHome } from '@/screens/home/home-context';
 import { AdSenseAd } from '@/components/AdSenseAd';
 import { fanText } from '@/theme/use-fan-typography';
 import { SwipeableVotePledgeModal } from '@/modals/actionModal';
@@ -113,7 +112,6 @@ function isUpcomingStatus(status: string): boolean {
 export default function MessageScreen(props: { channel?: Channel; userId?: string | null; username?: string | null; authToken?: string | null } = {}) {
   const colors = useFanColors();
   const navigate = useNavigate();
-  const { setActiveTab } = useHome();
   const routeParams = useParams<RouteParams>();
   const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
@@ -462,7 +460,7 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       </div>
       <button
       type="button"
-      onClick={() => { setActiveTab('Feed'); navigate('/'); }}
+      onClick={() => { try { window.localStorage.setItem('home.activeTab', 'Feed'); } catch { /* storage may be unavailable */ } navigate('/'); }}
       aria-label="Open Feeds"
       className="shrink-0 rounded-full px-3 py-2 text-xs font-semibold"
       style={{ color: colors.primary, background: colors.primaryDim }}>
