@@ -1468,7 +1468,7 @@ export function SwipeableVotePledgeModal(props: Props) {
         return (
             <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
                 <Pressable style={styles.backdrop} onPress={onClose}>
-                    <Pressable style={[styles.sheet, { height: screenH * 0.72 }]} onPress={() => { }}>
+                    <Pressable style={[styles.sheet, { width: '100%', height: screenH * 0.82, maxHeight: '82dvh' }]} onPress={() => { }}>
                         <HandleBar colors={colors} styles={styles} />
                         <View style={styles.joinGroupBox}>
                             <View style={styles.joinGroupIconWrap}>
@@ -1504,7 +1504,7 @@ export function SwipeableVotePledgeModal(props: Props) {
             <KeyboardAvoidingView style={{ flex: 1 }} behavior={kavBehavior}>
                 <Pressable style={styles.backdrop} onPress={onClose}>
                     <Pressable
-                        style={[styles.sheet, { height: screenH * 0.5, maxHeight: '50%' }]}
+                        style={[styles.sheet, { width: '100%', height: screenH * 0.82, maxHeight: '82%' }]}
                         onPress={() => { }}
                     >
                         <HandleBar colors={colors} styles={styles} />
@@ -2332,8 +2332,11 @@ function createStyles(colors: FanColorPalette) {
         },
         sheet: {
             backgroundColor: colors.background,
+            width: '100%',
             borderTopLeftRadius: FAN_RADIUS.xl,
             borderTopRightRadius: FAN_RADIUS.xl,
+            borderBottomLeftRadius: FAN_RADIUS.lg,
+            borderBottomRightRadius: FAN_RADIUS.lg,
             overflow: 'hidden',
             borderWidth: 0,
             borderColor: colors.border,
