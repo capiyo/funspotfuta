@@ -1495,10 +1495,10 @@ export function SwipeableVotePledgeModal(props: Props) {
     // ── Main render ─────────────────────────────────────────────
     return (
         <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
-            <View style={{ flex: 1 }}>
-                <Pressable style={styles.backdrop} onPress={onClose}>
+            <View style={{ flex: 1, width: '100%', minWidth: 0, alignSelf: 'stretch' }}>
+                <Pressable className="action-modal-backdrop" style={[styles.backdrop, { width: '100%', minWidth: 0, alignItems: 'stretch', alignSelf: 'stretch' }]} onPress={onClose}>
                     <Pressable
-                        className="action-modal-sheet" style={[styles.sheet, { width: '100%', alignSelf: 'stretch', flex: 1, minWidth: 0, minHeight: 0, height: screenH * 0.82, maxHeight: '82dvh' }]}
+                        className="action-modal-sheet" style={[styles.sheet, { width: '100%', maxWidth: 448, alignSelf: 'center', marginLeft: 'auto', marginRight: 'auto', flex: 1, minWidth: 0, minHeight: 0, height: screenH * 0.82, maxHeight: '82dvh' }]}
                         onPress={() => { }}
                     >
                         <HandleBar colors={colors} styles={styles} />
@@ -2313,11 +2313,16 @@ function createStyles(colors: FanColorPalette) {
         backdrop: {
             flex: 1,
             backgroundColor: 'rgba(0,0,0,0.55)',
+            width: '100%',
+            alignSelf: 'stretch',
+            alignItems: 'stretch',
             justifyContent: 'flex-end',
         },
         sheet: {
             backgroundColor: colors.background,
             width: '100%',
+            maxWidth: 448,
+            alignSelf: 'center',
             borderTopLeftRadius: FAN_RADIUS.xl,
             borderTopRightRadius: FAN_RADIUS.xl,
             borderBottomLeftRadius: FAN_RADIUS.lg,
