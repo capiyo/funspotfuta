@@ -311,7 +311,6 @@ export default function ChatsScreen() {
     <section aria-label="Chats and fixtures" style={{ ...panelStyle(colors), display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
       {isPending || ((data?.length ?? 0) === 0 && isFetching) ? (
         <div className="no-scrollbar" style={{ paddingTop: topInset, minHeight: 0, overflowY: 'auto' }} aria-busy="true">
-          <AdSenseCarousel placement="chats" slots={['5454601642']} enabled />
           {loadError && <ErrorBanner colors={colors} message={loadError} />}
           <SkeletonRows colors={colors} />
         </div>
