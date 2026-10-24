@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { createPoke, getOpenPokes, getUserPokes, getUserPoints, matchPoke, type Poke } from '@funspot/core';
-import type { CSSProperties } from 'react';
+import type { CSSProperties, TouchEvent as ReactTouchEvent } from 'react';
 import type { Channel, Fixture } from '@funspot/core';
 import { queryKeys } from '@funspot/core';
 import { fetchSubFixtures, fetchSubFixturePledges, fetchVoters, API_BASE_URL, type SubFixtureMarket } from '@funspot/core';
@@ -79,8 +79,8 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
   const [error, setError] = useState('');
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   const tabOrder = ['open', 'matched', 'subfixtures'] as const;
-  function onTouchStart(event: React.TouchEvent<HTMLElement>) { const touch = event.touches[0]; touchStart.current = touch ? { x: touch.clientX, y: touch.clientY } : null; }
-  function onTouchEnd(event: React.TouchEvent<HTMLElement>) { const start = touchStart.current; touchStart.current = null; const touch = event.changedTouches[0]; if (!start || !touch) return; const dx = touch.clientX - start.x; const dy = touch.clientY - start.y; if (Math.abs(dx) < 65 || Math.abs(dx) < Math.abs(dy) * 1.25) return; setTab((current) => { const index = tabOrder.indexOf(current); return tabOrder[Math.max(0, Math.min(tabOrder.length - 1, index + (dx < 0 ? 1 : -1)))]; }); }
+  function onTouchStart(event: ReactTouchEvent<HTMLElement>) { const touch = event.touches[0]; touchStart.current = touch ? { x: touch.clientX, y: touch.clientY } : null; }
+  function onTouchEnd(event: ReactTouchEvent<HTMLElement>) { const start = touchStart.current; touchStart.current = null; const touch = event.changedTouches[0]; if (!start || !touch) return; const dx = touch.clientX - start.x; const dy = touch.clientY - start.y; if (Math.abs(dx) < 65 || Math.abs(dx) < Math.abs(dy) * 1.25) return; setTab((current) => { const index = tabOrder.indexOf(current); return tabOrder[Math.max(0, Math.min(tabOrder.length - 1, index + (dx < 0 ? 1 : -1)))]; }); }
 
   useEffect(() => {
     let active = true;
@@ -239,11 +239,6 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
           </div>
           <button type="button" aria-label="Close poke modal" onClick={onClose} disabled={submitting} style={{ ...buttonStyle, minHeight: 32, padding: '4px 10px', background: 'transparent', color: 'inherit', fontSize: 22 }}>×</button>
         </header>
-
-        <div style={{ marginTop: 18, padding: 12, borderRadius: 8, background: 'var(--background, #202329)' }}>
-          <div style={{ fontSize: 12, color: 'var(--muted, #a7abb3)' }}>Available points</div>
-          <strong style={{ fontSize: 22 }}>{loading ? 'Loading…' : balance === null ? 'Unavailable' : balance.toLocaleString()}</strong>
-        </div>
 
         <div style={{ marginTop: 12, padding: 12, borderRadius: 10, background: 'var(--primary-dim, rgba(54,200,117,.15))', border: '1px solid var(--primary, #36c875)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}><div><div style={{ fontSize: 11, color: 'var(--muted, #a7abb3)' }}>Your points</div><strong style={{ fontSize: 19 }}>{loading ? 'Loading…' : balance === null ? 'Unavailable' : `${balance.toLocaleString()} pts`}</strong></div><span style={{ color: 'var(--primary, #36c875)', fontSize: 10, fontWeight: 800 }}>MIN 5 PTS</span></div>
