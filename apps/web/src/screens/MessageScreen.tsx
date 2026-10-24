@@ -26,7 +26,6 @@
  */
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type CSSProperties, type MouseEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
-import { AdSenseAd } from '@/components/AdSenseAd';
 import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import {
@@ -575,7 +574,6 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       <footer
       className="shrink-0 border-t px-3 pb-[max(env(safe-area-inset-bottom),12px)] pt-3 sm:px-5"
       style={{ borderColor: colors.border, background: colors.surface }}>
-        <AdSenseAd slotId="1372263706" placement="messaging" />
         <div
       className="flex items-end gap-2">
           <button
