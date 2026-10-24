@@ -58,6 +58,7 @@ import {
 } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useFanColors } from '@/theme/use-fan-colors';
+import { AdSenseAd } from '@/components/AdSenseAd';
 import { fanText } from '@/theme/use-fan-typography';
 import { PRESSED_OPACITY } from '@/theme/layout';
 import {
@@ -346,6 +347,7 @@ export default function LeaderboardScreen({
                   ))}
                 </>
               )}
+              <AdSenseAd slotId="9051548379" placement="leaderboard" enabled={visible} />
             </ScrollView>
           ) : (
             <VotersTab
