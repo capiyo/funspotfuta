@@ -3135,3 +3135,108 @@ body:has(.home-screen) .home-screen *:not(.profile-card):not(.profile-card *):no
     max-height: 85dvh !important;
   }
 }
+
+
+/* Leaderboard mobile-web presentation: explicitly preserve horizontal stat
+   rows and give the modal a coherent theme-token based visual hierarchy. */
+.leaderboard-modal-sheet {
+  color: var(--fan-text-primary, var(--home-text, inherit)) !important;
+  background: var(--fan-background, var(--home-background, #111)) !important;
+}
+.leaderboard-modal-sheet .leaderboard-scroll {
+  display: block !important;
+  flex: 1 1 0% !important;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
+.leaderboard-modal-sheet .leaderboard-stat-grid {
+  display: flex !important;
+  flex-direction: column !important;
+  width: 100% !important;
+  gap: 4px !important;
+}
+.leaderboard-modal-sheet .leaderboard-stat-row {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  gap: 12px !important;
+}
+.leaderboard-modal-sheet .leaderboard-stat-row > :first-child {
+  flex: 0 1 auto !important;
+  min-width: 0 !important;
+  white-space: nowrap !important;
+}
+.leaderboard-modal-sheet .leaderboard-rating-stars {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  align-self: auto !important;
+  flex: 0 0 auto !important;
+  width: max-content !important;
+  max-width: 100% !important;
+  gap: 3px !important;
+  white-space: nowrap !important;
+}
+.leaderboard-modal-sheet .leaderboard-rating-stars > svg {
+  display: inline-block !important;
+  flex: 0 0 11px !important;
+  width: 11px !important;
+  height: 11px !important;
+}
+.leaderboard-modal-sheet .leaderboard-rating-stars > span {
+  flex: 0 0 auto !important;
+  white-space: nowrap !important;
+}
+.leaderboard-modal-sheet .leaderboard-member-header {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  width: 100% !important;
+  gap: 8px !important;
+}
+.leaderboard-modal-sheet .leaderboard-champion-stats {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  justify-content: space-around !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  gap: 8px !important;
+}
+.leaderboard-modal-sheet .leaderboard-champion-stats > * {
+  flex: 1 1 0% !important;
+  min-width: 0 !important;
+}
+.leaderboard-modal-sheet .leaderboard-stat-row + .leaderboard-stat-row {
+  border-top: 1px solid var(--fan-border, var(--home-border, rgba(128,128,128,.18))) !important;
+}
+.leaderboard-modal-sheet .leaderboard-stat-row {
+  padding: 7px 0 !important;
+}
+.leaderboard-modal-sheet .leaderboard-member-header,
+.leaderboard-modal-sheet .leaderboard-champion-stats {
+  min-width: 0 !important;
+}
+@media (max-width: 650px) {
+  .leaderboard-modal-sheet .leaderboard-scroll {
+    padding-bottom: env(safe-area-inset-bottom) !important;
+  }
+  .leaderboard-modal-sheet .leaderboard-rating-stars {
+    gap: 2px !important;
+  }
+  .leaderboard-modal-sheet .leaderboard-stat-row {
+    gap: 8px !important;
+  }
+  .leaderboard-modal-sheet .leaderboard-stat-row > :last-child {
+    margin-left: auto !important;
+  }
+}
