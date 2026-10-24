@@ -82,9 +82,7 @@ const RANK_COLORS = {
 };
 
 function rankColor(rank: number, colors: FanColors): string {
-  if (rank === 1) return RANK_COLORS.gold;
-  if (rank === 2) return RANK_COLORS.silver;
-  if (rank === 3) return RANK_COLORS.bronze;
+  if (rank <= 3) return colors.primary;
   return colors.textTertiary;
 }
 
@@ -504,7 +502,7 @@ function ChampionCard({
         </View>
       </View>
 
-      <View style={styles.championStats}>
+      <View className="leaderboard-champion-stats" style={styles.championStats}>
         <ChampionStat
           colors={colors}
           styles={styles}
@@ -598,7 +596,7 @@ function MemberCard({
         pressed && { opacity: PRESSED_OPACITY },
       ]}
     >
-      <View style={styles.memberHeader}>
+      <View className="leaderboard-member-header" style={styles.memberHeader}>
         <View
           style={[
             styles.memberAvatar,
@@ -648,13 +646,13 @@ function MemberCard({
         )}
       </View>
 
-      <View style={styles.statGrid}>
+      <View className="leaderboard-stat-grid" style={styles.statGrid}>
         <StatRow
           colors={colors}
           styles={styles}
           label="Rating"
           trailing={
-            <View style={styles.ratingRow}>
+            <View className="leaderboard-rating-stars" style={styles.ratingRow}>
               {Array.from({ length: 5 }).map((_, i) => {
                 const filled = row.accuracyPercentage / 20 > i;
                 return (
@@ -778,7 +776,7 @@ function StatRow({
   trailing: ReactNode;
 }) {
   return (
-    <View style={styles.statRow}>
+    <View className="leaderboard-stat-row" style={styles.statRow}>
       <Text style={[styles.statLabel, { color: colors.textSecondary }]}>
         {label}
       </Text>
