@@ -227,7 +227,7 @@ export default function LeaderboardScreen({
     >
       <Pressable style={styles.backdrop} onPress={onClose}>
         <Pressable
-          style={styles.sheet}
+          style={[styles.sheet, { width: '100%', height: '85dvh', maxHeight: '85dvh' }]}
           onPress={(e) => e.stopPropagation()}
           onTouchStart={(event: { nativeEvent: { pageX: number } }) => handleSwipeStart(event.nativeEvent.pageX)}
           onTouchEnd={(event: { nativeEvent: { pageX: number } }) => handleSwipeEnd(event.nativeEvent.pageX)}
@@ -1549,7 +1549,11 @@ function createStyles(colors: FanColors) {
       justifyContent: 'flex-end',
     },
     sheet: {
-      maxHeight: '85%',
+      width: '100%',
+      height: '85dvh',
+      maxHeight: '85dvh',
+      flex: 1,
+      alignSelf: 'stretch',
       borderTopLeftRadius: FAN_RADIUS.xl,
       borderTopRightRadius: FAN_RADIUS.xl,
       backgroundColor: colors.background,
@@ -1596,7 +1600,7 @@ function createStyles(colors: FanColors) {
       padding: 6,
       backgroundColor: colors.surfaceSunken,
     },
-    screen: { backgroundColor: colors.background },
+    screen: { flex: 1, minHeight: 0, backgroundColor: colors.background },
     content: {
       paddingHorizontal: FAN_SPACING.md,
       paddingBottom: FAN_SPACING.xxl,
