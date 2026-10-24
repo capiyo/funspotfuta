@@ -143,7 +143,7 @@ export function PokeModal({ visible, fixture, userId, username, authToken, chann
 
   return <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
     <Pressable style={styles.backdrop} onPress={onClose}>
-      <Pressable style={[styles.panel, { height: screenH * 0.5 }]} onPress={() => { }} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+      <Pressable style={[styles.panel, { width: '100%', height: screenH * 0.82, maxHeight: '82dvh' }]} onPress={() => { }} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
         <View style={styles.handleWrap}><View style={styles.handle} /></View>
         <View style={styles.header}>
           <View style={styles.headerIcon}><Text style={{ color: colors.primary, fontSize: 17 }}>✦</Text></View>
@@ -192,7 +192,7 @@ export function PokeModal({ visible, fixture, userId, username, authToken, chann
 function createStyles(colors: FanColorPalette) {
   return StyleSheet.create({
     backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.55)', justifyContent: 'flex-end' },
-    panel: { backgroundColor: colors.surface, borderTopLeftRadius: 16, borderTopRightRadius: 16, overflow: 'hidden', paddingHorizontal: 12, paddingBottom: 8 },
+    panel: { width: '100%', backgroundColor: colors.surface, borderTopLeftRadius: 16, borderTopRightRadius: 16, overflow: 'hidden', paddingHorizontal: 12, paddingBottom: 8 },
     handleWrap: { alignItems: 'center', paddingTop: 5, paddingBottom: 5 },
     handle: { width: 32, height: 4, borderRadius: 999, backgroundColor: colors.border },
     header: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 5 },
