@@ -381,12 +381,14 @@ export default function ChatsScreen() {
                         onOpenResults={(selectedFixture) => { setSheetChannelId(channelId); setReviewFixture(selectedFixture); }}
                         onChatClick={() => openChat(fixture, channelId)}
                         onChannelPress={() => {
+                          if (!channelId) return;
                           const open = () => setLeaderboardChannel({ id: channelId, name: headerById.get(channelId)?.name ?? 'Channel' });
                           if (!isLoggedIn) return requireLogin(open);
                           open();
                         }}
                         onChannelLongPress={() => openChat(fixture, channelId)}
                         onWeeklyLeaderboardPress={() => {
+                          if (!channelId) return;
                           const open = () => setWeeklyChannel({ id: channelId, name: headerById.get(channelId)?.name ?? 'Channel' });
                           if (!isLoggedIn) return requireLogin(open);
                           open();
