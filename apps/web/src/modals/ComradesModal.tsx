@@ -13,6 +13,7 @@ import {
 } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
 import { colors } from '@/theme';
+import { AdSenseAd } from '@/components/AdSenseAd';
 
 export default function ComradesModal({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const { userId, username, authToken } = useAuth();
@@ -202,6 +203,24 @@ export default function ComradesModal({ visible, onClose }: { visible: boolean; 
             <X size={14} color={colors.textMuted} />
           </button>
         </header>
+
+        {/* Flutter parity: swipeable ad carousel sits under the Comrades header. */}
+        <div
+          aria-label="Sponsored carousel"
+          className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-3"
+          style={{ scrollbarWidth: 'none' }}
+        >
+          {[
+            { slot: '3164796870', key: 'leaderboard-a' },
+            { slot: '1372263706', key: 'leaderboard-b' },
+            { slot: '7379268852', key: 'leaderboard-c' },
+          ].map(({ slot, key }) => (
+            <div key={key} className="w-full shrink-0 snap-start">
+              <AdSenseAd slotId={slot} placement="leaderboard" />
+            </div>
+          ))}
+        </div>
+
 
         <div className="overflow-y-auto px-4 pb-8" style={{ maxHeight: 'calc(85vh - 58px)' }}>
           {stats && (
