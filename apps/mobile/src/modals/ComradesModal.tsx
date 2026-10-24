@@ -86,7 +86,7 @@ export default function ComradesScreen({
 
   async function handleAdd(candidate: Record<string, any>) {
     if (!userId || !username || !authToken) return;
-    const id = candidate.id ?? candidate._id;
+    const id = candidate.id ?? candidate._id ?? candidate.user_id ?? candidate.userId;
     setBusyId(id);
     await addComrade({
       userId,
