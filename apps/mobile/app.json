@@ -19,6 +19,7 @@
     },
     "android": {
       "package": "com.tech.Funzy",
+      "googleServicesFile": "./google-services.json",
       "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
         "foregroundImage": "./assets/icons/app_icon.png",
