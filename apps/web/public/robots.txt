@@ -9,3 +9,5 @@ Allow: /
 Disallow: /messages/
 Disallow: /login
 Disallow: /comments/
+
+Sitemap: https://funspot.co.ke/sitemap.xml
