@@ -63,7 +63,21 @@ export default function AdCarousel() {
     return mixed;
   }, [ads, fixtures]);
 
-  useEffect(() => { if (index >= slides.length) setIndex(0); }, [index, slides.length]);
+  useEffect(() => {
+    if (index >= slides.length) setIndex(0);
+  }, [index, slides.length]);
+
+  useEffect(() => {
+    if (slides.length < 2) return;
+    const timer = setInterval(() => {
+      setIndex((current) => {
+        const next = (current + 1) % slides.length;
+        listRef.current?.scrollToIndex({ index: next, animated: true });
+        return next;
+      });
+    }, 6000);
+    return () => clearInterval(timer);
+  }, [slides.length]);
   if (slides.length === 0) return null;
 
   return <View style={styles.wrap} accessibilityLabel="Automatic advertisement carousel">
