@@ -7,7 +7,7 @@ import HomeScreen from '@/screens/home/HomeScreen';
 import ChatScreen from '@/screens/MessageScreen';
 
 export type RootStackParamList = {
-  Tabs: undefined;
+  Tabs: { initialTab?: 'Chats' | 'Feed' } | undefined;
   Chat: { channelId: string; fixtureId?: string };
 };
 
