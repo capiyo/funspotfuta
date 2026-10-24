@@ -376,6 +376,7 @@ export function AppHeader(props: HeaderProps = {}) {
             <button type="button" role="menuitem" className="home-menu-item" style={{ color: colors.textPrimary }} onClick={() => pick(() => requireLogin(() => setHistoryOpen(true)))}>History</button>
             <button type="button" role="menuitem" className="home-menu-item" style={{ color: colors.textPrimary }} onClick={() => pick(() => setNotifOpen(true))}>Notifications</button>
             {activeChannelId && <button type="button" role="menuitem" className="home-menu-item" style={{ color: colors.textPrimary }} onClick={() => pick(() => requireLogin(() => setAdminOpen(true)))}>Admin Dashboard</button>}
+            <a href="/privacy.html" role="menuitem" className="home-menu-item" style={{ color: colors.textPrimary, textDecoration: 'none' }}>Privacy Policy</a>
           </div>
         </div>,
         document.body,
