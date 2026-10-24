@@ -25,6 +25,7 @@ import {
   ComradeStats,
 } from '@funspot/core';
 import { colors } from '@/theme';
+import AdCarousel from '@/components/AdCarousel';
 
 export default function ComradesScreen({
   visible,
@@ -156,6 +157,7 @@ export default function ComradesScreen({
             style={styles.screen}
             contentContainerStyle={styles.content}
           >
+            <AdCarousel />
             {stats && (
               <Text style={styles.stats}>
                 {stats.count}/{stats.max_comrades} · {stats.remaining} remaining
