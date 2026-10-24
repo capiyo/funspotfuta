@@ -29,17 +29,20 @@ export function AdSenseAd({ slotId, placement, enabled = true }: AdSenseAdProps)
   const [status, setStatus] = useState<'pending' | 'filled' | 'unfilled'>('pending');
 
   useEffect(() => {
-    if (!enabled || !adRef.current || pushedRef.current) return;
+    if (!enabled || !adRef.current) return;
 
-    pushedRef.current = true;
-    try {
-      window.adsbygoogle = window.adsbygoogle || [];
-      window.adsbygoogle.push({});
-    } catch {
-      // Ad blockers, script load failures, and duplicate AdSense pushes should
-      // never break voting, feed scrolling, leaderboard, or chat.
+    if (!pushedRef.current) {
+      pushedRef.current = true;
+      try {
+        window.adsbygoogle = window.adsbygoogle || [];
+        window.adsbygoogle.push({});
+      } catch {
+        // Ad blockers, script load failures, and duplicate AdSense pushes should
+        // never break voting, feed scrolling, leaderboard, or chat.
+      }
     }
 
+    // Keep polling even if React StrictMode replays the effect after cleanup.
     let attempts = 0;
     const poll = window.setInterval(() => {
       attempts += 1;
