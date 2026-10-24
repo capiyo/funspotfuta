@@ -20,10 +20,20 @@ function normalizeOrigin(value) {
 
 const origin = normalizeOrigin(configuredOrigin);
 const crawlRules = [
-  // Let Google's ad crawler inspect pages where AdSense units are shown.
+  // Google's AdSense content crawler and site-verification crawler must be
+  // able to inspect the public pages that may display ads.
+  'User-agent: Mediapartners-Google',
+  'Allow: /',
+  'Disallow: /login',
+  'Disallow: /comments/',
+  '',
+  'User-agent: Google-Display-Ads-Bot',
+  'Allow: /',
+  'Disallow: /login',
+  'Disallow: /comments/',
+  '',
   'User-agent: AdsBot-Google',
   'Allow: /',
-  'Allow: /ads.txt',
   'Disallow: /login',
   'Disallow: /comments/',
   '',
