@@ -52,7 +52,6 @@ import {
   ChannelHeaderData,
 } from '@/components/ChatsCard';
 import { channelHeaderOf } from '../modals/channelHeader';
-import AdCarousel from '@/components/AdCarousel';
 import {
   EmptyState,
   ErrorBanner,
@@ -450,7 +449,7 @@ export default function ChatsScreen() {
               colors={[colors.primary]}
             />
           }
-          ListHeaderComponent={<View><AdCarousel />{loadError && <ErrorBanner colors={colors} message={loadError} />}</View>}
+          ListHeaderComponent={loadError ? <ErrorBanner colors={colors} message={loadError} /> : null}
           ListEmptyComponent={
             isError ? (
               <EmptyState
