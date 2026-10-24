@@ -450,7 +450,7 @@ export default function ChatsScreen() {
               colors={[colors.primary]}
             />
           }
-          ListHeaderComponent={<View>{loadError && <ErrorBanner colors={colors} message={loadError} />}</View>}
+          ListHeaderComponent={<View><AdCarousel />{loadError && <ErrorBanner colors={colors} message={loadError} />}</View>}
           ListEmptyComponent={
             isError ? (
               <EmptyState
