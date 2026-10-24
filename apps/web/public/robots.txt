@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /messages/
+Disallow: /login
+Disallow: /comments/
