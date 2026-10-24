@@ -60,12 +60,12 @@ export default function AdCarousel() {
 }
 
 const styles = StyleSheet.create({
-  wrap: { width: '100%', marginVertical: 4 }, slide: { paddingHorizontal: 12 },
-  ad: { borderRadius: 10, padding: 8, minHeight: 86, overflow: 'hidden' },
-  labelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 5 },
-  label: { fontSize: 9, letterSpacing: 0.6, fontWeight: '700' }, advertiser: { fontSize: 10 },
-  content: { flexDirection: 'row', alignItems: 'center', gap: 8 }, media: { width: 58, height: 54, borderRadius: 6, overflow: 'hidden' },
-  copy: { flex: 1, gap: 3 }, headline: { fontSize: 12, fontWeight: '700' }, body: { fontSize: 10 },
-  cta: { overflow: 'hidden', borderRadius: 6, paddingHorizontal: 9, paddingVertical: 7, fontSize: 10, fontWeight: '700' },
-  dots: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 6, paddingTop: 5 }, dot: { height: 5, borderRadius: 3 },
+  wrap: { width: '100%', marginVertical: 2 }, slide: { paddingHorizontal: 10 },
+  ad: { borderRadius: 8, padding: 6, minHeight: 68, overflow: 'hidden' },
+  labelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 3 },
+  label: { fontSize: 8, letterSpacing: 0.5, fontWeight: '700' }, advertiser: { fontSize: 9 },
+  content: { flexDirection: 'row', alignItems: 'center', gap: 6 }, media: { width: 46, height: 42, borderRadius: 5, overflow: 'hidden' },
+  copy: { flex: 1, gap: 2 }, headline: { fontSize: 11, fontWeight: '700' }, body: { fontSize: 9 },
+  cta: { overflow: 'hidden', borderRadius: 6, paddingHorizontal: 7, paddingVertical: 5, fontSize: 9, fontWeight: '700' },
+  dots: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 6, paddingTop: 3 }, dot: { height: 5, borderRadius: 3 },
 });
