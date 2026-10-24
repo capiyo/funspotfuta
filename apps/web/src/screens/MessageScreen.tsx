@@ -50,6 +50,7 @@ import { useChannelChat, type Voter } from '@/lib/api/use-channel-chat';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useToast } from '@/lib/toast/toast-context';
 import { useFanColors } from '@/theme/use-fan-colors';
+import { AdSenseAd } from '@/components/AdSenseAd';
 import { fanText } from '@/theme/use-fan-typography';
 import { SwipeableVotePledgeModal } from '@/modals/actionModal';
 import { AftermatchReviewModal } from '@/modals/AftermatchModal';
@@ -459,6 +460,14 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       </div>
       <button
       type="button"
+      onClick={() => navigate('/')}
+      aria-label="Open Feeds"
+      className="shrink-0 rounded-full px-3 py-2 text-xs font-semibold"
+      style={{ color: colors.primary, background: colors.primaryDim }}>
+        Feeds
+      </button>
+      <button
+      type="button"
       onClick={() => setLeaderboardOpen(true)}
       aria-label="Comrades and leaderboard"
       className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
@@ -466,6 +475,12 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
 <Users size={16} color={colors.textPrimary}/>
 </button>
     </header>
+
+    {/* Flutter parity: the message header carousel position is directly below the header.
+        Keep this public discussion placement out of the private direct-message list. */}
+    <div className="shrink-0 px-2">
+      <AdSenseAd slotId="9051548379" placement="chats" />
+    </div>
 
     {/* Vote strip: chips open the vote/review dialog; totals open voter details. */}
     {fixture && fixtureId && <VoteStrip
