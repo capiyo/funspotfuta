@@ -272,7 +272,7 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
           {openPokes.length === 0 ? <p style={{ margin: 0, color: 'var(--muted, #a7abb3)', fontSize: 12 }}>No open pokes for this fixture yet.</p> : openPokes.map((poke) => (
             <div key={poke.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 0', borderBottom: '1px solid var(--border, #35383e)' }}>
               <div style={{ flex: 1, minWidth: 0 }}><strong>{poke.userName}</strong><div style={{ color: 'var(--muted, #a7abb3)', fontSize: 12 }}>{poke.selection === 'home' ? fixture.homeTeam : fixture.awayTeam} · {poke.amount} pts</div></div>
-              <button type="button" disabled={poke.userId === userId || submitting} onClick={() => void matchExistingPoke(poke)} style={{ ...buttonStyle, minHeight: 34, padding: '6px 10px', background: 'var(--primary, #36c875)', color: '#07170d', opacity: poke.userId === userId || submitting ? .5 : 1 }}>Match</button>
+              <button type="button" disabled={poke.userId === userId || submitting || fixture.isLive || fixture.status === 'live'} onClick={() => void matchExistingPoke(poke)} style={{ ...buttonStyle, minHeight: 34, padding: '6px 10px', background: 'var(--primary, #36c875)', color: '#07170d', opacity: poke.userId === userId || submitting || fixture.isLive || fixture.status === 'live' ? .5 : 1 }}>Match</button>
             </div>
           ))}
         </section>}
@@ -324,8 +324,8 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
         {message && <p role="status" style={{ color: 'var(--primary, #36c875)', fontWeight: 700 }}>{message}</p>}
         <footer style={{ display: 'flex', gap: 8, marginTop: 18 }}>
           <button type="button" onClick={onClose} disabled={submitting} style={{ ...buttonStyle, flex: 1, color: 'inherit', background: 'transparent', border: '1px solid var(--border, #454950)' }}>Cancel</button>
-          <button type="button" onClick={() => void submitPoke()} disabled={loading || submitting || balance === null || (selectedMarket !== undefined && options.length === 0)}
-            style={{ ...buttonStyle, flex: 1, color: '#07170d', background: 'var(--primary, #36c875)', opacity: loading || submitting ? .65 : 1 }}>
+          <button type="button" onClick={() => void submitPoke()} disabled={loading || submitting || balance === null || fixture.isLive || fixture.status === 'live' || (selectedMarket !== undefined && options.length === 0)}
+            style={{ ...buttonStyle, flex: 1, color: '#07170d', background: 'var(--primary, #36c875)', opacity: loading || submitting || fixture.isLive || fixture.status === 'live' ? .65 : 1 }}>
             {submitting ? 'Poking…' : 'Poke'}
           </button>
         </footer>
