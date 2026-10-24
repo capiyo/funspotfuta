@@ -228,8 +228,8 @@ export default function LeaderboardScreen({
         <Pressable
           style={styles.sheet}
           onPress={(e) => e.stopPropagation()}
-          onTouchStart={(event) => handleSwipeStart(event.nativeEvent.pageX)}
-          onTouchEnd={(event) => handleSwipeEnd(event.nativeEvent.pageX)}
+          onTouchStart={(event: { nativeEvent: { pageX: number } }) => handleSwipeStart(event.nativeEvent.pageX)}
+          onTouchEnd={(event: { nativeEvent: { pageX: number } }) => handleSwipeEnd(event.nativeEvent.pageX)}
         >
           <View style={styles.handleWrap}>
             <View style={styles.handle} />
