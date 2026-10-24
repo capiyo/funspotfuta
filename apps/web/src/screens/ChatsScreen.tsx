@@ -109,7 +109,7 @@ export default function ChatsScreen() {
   const colors = useFanColors();
   const { userId, authToken, username, isLoggedIn } = useAuth();
   const { requireLogin } = useLoginModal();
-  const { activeChannelId: homeChannelId, channels } = useHome();
+  const { activeChannelId: homeChannelId, activeTab, channels } = useHome();
   const { scrollProps, topInset } = useHomeList();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
