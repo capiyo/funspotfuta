@@ -55,7 +55,7 @@ import { fanText } from '@/theme/use-fan-typography';
 import { SwipeableVotePledgeModal } from '@/modals/actionModal';
 import { AftermatchReviewModal } from '@/modals/AftermatchModal';
 import { MatchDetailsModal } from '@/modals/match/matchDetailsModals';
-import LeaderboardModal from '@/modals/LeaderboardModal';
+import ComradesModal from '@/modals/ComradesModal';
 
 type FanColors = ReturnType<typeof useFanColors>;
 const FIXTURES_KEY = ['fixtures'] as const;
@@ -476,7 +476,7 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       <button
       type="button"
       onClick={() => setLeaderboardOpen(true)}
-      aria-label="Comrades and leaderboard"
+      aria-label="Open Comrades"
       className="flex shrink-0 items-center justify-center gap-1 rounded-full px-2 py-2"
       style={{ background: colors.surfaceSunken }}>
         <Users size={16} color={colors.textPrimary}/>
@@ -839,9 +839,8 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       username={username ?? ''}
       authToken={authToken}
       onClose={() => setMatchDetailsOpen(false)}/>}
-    <LeaderboardModal
+    <ComradesModal
       visible={leaderboardOpen}
-      channelId={activeChannelId ?? undefined}
       onClose={() => setLeaderboardOpen(false)}/>
   </main>;
 }
