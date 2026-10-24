@@ -14,9 +14,8 @@ import { sendChannelMessage } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useLoginModal } from '@/modals/Login-modal-context';
 import { MatchCard, type LatestComment, type ChannelHeaderData } from '@/components/ChatsCard';
-import { AdSenseAd } from '@/components/AdSenseAd';
+import AdSenseCarousel from '@/components/AdSenseCarousel';
 import { channelHeaderOf } from '@/modals/channelHeader';
-import { SegmentedControl } from '@/components/ui/Segmentedcontrol';
 import { EmptyState, ErrorBanner, SkeletonRows } from '@/components/ui/ListsStates';
 import { SwipeableVotePledgeModal } from '@/modals/actionModal';
 import { PokeModal } from '@/modals/PokeModal';
@@ -38,15 +37,9 @@ import {
   castFixtureVote, createPledge, matchMainPledge as actionMatchMainPledge,
 } from '@funspot/core';
 
-type Filter = 'all' | 'live' | 'upcoming';
 type Pick = 'home' | 'away';
 type ActionResult = { success: boolean; message?: string; newBalance?: number };
 
-const EMPTY_COPY: Record<Filter, { title: string; hint: string }> = {
-  all: { title: 'No fixtures right now', hint: 'Check back soon.' },
-  live: { title: 'Nothing live at the moment', hint: 'Live matches show up here.' },
-  upcoming: { title: 'No upcoming fixtures', hint: 'New fixtures appear as they are scheduled.' },
-};
 const FIXTURES_KEY = queryKeys.fixtures();
 const NO_FIXTURES: Fixture[] = [];
 const NO_CHANNELS: Channel[] = [];
@@ -111,10 +104,6 @@ function statusRank(fixture: Fixture) {
 const panelStyle = (colors: FanColorPalette) => ({
   background: colors.background, color: colors.textPrimary, minWidth: 0, minHeight: 0,
 });
-const headerStyle = (colors: FanColorPalette) => ({
-  padding: `${FAN_SPACING.md}px ${GUTTER}px`, display: 'grid', gap: FAN_SPACING.md,
-  background: colors.background,
-});
 const listStyle = (colors: FanColorPalette) => ({
   overflowY: 'auto' as const, minHeight: 0, flex: 1,
   paddingBottom: LIST_BOTTOM_INSET,
@@ -125,7 +114,7 @@ export default function ChatsScreen() {
   const colors = useFanColors();
   const { userId, authToken, username, isLoggedIn } = useAuth();
   const { requireLogin } = useLoginModal();
-  const { activeChannelId: homeChannelId, activeTab, channels } = useHome();
+  const { activeChannelId: homeChannelId, channels } = useHome();
   const { scrollProps, topInset } = useHomeList();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -175,7 +164,6 @@ export default function ChatsScreen() {
   }, [channelPool]);
 
   const [refreshing, setRefreshing] = useState(false);
-  const [filter, setFilter] = useState<Filter>('all');
   const [modalFixture, setModalFixture] = useState<Fixture | null>(null);
   const [pokeModalFixture, setPokeModalFixture] = useState<Fixture | null>(null);
   const [reviewFixture, setReviewFixture] = useState<Fixture | null>(null);
@@ -214,19 +202,10 @@ export default function ChatsScreen() {
     }
   }, [refetch, refetchAllChannels]);
 
-  const liveCount = useMemo(() => fixtures.filter(isLiveFixture).length, [fixtures]);
-  const filterOptions = useMemo(() => [
-    { value: 'all' as const, label: 'All' },
-    { value: 'live' as const, label: liveCount > 0 ? `Live · ${liveCount}` : 'Live' },
-    { value: 'upcoming' as const, label: 'Upcoming' },
-  ], [liveCount]);
-  const filtered = useMemo(() => {
-    const matched = fixtures.filter((fixture) => matchesFilter(fixture, filter));
-    if (filter !== 'all') return matched;
-    return matched.map((fixture, index) => ({ fixture, index }))
-      .sort((a, b) => statusRank(a.fixture) - statusRank(b.fixture) || a.index - b.index)
-      .map(({ fixture }) => fixture);
-  }, [fixtures, filter]);
+  const chatFixtures = useMemo(() => fixtures
+    .map((fixture, index) => ({ fixture, index }))
+    .sort((a, b) => statusRank(a.fixture) - statusRank(b.fixture) || a.index - b.index)
+    .map(({ fixture }) => fixture), [fixtures]);
 
   const openChat = useCallback((fixture?: Fixture, channelId?: string) => {
     if (!isLoggedIn) return requireLogin(() => openChat(fixture, channelId));
@@ -333,18 +312,12 @@ export default function ChatsScreen() {
     };
   }, [userId, username, authToken]);
 
-  const listHeader = (
-    <div style={headerStyle(colors)}>
-      <SegmentedControl options={filterOptions} value={filter} onChange={setFilter} colors={colors} />
-      {loadError && <ErrorBanner colors={colors} message={loadError} />}
-    </div>
-  );
-
   return (
     <section aria-label="Chats and fixtures" style={{ ...panelStyle(colors), display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
       {isPending || ((data?.length ?? 0) === 0 && isFetching) ? (
         <div className="no-scrollbar" style={{ paddingTop: topInset, minHeight: 0, overflowY: 'auto' }} aria-busy="true">
-          {listHeader}
+          <AdSenseCarousel placement="chats" slots={['5454601642']} enabled={window.matchMedia('(min-width: 651px)').matches || activeTab === 'Chats'} />
+          {loadError && <ErrorBanner colors={colors} message={loadError} />}
           <SkeletonRows colors={colors} />
         </div>
       ) : (
@@ -354,20 +327,16 @@ export default function ChatsScreen() {
           onScroll={scrollProps.onScroll}
           aria-label="Fixtures"
         >
-          <AdSenseAd
-            slotId="5454601642"
-            placement="chats"
-            enabled={window.matchMedia('(min-width: 651px)').matches || activeTab === 'Chats'}
-          />
-          <div>{listHeader}</div>
+          <AdSenseCarousel placement="chats" slots={['5454601642']} enabled={window.matchMedia('(min-width: 651px)').matches || true} />
+          {loadError && <ErrorBanner colors={colors} message={loadError} />}
           <div aria-live="polite">
-            {filtered.length === 0 ? (
+            {chatFixtures.length === 0 ? (
               isError ? (
                 <EmptyState colors={colors} title="You're offline" hint="Tap Refresh once you're back online." />
               ) : (
-                <EmptyState colors={colors} title={EMPTY_COPY[filter].title} hint={EMPTY_COPY[filter].hint} />
+                <EmptyState colors={colors} title={'No fixtures right now'} hint={'New fixtures appear here as they are scheduled.'} />
               )
-            ) : filtered.map((fixture, index) => {
+            ) : chatFixtures.map((fixture, index) => {
               const slideChannels = channelPool.length > 1
                 ? [...channelPool.slice((channelStartOffset + index) % channelPool.length), ...channelPool.slice(0, (channelStartOffset + index) % channelPool.length)]
                 : channelPool;
