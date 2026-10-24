@@ -8,7 +8,7 @@ import type { ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import type { Channel, Fixture, FanColorPalette, Voter } from '@funspot/core';
-import { FAN_SPACING, useFixtures, queryKeys } from '@funspot/core';
+import { useFixtures, queryKeys } from '@funspot/core';
 import { useAllChannels } from '@/hooks/useAllChannels';
 import { sendChannelMessage } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
@@ -24,7 +24,7 @@ import { MatchDetailsModal } from '@/modals/match/matchDetailsModals';
 import LeaderboardModal from '@/modals/LeaderboardModal';
 import { WeeklyLeaderboardModal } from '@/modals/WeeklyLeaderboardModal';
 import { useFanColors } from '@/theme/use-fan-colors';
-import { LIST_BOTTOM_INSET, GUTTER } from '@/theme/layout';
+import { LIST_BOTTOM_INSET } from '@/theme/layout';
 import { useHome, useHomeList } from '@/screens/home/home-context';
 import {
   fetchVoters, fetchPledges, fetchSubFixtures, fetchSubFixturePledges,
