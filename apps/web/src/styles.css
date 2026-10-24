@@ -3141,7 +3141,7 @@ body:has(.home-screen) .home-screen *:not(.profile-card):not(.profile-card *):no
    rows and give the modal a coherent theme-token based visual hierarchy. */
 .leaderboard-modal-sheet {
   color: var(--fan-text-primary, var(--home-text, inherit)) !important;
-  background: var(--fan-background, var(--home-background, #111)) !important;
+  background: var(--fan-background, var(--home-background, inherit)) !important;
 }
 .leaderboard-modal-sheet .leaderboard-scroll {
   display: block !important;
