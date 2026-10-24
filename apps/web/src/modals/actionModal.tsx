@@ -502,13 +502,14 @@ function PersonTile({
 }
 
 function TabBar({
-    tabs, active, onChange, colors, styles,
+    tabs, active, onChange, colors, styles, screenW,
 }: {
     tabs: string[];
     active: number;
     onChange: (i: number) => void;
     colors: FanColorPalette;
     styles: ReturnType<typeof createStyles>;
+    screenW: number;
 }) {
     const widthPct = 100 / tabs.length;
     return (
@@ -1570,7 +1571,7 @@ export function SwipeableVotePledgeModal(props: Props) {
 
                         {/* Tab bar */}
                         {tabs.length > 1 && (
-                            <TabBar tabs={tabs} active={tab} onChange={jumpTo} colors={colors} styles={styles} />
+                            <TabBar tabs={tabs} active={tab} onChange={jumpTo} colors={colors} styles={styles} screenW={screenW} />
                         )}
 
                         {/* Body */}
