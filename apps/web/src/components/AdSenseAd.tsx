@@ -29,7 +29,7 @@ export function AdSenseAd({ slotId, placement, enabled = true }: AdSenseAdProps)
   const [status, setStatus] = useState<'pending' | 'filled' | 'unfilled'>('pending');
 
   useEffect(() => {
-    if (!enabled || !adRef.current) return;
+    if (!import.meta.env.PROD || !enabled || !adRef.current) return;
 
     if (!pushedRef.current) {
       pushedRef.current = true;
@@ -59,7 +59,7 @@ export function AdSenseAd({ slotId, placement, enabled = true }: AdSenseAdProps)
     return () => window.clearInterval(poll);
   }, [enabled]);
 
-  if (!enabled) return null;
+  if (!import.meta.env.PROD || !enabled) return null;
 
   return (
     <aside
