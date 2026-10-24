@@ -419,68 +419,7 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       slots={['9051548379', '3164796870', '1372263706']}
     />
 
-    {/* (a) Own header and match layout */}
-    <header
-      className="flex shrink-0 items-center gap-2 border-b px-3 py-3 sm:px-5"
-      style={{ borderColor: colors.border, background: colors.surface }}>
-      <button
-      type="button"
-      onClick={handleBack}
-      aria-label="Back to chats"
-      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
-      style={{ background: colors.surfaceSunken }}>
-        <ArrowLeft size={18} color={colors.textPrimary}/>
-      </button>
-      {fixture && <button
-      type="button"
-      onClick={() => setMatchDetailsOpen(true)}
-      aria-label="Match details"
-      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
-      style={{ background: colors.surfaceSunken }}>
-<Info size={15} color={colors.textPrimary}/>
-</button>}
-      <div
-      className="min-w-0 flex-1">
-        {fixture ? <MatchStatusBar
-      colors={colors}
-      fixture={fixture}
-      status={matchStatus}
-      homeScore={homeScore}
-      awayScore={awayScore}
-      isLive={isLive}
-      timeElapsed={timeElapsed}
-      onPress={openVoteOrReview}/> : <div
-      className="flex items-center gap-2">
-<div
-      className="flex h-8 w-8 items-center justify-center rounded-full font-bold"
-      style={{ background: colors.primaryDim, color: colors.primary }}>#</div>
-<div>
-<h1
-      className="text-sm font-bold">Chat</h1>
-<p
-      className="text-[10px]"
-      style={{ color: connected ? colors.primary : colors.textTertiary }}>{connected ? 'Connected' : 'Connecting…'}</p>
-</div>
-</div>}
-      </div>
-      <button
-      type="button"
-      onClick={() => { try { window.localStorage.setItem('home.activeTab', 'Feed'); } catch { /* storage may be unavailable */ } navigate('/'); }}
-      aria-label="Open Feeds"
-      className="shrink-0 rounded-full px-3 py-2 text-xs font-semibold"
-      style={{ color: colors.primary, background: colors.primaryDim }}>
-        Feeds
-      </button>
-    </header>
-
-    {/* Vote strip: chips open the vote/review dialog; totals open voter details. */}
-    {fixture && fixtureId && <VoteStrip
-      colors={colors}
-      fixture={fixture}
-      homeVotes={homeVotes}
-      awayVotes={awayVotes}
-      onOpenModal={openVoteOrReview}
-      onPressTotals={() => setShowVoters((previous) => !previous)}/>}
+    {/* Messaging starts with the shared horizontal ad/fixture carousel; no extra header or vote strip. */}
 
     {!activeChannelId ? <section
       className="flex flex-1 flex-col items-center justify-center px-8 text-center">
