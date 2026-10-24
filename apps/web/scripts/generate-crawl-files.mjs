@@ -21,12 +21,19 @@ function normalizeOrigin(value) {
 
 const origin = normalizeOrigin(configuredOrigin);
 const crawlRules = [
+  // Let Google's ad crawler inspect pages where AdSense units are shown.
+  'User-agent: AdsBot-Google',
+  'Allow: /',
+  'Disallow: /login',
+  'Disallow: /comments/',
+  '',
+  // Keep personal messaging and account/comment routes out of ordinary search.
   'User-agent: *',
   'Allow: /',
   'Disallow: /messages/',
   'Disallow: /login',
   'Disallow: /comments/',
-  ...(origin ? [`Sitemap: ${origin}/sitemap.xml`] : []),
+  ...(origin ? ['', `Sitemap: ${origin}/sitemap.xml`] : []),
   '',
 ].join('\n');
 
