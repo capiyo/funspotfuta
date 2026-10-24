@@ -107,6 +107,7 @@ import {
 import { useAuth } from '@/lib/auth/auth-context';
 import { useToast } from '@/lib/toast/toast-context';
 import { useFanColors } from '@/theme/use-fan-colors';
+import AdCarousel from '@/components/AdCarousel';
 import { fanText } from '@/theme/use-fan-typography';
 import { PRESSED_OPACITY } from '@/theme/layout';
 import { Input } from '@/components/ui/input';
