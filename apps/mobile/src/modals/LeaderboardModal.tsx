@@ -12,7 +12,7 @@
 //   - Drill-down: tapping a member opens their Activity History sheet
 //
 // What's deliberately NOT ported:
-//   - Carousel + ads (Flutter-specific; no ad SDK in this app)
+//   - Carousel + ads (now ported through the shared native AdMob carousel)
 //   - Exit Channel button + 30-point confirmation (belongs in a
 //     channel-settings surface, not the leaderboard)
 //
@@ -32,6 +32,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import AdCarousel from '@/components/AdCarousel';
 import {
   X,
   Trophy,
@@ -250,6 +251,9 @@ export default function LeaderboardScreen({
               <X size={14} color={colors.textSecondary} />
             </Pressable>
           </View>
+
+          {/* Flutter parity: sponsored carousel sits in the leaderboard header. */}
+          <AdCarousel />
 
           {/* Channel picker — only shown when the parent didn't lock us
               to a channel via the `channelId` prop. */}
