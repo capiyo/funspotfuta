@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { FlatList, Platform, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import { NativeAd, NativeAdView, NativeAsset, NativeAssetType, NativeMediaView, TestIds } from 'react-native-google-mobile-ads';
+import { NativeAd, NativeAdView, NativeAsset, NativeAssetType, NativeMediaView, TestIds, mobileAds } from 'react-native-google-mobile-ads';
 import { useFanColors } from '@/theme/use-fan-colors';
 
 const PRODUCTION_UNITS = [
@@ -22,22 +22,30 @@ export default function AdCarousel() {
     if (Platform.OS !== 'android') return;
     let alive = true;
     const created: NativeAd[] = [];
-    const unitIds = __DEV__ ? [TestIds.NATIVE, TestIds.NATIVE, TestIds.NATIVE] : [...PRODUCTION_UNITS];
-    Promise.all(unitIds.map(async (unitId, i) => {
+    const loadAds = async () => {
       try {
-        const ad = await NativeAd.createForAdRequest(unitId);
-        created.push(ad);
-        return { id: `native-ad-${i}`, ad };
+        await mobileAds().initialize();
+        if (!alive) return;
+        const unitIds = __DEV__ ? [TestIds.NATIVE, TestIds.NATIVE, TestIds.NATIVE] : [...PRODUCTION_UNITS];
+        const results = await Promise.all(unitIds.map(async (unitId, i) => {
+          try {
+            const ad = await NativeAd.createForAdRequest(unitId);
+            created.push(ad);
+            return { id: `native-ad-${i}`, ad };
+          } catch {
+            return null;
+          }
+        }));
+        if (!alive) {
+          created.forEach((ad) => ad.destroy());
+          return;
+        }
+        setAds(results.filter((item): item is LoadedAd => item !== null));
       } catch {
-        return null;
+        // Ad initialization or inventory failure must never block messaging.
       }
-    })).then((results) => {
-      if (!alive) {
-        created.forEach((ad) => ad.destroy());
-        return;
-      }
-      setAds(results.filter((item): item is LoadedAd => item !== null));
-    });
+    };
+    void loadAds();
     return () => {
       alive = false;
       created.forEach((ad) => ad.destroy());
