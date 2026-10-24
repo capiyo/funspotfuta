@@ -22,13 +22,13 @@ const backdropStyle: CSSProperties = {
 };
 const panelStyle = (colors: FanColorPalette): CSSProperties => ({
   width: 'min(100%, 448px)', height: '50dvh', maxHeight: '50dvh', display: 'flex', flexDirection: 'column', overflow: 'hidden',
-  background: colors.background, color: colors.textPrimary,
-  borderRadius: '18px 18px 0 0', padding: '8px 16px 16px', boxSizing: 'border-box',
+  background: colors.surface, color: colors.textPrimary,
+  borderRadius: '16px 16px 0 0', padding: '6px 12px 8px', boxSizing: 'border-box',
   boxShadow: '0 -12px 48px rgba(0,0,0,.25)',
   '--surface': colors.surface, '--text': colors.textPrimary, '--primary': colors.primary,
   '--primary-dim': colors.primaryDim, '--muted': colors.textTertiary,
   '--border': colors.border, '--background': colors.surfaceSunken, '--away': colors.away,
-  '--surface-sunken': colors.surfaceSunken, '--text-secondary': colors.textSecondary,
+  '--surface-sunken': colors.surfaceSunken, '--text-secondary': colors.textSecondary, '--text-inverse': colors.textInverse,
 } as CSSProperties);
 const buttonStyle: CSSProperties = {
   minHeight: 42, border: 0, borderRadius: 8, padding: '10px 14px',
@@ -36,7 +36,7 @@ const buttonStyle: CSSProperties = {
 };
 const fieldStyle: CSSProperties = {
   width: '100%', minHeight: 42, borderRadius: 8, padding: '9px 11px',
-  border: '1px solid var(--border, #454950)', background: 'var(--background, #202329)',
+  border: '1px solid var(--border)', background: 'var(--background)',
   color: 'inherit', boxSizing: 'border-box',
 };
 
@@ -240,7 +240,7 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
   return (
     <div style={backdropStyle} role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !submitting) onClose(); }}>
       <section role="dialog" aria-modal="true" aria-labelledby="poke-modal-title" style={panelStyle(colors)} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-        <div aria-hidden="true" style={{ width: 32, height: 4, borderRadius: 999, background: 'var(--border, #454950)', margin: '0 auto 12px' }} />
+        <div aria-hidden="true" style={{ width: 32, height: 4, borderRadius: 999, background: 'var(--border)', margin: '0 auto 7px' }} />
         <header style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
           <div aria-hidden="true" style={{ width: 36, height: 36, flex: '0 0 36px', display: 'grid', placeItems: 'center', borderRadius: '50%', background: 'var(--primary-dim)', color: 'var(--primary)', fontSize: 17 }}>✦</div>
           <div style={{ flex: 1, minWidth: 0 }}>
@@ -251,18 +251,18 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
         </header>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 0 14px', marginBottom: 12, borderBottom: '1px solid var(--border)' }}>
           <div style={{ flex: 1, minWidth: 0, color: 'var(--primary)', fontSize: 13, fontWeight: 800, overflowWrap: 'anywhere' }}>{fixture.homeTeam}</div>
-          <div style={{ flex: '0 0 auto', display: 'grid', justifyItems: 'center', gap: 4, color: 'var(--muted)', fontSize: 10, fontWeight: 800 }}>VS{(fixture.isLive || fixture.status === 'live') && <span style={{ color: '#fff', background: '#e34b4b', borderRadius: 99, padding: '2px 6px', fontSize: 8 }}>LIVE</span>}</div>
-          <div style={{ flex: 1, minWidth: 0, textAlign: 'right', color: 'var(--away, #e87979)', fontSize: 13, fontWeight: 800, overflowWrap: 'anywhere' }}>{fixture.awayTeam}</div>
+          <div style={{ flex: '0 0 auto', display: 'grid', justifyItems: 'center', gap: 4, color: 'var(--muted)', fontSize: 10, fontWeight: 800 }}>VS{(fixture.isLive || fixture.status === 'live') && <span style={{ color: 'var(--text-inverse)', background: 'var(--away)', borderRadius: 99, padding: '2px 6px', fontSize: 8 }}>LIVE</span>}</div>
+          <div style={{ flex: 1, minWidth: 0, textAlign: 'right', color: 'var(--away)', fontSize: 13, fontWeight: 800, overflowWrap: 'anywhere' }}>{fixture.awayTeam}</div>
         </div>
 
-        <div style={{ marginTop: 12, padding: 12, borderRadius: 10, background: 'var(--primary-dim, rgba(54,200,117,.15))', border: '1px solid var(--primary, #36c875)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}><div><div style={{ fontSize: 11, color: 'var(--muted, #a7abb3)' }}>Your points</div><strong style={{ fontSize: 19 }}>{loading ? 'Loading…' : balance === null ? 'Unavailable' : `${balance.toLocaleString()} pts`}</strong></div><span style={{ color: 'var(--primary, #36c875)', fontSize: 10, fontWeight: 800 }}>MIN 5 PTS</span></div>
+        <div style={{ marginTop: 6, padding: 8, borderRadius: 8, background: 'var(--primary-dim)', border: '1px solid var(--border)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}><div><div style={{ fontSize: 11, color: 'var(--muted)' }}>Your points</div><strong style={{ fontSize: 17 }}>{loading ? 'Loading…' : balance === null ? 'Unavailable' : `${balance.toLocaleString()} pts`}</strong></div><span style={{ color: 'var(--primary)', fontSize: 10, fontWeight: 800 }}>MIN 5 PTS</span></div>
         </div>
 
-        <div role="tablist" aria-label="Poke views" style={{ display: 'flex', gap: 4, marginTop: 4, padding: 3, borderRadius: 10, background: 'var(--surface-sunken)', border: '1px solid var(--border)' }}>
+        <div role="tablist" aria-label="Poke views" style={{ display: 'flex', flexShrink: 0, gap: 3, marginTop: 3, marginBottom: 6, padding: 3, borderRadius: 9, background: 'var(--surface-sunken)', border: '1px solid var(--border)' }}>
           {([{ id: 'open', label: 'Open Pokes' }, { id: 'matched', label: 'Matched Pokes' }, { id: 'subfixtures', label: 'Sub-fixtures' }] as const).map((item) => (
             <button key={item.id} type="button" role="tab" aria-selected={tab === item.id} onClick={() => setTab(item.id)}
-              style={{ ...buttonStyle, flex: 1, minHeight: 36, padding: '7px 6px', fontSize: 11, color: tab === item.id ? 'var(--text)' : 'var(--muted)', background: tab === item.id ? 'var(--surface)' : 'transparent', border: '1px solid transparent', boxShadow: tab === item.id ? '0 1px 3px rgba(0,0,0,.12)' : 'none' }}>
+              style={{ ...buttonStyle, flex: 1, minHeight: 31, padding: '5px 4px', fontSize: 10, color: tab === item.id ? 'var(--text)' : 'var(--muted)', background: tab === item.id ? 'var(--surface)' : 'transparent', border: '1px solid transparent', boxShadow: tab === item.id ? '0 1px 2px rgba(0,0,0,.10)' : 'none' }}>
               {item.label}
             </button>
           ))}
@@ -271,9 +271,9 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
         {tab === 'open' && <section style={{ marginTop: 8 }}>
           <h3 style={{ margin: '0 0 8px', fontSize: 14 }}>Open pokes · {openPokes.length}</h3>
           {openPokes.length === 0 ? <p style={{ margin: 0, color: 'var(--muted, #a7abb3)', fontSize: 12 }}>No open pokes for this fixture yet.</p> : openPokes.map((poke) => (
-            <div key={poke.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 0', borderBottom: '1px solid var(--border, #35383e)' }}>
+            <div key={poke.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 0', borderBottom: '1px solid var(--border)' }}>
               <div style={{ flex: 1, minWidth: 0 }}><strong>{poke.userName}</strong><div style={{ color: 'var(--muted, #a7abb3)', fontSize: 12 }}>{poke.selection === 'home' ? fixture.homeTeam : fixture.awayTeam} · {poke.amount} pts</div></div>
-              <button type="button" disabled={poke.userId === userId || submitting || fixture.isLive || fixture.status === 'live'} onClick={() => void matchExistingPoke(poke)} style={{ ...buttonStyle, minHeight: 34, padding: '6px 10px', background: 'var(--primary, #36c875)', color: '#07170d', opacity: poke.userId === userId || submitting || fixture.isLive || fixture.status === 'live' ? .5 : 1 }}>Match</button>
+              <button type="button" disabled={poke.userId === userId || submitting || fixture.isLive || fixture.status === 'live'} onClick={() => void matchExistingPoke(poke)} style={{ ...buttonStyle, minHeight: 34, padding: '6px 10px', background: 'var(--primary)', color: 'var(--text-inverse)', opacity: poke.userId === userId || submitting || fixture.isLive || fixture.status === 'live' ? .5 : 1 }}>Match</button>
             </div>
           ))}
         </section>}
@@ -294,7 +294,7 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 12 }}>
           {options.map((option) => (
             <button key={option.value} type="button" onClick={() => setSelection(option.value as 'home_team' | 'away_team')} aria-pressed={selection === option.value}
-              style={{ ...buttonStyle, border: selection === option.value ? '2px solid var(--primary, #36c875)' : '1px solid var(--border, #454950)', background: selection === option.value ? 'var(--primary-dim, rgba(54,200,117,.15))' : 'transparent', color: 'inherit' }}>
+              style={{ ...buttonStyle, border: selection === option.value ? '2px solid var(--primary)' : '1px solid var(--border)', background: selection === option.value ? 'var(--primary-dim)' : 'transparent', color: 'inherit' }}>
               {option.label}
             </button>
           ))}
@@ -316,17 +316,17 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
         <label style={{ display: 'block', marginTop: 16, fontSize: 13, fontWeight: 700 }} htmlFor="poke-stake">Points to stake (minimum 5)</label>
         <input id="poke-stake" type="number" min={5} step={1} value={stake} onChange={(event) => setStake(event.target.value)} style={{ ...fieldStyle, marginTop: 7 }} />
 
-        <div style={{ marginTop: 10, padding: 10, borderRadius: 8, background: 'var(--background, #202329)' }}>
+        <div style={{ marginTop: 10, padding: 10, borderRadius: 8, background: 'var(--background)' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, fontSize: 12 }}><span style={{ color: 'var(--muted, #a7abb3)' }}>Your pick</span><strong>{selection === 'home_team' ? fixture.homeTeam : fixture.awayTeam}</strong></div>
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, marginTop: 7, fontSize: 12 }}><span style={{ color: 'var(--muted, #a7abb3)' }}>Opponent stake</span><strong>{Number.isInteger(Number(stake)) && Number(stake) >= 5 ? `${Number(stake)} points to match` : '—'}</strong></div>
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, marginTop: 7, paddingTop: 7, borderTop: '1px solid var(--border, #454950)', fontSize: 12 }}><span style={{ color: 'var(--muted, #a7abb3)' }}>If you win</span><strong style={{ color: 'var(--primary, #36c875)' }}>{balance !== null && Number.isInteger(Number(stake)) && Number(stake) >= 5 && Number(stake) <= balance ? `${balance + Number(stake)} pts balance` : '—'}</strong></div>
         </div>
-        {error && <p role="alert" style={{ color: '#ff7777', fontSize: 13 }}>{error}</p>}
+        {error && <p role="alert" style={{ color: 'var(--away)', fontSize: 13 }}>{error}</p>}
         {message && <p role="status" style={{ color: 'var(--primary, #36c875)', fontWeight: 700 }}>{message}</p>}
         <footer style={{ display: 'flex', gap: 8, marginTop: 18 }}>
           <button type="button" onClick={onClose} disabled={submitting} style={{ ...buttonStyle, flex: 1, color: 'inherit', background: 'transparent', border: '1px solid var(--border, #454950)' }}>Cancel</button>
           <button type="button" onClick={() => void submitPoke()} disabled={loading || submitting || balance === null || fixture.isLive || fixture.status === 'live' || (selectedMarket !== undefined && options.length === 0)}
-            style={{ ...buttonStyle, flex: 1, color: '#07170d', background: 'var(--primary, #36c875)', opacity: loading || submitting || fixture.isLive || fixture.status === 'live' ? .65 : 1 }}>
+            style={{ ...buttonStyle, flex: 1, color: 'var(--text-inverse)', background: 'var(--primary)', opacity: loading || submitting || fixture.isLive || fixture.status === 'live' ? .65 : 1 }}>
             {submitting ? 'Poking…' : 'Poke'}
           </button>
         </footer>
