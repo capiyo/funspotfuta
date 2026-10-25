@@ -470,7 +470,7 @@ export default function MessageScreen() {
           <ArrowLeft size={18} color={colors.textPrimary} />
         </Pressable>
         <View style={styles.carouselSlot}>
-          <AdCarousel showDots={false} flush fixture={fixture} />
+          <AdCarousel showDots={false} flush fixture={fixture} enabled={false} />
         </View>
         {fixture && (
           <Pressable
