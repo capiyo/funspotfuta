@@ -264,6 +264,7 @@ export function MatchCard({
   const { requireLogin } = useLoginModal();
   const [draft, setDraft] = useState('');
   const [openPokes, setOpenPokes] = useState<Poke[]>([]);
+  const pokeCacheKeyRef = useRef('');
   const queryClient = useQueryClient();
   useEffect(() => {
     let active = true;
@@ -276,9 +277,16 @@ export function MatchCard({
     const cacheKey = queryKeys.openPokes(fixtureId, channelId);
     // Hydrate the visible list first; never make the UI wait for HTTP.
     const cached = queryClient.getQueryData<Poke[]>(cacheKey);
-    // A cache miss is not proof that there are no pokes. Keep the current
-    // rendered rows while the query cache hydrates or the channel changes.
-    if (cached?.length) setOpenPokes(cached);
+    const cacheIdentity = JSON.stringify(cacheKey);
+    if (pokeCacheKeyRef.current !== cacheIdentity) {
+      // Do not leak one fixture/channel's pokes into another card, but do not
+      // clear the same card merely because its effect re-runs during a status
+      // or authentication transition.
+      pokeCacheKeyRef.current = cacheIdentity;
+      setOpenPokes(cached ?? []);
+    } else if (cached?.length) {
+      setOpenPokes(cached);
+    }
 
     // Subscribe to shared cache updates from poke actions/screens. ChatsScreen
     // invalidates openPokes when the user scrolls back to the top.
