@@ -89,7 +89,7 @@ import {
 type Pick = 'home' | 'away';
 type ActionResult = { success: boolean; message?: string; newBalance?: number };
 
-const FIXTURES_KEY = ['fixtures'] as const;
+const FIXTURES_KEY = queryKeys.fixtures();
 const NO_FIXTURES: Fixture[] = [];
 
 const MOCK_COMMENTORS = [
