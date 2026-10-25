@@ -55,7 +55,7 @@ function FormationPill({
             <Text
                 numberOfLines={1}
                 ellipsizeMode="tail"
-                style={[fanText('tag', colors), { color }]}
+                style={[fanText('tag', colors), { color, fontSize: 10, fontWeight: '400', lineHeight: 13 }]}
             >
                 {teamName}
             </Text>
