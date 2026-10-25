@@ -174,7 +174,8 @@ export default function ChatsScreen() {
     if (now - lastTopRefreshAt.current < 30_000) return;
     lastTopRefreshAt.current = now;
     void refetch();
-  }, [scrollProps.onScroll, refetch]);
+    void queryClient.invalidateQueries({ queryKey: ['openPokes'] });
+  }, [scrollProps.onScroll, refetch, queryClient]);
   const [modalFixture, setModalFixture] = useState<Fixture | null>(null);
   const [pokeModalFixture, setPokeModalFixture] = useState<Fixture | null>(null);
   const [reviewFixture, setReviewFixture] = useState<Fixture | null>(null);
@@ -208,10 +209,11 @@ export default function ChatsScreen() {
     setRefreshing(true);
     try {
       await Promise.all([refetch(), refetchAllChannels()]);
+      await queryClient.invalidateQueries({ queryKey: ['openPokes'] });
     } finally {
       setRefreshing(false);
     }
-  }, [refetch, refetchAllChannels]);
+  }, [refetch, refetchAllChannels, queryClient]);
 
   const chatFixtures = useMemo(() => fixtures
     .map((fixture, index) => ({ fixture, index }))
