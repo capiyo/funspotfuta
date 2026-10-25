@@ -162,7 +162,7 @@ export function PokeModal({ visible, fixture, userId, username, authToken, chann
 
   return <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
     <Pressable style={styles.backdrop} onPress={onClose}>
-      <Pressable style={[styles.panel, { width: '100%', height: screenH * 0.82, maxHeight: '82dvh' }]} onPress={() => { }} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
+      <Pressable style={[styles.panel, { width: '100%', height: screenH * 0.82, maxHeight: screenH * 0.82 }]} onPress={() => { }} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
         <View style={styles.handleWrap}><View style={styles.handle} /></View>
         <View style={styles.header}>
           <View style={styles.headerIcon}><Text style={{ color: colors.primary, fontSize: 17 }}>✦</Text></View>
