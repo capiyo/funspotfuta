@@ -1552,7 +1552,7 @@ function createStyles(colors: FanColors) {
       alignSelf: 'stretch',
       borderTopLeftRadius: 28,
       borderTopRightRadius: 28,
-      backgroundColor: colors.background,
+      backgroundColor: colors.surfaceSunken,
       overflow: 'hidden',
     },
     handleWrap: {
@@ -1596,7 +1596,7 @@ function createStyles(colors: FanColors) {
       padding: 6,
       backgroundColor: colors.surfaceSunken,
     },
-    screen: { flex: 1, minHeight: 0, minWidth: 0, width: '100%', alignSelf: 'stretch', backgroundColor: colors.background },
+    screen: { flex: 1, minHeight: 0, minWidth: 0, width: '100%', alignSelf: 'stretch', backgroundColor: colors.surfaceSunken },
     content: {
       flexDirection: 'column',
       alignItems: 'stretch',
