@@ -88,32 +88,6 @@
   line-height: 1.35;
   overflow-wrap: anywhere;
 }
-.profile-authenticated-view > div:first-child:not(.profile-authenticated-field) {
-  display: flex;
-  gap: 8px;
-  min-width: 0;
-}
-.profile-authenticated-view > div:first-child:not(.profile-authenticated-field) > div {
-  flex: 1 1 0;
-  min-width: 0;
-  padding: 9px 8px !important;
-  background: var(--home-surface) !important;
-  border: 1px solid var(--home-border) !important;
-  border-radius: 8px !important;
-}
-.profile-authenticated-view > div:first-child:not(.profile-authenticated-field) > div > span:first-child {
-  display: block;
-  color: var(--home-text-tertiary) !important;
-  font-size: 10px !important;
-  line-height: 1.3;
-}
-.profile-authenticated-view > div:first-child:not(.profile-authenticated-field) > div > span:last-child {
-  display: block;
-  color: var(--home-text-primary) !important;
-  font-size: 15px !important;
-  font-weight: 750 !important;
-  line-height: 1.3;
-}
 .profile-account-details {
   display: flex;
   flex-direction: column;
