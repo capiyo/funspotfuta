@@ -7,6 +7,12 @@ import { useFanColors } from '@/theme/use-fan-colors';
 import { queryKeys } from '@funspot/core';
 import { fetchSubFixtures, fetchSubFixturePledges, fetchVoters, API_BASE_URL, type SubFixtureMarket } from '@funspot/core';
 
+function pokeIdentity(poke: Poke): string {
+  return poke.id
+    ? String(poke.id)
+    : [poke.matchId, poke.userId, poke.selection, poke.amount, poke.createdAt ?? ''].join(':');
+}
+
 type Props = {
   fixture: Fixture;
   userId: string;
@@ -192,9 +198,10 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
       if (nextBalance !== null) writeCachedChannelMemberPoints(queryClient, userId, channelId, nextBalance);
       const cacheKey = queryKeys.openPokes(String(matchId), channelId, marketId);
       const previousOpen = queryClient.getQueryData<Poke[]>(cacheKey) ?? [];
-      const nextOpen = open.filter((item) => String(item.status ?? '').trim().toLowerCase() === 'open' && String(item.matchId) === String(matchId));
-      // The matched row was removed optimistically above; preserve any other cached rows if GET lags.
-      const stableOpen = nextOpen.length > 0 ? nextOpen : previousOpen;
+      const nextOpen = open.filter((item) => String(item.status ?? '').trim().toLowerCase() === 'open' && String(item.matchId) === String(matchId) && pokeIdentity(item) !== pokeIdentity(poke));
+      // A stale GET must not put the just-matched poke back into the open list.
+      const cachedWithoutMatched = previousOpen.filter((item) => pokeIdentity(item) !== pokeIdentity(poke));
+      const stableOpen = nextOpen.length > 0 ? nextOpen : cachedWithoutMatched;
       if (channelId) queryClient.setQueryData<Poke[]>(cacheKey, stableOpen);
       setOpenPokes(stableOpen);
       setMatchedPokes(mine.filter((item) => item.status.trim().toLowerCase() !== 'open'));
@@ -254,7 +261,7 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
       const nextOpen = open.filter((poke) => String(poke.status ?? '').trim().toLowerCase() === 'open' && String(poke.matchId) === String(matchId));
       // Include the confirmed create response immediately; GET may lag behind POST.
       const candidates = [...(nextOpen.length ? nextOpen : previousOpen), createdPoke];
-      const stableOpen = candidates.filter((poke, index, all) => String(poke.status ?? '').trim().toLowerCase() === 'open' && all.findIndex((item) => item.id === poke.id) === index);
+      const stableOpen = candidates.filter((poke, index, all) => String(poke.status ?? '').trim().toLowerCase() === 'open' && all.findIndex((item) => pokeIdentity(item) === pokeIdentity(poke)) === index);
       queryClient.setQueryData<Poke[]>(cacheKey, stableOpen);
       setOpenPokes(stableOpen);
       setMatchedPokes(mine.filter((poke) => poke.status.trim().toLowerCase() !== 'open'));
