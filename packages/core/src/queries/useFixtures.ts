@@ -17,6 +17,7 @@ interface CachedVoteSnapshot {
     selection: string;
     votedAt?: Date | string;
     isComrade?: boolean;
+    uri?: string | null;
   }>;
 }
 
@@ -35,7 +36,7 @@ function mergeFixtureVoteSnapshot(
     merged.set(voter.userId, {
       userId: voter.userId,
       userName: serverVoter?.userName ?? voter.username,
-      uri: serverVoter?.uri ?? null,
+      uri: serverVoter?.uri ?? voter.uri ?? null,
       selection: serverVoter?.selection ?? voter.selection,
       votedAt: serverVoter?.votedAt ?? (voter.votedAt ? new Date(voter.votedAt) : new Date()),
       isComrade: serverVoter?.isComrade ?? voter.isComrade ?? false,
@@ -154,6 +155,7 @@ export function useFixtures(userId?: string, enabled = true, authToken?: string 
           selection: voter.selection,
           votedAt: voter.votedAt,
           isComrade: voter.isComrade,
+          uri: voter.uri ?? null,
         })),
       });
     }
