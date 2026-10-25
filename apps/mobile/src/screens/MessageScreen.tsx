@@ -1244,6 +1244,13 @@ function MessageBubble({
   const failed = isFailed(message);
   const hasImage = !!message.imageUrl && !uploading;
   const hasVideo = !!message.videoUrl && !uploading && !message.imageUrl;
+  const bubbleColor = failed
+    ? colors.away + '1A'
+    : isCommentary
+      ? colors.draw + '14'
+      : effectiveIsMe
+        ? colors.primary + '1A'
+        : colors.surface;
 
   return (
     <View style={bubbleStyles.column}>
@@ -1290,13 +1297,8 @@ function MessageBubble({
           style={[
             bubbleStyles.bubble,
             effectiveIsMe ? bubbleStyles.bubbleMe : bubbleStyles.bubbleOther,
-            isCommentary
-              ? { backgroundColor: colors.draw + '14' }
-              : effectiveIsMe
-                ? { backgroundColor: colors.primary + '1A' }
-                : { backgroundColor: colors.surface },
+            { backgroundColor: bubbleColor },
             message.isPending && !failed && { opacity: 0.6 },
-            failed && { backgroundColor: colors.away + '1A' },
           ]}
         >
           {message.replyTo && (
@@ -1375,6 +1377,14 @@ function MessageBubble({
           >
             {failed ? 'Failed to send' : timeAgo(message.timestamp)}
           </Text>
+          <View
+            pointerEvents="none"
+            style={[
+              bubbleStyles.tail,
+              effectiveIsMe ? bubbleStyles.tailMe : bubbleStyles.tailOther,
+              { borderTopColor: bubbleColor },
+            ]}
+          />
         </Pressable>
       </View>
     </View>
@@ -1382,7 +1392,7 @@ function MessageBubble({
 }
 
 const bubbleStyles = StyleSheet.create({
-  column: { marginBottom: 7, paddingHorizontal: FAN_SPACING.sm },
+  column: { marginBottom: 5, paddingHorizontal: FAN_SPACING.sm },
   username: { marginLeft: 34, marginBottom: 2 },
   row: {
     flexDirection: 'row',
@@ -1405,8 +1415,25 @@ const bubbleStyles = StyleSheet.create({
     paddingVertical: FAN_SPACING.sm,
     elevation: 1,
   },
-  bubbleMe: { borderBottomRightRadius: FAN_RADIUS.sm },
-  bubbleOther: { borderBottomLeftRadius: FAN_RADIUS.sm },
+  bubbleMe: { borderBottomRightRadius: 3 },
+  bubbleOther: { borderBottomLeftRadius: 3 },
+  tail: {
+    position: 'absolute',
+    bottom: 0,
+    width: 0,
+    height: 0,
+    borderTopWidth: 8,
+  },
+  tailMe: {
+    right: -5,
+    borderLeftWidth: 8,
+    borderLeftColor: 'transparent',
+  },
+  tailOther: {
+    left: -5,
+    borderRightWidth: 8,
+    borderRightColor: 'transparent',
+  },
   messageText: { lineHeight: 20, flexShrink: 1 },
   replyQuote: {
     borderLeftWidth: 2,
