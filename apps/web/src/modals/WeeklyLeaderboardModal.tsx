@@ -29,6 +29,7 @@ export function WeeklyLeaderboardModal({ visible, onClose, channelId, channelNam
         setRows(result?.leaderboard ?? []);
         setWeekStartsAt(result?.week_starts_at ?? null);
         setWeekEndsAt(result?.week_ends_at ?? null);
+        setMe(result?.me ?? null);
       }
     }).finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
@@ -56,9 +57,9 @@ export function WeeklyLeaderboardModal({ visible, onClose, channelId, channelNam
               <X size={20} color={colors.textSecondary} />
             </Pressable>
           </View>
-          <Text style={styles.caption}>Ranked by points won in the current ISO week (EAT)</Text>
+          <Text style={styles.caption}>Points won since Tuesday at 04:00 EAT</Text>
           {loading ? <View style={styles.center}><ActivityIndicator color={colors.primary} /></View> : rows.length === 0 && !me ? (
-            <View style={styles.center}><Text style={styles.emptyTitle}>No weekly gains to show yet</Text><Text style={styles.emptyCopy}>Weekly rankings show points won by channel members during the current ISO week.</Text></View>
+            <View style={styles.center}><Text style={styles.emptyTitle}>No weekly gains to show yet</Text><Text style={styles.emptyCopy}>Weekly rankings show points won by channel members since Tuesday at 04:00 EAT.</Text></View>
           ) : (
             <ScrollView style={styles.list} contentContainerStyle={styles.listContent}>
               {rows.map((row) => (
@@ -68,6 +69,13 @@ export function WeeklyLeaderboardModal({ visible, onClose, channelId, channelNam
                   <Text style={styles.points}>+{row.weekly_points.toLocaleString()} pts</Text>
                 </View>
               ))}
+              {me && !rows.some((row) => row.user_id === me.user_id) ? (
+                <View key={`me-${me.user_id}`} style={[styles.row, styles.meRow]}>
+                  <Text style={styles.rank}>{me.rank ? `#${me.rank}` : '—'}</Text>
+                  <Text style={styles.name} numberOfLines={1}>{me.username || 'You'} · You</Text>
+                  <Text style={styles.points}>+{me.weekly_points.toLocaleString()} pts</Text>
+                </View>
+              ) : null}
             </ScrollView>
           )}
         </Pressable>
