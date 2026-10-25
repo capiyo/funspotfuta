@@ -30,9 +30,19 @@ function fromJson(value: Record<string, unknown>): Poke {
     createdAt: value.created_at == null ? undefined : String(value.created_at),
   };
 }
-function rows(payload: any): Poke[] {
-  const list = Array.isArray(payload) ? payload : payload?.pokes ?? payload?.data ?? [];
-  return Array.isArray(list) ? list.map((row: Record<string, unknown>) => fromJson(row)) : [];
+function rows(payload: unknown): Poke[] {
+  if (Array.isArray(payload)) return payload.map((row) => fromJson(row as Record<string, unknown>));
+  if (!payload || typeof payload !== 'object') throw new Error('Poke response was not a list');
+  const value = payload as Record<string, unknown>;
+  const data = value.data;
+  const pokes = value.pokes;
+  const list = value.open_pokes ?? value.openPokes ?? value.open
+    ?? (Array.isArray(pokes) ? pokes : undefined)
+    ?? (pokes && typeof pokes === 'object' ? (pokes as Record<string, unknown>).open : undefined)
+    ?? (Array.isArray(data) ? data : undefined)
+    ?? (data && typeof data === 'object' ? (data as Record<string, unknown>).open ?? (data as Record<string, unknown>).pokes : undefined);
+  if (!Array.isArray(list)) throw new Error('Poke response did not contain an open-pokes list');
+  return list.map((row) => fromJson(row as Record<string, unknown>));
 }
 async function request(path: string, token?: string, body?: unknown): Promise<any> {
   const response = await fetch(`${API}${path}`, {
@@ -49,8 +59,11 @@ export async function getOpenPokes(matchId: string, token: string | undefined, c
   if (!channelId) return [];
   const suffix = marketId && marketId !== 'main_fixture' ? `?market_id=${encodeURIComponent(marketId)}` : '';
   const payload = await request(`/channel/${encodeURIComponent(channelId)}/${encodeURIComponent(matchId)}/pokes${suffix}`, token);
-  const open = payload?.open ?? payload?.data?.open ?? payload?.pokes?.open ?? [];
-  return Array.isArray(open) ? open.map((p: Record<string, unknown>) => fromJson(p)) : [];
+  const open = rows(payload);
+  // The endpoint is already scoped to this fixture. Some API responses omit
+  // the fixture identifier on each row; preserve the route's fixture context
+  // rather than turning those valid rows into invisible entries in the UI.
+  return open.map((poke) => ({ ...poke, matchId: poke.matchId || String(matchId) }));
 }
 export async function getUserPokes(userId: string, token?: string): Promise<Poke[]> {
   return rows(await request(`/poke/user/${encodeURIComponent(userId)}`, token));
