@@ -214,7 +214,7 @@ export default function LeaderboardScreen({
       onRequestClose={onClose}
       statusBarTranslucent
     >
-      <Pressable style={styles.backdrop} onPress={onClose}>
+      <Pressable className="leaderboard-modal-backdrop" style={styles.backdrop} onPress={onClose}>
         <Pressable
           className="leaderboard-modal-sheet"
           style={[styles.sheet, { width: '100%', alignSelf: 'stretch', height: '85dvh', maxHeight: '85dvh', flex: 0, flexDirection: 'column', minWidth: 0, minHeight: 0 }]}
