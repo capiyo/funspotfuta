@@ -141,7 +141,7 @@ export interface PitchViewProps {
   homeTeam: string; awayTeam: string; homeFormation: string; awayFormation: string;
   homePlayers: SimplifiedPlayer[]; awayPlayers: SimplifiedPlayer[];
 }
-const PITCH_ASPECT_RATIO = .68;
+const PITCH_ASPECT_RATIO = 1.22;
 const GRASS_EVEN = '#0D5E1A', GRASS_ODD = '#0A5218';
 
 export function PitchView({ homeTeam, awayTeam, homeFormation, awayFormation, homePlayers, awayPlayers }: PitchViewProps) {
@@ -157,11 +157,11 @@ export function PitchView({ homeTeam, awayTeam, homeFormation, awayFormation, ho
     const x=point.x;
     const y=point.y;
     return <g key={`${isHome?'h':'a'}-${player.number}-${player.name}-${index}`} transform={`translate(${x} ${y})`}>
-      <circle r="19" fill={hexWithAlpha(color,.18)} stroke={color} strokeWidth="2.5"/>
-      <circle r="15" fill={color}/>
-      <text textAnchor="middle" dominantBaseline="central" fontSize="12" fontWeight="800" fill="#fff">{player.number}</text>
-      <rect x="-34" y="21" width="68" height="17" rx="4" fill="rgba(0,0,0,.72)"/>
-      <text x="0" y="33" textAnchor="middle" fontSize="10" fill="#fff">{shortName(player.name).slice(0,12)}{player.captain?' ©':''}</text>
+      <circle r="16" fill={hexWithAlpha(color,.2)} stroke={color} strokeWidth="2"/>
+      <circle r="13" fill={color}/>
+      <text textAnchor="middle" dominantBaseline="central" fontSize="11" fontWeight="400" fill="#fff">{player.number}</text>
+      <rect x="-37" y="18" width="74" height="15" rx="4" fill="rgba(0,0,0,.78)"/>
+      <text x="0" y="29" textAnchor="middle" fontSize="9" fontWeight="400" fill="#fff">{shortName(player.name).slice(0,12)}{player.captain?' ©':''}</text>
     </g>;
   });
   const hasOverflow=homeOverflow.length>0||awayOverflow.length>0;
