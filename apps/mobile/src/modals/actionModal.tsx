@@ -643,7 +643,7 @@ function DialogShell({
 }) {
     return (
         <Pressable style={styles.dialogBackdrop} onPress={onCancel}>
-            <Pressable style={styles.dialogCard} onPress={() => { }}>
+            <Pressable style={styles.dialogCard} onPress={(event) => event.stopPropagation()}>
                 {children}
             </Pressable>
         </Pressable>
@@ -1468,7 +1468,7 @@ export function SwipeableVotePledgeModal(props: Props) {
         return (
             <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
                 <Pressable style={styles.backdrop} onPress={onClose}>
-                    <Pressable style={[styles.sheet, { width: '100%', height: screenH * 0.82, maxHeight: '82dvh' }]} onPress={() => { }}>
+                    <Pressable style={[styles.sheet, { width: '100%', height: screenH * 0.5, maxHeight: '50%' }]} onPress={() => { }}>
                         <HandleBar colors={colors} styles={styles} />
                         <View style={styles.joinGroupBox}>
                             <View style={styles.joinGroupIconWrap}>
@@ -1504,7 +1504,7 @@ export function SwipeableVotePledgeModal(props: Props) {
             <KeyboardAvoidingView style={{ flex: 1 }} behavior={kavBehavior}>
                 <Pressable style={styles.backdrop} onPress={onClose}>
                     <Pressable
-                        style={[styles.sheet, { width: '100%', height: screenH * 0.82, maxHeight: '82%' }]}
+                        style={[styles.sheet, { width: '100%', height: screenH * 0.5, maxHeight: '50%' }]}
                         onPress={() => { }}
                     >
                         <HandleBar colors={colors} styles={styles} />
