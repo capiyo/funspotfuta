@@ -31,17 +31,15 @@ export function VoterList({ colors, voters, emptyLabel, onPress }: {
   onPress?: () => void;
 }) {
   const shown = voters.slice(0, SLOTS);
-  return <button type="button" onClick={onPress} className="voter-list" style={{ display: 'flex', alignItems: 'center', gap: FAN_SPACING.md, border: 0, padding: Math.max(HIT_SLOP.top, HIT_SLOP.left), background: 'transparent', textAlign: 'left', opacity: 1 }} onMouseDown={(e) => { if(onPress) e.currentTarget.style.opacity = String(PRESSED_OPACITY); }} onMouseUp={(e) => { e.currentTarget.style.opacity = '1'; }} onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}>
+  return <button type="button" onClick={onPress} className="voter-list" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-start', gap: FAN_SPACING.md, width: '100%', boxSizing: 'border-box', border: 0, padding: Math.max(HIT_SLOP.top, HIT_SLOP.left), background: 'transparent', textAlign: 'left', opacity: 1 }} onMouseDown={(e) => { if (onPress) e.currentTarget.style.opacity = String(PRESSED_OPACITY); }} onMouseUp={(e) => { e.currentTarget.style.opacity = '1'; }} onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}>
     {shown.length === 0 ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: FAN_SPACING.sm }}><Users size={ICON.sm} color={colors.textTertiary} /><span style={fanText('caption', colors, colors.textSecondary)}>{emptyLabel}</span></span> :
-      Array.from({ length: SLOTS }, (_, i) => {
-        const voter = shown[i];
-        if (!voter) return <span key={`empty-${i}`} style={{ flex: 1 }} />;
+      shown.map((voter) => {
         const { icon, name } = splitFanName(voter.name);
-        return <span key={voter.id} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: FAN_SPACING.sm, minWidth: 0 }}>
+        return <span key={voter.id} style={{ flex: '1 1 180px', display: 'flex', alignItems: 'center', gap: FAN_SPACING.sm, minWidth: 0 }}>
           <Avatar colors={colors} size="sm" label={icon || initials(name)} uri={voter.uri} borderColor={voter.color} />
-          <span style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-            <span style={{ ...fanText('caption', colors, colors.textPrimary), overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</span>
-            <span style={{ ...fanText('tag', colors, voter.color), overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{voter.team}</span>
+          <span style={{ display: 'flex', flexDirection: 'column', flex: '1 1 auto', minWidth: 0 }}>
+            <span style={{ ...fanText('caption', colors, colors.textPrimary), whiteSpace: 'normal', overflowWrap: 'anywhere' }}>{name}</span>
+            <span style={{ ...fanText('tag', colors, voter.color), whiteSpace: 'normal', overflowWrap: 'anywhere' }}>{voter.team}</span>
           </span>
         </span>;
       })}
