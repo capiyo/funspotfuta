@@ -113,7 +113,7 @@ export default function ChatsScreen() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { data, isPending, isFetching, isError, error, refetch } = useFixtures(userId ?? undefined);
+  const { data, isPending, isFetching, isError, error, refetch } = useFixtures(userId ?? undefined, true, authToken);
     const fixtures = useMemo(() => (data ?? NO_FIXTURES).map((fixture) => {
     if (!userId) return fixture;
     const cached = queryClient.getQueryData<{ voters?: Array<{ userId: string; username?: string; userName?: string; selection: string; isComrade?: boolean; votedAt?: Date }> }>(
