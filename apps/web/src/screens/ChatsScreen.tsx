@@ -607,6 +607,18 @@ function ChannelSwipeCarousel({ channels: slideChannels, renderSlide }: {
     if (track) setActiveIndex(Math.min(count - 1, Math.round(track.scrollLeft / Math.max(1, track.clientWidth))));
   }, [count]);
   return <div style={{ minWidth: 0 }}>
+    {count > 1 && <nav className="desktop-chat-channel-controls" aria-label="Choose channel for this fixture">
+      {slideChannels.map((channel, index) => <button
+        key={channel.channelId}
+        type="button"
+        aria-current={index === activeIndex ? 'page' : undefined}
+        title={channel.name}
+        onClick={() => {
+          const track = trackRef.current;
+          if (track) track.scrollTo({ left: index * track.clientWidth, behavior: 'smooth' });
+        }}
+      >{channel.name}</button>)}
+    </nav>}
     <div ref={trackRef} onScroll={onScroll} className="no-scrollbar"
       aria-label="Channel cards" style={{ display: 'flex', overflowX: 'auto', scrollSnapType: 'x mandatory', overscrollBehaviorX: 'contain', touchAction: 'pan-x pan-y', scrollbarWidth: 'none' }}>
       {(slideChannels.length ? slideChannels : [undefined]).map((channel, index) => <div key={channel?.channelId ?? 'default'} style={{ flex: '0 0 100%', minWidth: 0, scrollSnapAlign: 'start' }}>
