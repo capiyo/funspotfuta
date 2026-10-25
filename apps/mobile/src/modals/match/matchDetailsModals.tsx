@@ -104,6 +104,7 @@ export function MatchDetailsModal({
 
     const [statistics, setStatistics] = useState<MatchStatistics | null>(null);
     const [lineups, setLineups] = useState<LineupsData | null>(null);
+    const [lineupsMatchId, setLineupsMatchId] = useState<string | null>(null);
 
     const [loadingStats, setLoadingStats] = useState(true);
     const [loadingLineups, setLoadingLineups] = useState(true);
@@ -120,7 +121,7 @@ export function MatchDetailsModal({
     // ── Fetch lineups (independent of stats) ─────────────────────
 
     const fetchLineups = useCallback(async () => {
-        setLoadingLineups(true);
+        if (lineupsMatchId !== fixture.matchId) setLoadingLineups(true);
         setLineupsError('');
         try {
             const res = await fetch(
@@ -132,6 +133,7 @@ export function MatchDetailsModal({
                 const data = await res.json();
                 if (data?.success === true && data?.data != null) {
                     setLineups(parseLineupsData(data.data));
+                    setLineupsMatchId(fixture.matchId);
                     setLoadingLineups(false);
                     return;
                 }
@@ -146,19 +148,22 @@ export function MatchDetailsModal({
                 const data = await fallbackRes.json();
                 if (data?.success === true && data?.data != null) {
                     setLineups(parseLineupsData(data.data));
+                    setLineupsMatchId(fixture.matchId);
                     setLoadingLineups(false);
                     return;
                 }
             }
 
+            setLineupsMatchId(fixture.matchId);
             setLineupsError('No lineup available');
             setLoadingLineups(false);
         } catch (e) {
             console.warn('❌ Error fetching lineups:', e);
+            setLineupsMatchId(fixture.matchId);
             setLineupsError('No network error');
             setLoadingLineups(false);
         }
-    }, [fixture.matchId, authToken]);
+    }, [fixture.matchId, authToken, lineupsMatchId]);
 
     // ── Fetch statistics (independent of lineups) ────────────────
 
@@ -220,9 +225,8 @@ export function MatchDetailsModal({
         // doesn't flash the previous match's lineups/stats.
         setActiveTab('lineups');
         setStatistics(null);
-        setLineups(null);
         setLoadingStats(true);
-        setLoadingLineups(true);
+        if (lineupsMatchId !== fixture.matchId) setLoadingLineups(true);
         setStatsError('');
         setLineupsError('');
         setHasStats(false);
@@ -407,9 +411,9 @@ export function MatchDetailsModal({
                         {activeTab === 'lineups' ? (
                             <LineupsTab
                                 fixture={fixture}
-                                lineups={lineups}
-                                loading={loadingLineups}
-                                error={lineupsError}
+                                lineups={lineupsMatchId === fixture.matchId ? lineups : null}
+                                loading={loadingLineups || lineupsMatchId !== fixture.matchId}
+                                error={lineupsMatchId === fixture.matchId ? lineupsError : ''}
                             />
                         ) : hasStats && statistics ? (
                             <StatsTab
