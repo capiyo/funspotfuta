@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, View } from '@/lib/native-web-compat';
 import { Trophy, X } from 'lucide-react';
-import { getChannelWeeklyLeaderboardData, type WeeklyChannelLeader } from '@funspot/core';
+import { getChannelWeeklyLeaderboardData, type WeeklyChannelLeader, type WeeklyLeaderboardMe } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useFanColors } from '@/theme/use-fan-colors';
 
@@ -18,6 +18,7 @@ export function WeeklyLeaderboardModal({ visible, onClose, channelId, channelNam
   const [loading, setLoading] = useState(false);
   const [weekStartsAt, setWeekStartsAt] = useState<string | null>(null);
   const [weekEndsAt, setWeekEndsAt] = useState<string | null>(null);
+  const [me, setMe] = useState<WeeklyLeaderboardMe | null>(null);
 
   useEffect(() => {
     if (!visible || !channelId) return;
@@ -56,7 +57,7 @@ export function WeeklyLeaderboardModal({ visible, onClose, channelId, channelNam
             </Pressable>
           </View>
           <Text style={styles.caption}>Ranked by points won in the current ISO week (EAT)</Text>
-          {loading ? <View style={styles.center}><ActivityIndicator color={colors.primary} /></View> : rows.length === 0 ? (
+          {loading ? <View style={styles.center}><ActivityIndicator color={colors.primary} /></View> : rows.length === 0 && !me ? (
             <View style={styles.center}><Text style={styles.emptyTitle}>No weekly gains to show yet</Text><Text style={styles.emptyCopy}>Weekly rankings show points won by channel members during the current ISO week.</Text></View>
           ) : (
             <ScrollView style={styles.list} contentContainerStyle={styles.listContent}>
@@ -91,6 +92,7 @@ function makeStyles(colors: ReturnType<typeof useFanColors>) {
     list: { flexGrow: 0 },
     listContent: { paddingBottom: 12 },
     row: { minHeight: 54, flexDirection: 'row', alignItems: 'center', gap: 12, borderWidth: 0 },
+    meRow: { backgroundColor: colors.surfaceSunken, borderRadius: 10, paddingHorizontal: 8 },
     rank: { width: 34, color: colors.textSecondary, fontSize: 13, fontWeight: '700', textAlign: 'center' },
     name: { flex: 1, color: colors.textPrimary, fontSize: 14, fontWeight: '600' },
     points: { color: colors.primary, fontSize: 14, fontWeight: '800' },
