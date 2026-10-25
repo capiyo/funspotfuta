@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AdSenseAd } from '@/components/AdSenseAd';
 import { useFanColors } from '@/theme/use-fan-colors';
-import { getAllFixtures, type Fixture } from '@funspot/core';
+import type { Fixture } from '@funspot/core';
 
 type AdSenseCarouselProps = {
   placement: 'chats' | 'leaderboard';
@@ -10,6 +10,7 @@ type AdSenseCarouselProps = {
   label?: string;
   showDots?: boolean;
   flush?: boolean;
+  fixture?: Fixture | null;
 };
 
 type Slide =
@@ -26,20 +27,11 @@ export default function AdSenseCarousel({
   label = 'Sponsored carousel',
   showDots = false,
   flush = false,
+  fixture = null,
 }: AdSenseCarouselProps) {
   const colors = useFanColors();
   const viewportRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [fixtures, setFixtures] = useState<Fixture[]>([]);
-
-  useEffect(() => {
-    if (placement !== 'chats') return;
-    let alive = true;
-    getAllFixtures()
-      .then((items) => { if (alive) setFixtures(items.slice(0, slots.length)); })
-      .catch(() => undefined);
-    return () => { alive = false; };
-  }, [placement, slots.length]);
 
   const adsAllowed =
     enabled &&
@@ -51,11 +43,11 @@ export default function AdSenseCarousel({
     const adSlides: Slide[] = (placement === 'chats' && adsAllowed ? slots : adsAllowed ? slots : [])
       .map((slot) => ({ type: 'ad', key: `ad-${slot}`, slot }));
     if (placement !== 'chats') return adSlides;
-    const fixtureSlides: Slide[] = fixtures.map((fixture) => ({
+    const fixtureSlides: Slide[] = placement === 'chats' && fixture ? [{
       type: 'fixture',
       key: `fixture-${fixture.matchId ?? fixture.id}`,
       fixture,
-    }));
+    }] : [];
     const mixed: Slide[] = [];
     const count = Math.max(adSlides.length, fixtureSlides.length);
     for (let index = 0; index < count; index += 1) {
@@ -63,7 +55,7 @@ export default function AdSenseCarousel({
       if (fixtureSlides[index]) mixed.push(fixtureSlides[index]);
     }
     return mixed;
-  }, [adsAllowed, fixtures, placement, slots]);
+  }, [adsAllowed, fixture, placement, slots]);
 
   useEffect(() => {
     if (slides.length < 2) return;
