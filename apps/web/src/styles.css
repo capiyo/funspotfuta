@@ -3342,6 +3342,41 @@ body:has(.home-screen) .home-screen *:not(.profile-card):not(.profile-card *):no
   }
 }
 
+
+
+/* Action modal content must use the full sheet width instead of collapsing to
+   intrinsic text width in the RN-to-DOM compatibility layer. */
+.action-modal-viewport .action-modal-tab-body {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  padding-inline: 14px !important;
+  box-sizing: border-box !important;
+}
+.action-modal-viewport .action-modal-tab-body > * {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  align-self: stretch !important;
+  box-sizing: border-box !important;
+}
+.action-modal-viewport .action-modal-tab-body [style*="flex-direction: row"] {
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+.action-modal-viewport .action-modal-tab-body span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 /* Desktop action sheets stay compact and centered; narrow screens use half-height bottom sheets. */
 @media (min-width: 651px) {
   .action-modal-viewport .action-modal-backdrop {
