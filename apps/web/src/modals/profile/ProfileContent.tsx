@@ -887,7 +887,7 @@ export default function ProfileContent({
       {[
         { label: 'Username', value: guestProfile.username, Icon: UserIcon },
         { label: 'Team Nickname', value: guestProfile.nickname, Icon: Shield },
-        { label: 'Team/Club', value: guestProfile.clubFan, Icon: Globe2 },
+        { label: 'Favorite Club', value: guestProfile.clubFan, Icon: Globe2 },
         { label: 'Country You Support', value: guestProfile.countryFan, Icon: Flag },
         { label: 'Phone', value: guestProfile.phone, Icon: Phone },
       ].map(({ label, value, Icon }) => (
