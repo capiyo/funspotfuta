@@ -23,6 +23,7 @@
 // the league label in the top-left. Without it the card shows the league.
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import type { ChangeEvent, CSSProperties, KeyboardEvent } from 'react';
 import {
   Heart,
@@ -36,6 +37,7 @@ import {
   type Fixture,
   type Poke,
   getOpenPokes,
+  queryKeys,
   hasScores,
   winner as fixtureWinner,
   outcomeColor,
@@ -167,26 +169,37 @@ export function MatchCard({
   const { requireLogin } = useLoginModal();
   const [draft, setDraft] = useState('');
   const [openPokes, setOpenPokes] = useState<Poke[]>([]);
+  const queryClient = useQueryClient();
   useEffect(() => {
     let active = true;
-    const fixtureId = fixture.matchId || fixture.id;
+    const fixtureId = String(fixture.matchId || fixture.id);
+    if (!channelId || !fixtureId) return () => { active = false; };
+    const cacheKey = queryKeys.openPokes(fixtureId, channelId);
+    const cached = queryClient.getQueryData<Poke[]>(cacheKey);
+    if (cached) setOpenPokes(cached);
     const refresh = () => {
-      if (!channelId || !fixtureId || fixture.isLive || fixture.status === 'live') {
-        if (active) setOpenPokes([]);
+      if (fixture.isLive || fixture.status === 'live') {
+        if (active) {
+          setOpenPokes([]);
+          queryClient.setQueryData<Poke[]>(cacheKey, []);
+        }
         return;
       }
       void getOpenPokes(fixtureId, undefined, channelId)
         .then((items) => {
-          if (active) setOpenPokes(items
-            .filter((item) => item.status.toLowerCase() === 'open' && item.matchId === fixtureId)
-            .sort((a, b) => (Date.parse(b.createdAt ?? '') || 0) - (Date.parse(a.createdAt ?? '') || 0)));
+          if (!active) return;
+          const next = items
+            .filter((item) => item.status.toLowerCase() === 'open' && String(item.matchId) === fixtureId)
+            .sort((a, b) => (Date.parse(b.createdAt ?? '') || 0) - (Date.parse(a.createdAt ?? '') || 0));
+          queryClient.setQueryData<Poke[]>(cacheKey, next);
+          setOpenPokes(next);
         })
-        .catch(() => { /* Keep the last good poke list during transient API failures. */ });
+        .catch(() => { /* Keep the last successful UI and persisted cache on HTTP/network errors. */ });
     };
     refresh();
     const interval = window.setInterval(refresh, 2 * 60 * 1000);
     return () => { active = false; window.clearInterval(interval); };
-  }, [channelId, fixture.id, fixture.matchId, fixture.isLive, fixture.status]);
+  }, [channelId, fixture.id, fixture.matchId, fixture.isLive, fixture.status, queryClient]);
   const channelPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const longChannelPressFired = useRef(false);
   function startChannelPress() {
