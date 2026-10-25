@@ -33,20 +33,21 @@ export function MatchDetailsModal({visible,fixture,userId,username,authToken,onC
   const [activeTab,setActiveTab]=useState<'lineups'|'stats'>('lineups');
   const [statistics,setStatistics]=useState<MatchStatistics|null>(null);
   const [lineups,setLineups]=useState<LineupsData|null>(null);
+  const [lineupsMatchId,setLineupsMatchId]=useState<string|null>(null);
   const [loadingStats,setLoadingStats]=useState(true),[loadingLineups,setLoadingLineups]=useState(true);
   const [statsError,setStatsError]=useState(''),[lineupsError,setLineupsError]=useState('');
   const [hasStats,setHasStats]=useState(false);
   const fetchLineups=useCallback(async()=>{
     const headers=authToken?{Authorization:`Bearer ${authToken}`}:undefined;
-    setLoadingLineups(true);setLineupsError('');
+    if(lineupsMatchId!==fixture.matchId)setLoadingLineups(true);setLineupsError('');
     try {
       const res=await fetch(`${API_BASE}/games/${fixture.matchId}/lineups`,{headers});
-      if(res.status===200) { const data=await res.json(); if(data?.success===true&&data?.data!=null) { setLineups(parseLineupsData(data.data));setLoadingLineups(false);return; } }
+      if(res.status===200) { const data=await res.json(); if(data?.success===true&&data?.data!=null) { setLineups(parseLineupsData(data.data));setLineupsMatchId(fixture.matchId);setLoadingLineups(false);return; } }
       const fallbackRes=await fetch(`${API_BASE}/games/${fixture.matchId}/lineups/simplified`,{headers});
-      if(fallbackRes.status===200) { const data=await fallbackRes.json(); if(data?.success===true&&data?.data!=null) { setLineups(parseLineupsData(data.data));setLoadingLineups(false);return; } }
-      setLineupsError('No lineup available');setLoadingLineups(false);
-    } catch(error) { console.warn('❌ Error fetching lineups:',error);setLineupsError('No network error');setLoadingLineups(false); }
-  },[fixture.matchId,authToken]);
+      if(fallbackRes.status===200) { const data=await fallbackRes.json(); if(data?.success===true&&data?.data!=null) { setLineups(parseLineupsData(data.data));setLineupsMatchId(fixture.matchId);setLoadingLineups(false);return; } }
+      setLineupsMatchId(fixture.matchId);setLineupsError('No lineup available');setLoadingLineups(false);
+    } catch(error) { console.warn('❌ Error fetching lineups:',error);setLineupsMatchId(fixture.matchId);setLineupsError('No network error');setLoadingLineups(false); }
+  },[fixture.matchId,authToken,lineupsMatchId]);
 
   const fetchStatistics=useCallback(async()=>{
     const headers=authToken?{Authorization:`Bearer ${authToken}`}:undefined;
@@ -73,7 +74,7 @@ export function MatchDetailsModal({visible,fixture,userId,username,authToken,onC
       else if(!event.shiftKey&&document.activeElement===items[items.length-1]){event.preventDefault();items[0].focus();}
     };
     document.addEventListener('keydown',keydown);
-    setActiveTab('lineups');setStatistics(null);setLineups(null);setLoadingStats(true);setLoadingLineups(true);setStatsError('');setLineupsError('');setHasStats(false);
+    setActiveTab('lineups');setStatistics(null);setLoadingStats(true);if(lineupsMatchId!==fixture.matchId)setLoadingLineups(true);setStatsError('');setLineupsError('');setHasStats(false);
     void fetchLineups();void fetchStatistics();
     return()=>{document.removeEventListener('keydown',keydown);previous?.focus();};
   // Fetch only when the modal opens or the selected match changes. Callback identity
@@ -95,7 +96,7 @@ export function MatchDetailsModal({visible,fixture,userId,username,authToken,onC
         {(['lineups','stats'] as const).map(tab=><button key={tab} type="button" onClick={()=>setActiveTab(tab)} className="relative flex-1 py-2.5 text-[13px] font-semibold tracking-wide" style={{color:activeTab===tab?colors.primary:colors.textSecondary}}>{tab==='lineups'?'LINEUPS':'STATS'}{activeTab===tab&&<span className="absolute inset-x-0 bottom-0 h-0.5 rounded" style={{backgroundColor:colors.primary}}/>}</button>)}
       </div>}
       <div className="no-scrollbar min-h-0 flex-1">
-        {activeTab==='lineups'?<LineupsTab fixture={fixture} lineups={lineups} loading={loadingLineups} error={lineupsError}/>:hasStats&&statistics?<StatsTab homeTeam={fixture.homeTeam} awayTeam={fixture.awayTeam} statistics={statistics}/>:<p className="p-4 text-center text-xs" style={{color:colors.textSecondary}}>{loadingStats?'Loading statistics…':statsError}</p>}
+        {activeTab==='lineups'?<LineupsTab fixture={fixture} lineups={lineupsMatchId===fixture.matchId?lineups:null} loading={loadingLineups||lineupsMatchId!==fixture.matchId} error={lineupsMatchId===fixture.matchId?lineupsError:''}/>:hasStats&&statistics?<StatsTab homeTeam={fixture.homeTeam} awayTeam={fixture.awayTeam} statistics={statistics}/>:<p className="p-4 text-center text-xs" style={{color:colors.textSecondary}}>{loadingStats?'Loading statistics…':statsError}</p>}
       </div>
     </section>
   </div>,document.body);
