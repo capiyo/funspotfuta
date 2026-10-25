@@ -268,6 +268,7 @@ function Card({
 }) {
     return (
         <View
+            className="action-card"
             style={[
                 styles.card,
                 tone === 'sunken' && { backgroundColor: colors.inputSurface },
@@ -299,6 +300,7 @@ function CTA({
     const fg = tone === 'ghost' ? colors.textPrimary : colors.background;
     return (
         <Pressable
+            className="action-cta"
             onPress={isDisabled ? undefined : onPress}
             disabled={isDisabled}
             style={({ pressed }) => [
@@ -338,6 +340,7 @@ function OutcomePill({
 }) {
     return (
         <Pressable
+            className="action-outcome"
             onPress={locked ? undefined : onPress}
             disabled={locked}
             style={({ pressed }) => [
@@ -387,7 +390,7 @@ function ActionRow({
     styles: ReturnType<typeof createStyles>;
 }) {
     return (
-        <View style={styles.actionRow}>
+        <View className="action-row" style={styles.actionRow}>
             <Text style={fanText('caption', colors, colors.textTertiary)}>{label}</Text>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: FAN_SPACING.sm }}>
                 {trailing}
@@ -406,7 +409,7 @@ function SectionHeader({
     styles: ReturnType<typeof createStyles>;
 }) {
     return (
-        <View style={styles.sectionHeader}>
+        <View className="action-section-header" style={styles.sectionHeader}>
             <Text style={fanText('caption', colors, colors.textSecondary)}>
                 {title}
                 {typeof count === 'number' ? ` · ${count}` : ''}
@@ -455,7 +458,7 @@ function BalanceBar({
     styles: ReturnType<typeof createStyles>;
 }) {
     return (
-        <View style={styles.balanceBar}>
+        <View className="action-balance-bar" style={styles.balanceBar}>
             <Text style={{ fontSize: ICON.md }}>💰</Text>
             <Pressable
                 style={{ flex: 1, minWidth: 0 }}
@@ -497,12 +500,13 @@ function PersonTile({
     const initial = name?.[0]?.toUpperCase() ?? '?';
     return (
         <View
+            className="action-person-tile"
             style={[
                 styles.personTile,
                 isMe && { backgroundColor: colors.primaryDim, borderColor: colors.primary },
             ]}
         >
-            <View style={styles.personRow}>
+            <View className="action-person-row" style={styles.personRow}>
                 <View style={[styles.avatar, { backgroundColor: dimOf(accent, colors), borderColor: accent }]}>
                     <Text style={[styles.avatarText, { color: accent }]}>{initial}</Text>
                 </View>
@@ -561,7 +565,7 @@ function TabBar({
 }) {
     const widthPct = 100 / tabs.length;
     return (
-        <View style={styles.tabBar}>
+        <View className="action-tabs" style={styles.tabBar}>
             <View
                 pointerEvents="none"
                 style={[
@@ -1775,7 +1779,7 @@ export function SwipeableVotePledgeModal(props: Props) {
             <View className="action-modal-tab-body" style={styles.tabBody}>
                 {/* Hero — vote split (no team names: they're in the match header) */}
                 <Card colors={colors} styles={styles} tone="sunken">
-                    <View style={styles.heroRow}>
+                    <View className="action-hero-row" style={styles.heroRow}>
                         <Text style={[styles.heroPct, { color: colors.primary }]}>
                             {voteStats.homePct.toFixed(0)}%
                         </Text>
