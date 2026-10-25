@@ -10,7 +10,7 @@ type Slide =
   | { type: 'ad'; id: string; ad: NativeAd }
   | { type: 'fixture'; id: string; fixture: Fixture };
 
-export default function AdCarousel({ showDots = true, flush = false }: { showDots?: boolean; flush?: boolean }) {
+export default function AdCarousel({ showDots = false, flush = false }: { showDots?: boolean; flush?: boolean }) {
   const colors = useFanColors();
   const { width } = useWindowDimensions();
   const [ads, setAds] = useState<LoadedAd[]>([]);
@@ -100,7 +100,6 @@ export default function AdCarousel({ showDots = true, flush = false }: { showDot
         )}
       </View>}
     />
-    {showDots && slides.length > 1 && <View style={styles.dots}>{slides.map((slide, dotIndex) => <Pressable key={slide.id} onPress={() => { setIndex(dotIndex); listRef.current?.scrollToIndex({ index: dotIndex, animated: true }); }} accessibilityLabel={`Show carousel slide ${dotIndex + 1}`}><View style={[styles.dot, { backgroundColor: index === dotIndex ? colors.primary : colors.textTertiary + '66', width: index === dotIndex ? 16 : 5 }]} /></Pressable>)}</View>}
   </View>;
 }
 
