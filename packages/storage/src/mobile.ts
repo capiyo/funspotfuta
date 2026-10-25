@@ -1,5 +1,8 @@
 import type { KVStorage } from './types';
 
+declare const __DEV__: boolean;
+const isDevelopment = typeof __DEV__ !== 'undefined' && __DEV__;
+
 // Keep the native package load inside the guarded block too. Some mismatched
 // Android binaries throw while react-native-mmkv's JS module is evaluated,
 // before new MMKV() is reached; a static value import would bypass the fallback.
@@ -13,7 +16,7 @@ try {
   mmkv = new MMKV({ id: 'app-cache' });
 } catch (error) {
   mmkvStartupError = error;
-  if (__DEV__) {
+  if (isDevelopment) {
     console.warn('[storage] MMKV native store unavailable; using an in-memory startup fallback', error);
   }
 }
@@ -27,7 +30,7 @@ export const mobileCache = {
     try {
       return mmkv?.getString(key) ?? null;
     } catch (error) {
-      if (__DEV__) console.warn('[storage] MMKV read failed; using fallback', error);
+      if (isDevelopment) console.warn('[storage] MMKV read failed; using fallback', error);
       return null;
     }
   },
@@ -36,7 +39,7 @@ export const mobileCache = {
     try {
       mmkv?.set(key, value);
     } catch (error) {
-      if (__DEV__) console.warn('[storage] MMKV write failed; retaining in-memory value', error);
+      if (isDevelopment) console.warn('[storage] MMKV write failed; retaining in-memory value', error);
     }
   },
   removeItem(key: string): void {
@@ -44,7 +47,7 @@ export const mobileCache = {
     try {
       mmkv?.delete(key);
     } catch (error) {
-      if (__DEV__) console.warn('[storage] MMKV delete failed', error);
+      if (isDevelopment) console.warn('[storage] MMKV delete failed', error);
     }
   },
 };
