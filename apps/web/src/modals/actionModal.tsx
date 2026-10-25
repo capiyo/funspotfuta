@@ -482,12 +482,13 @@ function BalanceBar({
 }
 
 function PersonTile({
-    name, subtitle, accent, isMe, badge, badgeColor, amountLabel, trailing, progress,
+    name, subtitle, accent, isMe, badge, badgeColor, amountLabel, trailing, progress, imageUrl,
     colors, styles,
 }: {
     name: string;
     subtitle: string;
     accent: string;
+    imageUrl?: string | null;
     isMe?: boolean;
     badge?: string;
     badgeColor?: string;
@@ -507,8 +508,19 @@ function PersonTile({
             ]}
         >
             <View className="action-person-row" style={styles.personRow}>
-                <View style={[styles.avatar, { backgroundColor: dimOf(accent, colors), borderColor: accent }]}>
-                    <Text style={[styles.avatarText, { color: accent }]}>{initial}</Text>
+                <View style={[styles.avatar, { backgroundColor: dimOf(accent, colors), borderColor: accent, overflow: 'hidden' }]}>
+                    {imageUrl ? (
+                        <img
+                            src={imageUrl}
+                            alt=""
+                            loading="lazy"
+                            referrerPolicy="no-referrer"
+                            style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%', display: 'block' }}
+                            onError={(event) => { event.currentTarget.style.display = 'none'; }}
+                        />
+                    ) : (
+                        <Text style={[styles.avatarText, { color: accent }]}>{initial}</Text>
+                    )}
                 </View>
                 <View style={{ flex: 1, minWidth: 0 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: FAN_SPACING.xs }}>
@@ -1056,6 +1068,7 @@ export function SwipeableVotePledgeModal(props: Props) {
     const [voting, setVoting] = useState(false);
     const [voters, setVoters] = useState<any[]>([]);
     const [votersLoading, setVotersLoading] = useState(true);
+    const [localVoteSelection, setLocalVoteSelection] = useState<Selection | null>(null);
     const [voterFilter, setVoterFilter] = useState<'all' | 'home' | 'away'>('all');
 
     // Pledges
@@ -1259,16 +1272,35 @@ export function SwipeableVotePledgeModal(props: Props) {
         if (!requireChannel()) return;
         if (isLive) { toast.showWarning('Voting is disabled during live matches'); return; }
         if (!selectedVote) { toast.showWarning('Please select a pick first'); return; }
-        if (hasUserVoted) { toast.showInfo('You have already voted'); return; }
+        if (hasUserVoted || localVoteSelection) { toast.showInfo('You have already voted'); return; }
         setVoting(true);
         try {
-            const r = asResult(await onVote(selectedVote));
+            const selection = selectedVote;
+            const r = asResult(await onVote(selection));
             if (r.success) {
-                toast.showSuccess(r.message ?? 'Vote submitted!');
-                onClose();
+                // Keep the sheet open and update the voter list immediately, like RN.
+                // The backend list can refresh later without making the user lose context.
+                setLocalVoteSelection(selection);
+                setVoters((current) => {
+                    const existing = current.findIndex((v) => String(v.userId ?? v.user_id ?? v.id ?? '') === String(userId));
+                    const optimistic = {
+                        userId,
+                        userName: username,
+                        selection,
+                        createdAt: new Date().toISOString(),
+                        isMe: true,
+                    };
+                    if (existing >= 0) {
+                        const next = [...current];
+                        next[existing] = { ...next[existing], ...optimistic };
+                        return next;
+                    }
+                    return [optimistic, ...current];
+                });
+                setSelectedVote(selection);
             } else if (r.message?.toLowerCase().includes('already voted')) {
-                toast.showInfo('You have already voted');
-                onClose();
+                setLocalVoteSelection(userVoteSelection === 'away' || userVoteSelection === 'away_team' ? 'away' : 'home');
+                void loadVoters();
             } else {
                 toast.showError(r.message ?? 'Vote failed. Please try again.');
             }
@@ -1773,8 +1805,9 @@ export function SwipeableVotePledgeModal(props: Props) {
     }
 
     function renderVotesTab() {
-        const locked = hasUserVoted || isLive;
-        const mine = hasUserVoted ? userVoteSelection : selectedVote;
+        const hasVoted = hasUserVoted || localVoteSelection !== null;
+        const locked = hasVoted || isLive;
+        const mine = hasUserVoted ? userVoteSelection : (localVoteSelection ?? selectedVote);
 
         return (
             <View className="action-modal-tab-body" style={styles.tabBody}>
@@ -1837,7 +1870,7 @@ export function SwipeableVotePledgeModal(props: Props) {
                     />
                 </View>
 
-                {selectedVote && !hasUserVoted && !isLive && (
+                {selectedVote && !hasVoted && !isLive && (
                     <CTA
                         label={voting ? 'Confirming…' : 'Confirm vote'}
                         onPress={handleVote}
@@ -1886,21 +1919,22 @@ export function SwipeableVotePledgeModal(props: Props) {
                     />
                 ) : (
                     filteredVoters.map((v: any, i) => {
-                        const isMe = v.userId === userId;
-                        const accent = voteColorOf(v.selection, colors);
-                        const pct = isHomeSel(v.selection) ? voteStats.homePct / 100 : voteStats.awayPct / 100;
+                        const isMe = String(v.userId ?? v.user_id ?? v.id ?? '') === String(userId);
+                        const selection = v.selection ?? v.vote ?? '';
+                        const accent = voteColorOf(selection, colors);
+                        const team = isHomeSel(selection) ? fixture.homeTeam : isAwaySel(selection) ? fixture.awayTeam : displayVote(selection);
+                        const imageUrl = v.avatarUrl ?? v.avatar_url ?? v.profileImageUrl ?? v.profile_image_url ?? v.profile_picture ?? v.photoUrl ?? v.photo_url ?? v.imageUrl ?? v.image_url ?? null;
+                        const name = isMe ? (username || 'You') : (v.userName ?? v.user_name ?? v.username ?? v.name ?? 'Fan');
                         return (
                             <PersonTile
-                                key={v.userId ?? i}
+                                key={v.userId ?? v.user_id ?? v.id ?? i}
                                 colors={colors}
                                 styles={styles}
-                                name={isMe ? 'You' : v.userName}
-                                subtitle={v.isComrade && !isMe ? 'comrade' : 'voter'}
+                                name={name}
+                                subtitle={team}
                                 accent={accent}
+                                imageUrl={typeof imageUrl === 'string' ? imageUrl : null}
                                 isMe={isMe}
-                                badge={displayVote(v.selection).toUpperCase()}
-                                badgeColor={accent}
-                                progress={pct}
                             />
                         );
                     })
