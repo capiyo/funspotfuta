@@ -33,7 +33,7 @@ export function VoterList({ colors, voters, emptyLabel, onPress }: {
 }) {
   const shown = voters.slice(0, SLOTS);
   return <button type="button" onClick={onPress} className="voter-list" style={{ display: 'flex', flexDirection: 'row', flexWrap: 'nowrap', alignItems: 'center', gap: 8, width: '100%', minWidth: 0, boxSizing: 'border-box', border: 0, padding: '4px 0', background: 'transparent', textAlign: 'left', opacity: 1 }} onMouseDown={(e) => { if (onPress) e.currentTarget.style.opacity = String(PRESSED_OPACITY); }} onMouseUp={(e) => { e.currentTarget.style.opacity = '1'; }} onMouseLeave={(e) => { e.currentTarget.style.opacity = '1'; }}>
-    {shown.length === 0 ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: FAN_SPACING.sm }}><Users size={ICON.sm} color={colors.textTertiary} /><span style={fanText('caption', colors, colors.textSecondary)}>{emptyLabel}</span></span> :
+    {shown.length === 0 ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: FAN_SPACING.sm }}><Users size={ICON.sm} color={colors.textTertiary} /><span className="match-card-prompt-line" style={fanText('caption', colors, colors.textSecondary)}>{emptyLabel}</span></span> :
       shown.map((voter) => {
         const { icon, name } = splitFanName(voter.name);
         return <span key={voter.id} className="voter-list-item" style={{ flex: '1 1 0%', display: 'flex', alignItems: 'center', gap: 5, minWidth: 0, overflow: 'hidden' }}>
