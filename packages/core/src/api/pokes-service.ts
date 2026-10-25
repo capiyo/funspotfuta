@@ -49,7 +49,9 @@ function rows(payload: unknown): Poke[] {
 }
 async function request(path: string, token?: string, body?: unknown): Promise<any> {
   const response = await fetch(`${API}${path}`, {
-    method: body === undefined ? 'GET' : 'POST', headers: headers(token),
+    method: body === undefined ? 'GET' : 'POST',
+    headers: { ...headers(token), Accept: 'application/json' },
+    cache: 'no-store',
     ...(body === undefined ? {} : { body: JSON.stringify(body) }),
   });
   const payload = await response.json().catch(() => ({}));
@@ -66,7 +68,11 @@ export async function getOpenPokes(matchId: string, token: string | undefined, c
   // The endpoint is already scoped to this fixture. Some API responses omit
   // the fixture identifier on each row; preserve the route's fixture context
   // rather than turning those valid rows into invisible entries in the UI.
-  return open.map((poke) => ({ ...poke, matchId: poke.matchId || String(matchId) }));
+  // This route is already scoped to channel + fixture (+ market). Treat the
+  // route fixture ID as authoritative: backend rows can expose a legacy
+  // fixture_id that differs from the app's matchId, and UI equality filters
+  // would otherwise hide valid rows immediately after the request completes.
+  return open.map((poke) => ({ ...poke, matchId: String(matchId) }));
 }
 export async function getUserPokes(userId: string, token?: string): Promise<Poke[]> {
   return rows(await request(`/poke/user/${encodeURIComponent(userId)}`, token));
