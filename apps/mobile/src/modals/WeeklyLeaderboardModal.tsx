@@ -13,7 +13,7 @@ export function WeeklyLeaderboardModal({ visible, onClose, channelId, channelNam
 }) {
   const colors = useFanColors();
   const styles = useMemo(() => makeStyles(colors), [colors]);
-  const { authToken } = useAuth();
+  const { authToken, userId } = useAuth();
   const [rows, setRows] = useState<WeeklyChannelLeader[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -21,11 +21,11 @@ export function WeeklyLeaderboardModal({ visible, onClose, channelId, channelNam
     if (!visible || !channelId) return;
     let cancelled = false;
     setLoading(true);
-    void getChannelWeeklyLeaderboard(channelId, authToken).then((result) => {
+    void getChannelWeeklyLeaderboard(channelId, authToken, userId).then((result) => {
       if (!cancelled) setRows(result);
     }).finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, [visible, channelId, authToken]);
+  }, [visible, channelId, authToken, userId]);
 
   const end = new Date();
   const start = new Date(end);
@@ -47,16 +47,16 @@ export function WeeklyLeaderboardModal({ visible, onClose, channelId, channelNam
               <X size={20} color={colors.textSecondary} />
             </Pressable>
           </View>
-          <Text style={styles.caption}>Ranked by points gained in the last 7 days</Text>
+          <Text style={styles.caption}>Ranked by points won in the current ISO week (EAT)</Text>
           {loading ? <View style={styles.center}><ActivityIndicator color={colors.primary} /></View> : rows.length === 0 ? (
-            <View style={styles.center}><Text style={styles.emptyTitle}>No weekly gains to show yet</Text><Text style={styles.emptyCopy}>Weekly rankings appear when the channel API returns point gains for the last 7 days.</Text></View>
+            <View style={styles.center}><Text style={styles.emptyTitle}>No weekly gains to show yet</Text><Text style={styles.emptyCopy}>Weekly rankings show points won by channel members during the current ISO week.</Text></View>
           ) : (
             <ScrollView style={styles.list} contentContainerStyle={styles.listContent}>
               {rows.map((row) => (
-                <View key={row.userId || row.username} style={styles.row}>
+                <View key={row.user_id || row.username} style={styles.row}>
                   <Text style={styles.rank}>{row.rank <= 3 ? ['🥇', '🥈', '🥉'][row.rank - 1] : `#${row.rank}`}</Text>
                   <Text style={styles.name} numberOfLines={1}>{row.username}</Text>
-                  <Text style={styles.points}>+{row.pointsGained.toLocaleString()} pts</Text>
+                  <Text style={styles.points}>+{row.weekly_points.toLocaleString()} pts</Text>
                 </View>
               ))}
             </ScrollView>
