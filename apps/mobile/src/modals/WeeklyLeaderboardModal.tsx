@@ -70,8 +70,8 @@ export function WeeklyLeaderboardModal({ visible, onClose, channelId, channelNam
 function makeStyles(colors: ReturnType<typeof useFanColors>) {
   return StyleSheet.create({
     backdrop: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.55)' },
-    sheet: { maxHeight: '82%', minHeight: 330, backgroundColor: colors.background, borderTopLeftRadius: 18, borderTopRightRadius: 18, paddingHorizontal: 18, paddingBottom: 28, borderWidth: 0 },
-    handle: { width: 38, height: 4, borderRadius: 4, alignSelf: 'center', backgroundColor: colors.textTertiary, marginTop: 10, marginBottom: 18 },
+    sheet: { maxHeight: '82%', minHeight: 330, backgroundColor: colors.surface, borderTopLeftRadius: 28, borderTopRightRadius: 28, paddingHorizontal: 18, paddingBottom: 28, borderWidth: 0, overflow: 'hidden' },
+    handle: { width: 40, height: 4, borderRadius: 999, alignSelf: 'center', backgroundColor: colors.borderActive, marginTop: 12, marginBottom: 18 },
     header: { flexDirection: 'row', alignItems: 'center', gap: 10 },
     heading: { flex: 1, minWidth: 0 },
     title: { color: colors.textPrimary, fontSize: 15, fontWeight: '800', letterSpacing: 0.4 },
