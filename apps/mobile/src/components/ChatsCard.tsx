@@ -201,10 +201,16 @@ function kickoffLabel(dateString: string): string {
   });
 }
 
-function pickKind(selection: string): 'home' | 'away' | 'draw' {
-  if (selection === 'home_team') return 'home';
-  if (selection === 'away_team') return 'away';
-  return 'draw';
+function normalizePick(selection: string): string {
+  return selection.trim().toLowerCase().replace(/[\s-]+/g, '_');
+}
+
+function pickKind(selection: string): 'home' | 'away' | 'draw' | 'unknown' {
+  const value = normalizePick(selection);
+  if (['home_team', 'home', 'hometeam', '1', 'team1', 'home_side'].includes(value) || /(^|\W)home(\W|$)/.test(value)) return 'home';
+  if (['away_team', 'away', 'awayteam', '2', 'team2', 'away_side'].includes(value) || /(^|\W)away(\W|$)/.test(value)) return 'away';
+  if (['draw', 'tie', 'x', 'level', 'drawn'].includes(value) || /(^|\W)(draw|tie)(\W|$)/.test(value)) return 'draw';
+  return 'unknown';
 }
 
 export function MatchCard({
@@ -283,14 +289,16 @@ export function MatchCard({
         return {
           id: v.userId,
           name: v.userName,
-          uri: `https://i.pravatar.cc/150?u=${encodeURIComponent(v.userId || 'guest')}`,
+          uri: v.uri ?? null,
           team:
             kind === 'home'
               ? fixture.homeTeam
               : kind === 'away'
                 ? fixture.awayTeam
-                : 'Draw',
-          color: outcomeColor(kind, colors),
+                : kind === 'draw'
+                  ? 'Draw'
+                  : v.selection || 'Vote recorded',
+          color: kind === 'unknown' ? colors.textTertiary : outcomeColor(kind, colors),
         };
       }),
     [voters, fixture.homeTeam, fixture.awayTeam, colors],
