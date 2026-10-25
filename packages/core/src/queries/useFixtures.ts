@@ -35,6 +35,7 @@ function mergeFixtureVoteSnapshot(
     merged.set(voter.userId, {
       userId: voter.userId,
       userName: serverVoter?.userName ?? voter.username,
+      uri: serverVoter?.uri ?? null,
       selection: serverVoter?.selection ?? voter.selection,
       votedAt: serverVoter?.votedAt ?? (voter.votedAt ? new Date(voter.votedAt) : new Date()),
       isComrade: serverVoter?.isComrade ?? voter.isComrade ?? false,
