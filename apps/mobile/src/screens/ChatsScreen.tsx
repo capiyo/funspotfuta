@@ -28,6 +28,7 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { View, FlatList, RefreshControl, StyleSheet } from 'react-native';
+import type { NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { sendChannelMessage } from '@funspot/core';
@@ -218,8 +219,8 @@ export default function ChatsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const lastTopRefreshAt = useRef(0);
   const scrolledAwayFromTop = useRef(false);
-  const handleFixtureScroll = useCallback((event: { nativeEvent: { contentOffset: { y: number } } }) => {
-    scrollProps.onScroll(event as never);
+  const handleFixtureScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    scrollProps.onScroll(event);
     const offset = event.nativeEvent.contentOffset.y;
     if (offset > 80) {
       scrolledAwayFromTop.current = true;
