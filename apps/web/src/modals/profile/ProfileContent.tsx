@@ -43,6 +43,8 @@ import {
   Plus,
   Minus,
   Wallet,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import { FAN_SPACING, FAN_RADIUS } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
@@ -128,6 +130,7 @@ export default function ProfileContent({
   const [balance, setBalance] = useState(0);
   const [balanceLoading, setBalanceLoading] = useState(true);
   const [paymentVisible, setPaymentVisible] = useState(true);
+  const [accountDetailsExpanded, setAccountDetailsExpanded] = useState(false);
 
   // Saved phones
   const [savedTopupPhone, setSavedTopupPhone] = useState<string | null>(null);
@@ -169,6 +172,7 @@ export default function ProfileContent({
     if (!visible) return;
     setViewingMember(null);
     setEditing(false);
+    setAccountDetailsExpanded(false);
   }, [visible]);
 
   // Profile is shared query data: restored cache renders immediately, while
@@ -565,22 +569,6 @@ export default function ProfileContent({
     if (!profile) return null;
     return (
       <div className="profile-authenticated-view" style={rn({ display: 'flex', flexDirection: 'column', gap: FAN_SPACING.sm, width: '100%' })}>
-        {isCurrentUser && (
-          <div style={styles.statsGrid}>
-            <div style={{ ...Object.assign({}, styles.statCard, { backgroundColor: colors.surfaceSunken }) }}>
-              <span style={{ ...Object.assign({}, styles.statLabel, { color: colors.textTertiary }) }}>Bets</span>
-              <span style={{ ...Object.assign({}, styles.statValue, { color: colors.textPrimary }) }}>{profile.numberOfBets}</span>
-            </div>
-            <div style={{ ...Object.assign({}, styles.statCard, { backgroundColor: colors.surfaceSunken }) }}>
-              <span style={{ ...Object.assign({}, styles.statLabel, { color: colors.textTertiary }) }}>Points</span>
-              <span style={{ ...Object.assign({}, styles.statValue, { color: colors.textPrimary }) }}>{totalSeasonPoints}</span>
-            </div>
-            <div style={{ ...Object.assign({}, styles.statCard, { backgroundColor: colors.surfaceSunken }) }}>
-              <span style={{ ...Object.assign({}, styles.statLabel, { color: colors.textTertiary }) }}>Accuracy</span>
-              <span style={{ ...Object.assign({}, styles.statValue, { color: colors.textPrimary }) }}>{profileAccuracy}%</span>
-            </div>
-          </div>
-        )}
         {renderInfoRow({
           Icon: UserIcon,
           label: 'Username',
@@ -997,8 +985,37 @@ export default function ProfileContent({
                 </div>
               ) : (
                 <>
-                  {/* Balance card (self only, when visibility allows) */}
-                  {isCurrentUser && renderBalanceCard()}
+                  {/* Keep money and voting details tucked away until requested. */}
+                  {isCurrentUser && profile !== null && (
+                    <button
+                      type="button"
+                      className="profile-expand-toggle"
+                      aria-expanded={accountDetailsExpanded}
+                      onClick={() => setAccountDetailsExpanded((expanded) => !expanded)}
+                    >
+                      {accountDetailsExpanded ? <ChevronUp size={15} aria-hidden="true" /> : <ChevronDown size={15} aria-hidden="true" />}
+                      <span>{accountDetailsExpanded ? 'Collapse' : 'Expand'}</span>
+                    </button>
+                  )}
+                  {isCurrentUser && accountDetailsExpanded && profile !== null && (
+                    <div className="profile-account-details">
+                      {renderBalanceCard()}
+                      <div className="profile-account-stats" aria-label="Voting statistics">
+                        <div className="profile-account-stat">
+                          <span>Bets</span>
+                          <strong>{profile.numberOfBets}</strong>
+                        </div>
+                        <div className="profile-account-stat">
+                          <span>Points</span>
+                          <strong>{totalSeasonPoints}</strong>
+                        </div>
+                        <div className="profile-account-stat">
+                          <span>Accuracy</span>
+                          <strong>{profileAccuracy}%</strong>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Profile section */}
                   {profile === null
