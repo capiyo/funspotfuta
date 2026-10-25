@@ -3782,8 +3782,8 @@ body:has(.home-screen) .home-screen *:not(.profile-card):not(.profile-card *):no
   white-space: nowrap !important;
 }
 .action-modal-viewport .action-tabs {
-  display: grid !important;
-  grid-template-columns: repeat(var(--action-tab-count, 4), minmax(0, 1fr)) !important;
+  display: flex !important;
+  flex-direction: row !important;
   align-items: stretch !important;
   gap: 3px !important;
   width: calc(100% - 28px) !important;
@@ -3793,7 +3793,7 @@ body:has(.home-screen) .home-screen *:not(.profile-card):not(.profile-card *):no
 }
 .action-modal-viewport .action-tabs > .action-tab-button {
   display: flex !important;
-  flex: initial !important;
+  flex: 1 1 0% !important;
   align-items: center !important;
   justify-content: center !important;
   min-width: 0 !important;
