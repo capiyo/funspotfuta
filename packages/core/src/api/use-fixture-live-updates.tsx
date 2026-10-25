@@ -9,8 +9,15 @@ export interface FixtureLiveSeed {
   timeElapsed?: number | null;
 }
 
+export interface LiveFixtureCommentary {
+  text: string;
+  minute: number;
+  timestamp?: string;
+}
+
 export interface FixtureLiveState {
   connected: boolean;
+  commentary: LiveFixtureCommentary | null;
   status: string;
   isLive: boolean;
   homeScore: number | null;
@@ -59,6 +66,7 @@ export function useFixtureLiveUpdates(params: {
     const status = seed?.status ?? 'upcoming';
     return {
       connected: false,
+      commentary: null,
       status,
       isLive: seed?.isLive ?? isLiveStatus(status),
       homeScore: seed?.homeScore ?? null,
@@ -71,6 +79,7 @@ export function useFixtureLiveUpdates(params: {
     const status = seed?.status ?? 'upcoming';
     setState({
       connected: webSocketService.getIsConnected(),
+      commentary: null,
       status,
       isLive: seed?.isLive ?? isLiveStatus(status),
       homeScore: seed?.homeScore ?? null,
@@ -107,6 +116,46 @@ export function useFixtureLiveUpdates(params: {
 
     const onConnected = () => {
       if (active) webSocketService.requestCurrentMinute({ fixtureId, channelId });
+    };
+
+    const onCommentaryNew = (payload: Record<string, unknown>) => {
+      const data = (payload.payload && typeof payload.payload === 'object'
+        ? payload.payload
+        : payload) as Record<string, unknown>;
+      if (!payloadMatchesFixture(data, channelId, fixtureId)) return;
+      const text = data.text == null ? '' : String(data.text);
+      if (!text.trim()) return;
+      const rawMinute = data.minute;
+      const rawTimestamp = data.createdAt ?? data.created_at ?? data.timestamp;
+      setState((previous) => ({
+        ...previous,
+        commentary: {
+          text,
+          minute: typeof rawMinute === 'number' ? rawMinute : Number(rawMinute ?? 0) || 0,
+          ...(rawTimestamp != null ? { timestamp: String(rawTimestamp) } : {}),
+        },
+      }));
+    };
+
+    const onCommentaryBulk = (payload: Record<string, unknown>) => {
+      const rawEntries = Array.isArray(payload) ? payload : (payload.payload ?? payload.commentary);
+      if (!Array.isArray(rawEntries)) return;
+      const entries = rawEntries.filter((entry): entry is Record<string, unknown> =>
+        !!entry && typeof entry === 'object' && payloadMatchesFixture(entry as Record<string, unknown>, channelId, fixtureId),
+      );
+      if (!entries.length) return;
+      const latest = entries[entries.length - 1];
+      const text = latest.text == null ? '' : String(latest.text);
+      if (!text.trim()) return;
+      const rawTimestamp = latest.createdAt ?? latest.created_at ?? latest.timestamp;
+      setState((previous) => ({
+        ...previous,
+        commentary: {
+          text,
+          minute: typeof latest.minute === 'number' ? latest.minute : Number(latest.minute ?? 0) || 0,
+          ...(rawTimestamp != null ? { timestamp: String(rawTimestamp) } : {}),
+        },
+      }));
     };
 
     const onMatchStatus = (payload: Record<string, unknown>) => {
@@ -155,6 +204,8 @@ export function useFixtureLiveUpdates(params: {
 
     const unsubscribeStatus = webSocketService.onConnectionStatus(onStatus);
     webSocketService.on('connected', onConnected);
+    webSocketService.on('commentary.new', onCommentaryNew);
+    webSocketService.on('commentary.bulk', onCommentaryBulk);
     webSocketService.on('match.status', onMatchStatus);
     webSocketService.on('match.goal', onMatchGoal);
     webSocketService.on('match.ended', onMatchEnded);
@@ -173,6 +224,8 @@ export function useFixtureLiveUpdates(params: {
     // connected; request a snapshot now. A fresh connection requests it from
     // onConnected, after the server's acknowledgement.
     if (webSocketService.getIsConnected()) {
+      webSocketService.send('get.commentary', { fixtureId });
+      webSocketService.send('get.latest.comment', { fixtureId, channelId });
       webSocketService.requestCurrentMinute({ fixtureId, channelId });
     }
 
@@ -180,6 +233,8 @@ export function useFixtureLiveUpdates(params: {
       active = false;
       unsubscribeStatus();
       webSocketService.off('connected', onConnected);
+      webSocketService.off('commentary.new', onCommentaryNew);
+      webSocketService.off('commentary.bulk', onCommentaryBulk);
       webSocketService.off('match.status', onMatchStatus);
       webSocketService.off('match.goal', onMatchGoal);
       webSocketService.off('match.ended', onMatchEnded);
