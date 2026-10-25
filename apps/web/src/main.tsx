@@ -9,8 +9,7 @@ import { indexedDbQueryPersister } from './lib/query-persistence';
 import './styles.css';
 
 // The SPA includes authenticated screens, private messaging and user-generated content.
-// AdSense is loaded only by standalone public information pages, never by this app shell.
-document.getElementById('seo-fallback')?.remove();
+// Do not inject or remove crawler-only homepage copy; the same app shell serves every visitor.
 
 const DAY = 24 * 60 * 60 * 1000;
 const queryClient = new QueryClient({
