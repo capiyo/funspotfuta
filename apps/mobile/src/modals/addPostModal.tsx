@@ -97,6 +97,7 @@ export default function AddPostModal({
     const [video, setVideo] = useState<PickedMedia | null>(null);
     const [caption, setCaption] = useState('');
     const [posting, setPosting] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
 
     // Reset on every open, matching the Flutter modal's fresh-state
     // behaviour each time it's presented.
@@ -106,6 +107,7 @@ export default function AddPostModal({
         setVideo(null);
         setCaption('');
         setPosting(false);
+        setUploadProgress(0);
     }, [visible]);
 
     const hasCaption = caption.trim().length > 0;
@@ -184,6 +186,7 @@ export default function AddPostModal({
         }
 
         setPosting(true);
+        setUploadProgress(0);
         try {
             await createPost({
                 userId,
@@ -195,6 +198,7 @@ export default function AddPostModal({
                 video: video
                     ? { uri: video.uri, name: video.name, type: video.type }
                     : undefined,
+                onProgress: setUploadProgress,
             });
             toast.showSuccess(
                 hasVideo
@@ -451,7 +455,23 @@ export default function AddPostModal({
                             </View>
                         )}
 
-                        {/* Actions */}
+
+                    </ScrollView>
+
+                    <View style={styles.footer}>
+                        {posting && (
+                            <View style={styles.uploadProgressWrap} accessibilityLiveRegion="polite">
+                                <View style={styles.uploadProgressLabels}>
+                                    <Text style={styles.uploadProgressText}>
+                                        {hasVideo ? 'Uploading video in background…' : hasImage ? 'Uploading image…' : 'Publishing post…'}
+                                    </Text>
+                                    <Text style={styles.uploadProgressText}>{uploadProgress}%</Text>
+                                </View>
+                                <View style={styles.uploadProgressTrack}>
+                                    <View style={[styles.uploadProgressFill, { width: `${uploadProgress}%` }]} />
+                                </View>
+                            </View>
+                        )}
                         <View style={styles.actionsRow}>
                             <Pressable
                                 onPress={clearAll}
@@ -463,50 +483,28 @@ export default function AddPostModal({
                                 ]}
                             >
                                 <RotateCcw size={16} color={colors.textSecondary} />
-                                <Text
-                                    style={[styles.clearBtnText, { color: colors.textSecondary }]}
-                                >
-                                    Clear
-                                </Text>
+                                <Text style={[styles.clearBtnText, { color: colors.textSecondary }]}>Clear</Text>
                             </Pressable>
-
                             <Pressable
                                 onPress={handleSubmit}
                                 disabled={!canPost}
                                 style={[
                                     styles.actionBtn,
                                     styles.postBtn,
-                                    !canPost && {
-                                        backgroundColor: colors.surface,
-                                        borderWidth: 1,
-                                        borderColor: colors.border,
-                                    },
+                                    !canPost && { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
                                 ]}
                             >
                                 {posting ? (
-                                    <ActivityIndicator
-                                        size="small"
-                                        color={canPost ? '#000000' : colors.textSecondary}
-                                    />
+                                    <ActivityIndicator size="small" color={colors.textSecondary} />
                                 ) : (
                                     <>
-                                        <PostIcon
-                                            size={16}
-                                            color={canPost ? '#000000' : colors.textSecondary}
-                                        />
-                                        <Text
-                                            style={[
-                                                styles.postBtnText,
-                                                { color: canPost ? '#000000' : colors.textSecondary },
-                                            ]}
-                                        >
-                                            {postButtonLabel()}
-                                        </Text>
+                                        <PostIcon size={16} color={canPost ? '#000000' : colors.textSecondary} />
+                                        <Text style={[styles.postBtnText, { color: canPost ? '#000000' : colors.textSecondary }]}>{postButtonLabel()}</Text>
                                     </>
                                 )}
                             </Pressable>
                         </View>
-                    </ScrollView>
+                    </View>
                 </Pressable>
                 </KeyboardAvoidingView>
             </Pressable>
@@ -652,7 +650,7 @@ function createStyles(colors: FanColors) {
         },
 
         // Body
-        body: { flexGrow: 0, flexShrink: 1, maxHeight: '75%' },
+        body: { flex: 1, minHeight: 0 },
         bodyContent: {
             paddingHorizontal: FAN_SPACING.lg,
             paddingBottom: FAN_SPACING.xl,
@@ -806,6 +804,36 @@ function createStyles(colors: FanColors) {
             color: colors.primary,
             fontSize: 13,
             fontWeight: '700',
+        },
+
+        // Pinned footer keeps submit controls visible while media previews scroll.
+        footer: {
+            flexShrink: 0,
+            paddingHorizontal: FAN_SPACING.lg,
+            paddingTop: FAN_SPACING.sm,
+            paddingBottom: FAN_SPACING.lg,
+            borderTopWidth: 1,
+            borderTopColor: colors.border,
+            backgroundColor: colors.surface,
+        },
+        uploadProgressWrap: { marginBottom: FAN_SPACING.sm },
+        uploadProgressLabels: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: FAN_SPACING.xs,
+        },
+        uploadProgressText: { color: colors.textSecondary, fontSize: 11 },
+        uploadProgressTrack: {
+            height: 6,
+            borderRadius: 999,
+            overflow: 'hidden',
+            backgroundColor: colors.surfaceElevated,
+        },
+        uploadProgressFill: {
+            height: '100%',
+            borderRadius: 999,
+            backgroundColor: colors.primary,
         },
 
         // Actions
