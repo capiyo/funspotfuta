@@ -1027,43 +1027,6 @@ export default function ProfileContent({
               )}
             </div>
 
-            {(isLoggedIn ? channels : []).length > 0 && isCurrentUser && (
-              <div style={styles.channelsSection}>
-                <span style={{ ...Object.assign({}, styles.sectionHeading, { color: colors.textTertiary }) }}>YOUR CHANNELS</span>
-                {channels.slice(0, 3).map((channel) => {
-                  const member = channel.members?.find((item) => item.userId === userId);
-                  return (
-                    <button type="button"
-                      key={channel.channelId}
-                      onClick={() => {
-                        onSelectChannel?.(channel.channelId);
-                        onSelectChats?.();
-                        onClose();
-                      }}
-                      style={{ ...Object.assign({}, 
-                        styles.channelRow,
-                        { backgroundColor: colors.surfaceSunken, borderColor: colors.border },
-                      ) }}
-                    >
-                      <div style={{ ...Object.assign({}, styles.channelAvatarSmall, { backgroundColor: colors.primaryDim }) }}>
-                        <span style={{ ...Object.assign({}, styles.channelAvatarSmallText, { color: colors.primary }) }}>
-                          {(channel.name?.[0] ?? 'C').toUpperCase()}
-                        </span>
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <span style={{ ...Object.assign({}, styles.channelRowName, { color: colors.textPrimary }) }} className="profile-ellipsis">
-                          {channel.name}
-                        </span>
-                        <span style={{ ...Object.assign({}, styles.channelRowMeta, { color: colors.textTertiary }) }}>
-                          {channel.isAdmin ? 'Admin' : 'Member'} · {member?.seasonPoints ?? 0} points
-                        </span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-
             {/* Channel leaderboard tabs (below the profile section) */}
             {isLoggedIn && channels.length > 0 && isCurrentUser && (
               <div style={styles.leaderboardSection}>
