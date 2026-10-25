@@ -261,6 +261,86 @@ export default function ChatsScreen() {
     );
   }
 
+  /**
+   * The action modal is the place where the complete server voter list is
+   * already fetched. Treat that result as shared app-cache data: write it into
+   * both the persisted fixture list and the fixtureVotes snapshot so every
+   * ChatsCard re-renders immediately and Messaging sees the same voter state.
+   */
+  const fetchVotersAndSyncCache = useCallback(async (fixtureId: string, token?: string | null) => {
+    const fetched = await fetchVoters(fixtureId, token);
+    const normalized: Voter[] = fetched
+      .filter((voter) => !!voter?.userId)
+      .map((voter) => ({
+        userId: String(voter.userId),
+        userName: String(voter.userName ?? voter.username ?? 'Fan'),
+        selection: String(voter.selection ?? ''),
+        uri: voter.uri ?? null,
+        votedAt: voter.votedAt ? new Date(voter.votedAt) : new Date(),
+        isComrade: Boolean(voter.isComrade),
+        isCorrect: typeof voter.isCorrect === 'boolean' ? voter.isCorrect : null,
+        pointsAwarded: typeof voter.pointsAwarded === 'number' ? voter.pointsAwarded : null,
+      }));
+
+    let matchedFixture: Fixture | undefined;
+    queryClient.setQueryData<Fixture[]>(FIXTURES_KEY, (previous = []) => previous.map((current) => {
+      const matches = current.id === fixtureId || current.matchId === fixtureId;
+      if (!matches) return current;
+      matchedFixture = current;
+      const merged = new Map<string, Voter>();
+      for (const voter of current.voters ?? []) merged.set(voter.userId, voter);
+      for (const voter of normalized) {
+        const previousVoter = merged.get(voter.userId);
+        merged.set(voter.userId, {
+          ...previousVoter,
+          ...voter,
+          userName: voter.userName || previousVoter?.userName || 'Fan',
+          uri: voter.uri ?? previousVoter?.uri ?? null,
+        });
+      }
+      return { ...current, voters: [...merged.values()] };
+    }));
+
+    const matching = matchedFixture
+      ?? (data ?? NO_FIXTURES).find((current) => current.id === fixtureId || current.matchId === fixtureId);
+    const cacheIds = [...new Set([fixtureId, matching?.matchId, matching?.id].filter((id): id is string => !!id))];
+    for (const id of cacheIds) {
+      const key = queryKeys.fixtureVotes(id, userId ?? 'anonymous');
+      queryClient.setQueryData(key, (previous: {
+        homeVotes?: number;
+        awayVotes?: number;
+        drawVotes?: number;
+        userVoteSelection?: string | null;
+        voters?: Array<{ userId: string; username?: string; userName?: string; selection: string; isComrade?: boolean; votedAt?: Date; uri?: string | null }>;
+      } | undefined) => {
+        const merged = new Map<string, NonNullable<typeof previous>['voters'][number]>();
+        for (const voter of previous?.voters ?? []) merged.set(voter.userId, voter);
+        for (const voter of normalized) {
+          const prior = merged.get(voter.userId);
+          merged.set(voter.userId, {
+            ...prior,
+            userId: voter.userId,
+            username: voter.userName,
+            userName: voter.userName,
+            selection: voter.selection,
+            isComrade: voter.isComrade,
+            votedAt: voter.votedAt,
+            uri: voter.uri ?? prior?.uri ?? null,
+          });
+        }
+        const ownVote = normalized.find((voter) => voter.userId === userId);
+        return {
+          homeVotes: previous?.homeVotes ?? 0,
+          awayVotes: previous?.awayVotes ?? 0,
+          drawVotes: previous?.drawVotes ?? 0,
+          userVoteSelection: ownVote?.selection ?? previous?.userVoteSelection ?? null,
+          voters: [...merged.values()],
+        };
+      });
+    }
+    return fetched;
+  }, [queryClient, userId, data]);
+
   async function handleModalVote(selection: Pick): Promise<ActionResult> {
     if (!liveModalFixture) return { success: false, message: 'No match selected' };
     if (!userId || !authToken || !username) return { success: false, message: 'Please sign in to vote' };
@@ -401,7 +481,7 @@ export default function ChatsScreen() {
           onVote={handleModalVote}
           onPledge={handleModalPledge}
           onShowJoinGroups={() => {}}
-          fetchVoters={fetchVoters}
+          fetchVoters={fetchVotersAndSyncCache}
           fetchPledges={fetchPledges}
           fetchSubFixtures={fetchSubFixtures}
           fetchSubFixturePledges={fetchSubFixturePledges}
