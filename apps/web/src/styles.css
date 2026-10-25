@@ -3431,3 +3431,23 @@ body:has(.home-screen) .home-screen *:not(.profile-card):not(.profile-card *):no
     padding: 16px !important;
   }
 }
+
+
+/* Desktop leaderboard opens as a centered, undimmed dialog at 75% viewport height. */
+@media (min-width: 651px) {
+  .leaderboard-modal-backdrop {
+    background: transparent !important;
+    pointer-events: none !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 16px !important;
+  }
+  .leaderboard-modal-sheet {
+    height: 75vh !important;
+    height: 75dvh !important;
+    max-height: 75vh !important;
+    max-height: 75dvh !important;
+    pointer-events: auto !important;
+    margin: auto !important;
+  }
+}
