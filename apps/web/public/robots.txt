@@ -1,15 +1,18 @@
 User-agent: Mediapartners-Google
 Allow: /
+Disallow: /messages/
 Disallow: /login
 Disallow: /comments/
 
 User-agent: Google-Display-Ads-Bot
 Allow: /
+Disallow: /messages/
 Disallow: /login
 Disallow: /comments/
 
 User-agent: AdsBot-Google
 Allow: /
+Disallow: /messages/
 Disallow: /login
 Disallow: /comments/
 
