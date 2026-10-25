@@ -33,7 +33,7 @@ import {
   RefreshCw, Copy, Reply as ReplyIcon, AlertCircle, MoreHorizontal,
 } from 'lucide-react';
 import {
-  getUserChannels, getAllFixtures, type Channel, type Fixture, type ChatMessage,
+  getUserChannels, getAllFixtures, queryKeys, type Channel, type Fixture, type ChatMessage,
   type ReplyData,
 } from '@funspot/core';
 import {
@@ -239,6 +239,21 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
 
   // Bind authenticated identity to the legacy modal shims once. The endpoint
   // shapes are kept unchanged from the mobile caller.
+  const cachedFetchBalance = useCallback(async (uid: string, token?: string | null, opts?: { forceRefresh?: boolean }) => {
+    const key = queryKeys.balance(uid);
+    const cached = queryClient.getQueryData<number>(key);
+    if (!opts?.forceRefresh && cached !== undefined) {
+      // Serve the persisted value immediately, then refresh the cache quietly.
+      void fetchBalance(uid, token ?? undefined, { forceRefresh: true })
+        .then((fresh) => queryClient.setQueryData(key, fresh))
+        .catch(() => undefined);
+      return cached;
+    }
+    const fresh = await fetchBalance(uid, token ?? undefined, opts);
+    queryClient.setQueryData(key, fresh);
+    return fresh;
+  }, [queryClient]);
+
   const modalApi = useMemo(() => {
     const uid = userId ?? '';
     const uname = username ?? '';
@@ -767,7 +782,7 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       fetchSubFixtures={fetchSubFixtures}
       fetchSubFixturePledges={fetchSubFixturePledges}
       fetchBets={fetchBets}
-      fetchBalance={fetchBalance}
+      fetchBalance={cachedFetchBalance}
       topUp={modalApi.topUp}
       withdraw={modalApi.withdraw}
       getSavedPhone={modalApi.getSavedPhone}
