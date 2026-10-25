@@ -1772,7 +1772,7 @@ export function SwipeableVotePledgeModal(props: Props) {
         const mine = hasUserVoted ? userVoteSelection : selectedVote;
 
         return (
-            <View style={styles.tabBody}>
+            <View className="action-modal-tab-body" style={styles.tabBody}>
                 {/* Hero — vote split (no team names: they're in the match header) */}
                 <Card colors={colors} styles={styles} tone="sunken">
                     <View style={styles.heroRow}>
@@ -1906,7 +1906,7 @@ export function SwipeableVotePledgeModal(props: Props) {
 
     function renderPledgesTab() {
         return (
-            <View style={styles.tabBody}>
+            <View className="action-modal-tab-body" style={styles.tabBody}>
                 {renderBalanceBar()}
 
                 <Text
@@ -2038,7 +2038,7 @@ export function SwipeableVotePledgeModal(props: Props) {
             return <Empty colors={colors} styles={styles} icon="🎲" label="No sub-fixture markets for this match" />;
 
         return (
-            <View style={styles.tabBody}>
+            <View className="action-modal-tab-body" style={styles.tabBody}>
                 {renderBalanceBar()}
 
                 {subFixtures.map((market) => {
@@ -2275,7 +2275,7 @@ export function SwipeableVotePledgeModal(props: Props) {
                 : bet.status === 'settled' ? colors.secondary : colors.away;
 
         return (
-            <View style={styles.tabBody}>
+            <View className="action-modal-tab-body" style={styles.tabBody}>
                 <View
                     style={{
                         flexDirection: 'row',
