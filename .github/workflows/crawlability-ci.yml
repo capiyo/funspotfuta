@@ -1,0 +1,35 @@
+name: Public crawlability validation
+
+on:
+  push:
+    branches: [web-port-from-master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  validate-public-pages:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm install --no-audit --no-fund
+      - run: npm run typecheck:web
+      - run: npm run lint:web
+      - run: npm run build:web
+      - name: Verify generated crawl files
+        run: |
+          test -s apps/web/dist/index.html
+          test -s apps/web/dist/robots.txt
+          test -s apps/web/dist/sitemap.xml
+          for page in about how-it-works contact terms privacy; do
+            test -s "apps/web/dist/$page.html"
+            grep -Eiq '<h1[^>]*>.*</h1>' "apps/web/dist/$page.html"
+            grep -Fq "https://www.funspot.co.ke/$page.html" "apps/web/dist/$page.html"
+          done
+          grep -Eiq '<h1[^>]*>.*</h1>' apps/web/dist/index.html
+          grep -Fq 'https://www.funspot.co.ke/sitemap.xml' apps/web/dist/robots.txt
+          grep -Fq 'https://www.funspot.co.ke/' apps/web/dist/sitemap.xml
+          ! grep -Fq 'pagead/js/adsbygoogle.js' apps/web/dist/index.html
