@@ -308,8 +308,26 @@ export function useChannelChat({
             .then((r) => (r.ok ? r.json() : { messages: [] }))
             .then((data) => {
                 if (cancelled) return;
-                const raw: any[] = data?.messages ?? [];
-                const parsed: ChatMessage[] = raw.map((item) => ({
+                const raw: any[] = Array.isArray(data?.messages) ? data.messages : [];
+                const scopedRaw = raw.filter((item) => {
+                    if (!item || typeof item !== 'object') return false;
+                    const itemFixture = item.fixtureId ?? item.fixture_id;
+                    const username = String(item.username ?? item.sender_name ?? item.user_name ?? '');
+                    const isCommentary = item.isCommentary === true
+                        || item.is_commentary === true
+                        || item.commentaryType != null
+                        || item.commentary_type != null
+                        || username.toLowerCase().includes('commentary');
+
+                    // Commentary is never part of a channel-wide group chat.
+                    if (!fixtureId) return !isCommentary;
+                    // Reject explicitly cross-fixture history and commentary
+                    // rows whose fixture cannot be proven from the API result.
+                    if (itemFixture != null && String(itemFixture) !== String(fixtureId)) return false;
+                    if (isCommentary && itemFixture == null) return false;
+                    return true;
+                });
+                const parsed: ChatMessage[] = scopedRaw.map((item) => ({
                     ...chatMessageFromJson(item),
                     seq: nextSeq(),
                 }));
