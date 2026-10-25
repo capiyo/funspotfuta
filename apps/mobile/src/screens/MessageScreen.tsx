@@ -226,10 +226,11 @@ export default function MessageScreen() {
   const routeFixture = useMemo(() => {
     if (!routeFixtureId) return null;
     const cached = queryClient.getQueryData<Fixture[]>(FIXTURES_KEY) ?? [];
+    // Chats routes pass matchId first; prefer it to avoid cross-fixture id collisions.
     return (
-      cached.find(
-        (f) => f.id === routeFixtureId || f.matchId === routeFixtureId,
-      ) ?? null
+      cached.find((item) => item.matchId === routeFixtureId) ??
+      cached.find((item) => item.id === routeFixtureId) ??
+      null
     );
   }, [queryClient, routeFixtureId]);
 
@@ -240,7 +241,9 @@ export default function MessageScreen() {
       .then((all) => {
         if (!alive) return;
         setLoadedRouteFixture(
-          all.find((f) => f.id === routeFixtureId || f.matchId === routeFixtureId) ?? null,
+          all.find((item) => item.matchId === routeFixtureId) ??
+            all.find((item) => item.id === routeFixtureId) ??
+            null,
         );
       })
       .catch(() => undefined);
