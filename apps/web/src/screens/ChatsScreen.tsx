@@ -225,7 +225,7 @@ export default function ChatsScreen() {
     if (!isLoggedIn) return requireLogin(() => openChat(fixture, channelId));
     const cid = channelId ?? homeChannelId;
     if (!cid) return;
-    const fixtureId = fixture ? fixture.matchId ?? fixture.id : undefined;
+    const fixtureId = fixture ? fixture.matchId?.trim() || fixture.id?.trim() : undefined;
     navigate(`/messages/${encodeURIComponent(cid)}${fixtureId ? `?fixtureId=${encodeURIComponent(fixtureId)}` : ''}`);
   }, [navigate, homeChannelId, isLoggedIn, requireLogin]);
 
