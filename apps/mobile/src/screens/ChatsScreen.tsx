@@ -25,7 +25,7 @@
 //   - the modal's payment / phone / sub-fixture props are bound to the user id
 //     and token here (modalApi), because the shims need both.
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { View, FlatList, RefreshControl, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -216,6 +216,22 @@ export default function ChatsScreen() {
   }, [channels]);
 
   const [refreshing, setRefreshing] = useState(false);
+  const lastTopRefreshAt = useRef(0);
+  const scrolledAwayFromTop = useRef(false);
+  const handleFixtureScroll = useCallback((event: { nativeEvent: { contentOffset: { y: number } } }) => {
+    scrollProps.onScroll(event as never);
+    const offset = event.nativeEvent.contentOffset.y;
+    if (offset > 80) {
+      scrolledAwayFromTop.current = true;
+      return;
+    }
+    if (!scrolledAwayFromTop.current) return;
+    scrolledAwayFromTop.current = false;
+    const now = Date.now();
+    if (now - lastTopRefreshAt.current < 30_000) return;
+    lastTopRefreshAt.current = now;
+    void refetch();
+  }, [scrollProps.onScroll, refetch]);
   const [modalFixture, setModalFixture] = useState<Fixture | null>(null);
   const [pokeModalFixture, setPokeModalFixture] = useState<Fixture | null>(null);
   const [reviewFixture, setReviewFixture] = useState<Fixture | null>(null);
@@ -514,6 +530,8 @@ export default function ChatsScreen() {
           contentContainerStyle={[styles.content, { paddingTop: topInset }]}
           showsVerticalScrollIndicator={false}
           {...scrollProps}
+          onScroll={handleFixtureScroll}
+          scrollEventThrottle={16}
           scrollIndicatorInsets={{ top: topInset }}
           refreshControl={
             <RefreshControl
