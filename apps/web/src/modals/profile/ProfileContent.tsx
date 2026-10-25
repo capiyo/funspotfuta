@@ -1029,7 +1029,7 @@ export default function ProfileContent({
 
             {/* Channel leaderboard tabs (below the profile section) */}
             {isLoggedIn && channels.length > 0 && isCurrentUser && (
-              <div style={styles.leaderboardSection}>
+              <div className="profile-leaderboard-section" style={styles.leaderboardSection}>
                 <ChannelLeaderboard
                   channels={channels.slice(0, 3)}
                   currentUserId={userId ?? ''}
