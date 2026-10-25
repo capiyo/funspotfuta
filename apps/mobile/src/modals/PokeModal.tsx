@@ -127,7 +127,7 @@ export function PokeModal({ visible, fixture, userId, username, authToken, chann
     if (!options.some((option) => option.value === selection)) return setError('Choose Home or Away.');
     setSubmitting(true);
     try {
-      await createPoke({
+      const createdPoke = await createPoke({
         matchId: fixture.matchId || fixture.id,
         userId,
         userName: username,
@@ -145,7 +145,15 @@ export function PokeModal({ visible, fixture, userId, username, authToken, chann
       const nextBalance = balance === null ? null : Math.max(0, balance - amount);
       setBalance(nextBalance);
       if (nextBalance !== null) writeCachedChannelMemberPoints(queryClient, userId, channelId, nextBalance);
-      const nextOpen = open.filter((poke) => poke.status.trim().toLowerCase() === 'open' && String(poke.matchId) === String(matchId)); if (channelId) queryClient.setQueryData<Poke[]>(queryKeys.openPokes(String(matchId), channelId, marketId), nextOpen); setOpenPokes(nextOpen);
+      const nextOpen = open.filter((poke) => poke.status.trim().toLowerCase() === 'open' && String(poke.matchId) === String(matchId));
+      const cacheKey = queryKeys.openPokes(String(matchId), channelId, marketId);
+      const previousOpen = queryClient.getQueryData<Poke[]>(cacheKey) ?? [];
+      // If create succeeds while the list endpoint is lagging, retain known rows.
+      const candidates = nextOpen.length ? nextOpen : [...previousOpen, createdPoke];
+      const stableOpen = candidates.filter((poke, index, all) =>
+        poke.status.trim().toLowerCase() === 'open' && all.findIndex((item) => item.id === poke.id) === index);
+      if (channelId) queryClient.setQueryData<Poke[]>(cacheKey, stableOpen);
+      setOpenPokes(stableOpen);
       setMatchedPokes(mine.filter((poke) => poke.status.trim().toLowerCase() !== 'open'));
       setMessage('Poke was successful!');
     } catch (reason) { setError(reason instanceof Error ? reason.message : 'Could not submit poke.'); }
