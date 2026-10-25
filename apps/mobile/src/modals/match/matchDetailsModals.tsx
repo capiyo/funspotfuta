@@ -282,7 +282,7 @@ export function MatchDetailsModal({
                                 ellipsizeMode="tail"
                                 style={[
                                     fanText('body', colors),
-                                    { textAlign: 'center', color: colors.textPrimary, fontSize: 12, fontWeight: '400', lineHeight: 16 },
+                                    { textAlign: 'center', color: colors.textPrimary, fontSize: 11, fontWeight: '400', lineHeight: 14 },
                                 ]}
                             >
                                 {fixture.homeTeam}
@@ -306,7 +306,7 @@ export function MatchDetailsModal({
                             <Text
                                 style={[
                                     fanText('scoreHero', colors),
-                                    { color: colors.textPrimary, fontSize: 22, lineHeight: 27, fontWeight: '400' },
+                                    { color: colors.textPrimary, fontSize: 18, lineHeight: 22, fontWeight: '400' },
                                 ]}
                             >
                                 {home} - {away}
