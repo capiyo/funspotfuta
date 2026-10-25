@@ -277,7 +277,7 @@ export function MatchDetailsModal({
                                 ellipsizeMode="tail"
                                 style={[
                                     fanText('body', colors),
-                                    { textAlign: 'center', color: colors.textPrimary, fontSize: 15, fontWeight: '600', lineHeight: 19 },
+                                    { textAlign: 'center', color: colors.textPrimary, fontSize: 12, fontWeight: '400', lineHeight: 16 },
                                 ]}
                             >
                                 {fixture.homeTeam}
@@ -301,7 +301,7 @@ export function MatchDetailsModal({
                             <Text
                                 style={[
                                     fanText('scoreHero', colors),
-                                    { color: colors.textPrimary, fontSize: 34, lineHeight: 38, fontWeight: '700' },
+                                    { color: colors.textPrimary, fontSize: 22, lineHeight: 27, fontWeight: '400' },
                                 ]}
                             >
                                 {home} - {away}
@@ -314,7 +314,7 @@ export function MatchDetailsModal({
                                 ellipsizeMode="tail"
                                 style={[
                                     fanText('title', colors),
-                                    { textAlign: 'center', color: colors.textPrimary },
+                                    { textAlign: 'center', color: colors.textPrimary, fontSize: 12, fontWeight: '400', lineHeight: 16 },
                                 ]}
                             >
                                 {fixture.awayTeam}
