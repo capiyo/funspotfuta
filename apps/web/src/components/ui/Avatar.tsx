@@ -20,6 +20,6 @@ export function Avatar({ colors, size = 'md', uri, label, borderColor, backgroun
     alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flex: '0 0 auto',
   };
   return <span className="fan-avatar" style={style} aria-label={label ?? 'Avatar'}>
-    {uri ? <img src={uri} alt={label ? `${label} avatar` : 'Avatar'} width={dim} height={dim} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={fanText('badge', colors, colors.primary)}>{label}</span>}
+    {uri ? <img src={uri} alt={label ? `${label} avatar` : 'Avatar'} width={dim} height={dim} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', display: 'block' }} /> : <span style={fanText('badge', colors, colors.primary)}>{label}</span>}
   </span>;
 }
