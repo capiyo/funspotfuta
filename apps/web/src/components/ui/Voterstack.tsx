@@ -40,7 +40,7 @@ export function VoterList({ colors, voters, emptyLabel, onPress }: {
           <Avatar colors={colors} size="sm" label={icon || initials(name)} uri={voter.uri || getFanAvatarUri(voter.id)} borderColor={voter.color} />
           <span style={{ display: 'flex', flexDirection: 'column', flex: '1 1 auto', minWidth: 0, overflow: 'hidden' }}>
             <span style={{ ...fanText('caption', colors, colors.textPrimary), whiteSpace: 'normal', overflowWrap: 'anywhere' }}>{name}</span>
-            <span style={{ ...fanText('tag', colors, voter.color), whiteSpace: 'normal', overflowWrap: 'anywhere' }}>{voter.team}</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 4, minWidth: 0, flexWrap: 'wrap' }}><span style={{ ...fanText('tag', colors, voter.color), whiteSpace: 'normal', overflowWrap: 'anywhere' }}>{voter.team}</span><span aria-label="Vote mark" title="Vote" style={{ display: 'inline-flex', alignItems: 'center', flexShrink: 0, padding: '1px 4px', borderRadius: 4, background: `${voter.color}18`, color: voter.color, fontSize: 8, fontWeight: 800, lineHeight: '12px' }}>✓ VOTE</span></span>
           </span>
         </span>;
       })}
