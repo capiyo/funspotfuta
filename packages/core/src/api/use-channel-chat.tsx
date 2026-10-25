@@ -85,13 +85,19 @@ function belongsToConversation(
     channelId: string,
     fixtureId: string | null,
 ): boolean {
+    // The socket is shared across every mounted room. Require an explicit
+    // channel identity so one channel's chat/typing events cannot leak into another.
     const eventChannel = payload.channelId ?? payload.channel_id;
-    if (eventChannel != null && String(eventChannel) !== channelId) return false;
+    if (eventChannel == null || String(eventChannel) !== channelId) return false;
 
     const eventFixture = payload.fixtureId ?? payload.fixture_id;
-    if (eventFixture != null && String(eventFixture) !== String(fixtureId ?? '')) return false;
+    if (fixtureId) {
+        // Fixture conversations must never accept unscoped or other-fixture events.
+        return eventFixture != null && String(eventFixture) === String(fixtureId);
+    }
 
-    return true;
+    // The channel-wide room accepts only channel-level messages.
+    return eventFixture == null || String(eventFixture) === '';
 }
 
 /**
@@ -913,13 +919,23 @@ export function useChannelChat({
 
     // ── Outgoing typing indicator ───────────────────────────────
     const sendTyping = useCallback(() => {
-        if (!username) return;
-        webSocketService.send('typing', { isTyping: true, username });
+        if (!channelId || !username) return;
+        webSocketService.sendTyping({
+            channelId,
+            fixtureId: fixtureId ?? undefined,
+            isTyping: true,
+            username,
+        });
         if (typingStopRef.current) clearTimeout(typingStopRef.current);
         typingStopRef.current = setTimeout(() => {
-            webSocketService.send('typing', { isTyping: false, username });
+            webSocketService.sendTyping({
+                channelId,
+                fixtureId: fixtureId ?? undefined,
+                isTyping: false,
+                username,
+            });
         }, 2000);
-    }, [username]);
+    }, [channelId, fixtureId, username]);
 
     // ── markRead ────────────────────────────────────────────────
     const markRead = useCallback(async () => {
