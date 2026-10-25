@@ -918,8 +918,8 @@ function MessageBubble({ colors, message, isMe, onLongPress, onImagePress, onRet
 <MoreHorizontal size={13}/>
 </button>
         <div
-      className={`rounded-2xl px-3.5 py-2.5 shadow-sm ${mine ? 'rounded-br-md' : 'rounded-bl-md'} ${failed ? 'border' : ''} ${message.isPending && !failed ? 'opacity-70' : ''}`}
-      style={{ background: bubbleBackground, borderColor: failed ? colors.away : 'transparent', color: colors.textPrimary }}
+      className={`rounded-2xl border px-3.5 py-2.5 shadow-sm ${mine ? 'rounded-br-md' : 'rounded-bl-md'} ${message.isPending && !failed ? 'opacity-70' : ''}`}
+      style={{ background: bubbleBackground, borderColor: failed ? colors.away : mine || commentary ? 'transparent' : colors.border, color: colors.textPrimary }}
       onContextMenu={(event) => { event.preventDefault(); onLongPress(); }}>
           {message.replyTo && <div
       className="mb-2 border-l-2 pl-2"
