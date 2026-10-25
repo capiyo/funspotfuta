@@ -454,10 +454,40 @@ export default function MessageScreen() {
   // ── Render ─────────────────────────────────────────────────
   return (
     <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}>
-      {/* Automatic fixture/ad carousel at the top of messaging. */}
-      <AdCarousel showDots={false} flush />
-
-      {/* Messaging starts with the shared horizontal ad/fixture carousel; no extra header or vote strip. */}
+      {/* Keep the custom back and lineup controls on the carousel's horizontal row. */}
+      <View style={styles.carouselHeader}>
+        <Pressable
+          onPress={handleBack}
+          hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel="Back to chats"
+          style={({ pressed }) => [
+            styles.carouselControl,
+            { backgroundColor: colors.surfaceSunken },
+            pressed && { opacity: PRESSED_OPACITY },
+          ]}
+        >
+          <ArrowLeft size={18} color={colors.textPrimary} />
+        </Pressable>
+        <View style={styles.carouselSlot}>
+          <AdCarousel showDots={false} flush />
+        </View>
+        {fixture && (
+          <Pressable
+            onPress={() => setMatchDetailsOpen(true)}
+            hitSlop={6}
+            accessibilityRole="button"
+            accessibilityLabel="Open lineup and match details"
+            style={({ pressed }) => [
+              styles.carouselControl,
+              { backgroundColor: colors.surfaceSunken },
+              pressed && { opacity: PRESSED_OPACITY },
+            ]}
+          >
+            <Info size={16} color={colors.textPrimary} />
+          </Pressable>
+        )}
+      </View>
 
       {!activeChannelId ? (
         <View style={styles.emptyChannels}>
@@ -1487,6 +1517,22 @@ function createStyles(colors: FanColors, bottomInset: number) {
       gap: FAN_SPACING.sm,
       paddingHorizontal: FAN_SPACING.md,
       paddingVertical: FAN_SPACING.sm,
+    },
+    carouselHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: FAN_SPACING.xs,
+      paddingHorizontal: FAN_SPACING.xs,
+      paddingVertical: 2,
+    },
+    carouselSlot: { flex: 1, minWidth: 0 },
+    carouselControl: {
+      width: 32,
+      height: 32,
+      borderRadius: 16,
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexShrink: 0,
     },
     iconButton: { padding: 4 },
     feedButton: { paddingHorizontal: 8, paddingVertical: 6, borderRadius: 8, backgroundColor: colors.primary + '14' },
