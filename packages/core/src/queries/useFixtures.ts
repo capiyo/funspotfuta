@@ -1,6 +1,8 @@
 import { useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { getAllFixtures, getUserParticipatedGames } from '../api/database-service';
+import { fetchVoters } from '../api/vote-modal-shims';
+import { voterFromJson } from '../types/fixture';
 import type { Fixture, Voter } from '../types/fixture';
 import { queryKeys } from './queryKeys';
 
@@ -45,15 +47,60 @@ function mergeFixtureVoteSnapshot(
 }
 
 /**
- * Shared fixture query for web/mobile. Cached vote and voter snapshots are
- * merged into fresh fixture payloads so partial server responses do not erase
- * a locally recorded vote or voter name.
+ * The /games endpoint often includes only vote totals (or a partial voter
+ * array). Fetch the complete voter list for each unique fixture so every
+ * channel card sharing that fixture can render the same voters. Limit
+ * concurrency to avoid overwhelming the API when the schedule is large.
+ */
+async function getFixturesWithAllVoters(): Promise<Fixture[]> {
+  const fixtures = await getAllFixtures();
+  const enriched = [...fixtures];
+  const concurrency = 8;
+
+  for (let start = 0; start < fixtures.length; start += concurrency) {
+    const batch = fixtures.slice(start, start + concurrency);
+    const results = await Promise.allSettled(
+      batch.map(async (fixture) => {
+        const fixtureId = fixture.matchId || fixture.id;
+        if (!fixtureId) return { fixture, voters: [] as Voter[] };
+        const rawVoters = await fetchVoters(fixtureId);
+        return { fixture, voters: rawVoters.map(voterFromJson).filter((voter) => voter.userId !== '') };
+      }),
+    );
+
+    results.forEach((result, index) => {
+      const fixture = batch[index];
+      if (result.status !== 'fulfilled') return;
+      const existing = fixture.voters ?? [];
+      const merged = new Map<string, Voter>();
+      for (const voter of existing) merged.set(voter.userId, voter);
+      for (const voter of result.value.voters) {
+        const previous = merged.get(voter.userId);
+        merged.set(voter.userId, {
+          ...previous,
+          ...voter,
+          userName: voter.userName || previous?.userName || 'Anonymous',
+          uri: voter.uri ?? previous?.uri ?? null,
+        });
+      }
+      const indexInFixtures = start + index;
+      enriched[indexInFixtures] = { ...fixture, voters: [...merged.values()] };
+    });
+  }
+
+  return enriched;
+}
+
+/**
+ * Shared fixture query for web/mobile. Fetches full voters for every fixture,
+ * then merges cached vote snapshots so a failed/partial response does not
+ * erase a locally recorded vote or voter name.
  */
 export function useFixtures(userId?: string, enabled = true) {
   const queryClient = useQueryClient();
   const query = useQuery({
     queryKey: queryKeys.fixtures(),
-    queryFn: getAllFixtures,
+    queryFn: getFixturesWithAllVoters,
     select: (fresh) => fresh.map((fixture) => mergeFixtureVoteSnapshot(fixture, userId, queryClient)),
     enabled,
     staleTime: 60 * 1000,
