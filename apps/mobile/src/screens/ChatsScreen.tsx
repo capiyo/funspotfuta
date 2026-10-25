@@ -296,7 +296,7 @@ export default function ChatsScreen() {
       if (!cid) return;
       navigation.navigate('Chat', {
         channelId: cid,
-        fixtureId: fixture ? fixture.matchId ?? fixture.id : undefined,
+        fixtureId: fixture ? fixture.matchId?.trim() || fixture.id?.trim() : undefined,
       });
     },
     [navigation, homeChannelId, isLoggedIn, requireLogin],
