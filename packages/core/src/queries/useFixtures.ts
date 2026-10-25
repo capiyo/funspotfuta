@@ -53,7 +53,7 @@ function mergeFixtureVoteSnapshot(
  * channel card sharing that fixture can render the same voters. Limit
  * concurrency to avoid overwhelming the API when the schedule is large.
  */
-async function getFixturesWithAllVoters(): Promise<Fixture[]> {
+async function getFixturesWithAllVoters(authToken?: string | null): Promise<Fixture[]> {
   const fixtures = await getAllFixtures();
   const enriched = [...fixtures];
   const concurrency = 8;
@@ -68,7 +68,7 @@ async function getFixturesWithAllVoters(): Promise<Fixture[]> {
         // API deployments differ on whether the vote record is keyed by the
         // public matchId or Mongo fixture _id. Query both identifiers and merge.
         const voterLists = await Promise.all(
-          fixtureIds.map((fixtureId) => fetchVoters(fixtureId).catch(() => [])),
+          fixtureIds.map((fixtureId) => fetchVoters(fixtureId, authToken).catch(() => [])),
         );
         const votersById = new Map<string, Voter>();
         for (const rawVoter of voterLists.flat()) {
@@ -114,17 +114,25 @@ async function getFixturesWithAllVoters(): Promise<Fixture[]> {
  * then merges cached vote snapshots so a failed/partial response does not
  * erase a locally recorded vote or voter name.
  */
-export function useFixtures(userId?: string, enabled = true) {
+export function useFixtures(userId?: string, enabled = true, authToken?: string | null) {
   const queryClient = useQueryClient();
   const query = useQuery({
     queryKey: queryKeys.fixtures(),
-    queryFn: getFixturesWithAllVoters,
+    queryFn: () => getFixturesWithAllVoters(authToken),
     select: (fresh) => fresh.map((fixture) => mergeFixtureVoteSnapshot(fixture, userId, queryClient)),
     enabled,
     staleTime: 60 * 1000,
     gcTime: 7 * 24 * 60 * 60 * 1000,
     refetchInterval: 5 * 60 * 1000,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
   });
+
+  // Re-fetch after auth changes because the action modal uses the authenticated
+  // voter endpoint; an old public fixture cache may contain only the current user's vote.
+  useEffect(() => {
+    void queryClient.invalidateQueries({ queryKey: queryKeys.fixtures() });
+  }, [authToken, queryClient]);
 
   // Seed a user-scoped vote snapshot from restored fixture voters only when
   // that vote snapshot is absent. This makes cached voter names available to
