@@ -188,7 +188,25 @@ export function PokeModal({ visible, fixture, userId, username, authToken, chann
           {!!message && <Text style={styles.success}>{message}</Text>}
           <Pressable onPress={() => void submitPoke()} disabled={loading || submitting || fixture.isLive || fixture.status === 'live'} style={[styles.primaryButton, (loading || submitting || fixture.isLive || fixture.status === 'live') && { opacity: 0.6 }]}><Text style={styles.primaryText}>{submitting ? 'Sending poke…' : 'Poke'}</Text></Pressable>
           <Text style={styles.label}>Pokers</Text>
-          {pokers.length ? pokers.map((poker, index) => <View key={`${poker.userName ?? poker.user_name ?? poker.starter_name ?? 'poker'}-${index}`} style={styles.pokerRow}><Text style={styles.choiceText}>{poker.userName ?? poker.user_name ?? poker.starter_name ?? 'Fan'}</Text><Text style={styles.muted}>{poker.selection ?? '—'} · {poker.amount ?? poker.starter_amount ?? 0} pts</Text></View>) : <Text style={styles.muted}>No pokes recorded yet.</Text>}
+          {pokers.length ? pokers.map((poker, index) => {
+            const pickedSide = poker.selection === 'home' || poker.selection === 'home_team'
+              ? fixture.homeTeam
+              : poker.selection === 'away' || poker.selection === 'away_team'
+                ? fixture.awayTeam
+                : poker.selection ?? '—';
+            return (
+              <View key={`${poker.userName ?? poker.user_name ?? poker.starter_name ?? 'poker'}-${index}`} style={styles.pokerRow}>
+                <View style={{ flex: 1, minWidth: 0, gap: 3 }}>
+                  <Text style={[styles.choiceText, { fontWeight: '700' }]}>
+                    <Text style={{ color: colors.primary, fontSize: 9, fontWeight: '800' }}>✊ POKE</Text>
+                    {' · '}{poker.userName ?? poker.user_name ?? poker.starter_name ?? 'Fan'}
+                  </Text>
+                  <Text style={styles.muted}>{pickedSide}</Text>
+                </View>
+                <Text style={[styles.muted, { fontWeight: '700' }]}>{poker.amount ?? poker.starter_amount ?? 0} pts</Text>
+              </View>
+            );
+          }) : <Text style={styles.muted}>No pokes recorded yet.</Text>}
           
         </ScrollView>}
       </Pressable>
