@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, View } from '@/lib/native-web-compat';
 import { Trophy, X } from 'lucide-react';
-import { getChannelWeeklyLeaderboard, type WeeklyChannelLeader } from '@funspot/core';
+import { getChannelWeeklyLeaderboardData, type WeeklyChannelLeader } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useFanColors } from '@/theme/use-fan-colors';
 
@@ -16,21 +16,29 @@ export function WeeklyLeaderboardModal({ visible, onClose, channelId, channelNam
   const { authToken, userId } = useAuth();
   const [rows, setRows] = useState<WeeklyChannelLeader[]>([]);
   const [loading, setLoading] = useState(false);
+  const [weekStartsAt, setWeekStartsAt] = useState<string | null>(null);
+  const [weekEndsAt, setWeekEndsAt] = useState<string | null>(null);
 
   useEffect(() => {
     if (!visible || !channelId) return;
     let cancelled = false;
     setLoading(true);
-    void getChannelWeeklyLeaderboard(channelId, authToken, userId).then((result) => {
-      if (!cancelled) setRows(result);
+    void getChannelWeeklyLeaderboardData(channelId, authToken, userId).then((result) => {
+      if (!cancelled) {
+        setRows(result?.leaderboard ?? []);
+        setWeekStartsAt(result?.week_starts_at ?? null);
+        setWeekEndsAt(result?.week_ends_at ?? null);
+      }
     }).finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
   }, [visible, channelId, authToken, userId]);
 
-  const end = new Date();
-  const start = new Date(end);
-  start.setDate(start.getDate() - 7);
-  const period = `${start.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} – ${end.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`;
+  const formatBoundary = (value: string | null) => value
+    ? new Date(value).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: 'Africa/Nairobi' })
+    : null;
+  const period = weekStartsAt && weekEndsAt
+    ? `${formatBoundary(weekStartsAt)} – ${formatBoundary(weekEndsAt)} EAT`
+    : 'Tuesday 04:00 EAT – Tuesday 04:00 EAT';
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent>
