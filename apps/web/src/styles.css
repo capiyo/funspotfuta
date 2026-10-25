@@ -3831,3 +3831,24 @@ body:has(.home-screen) .home-screen *:not(.profile-card):not(.profile-card *):no
     padding-inline: 1px !important;
   }
 }
+
+/* Voter avatars in ChatsCard must survive the Home-wide flat-surface reset.
+   Reassert the circular crop after every global reset rule. */
+body:has(.home-screen) .home-screen .chats-column .match-card .match-card-voter-stack .fan-avatar,
+body:has(.home-screen) .home-screen .chats-column .match-card .match-card-voter-stack .fan-avatar img {
+  border-radius: 50% !important;
+}
+body:has(.home-screen) .home-screen .chats-column .match-card .match-card-voter-stack .fan-avatar {
+  width: 24px !important;
+  height: 24px !important;
+  min-width: 24px !important;
+  min-height: 24px !important;
+  flex: 0 0 24px !important;
+  overflow: hidden !important;
+}
+body:has(.home-screen) .home-screen .chats-column .match-card .match-card-voter-stack .fan-avatar img {
+  display: block !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
