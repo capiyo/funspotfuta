@@ -40,6 +40,7 @@ import {
   mergeOpenPokes,
   queryKeys,
   hasScores,
+  getFormattedMinuteDisplay,
   winner as fixtureWinner,
   outcomeColor,
   FAN_SPACING,
@@ -283,7 +284,9 @@ export function MatchCard({
       ],
   );
 
-  const isLive = !!fixture.isLive || fixture.status === 'live';
+  const isLive = !!fixture.isLive || fixture.status?.toLowerCase() === 'live';
+  const matchMinute = getFormattedMinuteDisplay(fixture);
+  const isHalfTime = fixture.status?.toLowerCase() === 'half_time';
   const isCompleted =
     fixture.status === 'completed' || fixture.status === 'finished';
   const voters = fixture.voters ?? [];
@@ -580,7 +583,12 @@ export function MatchCard({
             ) : null}
 
             {isLive ? (
-              <LiveBadge colors={colors} />
+              <>
+                <LiveBadge colors={colors} />
+                {matchMinute && <span className="match-card-minute" aria-label={`Match time ${matchMinute}`} style={{ ...styles.date, color: colors.textSecondary, fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>{matchMinute}</span>}
+              </>
+            ) : isHalfTime && matchMinute ? (
+              <span className="match-card-minute" aria-label={`Match time ${matchMinute}`} style={{ ...styles.date, color: colors.textSecondary, whiteSpace: 'nowrap' }}>{matchMinute}</span>
             ) : (
               <span className="match-card-date" style={styles.date}>{kickoffLabel(fixture.date)}</span>
             )}
