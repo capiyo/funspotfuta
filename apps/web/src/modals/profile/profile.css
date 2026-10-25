@@ -95,6 +95,10 @@
 .profile-primary-action *, .profile-guest-login * { color:var(--profile-on-primary) !important; }
 .profile-secondary-action, .profile-expand-toggle { background:var(--profile-primary-tint) !important; border-color:var(--profile-border-strong) !important; color:var(--profile-primary) !important; }
 .profile-secondary-action *, .profile-expand-toggle * { color:var(--profile-primary) !important; }
+/* Logout is a primary account action, not a muted cancel control. */
+.profile-logout-action { background:var(--profile-primary) !important; border-color:var(--profile-primary) !important; color:var(--profile-on-primary) !important; }
+.profile-logout-action * { color:var(--profile-on-primary) !important; }
+.profile-logout-action:hover { background:var(--profile-primary-hover) !important; border-color:var(--profile-primary-hover) !important; }
 .profile-primary-action:hover, .profile-guest-login:hover { background:var(--profile-primary-hover) !important; border-color:var(--profile-primary-hover) !important; }
 .profile-secondary-action:hover, .profile-expand-toggle:hover { background:var(--profile-primary-muted) !important; border-color:var(--profile-primary) !important; }
 .profile-primary-action:focus-visible, .profile-secondary-action:focus-visible, .profile-expand-toggle:focus-visible, .profile-guest-login:focus-visible, .profile-modal-shell button:focus-visible {
