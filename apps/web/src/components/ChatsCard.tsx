@@ -4,7 +4,7 @@
 //
 //   league / channel (white)                          date <- or LiveBadge
 //   [icon] one random comment / live commentary
-//   Winner: Home   |   Vote recorded
+//   Winner: Home   |   voter avatars, usernames and selected teams
 //   (A) Kim      (B) Otieno
 //   Vote  heart  comment  | Add a comment… | Arsenal 2 : 1 Chelsea
 //   ^ one line, flush with the card floor; "vs" instead of the score
