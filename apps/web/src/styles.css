@@ -3528,3 +3528,209 @@ body:has(.home-screen) .home-screen *:not(.profile-card):not(.profile-card *):no
     border-radius: 16px 16px 0 0 !important;
   }
 }
+
+
+/* Action modal component styling overhaul.
+   Keep every surface on the active Fan theme; this layer only establishes
+   predictable DOM sizing, spacing, and responsive component layout. */
+.action-modal-viewport .action-modal-sheet {
+  gap: 0 !important;
+  padding: 8px 0 0 !important;
+  text-align: initial !important;
+}
+.action-modal-viewport .action-modal-sheet > .action-modal-backdrop {
+  padding: 0 !important;
+}
+.action-modal-viewport .action-modal-sheet .action-modal-tab-body {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 12px !important;
+  padding: 8px 14px 20px !important;
+  width: 100% !important;
+  max-width: none !important;
+}
+.action-modal-viewport .action-modal-tab-body > * {
+  flex: 0 0 auto;
+  width: 100% !important;
+  max-width: none !important;
+  min-width: 0 !important;
+}
+.action-modal-viewport .action-card {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  padding: 14px !important;
+  gap: 10px !important;
+  border-radius: 12px !important;
+}
+.action-modal-viewport .action-hero-row {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  width: 100% !important;
+}
+.action-modal-viewport .action-hero-row > * {
+  flex: 1 1 0% !important;
+  min-width: 0 !important;
+}
+.action-modal-viewport .action-hero-row > :nth-child(2) {
+  text-align: center !important;
+}
+.action-modal-viewport .action-tabs {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: stretch !important;
+  width: calc(100% - 28px) !important;
+  margin: 0 14px 10px !important;
+  gap: 4px !important;
+}
+.action-modal-viewport .action-tabs > * {
+  flex: 1 1 0% !important;
+  min-width: 0 !important;
+}
+.action-modal-viewport .action-outcome {
+  display: flex !important;
+  flex: 1 1 0% !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 0 !important;
+  min-height: 64px !important;
+  padding: 12px 8px !important;
+  gap: 5px !important;
+  border-radius: 10px !important;
+  text-align: center !important;
+  overflow-wrap: anywhere !important;
+}
+.action-modal-viewport .action-outcome > span {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  text-align: center !important;
+  line-height: 1.35 !important;
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+}
+.action-modal-viewport .action-cta {
+  display: inline-flex !important;
+  flex: 0 0 auto !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 76px !important;
+  min-height: 38px !important;
+  padding: 9px 13px !important;
+  border-radius: 9px !important;
+  white-space: nowrap !important;
+}
+.action-modal-viewport .action-cta > span {
+  display: block !important;
+  width: auto !important;
+  max-width: 100% !important;
+  white-space: nowrap !important;
+  text-align: center !important;
+}
+.action-modal-viewport .action-balance-bar {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 9px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  padding: 10px !important;
+  border-radius: 10px !important;
+}
+.action-modal-viewport .action-balance-bar > * {
+  min-width: 0 !important;
+}
+.action-modal-viewport .action-balance-bar > :nth-child(2) {
+  flex: 1 1 auto !important;
+}
+.action-modal-viewport .action-row {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  padding: 8px 0 !important;
+}
+.action-modal-viewport .action-row > :first-child {
+  flex: 1 1 0% !important;
+  min-width: 0 !important;
+  overflow-wrap: anywhere !important;
+}
+.action-modal-viewport .action-row > :last-child {
+  display: flex !important;
+  flex: 0 0 auto !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: flex-end !important;
+  gap: 8px !important;
+  max-width: 65% !important;
+  text-align: right !important;
+}
+.action-modal-viewport .action-person-tile {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  padding: 10px 0 !important;
+  gap: 8px !important;
+}
+.action-modal-viewport .action-person-row {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 10px !important;
+  width: 100% !important;
+  min-width: 0 !important;
+}
+.action-modal-viewport .action-person-row > :nth-child(2) {
+  flex: 1 1 0% !important;
+  min-width: 0 !important;
+}
+.action-modal-viewport .action-person-row > :last-child {
+  flex-shrink: 0 !important;
+}
+.action-modal-viewport .action-section-header {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 12px !important;
+  width: 100% !important;
+  margin: 8px 0 2px !important;
+}
+.action-modal-viewport .action-modal-sheet input {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.action-modal-viewport .action-modal-sheet span {
+  max-width: 100%;
+}
+@media (max-width: 380px) {
+  .action-modal-viewport .action-modal-tab-body {
+    padding-inline: 10px !important;
+    gap: 10px !important;
+  }
+  .action-modal-viewport .action-card {
+    padding: 11px !important;
+  }
+  .action-modal-viewport .action-row {
+    gap: 8px !important;
+  }
+  .action-modal-viewport .action-row > :last-child {
+    max-width: 58% !important;
+  }
+}
