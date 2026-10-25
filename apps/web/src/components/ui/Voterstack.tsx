@@ -4,6 +4,7 @@ import { FAN_SPACING } from '@funspot/core';
 import { fanText } from '@/theme/use-fan-typography';
 import { HIT_SLOP, ICON, PRESSED_OPACITY } from '@/theme/layout';
 import { Avatar } from './Avatar';
+import { getFanAvatarUri } from '@/lib/avatar-uri';
 
 export interface VoterItem {
   id: string;
@@ -36,7 +37,7 @@ export function VoterList({ colors, voters, emptyLabel, onPress }: {
       shown.map((voter) => {
         const { icon, name } = splitFanName(voter.name);
         return <span key={voter.id} style={{ flex: '1 1 180px', display: 'flex', alignItems: 'center', gap: FAN_SPACING.sm, minWidth: 0 }}>
-          <Avatar colors={colors} size="sm" label={icon || initials(name)} uri={voter.uri} borderColor={voter.color} />
+          <Avatar colors={colors} size="sm" label={icon || initials(name)} uri={getFanAvatarUri(voter.id)} borderColor={voter.color} />
           <span style={{ display: 'flex', flexDirection: 'column', flex: '1 1 auto', minWidth: 0 }}>
             <span style={{ ...fanText('caption', colors, colors.textPrimary), whiteSpace: 'normal', overflowWrap: 'anywhere' }}>{name}</span>
             <span style={{ ...fanText('tag', colors, voter.color), whiteSpace: 'normal', overflowWrap: 'anywhere' }}>{voter.team}</span>
