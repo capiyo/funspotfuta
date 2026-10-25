@@ -701,6 +701,21 @@ export function useChannelChat({
             }
         };
 
+        // Balance notifications are user-scoped. When the backend emits one,
+        // mirror it into the persisted AppCache so the action modal and other
+        // screens can reuse the latest known balance without polling.
+        const onBalanceUpdate = (payload: Record<string, any>) => {
+            const data = payload.payload && typeof payload.payload === 'object'
+                ? payload.payload as Record<string, any>
+                : payload;
+            const eventUserId = data.userId ?? data.user_id ?? data.id;
+            if (!userId || eventUserId == null || String(eventUserId) !== String(userId)) return;
+            const rawBalance = data.balance ?? data.newBalance ?? data.new_balance ?? data.user?.balance;
+            const balance = typeof rawBalance === 'number' ? rawBalance : Number(rawBalance);
+            if (rawBalance == null || !Number.isFinite(balance) || balance < 0) return;
+            queryClient.setQueryData(queryKeys.balance(userId), balance);
+        };
+
         // vote.update
         const onVoteUpdate = (payload: Record<string, any>) => {
             const id = payload.fixture_id?.toString();
@@ -746,6 +761,9 @@ export function useChannelChat({
         webSocketService.on('match.ended', onMatchEnded);
         webSocketService.on('minute.update', onMinuteUpdate);
         webSocketService.on('vote.update', onVoteUpdate);
+        webSocketService.on('balance.update', onBalanceUpdate);
+        webSocketService.on('balance.updated', onBalanceUpdate);
+        webSocketService.on('user.balance.updated', onBalanceUpdate);
         webSocketService.on('connected', onConnectedOrJoined);
         webSocketService.on('room.joined', onConnectedOrJoined);
 
@@ -760,6 +778,9 @@ export function useChannelChat({
             webSocketService.off('match.ended', onMatchEnded);
             webSocketService.off('minute.update', onMinuteUpdate);
             webSocketService.off('vote.update', onVoteUpdate);
+            webSocketService.off('balance.update', onBalanceUpdate);
+            webSocketService.off('balance.updated', onBalanceUpdate);
+            webSocketService.off('user.balance.updated', onBalanceUpdate);
             webSocketService.off('connected', onConnectedOrJoined);
             webSocketService.off('room.joined', onConnectedOrJoined);
         };
