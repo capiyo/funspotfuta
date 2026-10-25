@@ -1289,6 +1289,7 @@ function MessageBubble({
           delayLongPress={350}
           style={[
             bubbleStyles.bubble,
+            effectiveIsMe ? bubbleStyles.bubbleMe : bubbleStyles.bubbleOther,
             isCommentary
               ? { backgroundColor: colors.draw + '14' }
               : effectiveIsMe
@@ -1400,11 +1401,12 @@ const bubbleStyles = StyleSheet.create({
   bubble: {
     maxWidth: '82%',
     borderRadius: FAN_RADIUS.lg,
-    borderBottomLeftRadius: FAN_RADIUS.sm,
     paddingHorizontal: FAN_SPACING.md,
     paddingVertical: FAN_SPACING.sm,
     elevation: 1,
   },
+  bubbleMe: { borderBottomRightRadius: FAN_RADIUS.sm },
+  bubbleOther: { borderBottomLeftRadius: FAN_RADIUS.sm },
   messageText: { lineHeight: 20, flexShrink: 1 },
   replyQuote: {
     borderLeftWidth: 2,
