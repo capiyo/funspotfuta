@@ -191,7 +191,7 @@ export default function ChatsScreen() {
   );
     const fixtures = useMemo(() => (data ?? NO_FIXTURES).map((fixture) => {
     if (!userId) return fixture;
-    const cached = queryClient.getQueryData<{ voters?: Array<{ userId: string; username?: string; userName?: string; selection: string; isComrade?: boolean; votedAt?: Date }> }>(
+    const cached = queryClient.getQueryData<{ voters?: Array<{ userId: string; username?: string; userName?: string; selection: string; isComrade?: boolean; votedAt?: Date; uri?: string | null }> }>(
       queryKeys.fixtureVotes(fixture.matchId || fixture.id, userId),
     );
     if (!cached?.voters?.length) return fixture;
@@ -199,6 +199,7 @@ export default function ChatsScreen() {
       userId: voter.userId,
       userName: voter.userName ?? voter.username ?? 'Fan',
       selection: voter.selection,
+      uri: voter.uri ?? null,
       isCorrect: null,
       pointsAwarded: null,
       isComrade: voter.isComrade ?? false,
