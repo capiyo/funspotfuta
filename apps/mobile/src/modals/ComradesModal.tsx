@@ -184,7 +184,7 @@ export default function ComradesScreen({
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                   {channels.map((channel) => (
                     <Pressable key={channel.channelId} onPress={() => setSelectedChannelId(channel.channelId)} style={{ marginRight: 8, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 18, backgroundColor: selectedChannelId === channel.channelId ? colors.surface : colors.surface, borderWidth: 1, borderColor: selectedChannelId === channel.channelId ? colors.green : colors.border }}>
-                      <Text style={{ color: selectedChannelId === channel.channelId ? colors.primary : colors.textPrimary, fontSize: 11 }}>{channel.name}{channel.isAdmin ? ' · Admin' : ''}</Text>
+                      <Text style={{ color: selectedChannelId === channel.channelId ? colors.green : colors.textPrimary, fontSize: 11 }}>{channel.name}{channel.isAdmin ? ' · Admin' : ''}</Text>
                     </Pressable>
                   ))}
                 </ScrollView>
