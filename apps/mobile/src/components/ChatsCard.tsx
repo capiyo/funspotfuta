@@ -35,6 +35,8 @@ import {
 } from 'lucide-react-native';
 import {
   Fixture,
+  Poke,
+  getOpenPokes,
   hasScores,
   scoreDisplay,
   winner as fixtureWinner,
@@ -216,6 +218,7 @@ function pickKind(selection: string): 'home' | 'away' | 'draw' | 'unknown' {
 export function MatchCard({
   fixture,
   channel,
+  channelId,
   comments,
   latestComment,
   liveCommentary,
@@ -258,6 +261,27 @@ export function MatchCard({
   const { userId, isLoggedIn } = useAuth();
   const { requireLogin } = useLoginModal();
   const [draft, setDraft] = useState('');
+  const [openPokes, setOpenPokes] = useState<Poke[]>([]);
+  useEffect(() => {
+    let active = true;
+    const fixtureId = fixture.matchId || fixture.id;
+    const refresh = () => {
+      if (!channelId || !fixtureId || fixture.isLive || fixture.status === 'live') {
+        if (active) setOpenPokes([]);
+        return;
+      }
+      void getOpenPokes(fixtureId, undefined, channelId)
+        .then((items) => {
+          if (active) setOpenPokes(items
+            .filter((item) => item.status.toLowerCase() === 'open' && item.matchId === fixtureId)
+            .sort((a, b) => (Date.parse(b.createdAt ?? '') || 0) - (Date.parse(a.createdAt ?? '') || 0)));
+        })
+        .catch(() => { /* Keep the last good poke list during transient API failures. */ });
+    };
+    refresh();
+    const interval = setInterval(refresh, 2 * 60 * 1000);
+    return () => { active = false; clearInterval(interval); };
+  }, [channelId, fixture.id, fixture.matchId, fixture.isLive, fixture.status]);
   const longChannelPressFired = useRef(false);
   const [failedUri, setFailedUri] = useState<string | null>(null);
 
@@ -304,6 +328,21 @@ export function MatchCard({
     [voters, fixture.homeTeam, fixture.awayTeam, colors],
   );
 
+  const pokeItems = useMemo(() => openPokes.map((poke) => ({
+    id: `poke:${poke.id}`,
+    name: poke.userName || 'Fan',
+    uri: null,
+    team: poke.selection === 'home' ? fixture.homeTeam : fixture.awayTeam,
+    color: outcomeColor(poke.selection === 'home' ? 'home' : 'away', colors),
+  })), [openPokes, fixture.homeTeam, fixture.awayTeam, colors]);
+  // Pokes take priority. If fewer than three are open, fill the strip with
+  // voters, excluding anyone already represented by an open poke.
+  const priorityItems = useMemo(() => {
+    const selectedPokes = pokeItems.slice(0, 3);
+    const pokeUserIds = new Set(openPokes.slice(0, 3).map((poke) => poke.userId));
+    return [...selectedPokes, ...voterItems.filter((voter) => !pokeUserIds.has(voter.id))]
+      .slice(0, 3);
+  }, [pokeItems, openPokes, voterItems]);
   const fixtureLabel = `${fixture.homeTeam} vs ${fixture.awayTeam}`;
   // Teams with the score between them, or "vs" before kickoff.
   const captionLabel = `${fixture.homeTeam} ${hasScores(fixture) ? scoreDisplay(fixture) : 'vs'
@@ -502,7 +541,7 @@ export function MatchCard({
         <View style={styles.stackRow}>
           <VoterList
             colors={colors}
-            voters={voterItems}
+            voters={priorityItems}
             emptyLabel={isCompleted ? 'No votes were cast' : emptyPrompt}
           />
         </View>
