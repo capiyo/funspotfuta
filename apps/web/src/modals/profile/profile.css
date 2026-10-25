@@ -8,10 +8,59 @@
 }
 .profile-guest-preview { display:flex; flex-direction:column; gap:10px; min-width:0; }
 .profile-guest-banner { display:flex; align-items:center; background:var(--home-primary-dim); border:1px solid var(--home-border-active); border-radius:8px; padding:8px 10px; color:var(--home-primary); font-size:11px; box-sizing:border-box; }
-.profile-guest-fields { display:flex; flex-direction:column; gap:8px; min-width:0; }
-.profile-guest-field { display:flex; flex-direction:row; align-items:center; gap:10px; min-width:0; background:var(--home-surface); border:1px solid var(--home-primary); border-radius:8px; padding:8px 10px; box-sizing:border-box; }
-.profile-guest-field .profile-guest-field-icon { display:block; flex:0 0 16px; color:var(--home-primary); }\n.profile-guest-field .profile-guest-field-copy { display:flex; flex:1; flex-direction:column; gap:2px; min-width:0; }\n.profile-guest-field .profile-guest-field-copy > span { display:block; color:var(--home-text-tertiary); font-size:10px; line-height:1.3; }
-.profile-guest-field strong, .profile-guest-field span { display:block; color:var(--home-text-primary); font-size:13px; font-weight:600; line-height:1.35; }
+.profile-guest-fields { display:flex; flex-direction:column; gap:9px; min-width:0; }
+/* Guest and signed-in identity fields deliberately share the same card geometry and typography. */
+.profile-guest-field,
+.profile-authenticated-field {
+  display:flex;
+  flex-direction:row;
+  align-items:center;
+  gap:10px !important;
+  width:100%;
+  min-width:0;
+  min-height:48px;
+  background:var(--home-surface) !important;
+  border:1px solid var(--home-primary) !important;
+  border-radius:8px !important;
+  padding:9px 10px !important;
+  box-sizing:border-box;
+  text-align:left;
+}
+.profile-guest-field .profile-guest-field-icon,
+.profile-authenticated-field > svg {
+  display:block;
+  flex:0 0 16px;
+  width:16px;
+  height:16px;
+  color:var(--home-primary) !important;
+}
+.profile-guest-field .profile-guest-field-copy,
+.profile-authenticated-field > div {
+  display:flex;
+  flex:1 1 auto;
+  flex-direction:column;
+  gap:2px;
+  min-width:0;
+  overflow-wrap:anywhere;
+}
+.profile-guest-field .profile-guest-field-copy > span,
+.profile-authenticated-field > div > span:first-child {
+  display:block;
+  margin:0 0 2px;
+  color:var(--home-text-tertiary) !important;
+  font-size:10px !important;
+  font-weight:400 !important;
+  line-height:1.3;
+}
+.profile-guest-field strong,
+.profile-authenticated-field > div > span:last-child {
+  display:block;
+  color:var(--home-text-primary) !important;
+  font-size:13px !important;
+  font-weight:600 !important;
+  line-height:1.35;
+  overflow-wrap:anywhere;
+}
 .profile-guest-login { display:flex; align-items:center; justify-content:center; gap:7px; width:100%; min-height:36px; height:36px; background:var(--home-primary) !important; color:var(--home-text-on-primary, #111) !important; border:1px solid var(--home-primary) !important; border-radius:8px; font-size:13px; font-weight:600; box-sizing:border-box; cursor:pointer; }
 .profile-guest-channels-heading { display:flex; flex-direction:row; align-items:center; justify-content:space-between; gap:8px; min-width:0; }
 .profile-guest-channels-heading .count, .profile-guest-channels-heading [data-count] { display:inline-flex; align-items:center; justify-content:center; flex:0 0 20px; width:20px; height:20px; border-radius:50%; background:var(--home-primary); color:var(--home-text-on-primary, #111); font-size:10px; font-weight:700; }
