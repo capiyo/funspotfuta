@@ -183,7 +183,11 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
   const routeFixture = useMemo(() => {
     if (!routeFixtureId) return null;
     const cached = queryClient.getQueryData<Fixture[]>(FIXTURES_KEY) ?? [];
-    return cached.find((fixture) => fixture.id === routeFixtureId || fixture.matchId === routeFixtureId) ?? null;
+    // Chats routes use matchId when available. Resolve that namespace first:
+    // an unrelated fixture's database id may equal this fixture's matchId.
+    return cached.find((item) => item.matchId === routeFixtureId)
+      ?? cached.find((item) => item.id === routeFixtureId)
+      ?? null;
   }, [queryClient, routeFixtureId]);
 
   // Chats passes a fixture ID explicitly. Resolve that exact fixture if it
@@ -195,7 +199,9 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       .then((fixtures) => {
         if (!alive) return;
         setLoadedRouteFixture(
-          fixtures.find((fixture) => fixture.id === routeFixtureId || fixture.matchId === routeFixtureId) ?? null,
+          fixtures.find((item) => item.matchId === routeFixtureId)
+            ?? fixtures.find((item) => item.id === routeFixtureId)
+            ?? null,
         );
       })
       .catch(() => undefined);
