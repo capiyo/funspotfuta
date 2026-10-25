@@ -190,7 +190,13 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
       const nextBalance = balance === null ? null : Math.max(0, balance - poke.amount);
       setBalance(nextBalance);
       if (nextBalance !== null) writeCachedChannelMemberPoints(queryClient, userId, channelId, nextBalance);
-      const nextOpen = open.filter((item) => item.status.trim().toLowerCase() === 'open' && String(item.matchId) === String(matchId)); if (channelId) queryClient.setQueryData<Poke[]>(queryKeys.openPokes(String(matchId), channelId, marketId), nextOpen); setOpenPokes(nextOpen);
+      const cacheKey = queryKeys.openPokes(String(matchId), channelId, marketId);
+      const previousOpen = queryClient.getQueryData<Poke[]>(cacheKey) ?? [];
+      const nextOpen = open.filter((item) => String(item.status ?? '').trim().toLowerCase() === 'open' && String(item.matchId) === String(matchId));
+      // The matched row was removed optimistically above; preserve any other cached rows if GET lags.
+      const stableOpen = nextOpen.length > 0 ? nextOpen : previousOpen;
+      if (channelId) queryClient.setQueryData<Poke[]>(cacheKey, stableOpen);
+      setOpenPokes(stableOpen);
       setMatchedPokes(mine.filter((item) => item.status.trim().toLowerCase() !== 'open'));
       setMessage('Poke matched successfully.');
     } catch (reason) {
