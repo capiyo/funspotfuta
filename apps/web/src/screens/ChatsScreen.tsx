@@ -313,7 +313,7 @@ export default function ChatsScreen() {
         userVoteSelection?: string | null;
         voters?: Array<{ userId: string; username?: string; userName?: string; selection: string; isComrade?: boolean; votedAt?: Date; uri?: string | null }>;
       } | undefined) => {
-        const merged = new Map<string, NonNullable<typeof previous>['voters'][number]>();
+        const merged = new Map<string, NonNullable<NonNullable<typeof previous>['voters']>[number]>();
         for (const voter of previous?.voters ?? []) merged.set(voter.userId, voter);
         for (const voter of normalized) {
           const prior = merged.get(voter.userId);
