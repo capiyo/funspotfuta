@@ -417,6 +417,7 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       placement="chats"
       label="Messaging advertisements"
       showDots={false}
+      flush
       slots={['9051548379', '3164796870', '1372263706']}
     />
 
