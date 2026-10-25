@@ -1898,7 +1898,7 @@ export function SwipeableVotePledgeModal(props: Props) {
                                 subtitle={v.isComrade && !isMe ? 'comrade' : 'voter'}
                                 accent={accent}
                                 isMe={isMe}
-                                badge={displayVote(v.selection).toUpperCase()}
+                                badge={`✓ VOTE · ${displayVote(v.selection).toUpperCase()}`}
                                 badgeColor={accent}
                                 progress={pct}
                             />
