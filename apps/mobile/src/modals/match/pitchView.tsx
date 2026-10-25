@@ -835,7 +835,7 @@ export interface PitchViewProps {
     awayPlayers: SimplifiedPlayer[];
 }
 
-const PITCH_ASPECT_RATIO = 0.82;
+const PITCH_ASPECT_RATIO = 0.58;
 
 export function PitchView({
     homeTeam,
