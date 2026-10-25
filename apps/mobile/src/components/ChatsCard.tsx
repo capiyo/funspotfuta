@@ -35,7 +35,7 @@ import {
 } from 'lucide-react-native';
 import {
   Fixture,
-  Poke,
+  type Poke,
   getOpenPokes,
   hasScores,
   scoreDisplay,
