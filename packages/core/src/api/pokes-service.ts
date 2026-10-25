@@ -30,6 +30,22 @@ function fromJson(value: Record<string, unknown>): Poke {
     createdAt: value.created_at == null ? undefined : String(value.created_at),
   };
 }
+/** Merge cached and server open-poke lists without losing rows during eventual consistency. */
+export function mergeOpenPokes(...lists: Poke[][]): Poke[] {
+  const merged = new Map<string, Poke>();
+  const identity = (poke: Poke) => poke.id
+    ? String(poke.id)
+    : [poke.matchId, poke.userId, poke.selection, poke.amount, poke.createdAt ?? ''].join(':');
+  for (const list of lists) {
+    for (const poke of list) {
+      if (String(poke.status ?? '').trim().toLowerCase() !== 'open') continue;
+      merged.set(identity(poke), poke);
+    }
+  }
+  return [...merged.values()].sort(
+    (a, b) => (Date.parse(b.createdAt ?? '') || 0) - (Date.parse(a.createdAt ?? '') || 0),
+  );
+}
 function rows(payload: unknown): Poke[] {
   if (Array.isArray(payload)) return payload.map((row) => fromJson(row as Record<string, unknown>));
   if (!payload || typeof payload !== 'object') throw new Error('Poke response was not a list');
