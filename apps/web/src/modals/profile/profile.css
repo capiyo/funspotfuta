@@ -291,3 +291,16 @@
 .profile-modal-shell .profile-channel-panel button span {
   color: var(--home-primary) !important;
 }
+
+
+/* Desktop: visually separate the channel leaderboard from the main profile page. */
+@media (min-width: 651px) {
+  .profile-leaderboard-section {
+    margin: 8px 10px 12px;
+    padding: 10px 8px !important;
+    border: 1px solid var(--home-primary) !important;
+    border-radius: 8px;
+    background: var(--home-primary-dim);
+    box-shadow: 0 0 0 1px color-mix(in srgb, var(--home-primary) 12%, transparent);
+  }
+}
