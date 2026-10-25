@@ -42,6 +42,8 @@ const PERSISTED_KEYS = new Set([
   'fixtureVotes',
   'votes',
   'voters',
+  'openPokes',
+  'userPokes',
   'comradeVoters',
   'channelFixtures',
   'voteCounts',
