@@ -21,6 +21,7 @@ import AddPostModal from '@/modals/addPostModal';
 import HistoryModal from '@/modals/HistoryModal';
 import CreateChannelModal from '@/modals/ChannelCreation';
 import { NotificationService } from '@/lib/api/notification-service';
+import { getFanAvatarUri } from '@/lib/avatar-uri';
 
 type HeaderProps = {
   channels?: Channel[];
@@ -159,7 +160,7 @@ export function AppHeader(props: HeaderProps = {}) {
 
   const points = activeChannel?.members?.find((member) => member.userId === userId)?.seasonPoints ?? 0;
   const comradesList = queryClient.getQueryData<string[]>(['comrades']) ?? [];
-  const avatarUri = `https://i.pravatar.cc/150?u=${encodeURIComponent(userId ?? 'guest')}`;
+  const avatarUri = getFanAvatarUri(userId);
   const hasJoinedChannels = joinedChannels.length > 0;
   const publicChannels = publicChannelsQuery.data ?? [];
   const availableChannels = allChannels.length > 0 ? allChannels : publicChannels.length > 0 ? publicChannels : joinedChannels;
