@@ -12,6 +12,8 @@ const MAX_PERSISTED_QUERIES = 150;
 const CACHE_PRIORITY: Record<string, number> = {
   fixtures: 100,
   fixtureVotes: 98,
+  openPokes: 97,
+  userPokes: 95,
   userVotes: 96,
   voteCounts: 94,
   voters: 92,
