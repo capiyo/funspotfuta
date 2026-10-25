@@ -388,7 +388,7 @@ function TabButton({
       <Text
         style={[
           styles.tabButtonText,
-          { color: active ? colors.textPrimary : colors.textTertiary },
+          { color: active ? colors.primary : colors.textTertiary },
         ]}
       >
         {label}
