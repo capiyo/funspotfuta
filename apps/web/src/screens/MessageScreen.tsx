@@ -898,7 +898,7 @@ function MessageBubble({ colors, message, isMe, onLongPress, onImagePress, onRet
     onContextMenu: (event: MouseEvent) => { event.preventDefault(); onLongPress(); },
   };
   return <article
-      className={`group mb-2 flex flex-col px-2 sm:px-3 ${mine ? 'items-end' : 'items-start'}`}>
+      className={`group mb-1.5 flex flex-col px-2 sm:px-3 ${mine ? 'items-end' : 'items-start'}`}>
     {!mine && <p
       className="mb-1 ml-9 max-w-[78%] truncate text-[10px] font-semibold"
       style={{ color: commentary ? colors.draw : colors.primary }}>{commentary ? '⚽ ' : ''}{message.username}</p>}
@@ -965,6 +965,12 @@ function MessageBubble({ colors, message, isMe, onLongPress, onImagePress, onRet
       onClick={onRetry}
       className="underline">Retry</button>}</div>
         </div>
+        <span
+      aria-hidden="true"
+      className="pointer-events-none absolute bottom-0 h-0 w-0"
+      style={mine
+        ? { right: -5, borderTop: `8px solid ${bubbleBackground}`, borderLeft: '8px solid transparent' }
+        : { left: -5, borderTop: `8px solid ${bubbleBackground}`, borderRight: '8px solid transparent' }}/>
       </div>
       {mine && <div
       className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold"
