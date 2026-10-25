@@ -110,15 +110,20 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
 
   useEffect(() => {
     let active = true;
-    const matchId = fixture.matchId || fixture.id;
+    const matchId = String(fixture.matchId || fixture.id);
+    const cacheKey = channelId ? queryKeys.openPokes(matchId, channelId, marketId) : null;
+    const cachedOpen = cacheKey ? queryClient.getQueryData<Poke[]>(cacheKey) : undefined;
+    if (cachedOpen) setOpenPokes(cachedOpen);
     Promise.all([getOpenPokes(matchId, authToken || undefined, channelId, marketId), getUserPokes(userId, authToken || undefined)])
       .then(([open, mine]) => {
         if (!active) return;
-        setOpenPokes(open.filter((p) => p.status.toLowerCase() === 'open' && p.matchId === matchId));
-        setMatchedPokes(mine.filter((p) => p.status.toLowerCase() !== 'open'));
+        const nextOpen = open.filter((p) => p.status.trim().toLowerCase() === 'open' && String(p.matchId) === matchId);
+        if (cacheKey) queryClient.setQueryData<Poke[]>(cacheKey, nextOpen);
+        setOpenPokes(nextOpen);
+        setMatchedPokes(mine.filter((p) => p.status.trim().toLowerCase() !== 'open'));
       }).catch(() => {});
     return () => { active = false; };
-  }, [fixture.id, fixture.matchId, userId, authToken, channelId, marketId]);
+  }, [fixture.id, fixture.matchId, userId, authToken, channelId, marketId, queryClient]);
 
   const selectedMarket = useMemo(() => markets.find((market) => market.id === marketId), [marketId, markets]);
   const options = useMemo(() => {
@@ -178,8 +183,8 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
       const nextBalance = balance === null ? null : Math.max(0, balance - poke.amount);
       setBalance(nextBalance);
       if (nextBalance !== null) writeCachedChannelMemberPoints(queryClient, userId, channelId, nextBalance);
-      setOpenPokes(open.filter((item) => item.status.toLowerCase() === 'open' && item.matchId === matchId));
-      setMatchedPokes(mine.filter((item) => item.status.toLowerCase() !== 'open'));
+      const nextOpen = open.filter((item) => item.status.trim().toLowerCase() === 'open' && String(item.matchId) === String(matchId)); if (channelId) queryClient.setQueryData<Poke[]>(queryKeys.openPokes(String(matchId), channelId, marketId), nextOpen); setOpenPokes(nextOpen);
+      setMatchedPokes(mine.filter((item) => item.status.trim().toLowerCase() !== 'open'));
       setMessage('Poke matched successfully.');
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : 'Could not match poke.');
@@ -231,8 +236,8 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
       const nextBalance = balance === null ? null : Math.max(0, balance - amount);
       setBalance(nextBalance);
       if (nextBalance !== null) writeCachedChannelMemberPoints(queryClient, userId, channelId, nextBalance);
-      setOpenPokes(open.filter((poke) => poke.status.toLowerCase() === 'open' && poke.matchId === matchId));
-      setMatchedPokes(mine.filter((poke) => poke.status.toLowerCase() !== 'open'));
+      const nextOpen = open.filter((poke) => poke.status.trim().toLowerCase() === 'open' && String(poke.matchId) === String(matchId)); if (channelId) queryClient.setQueryData<Poke[]>(queryKeys.openPokes(String(matchId), channelId, marketId), nextOpen); setOpenPokes(nextOpen);
+      setMatchedPokes(mine.filter((poke) => poke.status.trim().toLowerCase() !== 'open'));
       setMessage('Poke was successful!');
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : 'Could not submit poke.');
