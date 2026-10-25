@@ -25,11 +25,12 @@ const fallback = new Map<string, string>();
 /** Synchronous cache for startup-critical values such as auth state. */
 export const mobileCache = {
   getItem(key: string): string | null {
+    if (fallback.has(key)) return fallback.get(key) ?? null;
     try {
-      return mmkv?.getString(key) ?? fallback.get(key) ?? null;
+      return mmkv?.getString(key) ?? null;
     } catch (error) {
       if (__DEV__) console.warn('[storage] MMKV read failed; using fallback', error);
-      return fallback.get(key) ?? null;
+      return null;
     }
   },
   setItem(key: string, value: string): void {
