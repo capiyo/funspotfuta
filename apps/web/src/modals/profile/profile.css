@@ -235,20 +235,12 @@
   transition: filter 120ms ease, background-color 120ms ease !important;
 }
 .profile-primary-action {
-  background: var(--home-primary) !important;
-  color: var(--home-text-on-primary, #111) !important;
-  border: 1px solid var(--home-primary) !important;
 }
 .profile-primary-action > span {
-  color: var(--home-text-on-primary, #111) !important;
 }
 .profile-secondary-action {
-  background: var(--home-surface) !important;
-  color: var(--home-text-secondary) !important;
-  border: 1px solid var(--home-border) !important;
 }
 .profile-secondary-action > span {
-  color: var(--home-primary) !important;
 }
 .profile-primary-action:hover,
 .profile-secondary-action:hover {
@@ -291,10 +283,6 @@
 .profile-sidebar-rich .profile-secondary-action,
 .profile-sidebar-rich .profile-expand-toggle,
 .profile-sidebar-rich .profile-guest-login {
-  background: var(--home-primary) !important;
-  background-color: var(--home-primary) !important;
-  border: 1px solid var(--home-primary) !important;
-  color: var(--home-text-on-primary, #111) !important;
 }
 .profile-modal-shell .profile-primary-action *,
 .profile-modal-shell .profile-secondary-action *,
@@ -304,7 +292,6 @@
 .profile-sidebar-rich .profile-secondary-action *,
 .profile-sidebar-rich .profile-expand-toggle *,
 .profile-sidebar-rich .profile-guest-login * {
-  color: var(--home-text-on-primary, #111) !important;
 }
 .profile-modal-shell .profile-edit-view input,
 .profile-sidebar-rich .profile-edit-view input {
@@ -354,18 +341,11 @@
 }
 .profile-modal-shell .profile-primary-action,
 .profile-modal-shell .profile-guest-login {
-  background: var(--home-primary) !important;
-  color: var(--home-text-on-primary, #111) !important;
-  border-color: var(--home-primary) !important;
 }
 .profile-modal-shell .profile-secondary-action,
 .profile-modal-shell .profile-expand-toggle {
-  background: var(--home-primary-dim) !important;
-  color: var(--home-primary) !important;
-  border-color: var(--home-primary) !important;
 }
 .profile-modal-shell button:not(.profile-primary-action):not(.profile-guest-login):not(.profile-secondary-action):not(.profile-expand-toggle):not([role="tab"]) {
-  border-color: var(--home-primary);
 }
 .profile-modal-shell button:focus-visible {
   outline-color: var(--home-primary) !important;
