@@ -36,11 +36,14 @@ function rows(payload: unknown): Poke[] {
   const value = payload as Record<string, unknown>;
   const data = value.data;
   const pokes = value.pokes;
+  const dataObject = data && typeof data === 'object' && !Array.isArray(data) ? data as Record<string, unknown> : undefined;
+  const pokeObject = pokes && typeof pokes === 'object' && !Array.isArray(pokes) ? pokes as Record<string, unknown> : undefined;
   const list = value.open_pokes ?? value.openPokes ?? value.open
     ?? (Array.isArray(pokes) ? pokes : undefined)
-    ?? (pokes && typeof pokes === 'object' ? (pokes as Record<string, unknown>).open : undefined)
+    ?? pokeObject?.open ?? pokeObject?.open_pokes ?? pokeObject?.items
     ?? (Array.isArray(data) ? data : undefined)
-    ?? (data && typeof data === 'object' ? (data as Record<string, unknown>).open ?? (data as Record<string, unknown>).pokes : undefined);
+    ?? dataObject?.open ?? dataObject?.open_pokes ?? dataObject?.openPokes
+    ?? dataObject?.pokes ?? dataObject?.items;
   if (!Array.isArray(list)) throw new Error('Poke response did not contain an open-pokes list');
   return list.map((row) => fromJson(row as Record<string, unknown>));
 }
