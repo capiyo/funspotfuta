@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const distDir = path.resolve(scriptDir, '../dist');
 // Keep production URLs canonical; never publish preview-host URLs in the sitemap.
-const configuredOrigin = process.env.VITE_SITE_URL || 'https://funspot.co.ke';
+const configuredOrigin = process.env.VITE_SITE_URL || 'https://www.funspot.co.ke';
 
 function normalizeOrigin(value) {
   try {
