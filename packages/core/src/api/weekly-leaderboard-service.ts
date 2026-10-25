@@ -10,6 +10,8 @@ export interface WeeklyChannelLeader {
 export interface WeeklyLeaderboardResponse {
   success: boolean;
   week: string;
+  week_starts_at?: string;
+  week_ends_at?: string;
   leaderboard: WeeklyChannelLeader[];
   count: number;
   me: (WeeklyChannelLeader & { rank: number | null }) | null;
@@ -18,15 +20,15 @@ export interface WeeklyLeaderboardResponse {
 }
 
 /**
- * Fetch the current ISO-week leaderboard for one channel.
+ * Fetch the complete current-week response for one channel.
  * Backend route: GET /api/channels/:channel_id/leaderboard/weekly?user_id=...
  */
-export async function getChannelWeeklyLeaderboard(
+export async function getChannelWeeklyLeaderboardData(
   channelId: string,
   authToken?: string | null,
   userId?: string | null,
-): Promise<WeeklyChannelLeader[]> {
-  if (!channelId.trim()) return [];
+): Promise<WeeklyLeaderboardResponse | null> {
+  if (!channelId.trim()) return null;
 
   const params = new URLSearchParams();
   if (userId?.trim()) params.set('user_id', userId.trim());
@@ -42,18 +44,38 @@ export async function getChannelWeeklyLeaderboard(
     }
 
     const payload = (await response.json()) as Partial<WeeklyLeaderboardResponse>;
-    if (!Array.isArray(payload.leaderboard)) return [];
+    if (!Array.isArray(payload.leaderboard)) return null;
 
-    return payload.leaderboard
-      .filter((row): row is WeeklyChannelLeader => Boolean(row && typeof row === 'object'))
-      .map((row) => ({
-        rank: Number(row.rank) || 0,
-        user_id: String(row.user_id ?? ''),
-        username: String(row.username ?? 'Anonymous'),
-        weekly_points: Number(row.weekly_points) || 0,
-      }));
+    return {
+      success: Boolean(payload.success),
+      week: String(payload.week ?? ''),
+      week_starts_at: payload.week_starts_at,
+      week_ends_at: payload.week_ends_at,
+      leaderboard: payload.leaderboard
+        .filter((row): row is WeeklyChannelLeader => Boolean(row && typeof row === 'object'))
+        .map((row) => ({
+          rank: Number(row.rank) || 0,
+          user_id: String(row.user_id ?? ''),
+          username: String(row.username ?? 'Anonymous'),
+          weekly_points: Number(row.weekly_points) || 0,
+        })),
+      count: Number(payload.count) || 0,
+      me: payload.me ?? null,
+      channel_id: payload.channel_id,
+      channel_name: payload.channel_name,
+    };
   } catch (error) {
     console.error('getChannelWeeklyLeaderboard failed:', error);
-    return [];
+    return null;
   }
+}
+
+/** Backwards-compatible rows-only helper for existing callers. */
+export async function getChannelWeeklyLeaderboard(
+  channelId: string,
+  authToken?: string | null,
+  userId?: string | null,
+): Promise<WeeklyChannelLeader[]> {
+  const data = await getChannelWeeklyLeaderboardData(channelId, authToken, userId);
+  return data?.leaderboard ?? [];
 }
