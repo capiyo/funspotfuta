@@ -281,6 +281,54 @@
 }
 
 
+
+/* Explicit green treatment for all profile actions, including Edit and Logout. */
+.profile-modal-shell .profile-primary-action,
+.profile-modal-shell .profile-secondary-action,
+.profile-modal-shell .profile-expand-toggle,
+.profile-modal-shell .profile-guest-login,
+.profile-sidebar-rich .profile-primary-action,
+.profile-sidebar-rich .profile-secondary-action,
+.profile-sidebar-rich .profile-expand-toggle,
+.profile-sidebar-rich .profile-guest-login {
+  background: var(--home-primary) !important;
+  background-color: var(--home-primary) !important;
+  border: 1px solid var(--home-primary) !important;
+  color: var(--home-text-on-primary, #111) !important;
+}
+.profile-modal-shell .profile-primary-action *,
+.profile-modal-shell .profile-secondary-action *,
+.profile-modal-shell .profile-expand-toggle *,
+.profile-modal-shell .profile-guest-login *,
+.profile-sidebar-rich .profile-primary-action *,
+.profile-sidebar-rich .profile-secondary-action *,
+.profile-sidebar-rich .profile-expand-toggle *,
+.profile-sidebar-rich .profile-guest-login * {
+  color: var(--home-text-on-primary, #111) !important;
+}
+.profile-modal-shell .profile-edit-view input,
+.profile-sidebar-rich .profile-edit-view input {
+  background: var(--home-primary-dim) !important;
+  border: 1px solid var(--home-primary) !important;
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: var(--home-text-primary) !important;
+}
+.profile-modal-shell .profile-edit-view > div > div,
+.profile-sidebar-rich .profile-edit-view > div > div {
+  background: var(--home-primary-dim) !important;
+  border: 1px solid var(--home-primary) !important;
+  border-radius: 8px;
+}
+.profile-modal-shell .profile-edit-view > div > div > svg,
+.profile-sidebar-rich .profile-edit-view > div > div > svg {
+  color: var(--home-primary) !important;
+}
+.profile-modal-shell .profile-edit-view label,
+.profile-sidebar-rich .profile-edit-view label {
+  color: var(--home-primary) !important;
+}
+
 /* Keep every signed-in profile widget and control in the same theme-green family. */
 .profile-modal-shell .profile-account-details > * {
   border-color: var(--home-primary) !important;
