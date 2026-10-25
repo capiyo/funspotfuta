@@ -455,7 +455,7 @@ export default function MessageScreen() {
   return (
     <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}>
       {/* Automatic fixture/ad carousel at the top of messaging. */}
-      <AdCarousel showDots={false} />
+      <AdCarousel showDots={false} flush />
 
       {/* Messaging starts with the shared horizontal ad/fixture carousel; no extra header or vote strip. */}
 
@@ -1357,7 +1357,8 @@ function MessageBubble({
           {!!message.text && (
             <Text
               style={[
-                fanText('caption', colors, colors.textPrimary),
+                fanText('body', colors, colors.textPrimary),
+                bubbleStyles.messageText,
                 isCommentary && bubbleStyles.italic,
               ]}
             >
@@ -1380,7 +1381,7 @@ function MessageBubble({
 }
 
 const bubbleStyles = StyleSheet.create({
-  column: { marginBottom: 8, paddingHorizontal: FAN_SPACING.sm },
+  column: { marginBottom: 7, paddingHorizontal: FAN_SPACING.sm },
   username: { marginLeft: 34, marginBottom: 2 },
   row: {
     flexDirection: 'row',
@@ -1399,9 +1400,12 @@ const bubbleStyles = StyleSheet.create({
   bubble: {
     maxWidth: '82%',
     borderRadius: FAN_RADIUS.lg,
+    borderBottomLeftRadius: FAN_RADIUS.sm,
     paddingHorizontal: FAN_SPACING.md,
     paddingVertical: FAN_SPACING.sm,
+    elevation: 1,
   },
+  messageText: { lineHeight: 20, flexShrink: 1 },
   replyQuote: {
     borderLeftWidth: 2,
     paddingLeft: FAN_SPACING.sm,
