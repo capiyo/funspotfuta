@@ -1,17 +1,16 @@
-import { MMKV } from 'react-native-mmkv';
+import type { MMKV as MMKVClass } from 'react-native-mmkv';
 import type { KVStorage } from './types';
 
-// MMKV is the preferred synchronous cache, but a stale or partially installed
-// native binary must not take the whole app down before React can render.
-// In that case use a process-local fallback; AuthProvider can still restore
-// legacy sessions from AsyncStorage and the app remains usable until a native
-// build with MMKV correctly linked is installed.
-type MMKVStore = InstanceType<typeof MMKV>;
+// Keep the native package load inside the guarded block too. Some mismatched
+// Android binaries throw while react-native-mmkv's JS module is evaluated,
+// before new MMKV() is reached; a static value import would bypass the fallback.
+type MMKVStore = InstanceType<typeof MMKVClass>;
 
 let mmkv: MMKVStore | null = null;
 let mmkvStartupError: unknown = null;
 
 try {
+  const { MMKV } = require('react-native-mmkv') as typeof import('react-native-mmkv');
   mmkv = new MMKV({ id: 'app-cache' });
 } catch (error) {
   mmkvStartupError = error;
