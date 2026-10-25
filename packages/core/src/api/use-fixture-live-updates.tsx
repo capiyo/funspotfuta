@@ -167,6 +167,7 @@ export function useFixtureLiveUpdates(params: {
       channelId,
       fixtureId,
     });
+    webSocketService.acquireRoom(roomId);
 
     // connect() sends a room.join immediately when the singleton is already
     // connected; request a snapshot now. A fresh connection requests it from
@@ -183,7 +184,7 @@ export function useFixtureLiveUpdates(params: {
       webSocketService.off('match.goal', onMatchGoal);
       webSocketService.off('match.ended', onMatchEnded);
       webSocketService.off('minute.update', onMinuteUpdate);
-      webSocketService.leaveRoom(roomId);
+      webSocketService.releaseRoom(roomId);
     };
   }, [channelId, fixtureId, userId, username, authToken]);
 
