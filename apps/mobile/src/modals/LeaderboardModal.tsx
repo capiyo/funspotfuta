@@ -1543,7 +1543,7 @@ function createStyles(colors: FanColors) {
       maxHeight: '85%',
       borderTopLeftRadius: 28,
       borderTopRightRadius: 28,
-      backgroundColor: colors.background,
+      backgroundColor: colors.surfaceSunken,
       overflow: 'hidden',
     },
     handleWrap: {
