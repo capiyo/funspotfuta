@@ -189,9 +189,16 @@ export function MatchCard({
       if (!active) return;
       const latest = queryClient.getQueryData<Poke[]>(cacheKey);
       if (latest?.length) setOpenPokes(latest);
-      if (event.type === 'updated'
+      // Only this card's cache invalidation should trigger its HTTP request.
+      // Matching just the first key segment made every card refetch for every
+      // other fixture, creating a burst of racing requests and stale responses.
+      const eventKey = event.type === 'updated' ? event.query.queryKey : undefined;
+      if (eventKey
         && event.action.type === 'invalidate'
-        && event.query.queryKey[0] === 'openPokes') {
+        && eventKey[0] === cacheKey[0]
+        && eventKey[1] === cacheKey[1]
+        && eventKey[2] === cacheKey[2]
+        && (eventKey[3] ?? 'main_fixture') === (cacheKey[3] ?? 'main_fixture')) {
         refresh();
       }
     });
