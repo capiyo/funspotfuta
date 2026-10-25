@@ -12,7 +12,9 @@ type Slide =
 
 export default function AdCarousel({ showDots = false, flush = false }: { showDots?: boolean; flush?: boolean }) {
   const colors = useFanColors();
-  const { width } = useWindowDimensions();
+  const { width: windowWidth } = useWindowDimensions();
+  const [carouselWidth, setCarouselWidth] = useState(0);
+  const slideWidth = carouselWidth || windowWidth;
   const [ads, setAds] = useState<LoadedAd[]>([]);
   const [index, setIndex] = useState(0);
   const [fixtures, setFixtures] = useState<Fixture[]>([]);
@@ -80,12 +82,19 @@ export default function AdCarousel({ showDots = false, flush = false }: { showDo
   }, [slides.length]);
   if (slides.length === 0) return null;
 
-  return <View style={[styles.wrap, flush && styles.flushWrap]} accessibilityLabel="Automatic advertisement carousel">
+  return <View
+    onLayout={(event) => {
+      const nextWidth = event.nativeEvent.layout.width;
+      setCarouselWidth((current) => Math.abs(current - nextWidth) > 1 ? nextWidth : current);
+    }}
+    style={[styles.wrap, flush && styles.flushWrap]}
+    accessibilityLabel="Automatic advertisement carousel"
+  >
     <FlatList ref={listRef} horizontal pagingEnabled data={slides} keyExtractor={(item) => item.id}
       showsHorizontalScrollIndicator={false}
-      onMomentumScrollEnd={(event) => setIndex(Math.max(0, Math.min(Math.round(event.nativeEvent.contentOffset.x / width), slides.length - 1)))}
-      getItemLayout={(_, itemIndex) => ({ length: width, offset: width * itemIndex, index: itemIndex })}
-      renderItem={({ item }) => <View style={[styles.slide, { width }]}>
+      onMomentumScrollEnd={(event) => setIndex(Math.max(0, Math.min(Math.round(event.nativeEvent.contentOffset.x / slideWidth), slides.length - 1)))}
+      getItemLayout={(_, itemIndex) => ({ length: slideWidth, offset: slideWidth * itemIndex, index: itemIndex })}
+      renderItem={({ item }) => <View style={[styles.slide, { width: slideWidth }]}>
         {item.type === 'ad' ? (
           <NativeAdView nativeAd={item.ad} style={[styles.ad, { backgroundColor: colors.surface }]}>
             <View style={styles.labelRow}><Text style={[styles.label, { color: colors.textTertiary }]}>ADVERTISEMENT</Text><NativeAsset assetType={NativeAssetType.ADVERTISER}><Text style={[styles.advertiser, { color: colors.textTertiary }]}>{item.ad.advertiser ?? ''}</Text></NativeAsset></View>
