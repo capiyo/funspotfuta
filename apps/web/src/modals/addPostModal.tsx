@@ -40,6 +40,7 @@ export default function AddPostModal({
     const [video, setVideo] = useState<File | null>(null);
     const [caption, setCaption] = useState('');
     const [posting, setPosting] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
     const [imageUrl, setImageUrl] = useState<string | null>(null);
     const [videoUrl, setVideoUrl] = useState<string | null>(null);
 
@@ -51,6 +52,7 @@ export default function AddPostModal({
         setVideo(null);
         setCaption('');
         setPosting(false);
+        setUploadProgress(0);
 
         if (imageInput.current) imageInput.current.value = '';
         if (videoInput.current) videoInput.current.value = '';
@@ -223,6 +225,7 @@ export default function AddPostModal({
         }
 
         setPosting(true);
+        setUploadProgress(0);
 
         try {
             await createPost({
@@ -231,6 +234,7 @@ export default function AddPostModal({
                 caption: caption.trim() || undefined,
                 image: image ?? undefined,
                 video: video ?? undefined,
+                onProgress: setUploadProgress,
             });
 
             toast.showSuccess(
@@ -383,6 +387,23 @@ export default function AddPostModal({
                         />
                     )}
 
+                </div>
+
+                <div
+                    className="shrink-0 border-t px-4 pb-[max(12px,env(safe-area-inset-bottom))] pt-3 sm:px-6"
+                    style={{ background: colors.surface, borderColor: colors.border }}
+                >
+                    {posting && (
+                        <div className="mb-2" aria-live="polite">
+                            <div className="mb-1 flex items-center justify-between text-xs" style={{ color: colors.textSecondary }}>
+                                <span>{hasVideo ? 'Uploading video in background…' : hasImage ? 'Uploading image…' : 'Publishing post…'}</span>
+                                <span>{uploadProgress}%</span>
+                            </div>
+                            <div className="h-1.5 overflow-hidden rounded-full" style={{ background: colors.surfaceElevated }}>
+                                <div className="h-full rounded-full transition-[width]" style={{ width: uploadProgress + '%', background: colors.primary }} />
+                            </div>
+                        </div>
+                    )}
                     <PostActions
                         colors={colors}
                         posting={posting}
