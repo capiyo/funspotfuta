@@ -62,10 +62,27 @@ async function getFixturesWithAllVoters(): Promise<Fixture[]> {
     const batch = fixtures.slice(start, start + concurrency);
     const results = await Promise.allSettled(
       batch.map(async (fixture) => {
-        const fixtureId = fixture.matchId || fixture.id;
-        if (!fixtureId) return { fixture, voters: [] as Voter[] };
-        const rawVoters = await fetchVoters(fixtureId);
-        return { fixture, voters: rawVoters.map(voterFromJson).filter((voter) => voter.userId !== '') };
+        const fixtureIds = [...new Set([fixture.matchId, fixture.id].filter((id) => id.trim().length > 0))];
+        if (fixtureIds.length === 0) return { fixture, voters: [] as Voter[] };
+
+        // API deployments differ on whether the vote record is keyed by the
+        // public matchId or Mongo fixture _id. Query both identifiers and merge.
+        const voterLists = await Promise.all(
+          fixtureIds.map((fixtureId) => fetchVoters(fixtureId).catch(() => [])),
+        );
+        const votersById = new Map<string, Voter>();
+        for (const rawVoter of voterLists.flat()) {
+          const voter = voterFromJson(rawVoter);
+          if (!voter.userId) continue;
+          const previous = votersById.get(voter.userId);
+          votersById.set(voter.userId, {
+            ...previous,
+            ...voter,
+            userName: voter.userName && voter.userName !== 'Anonymous' ? voter.userName : previous?.userName ?? voter.userName,
+            uri: voter.uri ?? previous?.uri ?? null,
+          });
+        }
+        return { fixture, voters: [...votersById.values()] };
       }),
     );
 
