@@ -147,16 +147,15 @@ const GRASS_EVEN = '#0D5E1A', GRASS_ODD = '#0A5218';
 export function PitchView({ homeTeam, awayTeam, homeFormation, awayFormation, homePlayers, awayPlayers }: PitchViewProps) {
   const colors = useFanColors();
   const [showHomeOverflow,setShowHomeOverflow] = useState(false), [showAwayOverflow,setShowAwayOverflow] = useState(false);
-  const [pitchSize,setPitchSize] = useState({width:0,height:0});
   const cappedHome=useMemo(()=>homePlayers.slice(0,11),[homePlayers]), cappedAway=useMemo(()=>awayPlayers.slice(0,11),[awayPlayers]);
   const homeOverflow=homePlayers.slice(11), awayOverflow=awayPlayers.slice(11);
-  const homePositions=useMemo(()=>pitchSize.width>0?calculatePositions(cappedHome,homeFormation,{isHome:true,width:pitchSize.width,height:pitchSize.height}):[],[cappedHome,homeFormation,pitchSize.width,pitchSize.height]);
-  const awayPositions=useMemo(()=>pitchSize.width>0?calculatePositions(cappedAway,awayFormation,{isHome:false,width:pitchSize.width,height:pitchSize.height}):[],[cappedAway,awayFormation,pitchSize.width,pitchSize.height]);
   const width=600, height=width*PITCH_ASPECT_RATIO;
+  const homePositions=useMemo(()=>calculatePositions(cappedHome,homeFormation,{isHome:true,width,height}),[cappedHome,homeFormation]);
+  const awayPositions=useMemo(()=>calculatePositions(cappedAway,awayFormation,{isHome:false,width,height}),[cappedAway,awayFormation]);
   const renderPlayers=(players:SimplifiedPlayer[],positions:PitchPosition[],color:string,isHome:boolean)=>players.slice(0,11).map((player,index)=>{
     const point=positions[index]; if(!point) return null;
-    const x=pitchSize.width>0?point.x/pitchSize.width*600:(index%4)*100+150;
-    const y=pitchSize.height>0?point.y/pitchSize.height*height:(isHome?height*.78:height*.22);
+    const x=point.x;
+    const y=point.y;
     return <g key={`${isHome?'h':'a'}-${player.number}-${player.name}-${index}`} transform={`translate(${x} ${y})`}>
       <circle r="19" fill={hexWithAlpha(color,.18)} stroke={color} strokeWidth="2.5"/>
       <circle r="15" fill={color}/>
@@ -168,7 +167,7 @@ export function PitchView({ homeTeam, awayTeam, homeFormation, awayFormation, ho
   const hasOverflow=homeOverflow.length>0||awayOverflow.length>0;
   return <div className="w-full">
     <div className="mb-2 flex items-center justify-between gap-2">
-      <span className="truncate text-[11px] font-semibold" style={{color:colors.primary}}>{homeTeam} · {homeFormation}</span>
+      <span className="truncate text-[10px] font-normal" style={{color:colors.primary}}>{homeTeam} · {homeFormation}</span>
       {hasOverflow && <div className="flex gap-1">
         {homeOverflow.length>0&&<button type="button" onClick={()=>setShowHomeOverflow(v=>!v)} className="rounded-full px-2 py-1 text-[10px]" style={{background:colors.background,color:colors.primary}}>{showHomeOverflow?'Hide home bench':'Home bench'} {showHomeOverflow?<ChevronUp size={12} className="inline"/>:<ChevronDown size={12} className="inline"/>}</button>}
         {awayOverflow.length>0&&<button type="button" onClick={()=>setShowAwayOverflow(v=>!v)} className="rounded-full px-2 py-1 text-[10px]" style={{background:colors.background,color:colors.away}}>{showAwayOverflow?'Hide away bench':'Away bench'} {showAwayOverflow?<ChevronUp size={12} className="inline"/>:<ChevronDown size={12} className="inline"/>}</button>}
@@ -176,7 +175,7 @@ export function PitchView({ homeTeam, awayTeam, homeFormation, awayFormation, ho
       <span className="truncate text-[11px] font-semibold" style={{color:colors.away}}>{awayTeam} · {awayFormation}</span>
     </div>
     <div className="overflow-hidden rounded-xl" style={{...fanShadowStyle('card', true),background:GRASS_EVEN}}>
-      <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`${homeTeam} vs ${awayTeam} lineups`} className="block w-full" onLoad={(event)=>{const rect=event.currentTarget.getBoundingClientRect(); if(rect.width && (pitchSize.width!==rect.width || pitchSize.height!==rect.height)) setPitchSize({width:rect.width,height:rect.height});}}>
+      <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`${homeTeam} vs ${awayTeam} lineups`} className="block w-full">
         {Array.from({length:8},(_,i)=><rect key={i} x={i*width/8} y="0" width={width/8} height={height} fill={i%2===0?GRASS_EVEN:GRASS_ODD}/>)}
         <g fill="none" stroke="rgba(255,255,255,.75)" strokeWidth="2">
           <rect x="15" y="15" width={width-30} height={height-30} rx="2"/>
