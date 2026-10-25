@@ -1546,7 +1546,7 @@ export function SwipeableVotePledgeModal(props: Props) {
             <View style={{ flex: 1, width: '100%', minWidth: 0, alignSelf: 'stretch' }}>
                 <Pressable className="action-modal-backdrop" style={[styles.backdrop, { width: '100%', minWidth: 0, alignItems: 'stretch', alignSelf: 'stretch' }]} onPress={onClose}>
                     <Pressable
-                        className="action-modal-sheet" style={[styles.sheet, { width: '100%', maxWidth: 448, width: '100%', alignSelf: 'stretch', marginLeft: 'auto', marginRight: 'auto', flex: '0 0 auto', minWidth: 0, minHeight: 0, height: screenH * 0.5, maxHeight: '50dvh' }]}
+                        className="action-modal-sheet" style={[styles.sheet, { width: '100%', maxWidth: 448, width: '100%', alignSelf: 'center', marginLeft: 'auto', marginRight: 'auto', flex: '0 0 auto', minWidth: 0, minHeight: 0, height: screenH * 0.5, maxHeight: '50dvh' }]}
                         onPress={(event) => event.stopPropagation()}
                     >
                         <HandleBar colors={colors} styles={styles} />
@@ -1811,7 +1811,7 @@ export function SwipeableVotePledgeModal(props: Props) {
                 {/* Pick */}
                 <View style={{ flexDirection: 'row', gap: FAN_SPACING.sm }}>
                     <OutcomePill
-                        label="Home"
+                        label={fixture.homeTeam}
                         sublabel={`${voteStats.homeCount} picks`}
                         selected={isHomeSel(mine)}
                         locked={locked}
@@ -1821,7 +1821,7 @@ export function SwipeableVotePledgeModal(props: Props) {
                         styles={styles}
                     />
                     <OutcomePill
-                        label="Away"
+                        label={fixture.awayTeam}
                         sublabel={`${voteStats.awayCount} picks`}
                         selected={isAwaySel(mine)}
                         locked={locked}
@@ -2492,9 +2492,10 @@ function createStyles(colors: FanColorPalette) {
             minWidth: 0,
             alignItems: 'center',
             justifyContent: 'center',
-            paddingHorizontal: 1,
+            paddingHorizontal: 2,
             paddingVertical: FAN_SPACING.sm,
             zIndex: 1,
+            minHeight: 34,
         },
 
         // Layout
@@ -2502,7 +2503,7 @@ function createStyles(colors: FanColorPalette) {
             width: '100%',
             alignSelf: 'stretch',
             minWidth: 0,
-            paddingHorizontal: FAN_SPACING.lg,
+            paddingHorizontal: FAN_SPACING.md,
             paddingTop: FAN_SPACING.xs,
             gap: FAN_SPACING.sm,
         },
