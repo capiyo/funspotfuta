@@ -29,7 +29,6 @@ import {
 } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
 import AdCarousel from '@/components/AdCarousel';
-import AdCarousel from '@/components/AdCarousel';
 
 type FanColors = ReturnType<typeof useFanColors>;
 
