@@ -1510,7 +1510,7 @@ export function SwipeableVotePledgeModal(props: Props) {
         return (
             <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
                 <Pressable className="action-modal-backdrop" style={[styles.backdrop, { width: '100%', minWidth: 0, alignItems: 'stretch' }]} onPress={onClose}>
-                    <Pressable className="action-modal-sheet" style={[styles.sheet, { width: '100%', maxWidth: '100%', alignSelf: 'stretch', marginLeft: 'auto', marginRight: 'auto', flex: '0 0 auto', minWidth: 0, minHeight: 0, height: screenH * 0.82, maxHeight: '82dvh' }]} onPress={() => { }}>
+                    <Pressable className="action-modal-sheet" style={[styles.sheet, { width: '100%', maxWidth: '100%', alignSelf: 'stretch', marginLeft: 'auto', marginRight: 'auto', flex: '0 0 auto', minWidth: 0, minHeight: 0, height: screenH * 0.5, maxHeight: '50dvh' }]} onPress={(event) => event.stopPropagation()}>
                         <HandleBar colors={colors} styles={styles} />
                         <View style={styles.joinGroupBox}>
                             <View style={styles.joinGroupIconWrap}>
@@ -1546,8 +1546,8 @@ export function SwipeableVotePledgeModal(props: Props) {
             <View style={{ flex: 1, width: '100%', minWidth: 0, alignSelf: 'stretch' }}>
                 <Pressable className="action-modal-backdrop" style={[styles.backdrop, { width: '100%', minWidth: 0, alignItems: 'stretch', alignSelf: 'stretch' }]} onPress={onClose}>
                     <Pressable
-                        className="action-modal-sheet" style={[styles.sheet, { width: '100%', maxWidth: 448, alignSelf: 'center', marginLeft: 'auto', marginRight: 'auto', flex: 1, minWidth: 0, minHeight: 0, height: screenH * 0.82, maxHeight: '82dvh' }]}
-                        onPress={() => { }}
+                        className="action-modal-sheet" style={[styles.sheet, { width: '100%', maxWidth: 448, width: '100%', alignSelf: 'stretch', marginLeft: 'auto', marginRight: 'auto', flex: '0 0 auto', minWidth: 0, minHeight: 0, height: screenH * 0.5, maxHeight: '50dvh' }]}
+                        onPress={(event) => event.stopPropagation()}
                     >
                         <HandleBar colors={colors} styles={styles} />
 
