@@ -284,7 +284,9 @@ export function MatchCard({
       // or authentication transition.
       pokeCacheKeyRef.current = cacheIdentity;
       setOpenPokes(cached ?? []);
-    } else if (cached?.length) {
+    } else if (cached) {
+      // An empty cached list is meaningful (for example, the final open poke
+      // was just matched); reflect it instead of keeping stale local rows.
       setOpenPokes(cached);
     }
 
@@ -294,7 +296,7 @@ export function MatchCard({
     const unsubscribe = queryClient.getQueryCache().subscribe((event) => {
       if (!active) return;
       const latest = queryClient.getQueryData<Poke[]>(cacheKey);
-      if (latest?.length) setOpenPokes(latest);
+      if (latest) setOpenPokes(latest);
       // Only this card's cache invalidation should trigger its HTTP request.
       // Matching just the first key segment made every card refetch for every
       // other fixture, creating a burst of racing requests and stale responses.
@@ -324,11 +326,14 @@ export function MatchCard({
           // already confirmed and cached. Merge by ID instead of replacing the
           // visible list with that incomplete response.
           const merged = new Map<string, Poke>();
+          const identity = (poke: Poke) => poke.id
+            ? String(poke.id)
+            : [poke.matchId, poke.userId, poke.selection, poke.amount, poke.createdAt ?? ''].join(':');
           for (const poke of previous) {
-            if (poke.id && poke.status.trim().toLowerCase() === 'open') merged.set(String(poke.id), poke);
+            if (poke.status.trim().toLowerCase() === 'open') merged.set(identity(poke), poke);
           }
           for (const poke of next) {
-            if (poke.id) merged.set(String(poke.id), poke);
+            if (poke.status.trim().toLowerCase() === 'open') merged.set(identity(poke), poke);
           }
           const stable = [...merged.values()].sort(
             (a, b) => (Date.parse(b.createdAt ?? '') || 0) - (Date.parse(a.createdAt ?? '') || 0),
@@ -391,7 +396,7 @@ export function MatchCard({
   );
 
   const pokeItems = useMemo(() => openPokes.map((poke) => ({
-    id: `poke:${poke.id}`,
+    id: `poke:${poke.id || [poke.matchId, poke.userId, poke.selection, poke.amount, poke.createdAt ?? ''].join(':')}`,
     name: poke.userName || 'Fan',
     uri: null,
     team: poke.selection === 'home' ? fixture.homeTeam : fixture.awayTeam,
