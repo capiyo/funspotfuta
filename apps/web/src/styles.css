@@ -1717,17 +1717,7 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
     padding: 0 !important;
   }
 
-  .home-screen .chats-column .chats-fixture-list > div:first-child > div {
-    position: sticky;
-    top: 0;
-    z-index: 5;
-    height: 44px !important;
-    min-height: 44px !important;
-    max-height: 44px !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    background: var(--bg) !important;
-  }
+
 
   .home-screen .chats-column .segmented-control {
     height: 44px !important;
@@ -1960,16 +1950,7 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
     line-height: 1 !important;
   }
 
-  .home-screen .chats-column .chats-fixture-list > div:first-child > div {
-    position: sticky !important;
-    top: 0 !important;
-    z-index: 5 !important;
-    height: 44px !important;
-    min-height: 44px !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    background: var(--bg) !important;
-  }
+
 
   .home-screen .chats-column .segmented-control > button[aria-pressed="true"]::after,
   .home-screen .chats-column .segmented-control > button[aria-selected="true"]::after,
