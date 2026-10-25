@@ -3368,7 +3368,7 @@ body:has(.home-screen) .home-screen *:not(.profile-card):not(.profile-card *):no
   .poke-modal-panel {
     width: min(448px, calc(100vw - 32px)) !important;
     max-width: 448px !important;
-    height: min(72dvh, 600px) !important;
+    height: min(62dvh, 540px) !important;
     max-height: 82dvh !important;
     border-radius: 16px !important;
   }
