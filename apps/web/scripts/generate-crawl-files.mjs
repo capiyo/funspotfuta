@@ -62,7 +62,7 @@ if (!/<h1\b[^>]*>[\s\S]*?<\/h1>/i.test(homepage) || !/<p\b[^>]*>[\s\S]*?<\/p>/i.
 }
 if (!homepage.includes(`<link rel="canonical" href="${origin}/"`) ||
     !homepage.includes(`<meta property="og:url" content="${origin}/"`) ||
-    !/"url"\s*:\s*"${origin.replaceAll('.', '\\.')}\/"?/.test(homepage)) {
+    !(homepage.includes(`"url": "${origin}/"`) || homepage.includes(`"url":"${origin}/"`))) {
   throw new Error('[crawl-files] Homepage canonical, og:url and structured data must use the fixed www origin.');
 }
 // The SPA shell can render private screens and user-generated content, so do
