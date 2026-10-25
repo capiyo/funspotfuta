@@ -214,7 +214,7 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       ? loadedRouteFixture
       : null);
 // Keep an explicit route fixture ID scoped during lookup; never briefly use the group room.
-  const fixtureId = fixture?.matchId ?? fixture?.id ?? routeFixtureId ?? null;
+  const fixtureId = fixture?.matchId?.trim() || fixture?.id?.trim() || routeFixtureId?.trim() || null;
   const chat = useChannelChat({
     channelId: activeChannelId,
     fixtureId,
@@ -751,7 +751,7 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       onClose={() => setVoteModalOpen(false)}
       onVote={async (selection) => {
         if (!userId || !authToken || !username) return { success: false, message: 'Please sign in to vote' };
-        const result = await castFixtureVote({ fixtureId: fixture.matchId ?? fixture.id, userId, username, selection, authToken });
+        const result = await castFixtureVote({ fixtureId: fixture.matchId?.trim() || fixture.id?.trim(), userId, username, selection, authToken });
         if (result.success) {
           // Publish the confirmed vote locally before any network refresh so
           // the chat composer unlocks immediately and the voter stack updates.
@@ -768,7 +768,7 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       }}
       onPledge={async (selection, amount) => {
         if (!userId || !username || !authToken) return { success: false, message: 'Please sign in to continue' };
-        const result = await createPledge({ fixtureId: fixture.matchId ?? fixture.id, userId, username, selection, amount, channelId: activeChannelId, alreadyVoted: hasVoted, authToken });
+        const result = await createPledge({ fixtureId: fixture.matchId?.trim() || fixture.id?.trim(), userId, username, selection, amount, channelId: activeChannelId, alreadyVoted: hasVoted, authToken });
         if (result.success) {
           recordUserVote(selection);
           queryClient.setQueryData<Fixture[]>(FIXTURES_KEY, (previous = []) => previous.map((item) => {
