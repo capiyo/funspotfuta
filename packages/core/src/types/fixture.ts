@@ -51,6 +51,8 @@ export interface Voter {
   userId: string;
   userName: string;
   selection: string;
+  /** Optional profile photo supplied with the voter payload. */
+  uri?: string | null;
   isCorrect: boolean | null;
   pointsAwarded: number | null;
   isComrade: boolean;
@@ -62,6 +64,7 @@ export function voterFromJson(json: any): Voter {
     userId: (json.user_id ?? json.userId ?? '').toString(),
     userName: (json.user_name ?? json.userName ?? 'Anonymous').toString(),
     selection: (json.selection ?? '').toString(),
+    uri: (json.uri ?? json.avatar_url ?? json.avatarUrl ?? json.profile_image_url ?? json.profileImageUrl ?? json.photo_url ?? json.photoUrl ?? json.image_url ?? json.imageUrl ?? null)?.toString() ?? null,
     isCorrect: (json.is_correct ?? json.isCorrect) ?? null,
     pointsAwarded: (json.points_awarded ?? json.pointsAwarded) ?? null,
     isComrade: (json.is_comrade ?? json.isComrade) ?? false,
