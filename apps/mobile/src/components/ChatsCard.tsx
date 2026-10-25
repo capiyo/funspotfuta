@@ -41,6 +41,7 @@ import {
   mergeOpenPokes,
   queryKeys,
   hasScores,
+  getFormattedMinuteDisplay,
   scoreDisplay,
   winner as fixtureWinner,
   outcomeColor,
@@ -354,7 +355,9 @@ export function MatchCard({
       EMPTY_VOTE_PROMPTS[Math.floor(Math.random() * EMPTY_VOTE_PROMPTS.length)],
   );
 
-  const isLive = !!fixture.isLive || fixture.status === 'live';
+  const isLive = !!fixture.isLive || fixture.status?.toLowerCase() === 'live';
+  const matchMinute = getFormattedMinuteDisplay(fixture);
+  const isHalfTime = fixture.status?.toLowerCase() === 'half_time';
   const isCompleted =
     fixture.status === 'completed' || fixture.status === 'finished';
   const voters = fixture.voters ?? [];
@@ -511,7 +514,21 @@ export function MatchCard({
             </Text>
           )}
           {isLive ? (
-            <LiveBadge colors={colors} />
+            <View style={styles.liveTimeRow}>
+              <LiveBadge colors={colors} />
+              {!!matchMinute && (
+                <Text
+                  accessibilityLabel={`Match time ${matchMinute}`}
+                  style={[fanText('tag', colors, colors.textSecondary), styles.matchMinute]}
+                >
+                  {matchMinute}
+                </Text>
+              )}
+            </View>
+          ) : isHalfTime && matchMinute ? (
+            <Text style={[fanText('tag', colors, colors.textSecondary), styles.matchMinute]}>
+              {matchMinute}
+            </Text>
           ) : (
             <Text style={fanText('tag', colors, colors.textTertiary)}>
               {kickoffLabel(fixture.date)}
@@ -668,6 +685,8 @@ export function MatchCard({
 }
 
 const styles = StyleSheet.create({
+  liveTimeRow: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  matchMinute: { fontVariant: ['tabular-nums'], flexShrink: 0 },
   grow: { flex: 1 },
   // Vertical rhythm between the card's sections.
   metaRow: {
