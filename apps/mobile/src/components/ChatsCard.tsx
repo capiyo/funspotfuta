@@ -260,7 +260,7 @@ export function MatchCard({
   onOpenLineups?: (fixture: Fixture) => void;
 }) {
   const colors = useFanColors();
-  const { userId, isLoggedIn } = useAuth();
+  const { userId, isLoggedIn, authToken } = useAuth();
   const { requireLogin } = useLoginModal();
   const [draft, setDraft] = useState('');
   const [openPokes, setOpenPokes] = useState<Poke[]>([]);
@@ -268,29 +268,47 @@ export function MatchCard({
   useEffect(() => {
     let active = true;
     const fixtureId = String(fixture.matchId || fixture.id);
-    if (!channelId || !fixtureId) return () => { active = false; };
+    if (!channelId || !fixtureId) {
+      setOpenPokes([]);
+      return () => { active = false; };
+    }
     const cacheKey = queryKeys.openPokes(fixtureId, channelId);
+    // Hydrate the visible list first; never make the UI wait for HTTP.
     const cached = queryClient.getQueryData<Poke[]>(cacheKey);
-    if (cached) setOpenPokes(cached);
+    setOpenPokes(cached ?? []);
+
+    // Subscribe to shared cache updates from poke actions/screens.
+    const unsubscribe = queryClient.getQueryCache().subscribe(() => {
+      if (!active) return;
+      const latest = queryClient.getQueryData<Poke[]>(cacheKey);
+      if (latest?.length) setOpenPokes(latest);
+    });
+
     const refresh = () => {
-      // A live fixture closes matching actions, but should not erase
-      // the visible/persisted list. Keep the last known pokes for context.
+      // Keep the last-known list for live fixtures; don't request a list that
+      // may be empty after the fixture has moved into play.
       if (fixture.isLive || fixture.status?.toLowerCase() === 'live') return;
-      void getOpenPokes(fixtureId, undefined, channelId)
+      void getOpenPokes(fixtureId, authToken || undefined, channelId)
         .then((items) => {
           if (!active) return;
           const next = items
-            .filter((item) => item.status.trim().toLowerCase() === 'open' && String(item.matchId) === fixtureId)
+            .filter((item) => item.status.trim().toLowerCase() === 'open')
             .sort((a, b) => (Date.parse(b.createdAt ?? '') || 0) - (Date.parse(a.createdAt ?? '') || 0));
-          queryClient.setQueryData<Poke[]>(cacheKey, next);
-          setOpenPokes(next);
+          const previous = queryClient.getQueryData<Poke[]>(cacheKey) ?? [];
+          // Empty API responses have intermittently erased a valid cached list.
+          // Preserve the last successful rows until a non-empty refresh arrives.
+          const stable = next.length ? next : previous;
+          queryClient.setQueryData<Poke[]>(cacheKey, stable);
+          setOpenPokes(stable);
         })
-        .catch(() => { /* Keep the last successful UI and persisted cache on HTTP/network errors. */ });
+        .catch(() => {
+          // HTTP/network errors must leave the last successful cache/UI intact.
+        });
     };
-    refresh();
+    void refresh();
     const interval = setInterval(refresh, 2 * 60 * 1000);
-    return () => { active = false; clearInterval(interval); };
-  }, [channelId, fixture.id, fixture.matchId, fixture.isLive, fixture.status, queryClient]);
+    return () => { active = false; unsubscribe(); clearInterval(interval); };
+  }, [authToken, channelId, fixture.id, fixture.matchId, fixture.isLive, fixture.status, queryClient]);
   const longChannelPressFired = useRef(false);
   const [failedUri, setFailedUri] = useState<string | null>(null);
 
