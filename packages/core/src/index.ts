@@ -16,6 +16,7 @@ export * from './api/auth-service';
 export * from './api/database-service';
 export { getAllChannels } from './api/channels-service';
 export * from './api/comrade-service';
+export * from './api/weekly-leaderboard-service';
 
 export * from './api/bet-service';
 export * from './api/pokes-service';
