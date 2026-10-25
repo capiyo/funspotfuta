@@ -120,9 +120,13 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
     Promise.all([getOpenPokes(matchId, authToken || undefined, channelId, marketId), getUserPokes(userId, authToken || undefined)])
       .then(([open, mine]) => {
         if (!active) return;
-        const nextOpen = open.filter((p) => p.status.trim().toLowerCase() === 'open' && String(p.matchId) === matchId);
-        if (cacheKey) queryClient.setQueryData<Poke[]>(cacheKey, nextOpen);
-        setOpenPokes(nextOpen);
+        const nextOpen = open.filter((p) => String(p.status ?? '').trim().toLowerCase() === 'open' && String(p.matchId) === matchId);
+        const previousOpen = cacheKey ? queryClient.getQueryData<Poke[]>(cacheKey) ?? [] : [];
+        // The list endpoint can briefly return an empty 200 while writes propagate.
+        // Keep the last successful rows rather than replacing the visible cache with an empty array.
+        const stableOpen = nextOpen.length > 0 ? nextOpen : previousOpen;
+        if (cacheKey) queryClient.setQueryData<Poke[]>(cacheKey, stableOpen);
+        setOpenPokes(stableOpen);
         setMatchedPokes(mine.filter((p) => p.status.trim().toLowerCase() !== 'open'));
       }).catch(() => {});
     return () => { active = false; };
@@ -221,7 +225,7 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
 
     setSubmitting(true);
     try {
-      await createPoke({
+      const createdPoke = await createPoke({
         matchId: fixture.matchId || fixture.id,
         userId,
         userName: username,
@@ -239,7 +243,14 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
       const nextBalance = balance === null ? null : Math.max(0, balance - amount);
       setBalance(nextBalance);
       if (nextBalance !== null) writeCachedChannelMemberPoints(queryClient, userId, channelId, nextBalance);
-      const nextOpen = open.filter((poke) => poke.status.trim().toLowerCase() === 'open' && String(poke.matchId) === String(matchId)); if (channelId) queryClient.setQueryData<Poke[]>(queryKeys.openPokes(String(matchId), channelId, marketId), nextOpen); setOpenPokes(nextOpen);
+      const cacheKey = queryKeys.openPokes(String(matchId), channelId, marketId);
+      const previousOpen = queryClient.getQueryData<Poke[]>(cacheKey) ?? [];
+      const nextOpen = open.filter((poke) => String(poke.status ?? '').trim().toLowerCase() === 'open' && String(poke.matchId) === String(matchId));
+      // Include the confirmed create response immediately; GET may lag behind POST.
+      const candidates = [...(nextOpen.length ? nextOpen : previousOpen), createdPoke];
+      const stableOpen = candidates.filter((poke, index, all) => String(poke.status ?? '').trim().toLowerCase() === 'open' && all.findIndex((item) => item.id === poke.id) === index);
+      queryClient.setQueryData<Poke[]>(cacheKey, stableOpen);
+      setOpenPokes(stableOpen);
       setMatchedPokes(mine.filter((poke) => poke.status.trim().toLowerCase() !== 'open'));
       setMessage('Poke was successful!');
     } catch (reason) {
