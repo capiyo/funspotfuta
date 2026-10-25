@@ -54,6 +54,9 @@ class WebSocketService {
 
   onConnectionStatus(cb: (connected: boolean) => void) {
     this.connectionStatusListeners.push(cb);
+    // Match the current state immediately. Consumers may mount after another
+    // screen has already established the shared singleton connection.
+    cb(this.isConnected);
     return () => {
       this.connectionStatusListeners = this.connectionStatusListeners.filter((l) => l !== cb);
     };
@@ -109,7 +112,12 @@ class WebSocketService {
       this.joinRoom(initialRoomId);
       return;
     }
-    if (this.isConnecting) return;
+    if (this.isConnecting) {
+      // A second screen can mount while the handshake is in flight. Preserve
+      // its room now so the first successful connection joins every room.
+      this.joinedRoomsSet.add(initialRoomId);
+      return;
+    }
 
     this.currentUserId = userId;
     this.currentUsername = username;
@@ -267,19 +275,28 @@ class WebSocketService {
       if (eventType === 'connected') {
         this.cancelHeartbeatTimeout();
         this.handleConnectionSuccess();
+        // Still publish the acknowledgement to consumers: their catch-up
+        // requests must run after the server confirms the socket is ready.
+        this.dispatchEvent(eventType, payload);
         return;
       }
       if (eventType === 'pong') {
         this.cancelHeartbeatTimeout();
         return;
       }
-      if (eventType === 'room.joined' || eventType === 'room.left') return;
 
-      this.listeners.get(eventType)?.forEach((l) => l(payload));
-      this.listeners.get('*')?.forEach((l) => l({ type: eventType, ...payload }));
+      // Room acknowledgements are part of the public event contract. Do not
+      // swallow them: screens use room.joined to request missed live state.
+      this.dispatchEvent(eventType, payload);
+      if (eventType === 'room.joined' || eventType === 'room.left') return;
     } catch (e) {
       console.error('WS handleMessage parse error:', e);
     }
+  }
+
+  private dispatchEvent(eventType: string, payload: Record<string, any>) {
+    this.listeners.get(eventType)?.forEach((listener) => listener(payload));
+    this.listeners.get('*')?.forEach((listener) => listener({ type: eventType, ...payload }));
   }
 
   send(type: string, payload: Record<string, any>) {
