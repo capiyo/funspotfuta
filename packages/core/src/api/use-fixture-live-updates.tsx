@@ -125,7 +125,7 @@ export function useFixtureLiveUpdates(params: {
       const data = (payload.payload && typeof payload.payload === 'object'
         ? payload.payload
         : payload) as Record<string, unknown>;
-      if (!payloadMatchesFixture(data, channelId, fixtureId)) return;
+      if (!payloadMatchesFixture(payload, channelId, fixtureId) || !payloadMatchesFixture(data, channelId, fixtureId)) return;
       const text = data.text == null ? '' : String(data.text);
       if (!text.trim()) return;
       const rawMinute = data.minute;
@@ -141,6 +141,7 @@ export function useFixtureLiveUpdates(params: {
     };
 
     const onCommentaryBulk = (payload: Record<string, unknown>) => {
+      if (!payloadMatchesFixture(payload, channelId, fixtureId)) return;
       const rawEntries = Array.isArray(payload) ? payload : (payload.payload ?? payload.commentary);
       if (!Array.isArray(rawEntries)) return;
       const entries = rawEntries.filter((entry): entry is Record<string, unknown> =>
