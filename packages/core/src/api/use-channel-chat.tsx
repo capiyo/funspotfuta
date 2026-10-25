@@ -74,6 +74,26 @@ function toFrontendSelection(raw: string): string {
     return raw;
 }
 
+/**
+ * The Flutter socket is a single connection subscribed to multiple rooms.
+ * Every mounted hook receives the same event bus, so events with an explicit
+ * room identity must be filtered before touching this conversation's state.
+ * Older server payloads that omit a field remain compatible.
+ */
+function belongsToConversation(
+    payload: Record<string, any>,
+    channelId: string,
+    fixtureId: string | null,
+): boolean {
+    const eventChannel = payload.channelId ?? payload.channel_id;
+    if (eventChannel != null && String(eventChannel) !== channelId) return false;
+
+    const eventFixture = payload.fixtureId ?? payload.fixture_id;
+    if (eventFixture != null && String(eventFixture) !== String(fixtureId ?? '')) return false;
+
+    return true;
+}
+
 // ── Hook ────────────────────────────────────────────────────────────
 
 export function useChannelChat({
@@ -476,6 +496,8 @@ export function useChannelChat({
 
         // chat.message
         const onChatMessage = (payload: Record<string, any>) => {
+            if (!belongsToConversation(payload, channelId, fixtureId)) return;
+
             const incomingTempId = payload.tempId as string | undefined;
 
             if (
@@ -533,6 +555,8 @@ export function useChannelChat({
 
         // typing — service sends 'userId', not 'fromUserId'
         const onTyping = (payload: Record<string, any>) => {
+            if (!belongsToConversation(payload, channelId, fixtureId)) return;
+
             const fromUserId = (payload.userId ?? payload.fromUserId) as
                 | string
                 | undefined;
@@ -631,7 +655,11 @@ export function useChannelChat({
         };
 
         // connected / room.joined — catch-up
-        const onConnectedOrJoined = () => {
+        const onConnectedOrJoined = (payload: Record<string, any> = {}) => {
+            // room.joined can acknowledge a different room on the shared socket.
+            const acknowledgedRoom = payload.room_id ?? payload.roomId;
+            const expectedRoom = fixtureId ? `${channelId}_${fixtureId}` : `${channelId}_overall`;
+            if (acknowledgedRoom != null && String(acknowledgedRoom) !== expectedRoom) return;
             if (fixtureId) {
                 webSocketService.send('get.commentary', { fixtureId });
                 webSocketService.send('get.latest.comment', { fixtureId, channelId });
