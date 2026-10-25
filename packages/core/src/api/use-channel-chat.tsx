@@ -483,6 +483,7 @@ export function useChannelChat({
             channelId,
             fixtureId,
         });
+        webSocketService.acquireRoom(fixtureId ? `${channelId}_${fixtureId}` : `${channelId}_overall`);
 
         // Catch-up unconditionally — if another screen already connected/joined,
         // 'connected' / 'room.joined' won't fire again.
@@ -706,7 +707,7 @@ export function useChannelChat({
     useEffect(() => {
         if (!channelId) return;
         return () => {
-            webSocketService.leaveChannelFixtureRoom(channelId, fixtureId);
+            webSocketService.releaseRoom(fixtureId ? `${channelId}_${fixtureId}` : `${channelId}_overall`);
         };
     }, [channelId, fixtureId]);
 
