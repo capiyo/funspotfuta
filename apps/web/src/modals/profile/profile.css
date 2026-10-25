@@ -232,7 +232,7 @@
 
 /* Keep every signed-in profile widget and control in the same theme-green family. */
 .profile-modal-shell .profile-account-details > * {
-  border-color: var(--home-primary);
+  border-color: var(--home-primary) !important;
 }
 .profile-modal-shell .profile-channel-tabbar {
   border-color: var(--home-primary) !important;
@@ -270,4 +270,24 @@
 }
 .profile-modal-shell button:focus-visible {
   outline-color: var(--home-primary) !important;
+}
+
+
+.profile-modal-shell .profile-channel-panel > div:nth-child(2) > div {
+  border-bottom-color: var(--home-primary) !important;
+}
+.profile-modal-shell .profile-channel-panel button {
+  min-height: 24px;
+  padding: 3px 7px;
+  border: 1px solid var(--home-primary) !important;
+  border-radius: 6px;
+  background: var(--home-primary-dim) !important;
+  color: var(--home-primary) !important;
+  font: inherit;
+  font-size: 10px;
+  font-weight: 650;
+  cursor: pointer;
+}
+.profile-modal-shell .profile-channel-panel button span {
+  color: var(--home-primary) !important;
 }
