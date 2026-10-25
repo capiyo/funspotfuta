@@ -1,13 +1,23 @@
+User-agent: Mediapartners-Google
+Allow: /
+Disallow: /login
+Disallow: /comments/
+
+User-agent: Google-Display-Ads-Bot
+Allow: /
+Disallow: /login
+Disallow: /comments/
+
 User-agent: AdsBot-Google
 Allow: /
-Allow: /ads.txt
 Disallow: /login
 Disallow: /comments/
 
 User-agent: *
 Allow: /
+Allow: /ads.txt
 Disallow: /messages/
 Disallow: /login
 Disallow: /comments/
 
-Sitemap: https://funspot.co.ke/sitemap.xml
+Sitemap: https://www.funspot.co.ke/sitemap.xml
