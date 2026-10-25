@@ -1,10 +1,9 @@
-import type { MMKV as MMKVClass } from 'react-native-mmkv';
 import type { KVStorage } from './types';
 
 // Keep the native package load inside the guarded block too. Some mismatched
 // Android binaries throw while react-native-mmkv's JS module is evaluated,
 // before new MMKV() is reached; a static value import would bypass the fallback.
-type MMKVStore = InstanceType<typeof MMKVClass>;
+type MMKVStore = import('react-native-mmkv').MMKV;
 
 let mmkv: MMKVStore | null = null;
 let mmkvStartupError: unknown = null;
