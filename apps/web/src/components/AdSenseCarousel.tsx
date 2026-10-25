@@ -9,6 +9,7 @@ type AdSenseCarouselProps = {
   enabled?: boolean;
   label?: string;
   showDots?: boolean;
+  flush?: boolean;
 };
 
 type Slide =
@@ -24,6 +25,7 @@ export default function AdSenseCarousel({
   enabled = true,
   label = 'Sponsored carousel',
   showDots = true,
+  flush = false,
 }: AdSenseCarouselProps) {
   const colors = useFanColors();
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -87,10 +89,10 @@ export default function AdSenseCarousel({
   if (slides.length === 0) return null;
 
   return (
-    <section className="w-full min-w-0" aria-label={label} style={{ background: colors.surface, borderRadius: 8, padding: 3, marginBottom: 3, overflow: 'hidden' }}>
+    <section className="w-full min-w-0" aria-label={label} style={{ background: colors.surface, borderRadius: flush ? 0 : 8, padding: flush ? 0 : 3, marginBottom: 0, overflow: 'hidden' }}>
       <div
         ref={viewportRef}
-        className="no-scrollbar flex snap-x snap-mandatory gap-2 overflow-x-auto px-1"
+        className={`no-scrollbar flex snap-x snap-mandatory gap-2 overflow-x-auto ${flush ? 'px-0' : 'px-1'}`}
         onScroll={(event) => {
           const node = event.currentTarget;
           const first = node.firstElementChild;
