@@ -3295,6 +3295,8 @@ body:has(.home-screen) .home-screen *:not(.profile-card):not(.profile-card *):no
   min-height: 100% !important;
 }
 .action-modal-viewport .action-modal-sheet {
+  display: flex !important;
+  flex-direction: column !important;
   flex: 0 0 auto !important;
   height: 82dvh !important;
   max-height: 82dvh !important;
@@ -3306,6 +3308,16 @@ body:has(.home-screen) .home-screen *:not(.profile-card):not(.profile-card *):no
 .action-modal-viewport .action-modal-sheet > * {
   box-sizing: border-box !important;
   min-width: 0 !important;
+}
+.action-modal-viewport .action-modal-sheet > .action-modal-backdrop {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  width: 100% !important;
+}
+.action-modal-viewport .action-modal-sheet > div,
+.action-modal-viewport .action-modal-sheet > button {
+  max-width: 100% !important;
 }
 .action-modal-viewport .action-modal-backdrop {
   width: 100% !important;
