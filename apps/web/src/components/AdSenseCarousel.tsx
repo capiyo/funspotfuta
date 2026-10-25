@@ -24,7 +24,7 @@ export default function AdSenseCarousel({
   slots,
   enabled = true,
   label = 'Sponsored carousel',
-  showDots = true,
+  showDots = false,
   flush = false,
 }: AdSenseCarouselProps) {
   const colors = useFanColors();
@@ -125,36 +125,6 @@ export default function AdSenseCarousel({
           </div>
         ))}
       </div>
-      {showDots && slides.length > 1 && (
-        <div className="flex items-center justify-center gap-2 pt-0.5" aria-label="Carousel pages">
-          {slides.map((slide, index) => (
-            <button
-              key={slide.key}
-              type="button"
-              onClick={() => {
-                setActiveIndex(index);
-                viewportRef.current?.children.item(index)?.scrollIntoView({
-                  behavior: 'smooth',
-                  block: 'nearest',
-                  inline: 'start',
-                });
-              }}
-              aria-label={`Show carousel slide ${index + 1}`}
-              aria-current={activeIndex === index ? 'true' : undefined}
-              className="rounded-full"
-              style={{
-                width: activeIndex === index ? 16 : 5,
-                height: 5,
-                padding: 0,
-                border: 0,
-                background: activeIndex === index ? colors.primary : colors.textTertiary,
-                opacity: activeIndex === index ? 1 : 0.45,
-                transition: 'width 160ms ease',
-              }}
-            />
-          ))}
-        </div>
-      )}
     </section>
   );
 }
