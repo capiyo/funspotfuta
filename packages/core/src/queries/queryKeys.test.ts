@@ -4,6 +4,8 @@ import { persistQueryClientRestore, persistQueryClientSave } from '@tanstack/rea
 import type { KVStorage } from '@funspot/storage';
 import { createAppQueryClient, PERSIST_OPTIONS } from '../queryClient';
 import { deserializePersistedClient, serializePersistedClient } from '../persistence/serialization';
+import { mergeOpenPokes } from '../api/pokes-service';
+import type { Poke } from '../api/pokes-service';
 import { capCachedMessages, mergeCachedList, queryKeys } from './queryKeys';
 
 function memoryStorage(): KVStorage & { values: Map<string, string> } {
@@ -17,6 +19,50 @@ function memoryStorage(): KVStorage & { values: Map<string, string> } {
 }
 
 describe('Flutter AppCache parity helpers', () => {
+describe('open poke cache reconciliation', () => {
+  const poke = (overrides: Partial<Poke> = {}): Poke => ({
+    id: 'poke-1',
+    matchId: 'fixture-1',
+    userId: 'fan-1',
+    userName: 'Fan One',
+    selection: 'home',
+    amount: 10,
+    status: 'open',
+    createdAt: '2026-10-25T10:00:00.000Z',
+    ...overrides,
+  });
+
+  it('keeps cached open pokes when a successful GET is temporarily empty', () => {
+    const cached = [poke(), poke({ id: 'poke-2', userId: 'fan-2' })];
+    expect(mergeOpenPokes(cached, [])).toEqual(cached);
+  });
+
+  it('merges partial GET results, prefers fresh values, and deduplicates rows', () => {
+    const cached = [poke(), poke({ id: 'poke-2', userId: 'fan-2' })];
+    const fresh = poke({ userName: 'Updated Fan One', amount: 15 });
+    const merged = mergeOpenPokes(cached, [fresh, poke({ id: 'poke-3', userId: 'fan-3' })]);
+    expect(merged).toHaveLength(3);
+    expect(merged.find((item) => item.id === 'poke-1')).toMatchObject({ userName: 'Updated Fan One', amount: 15 });
+    expect(merged.find((item) => item.id === 'poke-2')).toBeDefined();
+    expect(merged.find((item) => item.id === 'poke-3')).toBeDefined();
+  });
+
+  it('does not bring matched or settled rows back into the open list', () => {
+    expect(mergeOpenPokes([
+      poke(),
+      poke({ id: 'poke-2', status: 'matched' }),
+      poke({ id: 'poke-3', status: 'settled' }),
+    ], [])).toEqual([poke()]);
+  });
+
+  it('deduplicates rows without backend IDs using their stable fields', () => {
+    const first = poke({ id: '', createdAt: undefined });
+    const duplicate = { ...first, userName: 'Latest name' };
+    expect(mergeOpenPokes([first], [duplicate])).toHaveLength(1);
+    expect(mergeOpenPokes([first], [duplicate])[0].userName).toBe('Latest name');
+  });
+});
+
   it('merges incomplete server lists without losing cached entries and deduplicates by id', () => {
     const cached = [{ id: '1', name: 'cached one' }, { id: '2', name: 'cached two' }];
     const incoming = [{ id: '1', name: 'fresh one' }, { id: '3', name: 'fresh three' }];
