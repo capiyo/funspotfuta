@@ -78,6 +78,7 @@ try {
         const logo = rect('.desktop-home-header a[aria-label="Funspot home"]');
         const sidebar = rect('.home-screen .profile-sidebar-rich');
         const workspace = rect('.home-screen .workspace');
+        const homeColumns = rect('.home-screen .home-columns');
         const chatsColumn = rect('.home-screen .chats-column');
         const feedColumn = rect('.home-screen .feed-column');
         const feedHeaderStyle = style('.home-screen .feed-column', '::before');
@@ -103,7 +104,7 @@ try {
         const loginRect = login?.getBoundingClientRect();
         return {
           viewportWidth: innerWidth, documentWidth: document.documentElement.scrollWidth,
-          logo, sidebar, workspace, navbar, chatsColumn, feedColumn,
+          logo, sidebar, workspace, homeColumns, navbar, chatsColumn, feedColumn,
           containerMargins: sidebar && feedColumn ? [sidebar.x, innerWidth - feedColumn.right] : null,
           borders, shadows, channelImages, media,
           login: login && loginRect ? {
@@ -155,8 +156,8 @@ try {
         const spare = width - layout.feedCardsRight;
         assert(spare < 100, `Feed content spare width should be <100px at 1920px, got ${spare}`);
       }
-      assert(layout.chatsWidth >= 480 && layout.chatsWidth <= 640,
-        `Chats column width at ${width}px is ${layout.chatsWidth}; expected 480–640px`);
+      assert(layout.homeColumns && Math.abs(layout.chatsWidth - layout.homeColumns.width / 2) <= 2,
+        `Chats and Feed should each occupy half of the available columns at ${width}px: ${JSON.stringify({ chatsWidth: layout.chatsWidth, columnsWidth: layout.homeColumns?.width })}`);
       for (const card of layout.cardChecks) {
         assert(card.leagueCount === 1 && card.leagueVisible, `Expected one visible league line per card; found ${card.leagueCount}`);
         assert(!card.secondaryVisible, 'Redundant secondary league line is visible on desktop');
