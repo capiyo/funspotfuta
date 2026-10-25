@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { createPoke, getOpenPokes, getUserPokes, getUserPoints, matchPoke, type Poke } from '@funspot/core';
+import { createPoke, getOpenPokes, getUserPokes, getUserPoints, matchPoke, mergeOpenPokes, type Poke } from '@funspot/core';
 import type { CSSProperties, TouchEvent as ReactTouchEvent } from 'react';
 import type { Channel, Fixture, FanColorPalette } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
@@ -11,19 +11,6 @@ function pokeIdentity(poke: Poke): string {
   return poke.id
     ? String(poke.id)
     : [poke.matchId, poke.userId, poke.selection, poke.amount, poke.createdAt ?? ''].join(':');
-}
-
-function mergeOpenPokes(...lists: Poke[][]): Poke[] {
-  const merged = new Map<string, Poke>();
-  for (const list of lists) {
-    for (const poke of list) {
-      if (String(poke.status ?? '').trim().toLowerCase() !== 'open') continue;
-      merged.set(pokeIdentity(poke), poke);
-    }
-  }
-  return [...merged.values()].sort(
-    (a, b) => (Date.parse(b.createdAt ?? '') || 0) - (Date.parse(a.createdAt ?? '') || 0),
-  );
 }
 
 type Props = {
