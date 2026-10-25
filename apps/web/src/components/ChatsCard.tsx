@@ -211,7 +211,7 @@ export function MatchCard({
         return {
           id: voter.userId,
           name: voter.userName,
-          uri: null,
+          uri: voter.uri ?? null,
           team:
             kind === 'home'
               ? fixture.homeTeam
