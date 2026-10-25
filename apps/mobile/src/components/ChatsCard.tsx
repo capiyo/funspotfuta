@@ -277,14 +277,21 @@ export function MatchCard({
     const cached = queryClient.getQueryData<Poke[]>(cacheKey);
     setOpenPokes(cached ?? []);
 
-    // Subscribe to shared cache updates from poke actions/screens.
-    const unsubscribe = queryClient.getQueryCache().subscribe(() => {
+    // Subscribe to shared cache updates from poke actions/screens. ChatsScreen
+    // invalidates openPokes when the user scrolls back to the top.
+    let refresh = () => {};
+    const unsubscribe = queryClient.getQueryCache().subscribe((event) => {
       if (!active) return;
       const latest = queryClient.getQueryData<Poke[]>(cacheKey);
       if (latest?.length) setOpenPokes(latest);
+      if (event.type === 'updated'
+        && event.action.type === 'invalidate'
+        && event.query.queryKey[0] === 'openPokes') {
+        refresh();
+      }
     });
 
-    const refresh = () => {
+    refresh = () => {
       // Keep the last-known list for live fixtures; don't request a list that
       // may be empty after the fixture has moved into play.
       if (fixture.isLive || fixture.status?.toLowerCase() === 'live') return;
