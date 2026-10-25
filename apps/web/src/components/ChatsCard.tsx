@@ -336,7 +336,9 @@ export function MatchCard({
     channelAvatarImage: {
       width: '100%',
       height: '100%',
+      borderRadius: '50%',
       objectFit: 'cover',
+      display: 'block',
     },
     channelName: {
       ...fanText('competition', colors, colors.textPrimary),
