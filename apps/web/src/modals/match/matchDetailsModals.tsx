@@ -47,6 +47,7 @@ export function MatchDetailsModal({visible,fixture,userId,username,authToken,onC
   },[fixture.matchId,authToken]);
 
   const fetchStatistics=useCallback(async()=>{
+    const headers=authToken?{Authorization:`Bearer ${authToken}`}:undefined;
     setLoadingStats(true);setStatsError('');
     try {
       const res=await fetch(`${API_BASE}/games/${fixture.matchId}/statistics/latest`,{headers});
