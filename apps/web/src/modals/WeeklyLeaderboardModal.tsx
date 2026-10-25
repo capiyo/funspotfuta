@@ -34,8 +34,8 @@ export function WeeklyLeaderboardModal({ visible, onClose, channelId, channelNam
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent>
-      <Pressable style={styles.backdrop} onPress={onClose}>
-        <Pressable style={styles.sheet} onPress={(event) => event.stopPropagation()}>
+      <Pressable className="weekly-leaderboard-backdrop" style={styles.backdrop} onPress={onClose}>
+        <Pressable className="weekly-leaderboard-sheet" style={styles.sheet} onPress={(event) => event.stopPropagation()}>
           <View style={styles.handle} />
           <View style={styles.header}>
             <Trophy size={20} color={colors.primary} />
