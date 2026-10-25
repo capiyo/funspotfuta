@@ -93,6 +93,7 @@
 }
 .profile-primary-action { background:var(--profile-primary) !important; border-color:var(--profile-primary) !important; color:var(--profile-on-primary) !important; }
 .profile-primary-action *, .profile-guest-login *, .profile-action-text-primary { color:var(--profile-on-primary) !important; }
+.profile-action-text-primary { display:inline !important; visibility:visible !important; opacity:1 !important; flex:0 1 auto !important; white-space:nowrap !important; font-size:13px !important; font-weight:700 !important; line-height:1.2 !important; }
 .profile-secondary-action, .profile-expand-toggle { background:var(--profile-primary-tint) !important; border-color:var(--profile-border-strong) !important; color:var(--profile-primary) !important; }
 .profile-secondary-action *, .profile-expand-toggle * { color:var(--profile-primary) !important; }
 /* Logout is a primary account action, not a muted cancel control. */
