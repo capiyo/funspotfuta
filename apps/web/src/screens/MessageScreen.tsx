@@ -416,6 +416,7 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
     <AdSenseCarousel
       placement="chats"
       label="Messaging advertisements"
+      showDots={false}
       slots={['9051548379', '3164796870', '1372263706']}
     />
 
@@ -445,7 +446,7 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
           merges REST history with socket updates and orders by timestamp. */}
       <div
       ref={listRef}
-      className="min-h-0 flex-1 overflow-y-auto px-3 py-4 sm:px-5"
+      className="min-h-0 flex-1 overflow-y-auto px-0 py-0"
       aria-live="polite"
       aria-relevant="additions text"
       style={{ overscrollBehavior: 'contain' }}>
@@ -896,7 +897,7 @@ function MessageBubble({ colors, message, isMe, onLongPress, onImagePress, onRet
     onContextMenu: (event: MouseEvent) => { event.preventDefault(); onLongPress(); },
   };
   return <article
-      className={`group mb-3 flex flex-col ${mine ? 'items-end' : 'items-start'}`}>
+      className={`group mb-2 flex flex-col px-2 sm:px-3 ${mine ? 'items-end' : 'items-start'}`}>
     {!mine && <p
       className="mb-1 ml-9 max-w-[78%] truncate text-[10px] font-semibold"
       style={{ color: commentary ? colors.draw : colors.primary }}>{commentary ? '⚽ ' : ''}{message.username}</p>}
@@ -906,7 +907,7 @@ function MessageBubble({ colors, message, isMe, onLongPress, onImagePress, onRet
       className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold"
       style={{ background: commentary ? dimColor(colors.draw) : colors.primaryDim, color: commentary ? colors.draw : colors.primary }}>{commentary ? '⚽' : initials(message.username ?? '')}</div>}
       <div
-      className="relative max-w-[min(78vw,620px)]">
+      className="relative min-w-0 max-w-[min(82vw,680px)]">
         <button
       type="button"
       onClick={onLongPress} {...actionEvents}
@@ -916,7 +917,7 @@ function MessageBubble({ colors, message, isMe, onLongPress, onImagePress, onRet
 <MoreHorizontal size={13}/>
 </button>
         <div
-      className={`rounded-2xl px-3.5 py-2.5 ${mine ? 'rounded-br-sm' : 'rounded-bl-sm'} ${failed ? 'border' : ''} ${message.isPending && !failed ? 'opacity-60' : ''}`}
+      className={`rounded-2xl px-3.5 py-2.5 shadow-sm ${mine ? 'rounded-br-md' : 'rounded-bl-md'} ${failed ? 'border' : ''} ${message.isPending && !failed ? 'opacity-70' : ''}`}
       style={{ background: bubbleBackground, borderColor: failed ? colors.away : 'transparent', color: colors.textPrimary }}
       onContextMenu={(event) => { event.preventDefault(); onLongPress(); }}>
           {message.replyTo && <div
@@ -953,9 +954,9 @@ function MessageBubble({ colors, message, isMe, onLongPress, onImagePress, onRet
       style={{ color: colors.textTertiary }}>🎥 Video</span>
 </div>}
           {!!message.text && <p
-      className={`whitespace-pre-wrap break-words text-[13px] leading-[18px] ${commentary ? 'italic' : ''}`}>{message.text}</p>}
+      className={`whitespace-pre-wrap break-words text-[14px] leading-[20px] ${commentary ? 'italic' : ''}`}>{message.text}</p>}
           <div
-      className="mt-1 flex items-center justify-end gap-2 text-[8px] font-bold tracking-wide"
+      className="mt-1.5 flex items-center justify-end gap-2 text-[10px] font-medium tracking-normal"
       style={{ color: failed ? colors.away : colors.textTertiary }}>
 <time>{failed ? 'Failed to send' : timeAgo(message.timestamp)}</time>{message.isPending && !failed && <span
       aria-label="Sending">◷</span>}{failed && <button
