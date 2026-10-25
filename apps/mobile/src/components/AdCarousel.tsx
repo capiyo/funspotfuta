@@ -11,7 +11,7 @@ type Slide =
   | { type: 'ad'; id: string; ad: NativeAdInstance }
   | { type: 'fixture'; id: string; fixture: Fixture };
 
-export default function AdCarousel({ showDots = false, flush = false, fixture = null, enabled = true }: { showDots?: boolean; flush?: boolean; fixture?: Fixture | null; enabled?: boolean }) {
+export default function AdCarousel({ showDots = false, flush = false, fixture = null }: { showDots?: boolean; flush?: boolean; fixture?: Fixture | null }) {
   const colors = useFanColors();
   const { width: windowWidth } = useWindowDimensions();
   const [carouselWidth, setCarouselWidth] = useState(0);
@@ -22,7 +22,7 @@ export default function AdCarousel({ showDots = false, flush = false, fixture = 
   const listRef = useRef<FlatList<Slide>>(null);
 
   useEffect(() => {
-    if (!enabled || Platform.OS !== 'android') return;
+    if (Platform.OS !== 'android') return;
     let alive = true;
     const created: NativeAdInstance[] = [];
     const loadAds = async () => {
@@ -46,10 +46,10 @@ export default function AdCarousel({ showDots = false, flush = false, fixture = 
     };
     void loadAds();
     return () => { alive = false; created.forEach((ad) => ad.destroy()); };
-  }, [enabled]);
+  }, []);
 
   const slides = useMemo<Slide[]>(() => {
-    const adSlides: Slide[] = enabled ? ads.map((item) => ({ type: 'ad', id: item.id, ad: item.ad })) : [];
+    const adSlides: Slide[] = ads.map((item) => ({ type: 'ad', id: item.id, ad: item.ad }));
     const fixtureSlides: Slide[] = fixture ? [{
       type: 'fixture',
       id: `fixture-${fixture.matchId ?? fixture.id}`,
@@ -62,7 +62,7 @@ export default function AdCarousel({ showDots = false, flush = false, fixture = 
       if (fixtureSlides[slideIndex]) mixed.push(fixtureSlides[slideIndex]);
     }
     return mixed;
-  }, [ads, enabled, fixture]);
+  }, [ads, fixture]);
 
   useEffect(() => {
     if (index >= slides.length) setIndex(0);
@@ -92,7 +92,7 @@ export default function AdCarousel({ showDots = false, flush = false, fixture = 
       setCarouselWidth((current) => Math.abs(current - nextWidth) > 1 ? nextWidth : current);
     }}
     style={[styles.wrap, flush && styles.flushWrap]}
-    accessibilityLabel={enabled ? 'Fixture and advertisement carousel' : 'Current fixture'}
+    accessibilityLabel="Fixture and advertisement carousel"
   >
     <FlatList ref={listRef} horizontal pagingEnabled data={slides} keyExtractor={(item) => item.id}
       showsHorizontalScrollIndicator={false}
