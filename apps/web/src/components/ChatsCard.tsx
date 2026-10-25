@@ -37,6 +37,7 @@ import {
   type Fixture,
   type Poke,
   getOpenPokes,
+  mergeOpenPokes,
   queryKeys,
   hasScores,
   winner as fixtureWinner,
@@ -227,22 +228,9 @@ export function MatchCard({
             .filter((item) => item.status.trim().toLowerCase() === 'open')
             .sort((a, b) => (Date.parse(b.createdAt ?? '') || 0) - (Date.parse(a.createdAt ?? '') || 0));
           const previous = queryClient.getQueryData<Poke[]>(cacheKey) ?? [];
-          // GET can return a partial/stale list while a newly-created poke is
-          // already confirmed and cached. Merge by ID instead of replacing the
-          // visible list with that incomplete response.
-          const merged = new Map<string, Poke>();
-          const identity = (poke: Poke) => poke.id
-            ? String(poke.id)
-            : [poke.matchId, poke.userId, poke.selection, poke.amount, poke.createdAt ?? ''].join(':');
-          for (const poke of previous) {
-            if (poke.status.trim().toLowerCase() === 'open') merged.set(identity(poke), poke);
-          }
-          for (const poke of next) {
-            if (poke.status.trim().toLowerCase() === 'open') merged.set(identity(poke), poke);
-          }
-          const stable = [...merged.values()].sort(
-            (a, b) => (Date.parse(b.createdAt ?? '') || 0) - (Date.parse(a.createdAt ?? '') || 0),
-          );
+          // GET may be partial while writes propagate; keep cached rows until
+          // the server can return the complete list.
+          const stable = mergeOpenPokes(previous, next);
           queryClient.setQueryData<Poke[]>(cacheKey, stable);
           setOpenPokes(stable);
         })
