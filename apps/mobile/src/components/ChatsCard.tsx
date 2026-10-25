@@ -575,7 +575,7 @@ export function MatchCard({
                     returnKeyType="send"
                     accessibilityLabel={placeholder}
                   />
-                  {isTyping && <Pressable onPress={handleSubmit} disabled={!canComment} accessibilityRole="button" accessibilityLabel="Send comment" style={({ pressed }) => ({ paddingHorizontal: 10, paddingVertical: 7, borderRadius: 16, backgroundColor: canComment ? colors.primary : colors.primaryDim, opacity: pressed ? PRESSED_OPACITY : 1 })}><Text style={fanText('tag', colors, '#FFFFFF')}>Send</Text></Pressable>}
+                  {isTyping && <Pressable onPress={handleSubmit} disabled={!canComment} accessibilityRole="button" accessibilityLabel="Send comment" style={({ pressed }) => ({ paddingHorizontal: 0, paddingVertical: 2, backgroundColor: 'transparent', opacity: pressed ? PRESSED_OPACITY : 1 })}><Text style={fanText('tag', colors, canComment ? colors.primary : colors.textTertiary)}>Send</Text></Pressable>}
                 </>
               )}
             </View>
@@ -604,7 +604,7 @@ export function MatchCard({
               </Pressable>
             </View>
             <View style={styles.actionSlot}><ActionButton icon={Heart} label={liked ? 'Unlike' : 'Like'} count={likesCount} active={liked} activeColor={colors.away} colors={colors} onPress={handleLike} /></View>
-            <View style={styles.actionSlot}><ActionButton icon={MessageCircle} label="Comments" count={commentsCount ?? pool.length} colors={colors} onPress={handleChat} /></View>
+            <View style={styles.actionSlot}><ActionButton icon={MessageCircle} label="Comments" count={commentsCount ?? pool.length} colors={colors} onPress={() => {}} /></View>
           </View>
         </View>
       </View>
