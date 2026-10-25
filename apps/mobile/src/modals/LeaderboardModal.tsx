@@ -32,6 +32,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
+import AdCarousel from '@/components/AdCarousel';
 import {
   X,
   Trophy,
