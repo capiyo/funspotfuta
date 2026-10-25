@@ -34,9 +34,8 @@ export function MatchDetailsModal({visible,fixture,userId,username,authToken,onC
   const [loadingStats,setLoadingStats]=useState(true),[loadingLineups,setLoadingLineups]=useState(true);
   const [statsError,setStatsError]=useState(''),[lineupsError,setLineupsError]=useState('');
   const [hasStats,setHasStats]=useState(false);
-  const headers=authToken?{Authorization:`Bearer ${authToken}`}:undefined;
-
   const fetchLineups=useCallback(async()=>{
+    const headers=authToken?{Authorization:`Bearer ${authToken}`}:undefined;
     setLoadingLineups(true);setLineupsError('');
     try {
       const res=await fetch(`${API_BASE}/games/${fixture.matchId}/lineups`,{headers});
@@ -45,7 +44,7 @@ export function MatchDetailsModal({visible,fixture,userId,username,authToken,onC
       if(fallbackRes.status===200) { const data=await fallbackRes.json(); if(data?.success===true&&data?.data!=null) { setLineups(parseLineupsData(data.data));setLoadingLineups(false);return; } }
       setLineupsError('No lineup available');setLoadingLineups(false);
     } catch(error) { console.warn('❌ Error fetching lineups:',error);setLineupsError('No network error');setLoadingLineups(false); }
-  },[fixture.matchId,authToken,headers]);
+  },[fixture.matchId,authToken]);
 
   const fetchStatistics=useCallback(async()=>{
     setLoadingStats(true);setStatsError('');
@@ -82,9 +81,9 @@ export function MatchDetailsModal({visible,fixture,userId,username,authToken,onC
     <section ref={dialogRef} role="dialog" aria-modal="true" aria-label={`${fixture.homeTeam} vs ${fixture.awayTeam} match details`} className="flex w-full max-w-2xl flex-col overflow-hidden rounded-t-[20px]" style={{height:'88vh',backgroundColor:colors.surface}}>
       <div className="flex justify-center pb-2 pt-3"><div className="h-1 w-10 rounded-full" style={{backgroundColor:colors.borderActive}}/></div>
       <header className="flex items-center gap-3 px-4 pb-3 pt-1">
-        <div className="min-w-0 flex-1 text-center"><p className="line-clamp-2" style={fanText('title',colors,colors.textPrimary)}>{fixture.homeTeam}</p>{isLive&&<span className="mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold text-red-500" style={{background:'rgba(255,0,0,.12)'}}>LIVE</span>}</div>
-        <div className="shrink-0 rounded-lg px-3.5 py-1.5" style={{backgroundColor:colors.background}}><span style={fanText('scoreHero',colors,colors.textPrimary)}>{home} - {away}</span></div>
-        <div className="min-w-0 flex-1 text-center"><p className="line-clamp-2" style={fanText('title',colors,colors.textPrimary)}>{fixture.awayTeam}</p>{fixture.date&&<p className="mt-1" style={fanText('caption',colors,colors.textSecondary)}>{formatTime(fixture.date)}</p>}</div>
+        <div className="min-w-0 flex-1 text-center"><p className="line-clamp-2" style={{...fanText('body',colors,colors.textPrimary),fontSize:13,fontWeight:400,lineHeight:'17px'}}>{fixture.homeTeam}</p>{isLive&&<span className="mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold text-red-500" style={{background:'rgba(255,0,0,.12)'}}>LIVE</span>}</div>
+        <div className="shrink-0 rounded-lg px-3.5 py-1.5" style={{backgroundColor:colors.background}}><span style={{...fanText('scoreHero',colors,colors.textPrimary),fontSize:22,fontWeight:400,lineHeight:'26px'}}>{home} - {away}</span></div>
+        <div className="min-w-0 flex-1 text-center"><p className="line-clamp-2" style={{...fanText('body',colors,colors.textPrimary),fontSize:13,fontWeight:400,lineHeight:'17px'}}>{fixture.awayTeam}</p>{fixture.date&&<p className="mt-1" style={fanText('caption',colors,colors.textSecondary)}>{formatTime(fixture.date)}</p>}</div>
       </header>
       {hasStats&&<div className="mx-4 flex border-b" style={{borderColor:'rgba(0,0,0,.1)'}}>
         {(['lineups','stats'] as const).map(tab=><button key={tab} type="button" onClick={()=>setActiveTab(tab)} className="relative flex-1 py-2.5 text-[13px] font-semibold tracking-wide" style={{color:activeTab===tab?colors.primary:colors.textSecondary}}>{tab==='lineups'?'LINEUPS':'STATS'}{activeTab===tab&&<span className="absolute inset-x-0 bottom-0 h-0.5 rounded" style={{backgroundColor:colors.primary}}/>}</button>)}
