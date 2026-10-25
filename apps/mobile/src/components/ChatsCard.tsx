@@ -276,7 +276,9 @@ export function MatchCard({
     const cacheKey = queryKeys.openPokes(fixtureId, channelId);
     // Hydrate the visible list first; never make the UI wait for HTTP.
     const cached = queryClient.getQueryData<Poke[]>(cacheKey);
-    setOpenPokes(cached ?? []);
+    // A cache miss is not proof that there are no pokes. Keep the current
+    // rendered rows while the query cache hydrates or the channel changes.
+    if (cached?.length) setOpenPokes(cached);
 
     // Subscribe to shared cache updates from poke actions/screens. ChatsScreen
     // invalidates openPokes when the user scrolls back to the top.
@@ -310,9 +312,19 @@ export function MatchCard({
             .filter((item) => item.status.trim().toLowerCase() === 'open')
             .sort((a, b) => (Date.parse(b.createdAt ?? '') || 0) - (Date.parse(a.createdAt ?? '') || 0));
           const previous = queryClient.getQueryData<Poke[]>(cacheKey) ?? [];
-          // Empty API responses have intermittently erased a valid cached list.
-          // Preserve the last successful rows until a non-empty refresh arrives.
-          const stable = next.length ? next : previous;
+          // GET can return a partial/stale list while a newly-created poke is
+          // already confirmed and cached. Merge by ID instead of replacing the
+          // visible list with that incomplete response.
+          const merged = new Map<string, Poke>();
+          for (const poke of previous) {
+            if (poke.id && poke.status.trim().toLowerCase() === 'open') merged.set(String(poke.id), poke);
+          }
+          for (const poke of next) {
+            if (poke.id) merged.set(String(poke.id), poke);
+          }
+          const stable = [...merged.values()].sort(
+            (a, b) => (Date.parse(b.createdAt ?? '') || 0) - (Date.parse(a.createdAt ?? '') || 0),
+          );
           queryClient.setQueryData<Poke[]>(cacheKey, stable);
           setOpenPokes(stable);
         })
