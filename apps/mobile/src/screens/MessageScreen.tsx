@@ -455,7 +455,7 @@ export default function MessageScreen() {
   return (
     <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}>
       {/* Automatic fixture/ad carousel at the top of messaging. */}
-      <AdCarousel />
+      <AdCarousel showDots={false} />
 
       {/* Messaging starts with the shared horizontal ad/fixture carousel; no extra header or vote strip. */}
 
@@ -1380,7 +1380,7 @@ function MessageBubble({
 }
 
 const bubbleStyles = StyleSheet.create({
-  column: { marginBottom: 8 },
+  column: { marginBottom: 8, paddingHorizontal: FAN_SPACING.sm },
   username: { marginLeft: 34, marginBottom: 2 },
   row: {
     flexDirection: 'row',
@@ -1390,17 +1390,17 @@ const bubbleStyles = StyleSheet.create({
   },
   rowMe: { justifyContent: 'flex-end' },
   avatar: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
   },
   bubble: {
-    maxWidth: '78%',
+    maxWidth: '82%',
     borderRadius: FAN_RADIUS.lg,
-    paddingHorizontal: FAN_SPACING.sm,
-    paddingVertical: FAN_SPACING.xs,
+    paddingHorizontal: FAN_SPACING.md,
+    paddingVertical: FAN_SPACING.sm,
   },
   replyQuote: {
     borderLeftWidth: 2,
@@ -1421,7 +1421,7 @@ const bubbleStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  timestamp: { marginTop: 2, textAlign: 'right' },
+  timestamp: { marginTop: 4, textAlign: 'right' },
   italic: { fontStyle: 'italic' },
 });
 
@@ -1471,8 +1471,9 @@ function createStyles(colors: FanColors, bottomInset: number) {
       paddingVertical: FAN_SPACING.xxl,
     },
     messagesContent: {
-      paddingHorizontal: FAN_SPACING.md,
-      paddingVertical: FAN_SPACING.sm,
+      paddingHorizontal: 0,
+      paddingTop: 0,
+      paddingBottom: FAN_SPACING.sm,
       flexGrow: 1,
     },
     typingRow: {
