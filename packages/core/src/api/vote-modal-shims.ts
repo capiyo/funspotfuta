@@ -155,23 +155,53 @@ export async function fetchVoters(
   fixtureId: string,
   authToken?: Token,
 ): Promise<any[]> {
-  const data = await getJson(`${API_BASE_URL}/actions/vote/fixture/${fixtureId}/voters`, authToken);
-  const list: any[] = Array.isArray(data)
-    ? data
-    : Array.isArray(data?.voters)
-      ? data.voters
-      : Array.isArray(data?.data?.voters)
-        ? data.data.voters
-        : Array.isArray(data?.data)
-          ? data.data
-          : [];
-  return list.map((v) => ({
-    ...v,
-    userId: str(v.userId ?? v.user_id),
-    userName: str(v.userName ?? v.user_name ?? v.username ?? 'Anonymous'),
-    selection: str(v.selection),
-    isComrade: v.isComrade ?? v.is_comrade ?? false,
-  }));
+  const unwrap = (data: any): any[] => {
+    if (Array.isArray(data)) return data;
+    for (const key of ['voters', 'votes', 'data', 'results']) {
+      if (Array.isArray(data?.[key])) return data[key];
+    }
+    for (const parent of ['data', 'result']) {
+      const nested = data?.[parent];
+      if (nested && typeof nested === 'object') {
+        for (const key of ['voters', 'votes', 'results']) {
+          if (Array.isArray(nested[key])) return nested[key];
+        }
+      }
+    }
+    return [];
+  };
+
+  // Prefer the same voters endpoint used by the action UI, then fall back to
+  // the fixture-votes endpoint used by chat statistics. Some API deployments
+  // expose one route but not the other.
+  const endpoints = [
+    `${API_BASE_URL}/actions/vote/fixture/${encodeURIComponent(fixtureId)}/voters`,
+    `${API_BASE_URL}/votes/votes/fixture/${encodeURIComponent(fixtureId)}`,
+  ];
+
+  let list: any[] = [];
+  for (const endpoint of endpoints) {
+    try {
+      const data = await getJson(endpoint, authToken);
+      list = unwrap(data);
+      if (list.length > 0) break;
+    } catch {
+      // Continue to the compatible endpoint; fail soft so a single endpoint
+      // mismatch cannot hide all voters from the card.
+    }
+  }
+
+  return list
+    .filter((v) => v && typeof v === 'object')
+    .map((v) => ({
+      ...v,
+      userId: str(v.userId ?? v.user_id ?? v.voter_id ?? v.id),
+      userName: str(v.userName ?? v.user_name ?? v.username ?? v.name ?? 'Anonymous'),
+      selection: str(v.selection ?? v.vote ?? v.pick),
+      uri: v.uri ?? v.avatar_url ?? v.avatarUrl ?? v.profile_image_url ?? v.profileImageUrl ?? v.photo_url ?? v.photoUrl ?? v.image_url ?? v.imageUrl ?? null,
+      isComrade: v.isComrade ?? v.is_comrade ?? false,
+    }))
+    .filter((v) => v.userId !== '');
 }
 
 // ── Pledges (main fixture) ──────────────────────────────────────────
