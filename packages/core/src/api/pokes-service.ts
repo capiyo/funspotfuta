@@ -38,13 +38,20 @@ function rows(payload: unknown): Poke[] {
   const pokes = value.pokes;
   const dataObject = data && typeof data === 'object' && !Array.isArray(data) ? data as Record<string, unknown> : undefined;
   const pokeObject = pokes && typeof pokes === 'object' && !Array.isArray(pokes) ? pokes as Record<string, unknown> : undefined;
-  const list = value.open_pokes ?? value.openPokes ?? value.open
-    ?? (Array.isArray(pokes) ? pokes : undefined)
-    ?? pokeObject?.open ?? pokeObject?.open_pokes ?? pokeObject?.items
-    ?? (Array.isArray(data) ? data : undefined)
-    ?? dataObject?.open ?? dataObject?.open_pokes ?? dataObject?.openPokes
-    ?? dataObject?.pokes ?? dataObject?.items;
-  if (!Array.isArray(list)) throw new Error('Poke response did not contain an open-pokes list');
+  // Some responses include an empty compatibility field alongside a populated
+  // canonical list. Prefer the first populated list so an empty alias cannot
+  // mask real rows; accept an empty list only if every recognized list is empty.
+  const candidates: unknown[] = [
+    value.open_pokes, value.openPokes, value.open,
+    Array.isArray(pokes) ? pokes : undefined,
+    pokeObject?.open, pokeObject?.open_pokes, pokeObject?.items,
+    Array.isArray(data) ? data : undefined,
+    dataObject?.open, dataObject?.open_pokes, dataObject?.openPokes,
+    dataObject?.pokes, dataObject?.items,
+  ];
+  const lists = candidates.filter((candidate): candidate is unknown[] => Array.isArray(candidate));
+  const list = lists.find((candidate) => candidate.length > 0) ?? lists[0];
+  if (!list) throw new Error('Poke response did not contain an open-pokes list');
   return list.map((row) => fromJson(row as Record<string, unknown>));
 }
 async function request(path: string, token?: string, body?: unknown): Promise<any> {
