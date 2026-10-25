@@ -149,7 +149,7 @@ export function PokeModal({ visible, fixture, userId, username, authToken, chann
       const cacheKey = queryKeys.openPokes(String(matchId), channelId, marketId);
       const previousOpen = queryClient.getQueryData<Poke[]>(cacheKey) ?? [];
       // If create succeeds while the list endpoint is lagging, retain known rows.
-      const candidates = nextOpen.length ? nextOpen : [...previousOpen, createdPoke];
+      const candidates = [...(nextOpen.length ? nextOpen : previousOpen), createdPoke];
       const stableOpen = candidates.filter((poke, index, all) =>
         poke.status.trim().toLowerCase() === 'open' && all.findIndex((item) => item.id === poke.id) === index);
       if (channelId) queryClient.setQueryData<Poke[]>(cacheKey, stableOpen);
