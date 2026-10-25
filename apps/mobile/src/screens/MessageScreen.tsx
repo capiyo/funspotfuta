@@ -73,6 +73,7 @@ import {
 import {
   getUserChannels,
   getAllFixtures,
+  queryKeys,
   Channel,
   Fixture,
   ChatMessage,
@@ -255,6 +256,21 @@ export default function MessageScreen() {
       : null);
 // Keep an explicit route fixture ID scoped during lookup; never briefly use the group room.
   const fixtureId = fixture?.matchId ?? fixture?.id ?? routeFixtureId ?? null;
+
+  const cachedFetchBalance = useCallback(async (uid: string, token?: string | null, opts?: { forceRefresh?: boolean }) => {
+    const key = queryKeys.balance(uid);
+    const cached = queryClient.getQueryData<number>(key);
+    if (!opts?.forceRefresh && cached !== undefined) {
+      // Serve the persisted value immediately, then refresh the cache quietly.
+      void fetchBalance(uid, token ?? undefined, { forceRefresh: true })
+        .then((fresh) => queryClient.setQueryData(key, fresh))
+        .catch(() => undefined);
+      return cached;
+    }
+    const fresh = await fetchBalance(uid, token ?? undefined, opts);
+    queryClient.setQueryData(key, fresh);
+    return fresh;
+  }, [queryClient]);
 
   // ── Chat hook ──────────────────────────────────────────────
   const chat = useChannelChat({
@@ -929,7 +945,7 @@ export default function MessageScreen() {
           fetchSubFixtures={fetchSubFixtures}
           fetchSubFixturePledges={fetchSubFixturePledges}
           fetchBets={fetchBets}
-          fetchBalance={fetchBalance}
+          fetchBalance={cachedFetchBalance}
           topUp={modalApi.topUp}
           withdraw={modalApi.withdraw}
           getSavedPhone={modalApi.getSavedPhone}
