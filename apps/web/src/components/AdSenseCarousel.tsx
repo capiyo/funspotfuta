@@ -8,6 +8,7 @@ type AdSenseCarouselProps = {
   slots: readonly string[];
   enabled?: boolean;
   label?: string;
+  showDots?: boolean;
 };
 
 type Slide =
@@ -22,6 +23,7 @@ export default function AdSenseCarousel({
   slots,
   enabled = true,
   label = 'Sponsored carousel',
+  showDots = true,
 }: AdSenseCarouselProps) {
   const colors = useFanColors();
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -121,7 +123,7 @@ export default function AdSenseCarousel({
           </div>
         ))}
       </div>
-      {slides.length > 1 && (
+      {showDots && slides.length > 1 && (
         <div className="flex items-center justify-center gap-2 pt-0.5" aria-label="Carousel pages">
           {slides.map((slide, index) => (
             <button
