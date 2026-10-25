@@ -412,16 +412,40 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
   return <main
       className="message-screen flex min-h-0 flex-col"
       style={pageStyle}>
-    {/* Automatic fixture/ad carousel at the top of messaging. */}
-    <AdSenseCarousel
-      placement="chats"
-      label="Messaging advertisements"
-      showDots={false}
-      flush
-      slots={['9051548379', '3164796870', '1372263706']}
-    />
-
-    {/* Messaging starts with the shared horizontal ad/fixture carousel; no extra header or vote strip. */}
+    {/* Keep navigation and lineup access on the same compact row as the carousel. */}
+    <div className="flex w-full shrink-0 items-center gap-1 px-1 py-1">
+      <button
+        type="button"
+        onClick={handleBack}
+        aria-label="Back to chats"
+        title="Back to chats"
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
+        style={{ background: colors.surfaceSunken, color: colors.textPrimary }}
+      >
+        <ArrowLeft size={18} />
+      </button>
+      <div className="min-w-0 flex-1">
+        <AdSenseCarousel
+          placement="chats"
+          label="Messaging advertisements"
+          showDots={false}
+          flush
+          slots={['9051548379', '3164796870', '1372263706']}
+        />
+      </div>
+      {fixture && (
+        <button
+          type="button"
+          onClick={() => setMatchDetailsOpen(true)}
+          aria-label="Open lineup and match details"
+          title="Open lineup and match details"
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
+          style={{ background: colors.surfaceSunken, color: colors.textPrimary }}
+        >
+          <Info size={16} />
+        </button>
+      )}
+    </div>
 
     {!activeChannelId ? <section
       className="flex flex-1 flex-col items-center justify-center px-8 text-center">
