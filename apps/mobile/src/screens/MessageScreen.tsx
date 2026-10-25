@@ -258,7 +258,7 @@ export default function MessageScreen() {
       ? loadedRouteFixture
       : null);
 // Keep an explicit route fixture ID scoped during lookup; never briefly use the group room.
-  const fixtureId = fixture?.matchId ?? fixture?.id ?? routeFixtureId ?? null;
+  const fixtureId = fixture?.matchId?.trim() || fixture?.id?.trim() || routeFixtureId?.trim() || null;
 
   const cachedFetchBalance = useCallback(async (uid: string, token?: string | null, opts?: { forceRefresh?: boolean }) => {
     const key = queryKeys.balance(uid);
@@ -899,7 +899,7 @@ export default function MessageScreen() {
               return { success: false, message: 'Please sign in to vote' };
             }
             const r = await castFixtureVote({
-              fixtureId: fixture.matchId ?? fixture.id,
+              fixtureId: fixture.matchId?.trim() || fixture.id?.trim(),
               userId,
               username,
               selection: sel,
@@ -921,7 +921,7 @@ export default function MessageScreen() {
               return { success: false, message: 'Please sign in to continue' };
             }
             const r = await createPledge({
-              fixtureId: fixture.matchId ?? fixture.id,
+              fixtureId: fixture.matchId?.trim() || fixture.id?.trim(),
               userId,
               username,
               selection: sel,
