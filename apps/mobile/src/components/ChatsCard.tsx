@@ -42,6 +42,7 @@ import {
   queryKeys,
   hasScores,
   getFormattedMinuteDisplay,
+  useFixtureLiveUpdates,
   scoreDisplay,
   winner as fixtureWinner,
   outcomeColor,
@@ -262,12 +263,28 @@ export function MatchCard({
   onOpenLineups?: (fixture: Fixture) => void;
 }) {
   const colors = useFanColors();
-  const { userId, isLoggedIn, authToken } = useAuth();
+  const { userId, username, isLoggedIn, authToken } = useAuth();
   const { requireLogin } = useLoginModal();
   const [draft, setDraft] = useState('');
   const [openPokes, setOpenPokes] = useState<Poke[]>([]);
   const pokeCacheKeyRef = useRef('');
   const queryClient = useQueryClient();
+  const live = useFixtureLiveUpdates({
+    channelId,
+    fixtureId: String(fixture.matchId || fixture.id),
+    userId,
+    username,
+    authToken,
+    seed: fixture,
+  });
+  const liveFixture: Fixture = {
+    ...fixture,
+    status: live.status,
+    isLive: live.isLive,
+    homeScore: live.homeScore ?? fixture.homeScore,
+    awayScore: live.awayScore ?? fixture.awayScore,
+    timeElapsed: live.timeElapsed ?? fixture.timeElapsed,
+  };
   useEffect(() => {
     let active = true;
     const fixtureId = String(fixture.matchId || fixture.id);
@@ -316,7 +333,7 @@ export function MatchCard({
     refresh = () => {
       // Keep the last-known list for live fixtures; don't request a list that
       // may be empty after the fixture has moved into play.
-      if (fixture.isLive || fixture.status?.toLowerCase() === 'live') return;
+      if (liveFixture.isLive || liveFixture.status?.toLowerCase() === 'live') return;
       void getOpenPokes(fixtureId, authToken || undefined, channelId)
         .then((items) => {
           if (!active) return;
@@ -337,7 +354,7 @@ export function MatchCard({
     void refresh();
     const interval = setInterval(refresh, 2 * 60 * 1000);
     return () => { active = false; unsubscribe(); clearInterval(interval); };
-  }, [authToken, channelId, fixture.id, fixture.matchId, fixture.isLive, fixture.status, queryClient]);
+  }, [authToken, channelId, fixture.id, fixture.matchId, liveFixture.isLive, liveFixture.status, queryClient]);
   const longChannelPressFired = useRef(false);
   const [failedUri, setFailedUri] = useState<string | null>(null);
 
@@ -355,11 +372,11 @@ export function MatchCard({
       EMPTY_VOTE_PROMPTS[Math.floor(Math.random() * EMPTY_VOTE_PROMPTS.length)],
   );
 
-  const isLive = !!fixture.isLive || fixture.status?.toLowerCase() === 'live';
-  const matchMinute = getFormattedMinuteDisplay(fixture);
-  const isHalfTime = fixture.status?.toLowerCase() === 'half_time';
+  const isLive = !!liveFixture.isLive || liveFixture.status?.toLowerCase() === 'live';
+  const matchMinute = getFormattedMinuteDisplay(liveFixture);
+  const isHalfTime = liveFixture.status?.toLowerCase() === 'half_time';
   const isCompleted =
-    fixture.status === 'completed' || fixture.status === 'finished';
+    liveFixture.status === 'completed' || liveFixture.status === 'finished';
   const voters = fixture.voters ?? [];
   const hasVoted = voters.some((v) => v.userId === userId);
 
@@ -403,7 +420,7 @@ export function MatchCard({
   }, [pokeItems, openPokes, voterItems]);
   const fixtureLabel = `${fixture.homeTeam} vs ${fixture.awayTeam}`;
   // Teams with the score between them, or "vs" before kickoff.
-  const captionLabel = `${fixture.homeTeam} ${hasScores(fixture) ? scoreDisplay(fixture) : 'vs'
+  const captionLabel = `${fixture.homeTeam} ${hasScores(liveFixture) ? scoreDisplay(liveFixture) : 'vs'
     } ${fixture.awayTeam}`;
   const canComment = !!isLoggedIn && (isCompleted || hasVoted);
 
@@ -661,7 +678,7 @@ export function MatchCard({
               <View style={styles.teamMatchup}>
                 <TeamLogo name={fixture.homeTeam} fixture={fixture as unknown as Record<string, unknown>} side="home" colors={colors} />
                 <Text style={[fanText('tag', colors, colors.textPrimary), styles.teamName]} numberOfLines={2}>{fixture.homeTeam}</Text>
-                <Text style={fanText('tag', colors, colors.textTertiary)}>{hasScores(fixture) ? scoreDisplay(fixture) : 'vs'}</Text>
+                <Text style={fanText('tag', colors, colors.textTertiary)}>{hasScores(liveFixture) ? scoreDisplay(liveFixture) : 'vs'}</Text>
                 <Text style={[fanText('tag', colors, colors.textPrimary), styles.teamName]} numberOfLines={2}>{fixture.awayTeam}</Text>
                 <TeamLogo name={fixture.awayTeam} fixture={fixture as unknown as Record<string, unknown>} side="away" colors={colors} />
               </View>
