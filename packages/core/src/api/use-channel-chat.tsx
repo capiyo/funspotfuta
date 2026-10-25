@@ -94,6 +94,40 @@ function belongsToConversation(
     return true;
 }
 
+/**
+ * Commentary is always fixture-specific. Unlike ordinary channel messages,
+ * a commentary event without a fixture identity must never enter a conversation:
+ * the singleton socket broadcasts events to every mounted hook.
+ */
+function commentaryBelongsToFixture(
+    envelope: Record<string, any>,
+    entry: Record<string, any>,
+    channelId: string,
+    fixtureId: string | null,
+): boolean {
+    if (!fixtureId) return false;
+
+    const nested = envelope.payload && typeof envelope.payload === 'object' && !Array.isArray(envelope.payload)
+        ? envelope.payload as Record<string, any>
+        : null;
+    const candidates = [entry, nested, envelope].filter(
+        (candidate): candidate is Record<string, any> => candidate != null,
+    );
+
+    let eventFixture: unknown;
+    for (const candidate of candidates) {
+        eventFixture = candidate.fixtureId ?? candidate.fixture_id;
+        if (eventFixture != null) break;
+    }
+    if (eventFixture == null || String(eventFixture) !== String(fixtureId)) return false;
+
+    for (const candidate of candidates) {
+        const eventChannel = candidate.channelId ?? candidate.channel_id;
+        if (eventChannel != null && String(eventChannel) !== channelId) return false;
+    }
+    return true;
+}
+
 // ── Hook ────────────────────────────────────────────────────────────
 
 export function useChannelChat({
@@ -523,30 +557,36 @@ export function useChannelChat({
 
         // commentary.new
         const onCommentaryNew = (payload: Record<string, any>) => {
-            const data = payload.payload ?? payload;
+            const data = payload.payload && typeof payload.payload === 'object'
+                ? payload.payload as Record<string, any>
+                : payload;
+            if (!commentaryBelongsToFixture(payload, data, channelId, fixtureId)) return;
+
             insertSorted(
                 chatMessageCommentary({
                     minute: data.minute ?? 0,
                     text: data.text ?? '',
                     type: data.type ?? 'update',
-                    createdAt: parseCommentaryTimestamp(data.createdAt),
+                    createdAt: parseCommentaryTimestamp(data.createdAt ?? data.created_at),
                     seq: nextSeq(),
                 }),
             );
         };
 
-        // commentary.bulk
+        // commentary.bulk — the envelope may carry fixture identity for all entries.
         const onCommentaryBulk = (payload: Record<string, any>) => {
-            const entries = payload.payload ?? payload;
+            if (!fixtureId) return;
+            const entries = payload.payload ?? payload.commentary ?? payload;
             if (!Array.isArray(entries)) return;
             for (const raw of entries) {
                 if (!raw || typeof raw !== 'object') continue;
+                if (!commentaryBelongsToFixture(payload, raw, channelId, fixtureId)) continue;
                 insertSorted(
                     chatMessageCommentary({
                         minute: raw.minute ?? 0,
                         text: raw.text ?? '',
                         type: raw.type ?? 'update',
-                        createdAt: parseCommentaryTimestamp(raw.createdAt),
+                        createdAt: parseCommentaryTimestamp(raw.createdAt ?? raw.created_at),
                         seq: nextSeq(),
                     }),
                 );
