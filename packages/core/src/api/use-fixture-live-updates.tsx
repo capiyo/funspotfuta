@@ -156,6 +156,7 @@ export function useFixtureLiveUpdates(params: {
         return timeA - timeB;
       });
       const latest = sorted[sorted.length - 1];
+      if (!latest) return;
       const text = latest.text == null ? '' : String(latest.text);
       if (!text.trim()) return;
       const rawTimestamp = latest.createdAt ?? latest.created_at ?? latest.timestamp;
