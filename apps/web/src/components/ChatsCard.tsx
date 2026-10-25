@@ -106,21 +106,16 @@ function kickoffLabel(dateString: string): string {
   });
 }
 
-function pickKind(selection: string): 'home' | 'away' | 'draw' {
-  // Vote endpoints have used both the Flutter values (home_team/away_team)
-  // and shorter API values (home/away). Treat equivalent labels identically;
-  // never let an unrecognized home/away value silently become a draw.
-  const value = selection.trim().toLowerCase().replace(/[\\s-]+/g, '_');
-  if (['home_team', 'home', 'hometeam', '1', 'team1', 'home_side'].includes(value)) return 'home';
-  if (['away_team', 'away', 'awayteam', '2', 'team2', 'away_side'].includes(value)) return 'away';
-  if (['draw', 'tie', 'x', 'level', 'drawn'].includes(value)) return 'draw';
-  // Some responses prefix the canonical value or include display labels.
-  if (/(^|\\W)home(\\W|$)/.test(value)) return 'home';
-  if (/(^|\\W)away(\\W|$)/.test(value)) return 'away';
-  if (/(^|\\W)(draw|tie)(\\W|$)/.test(value)) return 'draw';
-  // Do not display a bogus "Draw" for an unfamiliar selection. The API value
-  // will be surfaced as-is by the voter row fallback below.
-  return 'draw';
+function normalizePick(selection: string): string {
+  return selection.trim().toLowerCase().replace(/[\s-]+/g, '_');
+}
+
+function pickKind(selection: string): 'home' | 'away' | 'draw' | 'unknown' {
+  const value = normalizePick(selection);
+  if (['home_team', 'home', 'hometeam', '1', 'team1', 'home_side'].includes(value) || /(^|\W)home(\W|$)/.test(value)) return 'home';
+  if (['away_team', 'away', 'awayteam', '2', 'team2', 'away_side'].includes(value) || /(^|\W)away(\W|$)/.test(value)) return 'away';
+  if (['draw', 'tie', 'x', 'level', 'drawn'].includes(value) || /(^|\W)(draw|tie)(\W|$)/.test(value)) return 'draw';
+  return 'unknown';
 }
 
 export function MatchCard({
@@ -228,10 +223,10 @@ export function MatchCard({
               ? fixture.homeTeam
               : kind === 'away'
                 ? fixture.awayTeam
-                : ['draw', 'tie', 'x', 'level', 'drawn'].includes(voter.selection.trim().toLowerCase().replace(/[\\s-]+/g, '_'))
+                : kind === 'draw'
                   ? 'Draw'
                   : voter.selection || 'Vote recorded',
-          color: outcomeColor(kind, colors),
+          color: kind === 'unknown' ? colors.textTertiary : outcomeColor(kind, colors),
         };
       }),
     [voters, fixture.homeTeam, fixture.awayTeam, colors],
