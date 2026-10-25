@@ -41,6 +41,7 @@ class WebSocketService {
   private currentFixtureId: string | null = null;
 
   private joinedRoomsSet = new Set<string>();
+  private roomLeaseCounts = new Map<string, number>();
   private messageQueue: { type: string; payload: Record<string, any> }[] = [];
   private listeners = new Map<string, Listener[]>();
 
@@ -86,6 +87,28 @@ class WebSocketService {
   leaveRoom(roomId: string) {
     if (!this.joinedRoomsSet.delete(roomId)) return;
     if (this.isConnected) this.send('room.leave', { roomId });
+  }
+
+  /**
+   * Room leases prevent one mounted screen/card from leaving a room that
+   * another mounted consumer still needs. Keep join/leave additive, like the
+   * Flutter service, while making cleanup safe for overlapping screens.
+   */
+  acquireRoom(roomId: string) {
+    const count = this.roomLeaseCounts.get(roomId) ?? 0;
+    this.roomLeaseCounts.set(roomId, count + 1);
+    if (count === 0 && !this.joinedRoomsSet.has(roomId)) this.joinRoom(roomId);
+  }
+
+  releaseRoom(roomId: string) {
+    const count = this.roomLeaseCounts.get(roomId) ?? 0;
+    if (count > 1) {
+      this.roomLeaseCounts.set(roomId, count - 1);
+      return;
+    }
+    if (count === 0) return;
+    this.roomLeaseCounts.delete(roomId);
+    this.leaveRoom(roomId);
   }
 
   private rejoinAllRooms() {
@@ -349,6 +372,7 @@ class WebSocketService {
     this.isConnected = false;
     this.isConnecting = false;
     this.joinedRoomsSet.clear();
+    this.roomLeaseCounts.clear();
     this.connectionStatusListeners.forEach((l) => l(false));
   }
 
