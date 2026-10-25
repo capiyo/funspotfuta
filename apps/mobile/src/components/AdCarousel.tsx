@@ -10,7 +10,7 @@ type Slide =
   | { type: 'ad'; id: string; ad: NativeAd }
   | { type: 'fixture'; id: string; fixture: Fixture };
 
-export default function AdCarousel({ showDots = true }: { showDots?: boolean }) {
+export default function AdCarousel({ showDots = true, flush = false }: { showDots?: boolean; flush?: boolean }) {
   const colors = useFanColors();
   const { width } = useWindowDimensions();
   const [ads, setAds] = useState<LoadedAd[]>([]);
@@ -80,7 +80,7 @@ export default function AdCarousel({ showDots = true }: { showDots?: boolean }) 
   }, [slides.length]);
   if (slides.length === 0) return null;
 
-  return <View style={styles.wrap} accessibilityLabel="Automatic advertisement carousel">
+  return <View style={[styles.wrap, flush && styles.flushWrap]} accessibilityLabel="Automatic advertisement carousel">
     <FlatList ref={listRef} horizontal pagingEnabled data={slides} keyExtractor={(item) => item.id}
       showsHorizontalScrollIndicator={false}
       onMomentumScrollEnd={(event) => setIndex(Math.max(0, Math.min(Math.round(event.nativeEvent.contentOffset.x / width), slides.length - 1)))}
@@ -105,7 +105,7 @@ export default function AdCarousel({ showDots = true }: { showDots?: boolean }) 
 }
 
 const styles = StyleSheet.create({
-  wrap: { width: '100%', marginVertical: 0 }, slide: { paddingHorizontal: 0 },
+  wrap: { width: '100%', marginVertical: 0 }, flushWrap: { margin: 0, padding: 0 }, slide: { paddingHorizontal: 0 },
   ad: { borderRadius: 8, padding: 6, minHeight: 68, overflow: 'hidden' },
   fixture: { borderRadius: 8, paddingHorizontal: 14, minHeight: 68, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 },
   team: { flex: 1, fontSize: 12, fontWeight: '700' },
