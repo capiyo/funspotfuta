@@ -3348,3 +3348,28 @@ body:has(.home-screen) .home-screen *:not(.profile-card):not(.profile-card *):no
     align-self: stretch !important;
   }
 }
+
+/* Desktop action sheets stay compact and centered; narrow screens use half-height bottom sheets. */
+@media (min-width: 651px) {
+  .action-modal-viewport .action-modal-backdrop {
+    justify-content: center !important;
+  }
+  .action-modal-viewport .action-modal-sheet {
+    width: min(448px, calc(100vw - 32px)) !important;
+    max-width: 448px !important;
+    max-height: 82dvh !important;
+    border-radius: 16px !important;
+  }
+  .poke-modal-backdrop {
+    align-items: center !important;
+    padding: 16px !important;
+    box-sizing: border-box !important;
+  }
+  .poke-modal-panel {
+    width: min(448px, calc(100vw - 32px)) !important;
+    max-width: 448px !important;
+    height: min(72dvh, 600px) !important;
+    max-height: 82dvh !important;
+    border-radius: 16px !important;
+  }
+}
