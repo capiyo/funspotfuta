@@ -21,7 +21,7 @@ const backdropStyle: CSSProperties = {
   display: 'flex', alignItems: 'flex-end', justifyContent: 'center', padding: 0,
 };
 const panelStyle = (colors: FanColorPalette): CSSProperties => ({
-  width: '100%', maxWidth: 448, height: '82dvh', maxHeight: '82dvh', display: 'flex', flexDirection: 'column', overflow: 'hidden',
+  width: '100%', maxWidth: 448, height: '50dvh', maxHeight: '50dvh', display: 'flex', flexDirection: 'column', overflow: 'hidden',
   background: colors.surface, color: colors.textPrimary,
   borderRadius: '16px 16px 0 0', padding: '6px 12px 8px', boxSizing: 'border-box',
   boxShadow: '0 -12px 48px rgba(0,0,0,.25)',
@@ -242,8 +242,8 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
   }
 
   return (
-    <div style={backdropStyle} role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !submitting) onClose(); }}>
-      <section role="dialog" aria-modal="true" aria-labelledby="poke-modal-title" style={panelStyle(colors)} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+    <div className="poke-modal-backdrop" style={backdropStyle} role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !submitting) onClose(); }}>
+      <section className="poke-modal-panel" role="dialog" aria-modal="true" aria-labelledby="poke-modal-title" style={panelStyle(colors)} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
         <div aria-hidden="true" style={{ width: 32, height: 4, borderRadius: 999, background: 'var(--border)', margin: '0 auto 7px' }} />
         <header style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
           <div aria-hidden="true" style={{ width: 36, height: 36, flex: '0 0 36px', display: 'grid', placeItems: 'center', borderRadius: '50%', background: 'var(--primary-dim)', color: 'var(--primary)', fontSize: 17 }}>✦</div>
