@@ -174,7 +174,8 @@ export function MatchCard({
     let active = true;
     const fixtureId = String(fixture.matchId || fixture.id);
     if (!channelId || !fixtureId) {
-      setOpenPokes([]);
+      // Channel data can be temporarily unavailable during startup or a carousel
+      // transition. Do not erase a previously hydrated poke list for that gap.
       return () => { active = false; };
     }
     const cacheKey = queryKeys.openPokes(fixtureId, channelId);
