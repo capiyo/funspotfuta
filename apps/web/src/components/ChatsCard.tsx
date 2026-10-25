@@ -25,7 +25,6 @@
 import { useMemo, useRef, useState } from 'react';
 import type { ChangeEvent, CSSProperties, KeyboardEvent } from 'react';
 import {
-  Check,
   Heart,
   Lock,
   MessageCircle,
@@ -212,7 +211,7 @@ export function MatchCard({
         return {
           id: voter.userId,
           name: voter.userName,
-          uri: `https://i.pravatar.cc/150?u=${encodeURIComponent(voter.userId || 'guest')}`,
+          uri: null,
           team:
             kind === 'home'
               ? fixture.homeTeam
@@ -517,32 +516,23 @@ export function MatchCard({
             )}
           </div>
 
-          <div className="match-card-prompt-line" style={{ ...styles.previewText, fontSize: 12, marginTop: 6 }}>
-            {voters.length > 0 ? <VoterList colors={colors} voters={voterItems} emptyLabel="" /> : isCompleted ? 'No votes were cast' : emptyPrompt}
-          </div>
-
-          {/* Result / vote state */}
-          {isCompleted ? (
+          {/* Match result only when complete; voting status is represented by the voter list. */}
+          {isCompleted && (
             <div style={{ ...styles.resultRow }}>
               <span style={styles.resultText}>
                 Winner: {fixtureWinner(fixture)}
               </span>
             </div>
-          ) : hasVoted ? (
-            <div style={{ ...styles.lineRow, ...styles.resultRow }}>
-              <Check size={ICON.sm} color={colors.primary} />
-              <span style={styles.resultText}>Vote recorded</span>
-            </div>
-          ) : null}
+          )}
 
-          {/* Voter stack */}
-          {(voters.length > 0 || isCompleted) && <div className="match-card-legacy-stack" style={styles.stackRow}>
+          {/* Same voter row as native: circular avatar/initials, username, selected team. */}
+          <div className="match-card-voter-stack" style={styles.stackRow}>
             <VoterList
               colors={colors}
               voters={voterItems}
-              emptyLabel={isCompleted ? 'No votes were cast' : ''}
+              emptyLabel={isCompleted ? 'No votes were cast' : emptyPrompt}
             />
-          </div>}
+          </div>
         </div>
 
         {/* Footer top row: comment input left, fixture teams right. */}
