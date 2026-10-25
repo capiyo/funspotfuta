@@ -996,8 +996,8 @@ export function SwipeableVotePledgeModal(props: Props) {
     } = props;
 
     const colors = useFanColors();
-    const styles = useMemo(() => createStyles(colors, screenW), [colors, screenW]);
     const { height: screenH, width: screenW } = useWindowDimensions();
+    const styles = useMemo(() => createStyles(colors, screenW), [colors, screenW]);
 
     // ── Toast: banner inside the sheet + global toast (visible after close) ──
     const globalToast = useToast();
