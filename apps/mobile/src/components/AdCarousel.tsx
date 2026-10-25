@@ -119,7 +119,7 @@ export default function AdCarousel({ showDots = false, flush = false }: { showDo
             <Text style={[styles.vs, { color: colors.textTertiary }]}>VS</Text>
             <Text numberOfLines={1} style={[styles.team, { color: colors.textPrimary }]}>{item.fixture.awayTeam}</Text>
           </View>
-        )}
+        ) : null}
       </View>}
     />
   </View>;
