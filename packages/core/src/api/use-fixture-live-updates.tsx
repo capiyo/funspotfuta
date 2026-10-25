@@ -115,7 +115,10 @@ export function useFixtureLiveUpdates(params: {
     };
 
     const onConnected = () => {
-      if (active) webSocketService.requestCurrentMinute({ fixtureId, channelId });
+      if (!active) return;
+      webSocketService.send('get.commentary', { fixtureId });
+      webSocketService.send('get.latest.comment', { fixtureId, channelId });
+      webSocketService.requestCurrentMinute({ fixtureId, channelId });
     };
 
     const onCommentaryNew = (payload: Record<string, unknown>) => {
@@ -144,7 +147,14 @@ export function useFixtureLiveUpdates(params: {
         !!entry && typeof entry === 'object' && payloadMatchesFixture(entry as Record<string, unknown>, channelId, fixtureId),
       );
       if (!entries.length) return;
-      const latest = entries[entries.length - 1];
+      // Commentary batches can arrive newest-first or oldest-first depending
+      // on the endpoint version; choose the newest timestamp when available.
+      const latest = [...entries].sort((a, b) => {
+        const timeA = Date.parse(String(a.createdAt ?? a.created_at ?? a.timestamp ?? ''));
+        const timeB = Date.parse(String(b.createdAt ?? b.created_at ?? b.timestamp ?? ''));
+        if (!Number.isFinite(timeA) || !Number.isFinite(timeB)) return 0;
+        return timeA - timeB;
+      }).at(-1)!;
       const text = latest.text == null ? '' : String(latest.text);
       if (!text.trim()) return;
       const rawTimestamp = latest.createdAt ?? latest.created_at ?? latest.timestamp;
