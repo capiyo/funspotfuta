@@ -97,7 +97,6 @@ const sharedRequiredSelectors = [
   '.match-card-date',
   '.match-card-league-line',
   '.match-card-comment-preview',
-  '.match-card-prompt-line',
   '.match-card-teams',
   'button[aria-label="Vote"],button[aria-label="Results"]',
   'button[aria-label="Poke on this match"]',
@@ -133,6 +132,10 @@ async function inspect(width, state) {
       assert(await card.locator(selector).count() === 1,
         'Card ' + i + ' at ' + width + 'px (' + state + '): missing/duplicated ' + selector);
     }
+    const emptyPromptCount = await card.locator('.match-card-prompt-line').count();
+    const voterItemCount = await card.locator('.voter-list-item').count();
+    assert(emptyPromptCount === 1 || (emptyPromptCount === 0 && voterItemCount > 0),
+      'Card ' + i + ' at ' + width + 'px (' + state + '): expected either the empty-state prompt or actual voter rows');
     const inOrder = await card.evaluate((el, selectors) => {
       const nodes = selectors.map(selector => el.querySelector(selector));
       return nodes.every((node, index) => !!node && (index === 0 || !!(nodes[index - 1].compareDocumentPosition(node) & Node.DOCUMENT_POSITION_FOLLOWING)));
@@ -157,9 +160,12 @@ async function inspect(width, state) {
       const channel = channelNode.getBoundingClientRect();
       const league = el.querySelector('.match-card-league-line').getBoundingClientRect();
       const preview = el.querySelector('.match-card-comment-preview').getBoundingClientRect();
-      const promptLine = el.querySelector('.match-card-prompt-line').getBoundingClientRect();
+      const promptLineElement = el.querySelector('.match-card-prompt-line') ?? el.querySelector('.voter-list-item');
+      const promptLine = promptLineElement.getBoundingClientRect();
       const previewText = getComputedStyle(el.querySelector('.match-card-preview-text')).color;
-      const promptText = getComputedStyle(el.querySelector('.match-card-prompt-line')).color;
+      const promptText = el.querySelector('.match-card-prompt-line')
+        ? getComputedStyle(promptLineElement).color
+        : previewText;
       const poke = el.querySelector('.match-card-poke');
       const circle = poke.querySelector('.match-card-poke-circle');
       const pokeRect = circle.getBoundingClientRect();
