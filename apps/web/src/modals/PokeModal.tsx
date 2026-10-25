@@ -13,6 +13,19 @@ function pokeIdentity(poke: Poke): string {
     : [poke.matchId, poke.userId, poke.selection, poke.amount, poke.createdAt ?? ''].join(':');
 }
 
+function mergeOpenPokes(...lists: Poke[][]): Poke[] {
+  const merged = new Map<string, Poke>();
+  for (const list of lists) {
+    for (const poke of list) {
+      if (String(poke.status ?? '').trim().toLowerCase() !== 'open') continue;
+      merged.set(pokeIdentity(poke), poke);
+    }
+  }
+  return [...merged.values()].sort(
+    (a, b) => (Date.parse(b.createdAt ?? '') || 0) - (Date.parse(a.createdAt ?? '') || 0),
+  );
+}
+
 type Props = {
   fixture: Fixture;
   userId: string;
@@ -128,9 +141,9 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
         if (!active) return;
         const nextOpen = open.filter((p) => String(p.status ?? '').trim().toLowerCase() === 'open' && String(p.matchId) === matchId);
         const previousOpen = cacheKey ? queryClient.getQueryData<Poke[]>(cacheKey) ?? [] : [];
-        // The list endpoint can briefly return an empty 200 while writes propagate.
-        // Keep the last successful rows rather than replacing the visible cache with an empty array.
-        const stableOpen = nextOpen.length > 0 ? nextOpen : previousOpen;
+        // The endpoint can return an incomplete list while writes propagate.
+        // Merge rather than replacing cached rows with an empty or partial response.
+        const stableOpen = mergeOpenPokes(previousOpen, nextOpen);
         if (cacheKey) queryClient.setQueryData<Poke[]>(cacheKey, stableOpen);
         setOpenPokes(stableOpen);
         setMatchedPokes(mine.filter((p) => p.status.trim().toLowerCase() !== 'open'));
@@ -201,7 +214,7 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
       const nextOpen = open.filter((item) => String(item.status ?? '').trim().toLowerCase() === 'open' && String(item.matchId) === String(matchId) && pokeIdentity(item) !== pokeIdentity(poke));
       // A stale GET must not put the just-matched poke back into the open list.
       const cachedWithoutMatched = previousOpen.filter((item) => pokeIdentity(item) !== pokeIdentity(poke));
-      const stableOpen = nextOpen.length > 0 ? nextOpen : cachedWithoutMatched;
+      const stableOpen = mergeOpenPokes(cachedWithoutMatched, nextOpen);
       if (channelId) queryClient.setQueryData<Poke[]>(cacheKey, stableOpen);
       setOpenPokes(stableOpen);
       setMatchedPokes(mine.filter((item) => item.status.trim().toLowerCase() !== 'open'));
@@ -260,8 +273,7 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
       const previousOpen = queryClient.getQueryData<Poke[]>(cacheKey) ?? [];
       const nextOpen = open.filter((poke) => String(poke.status ?? '').trim().toLowerCase() === 'open' && String(poke.matchId) === String(matchId));
       // Include the confirmed create response immediately; GET may lag behind POST.
-      const candidates = [...(nextOpen.length ? nextOpen : previousOpen), createdPoke];
-      const stableOpen = candidates.filter((poke, index, all) => String(poke.status ?? '').trim().toLowerCase() === 'open' && all.findIndex((item) => pokeIdentity(item) === pokeIdentity(poke)) === index);
+      const stableOpen = mergeOpenPokes(previousOpen, nextOpen, [createdPoke]);
       queryClient.setQueryData<Poke[]>(cacheKey, stableOpen);
       setOpenPokes(stableOpen);
       setMatchedPokes(mine.filter((poke) => poke.status.trim().toLowerCase() !== 'open'));
