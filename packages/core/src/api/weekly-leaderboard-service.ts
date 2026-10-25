@@ -7,6 +7,13 @@ export interface WeeklyChannelLeader {
   weekly_points: number;
 }
 
+export interface WeeklyLeaderboardMe {
+  user_id: string;
+  username: string;
+  weekly_points: number;
+  rank: number | null;
+}
+
 export interface WeeklyLeaderboardResponse {
   success: boolean;
   week: string;
@@ -14,7 +21,7 @@ export interface WeeklyLeaderboardResponse {
   week_ends_at?: string;
   leaderboard: WeeklyChannelLeader[];
   count: number;
-  me: (WeeklyChannelLeader & { rank: number | null }) | null;
+  me: WeeklyLeaderboardMe | null;
   channel_id?: string;
   channel_name?: string;
 }
