@@ -273,6 +273,8 @@
 }
 @media (max-width: 650px) {
   .profile-authenticated-view { gap: 8px; }
+  .profile-guest-fields { gap: 8px; }
+  .profile-guest-field,
   .profile-authenticated-field { min-height: 46px; }
   .profile-account-stats { gap: 6px; }
   .profile-account-stat { padding: 8px 6px; }
