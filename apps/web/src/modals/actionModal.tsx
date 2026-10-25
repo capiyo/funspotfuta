@@ -583,6 +583,7 @@ function TabBar({
                 const on = i === active;
                 return (
                     <Pressable
+                        className="action-tab-button"
                         key={label}
                         onPress={() => onChange(i)}
                         style={({ pressed }) => [styles.tabButton, pressed && { opacity: PRESSED_OPACITY }]}
@@ -1587,8 +1588,8 @@ export function SwipeableVotePledgeModal(props: Props) {
                         </View>
 
                         {/* Match header — the ONLY place both team names appear together */}
-                        <View style={styles.matchHeader}>
-                            <View style={styles.matchHeaderSide}>
+                        <View className="action-match-header" style={styles.matchHeader}>
+                            <View className="action-match-side" style={styles.matchHeaderSide}>
                                 <Text
                                     style={[fanText('caption', colors, colors.primary), { fontWeight: '700' }]}
                                     numberOfLines={1}
@@ -1596,7 +1597,7 @@ export function SwipeableVotePledgeModal(props: Props) {
                                     {fixture.homeTeam}
                                 </Text>
                             </View>
-                            <View style={styles.matchHeaderCenter}>
+                            <View className="action-match-center" style={styles.matchHeaderCenter}>
                                 <Text style={fanText('tag', colors, colors.textTertiary)}>VS</Text>
                                 {isLive && (
                                     <View style={styles.liveBadge}>
@@ -1605,7 +1606,7 @@ export function SwipeableVotePledgeModal(props: Props) {
                                     </View>
                                 )}
                             </View>
-                            <View style={[styles.matchHeaderSide, { alignItems: 'flex-end' }]}>
+                            <View className="action-match-side action-match-away" style={[styles.matchHeaderSide, { alignItems: 'flex-end' }]}>
                                 <Text
                                     style={[fanText('caption', colors, colors.away), { fontWeight: '700' }]}
                                     numberOfLines={1}
