@@ -495,7 +495,7 @@ export default function ProfileContent({
           </span>
         </div>
         <div style={styles.balanceActions}>
-          <button type="button"
+          <button type="button" className="profile-primary-action"
             onClick={() => setDialog('deposit')}
             style={{ ...Object.assign({}, 
               styles.actionChip,
@@ -505,7 +505,7 @@ export default function ProfileContent({
             <Plus size={10} color={colors.textInverse} />
             <span style={styles.actionChipTextPrimary}>Deposit</span>
           </button>
-          <button type="button"
+          <button type="button" className="profile-secondary-action"
             onClick={() => setDialog('withdraw')}
             style={{ ...Object.assign({}, 
               styles.actionChip,
@@ -609,7 +609,7 @@ export default function ProfileContent({
 
         {isCurrentUser && (
           <div style={styles.actionRow}>
-            <button type="button"
+            <button type="button" className="profile-primary-action"
               onClick={() => setEditing(true)}
               style={{ ...Object.assign({}, 
                 styles.actionBtn,
@@ -619,7 +619,7 @@ export default function ProfileContent({
               <Pencil size={11} color={colors.textInverse} />
               <span style={styles.actionBtnTextPrimary}>Edit</span>
             </button>
-            <button type="button"
+            <button type="button" className="profile-secondary-action"
               onClick={handleLogout}
               disabled={loggingOut}
               style={{ ...Object.assign({}, 
@@ -740,7 +740,7 @@ export default function ProfileContent({
           Icon: Globe2,
         })}
 
-        <button type="button"
+        <button type="button" className="profile-primary-action"
           onClick={handleSave}
           disabled={saving}
           style={{ ...Object.assign({}, 
@@ -798,7 +798,7 @@ export default function ProfileContent({
         })}
 
         <div style={styles.actionRow}>
-          <button type="button"
+          <button type="button" className="profile-secondary-action"
             onClick={() => {
               setEditing(false);
               dismissKeyboard();
@@ -822,7 +822,7 @@ export default function ProfileContent({
               Cancel
             </span>
           </button>
-          <button type="button"
+          <button type="button" className="profile-primary-action"
             onClick={handleSave}
             disabled={saving}
             style={{ ...Object.assign({}, 
