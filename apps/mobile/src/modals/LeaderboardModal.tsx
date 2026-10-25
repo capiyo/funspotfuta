@@ -71,19 +71,10 @@ type FanColors = ReturnType<typeof useFanColors>;
 //  RANK HELPERS
 // ═══════════════════════════════════════════════════════════════
 
-// Gold / silver / bronze — not in the design-token palette (theme
-// colors, not rank colors), so they live here as named constants
-// rather than invented tokens.
-const RANK_COLORS = {
-  gold: '#FFD700',
-  silver: '#B0B0B0',
-  bronze: '#CD7F32',
-};
-
 function rankColor(rank: number, colors: FanColors): string {
-  if (rank === 1) return RANK_COLORS.gold;
-  if (rank === 2) return RANK_COLORS.silver;
-  if (rank === 3) return RANK_COLORS.bronze;
+  if (rank === 1) return colors.primary;
+  if (rank === 2) return colors.draw;
+  if (rank === 3) return colors.away;
   return colors.textTertiary;
 }
 
@@ -394,7 +385,7 @@ function TabButton({
       <Text
         style={[
           styles.tabButtonText,
-          { color: active ? colors.textPrimary : colors.textTertiary },
+          { color: active ? colors.primary : colors.textTertiary },
         ]}
       >
         {label}
