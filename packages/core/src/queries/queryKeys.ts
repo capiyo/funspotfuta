@@ -20,6 +20,8 @@ export const queryKeys = {
   messages: (fixtureId: string, userId?: string) => ['messages', fixtureId, userId ?? 'public'] as const,
   chatMessages: (fixtureId: string, channelId: string, userId?: string) => ['chatMessages', fixtureId, channelId, userId ?? 'public'] as const,
   voters: (fixtureId: string, channelId?: string) => ['voters', fixtureId, channelId ?? 'all'] as const,
+  openPokes: (fixtureId: string, channelId: string, marketId = 'main_fixture') => ['openPokes', fixtureId, channelId, marketId] as const,
+  userPokes: (userId: string) => ['userPokes', userId] as const,
   comradeVoters: (fixtureId: string, userId: string) => ['comradeVoters', fixtureId, userId] as const,
   comrades: (userId: string) => ['comrades', userId] as const,
   userComrades: (userId: string) => ['userComrades', userId] as const,
