@@ -41,6 +41,7 @@ import {
   queryKeys,
   hasScores,
   getFormattedMinuteDisplay,
+  useFixtureLiveUpdates,
   winner as fixtureWinner,
   outcomeColor,
   FAN_SPACING,
@@ -167,12 +168,28 @@ export function MatchCard({
   onOpenLineups?: (fixture: Fixture) => void;
 }) {
   const colors = useFanColors();
-  const { userId, isLoggedIn, authToken } = useAuth();
+  const { userId, username, isLoggedIn, authToken } = useAuth();
   const { requireLogin } = useLoginModal();
   const [draft, setDraft] = useState('');
   const [openPokes, setOpenPokes] = useState<Poke[]>([]);
   const pokeCacheKeyRef = useRef('');
   const queryClient = useQueryClient();
+  const live = useFixtureLiveUpdates({
+    channelId,
+    fixtureId: String(fixture.matchId || fixture.id),
+    userId,
+    username,
+    authToken,
+    seed: fixture,
+  });
+  const liveFixture: Fixture = {
+    ...fixture,
+    status: live.status,
+    isLive: live.isLive,
+    homeScore: live.homeScore ?? fixture.homeScore,
+    awayScore: live.awayScore ?? fixture.awayScore,
+    timeElapsed: live.timeElapsed ?? fixture.timeElapsed,
+  };
   useEffect(() => {
     let active = true;
     const fixtureId = String(fixture.matchId || fixture.id);
@@ -221,7 +238,7 @@ export function MatchCard({
     refresh = () => {
       // Keep the last-known list for live fixtures; don't request a list that
       // may be empty after the fixture has moved into play.
-      if (fixture.isLive || fixture.status?.toLowerCase() === 'live') return;
+      if (liveFixture.isLive || liveFixture.status?.toLowerCase() === 'live') return;
       void getOpenPokes(fixtureId, authToken || undefined, channelId)
         .then((items) => {
           if (!active) return;
@@ -242,7 +259,7 @@ export function MatchCard({
     void refresh();
     const interval = window.setInterval(refresh, 2 * 60 * 1000);
     return () => { active = false; unsubscribe(); window.clearInterval(interval); };
-  }, [authToken, channelId, fixture.id, fixture.matchId, fixture.isLive, fixture.status, queryClient]);
+  }, [authToken, channelId, fixture.id, fixture.matchId, liveFixture.isLive, liveFixture.status, queryClient]);
   const channelPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const longChannelPressFired = useRef(false);
   function startChannelPress() {
@@ -284,11 +301,11 @@ export function MatchCard({
       ],
   );
 
-  const isLive = !!fixture.isLive || fixture.status?.toLowerCase() === 'live';
-  const matchMinute = getFormattedMinuteDisplay(fixture);
-  const isHalfTime = fixture.status?.toLowerCase() === 'half_time';
+  const isLive = !!liveFixture.isLive || liveFixture.status?.toLowerCase() === 'live';
+  const matchMinute = getFormattedMinuteDisplay(liveFixture);
+  const isHalfTime = liveFixture.status?.toLowerCase() === 'half_time';
   const isCompleted =
-    fixture.status === 'completed' || fixture.status === 'finished';
+    liveFixture.status === 'completed' || liveFixture.status === 'finished';
   const voters = fixture.voters ?? [];
   const hasVoted = voters.some((voter) => voter.userId === userId);
 
@@ -331,7 +348,7 @@ export function MatchCard({
   }, [pokeItems, openPokes, voterItems]);
   const fixtureLabel = `${fixture.homeTeam} vs ${fixture.awayTeam}`;
   // Teams with the score between them, or "vs" before kickoff.
-  const scoreLabel = hasScores(fixture) ? `${fixture.homeScore} : ${fixture.awayScore}` : 'vs';
+  const scoreLabel = hasScores(liveFixture) ? `${liveFixture.homeScore} : ${liveFixture.awayScore}` : 'vs';
   const canComment = !!isLoggedIn && (isCompleted || hasVoted);
 
   function handleChat() {
