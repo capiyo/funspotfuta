@@ -57,8 +57,8 @@ const crawlRules = [
 await mkdir(distDir, { recursive: true });
 const homepagePath = path.join(distDir, 'index.html');
 const homepage = await readFile(homepagePath, 'utf8');
-if (!/<h1\b[^>]*>[\s\S]*?<\/h1>/i.test(homepage) || !/<p\b[^>]*>[\s\S]*?<\/p>/i.test(homepage)) {
-  throw new Error('[crawl-files] Homepage must include a real HTML h1 and descriptive paragraph.');
+if (homepage.includes('seo-fallback') || homepage.includes('site-footer')) {
+  throw new Error('[crawl-files] Do not ship duplicate static SEO-only homepage markup; the React app shell is served to every visitor.');
 }
 if (!homepage.includes(`<link rel="canonical" href="${origin}/"`) ||
     !homepage.includes(`<meta property="og:url" content="${origin}/"`) ||
