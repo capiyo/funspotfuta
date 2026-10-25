@@ -159,6 +159,22 @@ export default function ChatsScreen() {
   }, [channelPool]);
 
   const [refreshing, setRefreshing] = useState(false);
+  const lastTopRefreshAt = useRef(0);
+  const scrolledAwayFromTop = useRef(false);
+  const handleFixtureScroll = useCallback((event: React.UIEvent<HTMLElement>) => {
+    scrollProps.onScroll(event);
+    const offset = event.currentTarget.scrollTop;
+    if (offset > 80) {
+      scrolledAwayFromTop.current = true;
+      return;
+    }
+    if (!scrolledAwayFromTop.current) return;
+    scrolledAwayFromTop.current = false;
+    const now = Date.now();
+    if (now - lastTopRefreshAt.current < 30_000) return;
+    lastTopRefreshAt.current = now;
+    void refetch();
+  }, [scrollProps.onScroll, refetch]);
   const [modalFixture, setModalFixture] = useState<Fixture | null>(null);
   const [pokeModalFixture, setPokeModalFixture] = useState<Fixture | null>(null);
   const [reviewFixture, setReviewFixture] = useState<Fixture | null>(null);
@@ -398,7 +414,7 @@ export default function ChatsScreen() {
         <div
           className="chats-fixture-list no-scrollbar"
           style={{ ...listStyle(colors), paddingTop: topInset }}
-          onScroll={scrollProps.onScroll}
+          onScroll={handleFixtureScroll}
           aria-label="Fixtures"
         >
           {loadError && <ErrorBanner colors={colors} message={loadError} />}
