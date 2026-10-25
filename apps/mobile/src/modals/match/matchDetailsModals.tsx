@@ -248,8 +248,14 @@ export function MatchDetailsModal({
             animationType="slide"
             onRequestClose={onClose}
         >
-            <Pressable style={styles.backdrop} onPress={onClose}>
+            <View style={styles.backdrop}>
                 <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="Close match details"
+                    onPress={onClose}
+                    style={StyleSheet.absoluteFill}
+                />
+                <View
                     style={[
                         styles.sheet,
                         {
@@ -257,7 +263,6 @@ export function MatchDetailsModal({
                             backgroundColor: colors.surface,
                         },
                     ]}
-                    onPress={() => { }}
                 >
                     {/* Handle */}
                     <View style={styles.handleWrapper}>
@@ -414,8 +419,8 @@ export function MatchDetailsModal({
                             />
                         ) : null}
                     </View>
-                </Pressable>
-            </Pressable>
+                </View>
+            </View>
         </Modal>
     );
 }
