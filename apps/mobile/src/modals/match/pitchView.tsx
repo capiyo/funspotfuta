@@ -835,7 +835,7 @@ export interface PitchViewProps {
     awayPlayers: SimplifiedPlayer[];
 }
 
-const PITCH_ASPECT_RATIO = 0.58;
+const PITCH_ASPECT_RATIO = 0.48;
 
 export function PitchView({
     homeTeam,
@@ -853,8 +853,8 @@ export function PitchView({
         height: 0,
     });
 
-    const cappedHome = homePlayers.slice(0, 11);
-    const cappedAway = awayPlayers.slice(0, 11);
+    const cappedHome = useMemo(() => homePlayers.slice(0, 11), [homePlayers]);
+    const cappedAway = useMemo(() => awayPlayers.slice(0, 11), [awayPlayers]);
     const homeOverflow = homePlayers.slice(11);
     const awayOverflow = awayPlayers.slice(11);
     const hasOverflow = homeOverflow.length > 0 || awayOverflow.length > 0;
@@ -885,7 +885,7 @@ export function PitchView({
 
     const onPitchLayout = (e: LayoutChangeEvent) => {
         const { width, height } = e.nativeEvent.layout;
-        if (width !== pitchSize.width || height !== pitchSize.height) {
+        if (Math.abs(width - pitchSize.width) > 0.5 || Math.abs(height - pitchSize.height) > 0.5) {
             setPitchSize({ width, height });
         }
     };
