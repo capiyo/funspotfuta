@@ -3921,3 +3921,42 @@ body:has(.home-screen) .home-screen .chats-column .match-card .match-card-voter-
   overflow: hidden !important;
   flex: 0 0 16px !important;
 }
+
+
+/* Desktop users can switch a fixture's channel slide by its visible name.
+   The touch/swipe carousel remains the primary control on narrow screens. */
+.desktop-chat-channel-controls {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+  overflow-x: auto;
+  padding: 5px 12px 2px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.desktop-chat-channel-controls::-webkit-scrollbar { display: none; }
+.desktop-chat-channel-controls button {
+  flex: 0 0 auto;
+  max-width: 180px;
+  overflow: hidden;
+  padding: 3px 0 5px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: inherit;
+  opacity: .62;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.desktop-chat-channel-controls button[aria-current="page"] {
+  border-bottom-color: currentColor;
+  opacity: 1;
+}
+@media (max-width: 650px) {
+  .desktop-chat-channel-controls { display: none; }
+}
