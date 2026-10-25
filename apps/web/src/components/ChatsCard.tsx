@@ -604,7 +604,7 @@ export function MatchCard({
                     onKeyDown={handleCommentKeyDown}
                     style={styles.input}
                   />
-                  {isTyping && <button type="button" onClick={handleSubmit} disabled={!canComment} aria-label="Send comment" title="Send comment" style={{ flex: '0 0 auto', padding: '6px 10px', border: 0, borderRadius: 16, background: canComment ? colors.primary : colors.primaryDim, color: '#fff', cursor: canComment ? 'pointer' : 'not-allowed' }}>Send</button>}
+                  {isTyping && <button type="button" onClick={handleSubmit} disabled={!canComment} aria-label="Send comment" title="Send comment" style={{ flex: '0 0 auto', padding: '2px 0', border: 0, borderRadius: 0, background: 'transparent', color: canComment ? colors.primary : colors.textTertiary, font: 'inherit', fontSize: 12, fontWeight: 600, cursor: canComment ? 'pointer' : 'not-allowed' }}>Send</button>}
                 </>
               )}
             </div>
@@ -624,7 +624,7 @@ export function MatchCard({
               </button>
             </div>
             <div className="match-card-action-slot" style={{ display: 'flex', justifyContent: 'center', minWidth: 0 }}><ActionButton icon={Heart} label={liked ? 'Unlike' : 'Like'} count={likesCount} active={liked} activeColor={colors.away} colors={colors} onPress={handleLike} /></div>
-            <div className="match-card-action-slot" style={{ display: 'flex', justifyContent: 'center', minWidth: 0 }}><ActionButton icon={MessageCircle} label="Comments" count={commentsCount ?? pool.length} colors={colors} onPress={handleChat} /></div>
+            <div className="match-card-action-slot" style={{ display: 'flex', justifyContent: 'center', minWidth: 0 }}><ActionButton icon={MessageCircle} label="Comments" count={commentsCount ?? pool.length} colors={colors} onPress={() => {}} /></div>
           </div>
         </div>
       </div>
