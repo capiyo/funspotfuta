@@ -66,7 +66,7 @@ export default function AdCarousel({ showDots = false, flush = false, fixture = 
 
   useEffect(() => {
     if (index >= slides.length) setIndex(0);
-  }, [index, slides.length]);
+  }, [index, slides.length, fixture?.matchId, fixture?.id]);
 
   useEffect(() => {
     if (slides.length < 2) return;
