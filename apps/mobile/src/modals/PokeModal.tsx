@@ -84,6 +84,8 @@ export function PokeModal({ visible, fixture, userId, username, authToken, chann
   useEffect(() => {
     if (!visible) return;
     let active = true;
+    // Do not turn a temporarily missing channel selection into an empty list.
+    if (!channelId) return () => { active = false; };
     const matchId = String(fixture.matchId || fixture.id);
     const cacheKey = channelId ? queryKeys.openPokes(matchId, channelId, marketId) : null;
     const cachedOpen = cacheKey ? queryClient.getQueryData<Poke[]>(cacheKey) : undefined;
