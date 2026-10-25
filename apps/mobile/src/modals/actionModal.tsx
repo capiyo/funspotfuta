@@ -306,10 +306,10 @@ function OutcomePill({
             ]}
         >
             <Text
-                numberOfLines={1}
+                numberOfLines={2}
                 style={[
                     fanText('caption', colors, selected ? accent : colors.textPrimary),
-                    { fontWeight: '700' },
+                    { fontWeight: '700', textAlign: 'center', flexShrink: 1, flexWrap: 'wrap' },
                 ]}
             >
                 {label}
@@ -1507,7 +1507,7 @@ export function SwipeableVotePledgeModal(props: Props) {
                 <Pressable style={styles.backdrop} onPress={onClose}>
                     <Pressable
                         style={[styles.sheet, { width: '100%', height: screenH * 0.5, maxHeight: '50%' }]}
-                        onPress={() => { }}
+                        onPress={(event) => event.stopPropagation()}
                     >
                         <HandleBar colors={colors} styles={styles} />
 
