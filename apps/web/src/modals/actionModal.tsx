@@ -1510,7 +1510,7 @@ export function SwipeableVotePledgeModal(props: Props) {
         return (
             <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
                 <Pressable className="action-modal-backdrop" style={[styles.backdrop, { width: '100%', minWidth: 0, alignItems: 'stretch' }]} onPress={onClose}>
-                    <Pressable className="action-modal-sheet" style={[styles.sheet, { width: '100%', maxWidth: screenW > 650 ? 448 : '100%', alignSelf: screenW > 650 ? 'center' : 'stretch', marginLeft: 'auto', marginRight: 'auto', flex: '0 0 auto', minWidth: 0, minHeight: 0, height: screenW > 650 ? Math.min(screenH * 0.72, 600) : screenH * 0.5, maxHeight: screenW > 650 ? '82dvh' : '50dvh', borderRadius: screenW > 650 ? FAN_RADIUS.xl : undefined }]} onPress={(event) => event.stopPropagation()}>
+                    <Pressable className="action-modal-sheet" style={[styles.sheet, { width: '100%', maxWidth: screenW > 650 ? 448 : '100%', alignSelf: screenW > 650 ? 'center' : 'stretch', marginLeft: 'auto', marginRight: 'auto', flex: '0 0 auto', minWidth: 0, minHeight: 0, height: screenW > 650 ? Math.min(screenH * 0.62, 540) : screenH * 0.5, maxHeight: screenW > 650 ? '82dvh' : '50dvh', borderRadius: screenW > 650 ? FAN_RADIUS.xl : undefined }]} onPress={(event) => event.stopPropagation()}>
                         <HandleBar colors={colors} styles={styles} />
                         <View style={styles.joinGroupBox}>
                             <View style={styles.joinGroupIconWrap}>
@@ -1546,7 +1546,7 @@ export function SwipeableVotePledgeModal(props: Props) {
             <View style={{ flex: 1, width: '100%', minWidth: 0, alignSelf: 'stretch' }}>
                 <Pressable className="action-modal-backdrop" style={[styles.backdrop, { width: '100%', minWidth: 0, alignItems: 'stretch', alignSelf: 'stretch' }]} onPress={onClose}>
                     <Pressable
-                        className="action-modal-sheet" style={[styles.sheet, { width: screenW > 650 ? 448 : '100%', maxWidth: 448, alignSelf: 'center', marginLeft: 'auto', marginRight: 'auto', flex: '0 0 auto', minWidth: 0, minHeight: 0, height: screenW > 650 ? Math.min(screenH * 0.72, 600) : screenH * 0.5, maxHeight: screenW > 650 ? '82dvh' : '50dvh', borderRadius: screenW > 650 ? FAN_RADIUS.xl : undefined }]}
+                        className="action-modal-sheet" style={[styles.sheet, { width: screenW > 650 ? 448 : '100%', maxWidth: 448, alignSelf: 'center', marginLeft: 'auto', marginRight: 'auto', flex: '0 0 auto', minWidth: 0, minHeight: 0, height: screenW > 650 ? Math.min(screenH * 0.62, 540) : screenH * 0.5, maxHeight: screenW > 650 ? '82dvh' : '50dvh', borderRadius: screenW > 650 ? FAN_RADIUS.xl : undefined }]}
                         onPress={(event) => event.stopPropagation()}
                     >
                         <HandleBar colors={colors} styles={styles} />
