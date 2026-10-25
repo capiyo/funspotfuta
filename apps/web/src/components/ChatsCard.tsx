@@ -190,6 +190,7 @@ export function MatchCard({
     awayScore: live.awayScore ?? fixture.awayScore,
     timeElapsed: live.timeElapsed ?? fixture.timeElapsed,
   };
+  const displayedLiveCommentary = live.commentary ?? liveCommentary;
   useEffect(() => {
     let active = true;
     const fixtureId = String(fixture.matchId || fixture.id);
@@ -627,11 +628,11 @@ export function MatchCard({
 
           {/* Comment preview / live commentary */}
           <div className="match-card-comment-preview" style={{ ...styles.lineRow, ...styles.previewRow }}>
-            {isLive && liveCommentary ? (
+            {isLive && displayedLiveCommentary ? (
               <>
                 <Radio size={ICON.sm} color={colors.live} />
-                <span className="match-card-preview-text" style={styles.previewText}>{liveCommentary.text}</span>
-                <span style={styles.minute}>{liveCommentary.minute}&apos;</span>
+                <span className="match-card-preview-text" style={styles.previewText}>{displayedLiveCommentary.text}</span>
+                <span style={styles.minute}>{Math.floor(displayedLiveCommentary.minute)}&apos;</span>
               </>
             ) : (
               <>
