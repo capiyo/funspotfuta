@@ -230,7 +230,6 @@ export function useFixtureLiveUpdates(params: {
       channelId,
       fixtureId,
     });
-    webSocketService.acquireRoom(roomId);
 
     // connect() sends a room.join immediately when the singleton is already
     // connected; request a snapshot now. A fresh connection requests it from
@@ -251,9 +250,15 @@ export function useFixtureLiveUpdates(params: {
       webSocketService.off('match.goal', onMatchGoal);
       webSocketService.off('match.ended', onMatchEnded);
       webSocketService.off('minute.update', onMinuteUpdate);
-      webSocketService.releaseRoom(roomId);
     };
   }, [channelId, fixtureId, userId, username, authToken]);
+
+  useEffect(() => {
+    if (!channelId || !fixtureId || !userId || !username) return;
+    const roomId = `${channelId}_${fixtureId}`;
+    webSocketService.acquireRoom(roomId);
+    return () => webSocketService.releaseRoom(roomId);
+  }, [channelId, fixtureId, userId, username]);
 
   return state;
 }
