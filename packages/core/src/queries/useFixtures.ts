@@ -124,7 +124,7 @@ export function useFixtures(userId?: string, enabled = true, authToken?: string 
     enabled,
     staleTime: 60 * 1000,
     gcTime: 7 * 24 * 60 * 60 * 1000,
-    refetchInterval: 5 * 60 * 1000,
+    refetchInterval: 2 * 60 * 1000,
     refetchOnMount: 'always',
     refetchOnWindowFocus: true,
   });
@@ -135,28 +135,35 @@ export function useFixtures(userId?: string, enabled = true, authToken?: string 
     void queryClient.invalidateQueries({ queryKey: queryKeys.fixtures() });
   }, [authToken, queryClient]);
 
-  // Seed a user-scoped vote snapshot from restored fixture voters only when
-  // that vote snapshot is absent. This makes cached voter names available to
-  // chat immediately after a cold start, without overwriting vote counts.
+  // Keep the persisted per-fixture snapshots in sync with every refreshed
+  // voter list. Merge rather than replace so a partial endpoint response never
+  // drops voters, avatars, vote totals, or the locally confirmed user vote.
   useEffect(() => {
     for (const fixture of query.data ?? []) {
       const fixtureId = fixture.matchId || fixture.id;
       const key = queryKeys.fixtureVotes(fixtureId, userId ?? 'anonymous');
-      if (queryClient.getQueryData(key)) continue;
-      const ownVote = fixture.voters.find((voter) => voter.userId === userId);
-      queryClient.setQueryData(key, {
-        homeVotes: 0,
-        awayVotes: 0,
-        drawVotes: 0,
-        userVoteSelection: ownVote?.selection ?? null,
-        voters: fixture.voters.map((voter) => ({
+      const previous = queryClient.getQueryData<CachedVoteSnapshot>(key);
+      const voters = new Map<string, CachedVoteSnapshot['voters'][number]>();
+      for (const voter of previous?.voters ?? []) voters.set(voter.userId, voter);
+      for (const voter of fixture.voters ?? []) {
+        if (!voter.userId) continue;
+        const old = voters.get(voter.userId);
+        voters.set(voter.userId, {
           userId: voter.userId,
-          username: voter.userName,
-          selection: voter.selection,
-          votedAt: voter.votedAt,
-          isComrade: voter.isComrade,
-          uri: voter.uri ?? null,
-        })),
+          username: voter.userName || old?.username || 'Anonymous',
+          selection: voter.selection || old?.selection || '',
+          votedAt: voter.votedAt ?? old?.votedAt,
+          isComrade: voter.isComrade ?? old?.isComrade,
+          uri: voter.uri ?? old?.uri ?? null,
+        });
+      }
+      const ownVote = [...voters.values()].find((voter) => voter.userId === userId);
+      queryClient.setQueryData<CachedVoteSnapshot>(key, {
+        homeVotes: previous?.homeVotes ?? 0,
+        awayVotes: previous?.awayVotes ?? 0,
+        drawVotes: previous?.drawVotes ?? 0,
+        userVoteSelection: ownVote?.selection ?? previous?.userVoteSelection ?? null,
+        voters: [...voters.values()],
       });
     }
   }, [query.data, userId, queryClient]);
