@@ -236,6 +236,7 @@ export default function ChatsScreen() {
   }, [scrollProps.onScroll, refetch, queryClient]);
   const [modalFixture, setModalFixture] = useState<Fixture | null>(null);
   const [pokeModalFixture, setPokeModalFixture] = useState<Fixture | null>(null);
+  const [pokeModalChannelId, setPokeModalChannelId] = useState<string | undefined>();
   const [reviewFixture, setReviewFixture] = useState<Fixture | null>(null);
   const [matchDetailsFixture, setMatchDetailsFixture] =
     useState<Fixture | null>(null);
@@ -613,7 +614,7 @@ export default function ChatsScreen() {
                     comments={commentsOf(fixture)}
                     channelId={cid}
                     onOpenVoteModal={(f) => { setSheetChannelId(cid); setModalFixture(f); }}
-                    onOpenPokeModal={(f) => setPokeModalFixture(f)}
+                    onOpenPokeModal={(f) => { setPokeModalChannelId(cid); setPokeModalFixture(f); }}
                     onOpenResults={(f) => { setSheetChannelId(cid); setReviewFixture(f); }}
                     onChatClick={() => openChat(fixture, cid)}
                     onChannelPress={() => {
@@ -688,9 +689,8 @@ export default function ChatsScreen() {
           userId={userId}
           username={username ?? ''}
           authToken={authToken}
-          onClose={() => setPokeModalFixture(null)}
-        
-          channelId={activeChannelId}/>
+          onClose={() => { setPokeModalFixture(null); setPokeModalChannelId(undefined); }}
+          channelId={pokeModalChannelId ?? activeChannelId ?? undefined}/>
       )}
 
       {reviewFixture && activeChannelId && (
