@@ -156,7 +156,15 @@ export async function fetchVoters(
   authToken?: Token,
 ): Promise<any[]> {
   const data = await getJson(`${API_BASE_URL}/actions/vote/fixture/${fixtureId}/voters`, authToken);
-  const list: any[] = data?.voters ?? [];
+  const list: any[] = Array.isArray(data)
+    ? data
+    : Array.isArray(data?.voters)
+      ? data.voters
+      : Array.isArray(data?.data?.voters)
+        ? data.data.voters
+        : Array.isArray(data?.data)
+          ? data.data
+          : [];
   return list.map((v) => ({
     ...v,
     userId: str(v.userId ?? v.user_id),
