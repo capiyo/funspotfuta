@@ -286,8 +286,8 @@ export function AppHeader(props: HeaderProps = {}) {
                   aria-expanded={menuOpen}
                   aria-label={`Account menu for ${currentUsername ?? 'profile'}`}
                   className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full"
-                  style={{ background: colors.primaryMuted }}
-                ><img src={avatarUri} alt="" className="h-full w-full object-cover" /></button>
+                  style={{ background: colors.primaryMuted, borderRadius: "50%", padding: 0, overflow: "hidden" }}
+                ><img src={avatarUri} alt="" className="h-full w-full object-cover" style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover", display: "block" }} /></button>
                 <button type="button" className="hidden max-w-28 items-center gap-1 truncate text-xs sm:flex" style={{ color: colors.textSecondary }} onClick={() => openMenu(avatarRef.current)}>
                   {currentUsername ?? 'Profile'} <ChevronDown size={13} />
                 </button>
@@ -327,8 +327,8 @@ export function AppHeader(props: HeaderProps = {}) {
               aria-label="Refresh" className="mobile-home-icon-button" style={{ color: colors.textSecondary }}><RefreshCw size={17} /></button>
             <button ref={mobileMenuButtonRef} type="button" onClick={() => openMenu(mobileMenuButtonRef.current)}
               aria-label="Open menu" aria-haspopup="menu" aria-expanded={menuOpen}
-              className="mobile-home-menu-button" style={{ color: colors.textSecondary, background: loggedIn ? colors.primaryMuted : 'transparent' }}>
-              {loggedIn ? <img src={avatarUri} alt="" /> : <Menu size={20} />}
+              className="mobile-home-menu-button" style={{ color: colors.textSecondary, background: loggedIn ? colors.primaryMuted : 'transparent', borderRadius: loggedIn ? "50%" : undefined, overflow: loggedIn ? "hidden" : undefined, padding: loggedIn ? 0 : undefined }}>
+              {loggedIn ? <img src={avatarUri} alt="" style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover", display: "block" }} /> : <Menu size={20} />}
             </button>
             {!loggedIn && <button type="button" onClick={() => requireLogin()}
               className="mobile-home-join" style={{ color: colors.primary, fontFamily: 'SairaCondensed_600SemiBold, sans-serif' }}>Join</button>}
