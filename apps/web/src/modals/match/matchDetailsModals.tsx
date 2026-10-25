@@ -28,6 +28,8 @@ function hasValidStatistics(data:any):boolean {
 export function MatchDetailsModal({visible,fixture,userId,username,authToken,onClose}:MatchDetailsModalProps) {
   const colors=useFanColors();
   const dialogRef=useRef<HTMLDivElement>(null);
+  const onCloseRef=useRef(onClose);
+  useEffect(()=>{onCloseRef.current=onClose;},[onClose]);
   const [activeTab,setActiveTab]=useState<'lineups'|'stats'>('lineups');
   const [statistics,setStatistics]=useState<MatchStatistics|null>(null);
   const [lineups,setLineups]=useState<LineupsData|null>(null);
@@ -63,7 +65,7 @@ export function MatchDetailsModal({visible,fixture,userId,username,authToken,onC
     const previous=document.activeElement as HTMLElement|null;
     dialogRef.current?.querySelector<HTMLElement>('button')?.focus();
     const keydown=(event:KeyboardEvent)=>{
-      if(event.key==='Escape')onClose();
+      if(event.key==='Escape')onCloseRef.current();
       if(event.key!=='Tab'||!dialogRef.current)return;
       const items=Array.from(dialogRef.current.querySelectorAll<HTMLElement>('button:not(:disabled)'));
       if(!items.length)return;
@@ -74,7 +76,7 @@ export function MatchDetailsModal({visible,fixture,userId,username,authToken,onC
     setActiveTab('lineups');setStatistics(null);setLineups(null);setLoadingStats(true);setLoadingLineups(true);setStatsError('');setLineupsError('');setHasStats(false);
     void fetchLineups();void fetchStatistics();
     return()=>{document.removeEventListener('keydown',keydown);previous?.focus();};
-  },[visible,fixture.matchId,onClose,fetchLineups,fetchStatistics]);
+  },[visible,fixture.matchId,fetchLineups,fetchStatistics]);
 
   if(!visible||!fixture)return null;
   const home=fixture.homeScore??0,away=fixture.awayScore??0,isLive=fixture.status==='live';
