@@ -13,6 +13,19 @@ function pokeIdentity(poke: Poke): string {
     : [poke.matchId, poke.userId, poke.selection, poke.amount, poke.createdAt ?? ''].join(':');
 }
 
+function mergeOpenPokes(...lists: Poke[][]): Poke[] {
+  const merged = new Map<string, Poke>();
+  for (const list of lists) {
+    for (const poke of list) {
+      if (String(poke.status ?? '').trim().toLowerCase() !== 'open') continue;
+      merged.set(pokeIdentity(poke), poke);
+    }
+  }
+  return [...merged.values()].sort(
+    (a, b) => (Date.parse(b.createdAt ?? '') || 0) - (Date.parse(a.createdAt ?? '') || 0),
+  );
+}
+
 type Props = { visible: boolean; fixture: Fixture; userId: string; username: string; authToken?: string | null; channelId?: string; onClose: () => void };
 
 function cachedChannelMemberPoints(channels: Channel[] | undefined, channelId: string | undefined, userId: string): number | null {
@@ -101,9 +114,9 @@ export function PokeModal({ visible, fixture, userId, username, authToken, chann
         if (!active) return;
         const nextOpen = open.filter((p) => p.status.trim().toLowerCase() === 'open' && String(p.matchId) === matchId);
         const previousOpen = cacheKey ? queryClient.getQueryData<Poke[]>(cacheKey) ?? [] : [];
-        // Empty HTTP 200 responses have been intermittent while the backend is
-        // catching up. Never let one erase rows already shown in ChatsCard.
-        const stableOpen = nextOpen.length > 0 ? nextOpen : previousOpen;
+        // The endpoint can return an incomplete list while writes propagate.
+        // Merge rather than replacing cached rows with an empty or partial response.
+        const stableOpen = mergeOpenPokes(previousOpen, nextOpen);
         if (cacheKey) queryClient.setQueryData<Poke[]>(cacheKey, stableOpen);
         setOpenPokes(stableOpen);
         setMatchedPokes(mine.filter((p) => p.status.trim().toLowerCase() !== 'open'));
@@ -154,10 +167,8 @@ export function PokeModal({ visible, fixture, userId, username, authToken, chann
       const nextOpen = open.filter((poke) => poke.status.trim().toLowerCase() === 'open' && String(poke.matchId) === String(matchId));
       const cacheKey = queryKeys.openPokes(String(matchId), channelId, marketId);
       const previousOpen = queryClient.getQueryData<Poke[]>(cacheKey) ?? [];
-      // If create succeeds while the list endpoint is lagging, retain known rows.
-      const candidates = [...(nextOpen.length ? nextOpen : previousOpen), createdPoke];
-      const stableOpen = candidates.filter((poke, index, all) =>
-        poke.status.trim().toLowerCase() === 'open' && all.findIndex((item) => pokeIdentity(item) === pokeIdentity(poke)) === index);
+      // Include the confirmed create response immediately; GET may lag behind POST.
+      const stableOpen = mergeOpenPokes(previousOpen, nextOpen, [createdPoke]);
       if (channelId) queryClient.setQueryData<Poke[]>(cacheKey, stableOpen);
       setOpenPokes(stableOpen);
       setMatchedPokes(mine.filter((poke) => poke.status.trim().toLowerCase() !== 'open'));
@@ -186,7 +197,7 @@ export function PokeModal({ visible, fixture, userId, username, authToken, chann
         </View>
         {tab === 'open' && <ScrollView style={{ flex: 1 }} keyboardShouldPersistTaps="handled"><View style={styles.listSection}>
           <Text style={styles.label}>Open pokes · {openPokes.length}</Text>
-          {openPokes.length ? openPokes.map((p) => <View key={p.id} style={styles.pokerRow}><View style={{flex:1}}><Text style={styles.choiceText}><Text style={{ color: colors.primary, fontSize: 9, fontWeight: '800' }}>✊ POKE</Text> · {p.userName} · {p.selection}</Text><Text style={styles.muted}>{p.amount} pts</Text></View><Pressable disabled={p.userId === userId || submitting || fixture.isLive || fixture.status === 'live'} onPress={() => void (async () => { setSubmitting(true); setError(''); try { if (!channelId) throw new Error('Choose a channel before matching a poke.'); if (fixture.isLive || fixture.status === 'live') throw new Error('Pokes are closed once a match goes live.'); if (balance === null || balance < p.amount) throw new Error('You do not have enough points to match this poke.'); await matchPoke({pokeId:p.id,userId,userName:username,selection:p.selection === 'home' ? 'away' : 'home',amount:p.amount,token:authToken || undefined}); setMessage('Poke matched successfully'); const matchedCacheKey = queryKeys.openPokes(String(fixture.matchId || fixture.id), channelId, marketId); queryClient.setQueryData<Poke[]>(matchedCacheKey, (current = []) => current.filter((item) => pokeIdentity(item) !== pokeIdentity(p))); setOpenPokes((current) => current.filter((item) => item.id !== p.id)); const [open,mine]=await Promise.all([getOpenPokes(fixture.matchId || fixture.id,authToken || undefined,channelId,marketId),getUserPokes(userId,authToken || undefined)]); const nextBalance=balance===null?null:Math.max(0,balance-p.amount); setBalance(nextBalance); if(nextBalance!==null) writeCachedChannelMemberPoints(queryClient,userId,channelId,nextBalance); const nextOpen=open.filter(x=>x.status.trim().toLowerCase()==='open' && String(x.matchId)===String(fixture.matchId || fixture.id) && pokeIdentity(x)!==pokeIdentity(p)); const currentOpen=(queryClient.getQueryData<Poke[]>(matchedCacheKey) ?? []).filter(x=>pokeIdentity(x)!==pokeIdentity(p)); const stableOpen=nextOpen.length ? nextOpen : currentOpen; if(channelId) queryClient.setQueryData<Poke[]>(matchedCacheKey,stableOpen); setOpenPokes(stableOpen); setMatchedPokes(mine.filter(x=>x.status.toLowerCase()!=='open')); } catch(e) { setError(e instanceof Error?e.message:'Could not match poke'); } finally { setSubmitting(false); } })()} style={[styles.matchButton, (p.userId === userId || submitting || fixture.isLive || fixture.status === 'live') && {opacity:0.45}]}><Text style={styles.primaryText}>Match</Text></Pressable></View>) : <Text style={styles.muted}>No open pokes for this fixture yet.</Text>}
+          {openPokes.length ? openPokes.map((p) => <View key={p.id} style={styles.pokerRow}><View style={{flex:1}}><Text style={styles.choiceText}><Text style={{ color: colors.primary, fontSize: 9, fontWeight: '800' }}>✊ POKE</Text> · {p.userName} · {p.selection}</Text><Text style={styles.muted}>{p.amount} pts</Text></View><Pressable disabled={p.userId === userId || submitting || fixture.isLive || fixture.status === 'live'} onPress={() => void (async () => { setSubmitting(true); setError(''); try { if (!channelId) throw new Error('Choose a channel before matching a poke.'); if (fixture.isLive || fixture.status === 'live') throw new Error('Pokes are closed once a match goes live.'); if (balance === null || balance < p.amount) throw new Error('You do not have enough points to match this poke.'); await matchPoke({pokeId:p.id,userId,userName:username,selection:p.selection === 'home' ? 'away' : 'home',amount:p.amount,token:authToken || undefined}); setMessage('Poke matched successfully'); const matchedCacheKey = queryKeys.openPokes(String(fixture.matchId || fixture.id), channelId, marketId); queryClient.setQueryData<Poke[]>(matchedCacheKey, (current = []) => current.filter((item) => pokeIdentity(item) !== pokeIdentity(p))); setOpenPokes((current) => current.filter((item) => item.id !== p.id)); const [open,mine]=await Promise.all([getOpenPokes(fixture.matchId || fixture.id,authToken || undefined,channelId,marketId),getUserPokes(userId,authToken || undefined)]); const nextBalance=balance===null?null:Math.max(0,balance-p.amount); setBalance(nextBalance); if(nextBalance!==null) writeCachedChannelMemberPoints(queryClient,userId,channelId,nextBalance); const nextOpen=open.filter(x=>x.status.trim().toLowerCase()==='open' && String(x.matchId)===String(fixture.matchId || fixture.id) && pokeIdentity(x)!==pokeIdentity(p)); const currentOpen=(queryClient.getQueryData<Poke[]>(matchedCacheKey) ?? []).filter(x=>pokeIdentity(x)!==pokeIdentity(p)); const stableOpen=mergeOpenPokes(currentOpen,nextOpen); if(channelId) queryClient.setQueryData<Poke[]>(matchedCacheKey,stableOpen); setOpenPokes(stableOpen); setMatchedPokes(mine.filter(x=>x.status.toLowerCase()!=='open')); } catch(e) { setError(e instanceof Error?e.message:'Could not match poke'); } finally { setSubmitting(false); } })()} style={[styles.matchButton, (p.userId === userId || submitting || fixture.isLive || fixture.status === 'live') && {opacity:0.45}]}><Text style={styles.primaryText}>Match</Text></Pressable></View>) : <Text style={styles.muted}>No open pokes for this fixture yet.</Text>}
         </View></ScrollView>}
         {tab === 'matched' && <ScrollView style={{ flex: 1 }} keyboardShouldPersistTaps="handled"><View style={styles.listSection}><Text style={styles.label}>Matched pokes · {matchedPokes.length}</Text>{matchedPokes.length ? matchedPokes.map(p => <View key={p.id} style={styles.pokerRow}><View style={{flex:1}}><Text style={styles.choiceText}><Text style={{ color: colors.primary, fontSize: 9, fontWeight: '800' }}>✊ POKE</Text> · {p.userName} · {p.selection}</Text><Text style={styles.muted}>{p.amount} pts · {p.status}</Text><Text style={styles.muted}>{p.finisherName ? 'Matched with '+p.finisherName : 'Outcome pending'}</Text></View></View>) : <Text style={styles.muted}>Your matched pokes will appear here.</Text>}</View></ScrollView>}
 
