@@ -19,7 +19,7 @@ export * from './api/comrade-service';
 // Resolve the legacy weekly-leaderboard exports from comrade-service in favor
 // of the canonical response shape consumed by both platform leaderboard UIs.
 export { getChannelWeeklyLeaderboard, getChannelWeeklyLeaderboardData } from './api/weekly-leaderboard-service';
-export type { WeeklyChannelLeader, WeeklyLeaderboardResponse } from './api/weekly-leaderboard-service';
+export type { WeeklyChannelLeader, WeeklyLeaderboardMe, WeeklyLeaderboardResponse } from './api/weekly-leaderboard-service';
 
 export * from './api/bet-service';
 export * from './api/pokes-service';
