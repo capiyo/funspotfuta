@@ -483,7 +483,6 @@ export function useChannelChat({
             channelId,
             fixtureId,
         });
-        webSocketService.acquireRoom(fixtureId ? `${channelId}_${fixtureId}` : `${channelId}_overall`);
 
         // Catch-up unconditionally — if another screen already connected/joined,
         // 'connected' / 'room.joined' won't fire again.
@@ -705,11 +704,13 @@ export function useChannelChat({
 
     // ── Leave room on unmount (additive) ────────────────────────
     useEffect(() => {
-        if (!channelId) return;
+        if (!channelId || !userId || !username) return;
+        const roomId = fixtureId ? `${channelId}_${fixtureId}` : `${channelId}_overall`;
+        webSocketService.acquireRoom(roomId);
         return () => {
-            webSocketService.releaseRoom(fixtureId ? `${channelId}_${fixtureId}` : `${channelId}_overall`);
+            webSocketService.releaseRoom(roomId);
         };
-    }, [channelId, fixtureId]);
+    }, [channelId, fixtureId, userId, username]);
 
     // ── Clear typing timer on unmount ───────────────────────────
     useEffect(() => {
