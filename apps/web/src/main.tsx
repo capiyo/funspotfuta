@@ -8,19 +8,9 @@ import App from './App';
 import { indexedDbQueryPersister } from './lib/query-persistence';
 import './styles.css';
 
-// Load the live publisher script only on the production domain, never on
-// localhost or preview deployments.
-if (
-  import.meta.env.PROD
-  && import.meta.env.VITE_ADSENSE_ENABLED !== 'false'
-  && ['funspot.co.ke', 'www.funspot.co.ke'].includes(window.location.hostname)
-) {
-  const adsenseScript = document.createElement('script');
-  adsenseScript.async = true;
-  adsenseScript.crossOrigin = 'anonymous';
-  adsenseScript.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4829747375056254';
-  document.head.appendChild(adsenseScript);
-}
+// The SPA includes authenticated screens, private messaging and user-generated content.
+// AdSense is loaded only by standalone public information pages, never by this app shell.
+document.getElementById('seo-fallback')?.remove();
 
 const DAY = 24 * 60 * 60 * 1000;
 const queryClient = new QueryClient({
