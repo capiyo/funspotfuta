@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { FlatList, Platform, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
-import { NativeAd, NativeAdView, NativeAsset, NativeAssetType, NativeMediaView, TestIds, MobileAds } from 'react-native-google-mobile-ads';
+import type { NativeAd as NativeAdInstance } from 'react-native-google-mobile-ads';
+type NativeAdsModule = typeof import('react-native-google-mobile-ads');
 import { useFanColors } from '@/theme/use-fan-colors';
 import { getAllFixtures, type Fixture } from '@funspot/core';
 
 const PRODUCTION_UNITS = ['ca-app-pub-8671302794311438/3524169425', 'ca-app-pub-8671302794311438/4130674080', 'ca-app-pub-8671302794311438/1504510743'] as const;
-type LoadedAd = { id: string; ad: NativeAd };
+type LoadedAd = { id: string; ad: NativeAdInstance };
 type Slide =
-  | { type: 'ad'; id: string; ad: NativeAd }
+  | { type: 'ad'; id: string; ad: NativeAdInstance }
   | { type: 'fixture'; id: string; fixture: Fixture };
 
 export default function AdCarousel({ showDots = false, flush = false }: { showDots?: boolean; flush?: boolean }) {
@@ -16,6 +17,7 @@ export default function AdCarousel({ showDots = false, flush = false }: { showDo
   const [carouselWidth, setCarouselWidth] = useState(0);
   const slideWidth = carouselWidth || windowWidth;
   const [ads, setAds] = useState<LoadedAd[]>([]);
+  const [adsModule, setAdsModule] = useState<NativeAdsModule | null>(null);
   const [index, setIndex] = useState(0);
   const [fixtures, setFixtures] = useState<Fixture[]>([]);
   const listRef = useRef<FlatList<Slide>>(null);
@@ -31,14 +33,20 @@ export default function AdCarousel({ showDots = false, flush = false }: { showDo
   useEffect(() => {
     if (Platform.OS !== 'android') return;
     let alive = true;
-    const created: NativeAd[] = [];
+    const created: NativeAdInstance[] = [];
     const loadAds = async () => {
       try {
-        await MobileAds().initialize();
+        // Load the native SDK only when an ad carousel is actually mounted.
+        // A JS bundle can outlive its native binary during development; a
+        // static import would crash the entire app before the fallback renders.
+        const nativeAds = require('react-native-google-mobile-ads') as NativeAdsModule;
         if (!alive) return;
-        const unitIds = __DEV__ ? [TestIds.NATIVE, TestIds.NATIVE, TestIds.NATIVE] : [...PRODUCTION_UNITS];
+        setAdsModule(nativeAds);
+        await nativeAds.MobileAds().initialize();
+        if (!alive) return;
+        const unitIds = __DEV__ ? [nativeAds.TestIds.NATIVE, nativeAds.TestIds.NATIVE, nativeAds.TestIds.NATIVE] : [...PRODUCTION_UNITS];
         const results = await Promise.all(unitIds.map(async (unitId, i) => {
-          try { const ad = await NativeAd.createForAdRequest(unitId); created.push(ad); return { id: `native-ad-${i}`, ad }; }
+          try { const ad = await nativeAds.NativeAd.createForAdRequest(unitId); created.push(ad); return { id: `native-ad-${i}`, ad }; }
           catch { return null; }
         }));
         if (!alive) { created.forEach((ad) => ad.destroy()); return; }
@@ -82,6 +90,11 @@ export default function AdCarousel({ showDots = false, flush = false }: { showDo
   }, [slides.length]);
   if (slides.length === 0) return null;
 
+  const NativeAdView = adsModule?.NativeAdView;
+  const NativeAsset = adsModule?.NativeAsset;
+  const NativeMediaView = adsModule?.NativeMediaView;
+  const NativeAssetType = adsModule?.NativeAssetType;
+
   return <View
     onLayout={(event) => {
       const nextWidth = event.nativeEvent.layout.width;
@@ -95,12 +108,12 @@ export default function AdCarousel({ showDots = false, flush = false }: { showDo
       onMomentumScrollEnd={(event) => setIndex(Math.max(0, Math.min(Math.round(event.nativeEvent.contentOffset.x / slideWidth), slides.length - 1)))}
       getItemLayout={(_, itemIndex) => ({ length: slideWidth, offset: slideWidth * itemIndex, index: itemIndex })}
       renderItem={({ item }) => <View style={[styles.slide, { width: slideWidth }]}>
-        {item.type === 'ad' ? (
+        {item.type === 'ad' && NativeAdView && NativeAsset && NativeMediaView && NativeAssetType ? (
           <NativeAdView nativeAd={item.ad} style={[styles.ad, { backgroundColor: colors.surface }]}>
             <View style={styles.labelRow}><Text style={[styles.label, { color: colors.textTertiary }]}>ADVERTISEMENT</Text><NativeAsset assetType={NativeAssetType.ADVERTISER}><Text style={[styles.advertiser, { color: colors.textTertiary }]}>{item.ad.advertiser ?? ''}</Text></NativeAsset></View>
             <View style={styles.content}><NativeMediaView style={styles.media} /><View style={styles.copy}><NativeAsset assetType={NativeAssetType.HEADLINE}><Text style={[styles.headline, { color: colors.textPrimary }]}>{item.ad.headline ?? ''}</Text></NativeAsset><NativeAsset assetType={NativeAssetType.BODY}><Text style={[styles.body, { color: colors.textSecondary }]}>{item.ad.body ?? ''}</Text></NativeAsset></View><NativeAsset assetType={NativeAssetType.CALL_TO_ACTION}><Text style={[styles.cta, { backgroundColor: colors.primary, color: colors.surface }]}>{item.ad.callToAction ?? 'Learn more'}</Text></NativeAsset></View>
           </NativeAdView>
-        ) : (
+        ) : item.type === 'fixture' ? (
           <View style={[styles.fixture, { backgroundColor: colors.surface }]}>
             <Text numberOfLines={1} style={[styles.team, { color: colors.textPrimary, textAlign: 'right' }]}>{item.fixture.homeTeam}</Text>
             <Text style={[styles.vs, { color: colors.textTertiary }]}>VS</Text>
