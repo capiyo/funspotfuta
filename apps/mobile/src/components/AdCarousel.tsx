@@ -10,7 +10,7 @@ type Slide =
   | { type: 'ad'; id: string; ad: NativeAd }
   | { type: 'fixture'; id: string; fixture: Fixture };
 
-export default function AdCarousel() {
+export default function AdCarousel({ showDots = true }: { showDots?: boolean }) {
   const colors = useFanColors();
   const { width } = useWindowDimensions();
   const [ads, setAds] = useState<LoadedAd[]>([]);
@@ -100,12 +100,12 @@ export default function AdCarousel() {
         )}
       </View>}
     />
-    {slides.length > 1 && <View style={styles.dots}>{slides.map((slide, dotIndex) => <Pressable key={slide.id} onPress={() => { setIndex(dotIndex); listRef.current?.scrollToIndex({ index: dotIndex, animated: true }); }} accessibilityLabel={`Show carousel slide ${dotIndex + 1}`}><View style={[styles.dot, { backgroundColor: index === dotIndex ? colors.primary : colors.textTertiary + '66', width: index === dotIndex ? 16 : 5 }]} /></Pressable>)}</View>}
+    {showDots && slides.length > 1 && <View style={styles.dots}>{slides.map((slide, dotIndex) => <Pressable key={slide.id} onPress={() => { setIndex(dotIndex); listRef.current?.scrollToIndex({ index: dotIndex, animated: true }); }} accessibilityLabel={`Show carousel slide ${dotIndex + 1}`}><View style={[styles.dot, { backgroundColor: index === dotIndex ? colors.primary : colors.textTertiary + '66', width: index === dotIndex ? 16 : 5 }]} /></Pressable>)}</View>}
   </View>;
 }
 
 const styles = StyleSheet.create({
-  wrap: { width: '100%', marginVertical: 2 }, slide: { paddingHorizontal: 10 },
+  wrap: { width: '100%', marginVertical: 0 }, slide: { paddingHorizontal: 0 },
   ad: { borderRadius: 8, padding: 6, minHeight: 68, overflow: 'hidden' },
   fixture: { borderRadius: 8, paddingHorizontal: 14, minHeight: 68, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 10 },
   team: { flex: 1, fontSize: 12, fontWeight: '700' },
