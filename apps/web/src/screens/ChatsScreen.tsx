@@ -4,7 +4,7 @@
 // browser navigation replace React Native presentation primitives.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import type { ReactNode } from 'react';
+import type { ReactNode, UIEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import type { Channel, Fixture, FanColorPalette, Voter } from '@funspot/core';
@@ -161,7 +161,7 @@ export default function ChatsScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const lastTopRefreshAt = useRef(0);
   const scrolledAwayFromTop = useRef(false);
-  const handleFixtureScroll = useCallback((event: React.UIEvent<HTMLElement>) => {
+  const handleFixtureScroll = useCallback((event: UIEvent<HTMLElement>) => {
     scrollProps.onScroll(event);
     const offset = event.currentTarget.scrollTop;
     if (offset > 80) {
