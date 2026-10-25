@@ -8,8 +8,10 @@
 [build.environment]
   NODE_VERSION = "20"
 
-# React Router client-side routes should resolve to the Vite app shell.
+# Netlify serves existing static files from the publish directory before this
+# non-forced SPA fallback. Keep force=false so public/*.html pages are not shadowed.
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+  force = false
