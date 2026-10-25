@@ -149,12 +149,13 @@ export function useFixtureLiveUpdates(params: {
       if (!entries.length) return;
       // Commentary batches can arrive newest-first or oldest-first depending
       // on the endpoint version; choose the newest timestamp when available.
-      const latest = [...entries].sort((a, b) => {
+      const sorted = [...entries].sort((a, b) => {
         const timeA = Date.parse(String(a.createdAt ?? a.created_at ?? a.timestamp ?? ''));
         const timeB = Date.parse(String(b.createdAt ?? b.created_at ?? b.timestamp ?? ''));
         if (!Number.isFinite(timeA) || !Number.isFinite(timeB)) return 0;
         return timeA - timeB;
-      }).at(-1)!;
+      });
+      const latest = sorted[sorted.length - 1];
       const text = latest.text == null ? '' : String(latest.text);
       if (!text.trim()) return;
       const rawTimestamp = latest.createdAt ?? latest.created_at ?? latest.timestamp;
