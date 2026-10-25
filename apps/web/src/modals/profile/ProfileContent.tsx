@@ -607,7 +607,7 @@ export default function ProfileContent({
               <Pencil size={11} color={colors.textInverse} />
               <span style={styles.actionBtnTextPrimary}>Edit</span>
             </button>
-            <button type="button" className="profile-secondary-action"
+            <button type="button" className="profile-secondary-action profile-logout-action"
               onClick={handleLogout}
               disabled={loggingOut}
               style={{ ...Object.assign({}, 
