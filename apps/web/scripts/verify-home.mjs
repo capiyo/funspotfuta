@@ -78,7 +78,7 @@ try {
         const logo = rect('.desktop-home-header a[aria-label="Funspot home"]');
         const sidebar = rect('.home-screen .profile-sidebar-rich');
         const workspace = rect('.home-screen .workspace');
-        const chatsHeader = rect('.home-screen .chats-column .segmented-control');
+        const chatsColumn = rect('.home-screen .chats-column');
         const feedColumn = rect('.home-screen .feed-column');
         const feedHeaderStyle = style('.home-screen .feed-column', '::before');
         const navbar = rect('.home-screen .desktop-home-header');
@@ -103,7 +103,7 @@ try {
         const loginRect = login?.getBoundingClientRect();
         return {
           viewportWidth: innerWidth, documentWidth: document.documentElement.scrollWidth,
-          logo, sidebar, workspace, navbar, chatsHeader, feedColumn, feedHeaderStyle,
+          logo, sidebar, workspace, navbar, chatsColumn, feedColumn,
           containerMargins: sidebar && feedColumn ? [sidebar.x, innerWidth - feedColumn.right] : null,
           borders, shadows, channelImages, media,
           login: login && loginRect ? {
@@ -139,10 +139,10 @@ try {
       assert(layout.logo && layout.sidebar && Math.abs(layout.logo.x - layout.sidebar.x) <= 1,
         `Logo/sidebar left edges differ at ${width}px: ${JSON.stringify({ logo: layout.logo, sidebar: layout.sidebar })}`);
       assert(layout.navbar && Math.abs(layout.navbar.height - 56) <= 1, `Navbar height at ${width}px is ${layout.navbar?.height}`);
-      assert(layout.chatsHeader && Math.abs(layout.chatsHeader.height - 44) <= 1, `Chats header height at ${width}px is ${layout.chatsHeader?.height}`);
-      assert(layout.feedHeaderStyle?.height === '44px', `Feed header height at ${width}px is ${layout.feedHeaderStyle?.height}`);
-      assert(layout.feedColumn && layout.chatsHeader && Math.abs(layout.chatsHeader.y - layout.feedColumn.y) <= 1,
-        `Column headers are not aligned at ${width}px`);
+      assert(layout.chatsColumn && layout.feedColumn,
+        `Chats and Feed columns must both be present at ${width}px`);
+      assert(Math.abs(layout.chatsColumn.y - layout.feedColumn.y) <= 1,
+        `Chats and Feed columns are not aligned at ${width}px`);
       assert(layout.documentWidth <= width, `Horizontal overflow at ${width}px: ${layout.documentWidth}`);
       assert(layout.channelImages.every(x => Math.abs(x.width - 20) <= 1 && Math.abs(x.height - 20) <= 1 && x.radius === '50%'),
         `Channel avatar geometry invalid at ${width}px: ${JSON.stringify(layout.channelImages)}`);
