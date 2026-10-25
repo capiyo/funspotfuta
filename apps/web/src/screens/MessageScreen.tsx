@@ -427,6 +427,7 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       <div className="min-w-0 flex-1">
         <AdSenseCarousel
           placement="chats"
+          enabled={false}
           fixture={fixture}
           label="Messaging advertisements"
           showDots={false}
