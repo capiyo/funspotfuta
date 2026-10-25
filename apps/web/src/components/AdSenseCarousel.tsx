@@ -76,7 +76,7 @@ export default function AdSenseCarousel({
   useEffect(() => {
     setActiveIndex(0);
     viewportRef.current?.scrollTo({ left: 0, behavior: 'auto' });
-  }, [slides.length]);
+  }, [slides.length, fixture?.matchId, fixture?.id]);
 
   if (slides.length === 0) return null;
 
