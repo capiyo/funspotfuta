@@ -273,13 +273,9 @@ export function MatchCard({
     const cached = queryClient.getQueryData<Poke[]>(cacheKey);
     if (cached) setOpenPokes(cached);
     const refresh = () => {
-      if (fixture.isLive || fixture.status === 'live') {
-        if (active) {
-          setOpenPokes([]);
-          queryClient.setQueryData<Poke[]>(cacheKey, []);
-        }
-        return;
-      }
+      // A live fixture closes matching actions, but should not erase
+      // the visible/persisted list. Keep the last known pokes for context.
+      if (fixture.isLive || fixture.status?.toLowerCase() === 'live') return;
       void getOpenPokes(fixtureId, undefined, channelId)
         .then((items) => {
           if (!active) return;
