@@ -189,7 +189,7 @@ export function MatchCard({
         .then((items) => {
           if (!active) return;
           const next = items
-            .filter((item) => item.status.toLowerCase() === 'open' && String(item.matchId) === fixtureId)
+            .filter((item) => item.status.trim().toLowerCase() === 'open' && String(item.matchId) === fixtureId)
             .sort((a, b) => (Date.parse(b.createdAt ?? '') || 0) - (Date.parse(a.createdAt ?? '') || 0));
           queryClient.setQueryData<Poke[]>(cacheKey, next);
           setOpenPokes(next);
