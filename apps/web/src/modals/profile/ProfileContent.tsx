@@ -542,6 +542,7 @@ export default function ProfileContent({
   }) {
     return (
       <div
+        className="profile-authenticated-field"
         style={{ ...Object.assign({}, 
           styles.infoRow,
           { backgroundColor: colors.surfaceSunken },
