@@ -285,6 +285,7 @@ export function MatchCard({
     awayScore: live.awayScore ?? fixture.awayScore,
     timeElapsed: live.timeElapsed ?? fixture.timeElapsed,
   };
+  const displayedLiveCommentary = live.commentary ?? liveCommentary;
   useEffect(() => {
     let active = true;
     const fixtureId = String(fixture.matchId || fixture.id);
@@ -574,7 +575,7 @@ export function MatchCard({
 
         {/* Comment preview / live commentary */}
         <View style={[styles.lineRow, styles.previewRow]} pointerEvents="none">
-          {isLive && liveCommentary ? (
+          {isLive && displayedLiveCommentary ? (
             <>
               <Radio size={ICON.sm} color={colors.live} />
               <Text
@@ -584,10 +585,10 @@ export function MatchCard({
                 ]}
                 numberOfLines={1}
               >
-                {liveCommentary.text}
+                {displayedLiveCommentary.text}
               </Text>
               <Text style={fanText('tag', colors, colors.textTertiary)}>
-                {liveCommentary.minute}&apos;
+                {Math.floor(displayedLiveCommentary.minute)}&apos;
               </Text>
             </>
           ) : (
