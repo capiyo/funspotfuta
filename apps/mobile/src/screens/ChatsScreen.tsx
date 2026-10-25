@@ -25,7 +25,7 @@
 //   - the modal's payment / phone / sub-fixture props are bound to the user id
 //     and token here (modalApi), because the shims need both.
 
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { View, FlatList, RefreshControl, StyleSheet } from 'react-native';
 import type { NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
@@ -453,6 +453,42 @@ export default function ChatsScreen() {
     return fetched;
   }, [queryClient, userId, data]);
 
+  // Hydrate each fixture's voter list as soon as Chats loads. Previously the
+  // complete list was reliably synchronized only by opening the Action modal,
+  // leaving cards stuck with the current user's cached vote until then.
+  const autoVoterSyncRef = useRef<{ token: string | null | undefined; fixtureIds: Set<string> }>({
+    token: undefined,
+    fixtureIds: new Set<string>(),
+  });
+  useEffect(() => {
+    const syncState = autoVoterSyncRef.current;
+    if (syncState.token !== authToken) {
+      syncState.token = authToken;
+      syncState.fixtureIds.clear();
+    }
+    if (!authToken || !data?.length) return;
+
+    const pendingIds = [...new Set(data
+      .map((fixture) => fixture.matchId || fixture.id)
+      .filter((id) => !!id && !syncState.fixtureIds.has(id)))];
+    // Mark all IDs before awaiting so cache updates from an earlier batch
+    // cannot schedule duplicate requests for the remaining fixtures.
+    for (const id of pendingIds) syncState.fixtureIds.add(id);
+    if (pendingIds.length === 0) return;
+
+    void (async () => {
+      for (let start = 0; start < pendingIds.length; start += 4) {
+        if (autoVoterSyncRef.current.token !== authToken) return;
+        await Promise.all(pendingIds.slice(start, start + 4).map(async (fixtureId) => {
+          try {
+            await fetchVotersAndSyncCache(fixtureId, authToken);
+          } catch {
+            // Keep Chats usable if a fixture's voter endpoint is temporarily unavailable.
+          }
+        }));
+      }
+    })();
+  }, [data, authToken, fetchVotersAndSyncCache]);
   async function handleModalVote(sel: Pick): Promise<ActionResult> {
     if (!liveModalFixture) return { success: false, message: 'No match selected' };
     if (!userId || !authToken || !username) {
