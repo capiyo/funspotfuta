@@ -3,7 +3,7 @@ import { FlatList, Platform, Pressable, StyleSheet, Text, View, useWindowDimensi
 import type { NativeAd as NativeAdInstance } from 'react-native-google-mobile-ads';
 type NativeAdsModule = typeof import('react-native-google-mobile-ads');
 import { useFanColors } from '@/theme/use-fan-colors';
-import { getAllFixtures, type Fixture } from '@funspot/core';
+import type { Fixture } from '@funspot/core';
 
 const PRODUCTION_UNITS = ['ca-app-pub-8671302794311438/3524169425', 'ca-app-pub-8671302794311438/4130674080', 'ca-app-pub-8671302794311438/1504510743'] as const;
 type LoadedAd = { id: string; ad: NativeAdInstance };
@@ -11,7 +11,7 @@ type Slide =
   | { type: 'ad'; id: string; ad: NativeAdInstance }
   | { type: 'fixture'; id: string; fixture: Fixture };
 
-export default function AdCarousel({ showDots = false, flush = false }: { showDots?: boolean; flush?: boolean }) {
+export default function AdCarousel({ showDots = false, flush = false, fixture = null }: { showDots?: boolean; flush?: boolean; fixture?: Fixture | null }) {
   const colors = useFanColors();
   const { width: windowWidth } = useWindowDimensions();
   const [carouselWidth, setCarouselWidth] = useState(0);
@@ -19,16 +19,7 @@ export default function AdCarousel({ showDots = false, flush = false }: { showDo
   const [ads, setAds] = useState<LoadedAd[]>([]);
   const [adsModule, setAdsModule] = useState<NativeAdsModule | null>(null);
   const [index, setIndex] = useState(0);
-  const [fixtures, setFixtures] = useState<Fixture[]>([]);
   const listRef = useRef<FlatList<Slide>>(null);
-
-  useEffect(() => {
-    let alive = true;
-    getAllFixtures()
-      .then((items) => { if (alive) setFixtures(items.slice(0, PRODUCTION_UNITS.length)); })
-      .catch(() => undefined);
-    return () => { alive = false; };
-  }, []);
 
   useEffect(() => {
     if (Platform.OS !== 'android') return;
@@ -59,11 +50,11 @@ export default function AdCarousel({ showDots = false, flush = false }: { showDo
 
   const slides = useMemo<Slide[]>(() => {
     const adSlides: Slide[] = ads.map((item) => ({ type: 'ad', id: item.id, ad: item.ad }));
-    const fixtureSlides: Slide[] = fixtures.map((fixture) => ({
+    const fixtureSlides: Slide[] = fixture ? [{
       type: 'fixture',
       id: `fixture-${fixture.matchId ?? fixture.id}`,
       fixture,
-    }));
+    }] : [];
     const mixed: Slide[] = [];
     const count = Math.max(adSlides.length, fixtureSlides.length);
     for (let slideIndex = 0; slideIndex < count; slideIndex += 1) {
@@ -71,7 +62,7 @@ export default function AdCarousel({ showDots = false, flush = false }: { showDo
       if (fixtureSlides[slideIndex]) mixed.push(fixtureSlides[slideIndex]);
     }
     return mixed;
-  }, [ads, fixtures]);
+  }, [ads, fixture]);
 
   useEffect(() => {
     if (index >= slides.length) setIndex(0);
