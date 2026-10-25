@@ -539,7 +539,9 @@ function TabBar({
                     >
                         <Text
                             numberOfLines={1}
-                            style={fanText('caption', colors, on ? colors.textPrimary : colors.textTertiary)}
+                            adjustsFontSizeToFit
+                            minimumFontScale={0.72}
+                            style={[fanText('caption', colors, on ? colors.textPrimary : colors.textTertiary), { textAlign: 'center', flexShrink: 1 }]}
                         >
                             {label}
                         </Text>
@@ -1468,7 +1470,7 @@ export function SwipeableVotePledgeModal(props: Props) {
         return (
             <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
                 <Pressable style={styles.backdrop} onPress={onClose}>
-                    <Pressable style={[styles.sheet, { width: '100%', height: screenH * 0.5, maxHeight: '50%' }]} onPress={() => { }}>
+                    <Pressable style={[styles.sheet, { width: '100%', height: screenH * 0.5, maxHeight: '50%' }]} onPress={(event) => event.stopPropagation()}>
                         <HandleBar colors={colors} styles={styles} />
                         <View style={styles.joinGroupBox}>
                             <View style={styles.joinGroupIconWrap}>
@@ -1779,7 +1781,7 @@ export function SwipeableVotePledgeModal(props: Props) {
                 {/* Pick */}
                 <View style={{ flexDirection: 'row', gap: FAN_SPACING.sm }}>
                     <OutcomePill
-                        label="Home"
+                        label={fixture.homeTeam}
                         sublabel={`${voteStats.homeCount} picks`}
                         selected={isHomeSel(mine)}
                         locked={locked}
@@ -1789,7 +1791,7 @@ export function SwipeableVotePledgeModal(props: Props) {
                         styles={styles}
                     />
                     <OutcomePill
-                        label="Away"
+                        label={fixture.awayTeam}
                         sublabel={`${voteStats.awayCount} picks`}
                         selected={isAwaySel(mine)}
                         locked={locked}
@@ -2451,14 +2453,18 @@ function createStyles(colors: FanColorPalette) {
         },
         tabButton: {
             flex: 1,
+            minWidth: 0,
             alignItems: 'center',
+            justifyContent: 'center',
+            paddingHorizontal: 2,
             paddingVertical: FAN_SPACING.sm,
+            minHeight: 34,
             zIndex: 1,
         },
 
         // Layout
         tabBody: {
-            paddingHorizontal: FAN_SPACING.lg,
+            paddingHorizontal: FAN_SPACING.md,
             paddingTop: FAN_SPACING.xs,
             gap: FAN_SPACING.sm,
         },
