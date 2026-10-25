@@ -548,7 +548,7 @@ export default function ProfileContent({
         ) }}
       >
         <Icon size={12} color={colors.primary} />
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
           <span style={{ ...Object.assign({}, styles.infoLabel, { color: colors.textTertiary }) }}>
             {label}
           </span>
@@ -563,7 +563,7 @@ export default function ProfileContent({
   function renderProfileView() {
     if (!profile) return null;
     return (
-      <div style={rn({ display: 'flex', flexDirection: 'row', gap: FAN_SPACING.sm })}>
+      <div className="profile-authenticated-view" style={rn({ display: 'flex', flexDirection: 'column', gap: FAN_SPACING.sm, width: '100%' })}>
         {isCurrentUser && (
           <div style={styles.statsGrid}>
             <div style={{ ...Object.assign({}, styles.statCard, { backgroundColor: colors.surfaceSunken }) }}>
@@ -762,8 +762,8 @@ export default function ProfileContent({
 
   function renderEditMode() {
     return (
-      <div style={{ gap: FAN_SPACING.md }}>
-        <div style={{ alignItems: 'center' }}>
+      <div className="profile-edit-view" style={rn({ display: 'flex', flexDirection: 'column', gap: FAN_SPACING.md, width: '100%' })}>
+        <div style={rn({ alignItems: 'center', justifyContent: 'center', display: 'flex' })}>
           <div
             style={{ ...Object.assign({}, 
               styles.noProfileIcon,
