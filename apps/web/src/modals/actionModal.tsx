@@ -1923,7 +1923,7 @@ export function SwipeableVotePledgeModal(props: Props) {
                         const selection = v.selection ?? v.vote ?? '';
                         const accent = voteColorOf(selection, colors);
                         const team = isHomeSel(selection) ? fixture.homeTeam : isAwaySel(selection) ? fixture.awayTeam : displayVote(selection);
-                        const imageUrl = v.avatarUrl ?? v.avatar_url ?? v.profileImageUrl ?? v.profile_image_url ?? v.profile_picture ?? v.photoUrl ?? v.photo_url ?? v.imageUrl ?? v.image_url ?? null;
+                        const imageUrl = v.uri ?? v.avatarUrl ?? v.avatar_url ?? v.profileImageUrl ?? v.profile_image_url ?? v.profile_picture ?? v.photoUrl ?? v.photo_url ?? v.imageUrl ?? v.image_url ?? v.profile?.uri ?? v.profile?.avatar_url ?? null;
                         const name = isMe ? (username || 'You') : (v.userName ?? v.user_name ?? v.username ?? v.name ?? 'Fan');
                         return (
                             <PersonTile
