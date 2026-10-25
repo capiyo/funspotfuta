@@ -613,9 +613,11 @@ export default function ProfileContent({
               style={{ ...Object.assign({}, 
                 styles.actionBtn,
                 {
-                  backgroundColor: colors.surfaceSunken,
-                  borderWidth: 0.5,
-                  borderColor: colors.border,
+                  backgroundColor: colors.primary,
+                  borderWidth: 1,
+                  borderStyle: 'solid',
+                  borderColor: colors.primary,
+                  color: colors.textInverse,
                 },
               ) }}
             >
