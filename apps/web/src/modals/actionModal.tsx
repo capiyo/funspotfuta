@@ -351,10 +351,10 @@ function OutcomePill({
             ]}
         >
             <Text
-                numberOfLines={1}
+                numberOfLines={2}
                 style={[
                     fanText('caption', colors, selected ? accent : colors.textPrimary),
-                    { fontWeight: '700' },
+                    { fontWeight: '700', textAlign: 'center', flexShrink: 1, overflowWrap: 'anywhere' },
                 ]}
             >
                 {label}
@@ -692,7 +692,7 @@ function DialogShell({
 }) {
     return (
         <Pressable style={styles.dialogBackdrop} onPress={onCancel}>
-            <Pressable style={styles.dialogCard} onPress={() => { }}>
+            <Pressable style={styles.dialogCard} onPress={(event) => event.stopPropagation()}>
                 {children}
             </Pressable>
         </Pressable>
