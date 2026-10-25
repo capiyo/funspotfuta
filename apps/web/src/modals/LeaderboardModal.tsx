@@ -73,7 +73,9 @@ type FanColors = ReturnType<typeof useFanColors>;
 // ═══════════════════════════════════════════════════════════════
 
 function rankColor(rank: number, colors: FanColors): string {
-  if (rank <= 3) return colors.primary;
+  if (rank === 1) return colors.primary;
+  if (rank === 2) return colors.draw;
+  if (rank === 3) return colors.away;
   return colors.textTertiary;
 }
 
@@ -1548,8 +1550,8 @@ function createStyles(colors: FanColors) {
       minWidth: 0,
       minHeight: 0,
       alignSelf: 'stretch',
-      borderTopLeftRadius: FAN_RADIUS.xl,
-      borderTopRightRadius: FAN_RADIUS.xl,
+      borderTopLeftRadius: 28,
+      borderTopRightRadius: 28,
       backgroundColor: colors.background,
       overflow: 'hidden',
     },
@@ -1559,9 +1561,9 @@ function createStyles(colors: FanColors) {
       paddingBottom: FAN_SPACING.xs,
     },
     handle: {
-      width: 32,
-      height: 3,
-      borderRadius: 2,
+      width: 40,
+      height: 4,
+      borderRadius: 999,
       backgroundColor: colors.borderActive,
     },
     headerRow: {
@@ -1573,10 +1575,10 @@ function createStyles(colors: FanColors) {
     headerIcon: {
       width: 32,
       height: 32,
-      borderRadius: 10,
+      borderRadius: 14,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: hexWithAlpha(colors.primary, 0.12),
+      backgroundColor: hexWithAlpha(colors.primary, 0.14),
     },
     headerTextWrap: { flex: 1, marginLeft: FAN_SPACING.sm },
     headerTitle: {
@@ -1613,10 +1615,9 @@ function createStyles(colors: FanColors) {
       textAlign: 'center',
     },
     pickerWrap: {
-      borderRadius: FAN_RADIUS.md,
-      borderWidth: 1,
-      borderColor: colors.border,
-      backgroundColor: colors.surface,
+      borderRadius: 16,
+      borderWidth: 0,
+      backgroundColor: colors.surfaceSunken,
       marginHorizontal: FAN_SPACING.md,
       marginBottom: FAN_SPACING.xs,
       overflow: 'hidden',
@@ -1629,20 +1630,19 @@ function createStyles(colors: FanColors) {
       marginTop: FAN_SPACING.xs,
       marginBottom: FAN_SPACING.sm,
       padding: 3,
-      borderRadius: FAN_RADIUS.md,
+      borderRadius: 16,
       backgroundColor: colors.surfaceSunken,
       borderWidth: 0,
-      borderColor: colors.border,
     },
     tabButton: {
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
       paddingVertical: FAN_SPACING.xs,
-      borderRadius: FAN_RADIUS.sm,
+      borderRadius: 13,
     },
     tabButtonActive: {
-      backgroundColor: colors.surface,
+      backgroundColor: hexWithAlpha(colors.primary, 0.14),
     },
     tabButtonText: {
       fontSize: 10,
@@ -1654,8 +1654,8 @@ function createStyles(colors: FanColors) {
     championCard: {
       width: '100%',
       alignSelf: 'stretch',
-      borderRadius: FAN_RADIUS.lg,
-      borderWidth: 1,
+      borderRadius: 22,
+      borderWidth: 0,
       padding: FAN_SPACING.md,
       marginBottom: FAN_SPACING.md,
     },
@@ -1757,8 +1757,8 @@ function createStyles(colors: FanColors) {
     memberCard: {
       width: '100%',
       alignSelf: 'stretch',
-      borderRadius: FAN_RADIUS.md,
-      borderWidth: 1,
+      borderRadius: 18,
+      borderWidth: 0,
       padding: FAN_SPACING.md,
       marginBottom: FAN_SPACING.sm,
     },
@@ -1802,7 +1802,11 @@ function createStyles(colors: FanColors) {
       justifyContent: 'space-between',
       alignItems: 'center',
       minWidth: 0,
-      paddingVertical: 3,
+      paddingHorizontal: 8,
+      paddingVertical: 5,
+      borderRadius: 10,
+      backgroundColor: colors.surfaceSunken,
+      marginBottom: 4,
     },
     statLabel: {
       fontSize: 10,
@@ -1858,10 +1862,9 @@ function createStyles(colors: FanColors) {
       marginBottom: FAN_SPACING.xs,
       paddingHorizontal: FAN_SPACING.md,
       paddingVertical: FAN_SPACING.sm,
-      borderRadius: FAN_RADIUS.md,
+      borderRadius: 18,
       backgroundColor: colors.surfaceSunken,
       borderWidth: 0,
-      borderColor: colors.border,
     },
     summaryRow: {
       flexDirection: 'row',
@@ -1969,7 +1972,7 @@ function createStyles(colors: FanColors) {
       fontSize: 10,
     },
     activityCard: {
-      borderRadius: FAN_RADIUS.sm,
+      borderRadius: 14,
       borderWidth: 0,
       padding: FAN_SPACING.sm,
       marginBottom: FAN_SPACING.sm,
