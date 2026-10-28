@@ -474,8 +474,8 @@ export default function LoginModal({ visible = true, onClose, onSuccess }: Login
           role="checkbox"
           aria-checked={acceptTerms}
           onClick={() => setAcceptTerms((value) => !value)}
-          className="mt-0.5 flex h-[18px] w-[18px] shrink-0 items-center justify-center rounded border"
-          style={{ borderColor: acceptTerms ? colors.primary : colors.border, background: acceptTerms ? colors.primary : 'transparent', color: colors.textInverse }}>{acceptTerms ? '✓' : ''}</button>
+          className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border-2"
+          style={{ borderColor: colors.primary, background: acceptTerms ? colors.primary : colors.surface, color: colors.textInverse, boxShadow: acceptTerms ? 'none' : `inset 0 0 0 1px ${colors.primary}20` }}>{acceptTerms ? '✓' : ''}</button>
       <p
           className="flex-1 text-xs leading-5"
           style={{ color: colors.textTertiary }}>I agree to the <a
