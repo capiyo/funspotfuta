@@ -514,7 +514,7 @@ export function MatchCard({
               </View>
               <Text
                 style={[
-                  fanText('competition', colors, '#FFFFFF'),
+                  fanText('competition', colors, colors.textPrimary),
                   styles.channelName,
                   styles.grow,
                 ]}
@@ -525,7 +525,7 @@ export function MatchCard({
             </Pressable>
           ) : (
             <Text
-              style={[fanText('competition', colors, '#FFFFFF'), styles.grow]}
+              style={[fanText('competition', colors, colors.textPrimary), styles.grow]}
               numberOfLines={1}
             >
               {fixture.league || 'Unknown league'}
