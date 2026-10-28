@@ -40,19 +40,24 @@ export default function AdSenseCarousel({
     ['funspot.co.ke', 'www.funspot.co.ke'].includes(window.location.hostname);
 
   const slides = useMemo<Slide[]>(() => {
-    const adSlides: Slide[] = (placement === 'chats' && adsAllowed ? slots : adsAllowed ? slots : [])
+    const adSlides: Slide[] = (adsAllowed ? slots : [])
       .map((slot) => ({ type: 'ad', key: `ad-${slot}`, slot }));
     if (placement !== 'chats') return adSlides;
-    const fixtureSlides: Slide[] = placement === 'chats' && fixture ? [{
+
+    // Messaging is scoped to the one fixture passed by the active chat route.
+    // Never fetch or enumerate the global fixture collection for this carousel.
+    const currentFixture: Slide | null = fixture ? {
       type: 'fixture',
       key: `fixture-${fixture.matchId ?? fixture.id}`,
       fixture,
-    }] : [];
+    } : null;
+    if (!currentFixture) return adSlides;
+
+    // Alternate the active chat fixture with each ad instead of rendering
+    // every ad consecutively after the single fixture slide.
     const mixed: Slide[] = [];
-    const count = Math.max(adSlides.length, fixtureSlides.length);
-    for (let index = 0; index < count; index += 1) {
-      if (adSlides[index]) mixed.push(adSlides[index]);
-      if (fixtureSlides[index]) mixed.push(fixtureSlides[index]);
+    for (const ad of adSlides) {
+      mixed.push(ad, { ...currentFixture, key: `${currentFixture.key}-after-${ad.key}` });
     }
     return mixed;
   }, [adsAllowed, fixture, placement, slots]);
