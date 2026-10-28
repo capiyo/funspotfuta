@@ -55,6 +55,7 @@ export default function AdSenseCarousel({
 
     // Alternate the active chat fixture with each ad instead of rendering
     // every ad consecutively after the single fixture slide.
+    if (adSlides.length === 0) return [currentFixture];
     const mixed: Slide[] = [];
     for (const ad of adSlides) {
       mixed.push(ad, { ...currentFixture, key: `${currentFixture.key}-after-${ad.key}` });
