@@ -133,7 +133,7 @@ export const FAN_COLORS_LIGHT: FanColorPalette = {
   textInverse: '#FFFFFF',
 
   scoreHome: '#1F551F',
-  scoreAway: '#2B6CB0',
+  scoreAway: '#D93025',
   scoreDash: '#B7C4CC',
 };
 
