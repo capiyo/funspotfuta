@@ -4,19 +4,12 @@
 // color in both apps/web (converted to CSS vars) and apps/mobile
 // (consumed directly as JS objects in StyleSheets).
 //
-// PALETTE UPDATE: brand accents recolored from navy-slate to a green
-// family based on #01FF01. The dark card/home background remains the
-// original #0F1E27 — only bluish UI accents (borders, primary, text
-// tints, glow shadows) were swapped to green. scoreAway and the
-// voteAway gradient stay blue since they are semantic "away" colors,
-// not brand-blue.
-//
-// Dark mode is intentionally FLAT in the original: background,
-// backgroundTint, surface, surfaceElevated, and surfaceSunken all
-// resolve to the same value (#0F1E27) — no tiered card depth. Light
-// mode keeps its tiers. inputSurface/inputSurfaceDisabled exist only to
-// lift form inputs one notch off that flat dark background so they
-// don't disappear into the card behind them.
+// Shared stadium palette: near-black green canvas, deep green-black cards,
+// vivid floodlit green brand actions, soft grey-green text, gold reserved
+// for trophy/rank emphasis, and red for live/away semantic states. Web and
+// React Native consume this same palette so shared components stay aligned.
+// Dark mode intentionally uses a restrained two-level surface system: the
+// page canvas is #070d09, cards are #0e1612, and controls use #161f1a.
 
 export interface FanColorPalette {
   background: string;
@@ -121,9 +114,9 @@ export const FAN_COLORS_LIGHT: FanColorPalette = {
   primaryDim: '#F0F7F0',
   primaryGlow: 'rgba(31,85,31,0.13)',
 
-  secondary: '#FFD9BD',
-  secondaryDim: '#FFF3EA',
-  secondaryGlow: 'rgba(255,217,189,0.13)',
+  secondary: '#E7EEE7',
+  secondaryDim: '#F3F7F3',
+  secondaryGlow: 'rgba(31,85,31,0.10)',
 
   draw: '#C79000',
   drawDim: '#FFF6E0',
