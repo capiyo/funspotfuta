@@ -133,7 +133,7 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
         const stableOpen = mergeOpenPokes(previousOpen, nextOpen);
         if (cacheKey) queryClient.setQueryData<Poke[]>(cacheKey, stableOpen);
         setOpenPokes(stableOpen);
-        setMatchedPokes(mine.filter((p) => p.status.trim().toLowerCase() !== 'open'));
+        setMatchedPokes(mine.filter((p) => String(p.matchId) === String(fixture.matchId || fixture.id) && p.status.trim().toLowerCase() !== 'open'));
       }).catch(() => {});
     return () => { active = false; };
   }, [fixture.id, fixture.matchId, userId, authToken, channelId, marketId, queryClient]);
@@ -204,7 +204,7 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
       const stableOpen = mergeOpenPokes(cachedWithoutMatched, nextOpen);
       if (channelId) queryClient.setQueryData<Poke[]>(cacheKey, stableOpen);
       setOpenPokes(stableOpen);
-      setMatchedPokes(mine.filter((item) => item.status.trim().toLowerCase() !== 'open'));
+      setMatchedPokes(mine.filter((item) => String(item.matchId) === String(fixture.matchId || fixture.id) && item.status.trim().toLowerCase() !== 'open'));
       setMessage('Poke matched successfully.');
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : 'Could not match poke.');
@@ -263,7 +263,7 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
       const stableOpen = mergeOpenPokes(previousOpen, nextOpen, [createdPoke]);
       queryClient.setQueryData<Poke[]>(cacheKey, stableOpen);
       setOpenPokes(stableOpen);
-      setMatchedPokes(mine.filter((poke) => poke.status.trim().toLowerCase() !== 'open'));
+      setMatchedPokes(mine.filter((poke) => String(poke.matchId) === String(fixture.matchId || fixture.id) && poke.status.trim().toLowerCase() !== 'open'));
       setMessage('Poke was successful!');
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : 'Could not submit poke.');
