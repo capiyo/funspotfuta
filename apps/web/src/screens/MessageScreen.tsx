@@ -434,18 +434,8 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       className="message-screen flex min-h-0 flex-col"
       style={pageStyle}>
     {/* Keep navigation and lineup access on the same compact row as the carousel. */}
-    <div className="flex w-full shrink-0 items-center gap-1 px-1 py-1">
-      <button
-        type="button"
-        onClick={handleBack}
-        aria-label="Back to chats"
-        title="Back to chats"
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
-        style={{ background: colors.surfaceSunken, color: colors.textPrimary }}
-      >
-        <ArrowLeft size={18} />
-      </button>
-      <div className="min-w-0 flex-1">
+    <div className="relative flex min-h-[68px] w-full shrink-0 items-center gap-1 px-1 py-1">
+      <div className="absolute inset-x-1 top-1 bottom-1 min-w-0">
         <AdSenseCarousel
           placement="chats"
           fixture={fixture}
@@ -455,13 +445,23 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
           slots={['9051548379', '3164796870', '1372263706']}
         />
       </div>
+      <button
+        type="button"
+        onClick={handleBack}
+        aria-label="Back to chats"
+        title="Back to chats"
+        className="relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
+        style={{ background: colors.surfaceSunken, color: colors.textPrimary }}
+      >
+        <ArrowLeft size={18} />
+      </button>
       {fixture && (
         <button
           type="button"
           onClick={() => setMatchDetailsOpen(true)}
           aria-label="Open lineup and match details"
           title="Open lineup and match details"
-          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
+          className="relative z-10 ml-auto flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
           style={{ background: colors.surfaceSunken, color: colors.textPrimary }}
         >
           <Info size={16} />
