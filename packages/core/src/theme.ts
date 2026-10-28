@@ -86,7 +86,7 @@ export const FAN_COLORS_DARK: FanColorPalette = {
   live: '#ff3d42',
 
   textPrimary: '#edf4ee',
-  textSecondary: '#c0ccc2',
+  textSecondary: '#e0e6e1',
   textTertiary: '#89968d',
   textInverse: '#061308',
 
