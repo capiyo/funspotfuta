@@ -125,7 +125,17 @@ export default function AdminModal({
   onClose: () => void;
 }) {
   const colors = useFanColors();
-  const styles = createStyles(colors);
+  const [viewportWidth, setViewportWidth] = useState(
+    () => (typeof window === 'undefined' ? 1024 : window.innerWidth),
+  );
+  const isDesktop = viewportWidth >= 768;
+  const styles = createStyles(colors, isDesktop);
+
+  useEffect(() => {
+    const updateViewport = () => setViewportWidth(window.innerWidth);
+    window.addEventListener('resize', updateViewport, { passive: true });
+    return () => window.removeEventListener('resize', updateViewport);
+  }, []);
   const { userId, authToken } = useAuth();
   const toast = useToast();
 
@@ -794,21 +804,32 @@ function StatRow({
 //  STYLES
 // ═══════════════════════════════════════════════════════════════
 
-function createStyles(colors: FanColorPalette) {
+function createStyles(colors: FanColorPalette, isDesktop: boolean) {
   return StyleSheet.create({
     backdrop: {
       flex: 1,
+      width: '100%',
+      height: '100%',
+      padding: isDesktop ? 24 : 0,
       backgroundColor: 'rgba(0,0,0,0.5)',
-      justifyContent: 'flex-end',
+      justifyContent: isDesktop ? 'center' : 'flex-end',
+      alignItems: isDesktop ? 'center' : 'stretch',
     },
     sheet: {
-      maxHeight: '85%',
+      width: isDesktop ? 'min(100%, 980px)' : '100%',
+      height: isDesktop ? 'min(86dvh, 900px)' : undefined,
+      maxHeight: isDesktop
+        ? 'calc(100dvh - 48px)'
+        : 'calc(92dvh - env(safe-area-inset-top, 0px))',
+      minHeight: 0,
+      borderRadius: isDesktop ? FAN_RADIUS.xl : 0,
       borderTopLeftRadius: FAN_RADIUS.xl,
       borderTopRightRadius: FAN_RADIUS.xl,
       backgroundColor: colors.background,
       overflow: 'hidden',
     },
     handleWrap: {
+      display: isDesktop ? 'none' : 'flex',
       alignItems: 'center',
       paddingTop: FAN_SPACING.md,
       paddingBottom: FAN_SPACING.sm,
@@ -837,7 +858,7 @@ function createStyles(colors: FanColorPalette) {
     },
 
     // ── Scroll view ─────────────────────────────────────
-    screen: { backgroundColor: colors.background },
+    screen: { flex: 1, minHeight: 0, backgroundColor: colors.background, overflowY: 'auto' },
     content: {
       padding: FAN_SPACING.lg,
       paddingBottom: FAN_SPACING.xxxl,
@@ -876,11 +897,13 @@ function createStyles(colors: FanColorPalette) {
     // ── Stat grid (4 tiles) ─────────────────────────────
     statsRow: {
       flexDirection: 'row',
+      flexWrap: isDesktop ? 'nowrap' : 'wrap',
       gap: FAN_SPACING.sm,
       marginBottom: FAN_SPACING.lg,
     },
     statCard: {
-      flex: 1,
+      flex: isDesktop ? 1 : '1 1 calc(50% - 6px)',
+      minWidth: isDesktop ? 0 : 'calc(50% - 6px)',
       borderRadius: FAN_RADIUS.md,
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: colors.border,
