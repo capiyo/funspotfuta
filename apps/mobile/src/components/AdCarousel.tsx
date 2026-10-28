@@ -50,16 +50,17 @@ export default function AdCarousel({ showDots = false, flush = false, fixture = 
 
   const slides = useMemo<Slide[]>(() => {
     const adSlides: Slide[] = ads.map((item) => ({ type: 'ad', id: item.id, ad: item.ad }));
-    const fixtureSlides: Slide[] = fixture ? [{
+    // Messaging gets only the fixture supplied by the active chat route.
+    // Alternate that fixture with ads; never enumerate the global fixture list.
+    if (!fixture) return adSlides;
+    const currentFixture: Slide = {
       type: 'fixture',
       id: `fixture-${fixture.matchId ?? fixture.id}`,
       fixture,
-    }] : [];
+    };
     const mixed: Slide[] = [];
-    const count = Math.max(adSlides.length, fixtureSlides.length);
-    for (let slideIndex = 0; slideIndex < count; slideIndex += 1) {
-      if (adSlides[slideIndex]) mixed.push(adSlides[slideIndex]);
-      if (fixtureSlides[slideIndex]) mixed.push(fixtureSlides[slideIndex]);
+    for (const ad of adSlides) {
+      mixed.push(ad, { ...currentFixture, id: `${currentFixture.id}-after-${ad.id}` });
     }
     return mixed;
   }, [ads, fixture]);
