@@ -289,7 +289,7 @@ body:has(.home-screen) {
 
 /* Home is one uninterrupted surface. All panes remain scrollable without visible rails. */
 .home-screen {
-  --home-page-bg: var(--home-scrollbar-track);
+  --home-page-bg: #070d09;
   background: var(--home-page-bg) !important;
 }
 .no-scrollbar {
