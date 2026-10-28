@@ -807,6 +807,7 @@ function StatRow({
 function createStyles(colors: FanColorPalette, isDesktop: boolean) {
   return StyleSheet.create({
     backdrop: {
+      display: 'flex',
       flex: 1,
       width: '100%',
       height: '100%',
@@ -816,6 +817,8 @@ function createStyles(colors: FanColorPalette, isDesktop: boolean) {
       alignItems: isDesktop ? 'center' : 'stretch',
     },
     sheet: {
+      display: 'flex',
+      flexDirection: 'column',
       width: isDesktop ? 'min(100%, 980px)' : '100%',
       height: isDesktop ? 'min(86dvh, 900px)' : undefined,
       maxHeight: isDesktop
@@ -838,12 +841,14 @@ function createStyles(colors: FanColorPalette, isDesktop: boolean) {
 
     // ── Header ──────────────────────────────────────────
     headerRow: {
+      display: 'flex',
       flexDirection: 'row',
       alignItems: 'center',
       paddingHorizontal: FAN_SPACING.lg,
       paddingVertical: FAN_SPACING.md,
     },
     headerIcon: {
+      display: 'flex',
       width: 32,
       height: 32,
       borderRadius: FAN_RADIUS.md,
@@ -852,6 +857,9 @@ function createStyles(colors: FanColorPalette, isDesktop: boolean) {
     },
     headerTextWrap: { flex: 1, marginLeft: FAN_SPACING.md },
     closeBtn: {
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
       borderRadius: 999,
       padding: FAN_SPACING.md,
       backgroundColor: colors.inputSurface,
@@ -872,6 +880,7 @@ function createStyles(colors: FanColorPalette, isDesktop: boolean) {
 
     // ── Payout banner ───────────────────────────────────
     payoutCard: {
+      display: 'flex',
       flexDirection: 'row',
       alignItems: 'center',
       borderRadius: FAN_RADIUS.md,
@@ -883,6 +892,7 @@ function createStyles(colors: FanColorPalette, isDesktop: boolean) {
       marginBottom: FAN_SPACING.base,
     },
     payoutCardActive: {
+      display: 'flex',
       flexDirection: 'row',
       alignItems: 'center',
       borderRadius: FAN_RADIUS.md,
@@ -896,12 +906,15 @@ function createStyles(colors: FanColorPalette, isDesktop: boolean) {
 
     // ── Stat grid (4 tiles) ─────────────────────────────
     statsRow: {
+      display: 'flex',
       flexDirection: 'row',
       flexWrap: isDesktop ? 'nowrap' : 'wrap',
       gap: FAN_SPACING.sm,
       marginBottom: FAN_SPACING.lg,
     },
     statCard: {
+      display: 'flex',
+      flexDirection: 'column',
       flex: isDesktop ? 1 : '1 1 calc(50% - 6px)',
       minWidth: isDesktop ? 0 : 'calc(50% - 6px)',
       borderRadius: FAN_RADIUS.md,
@@ -916,6 +929,7 @@ function createStyles(colors: FanColorPalette, isDesktop: boolean) {
 
     // ── Section header ──────────────────────────────────
     sectionHeader: {
+      display: 'flex',
       flexDirection: 'row',
       alignItems: 'center',
       gap: FAN_SPACING.md,
@@ -932,10 +946,12 @@ function createStyles(colors: FanColorPalette, isDesktop: boolean) {
       marginBottom: FAN_SPACING.md,
     },
     memberHeader: {
+      display: 'flex',
       flexDirection: 'row',
       alignItems: 'center',
     },
     memberAvatar: {
+      display: 'flex',
       width: 36,
       height: 36,
       borderRadius: 18,
@@ -943,6 +959,7 @@ function createStyles(colors: FanColorPalette, isDesktop: boolean) {
       justifyContent: 'center',
     },
     memberNameRow: {
+      display: 'flex',
       flexDirection: 'row',
       alignItems: 'center',
       gap: FAN_SPACING.sm,
@@ -953,6 +970,7 @@ function createStyles(colors: FanColorPalette, isDesktop: boolean) {
       borderRadius: FAN_RADIUS.sm,
     },
     removeIconBtn: {
+      display: 'flex',
       width: 28,
       height: 28,
       borderRadius: 14,
@@ -962,20 +980,24 @@ function createStyles(colors: FanColorPalette, isDesktop: boolean) {
 
     statGrid: { marginTop: FAN_SPACING.md },
     memberStatRow: {
+      display: 'flex',
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
       paddingVertical: 2,
     },
-    inlineRow: { flexDirection: 'row', alignItems: 'center' },
+    inlineRow: { display: 'flex', flexDirection: 'row', alignItems: 'center' },
 
     memberFooter: {
+      display: 'flex',
       flexDirection: 'row',
       alignItems: 'center',
       gap: FAN_SPACING.md,
       marginTop: FAN_SPACING.md,
     },
     rolePill: {
+      display: 'flex',
+      alignItems: 'center',
       paddingHorizontal: FAN_SPACING.md,
       paddingVertical: 3,
       borderRadius: FAN_RADIUS.md,
@@ -990,6 +1012,7 @@ function createStyles(colors: FanColorPalette, isDesktop: boolean) {
 
     // ── Confirmation modal ──────────────────────────────
     confirmBackdrop: {
+      display: 'flex',
       flex: 1,
       backgroundColor: 'rgba(0,0,0,0.6)',
       alignItems: 'center',
@@ -997,6 +1020,8 @@ function createStyles(colors: FanColorPalette, isDesktop: boolean) {
       padding: FAN_SPACING.xxl,
     },
     confirmCard: {
+      display: 'flex',
+      flexDirection: 'column',
       width: '100%',
       maxWidth: 380,
       borderRadius: FAN_RADIUS.lg,
@@ -1007,6 +1032,7 @@ function createStyles(colors: FanColorPalette, isDesktop: boolean) {
       alignItems: 'center',
     },
     confirmIconWrap: {
+      display: 'flex',
       width: 56,
       height: 56,
       borderRadius: 28,
@@ -1015,6 +1041,7 @@ function createStyles(colors: FanColorPalette, isDesktop: boolean) {
       marginBottom: FAN_SPACING.base,
     },
     confirmWarning: {
+      display: 'flex',
       flexDirection: 'row',
       alignItems: 'flex-start',
       gap: FAN_SPACING.md,
@@ -1024,11 +1051,13 @@ function createStyles(colors: FanColorPalette, isDesktop: boolean) {
       marginBottom: FAN_SPACING.lg,
     },
     confirmActions: {
+      display: 'flex',
       flexDirection: 'row',
       gap: FAN_SPACING.md,
       alignSelf: 'stretch',
     },
     confirmBtn: {
+      display: 'flex',
       flex: 1,
       height: 44,
       borderRadius: FAN_RADIUS.pill,
