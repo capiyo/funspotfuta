@@ -58,6 +58,7 @@ export default function AdCarousel({ showDots = false, flush = false, fixture = 
       id: `fixture-${fixture.matchId ?? fixture.id}`,
       fixture,
     };
+    if (adSlides.length === 0) return [currentFixture];
     const mixed: Slide[] = [];
     for (const ad of adSlides) {
       mixed.push(ad, { ...currentFixture, id: `${currentFixture.id}-after-${ad.id}` });
