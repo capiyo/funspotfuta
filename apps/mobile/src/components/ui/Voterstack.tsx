@@ -89,7 +89,7 @@ export function VoterList({
                                 >
                                     {name}
                                 </Text>
-                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}><Text style={fanText('tag', colors, v.color)} numberOfLines={1}>{v.team}</Text><Text accessibilityLabel={v.id.startsWith('poke:') ? "Poke mark" : "Vote mark"} style={{ color: v.color, fontSize: 8, fontWeight: '800', backgroundColor: `${v.color}18`, overflow: 'hidden', borderRadius: 4, paddingHorizontal: 4, paddingVertical: 1 }}>{v.id.startsWith('poke:') ? '↗ POKE' : '✓ VOTE'}</Text></View>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}><Text style={fanText('tag', colors, v.color)} numberOfLines={1}>{v.team}</Text><Text accessibilityLabel={v.id.startsWith('poke:') ? "poke mark" : "vote mark"} style={{ color: v.color, fontSize: 8, fontWeight: '800', backgroundColor: `${v.color}18`, overflow: 'hidden', borderRadius: 4, paddingHorizontal: 4, paddingVertical: 1 }}>{v.id.startsWith('poke:') ? '↗ poke' : '✓ vote'}</Text></View>
                             </View>
                         </View>
                     );
