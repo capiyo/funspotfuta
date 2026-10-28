@@ -3985,6 +3985,10 @@ body:has(.home-screen) .home-screen .chats-column .match-card .match-card-voter-
   --fan-primary-dark: #4fb83b;
   --fan-primary-muted: #1a3218;
   --fan-primary-dim: #101d10;
+  --fan-primary-glow: rgba(125,241,98,0.25);
+  --fan-secondary-glow: rgba(125,241,98,0.10);
+  --fan-draw-glow: rgba(249,173,38,0.20);
+  --fan-away-glow: rgba(255,61,66,0.22);
   --fan-secondary: #161f1a;
   --fan-secondary-dim: #0e1612;
   --fan-draw: #f9ad26;
