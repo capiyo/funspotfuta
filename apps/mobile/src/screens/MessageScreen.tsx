@@ -692,7 +692,7 @@ export default function MessageScreen() {
                     { backgroundColor: colors.primary },
                   ]}
                 >
-                  <Send size={16} color="#fff" />
+                  <Send size={16} color={colors.textInverse} />
                 </Pressable>
               )}
             </View>
@@ -792,7 +792,7 @@ export default function MessageScreen() {
                   { backgroundColor: colors.primary },
                 ]}
               >
-                <Text style={fanText('caption', colors, '#fff')}>Send</Text>
+                <Text style={fanText('caption', colors, colors.textInverse)}>Send</Text>
               </Pressable>
             </View>
           </View>
