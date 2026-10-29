@@ -44,8 +44,10 @@ jobs:
           git stash push --include-untracked -m "generated football crest bundle"
           git fetch origin web-port-from-master
           git rebase origin/web-port-from-master
-          git stash pop
+          git stash pop || true
+          git checkout --theirs -- apps/web/src/components/team-crest-catalog.generated.ts apps/mobile/src/components/team-crest-catalog.generated.ts apps/web/public/team-crests/source-manifest.json apps/web/public/team-crests/THIRD_PARTY_LICENSES.txt 2>/dev/null || true
           git add apps/web/public/team-crests apps/web/src/components/team-crest-catalog.generated.ts apps/mobile/assets/team-crests apps/mobile/src/components/team-crest-catalog.generated.ts
+          git stash drop 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "Crest catalogue is already up to date."
             exit 0
