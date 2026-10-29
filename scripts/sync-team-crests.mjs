@@ -114,9 +114,9 @@ await mapLimit(svgFiles, PARALLEL, async (file) => {
   let png;
   try {
     const svgText = svg.toString('utf8');
-    const rasterSvgText = svgText.replace(/<svg\\b([^>]*)>/i, (_root, attributes) => {
-      const viewBoxMatch = attributes.match(/viewBox\\s*=\\s*["']([^"']+)["']/i);
-      const viewBox = viewBoxMatch?.[1].trim().split(/[\\s,]+/).map(Number);
+    const rasterSvgText = svgText.replace(/<svg\b([^>]*)>/i, (_root, attributes) => {
+      const viewBoxMatch = attributes.match(/viewBox\s*=\s*["']([^"']+)["']/i);
+      const viewBox = viewBoxMatch?.[1].trim().split(/[\s,]+/).map(Number);
       let width = 512;
       let height = 512;
       if (viewBox && viewBox.length === 4 && viewBox[2] > 0 && viewBox[3] > 0) {
@@ -124,7 +124,7 @@ await mapLimit(svgFiles, PARALLEL, async (file) => {
         if (ratio > 1) height = Math.max(1, Math.round(512 / ratio));
         else width = Math.max(1, Math.round(512 * ratio));
       }
-      const cleaned = attributes.replace(/\\s(?:width|height)\\s*=\\s*(?:"[^"]*"|'[^']*'|[^\\s>]+)/gi, '');
+      const cleaned = attributes.replace(/\s(?:width|height)\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '');
       return `<svg${cleaned} width="${width}" height="${height}">`;
     });
     png = await sharp(Buffer.from(rasterSvgText), { density: 72, limitInputPixels: 16_000_000 })
