@@ -107,7 +107,7 @@ await mapLimit(svgFiles, PARALLEL, async (file) => {
   const webPath = '/team-crests/' + relative.split('/').map(encodeURIComponent).join('/');
   const rawResponse = await request(RAW_BASE + file.path.split('/').map(encodeURIComponent).join('/'));
   const svg = Buffer.from(await rawResponse.arrayBuffer());
-  if (!svg.length || svg.length > 2_000_000 || !svg.toString('utf8', 0, 1000).includes('<svg')) {
+  if (!svg.length || svg.length > 2_000_000 || !svg.toString('utf8').includes('<svg')) {
     console.warn('Skipped invalid or oversized SVG:', file.path);
     return;
   }
