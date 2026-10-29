@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { TeamCrest } from '@/components/TeamCrest';
 import { useQueryClient } from '@tanstack/react-query';
 import { createPoke, getOpenPokes, getUserPokes, getUserPoints, matchPoke, mergeOpenPokes, type Poke } from '@funspot/core';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';

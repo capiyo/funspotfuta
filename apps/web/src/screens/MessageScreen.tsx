@@ -25,6 +25,7 @@
  * “coming soon” behavior rather than inventing backend endpoints.
  */
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type CSSProperties, type MouseEvent, type ReactNode } from 'react';
+import { TeamCrest } from '@/components/TeamCrest';
 import { createPortal } from 'react-dom';
 import { Navigate, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
@@ -850,8 +851,7 @@ function MatchStatusBar({ colors, fixture, status, homeScore, awayScore, isLive,
       style={{ color: colors.textTertiary, background: colors.surfaceSunken }}>{formatMinute(timeElapsed)}</span>}
     <span
       className="min-w-0 truncate text-[11px] font-semibold"
-      style={{ color: colors.textPrimary }}>{fixture.homeTeam} <span
-      style={{ color: colors.textTertiary }}>vs</span> {fixture.awayTeam}</span>
+      style={{ color: colors.textPrimary, display: 'inline-flex', alignItems: 'center', gap: 5 }}><TeamCrest name={fixture.homeTeam} fixture={fixture as unknown as Record<string,unknown>} side="home" size={20}/>{fixture.homeTeam} <span style={{ color: colors.textTertiary }}>vs</span> <TeamCrest name={fixture.awayTeam} fixture={fixture as unknown as Record<string,unknown>} side="away" size={20}/>{fixture.awayTeam}</span>
   </button>;
 }
 

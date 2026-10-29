@@ -31,6 +31,7 @@
 // Still not ported: video upload/playback, comrade cards, archive modal on
 // username tap, delete message. The sponsored carousel is now shared with the leaderboard.
 
+import { TeamCrest } from '@/components/TeamCrest';
 import {
   useCallback,
   useEffect,
@@ -1078,17 +1079,13 @@ function MatchStatusBar({
           </Text>
         </View>
       )}
-      <Text
-        style={[
-          fanText('caption', colors, colors.textPrimary),
-          matchBarStyles.teams,
-        ]}
-        numberOfLines={1}
-      >
-        {fixture.homeTeam}{' '}
-        <Text style={fanText('caption', colors, colors.textTertiary)}>vs</Text>{' '}
-        {fixture.awayTeam}
-      </Text>
+      <View style={[matchBarStyles.teams, { flexDirection: 'row', alignItems: 'center', gap: 5 }]}>
+        <TeamCrest name={fixture.homeTeam} fixture={fixture as unknown as Record<string,unknown>} side="home" size={20}/>
+        <Text style={fanText('caption', colors, colors.textPrimary)} numberOfLines={1}>{fixture.homeTeam}</Text>
+        <Text style={fanText('caption', colors, colors.textTertiary)}>vs</Text>
+        <TeamCrest name={fixture.awayTeam} fixture={fixture as unknown as Record<string,unknown>} side="away" size={20}/>
+        <Text style={fanText('caption', colors, colors.textPrimary)} numberOfLines={1}>{fixture.awayTeam}</Text>
+      </View>
     </Pressable>
   );
 }

@@ -16,6 +16,7 @@
 //   - Team names appear once (match header); pills say Home / Away.
 //   - Sub-fixture titles/icons/settled results and the bet card restored.
 
+import { TeamCrest } from '@/components/TeamCrest';
 import React, {
     useCallback,
     useEffect,
@@ -1544,13 +1545,9 @@ export function SwipeableVotePledgeModal(props: Props) {
 
                         {/* Match header — the ONLY place both team names appear together */}
                         <View style={styles.matchHeader}>
-                            <View style={styles.matchHeaderSide}>
-                                <Text
-                                    style={[fanText('caption', colors, colors.primary), { fontWeight: '700' }]}
-                                    numberOfLines={1}
-                                >
-                                    {fixture.homeTeam}
-                                </Text>
+                            <View style={[styles.matchHeaderSide, { flexDirection: 'row', alignItems: 'center', gap: 6 }]}>
+                                <TeamCrest name={fixture.homeTeam} fixture={fixture as unknown as Record<string,unknown>} side="home" size={26}/>
+                                <Text style={[fanText('caption', colors, colors.primary), { fontWeight: '700', flexShrink: 1 }]} numberOfLines={1}>{fixture.homeTeam}</Text>
                             </View>
                             <View style={styles.matchHeaderCenter}>
                                 <Text style={fanText('tag', colors, colors.textTertiary)}>VS</Text>
@@ -1561,13 +1558,9 @@ export function SwipeableVotePledgeModal(props: Props) {
                                     </View>
                                 )}
                             </View>
-                            <View style={[styles.matchHeaderSide, { alignItems: 'flex-end' }]}>
-                                <Text
-                                    style={[fanText('caption', colors, colors.away), { fontWeight: '700' }]}
-                                    numberOfLines={1}
-                                >
-                                    {fixture.awayTeam}
-                                </Text>
+                            <View style={[styles.matchHeaderSide, { alignItems: 'flex-end', flexDirection: 'row', justifyContent: 'flex-end', gap: 6 }]}>
+                                <Text style={[fanText('caption', colors, colors.away), { fontWeight: '700', flexShrink: 1 }]} numberOfLines={1}>{fixture.awayTeam}</Text>
+                                <TeamCrest name={fixture.awayTeam} fixture={fixture as unknown as Record<string,unknown>} side="away" size={26}/>
                             </View>
                         </View>
 
