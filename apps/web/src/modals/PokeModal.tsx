@@ -314,11 +314,25 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
         </section>}
         {tab === 'matched' && <section style={{ marginTop: 8 }}>
           <h3 style={{ margin: '0 0 8px', fontSize: 14 }}>Matched pokes · {matchedPokes.length}</h3>
-          {matchedPokes.length === 0 ? <p style={{ margin: 0, color: 'var(--muted, #a7abb3)', fontSize: 12 }}>No matched pokes yet.</p> : matchedPokes.map((poke) => (
-            <div key={poke.id} style={{ padding: '9px 0', borderBottom: '1px solid var(--border, #35383e)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}><span aria-label="Poke mark" title="Poke" style={{ color: 'var(--primary)', fontSize: 9, fontWeight: 800 }}>✊ POKE</span><strong>{poke.userName}</strong></div><div style={{ color: 'var(--muted, #a7abb3)', fontSize: 12 }}>{poke.selection === 'home' ? fixture.homeTeam : fixture.awayTeam} · {poke.amount} pts · {poke.status}</div>
-            </div>
-          ))}
+          {matchedPokes.length === 0 ? <p style={{ margin: 0, color: 'var(--muted, #a7abb3)', fontSize: 12 }}>No matched pokes yet.</p> : matchedPokes.map((poke) => {
+            const starterTeam = poke.selection === 'away' ? fixture.awayTeam : fixture.homeTeam;
+            const finisherSelection = poke.finisherSelection?.toLowerCase();
+            const finisherTeam = finisherSelection ? (finisherSelection.includes('away') ? fixture.awayTeam : fixture.homeTeam) : (poke.selection === 'away' ? fixture.homeTeam : fixture.awayTeam);
+            return (
+              <div key={poke.id} style={{ padding: '9px 0', borderBottom: '1px solid var(--border)', display: 'grid', gap: 7 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span aria-label="Poke mark" title="Poke" style={{ color: 'var(--primary)', fontSize: 9, fontWeight: 800 }}>✊ POKE</span><span style={{ color: 'var(--muted)', fontSize: 11, fontWeight: 700 }}>{poke.status}</span></div>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                  <div style={{ minWidth: 0 }}><strong>{poke.userName || 'Fan'}</strong><div style={{ color: 'var(--muted)', fontSize: 12 }}>{starterTeam}</div></div>
+                  <strong style={{ whiteSpace: 'nowrap', fontSize: 12 }}>{poke.amount} pts</strong>
+                </div>
+                <div style={{ height: 1, background: 'var(--border)' }} />
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                  <div style={{ minWidth: 0 }}><strong>{poke.finisherName || 'Matched user'}</strong><div style={{ color: 'var(--muted)', fontSize: 12 }}>{finisherTeam}</div></div>
+                  <strong style={{ whiteSpace: 'nowrap', fontSize: 12 }}>{poke.finisherAmount ?? poke.amount} pts</strong>
+                </div>
+              </div>
+            );
+          })}
         </section>}
         {tab === 'subfixtures' && <div><label style={{ display: 'block', marginTop: 16, fontSize: 13, fontWeight: 700 }} htmlFor="poke-market">Fixture / sub-fixture</label>
         <select id="poke-market" value={marketId} onChange={(event) => { setMarketId(event.target.value); setError(''); }} style={{ ...fieldStyle, marginTop: 7 }}>
