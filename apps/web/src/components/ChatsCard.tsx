@@ -51,12 +51,12 @@ import { useLoginModal } from '@/modals/Login-modal-context';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
 import { ICON, PRESSED_OPACITY } from '@/theme/layout';
+import { TeamCrest } from '@/components/TeamCrest';
 import { FeedItem } from './ui/FeedItem';
 import { LiveBadge } from './ui/LiveBadge';
 import { ActionButton } from './ui/ActionButton';
 import { Input } from './ui/input';
 import { VoterList } from './ui/Voterstack';
-import { useTeamLogo } from '@/hooks/useTeamLogo';
 
 const COMMENT_STYLE_COLOR = (colors: ReturnType<typeof useFanColors>) =>
   colors.textSecondary;
@@ -91,14 +91,6 @@ export interface LiveCommentaryEntry {
   timestamp?: string;
 }
 
-function TeamLogo({ name, url, colors }: { name: string; url: string | null; colors: ReturnType<typeof useFanColors> }) {
-  const [failed, setFailed] = useState(false);
-  const showFallback = !url || failed;
-  return <span className="match-card-team-logo" aria-label={`${name} logo`} style={{ display: 'inline-flex', flex: '0 0 16px', width: 16, height: 16, alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden', borderRadius: '50%', border: 0, background: colors.primaryDim, color: colors.primary, fontSize: 9, fontWeight: 700 }}>
-    <img className="match-card-team-logo-image" src={url ?? undefined} alt="" loading="lazy" decoding="async" referrerPolicy="no-referrer" onError={() => setFailed(true)} style={{ display: showFallback ? 'none' : 'block', position: 'absolute', inset: 0, width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
-    <span className="match-card-team-fallback" style={{ display: showFallback ? 'inline' : 'none' }}>{name.trim().charAt(0).toUpperCase() || '?'}</span>
-  </span>;
-}
 function kickoffLabel(dateString: string): string {
   const date = new Date(dateString);
   if (Number.isNaN(date.getTime())) return 'TBD';
@@ -283,8 +275,6 @@ export function MatchCard({
     onChannelPress?.();
   }
   const [failedUri, setFailedUri] = useState<string | null>(null);
-  const homeLogo = useTeamLogo(fixture.homeTeam, fixture as unknown as Record<string, unknown>, 'home');
-  const awayLogo = useTeamLogo(fixture.awayTeam, fixture as unknown as Record<string, unknown>, 'away');
 
   // Random pick, fixed for this card's lifetime.
   const [seed] = useState(() => Math.random());
@@ -690,11 +680,11 @@ export function MatchCard({
               )}
             </div>
             <button type="button" className="match-card-teams" onClick={handleLineups} aria-label={`Open match details: ${fixtureLabel}`} style={{ display: 'flex', flex: '0 1 48%', flexWrap: 'nowrap', alignItems: 'center', justifyContent: 'flex-end', gap: 4, minWidth: 0, maxWidth: '48%', marginLeft: 'auto', padding: 0, border: 0, background: 'transparent', color: colors.textPrimary, fontSize: 12, fontWeight: 500, whiteSpace: 'nowrap', overflow: 'hidden' }}>
-              <TeamLogo name={fixture.homeTeam} url={homeLogo} colors={colors} />
+              <TeamCrest name={fixture.homeTeam} fixture={fixture as unknown as Record<string, unknown>} side="home" size={16} />
               <span className="match-card-team-name" style={{ display: 'block', flex: '0 1 auto', minWidth: 0, maxWidth: 74, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: colors.textPrimary, fontSize: 12, fontWeight: 500 }}>{fixture.homeTeam}</span>
               <span className="match-card-score" style={{ display: 'block', flex: '0 0 auto', color: colors.textTertiary, fontSize: 12, fontWeight: 500 }}>{scoreLabel}</span>
               <span className="match-card-team-name" style={{ display: 'block', flex: '0 1 auto', minWidth: 0, maxWidth: 74, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: colors.textPrimary, fontSize: 12, fontWeight: 500 }}>{fixture.awayTeam}</span>
-              <TeamLogo name={fixture.awayTeam} url={awayLogo} colors={colors} />
+              <TeamCrest name={fixture.awayTeam} fixture={fixture as unknown as Record<string, unknown>} side="away" size={16} />
             </button>
           </div>
           <div className="match-card-actions" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', alignItems: 'center', gap: 4, width: '100%' }}>
