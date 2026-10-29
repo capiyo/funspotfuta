@@ -8,7 +8,7 @@ Funspot bundles football crests locally so ChatsCard, the Poke modal, the Action
 - Web: original SVG files in `apps/web/public/team-crests/`.
 - React Native: transparent 256 × 256 PNG renditions in `apps/mobile/assets/team-crests/`.
 - Generated normalized-name lookup maps: `apps/web/src/components/team-crest-catalog.generated.ts` and `apps/mobile/src/components/team-crest-catalog.generated.ts`.
-- Current bundled catalogue: 4,763 SVG/PNG crest pairs. Two source SVGs could not be safely rasterized and are omitted from the generated map; the manifest records the current sync results.
+- Current bundled catalogue: 4,765 SVG/PNG crest pairs, covering all 4,765 SVG files in the source tree. The source manifest records the sync results.
 - Asset license notice and source provenance: `apps/web/public/team-crests/THIRD_PARTY_LICENSES.txt` and `source-manifest.json`.
 
 The UI uses local crests first, then a logo URL already supplied by fixture data, and finally a circular initial fallback. Names are Unicode-normalized, case-folded, and matched with common club suffixes removed. Circular framing and colors continue to come from the shared Funspot theme.
