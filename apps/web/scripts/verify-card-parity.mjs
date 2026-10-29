@@ -192,7 +192,7 @@ async function inspect(width, state) {
       const tr = teams.getBoundingClientRect();
       const ar = el.querySelector('.match-card-actions').getBoundingClientRect();
       const names = [...teams.querySelectorAll('.match-card-team-name')].map(n => ({ text: n.textContent.trim(), client: n.clientWidth, scroll: n.scrollWidth }));
-      const logos = [...teams.querySelectorAll('.match-card-team-logo')].map(n => {
+      const logos = [...teams.querySelectorAll('[role="img"][aria-label$=" crest"]')].map(n => {
         const r = n.getBoundingClientRect();
         return { width: r.width, height: r.height, radius: getComputedStyle(n).borderRadius };
       });
