@@ -319,17 +319,10 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
             const finisherSelection = poke.finisherSelection?.toLowerCase();
             const finisherTeam = finisherSelection ? (finisherSelection.includes('away') ? fixture.awayTeam : fixture.homeTeam) : (poke.selection === 'away' ? fixture.homeTeam : fixture.awayTeam);
             return (
-              <div key={poke.id} style={{ padding: '9px 0', borderBottom: '1px solid var(--border)', display: 'grid', gap: 7 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span aria-label="Poke mark" title="Poke" style={{ color: 'var(--primary)', fontSize: 9, fontWeight: 800 }}>✊ POKE</span><span style={{ color: 'var(--muted)', fontSize: 11, fontWeight: 700 }}>{poke.status}</span></div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-                  <div style={{ minWidth: 0 }}><strong>{poke.userName || 'Fan'}</strong><div style={{ color: 'var(--muted)', fontSize: 12 }}>{starterTeam}</div></div>
-                  <strong style={{ whiteSpace: 'nowrap', fontSize: 12 }}>{poke.amount} pts</strong>
-                </div>
-                <div style={{ height: 1, background: 'var(--border)' }} />
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
-                  <div style={{ minWidth: 0 }}><strong>{poke.finisherName || 'Matched user'}</strong><div style={{ color: 'var(--muted)', fontSize: 12 }}>{finisherTeam}</div></div>
-                  <strong style={{ whiteSpace: 'nowrap', fontSize: 12 }}>{poke.finisherAmount ?? poke.amount} pts</strong>
-                </div>
+              <div key={poke.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 0', borderBottom: '1px solid var(--border)' }}>
+                <div style={{ flex: 1, minWidth: 0 }}><strong style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 12 }}>{poke.userName || 'Fan'}</strong><span style={{ display: 'block', color: 'var(--muted)', fontSize: 11, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{starterTeam}</span><strong style={{ display: 'block', whiteSpace: 'nowrap', fontSize: 11 }}>{poke.amount} pts</strong></div>
+                <span style={{ flexShrink: 0, color: 'var(--muted)', fontSize: 10, fontWeight: 800 }}>VS</span>
+                <div style={{ flex: 1, minWidth: 0, textAlign: 'right' }}><strong style={{ display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: 12 }}>{poke.finisherName || 'Matched user'}</strong><span style={{ display: 'block', color: 'var(--muted)', fontSize: 11, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{finisherTeam}</span><strong style={{ display: 'block', whiteSpace: 'nowrap', fontSize: 11 }}>{poke.finisherAmount ?? poke.amount} pts</strong></div>
               </div>
             );
           })}
