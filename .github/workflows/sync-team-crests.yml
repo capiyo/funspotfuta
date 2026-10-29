@@ -28,7 +28,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-      - name: Download and catalogue soccer crests
+      - name: Install temporary SVG rasterizer
+        run: npm install --no-save --package-lock=false sharp
+      - name: Download and catalogue all available football crests
         run: node scripts/sync-team-crests.mjs
       - name: Commit generated local assets
         run: |
