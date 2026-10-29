@@ -1,0 +1,43 @@
+name: Sync bundled football team crests
+
+on:
+  push:
+    branches: [web-port-from-master]
+    paths:
+      - scripts/sync-team-crests.mjs
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sync-team-crests
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout target branch
+        uses: actions/checkout@v4
+        with:
+          ref: web-port-from-master
+          fetch-depth: 0
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Download and catalogue soccer crests
+        run: node scripts/sync-team-crests.mjs
+      - name: Commit generated local assets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apps/web/public/team-crests apps/web/src/components/team-crest-catalog.generated.ts apps/mobile/assets/team-crests apps/mobile/src/components/team-crest-catalog.generated.ts
+          if git diff --cached --quiet; then
+            echo "Crest catalogue is already up to date."
+            exit 0
+          fi
+          git commit -m "Bundle local football team crests across platforms"
+          git push origin HEAD:web-port-from-master

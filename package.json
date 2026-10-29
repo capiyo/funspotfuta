@@ -21,7 +21,8 @@
     "build:web": "cd apps/web && npm run build",
     "lint:web": "cd apps/web && npm run lint",
     "typecheck:mobile": "cd apps/mobile && npx tsc --noEmit",
-    "test:core": "vitest run packages/core/src/queries/queryKeys.test.ts"
+    "test:core": "vitest run packages/core/src/queries/queryKeys.test.ts",
+    "sync:team-crests": "node scripts/sync-team-crests.mjs"
   },
   "devDependencies": {
     "turbo": "^2.10.13",
