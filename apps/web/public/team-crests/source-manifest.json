@@ -1,10 +1,10 @@
 {
-  "generatedAt": "2026-10-29T17:25:12.240Z",
+  "generatedAt": "2026-10-29T17:26:19.173Z",
   "sourceRepository": "JoseArroyave/football-logos",
   "sourceBranch": "main",
   "sourceCommit": "5ab11fed47427b3003f4b276554491fe683387b1",
   "sourceSvgCount": 4765,
-  "bundledCrestCount": 4698,
+  "bundledCrestCount": 4763,
   "webFormat": "original SVG",
   "mobileFormat": "256x256 transparent PNG",
   "teams": [
@@ -700,6 +700,16 @@
       ]
     },
     {
+      "name": "Atenas de Río Cuarto",
+      "country": "argentina",
+      "sourcePath": "logos/argentina/Atenas_de_Río_Cuarto.svg",
+      "webPath": "/team-crests/argentina/Atenas_de_R%C3%ADo_Cuarto.svg",
+      "mobilePath": "assets/team-crests/argentina_Atenas_de_R_o_Cuarto.png",
+      "normalizedKeys": [
+        "atenas de rio cuarto"
+      ]
+    },
+    {
       "name": "Atlas",
       "country": "argentina",
       "sourcePath": "logos/argentina/Atlas.svg",
@@ -1220,6 +1230,16 @@
       ]
     },
     {
+      "name": "Estudiantes de Rio Cuarto",
+      "country": "argentina",
+      "sourcePath": "logos/argentina/Estudiantes_de_Rio_Cuarto.svg",
+      "webPath": "/team-crests/argentina/Estudiantes_de_Rio_Cuarto.svg",
+      "mobilePath": "assets/team-crests/argentina_Estudiantes_de_Rio_Cuarto.png",
+      "normalizedKeys": [
+        "estudiantes de rio cuarto"
+      ]
+    },
+    {
       "name": "Excursionistas",
       "country": "argentina",
       "sourcePath": "logos/argentina/Excursionistas.svg",
@@ -1267,6 +1287,16 @@
       "mobilePath": "assets/team-crests/argentina_General_Lamadrid.png",
       "normalizedKeys": [
         "general lamadrid"
+      ]
+    },
+    {
+      "name": "General Paz Juniors",
+      "country": "argentina",
+      "sourcePath": "logos/argentina/General_Paz_Juniors.svg",
+      "webPath": "/team-crests/argentina/General_Paz_Juniors.svg",
+      "mobilePath": "assets/team-crests/argentina_General_Paz_Juniors.png",
+      "normalizedKeys": [
+        "general paz juniors"
       ]
     },
     {
@@ -1618,6 +1648,16 @@
       "mobilePath": "assets/team-crests/argentina_Primera_C_Metropolitana.png",
       "normalizedKeys": [
         "primera c metropolitana"
+      ]
+    },
+    {
+      "name": "Primera Nacional",
+      "country": "argentina",
+      "sourcePath": "logos/argentina/Primera_Nacional.svg",
+      "webPath": "/team-crests/argentina/Primera_Nacional.svg",
+      "mobilePath": "assets/team-crests/argentina_Primera_Nacional.png",
+      "normalizedKeys": [
+        "primera nacional"
       ]
     },
     {
@@ -2022,6 +2062,16 @@
       ]
     },
     {
+      "name": "Armenia National Team",
+      "country": "armenia",
+      "sourcePath": "logos/armenia/Armenia_National_Team.svg",
+      "webPath": "/team-crests/armenia/Armenia_National_Team.svg",
+      "mobilePath": "assets/team-crests/armenia_Armenia_National_Team.png",
+      "normalizedKeys": [
+        "armenia national team"
+      ]
+    },
+    {
       "name": "Armenian Premier League",
       "country": "armenia",
       "sourcePath": "logos/armenia/Armenian_Premier_League.svg",
@@ -2069,6 +2119,16 @@
       "mobilePath": "assets/team-crests/armenia_Noah.png",
       "normalizedKeys": [
         "noah"
+      ]
+    },
+    {
+      "name": "Pyunik",
+      "country": "armenia",
+      "sourcePath": "logos/armenia/Pyunik.svg",
+      "webPath": "/team-crests/armenia/Pyunik.svg",
+      "mobilePath": "assets/team-crests/armenia_Pyunik.png",
+      "normalizedKeys": [
+        "pyunik"
       ]
     },
     {
@@ -3354,6 +3414,16 @@
       ]
     },
     {
+      "name": "Belgian Cup",
+      "country": "belgium",
+      "sourcePath": "logos/belgium/Belgian_Cup.svg",
+      "webPath": "/team-crests/belgium/Belgian_Cup.svg",
+      "mobilePath": "assets/team-crests/belgium_Belgian_Cup.png",
+      "normalizedKeys": [
+        "belgian cup"
+      ]
+    },
+    {
       "name": "Belgian Pro League",
       "country": "belgium",
       "sourcePath": "logos/belgium/Belgian_Pro_League.svg",
@@ -4533,6 +4603,16 @@
       "mobilePath": "assets/team-crests/brazil_Atl_tico_de_Alagoinhas.png",
       "normalizedKeys": [
         "atletico de alagoinhas"
+      ]
+    },
+    {
+      "name": "Atlético Gloriense",
+      "country": "brazil",
+      "sourcePath": "logos/brazil/Atlético_Gloriense.svg",
+      "webPath": "/team-crests/brazil/Atl%C3%A9tico_Gloriense.svg",
+      "mobilePath": "assets/team-crests/brazil_Atl_tico_Gloriense.png",
+      "normalizedKeys": [
+        "atletico gloriense"
       ]
     },
     {
@@ -7820,6 +7900,16 @@
       ]
     },
     {
+      "name": "América de Cali",
+      "country": "colombia",
+      "sourcePath": "logos/colombia/América_de_Cali.svg",
+      "webPath": "/team-crests/colombia/Am%C3%A9rica_de_Cali.svg",
+      "mobilePath": "assets/team-crests/colombia_Am_rica_de_Cali.png",
+      "normalizedKeys": [
+        "america de cali"
+      ]
+    },
+    {
       "name": "Atlético Huila",
       "country": "colombia",
       "sourcePath": "logos/colombia/Atlético_Huila.svg",
@@ -8330,6 +8420,16 @@
       "mobilePath": "assets/team-crests/croatia_Lokomotiva_Zagreb.png",
       "normalizedKeys": [
         "lokomotiva zagreb"
+      ]
+    },
+    {
+      "name": "NK Dugopolje",
+      "country": "croatia",
+      "sourcePath": "logos/croatia/NK_Dugopolje.svg",
+      "webPath": "/team-crests/croatia/NK_Dugopolje.svg",
+      "mobilePath": "assets/team-crests/croatia_NK_Dugopolje.png",
+      "normalizedKeys": [
+        "nk dugopolje"
       ]
     },
     {
@@ -9253,6 +9353,16 @@
       ]
     },
     {
+      "name": "Brøndby IF",
+      "country": "denmark",
+      "sourcePath": "logos/denmark/Brøndby_IF.svg",
+      "webPath": "/team-crests/denmark/Br%C3%B8ndby_IF.svg",
+      "mobilePath": "assets/team-crests/denmark_Br_ndby_IF.png",
+      "normalizedKeys": [
+        "br ndby if"
+      ]
+    },
+    {
       "name": "Brønshøj",
       "country": "denmark",
       "sourcePath": "logos/denmark/Brønshøj.svg",
@@ -9604,6 +9714,16 @@
       "mobilePath": "assets/team-crests/denmark_Vendsyssel.png",
       "normalizedKeys": [
         "vendsyssel"
+      ]
+    },
+    {
+      "name": "Viborg FF",
+      "country": "denmark",
+      "sourcePath": "logos/denmark/Viborg_FF.svg",
+      "webPath": "/team-crests/denmark/Viborg_FF.svg",
+      "mobilePath": "assets/team-crests/denmark_Viborg_FF.png",
+      "normalizedKeys": [
+        "viborg ff"
       ]
     },
     {
@@ -10576,6 +10696,16 @@
       ]
     },
     {
+      "name": "Bishop Auckland",
+      "country": "england",
+      "sourcePath": "logos/england/Bishop_Auckland.svg",
+      "webPath": "/team-crests/england/Bishop_Auckland.svg",
+      "mobilePath": "assets/team-crests/england_Bishop_Auckland.png",
+      "normalizedKeys": [
+        "bishop auckland"
+      ]
+    },
+    {
       "name": "Bishop's Stortford",
       "country": "england",
       "sourcePath": "logos/england/Bishop's_Stortford.svg",
@@ -11498,6 +11628,16 @@
       ]
     },
     {
+      "name": "FC St Helens",
+      "country": "england",
+      "sourcePath": "logos/england/FC_St_Helens.svg",
+      "webPath": "/team-crests/england/FC_St_Helens.svg",
+      "mobilePath": "assets/team-crests/england_FC_St_Helens.png",
+      "normalizedKeys": [
+        "fc st helens"
+      ]
+    },
+    {
       "name": "FC United of Manchester",
       "country": "england",
       "sourcePath": "logos/england/FC_United_of_Manchester.svg",
@@ -11596,6 +11736,16 @@
       "mobilePath": "assets/team-crests/england_Fulham.png",
       "normalizedKeys": [
         "fulham"
+      ]
+    },
+    {
+      "name": "Gainsborough Trinity",
+      "country": "england",
+      "sourcePath": "logos/england/Gainsborough_Trinity.svg",
+      "webPath": "/team-crests/england/Gainsborough_Trinity.svg",
+      "mobilePath": "assets/team-crests/england_Gainsborough_Trinity.png",
+      "normalizedKeys": [
+        "gainsborough trinity"
       ]
     },
     {
@@ -12928,6 +13078,16 @@
       ]
     },
     {
+      "name": "Salford City",
+      "country": "england",
+      "sourcePath": "logos/england/Salford_City.svg",
+      "webPath": "/team-crests/england/Salford_City.svg",
+      "mobilePath": "assets/team-crests/england_Salford_City.png",
+      "normalizedKeys": [
+        "salford city"
+      ]
+    },
+    {
       "name": "Salisbury FC",
       "country": "england",
       "sourcePath": "logos/england/Salisbury_FC.svg",
@@ -13038,6 +13198,16 @@
       "mobilePath": "assets/team-crests/england_Solihull_Moors.png",
       "normalizedKeys": [
         "solihull moors"
+      ]
+    },
+    {
+      "name": "South Shields",
+      "country": "england",
+      "sourcePath": "logos/england/South_Shields.svg",
+      "webPath": "/team-crests/england/South_Shields.svg",
+      "mobilePath": "assets/team-crests/england_South_Shields.png",
+      "normalizedKeys": [
+        "south shields"
       ]
     },
     {
@@ -13775,6 +13945,16 @@
       "mobilePath": "assets/team-crests/england_Yate_Town.png",
       "normalizedKeys": [
         "yate town"
+      ]
+    },
+    {
+      "name": "Yeovil Town",
+      "country": "england",
+      "sourcePath": "logos/england/Yeovil_Town.svg",
+      "webPath": "/team-crests/england/Yeovil_Town.svg",
+      "mobilePath": "assets/team-crests/england_Yeovil_Town.png",
+      "normalizedKeys": [
+        "yeovil town"
       ]
     },
     {
@@ -16482,6 +16662,16 @@
       ]
     },
     {
+      "name": "RC Lens",
+      "country": "france",
+      "sourcePath": "logos/france/RC_Lens.svg",
+      "webPath": "/team-crests/france/RC_Lens.svg",
+      "mobilePath": "assets/team-crests/france_RC_Lens.png",
+      "normalizedKeys": [
+        "rc lens"
+      ]
+    },
+    {
       "name": "RC Lons",
       "country": "france",
       "sourcePath": "logos/france/RC_Lons.svg",
@@ -17682,6 +17872,16 @@
       ]
     },
     {
+      "name": "Gambia National Team",
+      "country": "gambia",
+      "sourcePath": "logos/gambia/Gambia_National_Team.svg",
+      "webPath": "/team-crests/gambia/Gambia_National_Team.svg",
+      "mobilePath": "assets/team-crests/gambia_Gambia_National_Team.png",
+      "normalizedKeys": [
+        "gambia national team"
+      ]
+    },
+    {
       "name": "Chikhura",
       "country": "georgia",
       "sourcePath": "logos/georgia/Chikhura.svg",
@@ -18203,6 +18403,16 @@
       ]
     },
     {
+      "name": "ASC 09 Dortmund",
+      "country": "germany",
+      "sourcePath": "logos/germany/ASC_09_Dortmund.svg",
+      "webPath": "/team-crests/germany/ASC_09_Dortmund.svg",
+      "mobilePath": "assets/team-crests/germany_ASC_09_Dortmund.png",
+      "normalizedKeys": [
+        "asc 09 dortmund"
+      ]
+    },
+    {
       "name": "ASV Burglengenfeld",
       "country": "germany",
       "sourcePath": "logos/germany/ASV_Burglengenfeld.svg",
@@ -18395,6 +18605,16 @@
       ]
     },
     {
+      "name": "Borussia Freialdenhoven",
+      "country": "germany",
+      "sourcePath": "logos/germany/Borussia_Freialdenhoven.svg",
+      "webPath": "/team-crests/germany/Borussia_Freialdenhoven.svg",
+      "mobilePath": "assets/team-crests/germany_Borussia_Freialdenhoven.png",
+      "normalizedKeys": [
+        "borussia freialdenhoven"
+      ]
+    },
+    {
       "name": "Borussia Mönchengladbach",
       "country": "germany",
       "sourcePath": "logos/germany/Borussia_Mönchengladbach.svg",
@@ -18443,6 +18663,16 @@
       "mobilePath": "assets/team-crests/germany_BSG_Chemie_Leipzig.png",
       "normalizedKeys": [
         "bsg chemie leipzig"
+      ]
+    },
+    {
+      "name": "BSV Eintracht Sondershausen",
+      "country": "germany",
+      "sourcePath": "logos/germany/BSV_Eintracht_Sondershausen.svg",
+      "webPath": "/team-crests/germany/BSV_Eintracht_Sondershausen.svg",
+      "mobilePath": "assets/team-crests/germany_BSV_Eintracht_Sondershausen.png",
+      "normalizedKeys": [
+        "bsv eintracht sondershausen"
       ]
     },
     {
@@ -18628,6 +18858,16 @@
       ]
     },
     {
+      "name": "Essen",
+      "country": "germany",
+      "sourcePath": "logos/germany/Essen.svg",
+      "webPath": "/team-crests/germany/Essen.svg",
+      "mobilePath": "assets/team-crests/germany_Essen.png",
+      "normalizedKeys": [
+        "essen"
+      ]
+    },
+    {
       "name": "ESV Olympia Köln",
       "country": "germany",
       "sourcePath": "logos/germany/ESV_Olympia_Köln.svg",
@@ -18755,6 +18995,16 @@
       "mobilePath": "assets/team-crests/germany_FC_Eintracht_Norderstedt.png",
       "normalizedKeys": [
         "fc eintracht norderstedt"
+      ]
+    },
+    {
+      "name": "FC Eintracht Rheine",
+      "country": "germany",
+      "sourcePath": "logos/germany/FC_Eintracht_Rheine.svg",
+      "webPath": "/team-crests/germany/FC_Eintracht_Rheine.svg",
+      "mobilePath": "assets/team-crests/germany_FC_Eintracht_Rheine.png",
+      "normalizedKeys": [
+        "fc eintracht rheine"
       ]
     },
     {
@@ -19385,6 +19635,16 @@
       ]
     },
     {
+      "name": "Mainz 05",
+      "country": "germany",
+      "sourcePath": "logos/germany/Mainz_05.svg",
+      "webPath": "/team-crests/germany/Mainz_05.svg",
+      "mobilePath": "assets/team-crests/germany_Mainz_05.png",
+      "normalizedKeys": [
+        "mainz 05"
+      ]
+    },
+    {
       "name": "MSV Duisburg",
       "country": "germany",
       "sourcePath": "logos/germany/MSV_Duisburg.svg",
@@ -19392,6 +19652,16 @@
       "mobilePath": "assets/team-crests/germany_MSV_Duisburg.png",
       "normalizedKeys": [
         "msv duisburg"
+      ]
+    },
+    {
+      "name": "Mülheimer SV 06",
+      "country": "germany",
+      "sourcePath": "logos/germany/Mülheimer_SV_06.svg",
+      "webPath": "/team-crests/germany/M%C3%BClheimer_SV_06.svg",
+      "mobilePath": "assets/team-crests/germany_M_lheimer_SV_06.png",
+      "normalizedKeys": [
+        "mulheimer sv 06"
       ]
     },
     {
@@ -19662,6 +19932,16 @@
       "mobilePath": "assets/team-crests/germany_SC_Verl.png",
       "normalizedKeys": [
         "sc verl"
+      ]
+    },
+    {
+      "name": "SC Victoria Hamburg",
+      "country": "germany",
+      "sourcePath": "logos/germany/SC_Victoria_Hamburg.svg",
+      "webPath": "/team-crests/germany/SC_Victoria_Hamburg.svg",
+      "mobilePath": "assets/team-crests/germany_SC_Victoria_Hamburg.png",
+      "normalizedKeys": [
+        "sc victoria hamburg"
       ]
     },
     {
@@ -20706,6 +20986,16 @@
       ]
     },
     {
+      "name": "Union 1861 Schönebeck",
+      "country": "germany",
+      "sourcePath": "logos/germany/Union_1861_Schönebeck.svg",
+      "webPath": "/team-crests/germany/Union_1861_Sch%C3%B6nebeck.svg",
+      "mobilePath": "assets/team-crests/germany_Union_1861_Sch_nebeck.png",
+      "normalizedKeys": [
+        "union 1861 schonebeck"
+      ]
+    },
+    {
       "name": "Union Berlin",
       "country": "germany",
       "sourcePath": "logos/germany/Union_Berlin.svg",
@@ -20853,6 +21143,16 @@
       "mobilePath": "assets/team-crests/germany_VfL_Germania_Leer.png",
       "normalizedKeys": [
         "vfl germania leer"
+      ]
+    },
+    {
+      "name": "VfL Oldenburg",
+      "country": "germany",
+      "sourcePath": "logos/germany/VfL_Oldenburg.svg",
+      "webPath": "/team-crests/germany/VfL_Oldenburg.svg",
+      "mobilePath": "assets/team-crests/germany_VfL_Oldenburg.png",
+      "normalizedKeys": [
+        "vfl oldenburg"
       ]
     },
     {
@@ -25069,6 +25369,16 @@
       ]
     },
     {
+      "name": "Brescia",
+      "country": "italy",
+      "sourcePath": "logos/italy/Brescia.svg",
+      "webPath": "/team-crests/italy/Brescia.svg",
+      "mobilePath": "assets/team-crests/italy_Brescia.png",
+      "normalizedKeys": [
+        "brescia"
+      ]
+    },
+    {
       "name": "Brian Lignano Calcio",
       "country": "italy",
       "sourcePath": "logos/italy/Brian_Lignano_Calcio.svg",
@@ -25801,6 +26111,16 @@
       ]
     },
     {
+      "name": "Guidonia Montecelio",
+      "country": "italy",
+      "sourcePath": "logos/italy/Guidonia_Montecelio.svg",
+      "webPath": "/team-crests/italy/Guidonia_Montecelio.svg",
+      "mobilePath": "assets/team-crests/italy_Guidonia_Montecelio.png",
+      "normalizedKeys": [
+        "guidonia montecelio"
+      ]
+    },
+    {
       "name": "Hellas Verona",
       "country": "italy",
       "sourcePath": "logos/italy/Hellas_Verona.svg",
@@ -25928,6 +26248,16 @@
       "mobilePath": "assets/team-crests/italy_L_Aquila_1927.png",
       "normalizedKeys": [
         "l aquila 1927"
+      ]
+    },
+    {
+      "name": "Latina Calcio 1932",
+      "country": "italy",
+      "sourcePath": "logos/italy/Latina_Calcio_1932.svg",
+      "webPath": "/team-crests/italy/Latina_Calcio_1932.svg",
+      "mobilePath": "assets/team-crests/italy_Latina_Calcio_1932.png",
+      "normalizedKeys": [
+        "latina calcio 1932"
       ]
     },
     {
@@ -28998,6 +29328,16 @@
       ]
     },
     {
+      "name": "Madagascar National Team",
+      "country": "madagascar",
+      "sourcePath": "logos/madagascar/Madagascar_National_Team.svg",
+      "webPath": "/team-crests/madagascar/Madagascar_National_Team.svg",
+      "mobilePath": "assets/team-crests/madagascar_Madagascar_National_Team.png",
+      "normalizedKeys": [
+        "madagascar national team"
+      ]
+    },
+    {
       "name": "Malawi National Team",
       "country": "malawi",
       "sourcePath": "logos/malawi/Malawi_National_Team.svg",
@@ -30113,6 +30453,26 @@
       ]
     },
     {
+      "name": "Olympic Club Safi",
+      "country": "morocco",
+      "sourcePath": "logos/morocco/Olympic_Club_Safi.svg",
+      "webPath": "/team-crests/morocco/Olympic_Club_Safi.svg",
+      "mobilePath": "assets/team-crests/morocco_Olympic_Club_Safi.png",
+      "normalizedKeys": [
+        "olympic club safi"
+      ]
+    },
+    {
+      "name": "Olympique Dcheira",
+      "country": "morocco",
+      "sourcePath": "logos/morocco/Olympique_Dcheira.svg",
+      "webPath": "/team-crests/morocco/Olympique_Dcheira.svg",
+      "mobilePath": "assets/team-crests/morocco_Olympique_Dcheira.png",
+      "normalizedKeys": [
+        "olympique dcheira"
+      ]
+    },
+    {
       "name": "Raja Casablanca",
       "country": "morocco",
       "sourcePath": "logos/morocco/Raja_Casablanca.svg",
@@ -30120,6 +30480,16 @@
       "mobilePath": "assets/team-crests/morocco_Raja_Casablanca.png",
       "normalizedKeys": [
         "raja casablanca"
+      ]
+    },
+    {
+      "name": "RCA Zemamra",
+      "country": "morocco",
+      "sourcePath": "logos/morocco/RCA_Zemamra.svg",
+      "webPath": "/team-crests/morocco/RCA_Zemamra.svg",
+      "mobilePath": "assets/team-crests/morocco_RCA_Zemamra.png",
+      "normalizedKeys": [
+        "rca zemamra"
       ]
     },
     {
@@ -30221,6 +30591,16 @@
       "mobilePath": "assets/team-crests/namibia_Namibia_National_Team.png",
       "normalizedKeys": [
         "namibia national team"
+      ]
+    },
+    {
+      "name": "Nauru National Team",
+      "country": "nauru",
+      "sourcePath": "logos/nauru/Nauru_National_Team.svg",
+      "webPath": "/team-crests/nauru/Nauru_National_Team.svg",
+      "mobilePath": "assets/team-crests/nauru_Nauru_National_Team.png",
+      "normalizedKeys": [
+        "nauru national team"
       ]
     },
     {
@@ -32128,6 +32508,16 @@
       ]
     },
     {
+      "name": "Palau National Team",
+      "country": "palau",
+      "sourcePath": "logos/palau/Palau_National_Team.svg",
+      "webPath": "/team-crests/palau/Palau_National_Team.svg",
+      "mobilePath": "assets/team-crests/palau_Palau_National_Team.png",
+      "normalizedKeys": [
+        "palau national team"
+      ]
+    },
+    {
       "name": "Palestine National Team",
       "country": "palestine",
       "sourcePath": "logos/palestine/Palestine_National_Team.svg",
@@ -32755,6 +33145,16 @@
       ]
     },
     {
+      "name": "Universidad Técnica de Cajamarca",
+      "country": "peru",
+      "sourcePath": "logos/peru/Universidad_Técnica_de_Cajamarca.svg",
+      "webPath": "/team-crests/peru/Universidad_T%C3%A9cnica_de_Cajamarca.svg",
+      "mobilePath": "assets/team-crests/peru_Universidad_T_cnica_de_Cajamarca.png",
+      "normalizedKeys": [
+        "universidad tecnica de cajamarca"
+      ]
+    },
+    {
       "name": "Universitario de Deportes",
       "country": "peru",
       "sourcePath": "logos/peru/Universitario_de_Deportes.svg",
@@ -33335,6 +33735,16 @@
       ]
     },
     {
+      "name": "AFC Santa Marta de Penaguião",
+      "country": "portugal",
+      "sourcePath": "logos/portugal/AFC_Santa_Marta_de_Penaguião.svg",
+      "webPath": "/team-crests/portugal/AFC_Santa_Marta_de_Penagui%C3%A3o.svg",
+      "mobilePath": "assets/team-crests/portugal_AFC_Santa_Marta_de_Penagui_o.png",
+      "normalizedKeys": [
+        "afc santa marta de penaguiao"
+      ]
+    },
+    {
       "name": "Alcochetense",
       "country": "portugal",
       "sourcePath": "logos/portugal/Alcochetense.svg",
@@ -33404,6 +33814,16 @@
       "normalizedKeys": [
         "aparecida fc",
         "aparecida"
+      ]
+    },
+    {
+      "name": "AR Porto Alto",
+      "country": "portugal",
+      "sourcePath": "logos/portugal/AR_Porto_Alto.svg",
+      "webPath": "/team-crests/portugal/AR_Porto_Alto.svg",
+      "mobilePath": "assets/team-crests/portugal_AR_Porto_Alto.png",
+      "normalizedKeys": [
+        "ar porto alto"
       ]
     },
     {
@@ -33899,6 +34319,28 @@
       ]
     },
     {
+      "name": "Florgrade FC",
+      "country": "portugal",
+      "sourcePath": "logos/portugal/Florgrade_FC.svg",
+      "webPath": "/team-crests/portugal/Florgrade_FC.svg",
+      "mobilePath": "assets/team-crests/portugal_Florgrade_FC.png",
+      "normalizedKeys": [
+        "florgrade fc",
+        "florgrade"
+      ]
+    },
+    {
+      "name": "Folgosa da Maia FC",
+      "country": "portugal",
+      "sourcePath": "logos/portugal/Folgosa_da_Maia_FC.svg",
+      "webPath": "/team-crests/portugal/Folgosa_da_Maia_FC.svg",
+      "mobilePath": "assets/team-crests/portugal_Folgosa_da_Maia_FC.png",
+      "normalizedKeys": [
+        "folgosa da maia fc",
+        "folgosa da maia"
+      ]
+    },
+    {
       "name": "Futebol Clube de Oliveira do Hospital",
       "country": "portugal",
       "sourcePath": "logos/portugal/Futebol_Clube_de_Oliveira_do_Hospital.svg",
@@ -34141,6 +34583,16 @@
       ]
     },
     {
+      "name": "Monção",
+      "country": "portugal",
+      "sourcePath": "logos/portugal/Monção.svg",
+      "webPath": "/team-crests/portugal/Mon%C3%A7%C3%A3o.svg",
+      "mobilePath": "assets/team-crests/portugal_Mon_o.png",
+      "normalizedKeys": [
+        "moncao"
+      ]
+    },
+    {
       "name": "Moncarapachense",
       "country": "portugal",
       "sourcePath": "logos/portugal/Moncarapachense.svg",
@@ -34321,6 +34773,16 @@
       "normalizedKeys": [
         "rebordosa ac",
         "rebordosa"
+      ]
+    },
+    {
+      "name": "Relâmpago Nogueirense",
+      "country": "portugal",
+      "sourcePath": "logos/portugal/Relâmpago_Nogueirense.svg",
+      "webPath": "/team-crests/portugal/Rel%C3%A2mpago_Nogueirense.svg",
+      "mobilePath": "assets/team-crests/portugal_Rel_mpago_Nogueirense.png",
+      "normalizedKeys": [
+        "relampago nogueirense"
       ]
     },
     {
@@ -34692,6 +35154,16 @@
       "mobilePath": "assets/team-crests/portugal_Vila_Me_.png",
       "normalizedKeys": [
         "vila mea"
+      ]
+    },
+    {
+      "name": "Vilar de Perdizes",
+      "country": "portugal",
+      "sourcePath": "logos/portugal/Vilar_de_Perdizes.svg",
+      "webPath": "/team-crests/portugal/Vilar_de_Perdizes.svg",
+      "mobilePath": "assets/team-crests/portugal_Vilar_de_Perdizes.png",
+      "normalizedKeys": [
+        "vilar de perdizes"
       ]
     },
     {
@@ -35143,6 +35615,16 @@
       "mobilePath": "assets/team-crests/republic-of-ireland_Cork_City.png",
       "normalizedKeys": [
         "cork city"
+      ]
+    },
+    {
+      "name": "Derry City",
+      "country": "republic-of-ireland",
+      "sourcePath": "logos/republic-of-ireland/Derry_City.svg",
+      "webPath": "/team-crests/republic-of-ireland/Derry_City.svg",
+      "mobilePath": "assets/team-crests/republic-of-ireland_Derry_City.png",
+      "normalizedKeys": [
+        "derry city"
       ]
     },
     {
@@ -35949,6 +36431,16 @@
       ]
     },
     {
+      "name": "Russia National Team",
+      "country": "russia",
+      "sourcePath": "logos/russia/Russia_National_Team.svg",
+      "webPath": "/team-crests/russia/Russia_National_Team.svg",
+      "mobilePath": "assets/team-crests/russia_Russia_National_Team.png",
+      "normalizedKeys": [
+        "russia national team"
+      ]
+    },
+    {
       "name": "Russian First League",
       "country": "russia",
       "sourcePath": "logos/russia/Russian_First_League.svg",
@@ -36069,6 +36561,16 @@
       ]
     },
     {
+      "name": "Ural",
+      "country": "russia",
+      "sourcePath": "logos/russia/Ural.svg",
+      "webPath": "/team-crests/russia/Ural.svg",
+      "mobilePath": "assets/team-crests/russia_Ural.png",
+      "normalizedKeys": [
+        "ural"
+      ]
+    },
+    {
       "name": "Veles Moscow",
       "country": "russia",
       "sourcePath": "logos/russia/Veles_Moscow.svg",
@@ -36146,6 +36648,16 @@
       "mobilePath": "assets/team-crests/saint-vincent-and-the-grenadines_Saint_Vincent_and_the_Grenadines_National_Team.png",
       "normalizedKeys": [
         "saint vincent and the grenadines national team"
+      ]
+    },
+    {
+      "name": "Samoa National Team",
+      "country": "samoa",
+      "sourcePath": "logos/samoa/Samoa_National_Team.svg",
+      "webPath": "/team-crests/samoa/Samoa_National_Team.svg",
+      "mobilePath": "assets/team-crests/samoa_Samoa_National_Team.png",
+      "normalizedKeys": [
+        "samoa national team"
       ]
     },
     {
@@ -36934,6 +37446,16 @@
       ]
     },
     {
+      "name": "Elgin City",
+      "country": "scotland",
+      "sourcePath": "logos/scotland/Elgin_City.svg",
+      "webPath": "/team-crests/scotland/Elgin_City.svg",
+      "mobilePath": "assets/team-crests/scotland_Elgin_City.png",
+      "normalizedKeys": [
+        "elgin city"
+      ]
+    },
+    {
       "name": "Falkirk",
       "country": "scotland",
       "sourcePath": "logos/scotland/Falkirk.svg",
@@ -37071,6 +37593,16 @@
       "mobilePath": "assets/team-crests/scotland_Inverurie_Loco_Works.png",
       "normalizedKeys": [
         "inverurie loco works"
+      ]
+    },
+    {
+      "name": "Kelty Hearts",
+      "country": "scotland",
+      "sourcePath": "logos/scotland/Kelty_Hearts.svg",
+      "webPath": "/team-crests/scotland/Kelty_Hearts.svg",
+      "mobilePath": "assets/team-crests/scotland_Kelty_Hearts.png",
+      "normalizedKeys": [
+        "kelty hearts"
       ]
     },
     {
@@ -37303,6 +37835,16 @@
       "mobilePath": "assets/team-crests/scotland_Stenhousemuir.png",
       "normalizedKeys": [
         "stenhousemuir"
+      ]
+    },
+    {
+      "name": "Stirling Albion",
+      "country": "scotland",
+      "sourcePath": "logos/scotland/Stirling_Albion.svg",
+      "webPath": "/team-crests/scotland/Stirling_Albion.svg",
+      "mobilePath": "assets/team-crests/scotland_Stirling_Albion.png",
+      "normalizedKeys": [
+        "stirling albion"
       ]
     },
     {
@@ -37614,6 +38156,16 @@
       "mobilePath": "assets/team-crests/seychelles_Seychelles_National_Team.png",
       "normalizedKeys": [
         "seychelles national team"
+      ]
+    },
+    {
+      "name": "Sierra Leone National Team",
+      "country": "sierra-leone",
+      "sourcePath": "logos/sierra-leone/Sierra_Leone_National_Team.svg",
+      "webPath": "/team-crests/sierra-leone/Sierra_Leone_National_Team.svg",
+      "mobilePath": "assets/team-crests/sierra-leone_Sierra_Leone_National_Team.png",
+      "normalizedKeys": [
+        "sierra leone national team"
       ]
     },
     {
@@ -38053,6 +38605,16 @@
       ]
     },
     {
+      "name": "NK Bela Krajina",
+      "country": "slovenia",
+      "sourcePath": "logos/slovenia/NK_Bela_Krajina.svg",
+      "webPath": "/team-crests/slovenia/NK_Bela_Krajina.svg",
+      "mobilePath": "assets/team-crests/slovenia_NK_Bela_Krajina.png",
+      "normalizedKeys": [
+        "nk bela krajina"
+      ]
+    },
+    {
       "name": "NK Brinje Grosuplje",
       "country": "slovenia",
       "sourcePath": "logos/slovenia/NK_Brinje_Grosuplje.svg",
@@ -38100,6 +38662,16 @@
       "mobilePath": "assets/team-crests/slovenia_Radomlje.png",
       "normalizedKeys": [
         "radomlje"
+      ]
+    },
+    {
+      "name": "Rudar Velenje",
+      "country": "slovenia",
+      "sourcePath": "logos/slovenia/Rudar_Velenje.svg",
+      "webPath": "/team-crests/slovenia/Rudar_Velenje.svg",
+      "mobilePath": "assets/team-crests/slovenia_Rudar_Velenje.png",
+      "normalizedKeys": [
+        "rudar velenje"
       ]
     },
     {
@@ -39696,6 +40268,16 @@
       ]
     },
     {
+      "name": "Lugo",
+      "country": "spain",
+      "sourcePath": "logos/spain/Lugo.svg",
+      "webPath": "/team-crests/spain/Lugo.svg",
+      "mobilePath": "assets/team-crests/spain_Lugo.png",
+      "normalizedKeys": [
+        "lugo"
+      ]
+    },
+    {
       "name": "Málaga",
       "country": "spain",
       "sourcePath": "logos/spain/Málaga.svg",
@@ -39906,6 +40488,16 @@
       "mobilePath": "assets/team-crests/spain_Puente_Genil.png",
       "normalizedKeys": [
         "puente genil"
+      ]
+    },
+    {
+      "name": "Racing Club Ferrol",
+      "country": "spain",
+      "sourcePath": "logos/spain/Racing_Club_Ferrol.svg",
+      "webPath": "/team-crests/spain/Racing_Club_Ferrol.svg",
+      "mobilePath": "assets/team-crests/spain_Racing_Club_Ferrol.png",
+      "normalizedKeys": [
+        "racing club ferrol"
       ]
     },
     {
@@ -41292,6 +41884,16 @@
       ]
     },
     {
+      "name": "Servette",
+      "country": "switzerland",
+      "sourcePath": "logos/switzerland/Servette.svg",
+      "webPath": "/team-crests/switzerland/Servette.svg",
+      "mobilePath": "assets/team-crests/switzerland_Servette.png",
+      "normalizedKeys": [
+        "servette"
+      ]
+    },
+    {
       "name": "Sion",
       "country": "switzerland",
       "sourcePath": "logos/switzerland/Sion.svg",
@@ -41999,6 +42601,16 @@
       "mobilePath": "assets/team-crests/togo_Togo_National_Team.png",
       "normalizedKeys": [
         "togo national team"
+      ]
+    },
+    {
+      "name": "Tonga National Team",
+      "country": "tonga",
+      "sourcePath": "logos/tonga/Tonga_National_Team.svg",
+      "webPath": "/team-crests/tonga/Tonga_National_Team.svg",
+      "mobilePath": "assets/team-crests/tonga_Tonga_National_Team.png",
+      "normalizedKeys": [
+        "tonga national team"
       ]
     },
     {
@@ -43408,6 +44020,16 @@
       ]
     },
     {
+      "name": "Boluspor",
+      "country": "turkey",
+      "sourcePath": "logos/turkey/Boluspor.svg",
+      "webPath": "/team-crests/turkey/Boluspor.svg",
+      "mobilePath": "assets/team-crests/turkey_Boluspor.png",
+      "normalizedKeys": [
+        "boluspor"
+      ]
+    },
+    {
       "name": "Bursaspor",
       "country": "turkey",
       "sourcePath": "logos/turkey/Bursaspor.svg",
@@ -43787,6 +44409,17 @@
       "mobilePath": "assets/team-crests/turkey_K_tahyaspor.png",
       "normalizedKeys": [
         "kutahyaspor"
+      ]
+    },
+    {
+      "name": "Manisa FK",
+      "country": "turkey",
+      "sourcePath": "logos/turkey/Manisa_FK.svg",
+      "webPath": "/team-crests/turkey/Manisa_FK.svg",
+      "mobilePath": "assets/team-crests/turkey_Manisa_FK.png",
+      "normalizedKeys": [
+        "manisa fk",
+        "manisa"
       ]
     },
     {
@@ -44802,6 +45435,16 @@
       ]
     },
     {
+      "name": "Liga AUF Uruguaya",
+      "country": "uruguay",
+      "sourcePath": "logos/uruguay/Liga_AUF_Uruguaya.svg",
+      "webPath": "/team-crests/uruguay/Liga_AUF_Uruguaya.svg",
+      "mobilePath": "assets/team-crests/uruguay_Liga_AUF_Uruguaya.png",
+      "normalizedKeys": [
+        "liga auf uruguaya"
+      ]
+    },
+    {
       "name": "Liverpool",
       "country": "uruguay",
       "sourcePath": "logos/uruguay/Liverpool.svg",
@@ -45551,6 +46194,17 @@
       "mobilePath": "assets/team-crests/usa_New_Mexico_United.png",
       "normalizedKeys": [
         "new mexico united"
+      ]
+    },
+    {
+      "name": "New York City Football Club",
+      "country": "usa",
+      "sourcePath": "logos/usa/New_York_City_Football_Club.svg",
+      "webPath": "/team-crests/usa/New_York_City_Football_Club.svg",
+      "mobilePath": "assets/team-crests/usa_New_York_City_Football_Club.png",
+      "normalizedKeys": [
+        "new york city football club",
+        "new york city"
       ]
     },
     {
