@@ -111,10 +111,17 @@ await mapLimit(svgFiles, PARALLEL, async (file) => {
     console.warn('Skipped invalid or oversized SVG:', file.path);
     return;
   }
-  const png = await sharp(svg, { density: 144, limitInputPixels: 40_000_000 })
-    .resize({ width: 256, height: 256, fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
-    .png({ compressionLevel: 9, palette: true })
-    .toBuffer();
+  let png;
+  try {
+    png = await sharp(svg, { density: 72, limitInputPixels: 16_000_000 })
+      .resize({ width: 256, height: 256, fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
+      .png({ compressionLevel: 9, palette: true })
+      .toBuffer();
+  } catch (error) {
+    console.warn('Skipped SVG that could not be rasterized safely:', file.path,
+      error instanceof Error ? error.message : error);
+    return;
+  }
   await Promise.all([
     mkdir(path.dirname(path.join(WEB_DIR, relative)), { recursive: true }),
     mkdir(path.dirname(path.join(MOBILE_DIR, mobileFilename)), { recursive: true }),
