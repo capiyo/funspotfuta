@@ -48,6 +48,7 @@ import {
   outcomeColor,
   FAN_SPACING,
 } from '@funspot/core';
+import { TeamCrest } from '@/components/TeamCrest';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useLoginModal } from '../modals/Login-modal-context';
 import { useFanColors } from '@/theme/use-fan-colors';
@@ -123,75 +124,6 @@ export interface LiveCommentaryEntry {
   text: string;
   minute: number;
   timestamp?: string;
-}
-
-const teamLogoCache = new Map<string, string | null>();
-const teamLogoRequests = new Map<string, Promise<string | null>>();
-
-function lookupTeamLogo(name: string): Promise<string | null> {
-  const key = name.trim().toLowerCase();
-  if (!key) return Promise.resolve(null);
-  if (teamLogoCache.has(key)) return Promise.resolve(teamLogoCache.get(key) ?? null);
-  const pending = teamLogoRequests.get(key);
-  if (pending) return pending;
-  const request = fetch(`https://www.thesportsdb.com/api/v1/json/3/searchteams.php?t=${encodeURIComponent(name.trim())}`)
-    .then(async (response) => {
-      if (!response.ok) return null;
-      const payload: unknown = await response.json();
-      if (!payload || typeof payload !== 'object') return null;
-      const teams = (payload as { teams?: Array<Record<string, unknown>> | null }).teams;
-      const team = Array.isArray(teams) ? teams[0] : undefined;
-      const raw = team?.strBadge ?? team?.strTeamBadge ?? team?.strLogo;
-      return typeof raw === 'string' && raw.trim() ? raw.trim() : null;
-    })
-    .catch(() => null)
-    .then((url) => {
-      teamLogoCache.set(key, url);
-      teamLogoRequests.delete(key);
-      return url;
-    });
-  teamLogoRequests.set(key, request);
-  return request;
-}
-
-function TeamLogo({ name, fixture, side, colors }: { name: string; fixture: Record<string, unknown>; side: 'home' | 'away'; colors: ReturnType<typeof useFanColors> }) {
-  const cap = side === 'home' ? 'Home' : 'Away';
-  const candidates = [
-    `${side}Logo`, `${side}TeamLogo`, `${side}LogoUrl`, `${side}TeamLogoUrl`,
-    `${side}_logo`, `${side}_team_logo`, `${side}_logo_url`, `${side}_team_logo_url`,
-    `${side}Crest`, `${side}TeamCrest`, `${side}Badge`, `${side}TeamBadge`, `${cap}TeamLogo`,
-  ];
-  const raw = candidates.map((key) => fixture[key]).find((value) => typeof value === 'string' && value.trim());
-  const direct = typeof raw === 'string' ? raw.trim() : null;
-  const [uri, setUri] = useState<string | null>(() => direct ?? teamLogoCache.get(name.trim().toLowerCase()) ?? null);
-  const [failed, setFailed] = useState(false);
-
-  useEffect(() => {
-    let active = true;
-    setFailed(false);
-    if (direct) {
-      setUri(direct);
-      return () => { active = false; };
-    }
-    const cached = teamLogoCache.get(name.trim().toLowerCase());
-    if (cached !== undefined) {
-      setUri(cached);
-      return () => { active = false; };
-    }
-    setUri(null);
-    void lookupTeamLogo(name).then((url) => {
-      if (active) setUri(url);
-    });
-    return () => { active = false; };
-  }, [direct, name]);
-
-  return (
-    <View style={[styles.teamLogo, { backgroundColor: colors.primaryDim }]}>
-      {uri && !failed ? <Image source={{ uri }} style={styles.teamLogoImage} resizeMode="contain" onError={() => setFailed(true)} /> : (
-        <Text style={[fanText('tag', colors, colors.primary), styles.teamFallback]}>{name.trim().charAt(0).toUpperCase() || '?'}</Text>
-      )}
-    </View>
-  );
 }
 
 function kickoffLabel(dateString: string): string {
@@ -677,11 +609,11 @@ export function MatchCard({
               accessibilityLabel={`Open match details: ${fixtureLabel}`}
             >
               <View style={styles.teamMatchup}>
-                <TeamLogo name={fixture.homeTeam} fixture={fixture as unknown as Record<string, unknown>} side="home" colors={colors} />
+                <TeamCrest name={fixture.homeTeam} fixture={fixture as unknown as Record<string, unknown>} side="home" size={16} />
                 <Text style={[fanText('tag', colors, colors.textPrimary), styles.teamName]} numberOfLines={2}>{fixture.homeTeam}</Text>
                 <Text style={fanText('tag', colors, colors.textTertiary)}>{hasScores(liveFixture) ? scoreDisplay(liveFixture) : 'vs'}</Text>
                 <Text style={[fanText('tag', colors, colors.textPrimary), styles.teamName]} numberOfLines={2}>{fixture.awayTeam}</Text>
-                <TeamLogo name={fixture.awayTeam} fixture={fixture as unknown as Record<string, unknown>} side="away" colors={colors} />
+                <TeamCrest name={fixture.awayTeam} fixture={fixture as unknown as Record<string, unknown>} side="away" size={16} />
               </View>
             </Pressable>
           </View>
