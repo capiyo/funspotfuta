@@ -11,7 +11,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: sync-team-crests
+  group: sync-team-crests-${{ github.sha }}
   cancel-in-progress: false
 
 jobs:
