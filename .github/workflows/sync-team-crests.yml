@@ -29,7 +29,7 @@ jobs:
         with:
           node-version: 22
       - name: Install temporary SVG rasterizer
-        run: npm install --no-save --package-lock=false sharp
+        run: npm install --no-save --package-lock=false --ignore-scripts --workspaces=false sharp
       - name: Download and catalogue all available football crests
         run: node scripts/sync-team-crests.mjs
       - name: Commit generated local assets
