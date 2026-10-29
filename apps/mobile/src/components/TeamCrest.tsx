@@ -41,19 +41,23 @@ export function TeamCrest({ name, fixture, side, size = 24 }: Props) {
   const supplied = direct(fixture, side);
   const local = MOBILE_TEAM_CRESTS[normalize(name)] ?? null;
   const [failed, setFailed] = useState(false);
+  const [useSupplied, setUseSupplied] = useState(false);
+  const imageSource = local && !useSupplied ? local : supplied ? { uri: supplied } : null;
 
-  useEffect(() => setFailed(false), [name, supplied, local]);
+  useEffect(() => {
+    setFailed(false);
+    setUseSupplied(false);
+  }, [name, supplied, local]);
 
   return <View accessibilityLabel={name + ' crest'}
     style={[styles.circle, { width: size, height: size, borderRadius: size / 2,
       borderColor: colors.border, backgroundColor: colors.surfaceSunken }]}>
-    {local && !failed
-      ? <Image source={local} resizeMode="contain" onError={() => setFailed(true)}
-          style={{ width: '100%', height: '100%', padding: 2 }} />
-      : supplied && !failed
-        ? <Image source={{ uri: supplied }} resizeMode="contain" onError={() => setFailed(true)}
-            style={{ width: '100%', height: '100%', padding: 2 }} />
-        : <Text style={[fanText('tag', colors, colors.primary),
+    {imageSource && !failed
+      ? <Image source={imageSource} resizeMode="contain" onError={() => {
+          if (local && !useSupplied && supplied) setUseSupplied(true);
+          else setFailed(true);
+        }} style={{ width: '100%', height: '100%', padding: 2 }} />
+      : <Text style={[fanText('tag', colors, colors.primary),
             { fontSize: Math.max(9, size * .42), fontWeight: '800' }]}>
             {name.trim().charAt(0).toUpperCase() || '?'}
           </Text>}

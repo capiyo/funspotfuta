@@ -51,7 +51,10 @@ export function TeamCrest({ name, fixture, side, size = 24 }: Props) {
       alignItems: 'center', justifyContent: 'center', overflow: 'hidden', borderRadius: '50%',
       border: '1px solid ' + colors.border, background: colors.surfaceSunken, boxSizing: 'border-box' }}>
     {source && !failed
-      ? <img src={source} alt="" loading="lazy" decoding="async" onError={() => setFailed(true)}
+      ? <img src={source} alt="" loading="lazy" decoding="async" onError={() => {
+          if (local && source === local && supplied && supplied !== local) setSource(supplied);
+          else setFailed(true);
+        }}
           style={{ width: '100%', height: '100%', objectFit: 'contain', padding: 2, boxSizing: 'border-box' }} />
       : <span aria-hidden="true" style={{ color: colors.primary, fontSize: Math.max(9, size * .42), fontWeight: 800 }}>
           {name.trim().charAt(0).toUpperCase() || '?'}
