@@ -4007,3 +4007,30 @@ body:has(.home-screen) .home-screen .chats-column .match-card .match-card-voter-
 }
 body, .app-shell, .home-screen { background-color: #070d09; color: #edf4ee; }
 button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visible { outline-color: #7df162; }
+
+/* Final desktop layout contract: Chats and Feed share the available workspace evenly. */
+@media (min-width: 651px) {
+  body:has(.home-screen) .home-screen .workspace > main.home-columns,
+  .home-screen .home-columns {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    column-gap: 0 !important;
+    gap: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-right: 0 !important;
+  }
+  body:has(.home-screen) .home-screen .workspace > main.home-columns > .chats-column,
+  .home-screen .chats-column {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    flex-basis: auto !important;
+    margin: 0 !important;
+  }
+  body:has(.home-screen) .home-screen .workspace > main.home-columns > .feed-column,
+  .home-screen .feed-column {
+    min-width: 0 !important;
+    max-width: none !important;
+    margin: 0 !important;
+  }
+}
