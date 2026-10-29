@@ -1435,10 +1435,10 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
 /* Final desktop Chats rhythm and column sizing. Narrow Home intentionally unchanged. */
 @media (min-width: 651px) {
   .home-screen .home-columns {
-    grid-template-columns: minmax(0, clamp(440px, 30vw, 560px)) minmax(0, 1fr) !important;
-    column-gap: 5px !important;
-    gap: 5px !important;
-    justify-content: start !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    column-gap: 0 !important;
+    gap: 0 !important;
+    justify-content: stretch !important;
     overflow-x: clip !important;
   }
   .home-screen .chats-column,
