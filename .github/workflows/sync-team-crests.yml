@@ -41,5 +41,14 @@ jobs:
             echo "Crest catalogue is already up to date."
             exit 0
           fi
+          git stash push --include-untracked -m "generated football crest bundle"
+          git fetch origin web-port-from-master
+          git rebase origin/web-port-from-master
+          git stash pop
+          git add apps/web/public/team-crests apps/web/src/components/team-crest-catalog.generated.ts apps/mobile/assets/team-crests apps/mobile/src/components/team-crest-catalog.generated.ts
+          if git diff --cached --quiet; then
+            echo "Crest catalogue is already up to date."
+            exit 0
+          fi
           git commit -m "Bundle local football team crests across platforms"
           git push origin HEAD:web-port-from-master

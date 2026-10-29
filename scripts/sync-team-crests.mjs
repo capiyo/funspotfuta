@@ -2,7 +2,7 @@
 /**
  * Download and bundle the open football-logos SVG catalogue, then generate platform-local lookup maps.
  * Web receives the original SVGs; React Native receives optimized local PNGs.
- * Requires sharp to be available in node_modules (the GitHub workflow installs it ephemerally).
+ * Requires sharp to be available in node_modules (the GitHub workflow installs it ephemerally); sync commits rebase onto the latest branch.
  */
 import { mkdir, writeFile } from 'node:fs/promises';
 import path from 'node:path';
