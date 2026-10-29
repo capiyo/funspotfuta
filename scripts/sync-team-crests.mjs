@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Download and bundle the open football-logos SVG catalogue.
+ * Download and bundle the open football-logos SVG catalogue, then generate platform-local lookup maps.
  * Web receives the original SVGs; React Native receives optimized local PNGs.
  * Requires sharp to be available in node_modules (the GitHub workflow installs it ephemerally).
  */
