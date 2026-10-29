@@ -7,8 +7,21 @@ import { MOBILE_TEAM_CRESTS } from './team-crest-catalog.generated';
 type Props = { name: string; fixture: Record<string, unknown>; side: 'home' | 'away'; size?: number };
 
 function normalize(value: string): string {
-  return value.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+  let normalized = value.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
     .replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ');
+  const suffixes = [' football club', ' athletic club', ' association football club', ' fc', ' cf', ' sc', ' afc', ' ac', ' fk', ' sk', ' sv', ' ks', ' club', ' football'];
+  let changed = true;
+  while (changed) {
+    changed = false;
+    for (const suffix of suffixes) {
+      if (normalized.endsWith(suffix) && normalized.length > suffix.length + 1) {
+        normalized = normalized.slice(0, -suffix.length).trim();
+        changed = true;
+        break;
+      }
+    }
+  }
+  return normalized;
 }
 
 function direct(fixture: Record<string, unknown>, side: 'home' | 'away'): string | null {
