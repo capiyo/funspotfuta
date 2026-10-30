@@ -1,42 +1,31 @@
 /**
  * Dynamic football player headshots.
  *
- * Provider: API-Sports / API-Football player profiles.
- * The lineup remains the source of truth for player identity; provider
- * results are accepted only for an exact normalized full-name match.
- * When the provider returns team metadata, it must also match the lineup
- * team. Ambiguous duplicate names are deliberately left without a photo.
- *
- * API key is supplied by the platform app at runtime and must never be
- * committed to source control. Web: VITE_API_SPORTS_KEY.
- * Expo: EXPO_PUBLIC_API_SPORTS_KEY.
+ * The app calls the same-origin Netlify function (or an explicitly configured
+ * endpoint). The API-Sports credential stays on the server and is never
+ * bundled into either client. The resolver only accepts exact normalized
+ * full-name matches and prefers a matching team when provider metadata exists.
  */
 import type { SimplifiedPlayer } from '../types/matchDetails';
 
-interface ApiSportsPlayer {
-  id?: number | string;
-  name?: string;
-  photo?: string;
-  team?: { name?: string };
+export interface PlayerHeadshotCacheStore {
+  getItem(key: string): Promise<string | null>;
+  setItem(key: string, value: string): Promise<void>;
 }
 
-interface ApiSportsResult {
-  player?: ApiSportsPlayer;
-  statistics?: Array<{ team?: { name?: string } }>;
-}
-
-interface ApiSportsResponse {
-  response?: ApiSportsResult[];
-  errors?: Record<string, unknown> | string[];
+interface CachedHeadshot {
+  photoUrl: string | null;
+  expiresAt: number;
 }
 
 const memoryCache = new Map<string, string | null>();
 const pending = new Map<string, Promise<string | null>>();
-const CACHE_MISS = null;
+const CACHE_PREFIX = 'funspot:player-headshot:v1:';
+const POSITIVE_TTL = 30 * 24 * 60 * 60 * 1000;
+const NEGATIVE_TTL = 6 * 60 * 60 * 1000;
 
 function normalize(value: string): string {
-  return value
-    .normalize('NFKD')
+  return value.normalize('NFKD')
     .replace(/[\u0300-\u036f]/g, '')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, ' ')
@@ -46,21 +35,61 @@ function normalize(value: string): string {
 
 function isHttpsUrl(value: unknown): value is string {
   if (typeof value !== 'string' || !value.trim()) return false;
-  try {
-    return new URL(value).protocol === 'https:';
-  } catch {
-    return false;
-  }
+  try { return new URL(value).protocol === 'https:'; } catch { return false; }
 }
 
 function directPhoto(player: SimplifiedPlayer): string | null {
   return isHttpsUrl(player.photoUrl) ? player.photoUrl : null;
 }
 
+function browserCache(): PlayerHeadshotCacheStore | undefined {
+  if (typeof localStorage === 'undefined') return undefined;
+  return {
+    getItem: async (key) => localStorage.getItem(key),
+    setItem: async (key, value) => localStorage.setItem(key, value),
+  };
+}
+
+async function readCached(
+  key: string,
+  store?: PlayerHeadshotCacheStore,
+): Promise<{ found: boolean; value: string | null }> {
+  if (memoryCache.has(key)) return { found: true, value: memoryCache.get(key) ?? null };
+  if (!store) return { found: false, value: null };
+  try {
+    const raw = await store.getItem(CACHE_PREFIX + key);
+    if (!raw) return { found: false, value: null };
+    const cached = JSON.parse(raw) as CachedHeadshot;
+    if (typeof cached.expiresAt !== 'number' || cached.expiresAt <= Date.now()) {
+      return { found: false, value: null };
+    }
+    const value = isHttpsUrl(cached.photoUrl) ? cached.photoUrl : null;
+    memoryCache.set(key, value);
+    return { found: true, value };
+  } catch {
+    return { found: false, value: null };
+  }
+}
+
+async function writeCached(
+  key: string,
+  photoUrl: string | null,
+  store?: PlayerHeadshotCacheStore,
+): Promise<void> {
+  memoryCache.set(key, photoUrl);
+  if (!store) return;
+  const entry: CachedHeadshot = {
+    photoUrl,
+    expiresAt: Date.now() + (photoUrl ? POSITIVE_TTL : NEGATIVE_TTL),
+  };
+  try { await store.setItem(CACHE_PREFIX + key, JSON.stringify(entry)); } catch { /* cache is optional */ }
+}
+
 async function lookupPlayer(
   player: SimplifiedPlayer,
   teamName: string,
-  apiKey: string,
+  endpoint: string,
+  store?: PlayerHeadshotCacheStore,
 ): Promise<string | null> {
   const direct = directPhoto(player);
   if (direct) return direct;
@@ -69,54 +98,20 @@ async function lookupPlayer(
   if (!normalizedName || normalizedName.startsWith('player ')) return null;
 
   const cacheKey = `${normalizedName}|${normalize(teamName)}`;
-  if (memoryCache.has(cacheKey)) return memoryCache.get(cacheKey) ?? null;
+  const cached = await readCached(cacheKey, store);
+  if (cached.found) return cached.value;
   const existing = pending.get(cacheKey);
   if (existing) return existing;
 
   const request = (async (): Promise<string | null> => {
     try {
-      const surname = normalizedName.split(' ').at(-1);
-      if (!surname || surname.length < 3) return null;
-
-      const url = new URL('https://v3.football.api-sports.io/players/profiles');
-      url.searchParams.set('search', surname);
-      const response = await fetch(url.toString(), {
-        headers: { 'x-apisports-key': apiKey },
-      });
+      const url = new URL(endpoint, typeof window !== 'undefined' ? window.location.origin : undefined);
+      url.searchParams.set('name', player.name);
+      url.searchParams.set('team', teamName);
+      const response = await fetch(url.toString(), { headers: { Accept: 'application/json' } });
       if (!response.ok) return null;
-
-      const payload = (await response.json()) as ApiSportsResponse;
-      const candidates = (payload.response ?? [])
-        .map((entry) => ({
-          player: entry.player ?? {},
-          teams: [
-            entry.player?.team?.name,
-            ...(entry.statistics ?? []).map((stat) => stat.team?.name),
-          ].filter((name): name is string => Boolean(name)),
-        }))
-        .filter(({ player: candidate }) => normalize(candidate.name ?? '') === normalizedName)
-        .filter(({ player: candidate }) => isHttpsUrl(candidate.photo));
-
-      if (candidates.length === 0) return null;
-
-      const normalizedTeam = normalize(teamName);
-      const teamMatches = candidates.filter(({ teams }) =>
-        teams.some((team) => normalize(team) === normalizedTeam),
-      );
-
-      // Prefer a verified team match. If the provider doesn't expose team
-      // metadata, accept only a single exact-name result; never guess between
-      // players who share a name.
-      const selected =
-        teamMatches.length === 1
-          ? teamMatches[0]
-          : teamMatches.length > 1
-            ? null
-            : candidates.length === 1
-              ? candidates[0]
-              : null;
-
-      return selected?.player.photo ?? null;
+      const payload = await response.json() as { photoUrl?: unknown };
+      return isHttpsUrl(payload.photoUrl) ? payload.photoUrl : null;
     } catch {
       return null;
     }
@@ -125,27 +120,24 @@ async function lookupPlayer(
   pending.set(cacheKey, request);
   const result = await request;
   pending.delete(cacheKey);
-  memoryCache.set(cacheKey, result ?? CACHE_MISS);
+  await writeCached(cacheKey, result, store);
   return result;
 }
 
-/**
- * Resolves a lineup batch with bounded concurrency. Successful and missing
- * lookups are memoized for the current app session, while image URLs are also
- * cached by the browser / Expo Image disk cache.
- */
+/** Resolve a lineup batch with bounded concurrency and persistent caching. */
 export async function resolvePlayerHeadshots(
   players: Array<{ player: SimplifiedPlayer; teamName: string }>,
-  apiKey: string | undefined,
+  endpoint: string | undefined,
+  cacheStore?: PlayerHeadshotCacheStore,
 ): Promise<Record<string, string>> {
   const resolved: Record<string, string> = {};
+  const store = cacheStore ?? browserCache();
 
   for (const { player, teamName } of players) {
     const direct = directPhoto(player);
     if (direct) resolved[playerHeadshotKey(player, teamName)] = direct;
   }
-
-  if (!apiKey?.trim()) return resolved;
+  if (!endpoint?.trim()) return resolved;
 
   let cursor = 0;
   const workers = Array.from({ length: Math.min(4, players.length) }, async () => {
@@ -154,11 +146,10 @@ export async function resolvePlayerHeadshots(
       if (!current) continue;
       const key = playerHeadshotKey(current.player, current.teamName);
       if (resolved[key]) continue;
-      const photo = await lookupPlayer(current.player, current.teamName, apiKey);
+      const photo = await lookupPlayer(current.player, current.teamName, endpoint, store);
       if (photo) resolved[key] = photo;
     }
   });
-
   await Promise.all(workers);
   return resolved;
 }
