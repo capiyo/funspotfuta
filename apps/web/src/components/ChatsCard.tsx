@@ -26,6 +26,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import type { ChangeEvent, CSSProperties, KeyboardEvent } from 'react';
 import {
+  Activity,
   Heart,
   Lock,
   MessageCircle,
@@ -129,6 +130,7 @@ export function MatchCard({
   liked = false,
   onOpenVoteModal,
   onOpenPokeModal,
+  onOpenPossessionModal,
   onOpenResults,
   onChatClick,
   onChannelPress,
@@ -150,6 +152,7 @@ export function MatchCard({
   onOpen?: (fixture: Fixture) => void;
   onOpenVoteModal?: (fixture: Fixture) => void;
   onOpenPokeModal?: (fixture: Fixture) => void;
+  onOpenPossessionModal?: (fixture: Fixture) => void;
   onOpenResults?: (fixture: Fixture) => void;
   onChatClick?: (fixture: Fixture) => void;
   onChannelPress?: () => void;
@@ -687,13 +690,14 @@ export function MatchCard({
               <TeamCrest name={fixture.awayTeam} fixture={fixture as unknown as Record<string, unknown>} side="away" size={16} />
             </button>
           </div>
-          <div className="match-card-actions" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', alignItems: 'center', gap: 4, width: '100%' }}>
+          <div className="match-card-actions" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, minmax(0, 1fr))', alignItems: 'center', gap: 4, width: '100%' }}>
             <div className="match-card-action-slot" style={{ display: 'flex', justifyContent: 'center', minWidth: 0 }}><ActionButton icon={Vote} label={isLive ? 'Live' : isCompleted ? 'Results' : 'Vote'} count={fixture.votes} colors={colors} onPress={handleVote} /></div>
             <div className="match-card-action-slot" style={{ display: 'flex', justifyContent: 'center', minWidth: 0 }}>
               <button type="button" className="match-card-poke" aria-label={isLive ? 'Poking unavailable for live matches' : 'Poke on this match'} disabled={isLive} onClick={() => { if (isLive) return; if (!isLoggedIn) return requireLogin(() => onOpenPokeModal?.(fixture)); onOpenPokeModal?.(fixture); }} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, height: 28, minHeight: 28, padding: 0, border: 0, borderRadius: 0, background: 'transparent', color: colors.primary, fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap', opacity: isLive ? 0.45 : 1, cursor: isLive ? 'not-allowed' : 'pointer' }}>
                 <span className="match-card-poke-circle" style={{ display: 'inline-flex', flex: '0 0 28px', width: 28, minWidth: 28, height: 28, boxSizing: 'border-box', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', background: colors.primaryDim, color: colors.primary }}><Pointer size={15} aria-hidden="true" /></span><span>Poke</span>
               </button>
             </div>
+            <div className="match-card-action-slot" style={{ display: 'flex', justifyContent: 'center', minWidth: 0 }}><button type="button" aria-label="Open possession market" title="Possession" onClick={() => { if (!isLoggedIn) return requireLogin(() => onOpenPossessionModal?.(fixture)); onOpenPossessionModal?.(fixture); }} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, height: 28, minHeight: 28, padding: 0, border: 0, borderRadius: 0, background: 'transparent', color: colors.primary, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}><span style={{ display: 'inline-flex', width: 28, height: 28, flex: '0 0 28px', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', background: colors.primaryDim }}><Activity size={15} aria-hidden="true" /></span><span>Possession</span></button></div>
             <div className="match-card-action-slot" style={{ display: 'flex', justifyContent: 'center', minWidth: 0 }}><ActionButton icon={Heart} label={liked ? 'Unlike' : 'Like'} count={likesCount} active={liked} activeColor={colors.away} colors={colors} onPress={handleLike} /></div>
             <div className="match-card-action-slot" style={{ display: 'flex', justifyContent: 'center', minWidth: 0 }}><ActionButton icon={MessageCircle} label="Comments" count={commentsCount ?? pool.length} colors={colors} onPress={() => {}} /></div>
           </div>
