@@ -19,13 +19,13 @@ const json = (statusCode, body, extraHeaders = {}) => ({
   body: JSON.stringify(body),
 });
 
-export default async (request) => {
-  if (request.method === 'OPTIONS') return json(204, {});
-  if (request.method !== 'GET') return json(405, { error: 'Method not allowed' });
+export const handler = async (event) => {
+  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type' }, body: '' };
+  if (event.httpMethod !== 'GET') return json(405, { error: 'Method not allowed' });
 
-  const params = new URL(request.url).searchParams;
-  const name = (params.get('name') ?? '').trim();
-  const team = (params.get('team') ?? '').trim();
+  const params = event.queryStringParameters ?? {};
+  const name = (params.name ?? '').trim();
+  const team = (params.team ?? '').trim();
   if (name.length < 2 || name.length > 100 || team.length > 100) {
     return json(400, { error: 'A valid player name and team are required' });
   }
