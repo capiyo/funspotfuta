@@ -1,9 +1,9 @@
 const API_BASE = 'https://v3.football.api-sports.io/teams';
-const MEDIA_LOGO = /^https:\\/\\/media\\.api-sports\\.io\\/football\\/teams\\/(\\d+)\\.png$/;
+const MEDIA_LOGO = /^https:\/\/media\.api-sports\.io\/football\/teams\/(\d+)\.png$/;
 
 function normalize(value) {
-  let normalized = String(value || '').normalize('NFKD').replace(/[\\u0300-\\u036f]/g, '').toLowerCase()
-    .replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, ' ').trim().replace(/\\s+/g, ' ');
+  let normalized = String(value || '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+    .replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ');
   const suffixes = [' football club', ' athletic club', ' association football club', ' fc', ' cf', ' sc', ' afc', ' ac', ' fk', ' sk', ' sv', ' ks', ' club', ' football'];
   let changed = true;
   while (changed) {
