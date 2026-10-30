@@ -1,9 +1,3 @@
-export type TeamCrestResolution = {
-  teamId: number;
-  teamName: string;
-  logoUrl: string;
-};
-
 type CachedResolution = { expiresAt: number; value: string | null };
 const cache = new Map<string, CachedResolution>();
 const inFlight = new Map<string, Promise<string | null>>();
@@ -30,10 +24,13 @@ export function normalizeTeamCrestName(value: string): string {
 export async function resolveTeamCrest(
   teamName: string,
   endpoint = 'https://funspot.co.ke/.netlify/functions/team-crest',
+  country?: string,
 ): Promise<string | null> {
   const name = teamName.trim();
-  const key = normalizeTeamCrestName(name);
-  if (key.length < 3) return null;
+  const normalizedName = normalizeTeamCrestName(name);
+  const normalizedCountry = normalizeTeamCrestName(country || '');
+  if (normalizedName.length < 3) return null;
+  const key = normalizedName + '|' + normalizedCountry;
   const cached = cache.get(key);
   if (cached && cached.expiresAt > Date.now()) return cached.value;
   const pending = inFlight.get(key);
@@ -44,6 +41,7 @@ export async function resolveTeamCrest(
       const base = endpoint.startsWith('/') && typeof window !== 'undefined' ? window.location.origin : undefined;
       const url = base ? new URL(endpoint, base) : new URL(endpoint);
       url.searchParams.set('name', name);
+      if (country?.trim()) url.searchParams.set('country', country.trim());
       const response = await fetch(url.toString(), { headers: { Accept: 'application/json' } });
       if (!response.ok) return null;
       const payload: unknown = await response.json();
