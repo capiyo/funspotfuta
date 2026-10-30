@@ -16,6 +16,7 @@
 //   - Team names appear once (match header); pills say Home / Away.
 //   - Sub-fixture titles/icons/settled results and the bet card restored.
 
+import { Avatar } from '@/components/ui/Avatar';
 import { TeamCrest } from '@/components/TeamCrest';
 import React, {
     useCallback,
@@ -435,13 +436,14 @@ function BalanceBar({
 }
 
 function PersonTile({
-    name, subtitle, accent, isMe, badge, badgeColor, amountLabel, trailing, progress,
+    name, subtitle, accent, isMe, userId, badge, badgeColor, amountLabel, trailing, progress,
     colors, styles,
 }: {
     name: string;
     subtitle: string;
     accent: string;
     isMe?: boolean;
+    userId?: string;
     badge?: string;
     badgeColor?: string;
     amountLabel?: string;
@@ -459,9 +461,7 @@ function PersonTile({
             ]}
         >
             <View style={styles.personRow}>
-                <View style={[styles.avatar, { backgroundColor: dimOf(accent, colors), borderColor: accent }]}>
-                    <Text style={[styles.avatarText, { color: accent }]}>{initial}</Text>
-                </View>
+                <Avatar colors={colors} size="lg" userId={userId} label={initial} borderColor={accent} backgroundColor={dimOf(accent, colors)} />
                 <View style={{ flex: 1, minWidth: 0 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: FAN_SPACING.xs }}>
                         <Text
@@ -1853,6 +1853,7 @@ export function SwipeableVotePledgeModal(props: Props) {
                                 colors={colors}
                                 styles={styles}
                                 name={isMe ? 'You' : v.userName}
+                                userId={v.userId}
                                 subtitle={v.isComrade && !isMe ? 'comrade' : 'voter'}
                                 accent={accent}
                                 isMe={isMe}
@@ -1958,6 +1959,7 @@ export function SwipeableVotePledgeModal(props: Props) {
                                 colors={colors}
                                 styles={styles}
                                 name={isMe ? 'You' : p.userName}
+                                userId={p.userId}
                                 subtitle={isMe ? 'your pledge' : 'pledged'}
                                 accent={accent}
                                 isMe={isMe}
