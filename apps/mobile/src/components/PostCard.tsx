@@ -84,7 +84,7 @@ export function PostCard({
                 {/* Meta: author on the left, tags / date on the right */}
                 <View style={styles.metaRow} pointerEvents="none">
                     <View style={[styles.author, styles.grow]}>
-                        <MiniAvatar colors={colors} label={userName} userId={post.userId} />
+                        <MiniAvatar colors={colors} label={userName} userId={post.userId ?? undefined} />
                         <Text
                             style={[
                                 fanText('competition', colors, '#FFFFFF'),
