@@ -18,6 +18,7 @@ import Svg, {
 } from 'react-native-svg';
 import { ChevronDown, ChevronUp } from 'lucide-react-native';
 import { Image as ExpoImage } from 'expo-image';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { FAN_SPACING, FAN_RADIUS, playerHeadshotKey, resolvePlayerHeadshots } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
@@ -855,15 +856,15 @@ export function PitchView({
     const [showHomeOverflow, setShowHomeOverflow] = useState(false);
     const [showAwayOverflow, setShowAwayOverflow] = useState(false);
     const [headshots, setHeadshots] = useState<Record<string, string>>({});
-    const apiSportsKey = process.env.EXPO_PUBLIC_API_SPORTS_KEY;
+    const headshotEndpoint = process.env.EXPO_PUBLIC_PLAYER_HEADSHOT_ENDPOINT || 'https://funspot.co.ke/.netlify/functions/player-headshots';
 
     useEffect(() => {
         let cancelled = false;
         setHeadshots({});
         const batch = [...homePlayers.map((player) => ({ player, teamName: homeTeam })), ...awayPlayers.map((player) => ({ player, teamName: awayTeam }))];
-        void resolvePlayerHeadshots(batch, apiSportsKey).then((result) => { if (!cancelled) setHeadshots(result); });
+        void resolvePlayerHeadshots(batch, headshotEndpoint, AsyncStorage).then((result) => { if (!cancelled) setHeadshots(result); });
         return () => { cancelled = true; };
-    }, [homePlayers, awayPlayers, homeTeam, awayTeam, apiSportsKey]);
+    }, [homePlayers, awayPlayers, homeTeam, awayTeam, headshotEndpoint]);
     const [pitchSize, setPitchSize] = useState<{ width: number; height: number }>({
         width: 0,
         height: 0,
