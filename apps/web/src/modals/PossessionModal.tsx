@@ -1,3 +1,4 @@
+import { Avatar } from '@/components/ui/Avatar';
 import { useCallback, useEffect, useState } from 'react';
 import type { CSSProperties } from 'react';
 import {
@@ -201,7 +202,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
           {(market?.pokes ?? []).filter((poke) => poke.status === 'open').map((poke) => (
             <div key={poke.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: `1px solid ${colors.border}` }}>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: 12, fontWeight: 700 }}>{poke.username}</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Avatar colors={colors} size="md" userId={poke.userId} label={poke.username?.[0] ?? '?'} /><div style={{ fontSize: 12, fontWeight: 700 }}>{poke.username}</div></div>
                 <div style={{ ...muted, fontSize: 11 }}>{poke.selection === 'home' ? fixture.homeTeam : fixture.awayTeam} · {poke.amount} pts</div>
               </div>
               {poke.userId !== userId && <button type="button" disabled={busy || (market !== null && market.status !== 'open')} onClick={() => void matchPoke(poke.id)} style={{ ...control, padding: '7px 11px', color: colors.primary, fontWeight: 700, cursor: 'pointer' }}>Match</button>}
