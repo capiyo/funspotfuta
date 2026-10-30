@@ -12,7 +12,7 @@ export function MiniAvatar({ colors, label, uri, userId }: {
   const [failed, setFailed] = useState(false);
   const { authToken } = useAuth();
   const profileAvatar = useProfileAvatar(userId, authToken);
-  const imageUri = profileAvatar ?? uri ?? (userId ? `https://i.pravatar.cc/150?u=${encodeURIComponent(userId)}` : null);
+  const imageUri = profileAvatar ?? uri ?? `https://i.pravatar.cc/150?u=${encodeURIComponent(userId ?? label ?? 'guest')}`;
   return <span className="mini-avatar" style={{
     width: 24, height: 24, borderRadius: 12, border: `1px solid ${colors.border}`,
     backgroundColor: colors.surfaceSunken, display: 'inline-flex', alignItems: 'center',
