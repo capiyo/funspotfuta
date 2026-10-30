@@ -13,6 +13,7 @@ export interface UserProfile {
   countryFan: string;
   numberOfBets: number;
   balance: number;
+  avatarUrl: string | null;
 }
 
 function userProfileFromJson(json: any): UserProfile {
@@ -25,6 +26,7 @@ function userProfileFromJson(json: any): UserProfile {
     countryFan: (json.country_fan ?? '').toString(),
     numberOfBets: json.number_of_bets ?? 0,
     balance: Number(json.balance ?? 0),
+    avatarUrl: typeof (json.avatar_url ?? json.avatarUrl) === 'string' ? String(json.avatar_url ?? json.avatarUrl) : null,
   };
 }
 
