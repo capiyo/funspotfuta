@@ -593,7 +593,7 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       className="flex min-h-9 flex-1 items-center justify-center gap-2 rounded-full px-4 text-xs font-semibold"
       style={{ background: dimColor(colors.draw), color: colors.draw }}>
 <Lock size={12}/>{matchStatus === 'soon' ? 'Vote before game starts 💬' : 'Vote to chat 💬'}</button> : <form
-      className="flex min-h-9 min-w-0 flex-1 items-end rounded-3xl px-4"
+      className="message-composer-form flex min-h-10 min-w-0 flex-1 items-end rounded-3xl px-4"
       style={{ background: colors.surfaceSunken }}
       onSubmit={(event) => { event.preventDefault(); void handleSend(); }}>
             <textarea
@@ -604,16 +604,16 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       rows={1}
       placeholder={!isLoggedIn ? 'Log in to chat' : uploadingImage ? 'Uploading…' : isLive ? '🔴 Live - join the conversation!' : isCompleted ? '📊 Game finished - discuss the match!' : 'Type a message…'}
       aria-label="Type a message"
-      className="max-h-28 min-h-9 flex-1 resize-none bg-transparent py-2.5 text-[13px] outline-none"
+      className="message-composer-input max-h-28 min-h-10 flex-1 resize-none bg-transparent py-2.5 text-[13px] outline-none"
       style={{ color: colors.textPrimary, ...fanText('caption', colors, colors.textPrimary) }}/>
           </form>}
           {isLoggedIn && !voteGateActive && draft.trim().length > 0 && <button
       type="button"
       onClick={() => void handleSend()}
       aria-label="Send message"
-      className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full"
+      className="message-send-button flex h-10 w-10 shrink-0 items-center justify-center rounded-full"
       style={{ background: colors.primary }}>
-<Send size={16} color="#fff"/>
+<Send size={17} color="#061308"/>
 </button>}
         </div>
         {showAttachMenu && isLoggedIn && <div
