@@ -5,7 +5,7 @@ All routes are independent from match winner voting and general match pokes.
 Base: `/api/actions/posseions`
 
 ## Read market
-- `GET /:fixtureId?channel_id=:channelId`
+- `GET /?fixture_id=:fixtureId&channel_id=:channelId`
 - Returns `PossessionMarket`: market status, home/away possession values, possession-only vote totals and voter list, possession-only open pokes, current user's selection, and optional settlement result.
 
 ## Vote
@@ -14,12 +14,12 @@ Base: `/api/actions/posseions`
 - Returns `PossessionActionResult`.
 
 ## Create possession poke
-- `POST /pokes`
+- `POST /poking`
 - JSON: `fixture_id`, `channel_id`, `user_id`, `username`, `selection` (`home` or `away`), `amount` (positive integer points).
 - Returns `PossessionActionResult`.
 
 ## Match possession poke
-- `POST /pokes/match`
+- `POST /poking/match`
 - JSON: `fixture_id`, `channel_id`, `poke_id`, `user_id`.
 - Returns `PossessionActionResult`.
 
