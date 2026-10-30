@@ -31,6 +31,7 @@ import {
   X,
   ArrowLeft,
   User as UserIcon,
+  Camera,
   Shield,
   Globe2,
   Phone,
@@ -971,6 +972,7 @@ export default function ProfileContent({
                 {profile?.avatarUrl
                   ? <img src={profile.avatarUrl} alt="Profile" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                   : <img src={getFanAvatarUri(targetUserId)} alt="Default profile" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />}
+                {isCurrentUser && <span aria-hidden="true" style={{ position: 'absolute', right: -2, bottom: -2, width: 16, height: 16, borderRadius: 8, display: 'grid', placeItems: 'center', background: colors.primary, border: `2px solid ${colors.background}` }}><Camera size={9} color={colors.textInverse} /></span>}
                 {avatarUploading && <span className="profile-avatar-uploading">…</span>}
               </div>
               <div style={rn({ flex: 1, minWidth: 0, marginLeft: FAN_SPACING.md })} className="profile-header-name-column">
