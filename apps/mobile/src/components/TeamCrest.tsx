@@ -1,28 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
+import { normalizeTeamCrestName, resolveTeamCrest } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
 import { MOBILE_TEAM_CRESTS } from './team-crest-catalog.generated';
 
 type Props = { name: string; fixture: Record<string, unknown>; side: 'home' | 'away'; size?: number };
-
-function normalize(value: string): string {
-  let normalized = value.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
-    .replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ');
-  const suffixes = [' football club', ' athletic club', ' association football club', ' fc', ' cf', ' sc', ' afc', ' ac', ' fk', ' sk', ' sv', ' ks', ' club', ' football'];
-  let changed = true;
-  while (changed) {
-    changed = false;
-    for (const suffix of suffixes) {
-      if (normalized.endsWith(suffix) && normalized.length > suffix.length + 1) {
-        normalized = normalized.slice(0, -suffix.length).trim();
-        changed = true;
-        break;
-      }
-    }
-  }
-  return normalized;
-}
 
 function direct(fixture: Record<string, unknown>, side: 'home' | 'away'): string | null {
   const capitalized = side === 'home' ? 'Home' : 'Away';
@@ -39,14 +22,26 @@ function direct(fixture: Record<string, unknown>, side: 'home' | 'away'): string
 export function TeamCrest({ name, fixture, side, size = 24 }: Props) {
   const colors = useFanColors();
   const supplied = direct(fixture, side);
-  const local = MOBILE_TEAM_CRESTS[normalize(name)] ?? null;
+  const local = MOBILE_TEAM_CRESTS[normalizeTeamCrestName(name)] ?? null;
   const [failed, setFailed] = useState(false);
   const [useSupplied, setUseSupplied] = useState(false);
-  const imageSource = local && !useSupplied ? local : supplied ? { uri: supplied } : null;
+  const [remote, setRemote] = useState<string | null>(null);
+  const imageSource = local && !useSupplied ? local
+    : supplied ? { uri: supplied }
+    : remote ? { uri: remote }
+    : null;
 
   useEffect(() => {
+    let active = true;
     setFailed(false);
     setUseSupplied(false);
+    setRemote(null);
+    if (!local && !supplied) {
+      void resolveTeamCrest(name, 'https://funspot.co.ke/.netlify/functions/team-crest').then((url) => {
+        if (active) setRemote(url);
+      });
+    }
+    return () => { active = false; };
   }, [name, supplied, local]);
 
   return <View accessibilityLabel={name + ' crest'}
