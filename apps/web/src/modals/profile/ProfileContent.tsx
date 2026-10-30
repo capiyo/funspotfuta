@@ -953,7 +953,7 @@ export default function ProfileContent({
                 tabIndex={isCurrentUser ? 0 : -1}
                 aria-label={isCurrentUser ? 'Long-press or press Enter to change profile image' : 'Profile image'}
                 onKeyDown={isCurrentUser ? (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); avatarInputRef.current?.click(); } } : undefined}
-                onContextMenu={isCurrentUser ? (event) => { event.preventDefault(); avatarInputRef.current?.click(); } : undefined}
+                onContextMenu={isCurrentUser ? (event) => { event.preventDefault(); const timer = event.currentTarget.dataset.avatarPressTimer; if (timer) window.clearTimeout(Number(timer)); avatarInputRef.current?.click(); } : undefined}
                 onPointerDown={isCurrentUser ? (event) => {
                   const target = event.currentTarget;
                   const timer = window.setTimeout(() => avatarInputRef.current?.click(), 650);
