@@ -49,6 +49,7 @@ import { FAN_SPACING, FAN_RADIUS } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { useToast } from '@/lib/toast/toast-context';
+import { Avatar } from '@/components/ui/Avatar';
 
 type FanColors = ReturnType<typeof useFanColors>;
 
@@ -625,16 +626,7 @@ export default function PostCommentsModal({
                             )}
 
                             <View style={styles.inputRow}>
-                                <View
-                                    style={[
-                                        styles.inputAvatar,
-                                        { backgroundColor: colors.primary },
-                                    ]}
-                                >
-                                    <Text style={styles.inputAvatarText}>
-                                        {initialsOf(username ?? 'U')}
-                                    </Text>
-                                </View>
+                                <Avatar colors={colors} size="lg" userId={userId ?? undefined} label={initialsOf(username ?? 'U')} />
                                 <View
                                     style={[
                                         styles.inputWrap,
@@ -733,19 +725,7 @@ function CommentBubble({
             >
                 {!isMe && (
                     <Pressable onLongPress={onReply} style={styles.avatarWrap}>
-                        <View
-                            style={[
-                                styles.bubbleAvatar,
-                                {
-                                    backgroundColor: colors.primaryDim,
-                                    borderColor: colors.primaryMuted,
-                                },
-                            ]}
-                        >
-                            <Text style={[styles.bubbleAvatarText, { color: colors.primary }]}>
-                                {initialsOf(comment.user_name)}
-                            </Text>
-                        </View>
+                        <Avatar colors={colors} size="lg" userId={comment.user_id} label={initialsOf(comment.user_name)} />
                     </Pressable>
                 )}
 
@@ -799,21 +779,7 @@ function CommentBubble({
 
                 {isMe && (
                     <Pressable onLongPress={onReply} style={styles.avatarWrap}>
-                        <View
-                            style={[
-                                styles.bubbleAvatar,
-                                {
-                                    backgroundColor: colors.primary,
-                                    borderColor: colors.primary,
-                                },
-                            ]}
-                        >
-                            <Text
-                                style={[styles.bubbleAvatarText, { color: colors.textInverse }]}
-                            >
-                                {initialsOf(comment.user_name)}
-                            </Text>
-                        </View>
+                        <Avatar colors={colors} size="lg" userId={comment.user_id} label={initialsOf(comment.user_name)} />
                     </Pressable>
                 )}
             </View>
