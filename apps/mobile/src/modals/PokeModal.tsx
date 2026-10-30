@@ -1,4 +1,5 @@
 import { Avatar } from '@/components/ui/Avatar';
+import { Avatar } from '@/components/ui/Avatar';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { TeamCrest } from '@/components/TeamCrest';
 import { useQueryClient } from '@tanstack/react-query';
@@ -50,7 +51,7 @@ export function PokeModal({ visible, fixture, userId, username, authToken, chann
   const [selection, setSelection] = useState<'home_team' | 'away_team'>('home_team');
   const [stake, setStake] = useState('5');
   const [balance, setBalance] = useState<number | null>(null);
-  const [pokers, setPokers] = useState<Array<{ userName?: string; user_name?: string; starter_name?: string; selection?: string; amount?: number; starter_amount?: number }>>([]);
+  const [pokers, setPokers] = useState<Array<{ userId?: string; user_id?: string; userName?: string; user_name?: string; starter_name?: string; selection?: string; amount?: number; starter_amount?: number }>>([]);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState('');
@@ -214,6 +215,7 @@ export function PokeModal({ visible, fixture, userId, username, authToken, chann
                 : poker.selection ?? '—';
             return (
               <View key={`${poker.userName ?? poker.user_name ?? poker.starter_name ?? 'poker'}-${index}`} style={styles.pokerRow}>
+                <Avatar colors={colors} size="md" userId={poker.userId ?? poker.user_id} label={(poker.userName ?? poker.user_name ?? poker.starter_name ?? 'F')[0]} />
                 <View style={{ flex: 1, minWidth: 0, gap: 3 }}>
                   <Text style={[styles.choiceText, { fontWeight: '700' }]}>
                     <Text style={{ color: colors.primary, fontSize: 9, fontWeight: '800' }}>✊ POKE</Text>
