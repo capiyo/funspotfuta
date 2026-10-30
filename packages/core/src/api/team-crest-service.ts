@@ -6,11 +6,12 @@ export type TeamCrestResolution = {
 
 type CachedResolution = { expiresAt: number; value: string | null };
 const cache = new Map<string, CachedResolution>();
+const inFlight = new Map<string, Promise<string | null>>();
 const CACHE_TTL = 30 * 24 * 60 * 60 * 1000;
 
 export function normalizeTeamCrestName(value: string): string {
-  let normalized = value.normalize('NFKD').replace(/[\\u0300-\\u036f]/g, '').toLowerCase()
-    .replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, ' ').trim().replace(/\\s+/g, ' ');
+  let normalized = value.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+    .replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ');
   const suffixes = [' football club', ' athletic club', ' association football club', ' fc', ' cf', ' sc', ' afc', ' ac', ' fk', ' sk', ' sv', ' ks', ' club', ' football'];
   let changed = true;
   while (changed) {
@@ -28,13 +29,15 @@ export function normalizeTeamCrestName(value: string): string {
 
 export async function resolveTeamCrest(
   teamName: string,
-  endpoint = '/.netlify/functions/team-crest',
+  endpoint = 'https://funspot.co.ke/.netlify/functions/team-crest',
 ): Promise<string | null> {
   const name = teamName.trim();
   const key = normalizeTeamCrestName(name);
   if (key.length < 3) return null;
   const cached = cache.get(key);
   if (cached && cached.expiresAt > Date.now()) return cached.value;
+  const pending = inFlight.get(key);
+  if (pending) return pending;
 
   const request = (async (): Promise<string | null> => {
     try {
@@ -46,12 +49,15 @@ export async function resolveTeamCrest(
       const payload: unknown = await response.json();
       if (!payload || typeof payload !== 'object') return null;
       const logoUrl = (payload as { logoUrl?: unknown }).logoUrl;
-      if (typeof logoUrl !== 'string' || !/^https:\\/\\/media\\.api-sports\\.io\\/football\\/teams\\/\\d+\\.png$/.test(logoUrl)) return null;
+      if (typeof logoUrl !== 'string' || !/^https:\/\/media\.api-sports\.io\/football\/teams\/\d+\.png$/.test(logoUrl)) return null;
       cache.set(key, { value: logoUrl, expiresAt: Date.now() + CACHE_TTL });
       return logoUrl;
     } catch {
       return null;
+    } finally {
+      inFlight.delete(key);
     }
   })();
+  inFlight.set(key, request);
   return request;
 }
