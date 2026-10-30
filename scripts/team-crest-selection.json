@@ -1,0 +1,1763 @@
+{
+  "season": "2026-27",
+  "sourceRepository": "JoseArroyave/football-logos",
+  "targetCount": 180,
+  "scope": [
+    "Premier League",
+    "Serie A",
+    "UEFA Champions League league phase",
+    "UEFA Europa League league phase",
+    "Carabao Cup round three",
+    "Emirates FA Cup first round proper (curated lower-division coverage)"
+  ],
+  "excludedFaCupTeams": [
+    "AFC Rushden & Diamonds",
+    "Stafford Rangers",
+    "Plymouth Parkway",
+    "Berkhamsted",
+    "Wimborne Town"
+  ],
+  "teams": [
+    {
+      "name": "Accrington Stanley",
+      "country": "england",
+      "sourcePath": "logos/england/Accrington_Stanley.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "AEK Athens",
+      "country": "greece",
+      "sourcePath": "logos/greece/AEK_Athens.svg",
+      "competitions": [
+        "UEFA Champions League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "AFC Bournemouth",
+      "country": "england",
+      "sourcePath": "logos/england/Bournemouth.svg",
+      "competitions": [
+        "Premier League",
+        "UEFA Europa League",
+        "Carabao Cup"
+      ],
+      "aliases": [
+        "Bournemouth"
+      ]
+    },
+    {
+      "name": "AFC Fylde",
+      "country": "england",
+      "sourcePath": "logos/england/AFC_Fylde.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "AFC Wimbledon",
+      "country": "england",
+      "sourcePath": "logos/england/AFC_Wimbledon.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Aldershot Town",
+      "country": "england",
+      "sourcePath": "logos/england/Aldershot_Town.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Altrincham",
+      "country": "england",
+      "sourcePath": "logos/england/Altrincham_FC.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": [
+        "Altrincham FC"
+      ]
+    },
+    {
+      "name": "Alvechurch",
+      "country": "england",
+      "sourcePath": "logos/england/Alvechurch.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Anderlecht",
+      "country": "belgium",
+      "sourcePath": "logos/belgium/RSC_Anderlecht.svg",
+      "competitions": [
+        "UEFA Europa League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Ararat-Armenia",
+      "country": "armenia",
+      "sourcePath": "logos/armenia/Ararat-Armenia.svg",
+      "competitions": [
+        "UEFA Europa League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Arsenal",
+      "country": "england",
+      "sourcePath": "logos/england/Arsenal.svg",
+      "competitions": [
+        "Premier League",
+        "UEFA Champions League",
+        "Carabao Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Aston Villa",
+      "country": "england",
+      "sourcePath": "logos/england/Aston_Villa.svg",
+      "competitions": [
+        "Premier League",
+        "UEFA Champions League",
+        "Carabao Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Atalanta",
+      "country": "italy",
+      "sourcePath": "logos/italy/Atalanta.svg",
+      "competitions": [
+        "Serie A"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Atletico Madrid",
+      "country": "spain",
+      "sourcePath": "logos/spain/Atletico_Madrid.svg",
+      "competitions": [
+        "UEFA Champions League"
+      ],
+      "aliases": [
+        "Atleti",
+        "Atlético Madrid"
+      ]
+    },
+    {
+      "name": "AZ Alkmaar",
+      "country": "netherlands",
+      "sourcePath": "logos/netherlands/AZ_Alkmaar.svg",
+      "competitions": [
+        "UEFA Europa League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Barcelona",
+      "country": "spain",
+      "sourcePath": "logos/spain/Barcelona.svg",
+      "competitions": [
+        "UEFA Champions League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Barnet",
+      "country": "england",
+      "sourcePath": "logos/england/Barnet.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Barnsley",
+      "country": "england",
+      "sourcePath": "logos/england/Barnsley.svg",
+      "competitions": [
+        "Emirates FA Cup",
+        "Carabao Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Barrow",
+      "country": "england",
+      "sourcePath": "logos/england/Barrow_AFC.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": [
+        "Barrow AFC"
+      ]
+    },
+    {
+      "name": "Bayer Leverkusen",
+      "country": "germany",
+      "sourcePath": "logos/germany/Bayer_Leverkusen.svg",
+      "competitions": [
+        "UEFA Europa League"
+      ],
+      "aliases": [
+        "Leverkusen"
+      ]
+    },
+    {
+      "name": "Bayern Munich",
+      "country": "germany",
+      "sourcePath": "logos/germany/Bayern_München.svg",
+      "competitions": [
+        "UEFA Champions League"
+      ],
+      "aliases": [
+        "Bayern München"
+      ]
+    },
+    {
+      "name": "Benfica",
+      "country": "portugal",
+      "sourcePath": "logos/portugal/Benfica.svg",
+      "competitions": [
+        "UEFA Europa League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Besiktas",
+      "country": "turkey",
+      "sourcePath": "logos/turkey/Beşiktaş.svg",
+      "competitions": [
+        "UEFA Europa League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Blackpool",
+      "country": "england",
+      "sourcePath": "logos/england/Blackpool.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Bodo/Glimt",
+      "country": "norway",
+      "sourcePath": "logos/norway/BodøGlimt.svg",
+      "competitions": [
+        "UEFA Champions League"
+      ],
+      "aliases": [
+        "Bodø/Glimt",
+        "Bodo Glimt"
+      ]
+    },
+    {
+      "name": "Bologna",
+      "country": "italy",
+      "sourcePath": "logos/italy/Bologna.svg",
+      "competitions": [
+        "Serie A"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Boreham Wood",
+      "country": "england",
+      "sourcePath": "logos/england/Boreham_Wood.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Borussia Dortmund",
+      "country": "germany",
+      "sourcePath": "logos/germany/Borussia_Dortmund.svg",
+      "competitions": [
+        "UEFA Champions League"
+      ],
+      "aliases": [
+        "B. Dortmund",
+        "Dortmund"
+      ]
+    },
+    {
+      "name": "Bradford City",
+      "country": "england",
+      "sourcePath": "logos/england/Bradford_City.svg",
+      "competitions": [
+        "Emirates FA Cup",
+        "Carabao Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Brentford",
+      "country": "england",
+      "sourcePath": "logos/england/Brentford.svg",
+      "competitions": [
+        "Premier League",
+        "Carabao Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Brighton & Hove Albion",
+      "country": "england",
+      "sourcePath": "logos/england/Brighton.svg",
+      "competitions": [
+        "Premier League",
+        "Carabao Cup"
+      ],
+      "aliases": [
+        "Brighton"
+      ]
+    },
+    {
+      "name": "Bristol Rovers",
+      "country": "england",
+      "sourcePath": "logos/england/Bristol_Rovers.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Bromley",
+      "country": "england",
+      "sourcePath": "logos/england/Bromley.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Burton Albion",
+      "country": "england",
+      "sourcePath": "logos/england/Burton_Albion.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Cagliari",
+      "country": "italy",
+      "sourcePath": "logos/italy/Cagliari.svg",
+      "competitions": [
+        "Serie A"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Cambridge United",
+      "country": "england",
+      "sourcePath": "logos/england/Cambridge_United.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Carlisle United",
+      "country": "england",
+      "sourcePath": "logos/england/Carlisle_United.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Celje",
+      "country": "slovenia",
+      "sourcePath": "logos/slovenia/Celje.svg",
+      "competitions": [
+        "UEFA Europa League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Celta Vigo",
+      "country": "spain",
+      "sourcePath": "logos/spain/Celta.svg",
+      "competitions": [
+        "UEFA Europa League"
+      ],
+      "aliases": [
+        "Celta"
+      ]
+    },
+    {
+      "name": "Celtic",
+      "country": "scotland",
+      "sourcePath": "logos/scotland/Celtic.svg",
+      "competitions": [
+        "UEFA Europa League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Chelsea",
+      "country": "england",
+      "sourcePath": "logos/england/Chelsea.svg",
+      "competitions": [
+        "Premier League",
+        "Carabao Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Cheltenham Town",
+      "country": "england",
+      "sourcePath": "logos/england/Cheltenham_Town.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Chesterfield",
+      "country": "england",
+      "sourcePath": "logos/england/Chesterfield.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Club Brugge",
+      "country": "belgium",
+      "sourcePath": "logos/belgium/Club_Brugge.svg",
+      "competitions": [
+        "UEFA Champions League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Colchester United",
+      "country": "england",
+      "sourcePath": "logos/england/Colchester_United.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Como",
+      "country": "italy",
+      "sourcePath": "logos/italy/Como_1907.svg",
+      "competitions": [
+        "Serie A",
+        "UEFA Champions League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Coventry City",
+      "country": "england",
+      "sourcePath": "logos/england/Coventry_City.svg",
+      "competitions": [
+        "Premier League",
+        "Carabao Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Crawley Town",
+      "country": "england",
+      "sourcePath": "logos/england/Crawley_Town.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Cray Wanderers",
+      "country": "england",
+      "sourcePath": "logos/england/Cray_Wanderers.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Crewe Alexandra",
+      "country": "england",
+      "sourcePath": "logos/england/Crewe_Alexandra.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Crystal Palace",
+      "country": "england",
+      "sourcePath": "logos/england/Crystal_Palace.svg",
+      "competitions": [
+        "Premier League",
+        "UEFA Europa League",
+        "Carabao Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Dinamo Zagreb",
+      "country": "croatia",
+      "sourcePath": "logos/croatia/GNK_Dinamo_Zagreb.svg",
+      "competitions": [
+        "UEFA Europa League"
+      ],
+      "aliases": [
+        "GNK Dinamo"
+      ]
+    },
+    {
+      "name": "Doncaster Rovers",
+      "country": "england",
+      "sourcePath": "logos/england/Doncaster_Rovers.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Dover Athletic",
+      "country": "england",
+      "sourcePath": "logos/england/Dover_Athletic.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Eastleigh",
+      "country": "england",
+      "sourcePath": "logos/england/Eastleigh.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Everton",
+      "country": "england",
+      "sourcePath": "logos/england/Everton.svg",
+      "competitions": [
+        "Premier League",
+        "Carabao Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Exeter City",
+      "country": "england",
+      "sourcePath": "logos/england/Exeter_City.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "FC Halifax Town",
+      "country": "england",
+      "sourcePath": "logos/england/FC_Halifax_Town.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Fenerbahce",
+      "country": "turkey",
+      "sourcePath": "logos/turkey/Fenerbahçe.svg",
+      "competitions": [
+        "UEFA Champions League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Ferencvaros",
+      "country": "hungary",
+      "sourcePath": "logos/hungary/Ferencváros.svg",
+      "competitions": [
+        "UEFA Europa League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Feyenoord",
+      "country": "netherlands",
+      "sourcePath": "logos/netherlands/Feyenoord.svg",
+      "competitions": [
+        "UEFA Champions League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Fiorentina",
+      "country": "italy",
+      "sourcePath": "logos/italy/Fiorentina.svg",
+      "competitions": [
+        "Serie A"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Fleetwood Town",
+      "country": "england",
+      "sourcePath": "logos/england/Fleetwood_Town.svg",
+      "competitions": [
+        "Emirates FA Cup",
+        "Carabao Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Forest Green Rovers",
+      "country": "england",
+      "sourcePath": "logos/england/Forest_Green_Rovers.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Frosinone",
+      "country": "italy",
+      "sourcePath": "logos/italy/Frosinone_Calcio.svg",
+      "competitions": [
+        "Serie A"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Fulham",
+      "country": "england",
+      "sourcePath": "logos/england/Fulham.svg",
+      "competitions": [
+        "Premier League",
+        "Carabao Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Galatasaray",
+      "country": "turkey",
+      "sourcePath": "logos/turkey/Galatasaray.svg",
+      "competitions": [
+        "UEFA Champions League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Genoa",
+      "country": "italy",
+      "sourcePath": "logos/italy/Genoa.svg",
+      "competitions": [
+        "Serie A"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Gillingham",
+      "country": "england",
+      "sourcePath": "logos/england/Gillingham.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Grimsby Town",
+      "country": "england",
+      "sourcePath": "logos/england/Grimsby_Town.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Guiseley",
+      "country": "england",
+      "sourcePath": "logos/england/Guiseley_AFC.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": [
+        "Guiseley AFC"
+      ]
+    },
+    {
+      "name": "Hapoel Beer Sheva",
+      "country": "israel",
+      "sourcePath": "logos/israel/Hapoel_Be'er_Sheva.svg",
+      "competitions": [
+        "UEFA Europa League"
+      ],
+      "aliases": [
+        "H. Beer-Sheva"
+      ]
+    },
+    {
+      "name": "Harborough Town",
+      "country": "england",
+      "sourcePath": "logos/england/Harborough_Town.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Harrogate Town",
+      "country": "england",
+      "sourcePath": "logos/england/Harrogate_Town.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Hoffenheim",
+      "country": "germany",
+      "sourcePath": "logos/germany/Hoffenheim.svg",
+      "competitions": [
+        "UEFA Europa League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Hornchurch",
+      "country": "england",
+      "sourcePath": "logos/england/Hornchurch.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Huddersfield Town",
+      "country": "england",
+      "sourcePath": "logos/england/Huddersfield_Town.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Hull City",
+      "country": "england",
+      "sourcePath": "logos/england/Hull_City.svg",
+      "competitions": [
+        "Premier League",
+        "Carabao Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Inter",
+      "country": "italy",
+      "sourcePath": "logos/italy/Inter.svg",
+      "competitions": [
+        "Serie A",
+        "UEFA Champions League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Ipswich Town",
+      "country": "england",
+      "sourcePath": "logos/england/Ipswich.svg",
+      "competitions": [
+        "Premier League",
+        "Carabao Cup"
+      ],
+      "aliases": [
+        "Ipswich"
+      ]
+    },
+    {
+      "name": "Jagiellonia",
+      "country": "poland",
+      "sourcePath": "logos/poland/Jagiellonia_Białystok.svg",
+      "competitions": [
+        "UEFA Europa League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Juventus",
+      "country": "italy",
+      "sourcePath": "logos/italy/Juventus.svg",
+      "competitions": [
+        "Serie A",
+        "UEFA Europa League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Kidderminster Harriers",
+      "country": "england",
+      "sourcePath": "logos/england/Kidderminster_Harriers.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "LASK",
+      "country": "austria",
+      "sourcePath": "logos/austria/LASK.svg",
+      "competitions": [
+        "UEFA Champions League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Lazio",
+      "country": "italy",
+      "sourcePath": "logos/italy/Lazio.svg",
+      "competitions": [
+        "Serie A"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Lecce",
+      "country": "italy",
+      "sourcePath": "logos/italy/Lecce.svg",
+      "competitions": [
+        "Serie A"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Lech Poznan",
+      "country": "poland",
+      "sourcePath": "logos/poland/Lech_Poznań.svg",
+      "competitions": [
+        "UEFA Europa League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Leeds United",
+      "country": "england",
+      "sourcePath": "logos/england/Leeds_United.svg",
+      "competitions": [
+        "Premier League",
+        "Carabao Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Leicester City",
+      "country": "england",
+      "sourcePath": "logos/england/Leicester.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": [
+        "Leicester"
+      ]
+    },
+    {
+      "name": "Lens",
+      "country": "france",
+      "sourcePath": "logos/france/RC_Lens.svg",
+      "competitions": [
+        "UEFA Champions League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Levski Sofia",
+      "country": "bulgaria",
+      "sourcePath": "logos/bulgaria/Levski_Sofia.svg",
+      "competitions": [
+        "UEFA Europa League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Leyton Orient",
+      "country": "england",
+      "sourcePath": "logos/england/Leyton_Orient.svg",
+      "competitions": [
+        "Emirates FA Cup",
+        "Carabao Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Lille",
+      "country": "france",
+      "sourcePath": "logos/france/Lille.svg",
+      "competitions": [
+        "UEFA Champions League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Lillestrom",
+      "country": "norway",
+      "sourcePath": "logos/norway/Lillestrøm.svg",
+      "competitions": [
+        "UEFA Europa League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Lincoln City",
+      "country": "england",
+      "sourcePath": "logos/england/Lincoln_City.svg",
+      "competitions": [
+        "Carabao Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Liverpool",
+      "country": "england",
+      "sourcePath": "logos/england/Liverpool_FC.svg",
+      "competitions": [
+        "Premier League",
+        "UEFA Champions League",
+        "Carabao Cup"
+      ],
+      "aliases": [
+        "Liverpool FC"
+      ]
+    },
+    {
+      "name": "Luton Town",
+      "country": "england",
+      "sourcePath": "logos/england/Luton_Town.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Lyon",
+      "country": "france",
+      "sourcePath": "logos/france/Olympique_Lyonnais.svg",
+      "competitions": [
+        "UEFA Europa League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Macclesfield",
+      "country": "england",
+      "sourcePath": "logos/england/Macclesfield.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Manchester City",
+      "country": "england",
+      "sourcePath": "logos/england/Manchester_City.svg",
+      "competitions": [
+        "Premier League",
+        "UEFA Champions League",
+        "Carabao Cup"
+      ],
+      "aliases": [
+        "Man City"
+      ]
+    },
+    {
+      "name": "Manchester United",
+      "country": "england",
+      "sourcePath": "logos/england/Manchester_United.svg",
+      "competitions": [
+        "Premier League",
+        "UEFA Champions League",
+        "Carabao Cup"
+      ],
+      "aliases": [
+        "Man Utd",
+        "Man United"
+      ]
+    },
+    {
+      "name": "Mansfield Town",
+      "country": "england",
+      "sourcePath": "logos/england/Mansfield_Town.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Marine",
+      "country": "england",
+      "sourcePath": "logos/england/Marine.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Marseille",
+      "country": "france",
+      "sourcePath": "logos/france/Marseille.svg",
+      "competitions": [
+        "UEFA Europa League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Middlesbrough",
+      "country": "england",
+      "sourcePath": "logos/england/Middlesbrough.svg",
+      "competitions": [
+        "Carabao Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Milan",
+      "country": "italy",
+      "sourcePath": "logos/italy/Milan.svg",
+      "competitions": [
+        "Serie A",
+        "UEFA Europa League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Millwall",
+      "country": "england",
+      "sourcePath": "logos/england/Millwall.svg",
+      "competitions": [
+        "Carabao Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "MK Dons",
+      "country": "england",
+      "sourcePath": "logos/england/Milton_Keynes_Dons.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": [
+        "Milton Keynes Dons"
+      ]
+    },
+    {
+      "name": "Monza",
+      "country": "italy",
+      "sourcePath": "logos/italy/Monza.svg",
+      "competitions": [
+        "Serie A"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Napoli",
+      "country": "italy",
+      "sourcePath": "logos/italy/Napoli.svg",
+      "competitions": [
+        "Serie A",
+        "UEFA Champions League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "NEC Nijmegen",
+      "country": "netherlands",
+      "sourcePath": "logos/netherlands/N.E.C._Nijmegen.svg",
+      "competitions": [
+        "UEFA Europa League"
+      ],
+      "aliases": [
+        "N.E.C."
+      ]
+    },
+    {
+      "name": "Newcastle United",
+      "country": "england",
+      "sourcePath": "logos/england/Newcastle_United.svg",
+      "competitions": [
+        "Premier League",
+        "Carabao Cup"
+      ],
+      "aliases": [
+        "Newcastle"
+      ]
+    },
+    {
+      "name": "Newport County",
+      "country": "england",
+      "sourcePath": "logos/england/Newport_County.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Northampton Town",
+      "country": "england",
+      "sourcePath": "logos/england/Northampton_Town.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Norwich City",
+      "country": "england",
+      "sourcePath": "logos/england/Norwich_City.svg",
+      "competitions": [
+        "Carabao Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Nottingham Forest",
+      "country": "england",
+      "sourcePath": "logos/england/Nottingham_Forest.svg",
+      "competitions": [
+        "Premier League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Notts County",
+      "country": "england",
+      "sourcePath": "logos/england/Notts_County.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "OFI Crete",
+      "country": "greece",
+      "sourcePath": "logos/greece/OFI.svg",
+      "competitions": [
+        "UEFA Europa League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Oldham Athletic",
+      "country": "england",
+      "sourcePath": "logos/england/Oldham_Athletic.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Olympiacos",
+      "country": "greece",
+      "sourcePath": "logos/greece/Olympiacos.svg",
+      "competitions": [
+        "UEFA Europa League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Omonia",
+      "country": "cyprus",
+      "sourcePath": "logos/cyprus/Omonoia_Nicosia.svg",
+      "competitions": [
+        "UEFA Europa League"
+      ],
+      "aliases": [
+        "Omonoia Nicosia"
+      ]
+    },
+    {
+      "name": "Oxford City",
+      "country": "england",
+      "sourcePath": "logos/england/Oxford_City.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Oxford United",
+      "country": "england",
+      "sourcePath": "logos/england/Oxford_United.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Paris Saint-Germain",
+      "country": "france",
+      "sourcePath": "logos/france/Paris_Saint-Germain_(PSG).svg",
+      "competitions": [
+        "UEFA Champions League"
+      ],
+      "aliases": [
+        "Paris",
+        "PSG"
+      ]
+    },
+    {
+      "name": "Parma",
+      "country": "italy",
+      "sourcePath": "logos/italy/Parma.svg",
+      "competitions": [
+        "Serie A"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Peterborough United",
+      "country": "england",
+      "sourcePath": "logos/england/Peterborough_United.svg",
+      "competitions": [
+        "Emirates FA Cup",
+        "Carabao Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Plymouth Argyle",
+      "country": "england",
+      "sourcePath": "logos/england/Plymouth_Argyle.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Port Vale",
+      "country": "england",
+      "sourcePath": "logos/england/Port_Vale_FC.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": [
+        "Port Vale FC"
+      ]
+    },
+    {
+      "name": "Porto",
+      "country": "portugal",
+      "sourcePath": "logos/portugal/FC_Porto.svg",
+      "competitions": [
+        "UEFA Champions League"
+      ],
+      "aliases": [
+        "FC Porto"
+      ]
+    },
+    {
+      "name": "PSV",
+      "country": "netherlands",
+      "sourcePath": "logos/netherlands/PSV_Eindhoven.svg",
+      "competitions": [
+        "UEFA Champions League"
+      ],
+      "aliases": [
+        "PSV Eindhoven"
+      ]
+    },
+    {
+      "name": "RB Leipzig",
+      "country": "germany",
+      "sourcePath": "logos/germany/RB_Leipzig.svg",
+      "competitions": [
+        "UEFA Champions League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Reading",
+      "country": "england",
+      "sourcePath": "logos/england/Reading.svg",
+      "competitions": [
+        "Emirates FA Cup",
+        "Carabao Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Real Betis",
+      "country": "spain",
+      "sourcePath": "logos/spain/Real_Betis.svg",
+      "competitions": [
+        "UEFA Champions League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Real Madrid",
+      "country": "spain",
+      "sourcePath": "logos/spain/Real_Madrid.svg",
+      "competitions": [
+        "UEFA Champions League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Real Sociedad",
+      "country": "spain",
+      "sourcePath": "logos/spain/Real_Sociedad.svg",
+      "competitions": [
+        "UEFA Europa League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Red Bull Salzburg",
+      "country": "austria",
+      "sourcePath": "logos/austria/Salzburg.svg",
+      "competitions": [
+        "UEFA Europa League"
+      ],
+      "aliases": [
+        "Salzburg"
+      ]
+    },
+    {
+      "name": "Rennes",
+      "country": "france",
+      "sourcePath": "logos/france/Rennes.svg",
+      "competitions": [
+        "UEFA Europa League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Rochdale",
+      "country": "england",
+      "sourcePath": "logos/england/Rochdale.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Roma",
+      "country": "italy",
+      "sourcePath": "logos/italy/Roma.svg",
+      "competitions": [
+        "Serie A",
+        "UEFA Champions League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Rotherham United",
+      "country": "england",
+      "sourcePath": "logos/england/Rotherham_United.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Sabah",
+      "country": "azerbaijan",
+      "sourcePath": "logos/azerbaijan/Sabah.svg",
+      "competitions": [
+        "UEFA Champions League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Salford City",
+      "country": "england",
+      "sourcePath": "logos/england/Salford_City.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Salisbury",
+      "country": "england",
+      "sourcePath": "logos/england/Salisbury_FC.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": [
+        "Salisbury FC"
+      ]
+    },
+    {
+      "name": "Sassuolo",
+      "country": "italy",
+      "sourcePath": "logos/italy/Sassuolo.svg",
+      "competitions": [
+        "Serie A"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Scunthorpe United",
+      "country": "england",
+      "sourcePath": "logos/england/Scunthorpe_United.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Shakhtar Donetsk",
+      "country": "ukraine",
+      "sourcePath": "logos/ukraine/Shakhtar.svg",
+      "competitions": [
+        "UEFA Champions League"
+      ],
+      "aliases": [
+        "Shakhtar"
+      ]
+    },
+    {
+      "name": "Sheffield United",
+      "country": "england",
+      "sourcePath": "logos/england/Sheffield_United.svg",
+      "competitions": [
+        "Carabao Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Sheffield Wednesday",
+      "country": "england",
+      "sourcePath": "logos/england/Sheffield_Wednesday.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Sholing",
+      "country": "england",
+      "sourcePath": "logos/england/Sholing_FC.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": [
+        "Sholing FC"
+      ]
+    },
+    {
+      "name": "Shrewsbury Town",
+      "country": "england",
+      "sourcePath": "logos/england/Shrewsbury_Town.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Slavia Prague",
+      "country": "czech-republic",
+      "sourcePath": "logos/czech-republic/SK_Slavia_Praha.svg",
+      "competitions": [
+        "UEFA Champions League"
+      ],
+      "aliases": [
+        "Slavia Praha"
+      ]
+    },
+    {
+      "name": "Slovan Bratislava",
+      "country": "slovakia",
+      "sourcePath": "logos/slovakia/Slovan_Bratislava.svg",
+      "competitions": [
+        "UEFA Champions League"
+      ],
+      "aliases": [
+        "S. Bratislava"
+      ]
+    },
+    {
+      "name": "Sparta Prague",
+      "country": "czech-republic",
+      "sourcePath": "logos/czech-republic/AC_Sparta_Praha.svg",
+      "competitions": [
+        "UEFA Europa League"
+      ],
+      "aliases": [
+        "Sparta Praha"
+      ]
+    },
+    {
+      "name": "Sporting CP",
+      "country": "portugal",
+      "sourcePath": "logos/portugal/Sporting_CP.svg",
+      "competitions": [
+        "UEFA Champions League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Stevenage",
+      "country": "england",
+      "sourcePath": "logos/england/Stevenage.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Stockport County",
+      "country": "england",
+      "sourcePath": "logos/england/Stockport_County.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Sturm Graz",
+      "country": "austria",
+      "sourcePath": "logos/austria/Sturm_Graz.svg",
+      "competitions": [
+        "UEFA Europa League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Stuttgart",
+      "country": "germany",
+      "sourcePath": "logos/germany/VfB_Stuttgart.svg",
+      "competitions": [
+        "UEFA Champions League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Sunderland",
+      "country": "england",
+      "sourcePath": "logos/england/Sunderland.svg",
+      "competitions": [
+        "Premier League",
+        "UEFA Europa League",
+        "Carabao Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Sutton United",
+      "country": "england",
+      "sourcePath": "logos/england/Sutton_United.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Swindon Town",
+      "country": "england",
+      "sourcePath": "logos/england/Swindon_Town.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Torino",
+      "country": "italy",
+      "sourcePath": "logos/italy/Torino.svg",
+      "competitions": [
+        "Serie A"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Torreense",
+      "country": "portugal",
+      "sourcePath": "logos/portugal/S.C.U._Torreense.svg",
+      "competitions": [
+        "UEFA Europa League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Tottenham Hotspur",
+      "country": "england",
+      "sourcePath": "logos/england/Tottenham.svg",
+      "competitions": [
+        "Premier League",
+        "Carabao Cup"
+      ],
+      "aliases": [
+        "Tottenham",
+        "Spurs"
+      ]
+    },
+    {
+      "name": "Tranmere Rovers",
+      "country": "england",
+      "sourcePath": "logos/england/Tranmere_Rovers.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Udinese",
+      "country": "italy",
+      "sourcePath": "logos/italy/Udinese.svg",
+      "competitions": [
+        "Serie A"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Union Saint-Gilloise",
+      "country": "belgium",
+      "sourcePath": "logos/belgium/Union_Saint-Gilloise.svg",
+      "competitions": [
+        "UEFA Europa League"
+      ],
+      "aliases": [
+        "Union SG"
+      ]
+    },
+    {
+      "name": "Venezia",
+      "country": "italy",
+      "sourcePath": "logos/italy/Venezia.svg",
+      "competitions": [
+        "Serie A"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Viking",
+      "country": "norway",
+      "sourcePath": "logos/norway/Viking_FK.svg",
+      "competitions": [
+        "UEFA Champions League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Viktoria Plzen",
+      "country": "czech-republic",
+      "sourcePath": "logos/czech-republic/Viktoria_Plzeň.svg",
+      "competitions": [
+        "UEFA Europa League"
+      ],
+      "aliases": [
+        "Viktoria Plzeň"
+      ]
+    },
+    {
+      "name": "Villarreal",
+      "country": "spain",
+      "sourcePath": "logos/spain/Villarreal.svg",
+      "competitions": [
+        "UEFA Champions League"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Walsall",
+      "country": "england",
+      "sourcePath": "logos/england/Walsall.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Wealdstone",
+      "country": "england",
+      "sourcePath": "logos/england/Wealdstone.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "West Ham United",
+      "country": "england",
+      "sourcePath": "logos/england/West_Ham.svg",
+      "competitions": [
+        "Carabao Cup"
+      ],
+      "aliases": [
+        "West Ham"
+      ]
+    },
+    {
+      "name": "Wigan Athletic",
+      "country": "england",
+      "sourcePath": "logos/england/Wigan_Athletic.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Wolverhampton Wanderers",
+      "country": "england",
+      "sourcePath": "logos/england/Wolverhampton_Wanderers.svg",
+      "competitions": [
+        "Carabao Cup"
+      ],
+      "aliases": [
+        "Wolves"
+      ]
+    },
+    {
+      "name": "Worcester City",
+      "country": "england",
+      "sourcePath": "logos/england/Worcester_City.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Wycombe Wanderers",
+      "country": "england",
+      "sourcePath": "logos/england/Wycombe_Wanderers.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "Yeovil Town",
+      "country": "england",
+      "sourcePath": "logos/england/Yeovil_Town.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    },
+    {
+      "name": "York City",
+      "country": "england",
+      "sourcePath": "logos/england/York_City.svg",
+      "competitions": [
+        "Emirates FA Cup"
+      ],
+      "aliases": []
+    }
+  ]
+}
