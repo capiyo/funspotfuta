@@ -3,7 +3,7 @@ import { useProfileAvatar, type FanColorPalette } from '@funspot/core';
 import { getFanAvatarUri } from '@/lib/avatar-uri';
 import { fanText } from '@/theme/use-fan-typography';
 
-const SIZES = { sm: 24, md: 28, lg: 32 } as const;
+const SIZES = { sm: 24, md: 28, lg: 32, xl: 44 } as const;
 export type AvatarSize = keyof typeof SIZES;
 
 export function Avatar({ colors, size = 'md', uri, userId, label, borderColor, backgroundColor }: {
