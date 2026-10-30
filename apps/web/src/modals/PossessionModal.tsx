@@ -178,7 +178,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
           </div>
         )}
 
-        {error && <p role="alert" style={{ color: colors.danger, fontSize: 12, margin: '12px 0 0' }}>{error}</p>}
+        {error && <p role="alert" style={{ color: colors.away, fontSize: 12, margin: '12px 0 0' }}>{error}</p>}
         {notice && <p role="status" style={{ color: colors.primary, fontSize: 12, margin: '12px 0 0' }}>{notice}</p>}
 
         <div style={{ marginTop: 20 }}>
