@@ -4,6 +4,8 @@ import {
   castPossessionVote,
   createPossessionPoke,
   fetchPossessionMarket,
+  fetchPossessionPokes,
+  fetchPossessionVotes,
   matchPossessionPoke,
 } from '@funspot/core';
 import type { Fixture, PossessionMarket, PossessionSide } from '@funspot/core';
@@ -37,7 +39,13 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
     setLoading(true);
     setError(null);
     try {
-      setMarket(await fetchPossessionMarket({ fixtureId, channelId, authToken }));
+      const context = { fixtureId, channelId, authToken };
+      const [nextMarket, votes, pokes] = await Promise.all([
+        fetchPossessionMarket(context),
+        fetchPossessionVotes(context),
+        fetchPossessionPokes(context),
+      ]);
+      setMarket({ ...nextMarket, votes, pokes });
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Could not load possession market');
     } finally {
