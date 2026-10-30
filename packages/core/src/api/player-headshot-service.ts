@@ -105,7 +105,8 @@ async function lookupPlayer(
 
   const request = (async (): Promise<string | null | undefined> => {
     try {
-      const url = new URL(endpoint, typeof window !== 'undefined' ? window.location.origin : undefined);
+      const base = endpoint.startsWith('/') && typeof window !== 'undefined' ? window.location.origin : undefined;
+      const url = base ? new URL(endpoint, base) : new URL(endpoint);
       url.searchParams.set('name', player.name);
       url.searchParams.set('team', teamName);
       const response = await fetch(url.toString(), { headers: { Accept: 'application/json' } });
