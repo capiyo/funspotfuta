@@ -36,11 +36,12 @@ export const handler = async (event) => {
   const normalizedName = normalize(name);
   const surnameParts = normalizedName.split(' ');
   const surname = surnameParts[surnameParts.length - 1];
-  if (!surname || surname.length < 2) return json(200, { photoUrl: null });
+  const searchTerm = surname && surname.length >= 4 ? surname : normalizedName;
+  if (!searchTerm || searchTerm.length < 4) return json(200, { photoUrl: null });
 
   try {
     const providerUrl = new URL('https://v3.football.api-sports.io/players/profiles');
-    providerUrl.searchParams.set('search', surname);
+    providerUrl.searchParams.set('search', searchTerm);
     const providerResponse = await fetch(providerUrl, {
       headers: { 'x-apisports-key': apiKey },
     });
