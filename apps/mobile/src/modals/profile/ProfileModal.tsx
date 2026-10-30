@@ -426,9 +426,11 @@ export default function ProfileModal({
         Array.isArray(decoded) && decoded.length > 0
           ? decoded[0]
           : decoded;
-      const saved = userDataFromJson(raw);
+      const parsedSaved = userDataFromJson(raw);
+      const saved = { ...parsedSaved, avatarUrl: parsedSaved.avatarUrl ?? profile?.avatarUrl ?? null };
 
       setProfile(saved);
+      queryClient.setQueryData(queryKeys.profile(userId), (current: unknown) => current && typeof current === 'object' ? { ...(current as Record<string, unknown>), ...saved } : saved);
       setProfileExists(true);
       setEditing(false);
       setBalance(saved.balance);
