@@ -54,7 +54,7 @@ import {
   Minus,
   Wallet,
 } from 'lucide-react-native';
-import { FAN_SPACING, FAN_RADIUS, uploadProfileAvatar } from '@funspot/core';
+import { FAN_SPACING, FAN_RADIUS, uploadProfileAvatar, queryKeys } from '@funspot/core';
 import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useToast } from '@/lib/toast/toast-context';
