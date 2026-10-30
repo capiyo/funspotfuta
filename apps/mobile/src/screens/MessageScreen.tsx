@@ -107,6 +107,7 @@ import {
   Voter,
 } from '../../../../packages/core/src/api/use-channel-chat';
 import { useAuth } from '@/lib/auth/auth-context';
+import { Avatar } from '@/components/ui/Avatar';
 import { useToast } from '@/lib/toast/toast-context';
 import { useFanColors } from '@/theme/use-fan-colors';
 import AdCarousel from '@/components/AdCarousel';
@@ -1234,9 +1235,12 @@ function VotersPanel({
       ) : (
         voters.map((v) => (
           <View key={v.userId} style={votersStyles.row}>
-            <Text style={fanText('caption', colors, colors.textPrimary)}>
-              {v.userId === userId ? 'You' : v.username}
-            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1, minWidth: 0 }}>
+              <Avatar colors={colors} size="sm" userId={v.userId} label={v.username?.[0] ?? '?'} />
+              <Text numberOfLines={1} style={fanText('caption', colors, colors.textPrimary)}>
+                {v.userId === userId ? 'You' : v.username}
+              </Text>
+            </View>
             <Text style={fanText('tag', colors, colors.textTertiary)}>
               {displayVote(v.selection)}
             </Text>
@@ -1318,24 +1322,13 @@ function MessageBubble({
       )}
 
       <View style={[bubbleStyles.row, effectiveIsMe && bubbleStyles.rowMe]}>
-        {!effectiveIsMe && (
-          <View
-            style={[
-              bubbleStyles.avatar,
-              {
-                backgroundColor: isCommentary
-                  ? colors.draw + '1A'
-                  : colors.primary + '1A',
-              },
-            ]}
-          >
-            <Text style={{ fontSize: 12 }}>
-              {isCommentary
-                ? '⚽'
-                : message.username?.[0]?.toUpperCase() ?? '?'}
-            </Text>
+        {!effectiveIsMe && (isCommentary ? (
+          <View style={[bubbleStyles.avatar, { backgroundColor: colors.draw + '1A' }]}>
+            <Text style={{ fontSize: 12 }}>⚽</Text>
           </View>
-        )}
+        ) : (
+          <Avatar colors={colors} size="sm" userId={message.userId} label={message.username?.[0]?.toUpperCase() ?? '?'} />
+        ))}
 
         <Pressable
           onLongPress={onLongPress}
