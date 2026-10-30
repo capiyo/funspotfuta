@@ -24,6 +24,7 @@
 //      profiles (see header).
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   View,
   Text,
@@ -108,6 +109,7 @@ export default function ProfileModal({
   const styles = createStyles(colors);
   const { userId, username, phone, authToken, logout } = useAuth();
   const toast = useToast();
+  const queryClient = useQueryClient();
 
   // ── Which profile is being viewed ───────────────────────────
   // When non-null, we're viewing another user's profile (member
@@ -249,6 +251,7 @@ export default function ProfileModal({
         authToken ?? undefined,
       );
       setProfile((current) => current ? { ...current, avatarUrl: result.avatarUrl } : current);
+      queryClient.setQueryData(queryKeys.profile(userId), (current: unknown) => current && typeof current === 'object' ? { ...(current as Record<string, unknown>), avatarUrl: result.avatarUrl } : current);
       toast.showSuccess('Profile image updated');
     } catch (error) {
       toast.showError(error instanceof Error ? error.message : 'Could not update profile image');
