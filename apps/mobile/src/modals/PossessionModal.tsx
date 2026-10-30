@@ -48,6 +48,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
         fetchPossessionPokes(context),
       ]);
       setMarket({ ...nextMarket, votes, pokes });
+      setSelection(nextMarket.userSelection ?? 'home');
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Could not load possession market');
     } finally { setLoading(false); }
@@ -145,7 +146,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
 
             <View style={styles.sideRow}>{sideButton('home', fixture.homeTeam)}{sideButton('away', fixture.awayTeam)}</View>
             {tab === 'vote' ? (
-              <Pressable disabled={busy || loading || market?.status === 'settled'} onPress={() => void submitVote()} style={({ pressed }) => [styles.primaryButton, (pressed || busy) && { opacity: PRESSED_OPACITY }]}>
+              <Pressable disabled={busy || loading || market !== null && market.status !== 'open'} onPress={() => void submitVote()} style={({ pressed }) => [styles.primaryButton, (pressed || busy) && { opacity: PRESSED_OPACITY }]}>
                 <Text style={fanText('button', colors, '#FFFFFF')}>{busy ? 'Submitting…' : 'Submit possession prediction'}</Text>
               </Pressable>
             ) : (
