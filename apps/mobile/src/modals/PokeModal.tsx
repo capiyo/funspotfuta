@@ -1,5 +1,4 @@
 import { Avatar } from '@/components/ui/Avatar';
-import { Avatar } from '@/components/ui/Avatar';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { TeamCrest } from '@/components/TeamCrest';
 import { useQueryClient } from '@tanstack/react-query';
