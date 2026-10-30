@@ -5,7 +5,7 @@ import { WEB_TEAM_CRESTS } from './team-crest-catalog.generated';
 
 type Props = { name: string; fixture: Record<string, unknown>; side: 'home' | 'away'; size?: number };
 
-function direct(fixture: Record<string, unknown>, side: 'home' | 'away'): string | null {
+function directCountry(fixture: Record<string, unknown>, side: 'home' | 'away'): string | undefined {\n  for (const key of [side + 'Country', side + 'TeamCountry', side + '_country', side + '_team_country']) {\n    const value = fixture[key];\n    if (typeof value === 'string' && value.trim()) return value.trim();\n  }\n  return undefined;\n}\n\nfunction direct(fixture: Record<string, unknown>, side: 'home' | 'away'): string | null {
   const capitalized = side === 'home' ? 'Home' : 'Away';
   for (const key of [side + 'Logo', side + 'TeamLogo', side + 'LogoUrl', side + 'TeamLogoUrl',
     side + '_logo', side + '_team_logo', side + '_logo_url', side + '_team_logo_url',
@@ -19,7 +19,7 @@ function direct(fixture: Record<string, unknown>, side: 'home' | 'away'): string
 
 export function TeamCrest({ name, fixture, side, size = 24 }: Props) {
   const colors = useFanColors();
-  const supplied = direct(fixture, side);
+  const supplied = direct(fixture, side);\n  const country = directCountry(fixture, side);
   const local = WEB_TEAM_CRESTS[normalizeTeamCrestName(name)] ?? null;
   const [failed, setFailed] = useState(false);
   const [source, setSource] = useState<string | null>(local ?? supplied);
@@ -29,12 +29,12 @@ export function TeamCrest({ name, fixture, side, size = 24 }: Props) {
     setFailed(false);
     setSource(local ?? supplied);
     if (!local && !supplied) {
-      void resolveTeamCrest(name, '/.netlify/functions/team-crest').then((url) => {
+      void resolveTeamCrest(name, '/.netlify/functions/team-crest', country).then((url) => {
         if (active) setSource(url);
       });
     }
     return () => { active = false; };
-  }, [name, local, supplied]);
+  }, [name, local, supplied, country]);
 
   return <span className="match-card-team-logo" role="img" aria-label={name + ' crest'} title={name}
     style={{ display: 'inline-flex', flex: '0 0 ' + size + 'px', width: size, height: size,
