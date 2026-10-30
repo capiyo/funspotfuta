@@ -1,5 +1,5 @@
 // components/MatchDetailsModal/PitchView.tsx
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
     View,
     Text,
@@ -17,8 +17,9 @@ import Svg, {
     Stop,
 } from 'react-native-svg';
 import { ChevronDown, ChevronUp } from 'lucide-react-native';
+import { Image as ExpoImage } from 'expo-image';
 
-import { FAN_SPACING, FAN_RADIUS } from '@funspot/core';
+import { FAN_SPACING, FAN_RADIUS, playerHeadshotKey, resolvePlayerHeadshots } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
 import { fanShadowStyle } from '../../theme/use-fan-shadow';
@@ -514,13 +515,14 @@ interface PlayerDotProps {
     position: PitchPosition;
     color: string;
     isHome: boolean;
+    photoUrl?: string;
 }
 
 const DOT_SIZE = 30;
 // Approximate height of the [gap + name chip] block below/above the dot.
 const LABEL_BLOCK_HEIGHT = 18;
 
-function PlayerDot({ player, position, color, isHome }: PlayerDotProps) {
+function PlayerDot({ player, position, color, isHome, photoUrl }: PlayerDotProps) {
     const colors = useFanColors();
 
     const dot = (
@@ -534,7 +536,11 @@ function PlayerDot({ player, position, color, isHome }: PlayerDotProps) {
                 fanShadowStyle('card', false),
             ]}
         >
-            <Text style={styles.playerDotText}>{player.number}</Text>
+            {photoUrl ? (
+                <ExpoImage source={{ uri: photoUrl }} contentFit="cover" cachePolicy="memory-disk" style={{ width: DOT_SIZE - 2, height: DOT_SIZE - 2, borderRadius: (DOT_SIZE - 2) / 2 }} />
+            ) : (
+                <Text style={styles.playerDotText}>{player.number}</Text>
+            )}
         </View>
     );
 
@@ -848,6 +854,16 @@ export function PitchView({
     const colors = useFanColors();
     const [showHomeOverflow, setShowHomeOverflow] = useState(false);
     const [showAwayOverflow, setShowAwayOverflow] = useState(false);
+    const [headshots, setHeadshots] = useState<Record<string, string>>({});
+    const apiSportsKey = process.env.EXPO_PUBLIC_API_SPORTS_KEY;
+
+    useEffect(() => {
+        let cancelled = false;
+        setHeadshots({});
+        const batch = [...homePlayers.map((player) => ({ player, teamName: homeTeam })), ...awayPlayers.map((player) => ({ player, teamName: awayTeam }))];
+        void resolvePlayerHeadshots(batch, apiSportsKey).then((result) => { if (!cancelled) setHeadshots(result); });
+        return () => { cancelled = true; };
+    }, [homePlayers, awayPlayers, homeTeam, awayTeam, apiSportsKey]);
     const [pitchSize, setPitchSize] = useState<{ width: number; height: number }>({
         width: 0,
         height: 0,
@@ -972,6 +988,7 @@ export function PitchView({
                                         position={homePositions[i]}
                                         color={colors.primary}
                                         isHome
+                                        photoUrl={headshots[playerHeadshotKey(p, homeTeam)]}
                                     />
                                 ) : null,
                             )}
@@ -983,6 +1000,7 @@ export function PitchView({
                                         position={awayPositions[i]}
                                         color={colors.away}
                                         isHome={false}
+                                        photoUrl={headshots[playerHeadshotKey(p, awayTeam)]}
                                     />
                                 ) : null,
                             )}
