@@ -15,6 +15,7 @@ export interface UserData {
     countryFan: string;
     numberOfBets: number;
     balance: number;
+    avatarUrl: string | null;
 }
 
 export function userDataFromJson(json: Record<string, any>): UserData {
@@ -28,6 +29,7 @@ export function userDataFromJson(json: Record<string, any>): UserData {
         countryFan: json.country_fan?.toString() ?? '',
         numberOfBets: Number(json.number_of_bets ?? 0),
         balance: Number(json.balance ?? 0),
+        avatarUrl: typeof (json.avatar_url ?? json.avatarUrl) === 'string' ? String(json.avatar_url ?? json.avatarUrl) : null,
     };
 }
 
