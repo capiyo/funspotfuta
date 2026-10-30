@@ -1,4 +1,5 @@
 import { Avatar } from '@/components/ui/Avatar';
+import { Avatar } from '@/components/ui/Avatar';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { TeamCrest } from '@/components/TeamCrest';
 import { useQueryClient } from '@tanstack/react-query';
@@ -86,7 +87,7 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
   const [selection, setSelection] = useState<'home_team' | 'away_team'>('home_team');
   const [stake, setStake] = useState('5');
   const [balance, setBalance] = useState<number | null>(null);
-  const [pokers, setPokers] = useState<Array<{ userName?: string; user_name?: string; starter_name?: string; selection?: string; amount?: number; starter_amount?: number }>>([]);
+  const [pokers, setPokers] = useState<Array<{ userId?: string; user_id?: string; userName?: string; user_name?: string; starter_name?: string; selection?: string; amount?: number; starter_amount?: number }>>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [message, setMessage] = useState('');
@@ -351,7 +352,7 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
             ? <p style={{ margin: 0, color: 'var(--muted, #a7abb3)', fontSize: 12 }}>No pokes listed yet.</p>
             : <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 6 }}>
                 {pokers.map((poker, index) => <li key={String(poker.userName ?? poker.user_name ?? poker.starter_name ?? index) + '-' + index} style={{ display: 'flex', justifyContent: 'space-between', gap: 10, fontSize: 12, padding: '7px 0', borderBottom: '1px solid var(--border, #35383e)' }}>
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, minWidth: 0, flexWrap: 'wrap' }}><strong style={{ color: 'var(--primary)', fontSize: 9 }}>✊ POKE</strong><span>{poker.userName ?? poker.user_name ?? poker.starter_name ?? 'Fan'} · {poker.selection === 'home_team' ? fixture.homeTeam : poker.selection === 'away_team' ? fixture.awayTeam : poker.selection ?? '—'}</span></span>
+                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, minWidth: 0, flexWrap: 'wrap' }}><Avatar colors={colors} size="md" userId={poker.userId ?? poker.user_id} label={(poker.userName ?? poker.user_name ?? poker.starter_name ?? 'F')[0]} /><strong style={{ color: 'var(--primary)', fontSize: 9 }}>✊ POKE</strong><span>{poker.userName ?? poker.user_name ?? poker.starter_name ?? 'Fan'} · {poker.selection === 'home_team' ? fixture.homeTeam : poker.selection === 'away_team' ? fixture.awayTeam : poker.selection ?? '—'}</span></span>
                   <strong>{poker.amount ?? poker.starter_amount ?? 0} pts</strong>
                 </li>)}
               </ul>}
