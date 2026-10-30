@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useProfileAvatar } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
+import { useAuth } from '@/lib/auth/auth-context';
 import { fanText } from '@/theme/use-fan-typography';
 
 export function MiniAvatar({ colors, label, uri, userId }: {
