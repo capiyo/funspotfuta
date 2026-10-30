@@ -8,12 +8,13 @@ import type {
 const POSSESSION_BASE = `${API_BASE}/actions/posseions`;
 
 async function request<T>(path: string, token?: string | null, init?: RequestInit): Promise<T> {
+  const headers = new Headers(authHeaders(token));
+  if (init?.headers) {
+    new Headers(init.headers).forEach((value, key) => headers.set(key, value));
+  }
   const response = await fetch(`${POSSESSION_BASE}${path}`, {
     ...init,
-    headers: {
-      ...authHeaders(token),
-      ...(init?.headers ?? {}),
-    },
+    headers,
   });
   const payload: unknown = await response.json().catch(() => null);
   if (!response.ok) {
@@ -33,8 +34,8 @@ export interface PossessionContext {
 }
 
 export async function fetchPossessionMarket(context: PossessionContext): Promise<PossessionMarket> {
-  const query = new URLSearchParams({ channel_id: context.channelId });
-  return request<PossessionMarket>(`/${encodeURIComponent(context.fixtureId)}?${query.toString()}`, context.authToken);
+  const query = new URLSearchParams({ fixture_id: context.fixtureId, channel_id: context.channelId });
+  return request<PossessionMarket>(`?${query.toString()}`, context.authToken);
 }
 
 export async function castPossessionVote(
@@ -55,7 +56,7 @@ export async function castPossessionVote(
 export async function createPossessionPoke(
   context: PossessionContext & { userId: string; username: string; selection: PossessionSide; amount: number },
 ): Promise<PossessionActionResult> {
-  return request<PossessionActionResult>('/pokes', context.authToken, {
+  return request<PossessionActionResult>('/poking', context.authToken, {
     method: 'POST',
     body: JSON.stringify({
       fixture_id: context.fixtureId,
@@ -71,7 +72,7 @@ export async function createPossessionPoke(
 export async function matchPossessionPoke(
   context: PossessionContext & { pokeId: string; userId: string },
 ): Promise<PossessionActionResult> {
-  return request<PossessionActionResult>('/pokes/match', context.authToken, {
+  return request<PossessionActionResult>('/poking/match', context.authToken, {
     method: 'POST',
     body: JSON.stringify({
       fixture_id: context.fixtureId,
