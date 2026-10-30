@@ -21,6 +21,7 @@ const SIZES = {
     sm: 24, // MatchCard team avatars, small inline badges
     md: 28, // AppHeader avatar, chip-adjacent avatars
     lg: 32, // PostCard / MatchCard voter avatars — the "primary" social avatar size
+    xl: 44, // leaderboard champion and expanded profile identity
 } as const;
 
 export type AvatarSize = keyof typeof SIZES;
