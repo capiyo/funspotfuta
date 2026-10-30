@@ -16,10 +16,13 @@ import {
 } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
 import { colors } from '@/theme';
+import { useFanColors } from '@/theme/use-fan-colors';
+import { Avatar } from '@/components/ui/Avatar';
 import AdSenseCarousel from '@/components/AdSenseCarousel';
 
 export default function ComradesModal({ visible, onClose }: { visible: boolean; onClose: () => void }) {
   const { userId, username, authToken } = useAuth();
+  const avatarColors = useFanColors();
   const dialogRef = useRef<HTMLDivElement>(null);
   const swipeStartY = useRef<number | null>(null);
   const handleSheetTouchEnd = (y: number) => {
@@ -299,10 +302,10 @@ export default function ComradesModal({ visible, onClose }: { visible: boolean; 
             <section className="mb-4">
               <h3 className="mb-2 text-[11px]" style={{ color: colors.textMuted }}>Users from profiles</h3>
               {results.map((candidate) => {
-                const id = String(candidate.id ?? candidate._id ?? '');
+                const id = String(candidate.id ?? candidate._id ?? candidate.user_id ?? candidate.userId ?? '');
                 return (
                   <div key={id} style={rowStyle}>
-                    <span className="text-[13px] text-white">{candidate.username}</span>
+                    <span className="flex min-w-0 items-center gap-2 text-[13px] text-white"><Avatar colors={avatarColors} size="md" userId={id} label={candidate.username?.[0] ?? '?'} />{candidate.username}</span>
                     <div className="flex shrink-0 gap-2">
                       <button
                         type="button"
@@ -341,11 +344,13 @@ export default function ComradesModal({ visible, onClose }: { visible: boolean; 
               const id = String(comrade.comrade_id ?? comrade.id ?? '');
               return (
                 <div key={id} style={rowStyle}>
-                  <div>
-                    <p className="text-[13px] text-white">{comrade.comrade_username ?? comrade.username}</p>
+                  <div className="flex min-w-0 items-center gap-2">
+                    <Avatar colors={avatarColors} size="md" userId={id} label={(comrade.comrade_username ?? comrade.username ?? '?').charAt(0)} />
+                    <div><p className="text-[13px] text-white">{comrade.comrade_username ?? comrade.username}</p>
                     {comrade.comrade_nickname && (
                       <p className="text-[11px]" style={{ color: colors.textMuted }}>{comrade.comrade_nickname}</p>
                     )}
+                    </div>
                   </div>
                   <button
                     type="button"
