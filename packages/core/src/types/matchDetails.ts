@@ -96,6 +96,12 @@ export interface SimplifiedPlayer {
     number: number;
     position: string;
     captain: boolean;
+    /** Stable ID from the lineup provider, when supplied. */
+    providerId?: string | null;
+    /** Existing provider headshot URL, when supplied with the lineup. */
+    photoUrl?: string | null;
+    /** Team identity supplied by the lineup payload, when available. */
+    teamName?: string | null;
 }
 
 export function parseSimplifiedPlayer(json: any): SimplifiedPlayer {
@@ -127,8 +133,13 @@ export function parseSimplifiedPlayer(json: any): SimplifiedPlayer {
             : posField?.toString() ?? '';
 
     const captain = json?.captain === true;
+    const providerId = (json?.player_id ?? json?.playerId ?? json?.competitorId ?? json?.id ?? null)?.toString() ?? null;
+    const photoCandidate = json?.photoUrl ?? json?.photo_url ?? json?.headshotUrl ?? json?.headshot_url ?? json?.imageUrl ?? json?.image_url ?? json?.photo ?? json?.image ?? json?.picture ?? null;
+    const photoUrl = typeof photoCandidate === 'string' && photoCandidate.startsWith('https://') ? photoCandidate : null;
+    const teamCandidate = json?.teamName ?? json?.team_name ?? json?.team?.name ?? null;
+    const teamName = typeof teamCandidate === 'string' ? teamCandidate : null;
 
-    return { name, number, position, captain };
+    return { name, number, position, captain, providerId, photoUrl, teamName };
 }
 
 // ═══════════════════════════════════════════════════════════════
