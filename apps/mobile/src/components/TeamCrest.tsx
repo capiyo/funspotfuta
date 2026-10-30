@@ -7,7 +7,7 @@ import { MOBILE_TEAM_CRESTS } from './team-crest-catalog.generated';
 
 type Props = { name: string; fixture: Record<string, unknown>; side: 'home' | 'away'; size?: number };
 
-function direct(fixture: Record<string, unknown>, side: 'home' | 'away'): string | null {
+function directCountry(fixture: Record<string, unknown>, side: 'home' | 'away'): string | undefined {\n  for (const key of [side + 'Country', side + 'TeamCountry', side + '_country', side + '_team_country']) {\n    const value = fixture[key];\n    if (typeof value === 'string' && value.trim()) return value.trim();\n  }\n  return undefined;\n}\n\nfunction direct(fixture: Record<string, unknown>, side: 'home' | 'away'): string | null {
   const capitalized = side === 'home' ? 'Home' : 'Away';
   for (const key of [side + 'Logo', side + 'TeamLogo', side + 'LogoUrl', side + 'TeamLogoUrl',
     side + '_logo', side + '_team_logo', side + '_logo_url', side + '_team_logo_url',
@@ -21,7 +21,7 @@ function direct(fixture: Record<string, unknown>, side: 'home' | 'away'): string
 
 export function TeamCrest({ name, fixture, side, size = 24 }: Props) {
   const colors = useFanColors();
-  const supplied = direct(fixture, side);
+  const supplied = direct(fixture, side);\n  const country = directCountry(fixture, side);
   const local = MOBILE_TEAM_CRESTS[normalizeTeamCrestName(name)] ?? null;
   const [failed, setFailed] = useState(false);
   const [useSupplied, setUseSupplied] = useState(false);
@@ -37,12 +37,12 @@ export function TeamCrest({ name, fixture, side, size = 24 }: Props) {
     setUseSupplied(false);
     setRemote(null);
     if (!local && !supplied) {
-      void resolveTeamCrest(name, 'https://funspot.co.ke/.netlify/functions/team-crest').then((url) => {
+      void resolveTeamCrest(name, 'https://funspot.co.ke/.netlify/functions/team-crest', country).then((url) => {
         if (active) setRemote(url);
       });
     }
     return () => { active = false; };
-  }, [name, supplied, local]);
+  }, [name, supplied, local, country]);
 
   return <View accessibilityLabel={name + ' crest'}
     style={[styles.circle, { width: size, height: size, borderRadius: size / 2,
