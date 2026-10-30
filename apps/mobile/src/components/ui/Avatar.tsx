@@ -50,7 +50,7 @@ export function Avatar({
     const dim = SIZES[size];
     const { authToken } = useAuth();
     const profileAvatar = useProfileAvatar(userId, authToken);
-    const imageUri = profileAvatar ?? uri ?? (userId ? `https://i.pravatar.cc/150?u=${encodeURIComponent(userId)}` : null);
+    const imageUri = profileAvatar ?? uri ?? `https://i.pravatar.cc/150?u=${encodeURIComponent(userId ?? label ?? 'guest')}`;
     const styles = createStyles(colors, dim, borderColor, backgroundColor);
 
     return (
