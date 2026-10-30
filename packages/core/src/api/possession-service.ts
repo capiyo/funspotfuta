@@ -3,6 +3,8 @@ import type {
   PossessionActionResult,
   PossessionMarket,
   PossessionSide,
+  PossessionVote,
+  PossessionPoke,
 } from '../types/possession';
 
 const POSSESSION_BASE = `${API_BASE}/actions/posseions`;
@@ -36,6 +38,18 @@ export interface PossessionContext {
 export async function fetchPossessionMarket(context: PossessionContext): Promise<PossessionMarket> {
   const query = new URLSearchParams({ fixture_id: context.fixtureId, channel_id: context.channelId });
   return request<PossessionMarket>(`?${query.toString()}`, context.authToken);
+}
+
+export async function fetchPossessionVotes(context: PossessionContext): Promise<PossessionVote[]> {
+  const query = new URLSearchParams({ fixture_id: context.fixtureId, channel_id: context.channelId });
+  const result = await request<{ votes: PossessionVote[] }>(`/votes?${query.toString()}`, context.authToken);
+  return result.votes;
+}
+
+export async function fetchPossessionPokes(context: PossessionContext): Promise<PossessionPoke[]> {
+  const query = new URLSearchParams({ fixture_id: context.fixtureId, channel_id: context.channelId });
+  const result = await request<{ pokes: PossessionPoke[] }>(`/poking?${query.toString()}`, context.authToken);
+  return result.pokes;
 }
 
 export async function castPossessionVote(
