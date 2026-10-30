@@ -25,7 +25,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import type { CSSProperties, ReactNode } from 'react';
+import type { ChangeEvent, CSSProperties, ReactNode } from 'react';
 const dismissKeyboard = () => { if (document.activeElement instanceof HTMLElement) document.activeElement.blur(); };
 import {
   X,
@@ -447,7 +447,7 @@ export default function ProfileContent({
     }
   }
 
-  async function handleAvatarSelected(event: React.ChangeEvent<HTMLInputElement>) {
+  async function handleAvatarSelected(event: ChangeEvent<HTMLInputElement>) {
     const file = event.currentTarget.files?.[0];
     event.currentTarget.value = '';
     if (!file || !userId || !isCurrentUser) return;
@@ -958,6 +958,7 @@ export default function ProfileContent({
                   const timer = window.setTimeout(() => avatarInputRef.current?.click(), 650);
                   target.dataset.avatarPressTimer = String(timer);
                 } : undefined}
+                onClick={(event) => event.stopPropagation()}
                 onPointerUp={(event) => { const timer = event.currentTarget.dataset.avatarPressTimer; if (timer) window.clearTimeout(Number(timer)); }}
                 onPointerLeave={(event) => { const timer = event.currentTarget.dataset.avatarPressTimer; if (timer) window.clearTimeout(Number(timer)); }}
                 style={{ ...Object.assign({}, styles.headerAvatar, {
