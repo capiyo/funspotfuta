@@ -46,6 +46,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
         fetchPossessionPokes(context),
       ]);
       setMarket({ ...nextMarket, votes, pokes });
+      setSelection(nextMarket.userSelection ?? 'home');
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Could not load possession market');
     } finally {
@@ -174,7 +175,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
         </div>
 
         {tab === 'vote' ? (
-          <button type="button" disabled={busy || loading || market?.status === 'settled'} onClick={() => void submitVote()}
+          <button type="button" disabled={busy || loading || market !== null && market.status !== 'open'} onClick={() => void submitVote()}
             style={{ ...action(true), width: '100%', marginTop: 12, padding: 13, opacity: busy ? .6 : 1 }}>
             {busy ? 'Submitting…' : 'Submit possession prediction'}
           </button>
@@ -183,7 +184,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
             <label style={{ flex: 1, minWidth: 0, fontSize: 11, ...muted }}>Points to stake
               <input type="number" min="1" step="1" inputMode="numeric" value={amount} onChange={(event) => setAmount(event.target.value)} style={{ ...control, display: 'block', width: '100%', boxSizing: 'border-box', marginTop: 5 }} />
             </label>
-            <button type="button" disabled={busy || loading} onClick={() => void submitPoke()} style={{ ...action(true), alignSelf: 'end', padding: '12px 16px', opacity: busy ? .6 : 1 }}>Create poke</button>
+            <button type="button" disabled={busy || loading || (market !== null && market.status !== 'open')} onClick={() => void submitPoke()} style={{ ...action(true), alignSelf: 'end', padding: '12px 16px', opacity: busy ? .6 : 1 }}>Create poke</button>
           </div>
         )}
 
@@ -203,7 +204,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
                 <div style={{ fontSize: 12, fontWeight: 700 }}>{poke.username}</div>
                 <div style={{ ...muted, fontSize: 11 }}>{poke.selection === 'home' ? fixture.homeTeam : fixture.awayTeam} · {poke.amount} pts</div>
               </div>
-              {poke.userId !== userId && <button type="button" disabled={busy} onClick={() => void matchPoke(poke.id)} style={{ ...control, padding: '7px 11px', color: colors.primary, fontWeight: 700, cursor: 'pointer' }}>Match</button>}
+              {poke.userId !== userId && <button type="button" disabled={busy || (market !== null && market.status !== 'open')} onClick={() => void matchPoke(poke.id)} style={{ ...control, padding: '7px 11px', color: colors.primary, fontWeight: 700, cursor: 'pointer' }}>Match</button>}
             </div>
           ))}
           {market?.settlement && <p style={{ ...muted, fontSize: 12 }}>Settled · winner: {market.settlement.winner ?? 'No winner'}</p>}
