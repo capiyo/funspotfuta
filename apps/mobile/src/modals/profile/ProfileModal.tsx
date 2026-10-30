@@ -236,8 +236,7 @@ export default function ProfileModal({
     }
     const picked = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
+      allowsEditing: false,
       quality: 0.85,
     });
     if (picked.canceled || !picked.assets[0]) return;
