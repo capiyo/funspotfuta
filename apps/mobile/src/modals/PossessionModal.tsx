@@ -152,7 +152,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
               </View>
             )}
 
-            {error && <Text accessibilityRole="alert" style={[fanText('caption', colors, colors.danger), styles.message]}>{error}</Text>}
+            {error && <Text accessibilityRole="alert" style={[fanText('caption', colors, colors.away), styles.message]}>{error}</Text>}
             {notice && <Text accessibilityRole="text" style={[fanText('caption', colors, colors.primary), styles.message]}>{notice}</Text>}
 
             <View style={styles.sectionHead}>
