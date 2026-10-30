@@ -50,6 +50,7 @@ export type { SendPayloadExtras, Voter as ChannelChatVoter } from './api/use-cha
 export type { SendPayloadExtras as SendChannelMessagePayloadExtras, SendChannelMessageParams } from './api/send-channel-messages';
 export * from './api/profile-service';
 export * from './api/player-headshot-service';
+export * from './api/team-crest-service';
 export * from './api/avatar-service';
 
 // Was './queryClient' — the file is under api/, so the path must match.
