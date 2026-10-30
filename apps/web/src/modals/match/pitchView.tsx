@@ -149,14 +149,14 @@ export function PitchView({ homeTeam, awayTeam, homeFormation, awayFormation, ho
   const colors = useFanColors();
   const [showHomeOverflow,setShowHomeOverflow] = useState(false), [showAwayOverflow,setShowAwayOverflow] = useState(false);
   const [headshots,setHeadshots] = useState<Record<string,string>>({});
-  const apiSportsKey = import.meta.env.VITE_API_SPORTS_KEY as string | undefined;
+  const headshotEndpoint = import.meta.env.VITE_PLAYER_HEADSHOT_ENDPOINT || '/.netlify/functions/player-headshots';
   useEffect(() => {
     let cancelled = false;
     setHeadshots({});
     const batch = [...homePlayers.map((player) => ({ player, teamName: homeTeam })), ...awayPlayers.map((player) => ({ player, teamName: awayTeam }))];
-    void resolvePlayerHeadshots(batch, apiSportsKey).then((result) => { if (!cancelled) setHeadshots(result); });
+    void resolvePlayerHeadshots(batch, headshotEndpoint).then((result) => { if (!cancelled) setHeadshots(result); });
     return () => { cancelled = true; };
-  }, [homePlayers, awayPlayers, homeTeam, awayTeam, apiSportsKey]);
+  }, [homePlayers, awayPlayers, homeTeam, awayTeam, headshotEndpoint]);
   const cappedHome=useMemo(()=>homePlayers.slice(0,11),[homePlayers]), cappedAway=useMemo(()=>awayPlayers.slice(0,11),[awayPlayers]);
   const homeOverflow=homePlayers.slice(11), awayOverflow=awayPlayers.slice(11);
   const width=600, height=width*PITCH_ASPECT_RATIO;
