@@ -30,7 +30,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
   const [tab, setTab] = useState<Tab>('vote');
   const [market, setMarket] = useState<PossessionMarket | null>(null);
   const [selection, setSelection] = useState<PossessionSide>('home');
-  const [amount, setAmount] = useState('5');
+  const [amount, setAmount] = useState('');
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
