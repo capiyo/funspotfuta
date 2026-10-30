@@ -12,7 +12,7 @@ const POSSESSION_BASE = `${API_BASE}/actions/posseions`;
 async function request<T>(path: string, token?: string | null, init?: RequestInit): Promise<T> {
   const headers = new Headers(authHeaders(token));
   if (init?.headers) {
-    new Headers(init.headers).forEach((value: string, key: string) => headers.set(key, value));
+    new Headers(init.headers).forEach((value, key) => headers.set(key, value));
   }
   const response = await fetch(`${POSSESSION_BASE}${path}`, {
     ...init,
