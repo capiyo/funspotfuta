@@ -31,21 +31,27 @@ export const handler = async (event) => {
   if (event.httpMethod !== 'GET') return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
 
   const name = String(event.queryStringParameters?.name || '').trim();
-  if (name.length < 3 || name.length > 100) return { statusCode: 400, headers, body: JSON.stringify({ error: 'A valid team name is required' }) };
+  const country = String(event.queryStringParameters?.country || '').trim();
+  if (name.length < 3 || name.length > 100 || country.length > 100) {
+    return { statusCode: 400, headers, body: JSON.stringify({ error: 'A valid team name is required' }) };
+  }
   const apiKey = process.env.API_SPORTS_KEY;
   if (!apiKey) return { statusCode: 503, headers: { ...headers, 'Cache-Control': 'no-store' }, body: JSON.stringify({ error: 'Team crest lookup is not configured' }) };
 
   try {
     const url = new URL(API_BASE);
     url.searchParams.set('search', name);
+    if (country) url.searchParams.set('country', country);
     const response = await fetch(url, { headers: { 'x-apisports-key': apiKey, Accept: 'application/json' } });
     if (!response.ok) return { statusCode: 502, headers: { ...headers, 'Cache-Control': 'no-store' }, body: JSON.stringify({ error: 'Team provider unavailable' }) };
     const payload = await response.json();
     if (payload.errors && Object.keys(payload.errors).length) return { statusCode: 502, headers: { ...headers, 'Cache-Control': 'no-store' }, body: JSON.stringify({ error: 'Team provider rejected the lookup' }) };
 
     const wanted = normalize(name);
+    const wantedCountry = normalize(country);
     const candidates = (Array.isArray(payload.response) ? payload.response : []).filter((item) =>
-      item?.team && normalize(item.team.name) === wanted && Number.isInteger(Number(item.team.id))
+      item?.team && normalize(item.team.name) === wanted && Number.isInteger(Number(item.team.id)) &&
+      (!wantedCountry || normalize(item.team.country) === wantedCountry)
     );
     if (candidates.length !== 1) {
       return { statusCode: 200, headers, body: JSON.stringify({ logoUrl: null, ambiguous: candidates.length > 1 }) };
