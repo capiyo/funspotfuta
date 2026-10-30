@@ -19,7 +19,7 @@ export function Avatar({ colors, size = 'md', uri, userId, label, borderColor, b
   const dim = SIZES[size];
   const { authToken } = useAuth();
   const profileAvatar = useProfileAvatar(userId, authToken);
-  const imageUri = profileAvatar ?? uri ?? (userId ? getFanAvatarUri(userId) : null);
+  const imageUri = profileAvatar ?? uri ?? getFanAvatarUri(userId ?? label ?? 'guest');
   const style: CSSProperties = {
     width: dim, height: dim, borderRadius: '50%', backgroundColor: backgroundColor ?? colors.primaryMuted,
     border: borderColor ? `1px solid ${borderColor}` : 'none', display: 'inline-flex',
