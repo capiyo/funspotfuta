@@ -32,6 +32,7 @@
 //   FanColors.surface                     → colors.surface
 //   FanColors.border                      → colors.border
 
+import { Avatar } from '@/components/ui/Avatar';
 import { useCallback, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import {
@@ -641,11 +642,14 @@ function MemberCard({
     <View style={styles.memberCard}>
       {/* Header row */}
       <View style={styles.memberHeader}>
-        <View style={[styles.memberAvatar, { backgroundColor: accentDim }]}>
-          <Text style={[fanText('title', colors, accent), { fontSize: 14 }]}>
-            {(member.username?.[0] ?? '?').toUpperCase()}
-          </Text>
-        </View>
+        <Avatar
+          colors={colors}
+          size="lg"
+          userId={String(member.userId ?? member.user_id ?? member.id ?? member._id ?? '') || undefined}
+          label={(member.username?.[0] ?? '?').toUpperCase()}
+          backgroundColor={accentDim}
+          borderColor={accent}
+        />
         <View style={{ flex: 1, marginLeft: FAN_SPACING.md }}>
           <View style={styles.memberNameRow}>
             <Text
