@@ -4034,3 +4034,66 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visib
     margin: 0 !important;
   }
 }
+
+
+/* Messaging composer: intentionally styled controls, never browser-default
+   borders, square corners, or focus rings. */
+.message-screen .message-composer-form {
+  min-height: 42px !important;
+  padding: 3px 15px !important;
+  border: 0 !important;
+  border-radius: 9999px !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: var(--fan-input-surface, #161f1a) !important;
+  transition: background-color 140ms ease;
+}
+.message-screen .message-composer-form:focus-within {
+  border: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: var(--fan-input-surface, #161f1a) !important;
+}
+.message-screen .message-composer-input,
+.message-screen .message-composer-input:focus,
+.message-screen .message-composer-input:focus-visible {
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  border: 0 !important;
+  border-width: 0 !important;
+  border-radius: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  line-height: 1.45 !important;
+}
+.message-screen .message-composer-input::placeholder {
+  color: var(--fan-text-tertiary, #89968d) !important;
+  opacity: .9;
+}
+.message-screen .message-send-button,
+.message-screen .message-send-button:hover,
+.message-screen .message-send-button:focus,
+.message-screen .message-send-button:focus-visible,
+.message-screen .message-send-button:active {
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  border: 0 !important;
+  border-radius: 50% !important;
+  outline: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  background: var(--fan-primary, #7df162) !important;
+}
+.message-screen .message-send-button:hover {
+  filter: brightness(1.06);
+}
+.message-screen .message-send-button:focus-visible {
+  box-shadow: 0 0 0 2px var(--fan-background, #070d09), 0 0 0 4px rgb(125 241 98 / 45%) !important;
+}
