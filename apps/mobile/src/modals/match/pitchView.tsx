@@ -538,7 +538,7 @@ function PlayerDot({ player, position, color, isHome, photoUrl }: PlayerDotProps
             ]}
         >
             {photoUrl ? (
-                <ExpoImage source={{ uri: photoUrl }} contentFit="cover" cachePolicy="memory-disk" style={{ width: DOT_SIZE - 2, height: DOT_SIZE - 2, borderRadius: (DOT_SIZE - 2) / 2 }} />
+                <ExpoImage source={{ uri: photoUrl }} contentFit="cover" cachePolicy="memory-disk" style={{ width: DOT_SIZE - 5, height: DOT_SIZE - 5, borderRadius: (DOT_SIZE - 5) / 2 }} />
             ) : (
                 <Text style={styles.playerDotText}>{player.number}</Text>
             )}
@@ -1115,6 +1115,7 @@ const styles = StyleSheet.create({
         height: DOT_SIZE,
         borderRadius: DOT_SIZE / 2,
         borderWidth: 2.5,
+        overflow: 'hidden',
         alignItems: 'center',
         justifyContent: 'center',
     },
