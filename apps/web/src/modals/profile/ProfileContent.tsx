@@ -46,7 +46,8 @@ import {
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
-import { FAN_SPACING, FAN_RADIUS } from '@funspot/core';
+import { FAN_SPACING, FAN_RADIUS, uploadProfileAvatar } from '@funspot/core';
+import { getFanAvatarUri } from '@/lib/avatar-uri';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useToast } from '@/lib/toast/toast-context';
 import { useFanColors } from '@/theme/use-fan-colors';
@@ -146,6 +147,8 @@ export default function ProfileContent({
 
   // Snapshot of /auth/user/id for first-time profile creation.
   const pendingSnapshot = useRef<UsersCollectionSnapshot | null>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const [avatarUploading, setAvatarUploading] = useState(false);
 
   const isCurrentUser = viewingMember === null;
   const targetUserId = viewingMember?.userId ?? userId ?? '';
@@ -206,6 +209,7 @@ export default function ProfileContent({
         countryFan: source.countryFan,
         numberOfBets: source.numberOfBets,
         balance: source.balance,
+        avatarUrl: source.avatarUrl ?? null,
       };
       setProfile(u);
       setProfileExists(true);
@@ -428,6 +432,7 @@ export default function ProfileContent({
         countryFan: saved.countryFan,
         numberOfBets: saved.numberOfBets,
         balance: saved.balance,
+        avatarUrl: saved.avatarUrl ?? profile?.avatarUrl ?? null,
       });
       setProfileExists(true);
       setEditing(false);
@@ -438,6 +443,30 @@ export default function ProfileContent({
       toast.showError(`Network error: ${e?.message ?? e}`);
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleAvatarSelected(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.currentTarget.files?.[0];
+    event.currentTarget.value = '';
+    if (!file || !userId || !isCurrentUser) return;
+    if (!file.type.startsWith('image/')) {
+      toast.showError('Choose an image file');
+      return;
+    }
+    setAvatarUploading(true);
+    try {
+      const result = await uploadProfileAvatar(userId, file, authToken ?? undefined);
+      setProfile((current) => current ? { ...current, avatarUrl: result.avatarUrl } : current);
+      queryClient.setQueryData(queryKeys.profile(userId), (current: unknown) => {
+        if (!current || typeof current !== 'object') return current;
+        return { ...(current as Record<string, unknown>), avatarUrl: result.avatarUrl };
+      });
+      toast.showSuccess('Profile image updated');
+    } catch (error) {
+      toast.showError(error instanceof Error ? error.message : 'Could not update profile image');
+    } finally {
+      setAvatarUploading(false);
     }
   }
 
@@ -907,21 +936,39 @@ export default function ProfileContent({
                   <ArrowLeft size={16} color={colors.textSecondary} />
                 </button>
               )}
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                aria-label="Choose profile image"
+                style={{ display: 'none' }}
+                onChange={handleAvatarSelected}
+              />
               <div
-                className="home-avatar"
-                style={{ ...Object.assign({}, 
-                  styles.headerAvatar,
-                  {
-                    backgroundColor: colors.primaryDim,
-                    borderColor: colors.borderActive,
-                  },
-                ) }}
+                className="home-avatar profile-avatar-editable"
+                title={isCurrentUser ? 'Long-press to change profile image' : 'Profile image'}
+                onContextMenu={isCurrentUser ? (event) => { event.preventDefault(); avatarInputRef.current?.click(); } : undefined}
+                onPointerDown={isCurrentUser ? (event) => {
+                  if (event.pointerType === 'touch') {
+                    const target = event.currentTarget;
+                    const timer = window.setTimeout(() => avatarInputRef.current?.click(), 650);
+                    target.dataset.avatarPressTimer = String(timer);
+                  }
+                } : undefined}
+                onPointerUp={(event) => { const timer = event.currentTarget.dataset.avatarPressTimer; if (timer) window.clearTimeout(Number(timer)); }}
+                onPointerLeave={(event) => { const timer = event.currentTarget.dataset.avatarPressTimer; if (timer) window.clearTimeout(Number(timer)); }}
+                onClick={undefined}
+                style={{ ...Object.assign({}, styles.headerAvatar, {
+                  backgroundColor: colors.primaryDim,
+                  borderColor: colors.borderActive,
+                  position: 'relative',
+                  cursor: isCurrentUser ? 'pointer' : 'default',
+                }) }}
               >
-                <span style={{ ...Object.assign({}, styles.headerAvatarText, { color: colors.primary }) }}>
-                  {(visibleProfile?.nickname || targetUsername || '?')
-                    .charAt(0)
-                    .toUpperCase()}
-                </span>
+                {profile?.avatarUrl
+                  ? <img src={profile.avatarUrl} alt="Profile" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                  : <img src={getFanAvatarUri(targetUserId)} alt="Default profile" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />}
+                {avatarUploading && <span className="profile-avatar-uploading">…</span>}
               </div>
               <div style={rn({ flex: 1, minWidth: 0, marginLeft: FAN_SPACING.md })} className="profile-header-name-column">
                 <span
