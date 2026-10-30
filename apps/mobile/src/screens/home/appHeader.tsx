@@ -33,7 +33,7 @@ import { Bell } from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useQueryClient } from '@tanstack/react-query';
-import { Channel, FanColorPalette, FAN_SPACING, FAN_RADIUS } from '@funspot/core';
+import { Channel, FanColorPalette, FAN_SPACING, FAN_RADIUS, useProfileAvatar } from '@funspot/core';
 import { getProfile } from '@funspot/core/src/api/profile-service';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useLoginModal } from '../../modals/Login-modal-context';
@@ -106,7 +106,8 @@ export function AppHeader({ onAddChannel }: { onAddChannel?: () => void }) {
     const comradesList: string[] =
         queryClient.getQueryData<string[]>(['comrades']) ?? [];
 
-    const avatarUri = `https://i.pravatar.cc/150?u=${userId ?? 'guest'}`;
+    const profileAvatar = useProfileAvatar(userId ?? undefined, authToken);
+    const avatarUri = profileAvatar ?? `https://i.pravatar.cc/150?u=${userId ?? 'guest'}`;
     const hasJoinedChannels = channels.length > 0;
 
     async function joinAfterProfileCheck(channel: Channel) {
