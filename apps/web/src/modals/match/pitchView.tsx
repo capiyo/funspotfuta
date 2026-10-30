@@ -1,8 +1,9 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
 import { fanShadowStyle } from '@/theme/use-fan-shadow';
+import { playerHeadshotKey, resolvePlayerHeadshots } from '@funspot/core';
 import type { SimplifiedPlayer } from '../../../../../packages/core/src/types/matchDetails';
 import { PositionRank, shortName } from '../../../../../packages/core/src/types/matchDetails';
 
@@ -147,6 +148,15 @@ const GRASS_EVEN = '#0D5E1A', GRASS_ODD = '#0A5218';
 export function PitchView({ homeTeam, awayTeam, homeFormation, awayFormation, homePlayers, awayPlayers }: PitchViewProps) {
   const colors = useFanColors();
   const [showHomeOverflow,setShowHomeOverflow] = useState(false), [showAwayOverflow,setShowAwayOverflow] = useState(false);
+  const [headshots,setHeadshots] = useState<Record<string,string>>({});
+  const apiSportsKey = import.meta.env.VITE_API_SPORTS_KEY as string | undefined;
+  useEffect(() => {
+    let cancelled = false;
+    setHeadshots({});
+    const batch = [...homePlayers.map((player) => ({ player, teamName: homeTeam })), ...awayPlayers.map((player) => ({ player, teamName: awayTeam }))];
+    void resolvePlayerHeadshots(batch, apiSportsKey).then((result) => { if (!cancelled) setHeadshots(result); });
+    return () => { cancelled = true; };
+  }, [homePlayers, awayPlayers, homeTeam, awayTeam, apiSportsKey]);
   const cappedHome=useMemo(()=>homePlayers.slice(0,11),[homePlayers]), cappedAway=useMemo(()=>awayPlayers.slice(0,11),[awayPlayers]);
   const homeOverflow=homePlayers.slice(11), awayOverflow=awayPlayers.slice(11);
   const width=600, height=width*PITCH_ASPECT_RATIO;
@@ -156,10 +166,18 @@ export function PitchView({ homeTeam, awayTeam, homeFormation, awayFormation, ho
     const point=positions[index]; if(!point) return null;
     const x=point.x;
     const y=point.y;
+    const photo = headshots[playerHeadshotKey(player, isHome ? homeTeam : awayTeam)];
+    const clipId = `player-headshot-${isHome ? "home" : "away"}-${index}`;
     return <g key={`${isHome?'h':'a'}-${player.number}-${player.name}-${index}`} transform={`translate(${x} ${y})`}>
-      <circle r="16" fill={hexWithAlpha(color,.2)} stroke={color} strokeWidth="2"/>
-      <circle r="13" fill={color}/>
-      <text textAnchor="middle" dominantBaseline="central" fontSize="11" fontWeight="400" fill="#fff">{player.number}</text>
+      {photo ? <>
+        <defs><clipPath id={clipId}><circle cx="0" cy="0" r="13"/></clipPath></defs>
+        <image href={photo} x="-13" y="-13" width="26" height="26" preserveAspectRatio="xMidYMid slice" clipPath={`url(#${clipId})`}/>
+        <circle r="13" fill="none" stroke={color} strokeWidth="2"/>
+      </> : <>
+        <circle r="16" fill={hexWithAlpha(color,.2)} stroke={color} strokeWidth="2"/>
+        <circle r="13" fill={color}/>
+        <text textAnchor="middle" dominantBaseline="central" fontSize="11" fontWeight="400" fill="#fff">{player.number}</text>
+      </>}
       <rect x="-37" y="18" width="74" height="15" rx="4" fill="rgba(0,0,0,.78)"/>
       <text x="0" y="29" textAnchor="middle" fontSize="9" fontWeight="400" fill="#fff">{shortName(player.name).slice(0,12)}{player.captain?' ©':''}</text>
     </g>;
