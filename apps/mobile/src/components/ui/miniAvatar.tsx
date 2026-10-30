@@ -3,6 +3,7 @@ import { Image, StyleSheet, Text, View } from 'react-native';
 import { useProfileAvatar } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
+import { useAuth } from '@/lib/auth/auth-context';
 
 export function MiniAvatar({
     colors,
@@ -16,7 +17,8 @@ export function MiniAvatar({
     uri?: string | null;
 }) {
     const [failed, setFailed] = useState(false);
-    const profileAvatar = useProfileAvatar(userId);
+    const { authToken } = useAuth();
+    const profileAvatar = useProfileAvatar(userId, authToken);
     const imageUri = profileAvatar ?? uri ?? (userId ? `https://i.pravatar.cc/150?u=${encodeURIComponent(userId)}` : null);
     return (
         <View style={[styles.box, { backgroundColor: colors.surfaceSunken, borderColor: colors.border }]}>
