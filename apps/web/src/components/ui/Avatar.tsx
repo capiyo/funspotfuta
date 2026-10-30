@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react';
 import { useProfileAvatar, type FanColorPalette } from '@funspot/core';
 import { getFanAvatarUri } from '@/lib/avatar-uri';
+import { useAuth } from '@/lib/auth/auth-context';
 import { fanText } from '@/theme/use-fan-typography';
 
 const SIZES = { sm: 24, md: 28, lg: 32, xl: 44 } as const;
@@ -16,7 +17,8 @@ export function Avatar({ colors, size = 'md', uri, userId, label, borderColor, b
   backgroundColor?: string;
 }) {
   const dim = SIZES[size];
-  const profileAvatar = useProfileAvatar(userId);
+  const { authToken } = useAuth();
+  const profileAvatar = useProfileAvatar(userId, authToken);
   const imageUri = profileAvatar ?? uri ?? (userId ? getFanAvatarUri(userId) : null);
   const style: CSSProperties = {
     width: dim, height: dim, borderRadius: '50%', backgroundColor: backgroundColor ?? colors.primaryMuted,
