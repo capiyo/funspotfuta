@@ -1,4 +1,4 @@
-import { API_BASE_URL } from './config';
+import { API_BASE } from './config';
 
 export interface AvatarUploadResult {
   avatarUrl: string;
@@ -9,7 +9,7 @@ function avatarUrlFromResponse(value: unknown): string {
   const body = value as Record<string, unknown>;
   const nested = body.profile && typeof body.profile === 'object' ? body.profile as Record<string, unknown> : body;
   const url = nested.avatar_url ?? nested.avatarUrl ?? nested.image_url ?? nested.imageUrl;
-  if (typeof url !== 'string' || !/^https?:\\/\\//i.test(url)) {
+  if (typeof url !== 'string' || !(url.startsWith('https://') || url.startsWith('http://'))) {
     throw new Error('Avatar upload response did not include a valid image URL');
   }
   return url;
@@ -23,7 +23,7 @@ export async function uploadProfileAvatar(userId: string, file: Blob, authToken?
 
   const form = new FormData();
   form.append('image', file);
-  const response = await fetch(`${API_BASE_URL}/profile/profile/${encodeURIComponent(userId)}/avatar`, {
+  const response = await fetch(`${API_BASE}/profile/profile/${encodeURIComponent(userId)}/avatar`, {
     method: 'POST',
     headers: authToken ? { Authorization: `Bearer ${authToken}` } : undefined,
     body: form,
