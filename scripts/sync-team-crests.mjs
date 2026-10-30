@@ -2,6 +2,7 @@
 /**
  * Download exactly the curated 180 canonical club crests and generate local
  * SVG (web) / transparent PNG (React Native) catalogues.
+ * Selection contains 180 unique clubs plus the separate national-team set.
  * Selection is explicit and competition-aware; aliases resolve to the same
  * canonical asset, never to duplicate image files.
  */
