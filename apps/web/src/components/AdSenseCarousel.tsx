@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { AdSenseAd } from '@/components/AdSenseAd';
+import { TeamCrest } from '@/components/TeamCrest';
 import { useFanColors } from '@/theme/use-fan-colors';
 import type { Fixture } from '@funspot/core';
 
@@ -115,9 +116,15 @@ export default function AdSenseCarousel({
                 className="flex min-h-[68px] w-full items-center justify-center gap-3 px-3 py-2"
                 style={{ background: colors.surface, color: colors.textPrimary }}
               >
-                <span className="min-w-0 flex-1 truncate text-right text-xs font-semibold">{slide.fixture.homeTeam}</span>
+                <span className="flex min-w-0 flex-1 items-center justify-end gap-1.5">
+                  <span className="min-w-0 truncate text-right text-xs font-semibold">{slide.fixture.homeTeam}</span>
+                  <TeamCrest name={slide.fixture.homeTeam} fixture={slide.fixture as unknown as Record<string, unknown>} side="home" size={24} />
+                </span>
                 <span className="shrink-0 text-[10px] font-semibold" style={{ color: colors.textTertiary }}>VS</span>
-                <span className="min-w-0 flex-1 truncate text-xs font-semibold">{slide.fixture.awayTeam}</span>
+                <span className="flex min-w-0 flex-1 items-center justify-start gap-1.5">
+                  <TeamCrest name={slide.fixture.awayTeam} fixture={slide.fixture as unknown as Record<string, unknown>} side="away" size={24} />
+                  <span className="min-w-0 truncate text-xs font-semibold">{slide.fixture.awayTeam}</span>
+                </span>
               </div>
             )}
           </div>
