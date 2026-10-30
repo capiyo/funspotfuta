@@ -16,6 +16,7 @@
 import { View, Text, Image, StyleSheet } from 'react-native';
 import { FanColorPalette, useProfileAvatar } from '@funspot/core';
 import { fanText } from '@/theme/use-fan-typography';
+import { useAuth } from '@/lib/auth/auth-context';
 
 const SIZES = {
     sm: 24, // MatchCard team avatars, small inline badges
@@ -47,7 +48,8 @@ export function Avatar({
     backgroundColor?: string;
 }) {
     const dim = SIZES[size];
-    const profileAvatar = useProfileAvatar(userId);
+    const { authToken } = useAuth();
+    const profileAvatar = useProfileAvatar(userId, authToken);
     const imageUri = profileAvatar ?? uri ?? (userId ? `https://i.pravatar.cc/150?u=${encodeURIComponent(userId)}` : null);
     const styles = createStyles(colors, dim, borderColor, backgroundColor);
 
