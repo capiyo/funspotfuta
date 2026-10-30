@@ -12,6 +12,8 @@ export * from './types/channels';
 export * from './theme';
 
 export * from './api/config';
+export * from './types/possession';
+export * from './api/possession-service';
 export * from './api/auth-service';
 export * from './api/database-service';
 export { getAllChannels } from './api/channels-service';
