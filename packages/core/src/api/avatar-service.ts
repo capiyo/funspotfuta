@@ -9,7 +9,7 @@ function avatarUrlFromResponse(value: unknown): string {
   const body = value as Record<string, unknown>;
   const nested = body.profile && typeof body.profile === 'object' ? body.profile as Record<string, unknown> : body;
   const url = nested.avatar_url ?? nested.avatarUrl ?? nested.image_url ?? nested.imageUrl;
-  if (typeof url !== 'string' || !(url.startsWith('https://') || url.startsWith('http://'))) {
+  if (typeof url !== 'string' || !url.startsWith('https://')) {
     throw new Error('Avatar upload response did not include a valid image URL');
   }
   return url;
