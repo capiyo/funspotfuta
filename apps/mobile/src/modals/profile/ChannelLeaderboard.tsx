@@ -28,6 +28,7 @@ import {
     memberVoteAccuracy,
 } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
+import { Avatar } from '@/components/ui/Avatar';
 import AdCarousel from '@/components/AdCarousel';
 
 type FanColors = ReturnType<typeof useFanColors>;
@@ -99,9 +100,7 @@ function MemberCard({
                         { backgroundColor: colors.primaryDim },
                     ]}
                 >
-                    <Text style={[styles.memberAvatarText, { color: colors.primary }]}>
-                        {(member.username?.[0] ?? '?').toUpperCase()}
-                    </Text>
+                    <Avatar colors={colors} size="lg" userId={member.userId} label={(member.username?.[0] ?? '?').toUpperCase()} />
                     <Text
                         style={[
                             styles.memberAvatarRank,
