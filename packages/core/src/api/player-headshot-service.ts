@@ -19,7 +19,7 @@ interface CachedHeadshot {
 }
 
 const memoryCache = new Map<string, string | null>();
-const pending = new Map<string, Promise<string | null>>();
+const pending = new Map<string, Promise<string | null | undefined>>();
 const CACHE_PREFIX = 'funspot:player-headshot:v1:';
 const POSITIVE_TTL = 30 * 24 * 60 * 60 * 1000;
 const NEGATIVE_TTL = 6 * 60 * 60 * 1000;
@@ -90,7 +90,7 @@ async function lookupPlayer(
   teamName: string,
   endpoint: string,
   store?: PlayerHeadshotCacheStore,
-): Promise<string | null> {
+): Promise<string | null | undefined> {
   const direct = directPhoto(player);
   if (direct) return direct;
 
@@ -103,25 +103,25 @@ async function lookupPlayer(
   const existing = pending.get(cacheKey);
   if (existing) return existing;
 
-  const request = (async (): Promise<string | null> => {
+  const request = (async (): Promise<string | null | undefined> => {
     try {
       const url = new URL(endpoint, typeof window !== 'undefined' ? window.location.origin : undefined);
       url.searchParams.set('name', player.name);
       url.searchParams.set('team', teamName);
       const response = await fetch(url.toString(), { headers: { Accept: 'application/json' } });
-      if (!response.ok) return null;
+      if (!response.ok) return undefined;
       const payload = await response.json() as { photoUrl?: unknown };
       return isHttpsUrl(payload.photoUrl) ? payload.photoUrl : null;
     } catch {
-      return null;
+      return undefined;
     }
   })();
 
   pending.set(cacheKey, request);
   const result = await request;
   pending.delete(cacheKey);
-  await writeCached(cacheKey, result, store);
-  return result;
+  if (result !== undefined) await writeCached(cacheKey, result, store);
+  return result ?? null;
 }
 
 /** Resolve a lineup batch with bounded concurrency and persistent caching. */
