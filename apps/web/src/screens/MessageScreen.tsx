@@ -24,6 +24,7 @@
  * explicitly unavailable in the source screen and retain its user-facing
  * “coming soon” behavior rather than inventing backend endpoints.
  */
+import { Avatar } from '@/components/ui/Avatar';
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type CSSProperties, type MouseEvent, type ReactNode } from 'react';
 import { TeamCrest } from '@/components/TeamCrest';
 import { createPortal } from 'react-dom';
@@ -914,14 +915,9 @@ function VotersPanel({ colors, voters, userId, onClose }: { colors: FanColors; v
 <X size={14}/>
 </button>
 </header>
-    {voters.length === 0 ? <p
-      className="text-xs"
-      style={{ color: colors.textTertiary }}>No votes yet</p> : voters.map((voter) => <div
-      key={voter.userId}
-      className="flex justify-between py-1 text-xs">
-<span>{voter.userId === userId ? 'You' : voter.username}</span>
-<span
-      style={{ color: colors.textTertiary }}>{displayVote(voter.selection)}</span>
+    {voters.length === 0 ? <p className="text-xs" style={{ color: colors.textTertiary }}>No votes yet</p> : voters.map((voter) => <div key={voter.userId} className="flex items-center justify-between gap-3 py-1 text-xs">
+<span className="flex min-w-0 items-center gap-2"><Avatar colors={colors} size="sm" userId={voter.userId} label={voter.username?.[0] ?? '?'} /><span className="truncate">{voter.userId === userId ? 'You' : voter.username}</span></span>
+<span style={{ color: colors.textTertiary }}>{displayVote(voter.selection)}</span>
 </div>)}
   </section>;
 }
@@ -950,9 +946,7 @@ function MessageBubble({ colors, message, isMe, onLongPress, onImagePress, onRet
       style={{ color: commentary ? colors.draw : colors.primary }}>{commentary ? '⚽ ' : ''}{message.username}</p>}
     <div
       className={`flex max-w-full items-end gap-2 ${mine ? 'flex-row-reverse' : ''}`}>
-      {!mine && <div
-      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold"
-      style={{ background: commentary ? dimColor(colors.draw) : colors.primaryDim, color: commentary ? colors.draw : colors.primary }}>{commentary ? '⚽' : initials(message.username ?? '')}</div>}
+      {!mine && (commentary ? <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px]" style={{ background: dimColor(colors.draw), color: colors.draw }}>⚽</div> : <Avatar colors={colors} size="sm" userId={message.userId} label={initials(message.username ?? '')} />)}
       <div
       className="relative min-w-0 max-w-[min(82vw,680px)]">
         <button
