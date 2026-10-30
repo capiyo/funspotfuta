@@ -25,7 +25,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "AEK Athens",
@@ -34,7 +35,8 @@
       "competitions": [
         "UEFA Champions League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "AFC Bournemouth",
@@ -47,7 +49,8 @@
       ],
       "aliases": [
         "Bournemouth"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "AFC Fylde",
@@ -56,7 +59,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "AFC Wimbledon",
@@ -65,7 +69,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Aldershot Town",
@@ -74,7 +79,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Altrincham",
@@ -85,7 +91,8 @@
       ],
       "aliases": [
         "Altrincham FC"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "Alvechurch",
@@ -94,7 +101,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Anderlecht",
@@ -103,7 +111,8 @@
       "competitions": [
         "UEFA Europa League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Ararat-Armenia",
@@ -112,7 +121,8 @@
       "competitions": [
         "UEFA Europa League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Arsenal",
@@ -123,7 +133,8 @@
         "UEFA Champions League",
         "Carabao Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Aston Villa",
@@ -134,7 +145,8 @@
         "UEFA Champions League",
         "Carabao Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Atalanta",
@@ -143,7 +155,8 @@
       "competitions": [
         "Serie A"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Atletico Madrid",
@@ -155,7 +168,8 @@
       "aliases": [
         "Atleti",
         "Atlético Madrid"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "AZ Alkmaar",
@@ -164,7 +178,8 @@
       "competitions": [
         "UEFA Europa League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Barcelona",
@@ -173,7 +188,8 @@
       "competitions": [
         "UEFA Champions League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Barnet",
@@ -182,7 +198,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Barnsley",
@@ -192,7 +209,8 @@
         "Emirates FA Cup",
         "Carabao Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Barrow",
@@ -203,7 +221,8 @@
       ],
       "aliases": [
         "Barrow AFC"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "Bayer Leverkusen",
@@ -214,7 +233,8 @@
       ],
       "aliases": [
         "Leverkusen"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "Bayern Munich",
@@ -225,7 +245,8 @@
       ],
       "aliases": [
         "Bayern München"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "Benfica",
@@ -234,7 +255,8 @@
       "competitions": [
         "UEFA Europa League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Besiktas",
@@ -243,7 +265,8 @@
       "competitions": [
         "UEFA Europa League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Blackpool",
@@ -252,7 +275,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Bodo/Glimt",
@@ -264,7 +288,8 @@
       "aliases": [
         "Bodø/Glimt",
         "Bodo Glimt"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "Bologna",
@@ -273,7 +298,8 @@
       "competitions": [
         "Serie A"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Boreham Wood",
@@ -282,7 +308,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Borussia Dortmund",
@@ -294,7 +321,8 @@
       "aliases": [
         "B. Dortmund",
         "Dortmund"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "Bradford City",
@@ -304,7 +332,8 @@
         "Emirates FA Cup",
         "Carabao Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Brentford",
@@ -314,7 +343,8 @@
         "Premier League",
         "Carabao Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Brighton & Hove Albion",
@@ -326,7 +356,8 @@
       ],
       "aliases": [
         "Brighton"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "Bristol Rovers",
@@ -335,7 +366,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Bromley",
@@ -344,7 +376,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Burton Albion",
@@ -353,7 +386,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Cagliari",
@@ -362,7 +396,8 @@
       "competitions": [
         "Serie A"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Cambridge United",
@@ -371,7 +406,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Carlisle United",
@@ -380,7 +416,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Celje",
@@ -389,7 +426,8 @@
       "competitions": [
         "UEFA Europa League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Celta Vigo",
@@ -400,7 +438,8 @@
       ],
       "aliases": [
         "Celta"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "Celtic",
@@ -409,7 +448,8 @@
       "competitions": [
         "UEFA Europa League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Chelsea",
@@ -419,7 +459,8 @@
         "Premier League",
         "Carabao Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Cheltenham Town",
@@ -428,7 +469,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Chesterfield",
@@ -437,7 +479,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Club Brugge",
@@ -446,7 +489,8 @@
       "competitions": [
         "UEFA Champions League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Colchester United",
@@ -455,7 +499,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Como",
@@ -465,7 +510,8 @@
         "Serie A",
         "UEFA Champions League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Coventry City",
@@ -475,7 +521,8 @@
         "Premier League",
         "Carabao Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Crawley Town",
@@ -484,7 +531,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Cray Wanderers",
@@ -493,7 +541,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Crewe Alexandra",
@@ -502,7 +551,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Crystal Palace",
@@ -513,7 +563,8 @@
         "UEFA Europa League",
         "Carabao Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Dinamo Zagreb",
@@ -524,7 +575,8 @@
       ],
       "aliases": [
         "GNK Dinamo"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "Doncaster Rovers",
@@ -533,7 +585,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Dover Athletic",
@@ -542,7 +595,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Eastleigh",
@@ -551,7 +605,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Everton",
@@ -561,7 +616,8 @@
         "Premier League",
         "Carabao Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Exeter City",
@@ -570,7 +626,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "FC Halifax Town",
@@ -579,7 +636,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Fenerbahce",
@@ -588,7 +646,8 @@
       "competitions": [
         "UEFA Champions League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Ferencvaros",
@@ -597,7 +656,8 @@
       "competitions": [
         "UEFA Europa League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Feyenoord",
@@ -606,7 +666,8 @@
       "competitions": [
         "UEFA Champions League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Fiorentina",
@@ -615,7 +676,8 @@
       "competitions": [
         "Serie A"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Fleetwood Town",
@@ -625,7 +687,8 @@
         "Emirates FA Cup",
         "Carabao Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Forest Green Rovers",
@@ -634,7 +697,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Frosinone",
@@ -643,7 +707,8 @@
       "competitions": [
         "Serie A"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Fulham",
@@ -653,7 +718,8 @@
         "Premier League",
         "Carabao Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Galatasaray",
@@ -662,7 +728,8 @@
       "competitions": [
         "UEFA Champions League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Genoa",
@@ -671,7 +738,8 @@
       "competitions": [
         "Serie A"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Gillingham",
@@ -680,7 +748,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Grimsby Town",
@@ -689,7 +758,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Guiseley",
@@ -700,7 +770,8 @@
       ],
       "aliases": [
         "Guiseley AFC"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "Hapoel Beer Sheva",
@@ -711,7 +782,8 @@
       ],
       "aliases": [
         "H. Beer-Sheva"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "Harborough Town",
@@ -720,7 +792,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Harrogate Town",
@@ -729,7 +802,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Hoffenheim",
@@ -738,7 +812,8 @@
       "competitions": [
         "UEFA Europa League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Hornchurch",
@@ -747,7 +822,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Huddersfield Town",
@@ -756,7 +832,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Hull City",
@@ -766,7 +843,8 @@
         "Premier League",
         "Carabao Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Inter",
@@ -776,7 +854,8 @@
         "Serie A",
         "UEFA Champions League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Ipswich Town",
@@ -788,7 +867,8 @@
       ],
       "aliases": [
         "Ipswich"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "Jagiellonia",
@@ -797,7 +877,8 @@
       "competitions": [
         "UEFA Europa League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Juventus",
@@ -807,7 +888,8 @@
         "Serie A",
         "UEFA Europa League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Kidderminster Harriers",
@@ -816,7 +898,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "LASK",
@@ -825,7 +908,8 @@
       "competitions": [
         "UEFA Champions League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Lazio",
@@ -834,7 +918,8 @@
       "competitions": [
         "Serie A"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Lecce",
@@ -843,7 +928,8 @@
       "competitions": [
         "Serie A"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Lech Poznan",
@@ -852,7 +938,8 @@
       "competitions": [
         "UEFA Europa League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Leeds United",
@@ -862,7 +949,8 @@
         "Premier League",
         "Carabao Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Leicester City",
@@ -873,7 +961,8 @@
       ],
       "aliases": [
         "Leicester"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "Lens",
@@ -882,7 +971,8 @@
       "competitions": [
         "UEFA Champions League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Levski Sofia",
@@ -891,7 +981,8 @@
       "competitions": [
         "UEFA Europa League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Leyton Orient",
@@ -901,7 +992,8 @@
         "Emirates FA Cup",
         "Carabao Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Lille",
@@ -910,7 +1002,8 @@
       "competitions": [
         "UEFA Champions League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Lillestrom",
@@ -919,7 +1012,8 @@
       "competitions": [
         "UEFA Europa League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Lincoln City",
@@ -928,7 +1022,8 @@
       "competitions": [
         "Carabao Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Liverpool",
@@ -941,7 +1036,8 @@
       ],
       "aliases": [
         "Liverpool FC"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "Luton Town",
@@ -950,7 +1046,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Lyon",
@@ -959,7 +1056,8 @@
       "competitions": [
         "UEFA Europa League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Macclesfield",
@@ -968,7 +1066,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Manchester City",
@@ -981,7 +1080,8 @@
       ],
       "aliases": [
         "Man City"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "Manchester United",
@@ -995,7 +1095,8 @@
       "aliases": [
         "Man Utd",
         "Man United"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "Mansfield Town",
@@ -1004,7 +1105,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Marine",
@@ -1013,7 +1115,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Marseille",
@@ -1022,7 +1125,8 @@
       "competitions": [
         "UEFA Europa League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Middlesbrough",
@@ -1031,7 +1135,8 @@
       "competitions": [
         "Carabao Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Milan",
@@ -1041,7 +1146,8 @@
         "Serie A",
         "UEFA Europa League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Millwall",
@@ -1050,7 +1156,8 @@
       "competitions": [
         "Carabao Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "MK Dons",
@@ -1061,7 +1168,8 @@
       ],
       "aliases": [
         "Milton Keynes Dons"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "Monza",
@@ -1070,7 +1178,8 @@
       "competitions": [
         "Serie A"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Napoli",
@@ -1080,7 +1189,8 @@
         "Serie A",
         "UEFA Champions League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "NEC Nijmegen",
@@ -1091,7 +1201,8 @@
       ],
       "aliases": [
         "N.E.C."
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "Newcastle United",
@@ -1103,7 +1214,8 @@
       ],
       "aliases": [
         "Newcastle"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "Newport County",
@@ -1112,7 +1224,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Northampton Town",
@@ -1121,7 +1234,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Norwich City",
@@ -1130,7 +1244,8 @@
       "competitions": [
         "Carabao Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Nottingham Forest",
@@ -1139,7 +1254,8 @@
       "competitions": [
         "Premier League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Notts County",
@@ -1148,7 +1264,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "OFI Crete",
@@ -1157,7 +1274,8 @@
       "competitions": [
         "UEFA Europa League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Oldham Athletic",
@@ -1166,7 +1284,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Olympiacos",
@@ -1175,7 +1294,8 @@
       "competitions": [
         "UEFA Europa League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Omonia",
@@ -1186,7 +1306,8 @@
       ],
       "aliases": [
         "Omonoia Nicosia"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "Oxford City",
@@ -1195,7 +1316,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Oxford United",
@@ -1204,7 +1326,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Paris Saint-Germain",
@@ -1216,7 +1339,8 @@
       "aliases": [
         "Paris",
         "PSG"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "Parma",
@@ -1225,7 +1349,8 @@
       "competitions": [
         "Serie A"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Peterborough United",
@@ -1235,7 +1360,8 @@
         "Emirates FA Cup",
         "Carabao Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Plymouth Argyle",
@@ -1244,7 +1370,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Port Vale",
@@ -1255,7 +1382,8 @@
       ],
       "aliases": [
         "Port Vale FC"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "Porto",
@@ -1266,7 +1394,8 @@
       ],
       "aliases": [
         "FC Porto"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "PSV",
@@ -1277,7 +1406,8 @@
       ],
       "aliases": [
         "PSV Eindhoven"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "RB Leipzig",
@@ -1286,7 +1416,8 @@
       "competitions": [
         "UEFA Champions League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Reading",
@@ -1296,7 +1427,8 @@
         "Emirates FA Cup",
         "Carabao Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Real Betis",
@@ -1305,7 +1437,8 @@
       "competitions": [
         "UEFA Champions League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Real Madrid",
@@ -1314,7 +1447,8 @@
       "competitions": [
         "UEFA Champions League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Real Sociedad",
@@ -1323,7 +1457,8 @@
       "competitions": [
         "UEFA Europa League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Red Bull Salzburg",
@@ -1334,7 +1469,8 @@
       ],
       "aliases": [
         "Salzburg"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "Rennes",
@@ -1343,7 +1479,8 @@
       "competitions": [
         "UEFA Europa League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Rochdale",
@@ -1352,7 +1489,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Roma",
@@ -1362,7 +1500,8 @@
         "Serie A",
         "UEFA Champions League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Rotherham United",
@@ -1371,7 +1510,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Sabah",
@@ -1380,7 +1520,8 @@
       "competitions": [
         "UEFA Champions League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Salford City",
@@ -1389,7 +1530,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Salisbury",
@@ -1400,7 +1542,8 @@
       ],
       "aliases": [
         "Salisbury FC"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "Sassuolo",
@@ -1409,7 +1552,8 @@
       "competitions": [
         "Serie A"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Scunthorpe United",
@@ -1418,7 +1562,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Shakhtar Donetsk",
@@ -1429,7 +1574,8 @@
       ],
       "aliases": [
         "Shakhtar"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "Sheffield United",
@@ -1438,7 +1584,8 @@
       "competitions": [
         "Carabao Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Sheffield Wednesday",
@@ -1447,7 +1594,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Sholing",
@@ -1458,7 +1606,8 @@
       ],
       "aliases": [
         "Sholing FC"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "Shrewsbury Town",
@@ -1467,7 +1616,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Slavia Prague",
@@ -1478,7 +1628,8 @@
       ],
       "aliases": [
         "Slavia Praha"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "Slovan Bratislava",
@@ -1489,7 +1640,8 @@
       ],
       "aliases": [
         "S. Bratislava"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "Sparta Prague",
@@ -1500,7 +1652,8 @@
       ],
       "aliases": [
         "Sparta Praha"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "Sporting CP",
@@ -1509,7 +1662,8 @@
       "competitions": [
         "UEFA Champions League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Stevenage",
@@ -1518,7 +1672,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Stockport County",
@@ -1527,7 +1682,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Sturm Graz",
@@ -1536,7 +1692,8 @@
       "competitions": [
         "UEFA Europa League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Stuttgart",
@@ -1545,7 +1702,8 @@
       "competitions": [
         "UEFA Champions League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Sunderland",
@@ -1556,7 +1714,8 @@
         "UEFA Europa League",
         "Carabao Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Sutton United",
@@ -1565,7 +1724,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Swindon Town",
@@ -1574,7 +1734,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Torino",
@@ -1583,7 +1744,8 @@
       "competitions": [
         "Serie A"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Torreense",
@@ -1592,7 +1754,8 @@
       "competitions": [
         "UEFA Europa League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Tottenham Hotspur",
@@ -1605,7 +1768,8 @@
       "aliases": [
         "Tottenham",
         "Spurs"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "Tranmere Rovers",
@@ -1614,7 +1778,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Udinese",
@@ -1623,7 +1788,8 @@
       "competitions": [
         "Serie A"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Union Saint-Gilloise",
@@ -1634,7 +1800,8 @@
       ],
       "aliases": [
         "Union SG"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "Venezia",
@@ -1643,7 +1810,8 @@
       "competitions": [
         "Serie A"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Viking",
@@ -1652,7 +1820,8 @@
       "competitions": [
         "UEFA Champions League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Viktoria Plzen",
@@ -1663,7 +1832,8 @@
       ],
       "aliases": [
         "Viktoria Plzeň"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "Villarreal",
@@ -1672,7 +1842,8 @@
       "competitions": [
         "UEFA Champions League"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Walsall",
@@ -1681,7 +1852,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Wealdstone",
@@ -1690,7 +1862,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "West Ham United",
@@ -1701,7 +1874,8 @@
       ],
       "aliases": [
         "West Ham"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "Wigan Athletic",
@@ -1710,7 +1884,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Wolverhampton Wanderers",
@@ -1721,7 +1896,8 @@
       ],
       "aliases": [
         "Wolves"
-      ]
+      ],
+      "type": "club"
     },
     {
       "name": "Worcester City",
@@ -1730,7 +1906,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Wycombe Wanderers",
@@ -1739,7 +1916,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "Yeovil Town",
@@ -1748,7 +1926,8 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     },
     {
       "name": "York City",
@@ -1757,7 +1936,2748 @@
       "competitions": [
         "Emirates FA Cup"
       ],
-      "aliases": []
+      "aliases": [],
+      "type": "club"
     }
-  ]
+  ],
+  "nationalTeams": [
+    {
+      "type": "national",
+      "name": "Afghanistan",
+      "country": "afghanistan",
+      "sourcePath": "logos/afghanistan/Afghanistan_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Afghanistan National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Albania",
+      "country": "albania",
+      "sourcePath": "logos/albania/Albania_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Albania National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Algeria",
+      "country": "algeria",
+      "sourcePath": "logos/algeria/Algeria_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Algeria National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "American Samoa",
+      "country": "american-samoa",
+      "sourcePath": "logos/american-samoa/American_Samoa_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "American Samoa National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Andorra",
+      "country": "andorra",
+      "sourcePath": "logos/andorra/Andorra_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Andorra National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Angola",
+      "country": "angola",
+      "sourcePath": "logos/angola/Angola_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Angola National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Anguilla",
+      "country": "anguilla",
+      "sourcePath": "logos/anguilla/Anguilla_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Anguilla National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Antigua and Barbuda",
+      "country": "antigua-and-barbuda",
+      "sourcePath": "logos/antigua-and-barbuda/Antigua_and_Barbuda_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Antigua and Barbuda National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Argentina",
+      "country": "argentina",
+      "sourcePath": "logos/argentina/Argentina_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Argentina National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Armenia",
+      "country": "armenia",
+      "sourcePath": "logos/armenia/Armenia_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Armenia National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Aruba",
+      "country": "aruba",
+      "sourcePath": "logos/aruba/Aruba_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Aruba National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Australia",
+      "country": "australia",
+      "sourcePath": "logos/australia/Australia_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Australia National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Austria",
+      "country": "austria",
+      "sourcePath": "logos/austria/Austria_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Austria National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Azerbaijan",
+      "country": "azerbaijan",
+      "sourcePath": "logos/azerbaijan/Azerbaijan_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Azerbaijan National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Bahamas",
+      "country": "bahamas",
+      "sourcePath": "logos/bahamas/Bahamas_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Bahamas National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Bahrain",
+      "country": "bahrain",
+      "sourcePath": "logos/bahrain/Bahrain_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Bahrain National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Bangladesh",
+      "country": "bangladesh",
+      "sourcePath": "logos/bangladesh/Bangladesh_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Bangladesh National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Barbados",
+      "country": "barbados",
+      "sourcePath": "logos/barbados/Barbados_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Barbados National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Belarus",
+      "country": "belarus",
+      "sourcePath": "logos/belarus/Belarus_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Belarus National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Belgium",
+      "country": "belgium",
+      "sourcePath": "logos/belgium/Belgium_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Belgium National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Belize",
+      "country": "belize",
+      "sourcePath": "logos/belize/Belize_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Belize National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Benin",
+      "country": "benin",
+      "sourcePath": "logos/benin/Benin_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Benin National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Bermuda",
+      "country": "bermuda",
+      "sourcePath": "logos/bermuda/Bermuda_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Bermuda National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Bhutan",
+      "country": "bhutan",
+      "sourcePath": "logos/bhutan/Bhutan_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Bhutan National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Bolivia",
+      "country": "bolivia",
+      "sourcePath": "logos/bolivia/Bolivia_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Bolivia National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Bonaire",
+      "country": "bonaire",
+      "sourcePath": "logos/bonaire/Bonaire_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Bonaire National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Bosnia and Herzegovina",
+      "country": "bosnia-and-herzegovina",
+      "sourcePath": "logos/bosnia-and-herzegovina/Bosnia_and_Herzegovina_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Bosnia and Herzegovina National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Botswana",
+      "country": "botswana",
+      "sourcePath": "logos/botswana/Botswana_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Botswana National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Brazil",
+      "country": "brazil",
+      "sourcePath": "logos/brazil/Brazil_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Brazil National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "British Virgin Islands",
+      "country": "british-virgin-islands",
+      "sourcePath": "logos/british-virgin-islands/British_Virgin_Islands_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "British Virgin Islands National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Brunei",
+      "country": "brunei",
+      "sourcePath": "logos/brunei/Brunei_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Brunei National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Bulgaria",
+      "country": "bulgaria",
+      "sourcePath": "logos/bulgaria/Bulgaria_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Bulgaria National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Burkina Faso",
+      "country": "burkina-faso",
+      "sourcePath": "logos/burkina-faso/Burkina_Faso_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Burkina Faso National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Burundi",
+      "country": "burundi",
+      "sourcePath": "logos/burundi/Burundi_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Burundi National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Cabo Verde",
+      "country": "cabo-verde",
+      "sourcePath": "logos/cabo-verde/Cabo_Verde_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Cabo Verde National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Cambodia",
+      "country": "cambodia",
+      "sourcePath": "logos/cambodia/Cambodia_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Cambodia National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Cameroon",
+      "country": "cameroon",
+      "sourcePath": "logos/cameroon/Cameroon_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Cameroon National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Canada",
+      "country": "canada",
+      "sourcePath": "logos/canada/Canada_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Canada National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Catalonia",
+      "country": "catalonia",
+      "sourcePath": "logos/catalonia/Catalonia_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Catalonia National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Cayman Islands",
+      "country": "cayman-islands",
+      "sourcePath": "logos/cayman-islands/Cayman_Islands_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Cayman Islands National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Central African Republic",
+      "country": "central-african-republic",
+      "sourcePath": "logos/central-african-republic/Central_African_Republic_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Central African Republic National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Chad",
+      "country": "chad",
+      "sourcePath": "logos/chad/Chad_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Chad National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Chile",
+      "country": "chile",
+      "sourcePath": "logos/chile/Chile_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Chile National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "China",
+      "country": "china",
+      "sourcePath": "logos/china/China_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "China National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Colombia",
+      "country": "colombia",
+      "sourcePath": "logos/colombia/Colombia_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Colombia National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Comoros",
+      "country": "comoros",
+      "sourcePath": "logos/comoros/Comoros_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Comoros National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Congo DR",
+      "country": "congo-dr",
+      "sourcePath": "logos/congo-dr/Congo_DR_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Congo DR National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Congo",
+      "country": "congo",
+      "sourcePath": "logos/congo/Congo_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Congo National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Cook Islands",
+      "country": "cook-islands",
+      "sourcePath": "logos/cook-islands/Cook_Islands_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Cook Islands National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Costa Rica",
+      "country": "costa-rica",
+      "sourcePath": "logos/costa-rica/Costa_Rica_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Costa Rica National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Côte d'Ivoire",
+      "country": "cote-d-ivoire",
+      "sourcePath": "logos/cote-d-ivoire/Côte_d'Ivoire_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Côte d'Ivoire National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Croatia",
+      "country": "croatia",
+      "sourcePath": "logos/croatia/Croatia_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Croatia National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Cuba",
+      "country": "cuba",
+      "sourcePath": "logos/cuba/Cuba_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Cuba National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Curacao",
+      "country": "curacao",
+      "sourcePath": "logos/curacao/Curacao_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Curacao National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Cyprus",
+      "country": "cyprus",
+      "sourcePath": "logos/cyprus/Cyprus_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Cyprus National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Czech Republic",
+      "country": "czech-republic",
+      "sourcePath": "logos/czech-republic/Czech_Republic_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Czech Republic National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Denmark",
+      "country": "denmark",
+      "sourcePath": "logos/denmark/Denmark_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Denmark National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Djibouti",
+      "country": "djibouti",
+      "sourcePath": "logos/djibouti/Djibouti_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Djibouti National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Dominica",
+      "country": "dominica",
+      "sourcePath": "logos/dominica/Dominica_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Dominica National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Dominican Republic",
+      "country": "dominican-republic",
+      "sourcePath": "logos/dominican-republic/Dominican_Republic_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Dominican Republic National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Ecuador",
+      "country": "ecuador",
+      "sourcePath": "logos/ecuador/Ecuador_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Ecuador National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Egypt",
+      "country": "egypt",
+      "sourcePath": "logos/egypt/Egypt_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Egypt National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "El Salvador",
+      "country": "el-salvador",
+      "sourcePath": "logos/el-salvador/El_Salvador_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "El Salvador National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "England",
+      "country": "england",
+      "sourcePath": "logos/england/England_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "England National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Equatorial Guinea",
+      "country": "equatorial-guinea",
+      "sourcePath": "logos/equatorial-guinea/Equatorial_Guinea_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Equatorial Guinea National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Eritrea",
+      "country": "eritrea",
+      "sourcePath": "logos/eritrea/Eritrea_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Eritrea National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Estonia",
+      "country": "estonia",
+      "sourcePath": "logos/estonia/Estonia_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Estonia National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Eswatini",
+      "country": "eswatini",
+      "sourcePath": "logos/eswatini/Eswatini_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Eswatini National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Ethiopia",
+      "country": "ethiopia",
+      "sourcePath": "logos/ethiopia/Ethiopia_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Ethiopia National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Faroe Islands",
+      "country": "faroe-islands",
+      "sourcePath": "logos/faroe-islands/Faroe_Islands_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Faroe Islands National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Fiji",
+      "country": "fiji",
+      "sourcePath": "logos/fiji/Fiji_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Fiji National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Finland",
+      "country": "finland",
+      "sourcePath": "logos/finland/Finland_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Finland National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "France",
+      "country": "france",
+      "sourcePath": "logos/france/France_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "France National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "French Guiana",
+      "country": "french-guiana",
+      "sourcePath": "logos/french-guiana/French_Guiana_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "French Guiana National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Gabon",
+      "country": "gabon",
+      "sourcePath": "logos/gabon/Gabon_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Gabon National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Gambia",
+      "country": "gambia",
+      "sourcePath": "logos/gambia/Gambia_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Gambia National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Georgia",
+      "country": "georgia",
+      "sourcePath": "logos/georgia/Georgia_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Georgia National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Germany",
+      "country": "germany",
+      "sourcePath": "logos/germany/Germany_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Germany National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Ghana",
+      "country": "ghana",
+      "sourcePath": "logos/ghana/Ghana_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Ghana National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Gibraltar",
+      "country": "gibraltar",
+      "sourcePath": "logos/gibraltar/Gibraltar_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Gibraltar National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Greece",
+      "country": "greece",
+      "sourcePath": "logos/greece/Greece_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Greece National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Greenland",
+      "country": "greenland",
+      "sourcePath": "logos/greenland/Greenland_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Greenland National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Grenada",
+      "country": "grenada",
+      "sourcePath": "logos/grenada/Grenada_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Grenada National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Guadeloupe",
+      "country": "guadeloupe",
+      "sourcePath": "logos/guadeloupe/Guadeloupe_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Guadeloupe National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Guam",
+      "country": "guam",
+      "sourcePath": "logos/guam/Guam_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Guam National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Guatemala",
+      "country": "guatemala",
+      "sourcePath": "logos/guatemala/Guatemala_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Guatemala National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Guinea Bissau",
+      "country": "guinea-bissau",
+      "sourcePath": "logos/guinea-bissau/Guinea-Bissau_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Guinea Bissau National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Guinea",
+      "country": "guinea",
+      "sourcePath": "logos/guinea/Guinea_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Guinea National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Guyana",
+      "country": "guyana",
+      "sourcePath": "logos/guyana/Guyana_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Guyana National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Haiti",
+      "country": "haiti",
+      "sourcePath": "logos/haiti/Haiti_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Haiti National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Honduras",
+      "country": "honduras",
+      "sourcePath": "logos/honduras/Honduras_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Honduras National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Hong Kong",
+      "country": "hong-kong",
+      "sourcePath": "logos/hong-kong/Hong_Kong_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Hong Kong National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Hungary",
+      "country": "hungary",
+      "sourcePath": "logos/hungary/Hungary_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Hungary National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Iceland",
+      "country": "iceland",
+      "sourcePath": "logos/iceland/Iceland_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Iceland National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "India",
+      "country": "india",
+      "sourcePath": "logos/india/India_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "India National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Indonesia",
+      "country": "indonesia",
+      "sourcePath": "logos/indonesia/Indonesia_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Indonesia National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Iran",
+      "country": "iran",
+      "sourcePath": "logos/iran/Iran_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Iran National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Iraq",
+      "country": "iraq",
+      "sourcePath": "logos/iraq/Iraq_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Iraq National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Israel",
+      "country": "israel",
+      "sourcePath": "logos/israel/Israel_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Israel National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Italy",
+      "country": "italy",
+      "sourcePath": "logos/italy/Italy_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Italy National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Jamaica",
+      "country": "jamaica",
+      "sourcePath": "logos/jamaica/Jamaica_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Jamaica National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Japan",
+      "country": "japan",
+      "sourcePath": "logos/japan/Japan_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Japan National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Jordan",
+      "country": "jordan",
+      "sourcePath": "logos/jordan/Jordan_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Jordan National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Kazakhstan",
+      "country": "kazakhstan",
+      "sourcePath": "logos/kazakhstan/Kazakhstan_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Kazakhstan National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Kenya",
+      "country": "kenya",
+      "sourcePath": "logos/kenya/Kenya_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Kenya National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Kiribati",
+      "country": "kiribati",
+      "sourcePath": "logos/kiribati/Kiribati_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Kiribati National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Kosovo",
+      "country": "kosovo",
+      "sourcePath": "logos/kosovo/Kosovo_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Kosovo National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Kurdistan",
+      "country": "kurdistan",
+      "sourcePath": "logos/kurdistan/Kurdistan_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Kurdistan National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Kuwait",
+      "country": "kuwait",
+      "sourcePath": "logos/kuwait/Kuwait_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Kuwait National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Kyrgyzstan",
+      "country": "kyrgyzstan",
+      "sourcePath": "logos/kyrgyzstan/Kyrgyzstan_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Kyrgyzstan National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Laos",
+      "country": "laos",
+      "sourcePath": "logos/laos/Laos_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Laos National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Latvia",
+      "country": "latvia",
+      "sourcePath": "logos/latvia/Latvia_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Latvia National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Lebanon",
+      "country": "lebanon",
+      "sourcePath": "logos/lebanon/Lebanon_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Lebanon National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Lesotho",
+      "country": "lesotho",
+      "sourcePath": "logos/lesotho/Lesotho_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Lesotho National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Liberia",
+      "country": "liberia",
+      "sourcePath": "logos/liberia/Liberia_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Liberia National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Libya",
+      "country": "libya",
+      "sourcePath": "logos/libya/Libya_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Libya National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Liechtenstein",
+      "country": "liechtenstein",
+      "sourcePath": "logos/liechtenstein/Liechtenstein_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Liechtenstein National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Lithuania",
+      "country": "lithuania",
+      "sourcePath": "logos/lithuania/Lithuania_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Lithuania National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Luxembourg",
+      "country": "luxembourg",
+      "sourcePath": "logos/luxembourg/Luxembourg_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Luxembourg National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Macao",
+      "country": "macau",
+      "sourcePath": "logos/macau/Macao_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Macao National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Madagascar",
+      "country": "madagascar",
+      "sourcePath": "logos/madagascar/Madagascar_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Madagascar National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Malawi",
+      "country": "malawi",
+      "sourcePath": "logos/malawi/Malawi_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Malawi National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Malaysia",
+      "country": "malaysia",
+      "sourcePath": "logos/malaysia/Malaysia_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Malaysia National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Maldives",
+      "country": "maldives",
+      "sourcePath": "logos/maldives/Maldives_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Maldives National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Mali",
+      "country": "mali",
+      "sourcePath": "logos/mali/Mali_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Mali National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Malta",
+      "country": "malta",
+      "sourcePath": "logos/malta/Malta_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Malta National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Martinique",
+      "country": "martinique",
+      "sourcePath": "logos/martinique/Martinique_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Martinique National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Mauritania",
+      "country": "mauritania",
+      "sourcePath": "logos/mauritania/Mauritania_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Mauritania National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Mauritius",
+      "country": "mauritius",
+      "sourcePath": "logos/mauritius/Mauritius_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Mauritius National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Mexico",
+      "country": "mexico",
+      "sourcePath": "logos/mexico/Mexico_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Mexico National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Moldova",
+      "country": "moldova",
+      "sourcePath": "logos/moldova/Moldova_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Moldova National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Mongolia",
+      "country": "mongolia",
+      "sourcePath": "logos/mongolia/Mongolia_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Mongolia National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Montenegro",
+      "country": "montenegro",
+      "sourcePath": "logos/montenegro/Montenegro_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Montenegro National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Montserrat",
+      "country": "montserrat",
+      "sourcePath": "logos/montserrat/Montserrat_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Montserrat National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Morocco",
+      "country": "morocco",
+      "sourcePath": "logos/morocco/Morocco_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Morocco National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Mozambique",
+      "country": "mozambique",
+      "sourcePath": "logos/mozambique/Mozambique_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Mozambique National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Myanmar",
+      "country": "myanmar",
+      "sourcePath": "logos/myanmar/Myanmar_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Myanmar National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Namibia",
+      "country": "namibia",
+      "sourcePath": "logos/namibia/Namibia_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Namibia National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Nauru",
+      "country": "nauru",
+      "sourcePath": "logos/nauru/Nauru_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Nauru National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Nepal",
+      "country": "nepal",
+      "sourcePath": "logos/nepal/Nepal_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Nepal National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Dutch",
+      "country": "netherlands",
+      "sourcePath": "logos/netherlands/Dutch_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Dutch National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "New Caledonia",
+      "country": "new-caledonia",
+      "sourcePath": "logos/new-caledonia/New_Caledonia_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "New Caledonia National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "New Zealand",
+      "country": "new-zealand",
+      "sourcePath": "logos/new-zealand/New_Zealand_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "New Zealand National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Nicaragua",
+      "country": "nicaragua",
+      "sourcePath": "logos/nicaragua/Nicaragua_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Nicaragua National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Niger",
+      "country": "niger",
+      "sourcePath": "logos/niger/Niger_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Niger National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Nigeria",
+      "country": "nigeria",
+      "sourcePath": "logos/nigeria/Nigeria_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Nigeria National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "North Korea",
+      "country": "north-korea",
+      "sourcePath": "logos/north-korea/North_Korea_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "North Korea National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "North Macedonia",
+      "country": "north-macedonia",
+      "sourcePath": "logos/north-macedonia/North_Macedonia_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "North Macedonia National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Northern Ireland",
+      "country": "northern-ireland",
+      "sourcePath": "logos/northern-ireland/Northern_Ireland_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Northern Ireland National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Northern Mariana Islands",
+      "country": "northern-mariana-islands",
+      "sourcePath": "logos/northern-mariana-islands/Northern_Mariana_Islands_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Northern Mariana Islands National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Norway",
+      "country": "norway",
+      "sourcePath": "logos/norway/Norway_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Norway National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Oman",
+      "country": "oman",
+      "sourcePath": "logos/oman/Oman_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Oman National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Pakistan",
+      "country": "pakistan",
+      "sourcePath": "logos/pakistan/Pakistan_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Pakistan National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Palau",
+      "country": "palau",
+      "sourcePath": "logos/palau/Palau_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Palau National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Palestine",
+      "country": "palestine",
+      "sourcePath": "logos/palestine/Palestine_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Palestine National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Panama",
+      "country": "panama",
+      "sourcePath": "logos/panama/Panama_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Panama National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Papua New Guinea",
+      "country": "papua-new-guinea",
+      "sourcePath": "logos/papua-new-guinea/Papua_New_Guinea_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Papua New Guinea National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Paraguay",
+      "country": "paraguay",
+      "sourcePath": "logos/paraguay/Paraguay_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Paraguay National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Peru",
+      "country": "peru",
+      "sourcePath": "logos/peru/Peru_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Peru National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Philippines",
+      "country": "philippines",
+      "sourcePath": "logos/philippines/Philippines_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Philippines National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Poland",
+      "country": "poland",
+      "sourcePath": "logos/poland/Poland_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Poland National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Puerto Rico",
+      "country": "puerto-rico",
+      "sourcePath": "logos/puerto-rico/Puerto_Rico_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Puerto Rico National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Qatar",
+      "country": "qatar",
+      "sourcePath": "logos/qatar/Qatar_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Qatar National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Republic of Ireland",
+      "country": "republic-of-ireland",
+      "sourcePath": "logos/republic-of-ireland/Republic_of_Ireland_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Republic of Ireland National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Réunion",
+      "country": "reunion",
+      "sourcePath": "logos/reunion/Réunion_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Réunion National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Romania",
+      "country": "romania",
+      "sourcePath": "logos/romania/Romania_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Romania National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Russia",
+      "country": "russia",
+      "sourcePath": "logos/russia/Russia_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Russia National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Soviet Union",
+      "country": "russia",
+      "sourcePath": "logos/russia/Soviet_Union_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Soviet Union National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Rwanda",
+      "country": "rwanda",
+      "sourcePath": "logos/rwanda/Rwanda_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Rwanda National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Saint Lucia",
+      "country": "saint-lucia",
+      "sourcePath": "logos/saint-lucia/Saint_Lucia_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Saint Lucia National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Saint Martin",
+      "country": "saint-martin",
+      "sourcePath": "logos/saint-martin/Saint_Martin_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Saint Martin National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Saint Vincent and the Grenadines",
+      "country": "saint-vincent-and-the-grenadines",
+      "sourcePath": "logos/saint-vincent-and-the-grenadines/Saint_Vincent_and_the_Grenadines_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Saint Vincent and the Grenadines National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Samoa",
+      "country": "samoa",
+      "sourcePath": "logos/samoa/Samoa_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Samoa National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "San Marino",
+      "country": "san-marino",
+      "sourcePath": "logos/san-marino/San_Marino_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "San Marino National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Sao Tome and Principe",
+      "country": "sao-tome-and-principe",
+      "sourcePath": "logos/sao-tome-and-principe/Sao_Tome_and_Principe_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Sao Tome and Principe National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Saudi Arabia",
+      "country": "saudi-arabia",
+      "sourcePath": "logos/saudi-arabia/Saudi_Arabia_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Saudi Arabia National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Scotland",
+      "country": "scotland",
+      "sourcePath": "logos/scotland/Scotland_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Scotland National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Senegal",
+      "country": "senegal",
+      "sourcePath": "logos/senegal/Senegal_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Senegal National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Serbia",
+      "country": "serbia",
+      "sourcePath": "logos/serbia/Serbia_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Serbia National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Seychelles",
+      "country": "seychelles",
+      "sourcePath": "logos/seychelles/Seychelles_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Seychelles National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Sierra Leone",
+      "country": "sierra-leone",
+      "sourcePath": "logos/sierra-leone/Sierra_Leone_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Sierra Leone National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Singapore",
+      "country": "singapore",
+      "sourcePath": "logos/singapore/Singapore_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Singapore National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Sint Maarten",
+      "country": "sint-maarten",
+      "sourcePath": "logos/sint-maarten/Sint_Maarten_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Sint Maarten National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Slovakia",
+      "country": "slovakia",
+      "sourcePath": "logos/slovakia/Slovakia_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Slovakia National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Slovenia",
+      "country": "slovenia",
+      "sourcePath": "logos/slovenia/Slovenia_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Slovenia National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Solomon Islands",
+      "country": "solomon-islands",
+      "sourcePath": "logos/solomon-islands/Solomon_Islands_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Solomon Islands National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Somalia",
+      "country": "somalia",
+      "sourcePath": "logos/somalia/Somalia_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Somalia National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "South Africa",
+      "country": "south-africa",
+      "sourcePath": "logos/south-africa/South_Africa_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "South Africa National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "South Korea",
+      "country": "south-korea",
+      "sourcePath": "logos/south-korea/South_Korea_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "South Korea National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "South Sudan",
+      "country": "south-sudan",
+      "sourcePath": "logos/south-sudan/South_Sudan_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "South Sudan National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Spain",
+      "country": "spain",
+      "sourcePath": "logos/spain/Spain_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Spain National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Sri Lanka",
+      "country": "sri-lanka",
+      "sourcePath": "logos/sri-lanka/Sri_Lanka_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Sri Lanka National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "St Kitts and Nevis",
+      "country": "st-kitts-and-nevis",
+      "sourcePath": "logos/st-kitts-and-nevis/St_Kitts_and_Nevis_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "St Kitts and Nevis National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Sudan",
+      "country": "sudan",
+      "sourcePath": "logos/sudan/Sudan_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Sudan National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Suriname",
+      "country": "suriname",
+      "sourcePath": "logos/suriname/Suriname_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Suriname National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Sweden",
+      "country": "sweden",
+      "sourcePath": "logos/sweden/Sweden_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Sweden National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Switzerland",
+      "country": "switzerland",
+      "sourcePath": "logos/switzerland/Switzerland_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Switzerland National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Syria",
+      "country": "syria",
+      "sourcePath": "logos/syria/Syria_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Syria National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Tahiti",
+      "country": "tahiti",
+      "sourcePath": "logos/tahiti/Tahiti_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Tahiti National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Taiwan",
+      "country": "taiwan",
+      "sourcePath": "logos/taiwan/Taiwan_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Taiwan National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Tajikistan",
+      "country": "tajikistan",
+      "sourcePath": "logos/tajikistan/Tajikistan_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Tajikistan National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Tanzania",
+      "country": "tanzania",
+      "sourcePath": "logos/tanzania/Tanzania_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Tanzania National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Thailand",
+      "country": "thailand",
+      "sourcePath": "logos/thailand/Thailand_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Thailand National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Timor Leste",
+      "country": "timor-leste",
+      "sourcePath": "logos/timor-leste/Timor-Leste_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Timor Leste National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Togo",
+      "country": "togo",
+      "sourcePath": "logos/togo/Togo_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Togo National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Tonga",
+      "country": "tonga",
+      "sourcePath": "logos/tonga/Tonga_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Tonga National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Trinidad and Tobago",
+      "country": "trinidad-and-tobago",
+      "sourcePath": "logos/trinidad-and-tobago/Trinidad_and_Tobago_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Trinidad and Tobago National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Tunisia",
+      "country": "tunisia",
+      "sourcePath": "logos/tunisia/Tunisia_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Tunisia National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Turkey",
+      "country": "turkey",
+      "sourcePath": "logos/turkey/Turkey_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Turkey National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Turkmenistan",
+      "country": "turkmenistan",
+      "sourcePath": "logos/turkmenistan/Turkmenistan_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Turkmenistan National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Turks and Caicos Islands",
+      "country": "turks-and-caicos-islands",
+      "sourcePath": "logos/turks-and-caicos-islands/Turks_and_Caicos_Islands_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Turks and Caicos Islands National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Tuvalu",
+      "country": "tuvalu",
+      "sourcePath": "logos/tuvalu/Tuvalu_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Tuvalu National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "UAE",
+      "country": "uae",
+      "sourcePath": "logos/uae/UAE_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "UAE National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Uganda",
+      "country": "uganda",
+      "sourcePath": "logos/uganda/Uganda_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Uganda National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Ukraine",
+      "country": "ukraine",
+      "sourcePath": "logos/ukraine/Ukraine_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Ukraine National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Uruguay",
+      "country": "uruguay",
+      "sourcePath": "logos/uruguay/Uruguay_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Uruguay National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "U.S. Virgin Islands",
+      "country": "us-virgin-islands",
+      "sourcePath": "logos/us-virgin-islands/U.S._Virgin_Islands_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "U.S. Virgin Islands National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "USA",
+      "country": "usa",
+      "sourcePath": "logos/usa/USA_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "USA National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Uzbekistan",
+      "country": "uzbekistan",
+      "sourcePath": "logos/uzbekistan/Uzbekistan_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Uzbekistan National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Vanuatu",
+      "country": "vanuatu",
+      "sourcePath": "logos/vanuatu/Vanuatu_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Vanuatu National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Vatican City",
+      "country": "vatican-city",
+      "sourcePath": "logos/vatican-city/Vatican_City_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Vatican City National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Venezuela",
+      "country": "venezuela",
+      "sourcePath": "logos/venezuela/Venezuela_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Venezuela National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Vietnam",
+      "country": "vietnam",
+      "sourcePath": "logos/vietnam/Vietnam_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Vietnam National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Wales",
+      "country": "wales",
+      "sourcePath": "logos/wales/Wales_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Wales National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Yemen",
+      "country": "yemen",
+      "sourcePath": "logos/yemen/Yemen_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Yemen National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Zambia",
+      "country": "zambia",
+      "sourcePath": "logos/zambia/Zambia_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Zambia National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Zanzibar",
+      "country": "zanzibar",
+      "sourcePath": "logos/zanzibar/Zanzibar_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Zanzibar National Team"
+      ]
+    },
+    {
+      "type": "national",
+      "name": "Zimbabwe",
+      "country": "zimbabwe",
+      "sourcePath": "logos/zimbabwe/Zimbabwe_National_Team.svg",
+      "competitions": [
+        "International fixtures"
+      ],
+      "aliases": [
+        "Zimbabwe National Team"
+      ]
+    }
+  ],
+  "nationalTeamCount": 228,
+  "totalBundledCrestCount": 408
 }
