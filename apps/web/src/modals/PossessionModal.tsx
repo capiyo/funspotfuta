@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import type { CSSProperties } from 'react';
 import {
   castPossessionVote,
   createPossessionPoke,
@@ -109,7 +110,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
     } finally { setBusy(false); }
   }
 
-  const panel: React.CSSProperties = {
+  const panel: CSSProperties = {
     width: 'min(460px, calc(100vw - 28px))', maxHeight: 'min(82vh, 720px)', overflowY: 'auto',
     background: colors.surface, color: colors.textPrimary, borderRadius: 22,
     border: `1px solid ${colors.border}`, boxShadow: '0 24px 80px rgba(0,0,0,.32)',
@@ -120,7 +121,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
     border: `1px solid ${colors.border}`, borderRadius: 14, background: colors.background,
     color: colors.textPrimary, padding: '11px 13px', font: 'inherit', minWidth: 0,
   } as const;
-  const action = (active: boolean): React.CSSProperties => ({
+  const action = (active: boolean): CSSProperties => ({
     ...control, flex: 1, cursor: 'pointer', borderColor: active ? colors.primary : colors.border,
     background: active ? colors.primaryDim : colors.background,
     color: active ? colors.primary : colors.textPrimary, fontWeight: 700,
