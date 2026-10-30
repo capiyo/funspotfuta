@@ -19,7 +19,7 @@ export function MiniAvatar({
     const [failed, setFailed] = useState(false);
     const { authToken } = useAuth();
     const profileAvatar = useProfileAvatar(userId, authToken);
-    const imageUri = profileAvatar ?? uri ?? (userId ? `https://i.pravatar.cc/150?u=${encodeURIComponent(userId)}` : null);
+    const imageUri = profileAvatar ?? uri ?? `https://i.pravatar.cc/150?u=${encodeURIComponent(userId ?? label ?? 'guest')}`;
     return (
         <View style={[styles.box, { backgroundColor: colors.surfaceSunken, borderColor: colors.border }]}>
             {imageUri && !failed ? (
