@@ -15,7 +15,7 @@ export interface UserData {
     countryFan: string;
     numberOfBets: number;
     balance: number;
-    avatarUrl: string | null;
+    avatarUrl?: string | null;
 }
 
 export function userDataFromJson(json: Record<string, any>): UserData {
