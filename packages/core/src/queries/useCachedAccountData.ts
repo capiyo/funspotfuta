@@ -51,3 +51,9 @@ export function useCachedComrades(userId?: string, authToken?: string | null) {
     enabled: Boolean(userId),
   });
 }
+
+/** Fetch the canonical account avatar for any user ID. */
+export function useProfileAvatar(userId?: string, authToken?: string | null): string | null {
+  const query = useCachedProfile(userId, authToken);
+  return query.data?.avatarUrl ?? null;
+}
