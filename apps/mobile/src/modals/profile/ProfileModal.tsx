@@ -245,9 +245,12 @@ export default function ProfileModal({
       const asset = picked.assets[0];
       const imageResponse = await fetch(asset.uri);
       const imageBlob = await imageResponse.blob();
+      const uploadBlob = imageBlob.type.startsWith('image/')
+        ? imageBlob
+        : new Blob([imageBlob], { type: asset.mimeType ?? 'image/jpeg' });
       const result = await uploadProfileAvatar(
         userId,
-        imageBlob,
+        uploadBlob,
         authToken ?? undefined,
       );
       setProfile((current) => current ? { ...current, avatarUrl: result.avatarUrl } : current);
