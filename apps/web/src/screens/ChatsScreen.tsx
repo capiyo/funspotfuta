@@ -18,6 +18,7 @@ import { channelHeaderOf } from '@/modals/channelHeader';
 import { EmptyState, ErrorBanner, SkeletonRows } from '@/components/ui/ListsStates';
 import { SwipeableVotePledgeModal } from '@/modals/actionModal';
 import { PokeModal } from '@/modals/PokeModal';
+import { PossessionModal } from '@/modals/PossessionModal';
 import { AftermatchReviewModal } from '@/modals/AftermatchModal';
 import { MatchDetailsModal } from '@/modals/match/matchDetailsModals';
 import LeaderboardModal from '@/modals/LeaderboardModal';
@@ -179,6 +180,8 @@ export default function ChatsScreen() {
   const [modalFixture, setModalFixture] = useState<Fixture | null>(null);
   const [pokeModalFixture, setPokeModalFixture] = useState<Fixture | null>(null);
   const [pokeModalChannelId, setPokeModalChannelId] = useState<string | undefined>();
+  const [possessionFixture, setPossessionFixture] = useState<Fixture | null>(null);
+  const [possessionChannelId, setPossessionChannelId] = useState<string | undefined>();
   const [reviewFixture, setReviewFixture] = useState<Fixture | null>(null);
   const [matchDetailsFixture, setMatchDetailsFixture] = useState<Fixture | null>(null);
   const [leaderboardChannel, setLeaderboardChannel] = useState<{ id: string; name: string } | null>(null);
@@ -481,6 +484,7 @@ export default function ChatsScreen() {
                         channelId={channelId}
                         onOpenVoteModal={(selectedFixture) => { setSheetChannelId(channelId); setModalFixture(selectedFixture); }}
                         onOpenPokeModal={(selectedFixture) => { setPokeModalChannelId(channelId); setPokeModalFixture(selectedFixture); }}
+                        onOpenPossessionModal={(selectedFixture) => { setPossessionChannelId(channelId); setPossessionFixture(selectedFixture); }}
                         onOpenResults={(selectedFixture) => { setSheetChannelId(channelId); setReviewFixture(selectedFixture); }}
                         onChatClick={() => openChat(fixture, channelId)}
                         onChannelPress={() => {
@@ -562,6 +566,18 @@ export default function ChatsScreen() {
           authToken={authToken}
           onClose={() => { setPokeModalFixture(null); setPokeModalChannelId(undefined); }}
           channelId={pokeModalChannelId ?? activeChannelId ?? undefined}/>
+      )}
+
+      {possessionFixture && (
+        <PossessionModal
+          fixture={possessionFixture}
+          channelId={possessionChannelId}
+          userId={userId ?? ''}
+          username={username ?? ''}
+          authToken={authToken}
+          isLoggedIn={!!isLoggedIn && !!userId && userId !== 'guest' && !!authToken}
+          onClose={() => { setPossessionFixture(null); setPossessionChannelId(undefined); }}
+        />
       )}
 
       {reviewFixture && activeChannelId && (
