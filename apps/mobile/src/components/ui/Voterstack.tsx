@@ -80,6 +80,7 @@ export function VoterList({
                                 size="sm"
                                 label={icon || initials(name)}
                                 uri={v.uri}
+                                userId={v.id}
                                 borderColor={v.color}
                             />
                             <View style={styles.text}>
