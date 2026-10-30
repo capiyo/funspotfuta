@@ -1,3 +1,4 @@
+import { Avatar } from '@/components/ui/Avatar';
 import { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
 import {
@@ -173,7 +174,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
             {(market?.pokes ?? []).filter((poke) => poke.status === 'open').map((poke) => (
               <View key={poke.id} style={styles.pokeRow}>
                 <View style={styles.pokeDetails}>
-                  <Text style={fanText('button', colors, colors.textPrimary)}>{poke.username}</Text>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Avatar colors={colors} size="md" userId={poke.userId} label={poke.username?.[0] ?? '?'} /><Text style={fanText('button', colors, colors.textPrimary)}>{poke.username}</Text></View>
                   <Text style={fanText('tag', colors, colors.textSecondary)}>{poke.selection === 'home' ? fixture.homeTeam : fixture.awayTeam} · {poke.amount} pts</Text>
                 </View>
                 {poke.userId !== userId && <Pressable disabled={busy} onPress={() => void matchPoke(poke.id)} style={styles.matchButton}><Text style={fanText('tag', colors, colors.primary)}>Match</Text></Pressable>}
