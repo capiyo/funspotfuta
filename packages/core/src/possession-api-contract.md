@@ -8,12 +8,14 @@ Base: `/api/actions/posseions`
 - `GET /?fixture_id=:fixtureId&channel_id=:channelId`
 - Returns `PossessionMarket`: market status, home/away possession values, possession-only vote totals and voter list, possession-only open pokes, current user's selection, and optional settlement result.
 
-## Vote
+## Votes
+- `GET /votes?fixture_id=:fixtureId&channel_id=:channelId` returns `{ votes: PossessionVote[] }`.
 - `POST /votes`
 - JSON: `fixture_id`, `channel_id`, `user_id`, `username`, `selection` (`home` or `away`).
 - Returns `PossessionActionResult`.
 
-## Create possession poke
+## Possession pokes
+- `GET /poking?fixture_id=:fixtureId&channel_id=:channelId` returns `{ pokes: PossessionPoke[] }`.
 - `POST /poking`
 - JSON: `fixture_id`, `channel_id`, `user_id`, `username`, `selection` (`home` or `away`), `amount` (positive integer points).
 - Returns `PossessionActionResult`.
