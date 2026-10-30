@@ -49,6 +49,7 @@ export { useChannelChat } from './api/use-channel-chat';
 export type { SendPayloadExtras, Voter as ChannelChatVoter } from './api/use-channel-chat';
 export type { SendPayloadExtras as SendChannelMessagePayloadExtras, SendChannelMessageParams } from './api/send-channel-messages';
 export * from './api/profile-service';
+export * from './api/avatar-service';
 
 // Was './queryClient' — the file is under api/, so the path must match.
 export { createAppQueryClient, PERSIST_OPTIONS } from './queryClient';
