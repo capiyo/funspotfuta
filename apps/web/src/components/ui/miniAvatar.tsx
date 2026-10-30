@@ -10,7 +10,8 @@ export function MiniAvatar({ colors, label, uri, userId }: {
   uri?: string | null;
 }) {
   const [failed, setFailed] = useState(false);
-  const profileAvatar = useProfileAvatar(userId);
+  const { authToken } = useAuth();
+  const profileAvatar = useProfileAvatar(userId, authToken);
   const imageUri = profileAvatar ?? uri ?? (userId ? `https://i.pravatar.cc/150?u=${encodeURIComponent(userId)}` : null);
   return <span className="mini-avatar" style={{
     width: 24, height: 24, borderRadius: 12, border: `1px solid ${colors.border}`,
