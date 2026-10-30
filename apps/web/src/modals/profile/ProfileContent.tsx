@@ -420,7 +420,8 @@ export default function ProfileContent({
         Array.isArray(decoded) && decoded.length > 0
           ? decoded[0]
           : decoded;
-      const saved = userDataFromJson(raw);
+      const parsedSaved = userDataFromJson(raw);
+      const saved = { ...parsedSaved, avatarUrl: parsedSaved.avatarUrl ?? profile?.avatarUrl ?? null };
 
       setProfile(saved);
       queryClient.setQueryData(queryKeys.profile(userId), {
