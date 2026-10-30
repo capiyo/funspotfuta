@@ -25,6 +25,8 @@ import {
   ComradeStats,
 } from '@funspot/core';
 import { colors } from '@/theme';
+import { useFanColors } from '@/theme/use-fan-colors';
+import { Avatar } from '@/components/ui/Avatar';
 import AdCarousel from '@/components/AdCarousel';
 
 export default function ComradesScreen({
@@ -35,6 +37,7 @@ export default function ComradesScreen({
   onClose: () => void;
 }) {
   const { userId, username, authToken } = useAuth();
+  const avatarColors = useFanColors();
   const [comrades, setComrades] = useState<Record<string, any>[]>([]);
   const [stats, setStats] = useState<ComradeStats | null>(null);
   const [query, setQuery] = useState('');
@@ -196,10 +199,10 @@ export default function ComradesScreen({
               <View style={{ marginBottom: 16 }}>
                 <Text style={styles.sectionLabel}>Results</Text>
                 {results.map((r) => {
-                  const id = r.id ?? r._id;
+                  const id = r.id ?? r._id ?? r.user_id ?? r.userId;
                   return (
                     <View key={id} style={styles.row}>
-                      <Text style={styles.rowText}>{r.username}</Text>
+                      <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, minWidth: 0 }}><Avatar colors={avatarColors} size="md" userId={String(id)} label={r.username?.[0] ?? '?'} /><Text style={styles.rowText}>{r.username}</Text></View>
                       <View style={{ flexDirection: 'row', gap: 6 }}>
                         <Pressable style={styles.addButton} disabled={busyId === id} onPress={() => handleAdd(r)}>
                           <Text style={styles.addButtonText}>Comrade</Text>
@@ -230,13 +233,15 @@ export default function ComradesScreen({
                 const id = c.comrade_id ?? c.id;
                 return (
                   <View key={id} style={styles.row}>
-                    <View>
-                      <Text style={styles.rowText}>
+                    <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, minWidth: 0 }}>
+                      <Avatar colors={avatarColors} size="md" userId={String(id)} label={(c.comrade_username ?? c.username ?? '?').charAt(0)} />
+                      <View><Text style={styles.rowText}>
                         {c.comrade_username ?? c.username}
                       </Text>
                       {c.comrade_nickname && (
                         <Text style={styles.rowSubtext}>{c.comrade_nickname}</Text>
                       )}
+                      </View>
                     </View>
                     <Pressable
                       style={styles.removeButton}
