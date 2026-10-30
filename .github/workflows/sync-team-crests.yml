@@ -1,17 +1,19 @@
-name: Sync bundled football team crests
+name: Sync curated football team crests
 
 on:
   push:
     branches: [web-port-from-master]
     paths:
       - scripts/sync-team-crests.mjs
+      - scripts/team-crest-selection.json
   workflow_dispatch:
 
 permissions:
   contents: write
 
+# Serialize catalogue generation for this branch so two sync jobs cannot race.
 concurrency:
-  group: sync-team-crests-${{ github.sha }}
+  group: sync-team-crests-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -30,7 +32,7 @@ jobs:
           node-version: 22
       - name: Install temporary SVG rasterizer
         run: npm install --no-save --package-lock=false --ignore-scripts --workspaces=false sharp
-      - name: Download and catalogue all available football crests
+      - name: Download curated club and national-team crests
         run: node scripts/sync-team-crests.mjs
       - name: Commit generated local assets
         run: |
@@ -41,16 +43,5 @@ jobs:
             echo "Crest catalogue is already up to date."
             exit 0
           fi
-          git stash push --include-untracked -m "generated football crest bundle"
-          git fetch origin web-port-from-master
-          git rebase origin/web-port-from-master
-          git stash pop || true
-          git checkout --theirs -- apps/web/src/components/team-crest-catalog.generated.ts apps/mobile/src/components/team-crest-catalog.generated.ts apps/web/public/team-crests/source-manifest.json apps/web/public/team-crests/THIRD_PARTY_LICENSES.txt 2>/dev/null || true
-          git add apps/web/public/team-crests apps/web/src/components/team-crest-catalog.generated.ts apps/mobile/assets/team-crests apps/mobile/src/components/team-crest-catalog.generated.ts
-          git stash drop 2>/dev/null || true
-          if git diff --cached --quiet; then
-            echo "Crest catalogue is already up to date."
-            exit 0
-          fi
-          git commit -m "Bundle local football team crests across platforms"
+          git commit -m "Bundle curated club and national-team crests"
           git push origin HEAD:web-port-from-master
