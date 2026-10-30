@@ -19,6 +19,7 @@
 // The channel picker is kept (the Flutter modal doesn't have one) so
 // the user can hop channels from inside this modal.
 
+import { Avatar } from '@/components/ui/Avatar';
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
@@ -451,19 +452,7 @@ function ChampionCard({
       </View>
 
       <View style={styles.championIdentity}>
-        <View
-          style={[
-            styles.championAvatar,
-            {
-              backgroundColor: hexWithAlpha(accent, 0.08),
-              borderColor: hexWithAlpha(accent, 0.35),
-            },
-          ]}
-        >
-          <Text style={[styles.championAvatarText, { color: accent }]}>
-            {initials(row.nickname || row.username)}
-          </Text>
-        </View>
+        <Avatar colors={colors} size="xl" userId={row.id} uri={row.avatarUrl} label={initials(row.nickname || row.username)} borderColor={hexWithAlpha(accent, 0.35)} />
         <View style={{ flex: 1 }}>
           <View style={styles.nameRow}>
             <Text style={styles.championName} numberOfLines={1}>
@@ -588,16 +577,7 @@ function MemberCard({
       ]}
     >
       <View style={styles.memberHeader}>
-        <View
-          style={[
-            styles.memberAvatar,
-            { backgroundColor: hexWithAlpha(colors.primary, 0.12) },
-          ]}
-        >
-          <Text style={[styles.memberAvatarText, { color: colors.primary }]}>
-            {initials(row.nickname || row.username)}
-          </Text>
-        </View>
+        <Avatar colors={colors} size="xl" userId={row.id} uri={row.avatarUrl} label={initials(row.nickname || row.username)} />
         <View style={{ flex: 1 }}>
           <View style={styles.nameRow}>
             <Text style={styles.memberName} numberOfLines={1}>
@@ -1053,16 +1033,7 @@ function VotersTab({
           const vc = voteColor(item.selection);
           return (
             <View style={styles.voterRow}>
-              <View
-                style={[
-                  styles.voterAvatar,
-                  { backgroundColor: hexWithAlpha(vc, 0.1) },
-                ]}
-              >
-                <Text style={[styles.voterAvatarText, { color: vc }]}>
-                  {initials(item.username)}
-                </Text>
-              </View>
+              <Avatar colors={colors} size="md" userId={item.userId} label={initials(item.username)} borderColor={vc} />
               <View style={styles.voterTextWrap}>
                 <View style={styles.nameRow}>
                   <Text
@@ -1333,16 +1304,7 @@ function ActivityHistorySheet({
 
           {/* Header */}
           <View style={styles.headerRow}>
-            <View
-              style={[
-                styles.memberAvatar,
-                { backgroundColor: hexWithAlpha(colors.primary, 0.12) },
-              ]}
-            >
-              <Text style={[styles.memberAvatarText, { color: colors.primary }]}>
-                {initials(params.displayName)}
-              </Text>
-            </View>
+            <Avatar colors={colors} size="xl" userId={params.userId} label={initials(params.displayName)} />
             <View style={styles.headerTextWrap}>
               <Text style={styles.headerTitle} numberOfLines={1}>
                 {params.displayName}
