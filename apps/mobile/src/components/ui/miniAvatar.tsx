@@ -6,10 +6,12 @@ import { fanText } from '@/theme/use-fan-typography';
 export function MiniAvatar({
     colors,
     label,
+  userId,
     uri,
 }: {
     colors: ReturnType<typeof useFanColors>;
     label: string;
+  userId?: string;
     uri?: string | null;
 }) {
     const [failed, setFailed] = useState(false);
