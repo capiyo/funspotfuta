@@ -6,10 +6,10 @@ Funspot uses one shared crest strategy across React web and React Native.
 
 1. The bundled catalogue in `apps/web/public/team-crests` and `apps/mobile/assets/team-crests` is used first (180 club crests and 228 national-team crests).
 2. A logo already present on the fixture payload is used when there is no bundled match.
-3. For a team not found in either source, both apps call the Netlify `team-crest` function. The function queries API-Football's `/teams?search=<name>` endpoint with the server-side `API_SPORTS_KEY`, accepts only a unique exact normalized team-name match, and returns the provider's team image URL.
+3. For a team not found in either source, both apps call the Netlify `team-crest` function. The function queries API-Football's `/teams?search=<name>` endpoint with the server-side `API_SPORTS_KEY`, uses the country when supplied and accepts only a unique exact normalized team-name match, and returns the provider's team image URL.
 4. Ambiguous or unknown names deliberately fall back to the neutral initial rather than displaying the wrong club crest.
 
-The shared resolver normalizes accents, punctuation, ampersands and common club suffixes, deduplicates concurrent lookups, and caches successful name-to-logo resolutions in memory for 30 days. The proxy response is HTTP-cacheable.
+The shared resolver normalizes accents, punctuation, ampersands and common club suffixes, deduplicates concurrent lookups by normalized team and country, and caches successful name-to-logo resolutions in memory for 30 days. The proxy response is HTTP-cacheable.
 
 ## Configuration
 
