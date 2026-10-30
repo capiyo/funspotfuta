@@ -4,7 +4,6 @@ import { FAN_SPACING } from '@funspot/core';
 import { fanText } from '@/theme/use-fan-typography';
 import { HIT_SLOP, ICON, PRESSED_OPACITY } from '@/theme/layout';
 import { Avatar } from './Avatar';
-import { getFanAvatarUri } from '@/lib/avatar-uri';
 
 export interface VoterItem {
   id: string;
@@ -37,7 +36,8 @@ export function VoterList({ colors, voters, emptyLabel, onPress }: {
       shown.map((voter) => {
         const { icon, name } = splitFanName(voter.name);
         return <span key={voter.id} className="voter-list-item" style={{ flex: '1 1 0%', display: 'flex', alignItems: 'center', gap: 5, minWidth: 0, overflow: 'hidden' }}>
-          <Avatar colors={colors} size="sm" label={icon || initials(name)} uri={voter.uri || getFanAvatarUri(voter.id)} borderColor={voter.color} />
+          <Avatar colors={colors} size="sm" label={icon || initials(name)} uri={voter.uri}
+            userId={voter.id} borderColor={voter.color} />
           <span style={{ display: 'flex', flexDirection: 'column', flex: '1 1 auto', minWidth: 0, overflow: 'hidden' }}>
             <span style={{ ...fanText('caption', colors, colors.textPrimary), whiteSpace: 'normal', overflowWrap: 'anywhere' }}>{name}</span>
             <span style={{ display: 'flex', alignItems: 'center', gap: 4, minWidth: 0, flexWrap: 'wrap' }}><span style={{ ...fanText('tag', colors, voter.color), whiteSpace: 'normal', overflowWrap: 'anywhere' }}>{voter.team}</span><span aria-label={voter.id.startsWith('poke:') ? "poke mark" : "vote mark"} title={voter.id.startsWith('poke:') ? "poke" : "vote"} style={{ display: 'inline-flex', alignItems: 'center', flexShrink: 0, padding: '1px 4px', borderRadius: 4, background: `${voter.color}18`, color: voter.color, fontSize: 8, fontWeight: 800, lineHeight: '12px' }}>{voter.id.startsWith('poke:') ? '↗ poke' : '✓ vote'}</span></span>
