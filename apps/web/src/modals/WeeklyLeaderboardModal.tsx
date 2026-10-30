@@ -1,3 +1,4 @@
+import { Avatar } from '@/components/ui/Avatar';
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, View } from '@/lib/native-web-compat';
 import { Trophy, X } from 'lucide-react';
@@ -65,14 +66,14 @@ export function WeeklyLeaderboardModal({ visible, onClose, channelId, channelNam
               {rows.map((row) => (
                 <View key={row.user_id || row.username} style={styles.row}>
                   <Text style={styles.rank}>{row.rank <= 3 ? ['🥇', '🥈', '🥉'][row.rank - 1] : `#${row.rank}`}</Text>
-                  <Text style={styles.name} numberOfLines={1}>{row.username}</Text>
+                  <Avatar colors={colors} size="sm" userId={row.user_id} label={row.username?.[0] ?? '?'} /><Text style={styles.name} numberOfLines={1}>{row.username}</Text>
                   <Text style={styles.points}>+{row.weekly_points.toLocaleString()} pts</Text>
                 </View>
               ))}
               {me && !rows.some((row) => row.user_id === me.user_id) ? (
                 <View key={`me-${me.user_id}`} style={[styles.row, styles.meRow]}>
                   <Text style={styles.rank}>{me.rank ? `#${me.rank}` : '—'}</Text>
-                  <Text style={styles.name} numberOfLines={1}>{me.username || 'You'} · You</Text>
+                  <Avatar colors={colors} size="sm" userId={me.user_id} label={me.username?.[0] ?? '?'} /><Text style={styles.name} numberOfLines={1}>{me.username || 'You'} · You</Text>
                   <Text style={styles.points}>+{me.weekly_points.toLocaleString()} pts</Text>
                 </View>
               ) : null}
