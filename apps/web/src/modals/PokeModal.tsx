@@ -1,3 +1,4 @@
+import { Avatar } from '@/components/ui/Avatar';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { TeamCrest } from '@/components/TeamCrest';
 import { useQueryClient } from '@tanstack/react-query';
@@ -308,7 +309,7 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
           <h3 style={{ margin: '0 0 8px', fontSize: 14 }}>Open pokes · {openPokes.length}</h3>
           {openPokes.length === 0 ? <p style={{ margin: 0, color: 'var(--muted, #a7abb3)', fontSize: 12 }}>No open pokes for this fixture yet.</p> : openPokes.map((poke) => (
             <div key={poke.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 0', borderBottom: '1px solid var(--border)' }}>
-              <div style={{ flex: 1, minWidth: 0 }}><div style={{ display: 'flex', alignItems: 'center', gap: 5, minWidth: 0 }}><span aria-label="Poke mark" title="Poke" style={{ color: 'var(--primary)', fontSize: 9, fontWeight: 800, flexShrink: 0 }}>✊ POKE</span><strong>{poke.userName}</strong></div><div style={{ color: 'var(--muted, #a7abb3)', fontSize: 12 }}>{poke.selection === 'home' ? fixture.homeTeam : fixture.awayTeam} · {poke.amount} pts</div></div>
+              <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: 8 }}><Avatar colors={colors} size="md" userId={poke.userId} label={poke.userName?.[0] ?? '?'} /><div style={{ minWidth: 0 }}><div style={{ display: 'flex', alignItems: 'center', gap: 5, minWidth: 0 }}><span aria-label="Poke mark" title="Poke" style={{ color: 'var(--primary)', fontSize: 9, fontWeight: 800, flexShrink: 0 }}>✊ POKE</span><strong>{poke.userName}</strong></div><div style={{ color: 'var(--muted, #a7abb3)', fontSize: 12 }}>{poke.selection === 'home' ? fixture.homeTeam : fixture.awayTeam} · {poke.amount} pts</div></div></div>
               <button type="button" disabled={poke.userId === userId || submitting || fixture.isLive || fixture.status === 'live'} onClick={() => void matchExistingPoke(poke)} style={{ ...buttonStyle, minHeight: 34, padding: '6px 10px', background: 'var(--primary)', color: 'var(--text-inverse)', opacity: poke.userId === userId || submitting || fixture.isLive || fixture.status === 'live' ? .5 : 1 }}>Match</button>
             </div>
           ))}
