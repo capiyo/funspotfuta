@@ -948,17 +948,18 @@ export default function ProfileContent({
               <div
                 className="home-avatar profile-avatar-editable"
                 title={isCurrentUser ? 'Long-press to change profile image' : 'Profile image'}
+                role={isCurrentUser ? 'button' : undefined}
+                tabIndex={isCurrentUser ? 0 : -1}
+                aria-label={isCurrentUser ? 'Long-press or press Enter to change profile image' : 'Profile image'}
+                onKeyDown={isCurrentUser ? (event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); avatarInputRef.current?.click(); } } : undefined}
                 onContextMenu={isCurrentUser ? (event) => { event.preventDefault(); avatarInputRef.current?.click(); } : undefined}
                 onPointerDown={isCurrentUser ? (event) => {
-                  if (event.pointerType === 'touch') {
-                    const target = event.currentTarget;
-                    const timer = window.setTimeout(() => avatarInputRef.current?.click(), 650);
-                    target.dataset.avatarPressTimer = String(timer);
-                  }
+                  const target = event.currentTarget;
+                  const timer = window.setTimeout(() => avatarInputRef.current?.click(), 650);
+                  target.dataset.avatarPressTimer = String(timer);
                 } : undefined}
                 onPointerUp={(event) => { const timer = event.currentTarget.dataset.avatarPressTimer; if (timer) window.clearTimeout(Number(timer)); }}
                 onPointerLeave={(event) => { const timer = event.currentTarget.dataset.avatarPressTimer; if (timer) window.clearTimeout(Number(timer)); }}
-                onClick={undefined}
                 style={{ ...Object.assign({}, styles.headerAvatar, {
                   backgroundColor: colors.primaryDim,
                   borderColor: colors.borderActive,
