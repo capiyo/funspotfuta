@@ -245,7 +245,7 @@ export default function ProfileModal({
       const imageBlob = await imageResponse.blob();
       const result = await uploadProfileAvatar(
         userId,
-        new File([imageBlob], 'profile-image', { type: asset.mimeType ?? imageBlob.type ?? 'image/jpeg' }),
+        imageBlob,
         authToken ?? undefined,
       );
       setProfile((current) => current ? { ...current, avatarUrl: result.avatarUrl } : current);
