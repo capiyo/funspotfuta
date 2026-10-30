@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { Bell, ChevronDown, Menu, Plus, RefreshCw } from 'lucide-react';
-import type { Channel } from '@funspot/core';
+import { useProfileAvatar, type Channel } from '@funspot/core';
 import { getProfile } from '@funspot/core/src/api/profile-service';
 import { FAN_RADIUS } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
@@ -160,7 +160,8 @@ export function AppHeader(props: HeaderProps = {}) {
 
   const points = activeChannel?.members?.find((member) => member.userId === userId)?.seasonPoints ?? 0;
   const comradesList = queryClient.getQueryData<string[]>(['comrades']) ?? [];
-  const avatarUri = getFanAvatarUri(userId);
+  const profileAvatar = useProfileAvatar(userId ?? undefined, authToken);
+  const avatarUri = profileAvatar ?? getFanAvatarUri(userId);
   const hasJoinedChannels = joinedChannels.length > 0;
   const publicChannels = publicChannelsQuery.data ?? [];
   const availableChannels = allChannels.length > 0 ? allChannels : publicChannels.length > 0 ? publicChannels : joinedChannels;
