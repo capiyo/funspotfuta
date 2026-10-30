@@ -27,6 +27,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
+  Image,
   TextInput,
   Pressable,
   ScrollView,
@@ -51,7 +52,8 @@ import {
   Minus,
   Wallet,
 } from 'lucide-react-native';
-import { FAN_SPACING, FAN_RADIUS } from '@funspot/core';
+import { FAN_SPACING, FAN_RADIUS, uploadProfileAvatar } from '@funspot/core';
+import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useToast } from '@/lib/toast/toast-context';
 import { useFanColors } from '@/theme/use-fan-colors';
@@ -120,6 +122,7 @@ export default function ProfileModal({
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [avatarUploading, setAvatarUploading] = useState(false);
 
   const [balance, setBalance] = useState(0);
   const [balanceLoading, setBalanceLoading] = useState(true);
@@ -220,6 +223,39 @@ export default function ProfileModal({
       cancelled = true;
     };
   }, [visible, targetUserId, authToken, isCurrentUser]);
+
+  async function handleAvatarLongPress() {
+    if (!isCurrentUser || !userId || avatarUploading) return;
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      toast.showError('Allow photo access to choose a profile image');
+      return;
+    }
+    const picked = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.85,
+    });
+    if (picked.canceled || !picked.assets[0]) return;
+    setAvatarUploading(true);
+    try {
+      const asset = picked.assets[0];
+      const imageResponse = await fetch(asset.uri);
+      const imageBlob = await imageResponse.blob();
+      const result = await uploadProfileAvatar(
+        userId,
+        new File([imageBlob], 'profile-image', { type: asset.mimeType ?? imageBlob.type ?? 'image/jpeg' }),
+        authToken ?? undefined,
+      );
+      setProfile((current) => current ? { ...current, avatarUrl: result.avatarUrl } : current);
+      toast.showSuccess('Profile image updated');
+    } catch (error) {
+      toast.showError(error instanceof Error ? error.message : 'Could not update profile image');
+    } finally {
+      setAvatarUploading(false);
+    }
+  }
 
   // ── Balance + saved phones (self only) ──────────────────────
   const refreshBalance = useCallback(async () => {
@@ -827,21 +863,27 @@ export default function ProfileModal({
                   <ArrowLeft size={16} color={colors.textSecondary} />
                 </Pressable>
               )}
-              <View
+              <Pressable
+                onLongPress={() => { void handleAvatarLongPress(); }}
+                delayLongPress={550}
+                disabled={!isCurrentUser || avatarUploading}
+                accessibilityRole="button"
+                accessibilityLabel={isCurrentUser ? 'Long press to change profile image' : 'Profile image'}
                 style={[
                   styles.headerAvatar,
                   {
                     backgroundColor: colors.primaryDim,
                     borderColor: colors.borderActive,
+                    overflow: 'hidden',
                   },
                 ]}
               >
-                <Text style={[styles.headerAvatarText, { color: colors.primary }]}>
-                  {(profile?.nickname || targetUsername || '?')
-                    .charAt(0)
-                    .toUpperCase()}
-                </Text>
-              </View>
+                <Image
+                  source={{ uri: profile?.avatarUrl ?? `https://i.pravatar.cc/150?u=${encodeURIComponent(targetUserId || 'guest')}` }}
+                  style={{ width: 36, height: 36, borderRadius: 18 }}
+                />
+                {avatarUploading && <ActivityIndicator size="small" color={colors.primary} style={{ position: 'absolute' }} />}
+              </Pressable>
               <View style={{ flex: 1, marginLeft: FAN_SPACING.md }}>
                 <Text
                   style={[styles.headerTitle, { color: colors.textPrimary }]}
