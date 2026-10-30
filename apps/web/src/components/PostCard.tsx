@@ -165,7 +165,7 @@ export function PostCard({
           {/* Meta: author on the left, tags / date on the right */}
           <div style={styles.metaRow}>
             <div style={styles.author}>
-              <MiniAvatar colors={colors} label={userName} />
+              <MiniAvatar colors={colors} label={userName} userId={post.userId} />
               <span style={styles.authorName}>{userName}</span>
             </div>
             <div style={styles.metaRight}>
