@@ -30,6 +30,23 @@ function browserCache(): PlayerHeadshotCacheStore | undefined {
   return { getItem: async key => localStorage.getItem(key), setItem: async (key, value) => localStorage.setItem(key, value) };
 }
 
+async function readCached(key: string, store?: PlayerHeadshotCacheStore): Promise<string | null> {
+  const inMemory = memoryCache.get(key);
+  if (inMemory) return inMemory;
+  if (!store) return null;
+  try {
+    const raw = await store.getItem(CACHE_PREFIX + key);
+    if (!raw) return null;
+    const entry = JSON.parse(raw) as { photoUrl?: unknown; expiresAt?: unknown };
+    if (typeof entry.expiresAt !== 'number' || entry.expiresAt <= Date.now()) return null;
+    if (typeof entry.photoUrl !== 'string' || !entry.photoUrl.startsWith('https://imagecache.365scores.com/')) return null;
+    memoryCache.set(key, entry.photoUrl);
+    return entry.photoUrl;
+  } catch {
+    return null;
+  }
+}
+
 /** Resolve a lineup batch without live name searches; athlete IDs are the identity key. */
 export async function resolvePlayerHeadshots(
   players: Array<{ player: SimplifiedPlayer; teamName: string }>,
@@ -40,14 +57,13 @@ export async function resolvePlayerHeadshots(
   const store = cacheStore ?? browserCache();
   await Promise.all(players.map(async ({ player, teamName }) => {
     const key = playerHeadshotKey(player, teamName);
-    const direct = athleteUrl(player);
-    if (!direct) return;
-    const cached = memoryCache.get(key);
-    if (cached) { resolved[key] = cached; return; }
-    memoryCache.set(key, direct);
-    resolved[key] = direct;
-    if (store) {
-      try { await store.setItem(CACHE_PREFIX + key, JSON.stringify({ photoUrl: direct, expiresAt: Date.now() + TTL })); } catch { /* optional cache */ }
+    const cached = await readCached(key, store);
+    const source = cached ?? athleteUrl(player);
+    if (!source) return;
+    memoryCache.set(key, source);
+    resolved[key] = source;
+    if (!cached && store) {
+      try { await store.setItem(CACHE_PREFIX + key, JSON.stringify({ photoUrl: source, expiresAt: Date.now() + TTL })); } catch { /* optional cache */ }
     }
   }));
   return resolved;
