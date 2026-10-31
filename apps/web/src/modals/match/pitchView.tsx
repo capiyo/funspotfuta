@@ -157,7 +157,7 @@ export function PitchView({ homeTeam, awayTeam, homeFormation, awayFormation, ho
     const batch = [...homePlayers.map((player) => ({ player, teamName: homeTeam })), ...awayPlayers.map((player) => ({ player, teamName: awayTeam }))];
     void resolvePlayerHeadshots(batch).then((result) => { if (!cancelled) setHeadshots(result); });
     return () => { cancelled = true; };
-  }, [homePlayers, awayPlayers, homeTeam, awayTeam, headshotEndpoint]);
+  }, [homePlayers, awayPlayers, homeTeam, awayTeam]);
   const cappedHome=useMemo(()=>homePlayers.slice(0,11),[homePlayers]), cappedAway=useMemo(()=>awayPlayers.slice(0,11),[awayPlayers]);
   const homeOverflow=homePlayers.slice(11), awayOverflow=awayPlayers.slice(11);
   const width=600, height=width*PITCH_ASPECT_RATIO;

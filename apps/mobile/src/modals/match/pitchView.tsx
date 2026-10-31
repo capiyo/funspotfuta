@@ -863,7 +863,7 @@ export function PitchView({
         const batch = [...homePlayers.map((player) => ({ player, teamName: homeTeam })), ...awayPlayers.map((player) => ({ player, teamName: awayTeam }))];
         void resolvePlayerHeadshots(batch, undefined, AsyncStorage).then((result) => { if (!cancelled) setHeadshots(result); });
         return () => { cancelled = true; };
-    }, [homePlayers, awayPlayers, homeTeam, awayTeam, headshotEndpoint]);
+    }, [homePlayers, awayPlayers, homeTeam, awayTeam]);
     const [pitchSize, setPitchSize] = useState<{ width: number; height: number }>({
         width: 0,
         height: 0,
