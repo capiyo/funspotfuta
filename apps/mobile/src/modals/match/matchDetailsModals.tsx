@@ -202,15 +202,19 @@ export function MatchDetailsModal({
                 }
             }
 
-            setHasStats(false);
-            setStatistics(null);
-            setStatsError('Statistics available after match starts');
+            if (!liveStatisticsReceived.current) {
+                setHasStats(false);
+                setStatistics(null);
+                setStatsError('Statistics available after match starts');
+            }
             setLoadingStats(false);
         } catch (e) {
             console.warn('❌ Error fetching statistics:', e);
-            setHasStats(false);
-            setStatistics(null);
-            setStatsError('Statistics coming soon');
+            if (!liveStatisticsReceived.current) {
+                setHasStats(false);
+                setStatistics(null);
+                setStatsError('Statistics coming soon');
+            }
             setLoadingStats(false);
         }
     }, [fixture.matchId, authToken]);
