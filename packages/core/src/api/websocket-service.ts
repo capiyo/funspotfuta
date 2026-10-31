@@ -1,3 +1,5 @@
+import { isStatisticsUpdatedEvent, type StatisticsUpdatedEvent } from '../types/statistics';
+
 // Ported from funspot/lib/services/web_soecket.dart — a singleton,
 // multi-room WebSocket client. One physical socket, many joined rooms
 // (additive join/leave, replayed on reconnect), heartbeat ping/pong,
@@ -345,9 +347,17 @@ class WebSocketService {
   // -----------------------------------------------------------------------
   // EVENT SUBSCRIPTION
   // -----------------------------------------------------------------------
-  on(eventType: string, callback: Listener) {
+  on(eventType: string, callback: Listener): () => void {
     if (!this.listeners.has(eventType)) this.listeners.set(eventType, []);
     this.listeners.get(eventType)!.push(callback);
+    return () => this.off(eventType, callback);
+  }
+
+  /** Subscribe to validated live statistics for a channel/fixture room. */
+  onStatisticsUpdated(callback: (event: StatisticsUpdatedEvent) => void): () => void {
+    return this.on('statistics.updated', (payload) => {
+      if (isStatisticsUpdatedEvent(payload)) callback(payload);
+    });
   }
   off(eventType: string, callback: Listener) {
     const list = this.listeners.get(eventType);
