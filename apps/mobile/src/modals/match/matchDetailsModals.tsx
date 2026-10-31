@@ -1,5 +1,5 @@
 // components/MatchDetailsModal.tsx
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
     View,
     Text,
@@ -112,6 +112,7 @@ export function MatchDetailsModal({
     const [lineupsError, setLineupsError] = useState('');
 
     const [hasStats, setHasStats] = useState(false);
+    const liveStatisticsReceived = useRef(false);
 
     const headers = authToken
         ? { Authorization: `Bearer ${authToken}` }
@@ -174,6 +175,7 @@ export function MatchDetailsModal({
             if (res.status === 200) {
                 const data = await res.json();
                 if (hasValidStatistics(data)) {
+                    if (liveStatisticsReceived.current) { setLoadingStats(false); return; }
                     setStatistics(parseMatchStatistics(data));
                     setHasStats(true);
                     setLoadingStats(false);
@@ -191,6 +193,7 @@ export function MatchDetailsModal({
                 if (data?.success === true) {
                     const stats = data?.data ?? data;
                     if (hasValidStatistics(stats)) {
+                        if (liveStatisticsReceived.current) { setLoadingStats(false); return; }
                         setStatistics(parseMatchStatistics(stats));
                         setHasStats(true);
                         setLoadingStats(false);
@@ -218,6 +221,7 @@ export function MatchDetailsModal({
         if (!visible) return;
         // Reset state each time the modal is opened so a reopened modal
         // doesn't flash the previous match's lineups/stats.
+        liveStatisticsReceived.current = false;
         setActiveTab('lineups');
         setStatistics(null);
         setLineups(null);
@@ -246,6 +250,7 @@ export function MatchDetailsModal({
 
         const unsubscribe = webSocketService.onStatisticsUpdated((event) => {
             if (String(event.fixture_id) !== String(fixture.matchId)) return;
+            liveStatisticsReceived.current = true;
             setStatistics(parseMatchStatistics({ statistics: event.statistics }));
             setHasStats(true);
             setStatsError('');
