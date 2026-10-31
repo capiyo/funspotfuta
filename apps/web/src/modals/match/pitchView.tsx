@@ -130,9 +130,11 @@ export function BenchColumn({ players, color }: { players: SimplifiedPlayer[]; c
   if (!players.length) return <div className="text-center" style={fanText('caption', colors, colors.textTertiary)}>No data</div>;
   return <div className="space-y-1">
     {players.slice(0,9).map((p,idx) => <div key={`${p.number}-${p.name}-${idx}`} className="flex items-center gap-1.5 rounded px-1.5 py-1" style={{backgroundColor:hexWithAlpha(color,.06)}}>
+      {p.imageUrl ? <img src={p.imageUrl} alt="" className="h-5 w-5 rounded-full object-cover" loading="lazy"/> : null}
       <span className="flex h-5 w-5 items-center justify-center rounded text-[10px] font-bold" style={{backgroundColor:hexWithAlpha(color,.18),color}}>{p.number}</span>
       <span className="min-w-0 flex-1 truncate" style={fanText('caption',colors,colors.textPrimary)}>{shortName(p.name)}</span>
       <span style={fanText('tag',colors,colors.textTertiary)}>{p.position.toUpperCase()}</span>
+      {p.rating != null && <span className="text-[10px] font-semibold text-amber-500">{p.rating.toFixed(1)}</span>}
       {p.captain && <span className="ml-0.5 text-[8px] font-bold" style={{color}}>C</span>}
     </div>)}
   </div>;
@@ -166,7 +168,7 @@ export function PitchView({ homeTeam, awayTeam, homeFormation, awayFormation, ho
     const point=positions[index]; if(!point) return null;
     const x=point.x;
     const y=point.y;
-    const photo = headshots[playerHeadshotKey(player, isHome ? homeTeam : awayTeam)];
+    const photo = player.imageUrl || headshots[playerHeadshotKey(player, isHome ? homeTeam : awayTeam)];
     const clipId = `player-headshot-${isHome ? "home" : "away"}-${index}`;
     return <g key={`${isHome?'h':'a'}-${player.number}-${player.name}-${index}`} transform={`translate(${x} ${y})`}>
       {photo ? <>
@@ -180,6 +182,7 @@ export function PitchView({ homeTeam, awayTeam, homeFormation, awayFormation, ho
       </>}
       <rect x="-37" y="18" width="74" height="15" rx="4" fill="rgba(0,0,0,.78)"/>
       <text x="0" y="29" textAnchor="middle" fontSize="9" fontWeight="400" fill="#fff">{shortName(player.name).slice(0,12)}{player.captain?' ©':''}</text>
+      {player.rating != null && <g><rect x="18" y="-18" width="19" height="11" rx="3" fill="#111827"/><text x="27.5" y="-10" textAnchor="middle" fontSize="7" fontWeight="700" fill="#F8D66D">{player.rating.toFixed(1)}</text></g>}
     </g>;
   });
   const hasOverflow=homeOverflow.length>0||awayOverflow.length>0;
