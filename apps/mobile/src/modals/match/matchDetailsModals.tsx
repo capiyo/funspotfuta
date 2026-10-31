@@ -67,22 +67,32 @@ function hasValidStatistics(data: any): boolean {
             const s = latest?.statistics ?? latest;
             const home = s?.home ?? {};
             const away = s?.away ?? {};
-            return (
-                (home?.possession ?? 0) > 0 ||
-                (away?.possession ?? 0) > 0 ||
-                (home?.shots ?? 0) > 0 ||
-                (away?.shots ?? 0) > 0
+            const hasPositiveValue = (value: unknown) =>
+                value !== null && value !== undefined && Number.isFinite(Number(value)) && Number(value) > 0;
+            const fields = [
+                'possession', 'ball_possession', 'shots', 'total_shots',
+                'shotsOnTarget', 'shots_on_target', 'corners', 'fouls',
+                'offsides', 'yellowCards', 'yellow_cards', 'passAccuracy', 'pass_accuracy',
+            ];
+            return fields.some((field) =>
+                hasPositiveValue(home?.[field]) || hasPositiveValue(away?.[field]),
             );
         }
         return false;
     }
 
-    return (
-        (stats?.ball_possession_home ?? 0) > 0 ||
-        (stats?.ball_possession_away ?? 0) > 0 ||
-        (stats?.total_shots_home ?? 0) > 0 ||
-        (stats?.total_shots_away ?? 0) > 0
-    );
+    const flatFields = [
+        'ball_possession_home', 'ball_possession_away',
+        'total_shots_home', 'total_shots_away',
+        'shots_on_target_home', 'shots_on_target_away',
+        'corners_home', 'corners_away', 'fouls_home', 'fouls_away',
+        'offsides_home', 'offsides_away', 'yellow_cards_home', 'yellow_cards_away',
+        'pass_accuracy_home', 'pass_accuracy_away',
+    ];
+    return flatFields.some((field) => {
+        const value = stats?.[field];
+        return value !== null && value !== undefined && Number.isFinite(Number(value)) && Number(value) > 0;
+    });
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -101,6 +111,7 @@ export function MatchDetailsModal({
     const { height: windowHeight } = useWindowDimensions();
 
     const [activeTab, setActiveTab] = useState<'lineups' | 'stats'>('lineups');
+    const swipeStart = useRef<{ x: number; y: number } | null>(null);
 
     const [statistics, setStatistics] = useState<MatchStatistics | null>(null);
     const [lineups, setLineups] = useState<LineupsData | null>(null);
@@ -257,6 +268,7 @@ export function MatchDetailsModal({
 
         const unsubscribe = webSocketService.onStatisticsUpdated((event) => {
             if (String(event.fixture_id) !== String(fixture.matchId)) return;
+            if (!hasValidStatistics({ statistics: event.statistics })) return;
             liveStatisticsReceived.current = true;
             setStatistics(parseMatchStatistics({ statistics: event.statistics }));
             setHasStats(true);
@@ -436,7 +448,29 @@ export function MatchDetailsModal({
                     ) : null}
 
                     {/* Content */}
-                    <View style={{ flex: 1 }}>
+                    <View
+                        style={{ flex: 1 }}
+                        onTouchStart={(event) => {
+                            const touch = event.nativeEvent.touches[0];
+                            swipeStart.current = touch
+                                ? { x: touch.pageX, y: touch.pageY }
+                                : null;
+                        }}
+                        onTouchEnd={(event) => {
+                            if (!hasStats) {
+                                swipeStart.current = null;
+                                return;
+                            }
+                            const touch = event.nativeEvent.changedTouches[0];
+                            const start = swipeStart.current;
+                            swipeStart.current = null;
+                            if (!touch || !start) return;
+                            const deltaX = touch.pageX - start.x;
+                            const deltaY = touch.pageY - start.y;
+                            if (Math.abs(deltaX) < 56 || Math.abs(deltaX) < Math.abs(deltaY) * 1.25) return;
+                            setActiveTab(deltaX < 0 ? 'stats' : 'lineups');
+                        }}
+                    >
                         {activeTab === 'lineups' ? (
                             <LineupsTab
                                 fixture={fixture}
