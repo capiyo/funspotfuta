@@ -130,6 +130,7 @@ export function MatchDetailsModal({
 
     const [statistics, setStatistics] = useState<MatchStatistics | null>(null);
     const [lineups, setLineups] = useState<LineupsData | null>(null);
+    const [lineupsMatchId, setLineupsMatchId] = useState<string | null>(null);
 
     const [loadingStats, setLoadingStats] = useState(true);
     const [loadingLineups, setLoadingLineups] = useState(true);
@@ -147,7 +148,7 @@ export function MatchDetailsModal({
     // ── Fetch lineups (independent of stats) ─────────────────────
 
     const fetchLineups = useCallback(async () => {
-        setLoadingLineups(true);
+        if (lineupsMatchId !== fixture.matchId) setLoadingLineups(true);
         setLineupsError('');
         try {
             const res = await fetch(
@@ -159,6 +160,7 @@ export function MatchDetailsModal({
                 const data = await res.json();
                 if (data?.success === true && data?.data != null) {
                     setLineups(parseLineupsData(data.data));
+                    setLineupsMatchId(fixture.matchId);
                     setLoadingLineups(false);
                     return;
                 }
@@ -173,19 +175,22 @@ export function MatchDetailsModal({
                 const data = await fallbackRes.json();
                 if (data?.success === true && data?.data != null) {
                     setLineups(parseLineupsData(data.data));
+                    setLineupsMatchId(fixture.matchId);
                     setLoadingLineups(false);
                     return;
                 }
             }
 
+            setLineupsMatchId(fixture.matchId);
             setLineupsError('No lineup available');
             setLoadingLineups(false);
         } catch (e) {
             console.warn('❌ Error fetching lineups:', e);
+            setLineupsMatchId(fixture.matchId);
             setLineupsError('No network error');
             setLoadingLineups(false);
         }
-    }, [fixture.matchId, authToken]);
+    }, [fixture.matchId, authToken, lineupsMatchId]);
 
     // ── Fetch statistics (independent of lineups) ────────────────
 
@@ -254,9 +259,8 @@ export function MatchDetailsModal({
         liveStatisticsReceived.current = false;
         setActiveTab('lineups');
         setStatistics(null);
-        setLineups(null);
         setLoadingStats(true);
-        setLoadingLineups(true);
+        if (lineupsMatchId !== fixture.matchId) setLoadingLineups(true);
         setStatsError('');
         setLineupsError('');
         setHasStats(false);
@@ -313,8 +317,14 @@ export function MatchDetailsModal({
             animationType="slide"
             onRequestClose={onClose}
         >
-            <Pressable style={styles.backdrop} onPress={onClose}>
+            <View style={styles.backdrop}>
                 <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="Close match details"
+                    onPress={onClose}
+                    style={StyleSheet.absoluteFill}
+                />
+                <View
                     style={[
                         styles.sheet,
                         {
@@ -322,7 +332,6 @@ export function MatchDetailsModal({
                             backgroundColor: colors.surface,
                         },
                     ]}
-                    onPress={() => { }}
                 >
                     {/* Handle */}
                     <View style={styles.handleWrapper}>
@@ -341,8 +350,8 @@ export function MatchDetailsModal({
                                 numberOfLines={2}
                                 ellipsizeMode="tail"
                                 style={[
-                                    fanText('title', colors),
-                                    { textAlign: 'center', color: colors.textPrimary },
+                                    fanText('body', colors),
+                                    { textAlign: 'center', color: colors.textPrimary, fontSize: 11, fontWeight: '400', lineHeight: 14 },
                                 ]}
                             >
                                 {fixture.homeTeam}
@@ -366,7 +375,7 @@ export function MatchDetailsModal({
                             <Text
                                 style={[
                                     fanText('scoreHero', colors),
-                                    { color: colors.textPrimary },
+                                    { color: colors.textPrimary, fontSize: 18, lineHeight: 22, fontWeight: '400' },
                                 ]}
                             >
                                 {home} - {away}
@@ -379,7 +388,7 @@ export function MatchDetailsModal({
                                 ellipsizeMode="tail"
                                 style={[
                                     fanText('title', colors),
-                                    { textAlign: 'center', color: colors.textPrimary },
+                                    { textAlign: 'center', color: colors.textPrimary, fontSize: 12, fontWeight: '400', lineHeight: 16 },
                                 ]}
                             >
                                 {fixture.awayTeam}
@@ -487,9 +496,9 @@ export function MatchDetailsModal({
                         {activeTab === 'lineups' ? (
                             <LineupsTab
                                 fixture={fixture}
-                                lineups={lineups}
-                                loading={loadingLineups}
-                                error={lineupsError}
+                                lineups={lineupsMatchId === fixture.matchId ? lineups : null}
+                                loading={loadingLineups || lineupsMatchId !== fixture.matchId}
+                                error={lineupsMatchId === fixture.matchId ? lineupsError : ''}
                             />
                         ) : hasStats && statistics ? (
                             <StatsTab
@@ -499,8 +508,8 @@ export function MatchDetailsModal({
                             />
                         ) : null}
                     </View>
-                </Pressable>
-            </Pressable>
+                </View>
+            </View>
         </Modal>
     );
 }
@@ -551,8 +560,8 @@ const styles = StyleSheet.create({
     },
     scoreBox: {
         marginHorizontal: 12,
-        paddingHorizontal: 14,
-        paddingVertical: 6,
+        paddingHorizontal: 10,
+        paddingVertical: 4,
         borderRadius: FAN_RADIUS.sm,
     },
     tabBar: {

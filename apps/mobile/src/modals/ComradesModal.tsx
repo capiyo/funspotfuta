@@ -1,6 +1,6 @@
 // RN port of funspot-next/app/(app)/comrades/page.tsx — as a MODAL.
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -19,9 +19,15 @@ import {
   addComrade,
   removeComrade,
   searchPotentialComrades,
+  getUserChannels,
+  addMembersToChannel,
+  Channel,
   ComradeStats,
 } from '@funspot/core';
 import { colors } from '@/theme';
+import { useFanColors } from '@/theme/use-fan-colors';
+import { Avatar } from '@/components/ui/Avatar';
+import AdCarousel from '@/components/AdCarousel';
 
 export default function ComradesScreen({
   visible,
@@ -31,12 +37,22 @@ export default function ComradesScreen({
   onClose: () => void;
 }) {
   const { userId, username, authToken } = useAuth();
+  const avatarColors = useFanColors();
   const [comrades, setComrades] = useState<Record<string, any>[]>([]);
   const [stats, setStats] = useState<ComradeStats | null>(null);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<Record<string, any>[]>([]);
   const [loading, setLoading] = useState(true);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [channels, setChannels] = useState<Channel[]>([]);
+  const [selectedChannelId, setSelectedChannelId] = useState('');
+  const [notice, setNotice] = useState('');
+  const swipeStartY = useRef<number | null>(null);
+  const handleSheetTouchEnd = (y: number) => {
+    const start = swipeStartY.current;
+    swipeStartY.current = null;
+    if (start !== null && y - start > 90) onClose();
+  };
 
   async function refresh() {
     if (!userId) return;
@@ -53,6 +69,12 @@ export default function ComradesScreen({
   useEffect(() => {
     if (!visible) return;
     refresh();
+    if (userId && authToken) {
+      getUserChannels(userId, authToken).then((items) => {
+        setChannels(items);
+        setSelectedChannelId((current) => current || items.find((item) => item.isAdmin)?.channelId || items[0]?.channelId || '');
+      }).catch(() => setChannels([]));
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible, userId]);
 
@@ -68,7 +90,7 @@ export default function ComradesScreen({
 
   async function handleAdd(candidate: Record<string, any>) {
     if (!userId || !username || !authToken) return;
-    const id = candidate.id ?? candidate._id;
+    const id = candidate.id ?? candidate._id ?? candidate.user_id ?? candidate.userId;
     setBusyId(id);
     await addComrade({
       userId,
@@ -83,6 +105,21 @@ export default function ComradesScreen({
     setBusyId(null);
     setResults((prev) => prev.filter((r) => (r.id ?? r._id) !== id));
     refresh();
+  }
+
+  async function handleAddToChannel(candidate: Record<string, any>) {
+    if (!authToken || !selectedChannelId) { setNotice('Choose a channel first.'); return; }
+    const channel = channels.find((item) => item.channelId === selectedChannelId);
+    if (!channel?.isAdmin) { setNotice('Only channel admins can add members.'); return; }
+    const id = String(candidate.id ?? candidate._id ?? candidate.user_id ?? candidate.userId ?? '');
+    const name = String(candidate.username ?? candidate.user_name ?? '');
+    if (!id || !name) { setNotice('This profile is missing its ID or username.'); return; }
+    setBusyId(id);
+    try {
+      const ok = await addMembersToChannel(selectedChannelId, [{ id, username: name }], authToken);
+      setNotice(ok ? `Added @${name} to ${channel.name}.` : 'Could not add this user to the channel.');
+    } catch { setNotice('Could not add this user to the channel.'); }
+    finally { setBusyId(null); }
   }
 
   async function handleRemove(comradeId: string) {
@@ -102,7 +139,12 @@ export default function ComradesScreen({
       statusBarTranslucent
     >
       <Pressable style={styles.backdrop} onPress={onClose}>
-        <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
+        <Pressable
+          style={styles.sheet}
+          onPress={(e) => e.stopPropagation()}
+          onTouchStart={(event) => { swipeStartY.current = event.nativeEvent.pageY; }}
+          onTouchEnd={(event) => handleSheetTouchEnd(event.nativeEvent.pageY)}
+        >
           <View style={styles.handleWrap}>
             <View style={styles.handle} />
           </View>
@@ -118,6 +160,7 @@ export default function ComradesScreen({
             style={styles.screen}
             contentContainerStyle={styles.content}
           >
+            <AdCarousel />
             {stats && (
               <Text style={styles.stats}>
                 {stats.count}/{stats.max_comrades} · {stats.remaining} remaining
@@ -138,21 +181,40 @@ export default function ComradesScreen({
               </Pressable>
             </View>
 
+            {channels.length > 0 && (
+              <View style={{ marginBottom: 12 }}>
+                <Text style={styles.sectionLabel}>Add profiles to channel</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                  {channels.map((channel) => (
+                    <Pressable key={channel.channelId} onPress={() => setSelectedChannelId(channel.channelId)} style={{ marginRight: 8, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 18, backgroundColor: selectedChannelId === channel.channelId ? colors.surface : colors.surface, borderWidth: 1, borderColor: selectedChannelId === channel.channelId ? colors.green : colors.border }}>
+                      <Text style={{ color: selectedChannelId === channel.channelId ? colors.green : colors.textPrimary, fontSize: 11 }}>{channel.name}{channel.isAdmin ? ' · Admin' : ''}</Text>
+                    </Pressable>
+                  ))}
+                </ScrollView>
+              </View>
+            )}
+            {notice ? <Text style={{ color: colors.green, fontSize: 11, marginBottom: 10 }}>{notice}</Text> : null}
+
             {results.length > 0 && (
               <View style={{ marginBottom: 16 }}>
                 <Text style={styles.sectionLabel}>Results</Text>
                 {results.map((r) => {
-                  const id = r.id ?? r._id;
+                  const id = r.id ?? r._id ?? r.user_id ?? r.userId;
                   return (
                     <View key={id} style={styles.row}>
-                      <Text style={styles.rowText}>{r.username}</Text>
-                      <Pressable
-                        style={styles.addButton}
-                        disabled={busyId === id}
-                        onPress={() => handleAdd(r)}
-                      >
-                        <Text style={styles.addButtonText}>Add</Text>
-                      </Pressable>
+                      <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, minWidth: 0 }}><Avatar colors={avatarColors} size="md" userId={String(id)} label={r.username?.[0] ?? '?'} /><Text style={styles.rowText}>{r.username}</Text></View>
+                      <View style={{ flexDirection: 'row', gap: 6 }}>
+                        <Pressable style={styles.addButton} disabled={busyId === id} onPress={() => handleAdd(r)}>
+                          <Text style={styles.addButtonText}>Comrade</Text>
+                        </Pressable>
+                        <Pressable
+                          style={[styles.addButton, { backgroundColor: colors.bg, opacity: channels.some((channel) => channel.channelId === selectedChannelId && channel.isAdmin) ? 1 : 0.45 }]}
+                          disabled={busyId === id || !channels.some((channel) => channel.channelId === selectedChannelId && channel.isAdmin)}
+                          onPress={() => handleAddToChannel(r)}
+                        >
+                          <Text style={[styles.addButtonText, { color: colors.textPrimary }]}>Add to channel</Text>
+                        </Pressable>
+                      </View>
                     </View>
                   );
                 })}
@@ -171,13 +233,15 @@ export default function ComradesScreen({
                 const id = c.comrade_id ?? c.id;
                 return (
                   <View key={id} style={styles.row}>
-                    <View>
-                      <Text style={styles.rowText}>
+                    <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, minWidth: 0 }}>
+                      <Avatar colors={avatarColors} size="md" userId={String(id)} label={(c.comrade_username ?? c.username ?? '?').charAt(0)} />
+                      <View><Text style={styles.rowText}>
                         {c.comrade_username ?? c.username}
                       </Text>
                       {c.comrade_nickname && (
                         <Text style={styles.rowSubtext}>{c.comrade_nickname}</Text>
                       )}
+                      </View>
                     </View>
                     <Pressable
                       style={styles.removeButton}
@@ -262,8 +326,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
+    borderWidth: 0,
     backgroundColor: colors.surface,
     paddingHorizontal: 12,
     paddingVertical: 10,

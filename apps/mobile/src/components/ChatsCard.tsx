@@ -22,28 +22,38 @@
 // `channel` is optional; when given, a small avatar + channel name replaces
 // the league label in the top-left. Without it the card shows the league.
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import {
+  Activity,
   Check,
   Heart,
   Lock,
   MessageCircle,
+  Pointer,
   Radio,
   Vote,
 } from 'lucide-react-native';
 import {
   Fixture,
+  type Poke,
+  getOpenPokes,
+  mergeOpenPokes,
+  queryKeys,
   hasScores,
+  getFormattedMinuteDisplay,
+  useFixtureLiveUpdates,
   scoreDisplay,
   winner as fixtureWinner,
   outcomeColor,
   FAN_SPACING,
 } from '@funspot/core';
+import { TeamCrest } from '@/components/TeamCrest';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useLoginModal } from '../modals/Login-modal-context';
 import { useFanColors } from '@/theme/use-fan-colors';
-import { fanText } from '@/theme/use-fan-typography';
+import { fanText as baseFanText } from '@/theme/use-fan-typography';
 import { ICON, PRESSED_OPACITY } from '@/theme/layout';
 import { FeedItem } from './ui/FeedItem';
 import { LiveBadge } from './ui/LiveBadge';
@@ -54,6 +64,35 @@ import { VoterList } from './ui/Voterstack';
 // How far the footer is pulled down to reach the card floor (cancels
 // FeedItem's bottom padding). Raise it if there is still a gap.
 const FOOTER_BLEED = 12;
+
+// Match the mobile-web ChatsCard typography at a 390px viewport.
+// Web uses DM Sans for normal text and Saira Condensed only for score text;
+// baseFanText resolves those same bundled font families for React Native.
+const MATCH_FONT_SIZE = {
+  body: 14,
+  caption: 12,
+  tag: 12,
+  button: 12,
+  competition: 14,
+  title: 15,
+  microLabel: 12,
+} as const;
+
+function fanText(
+  role: Parameters<typeof baseFanText>[0],
+  colors: Parameters<typeof baseFanText>[1],
+  colorOverride?: string,
+) {
+  const base = baseFanText(role, colors, colorOverride);
+  const fontSize = (role in MATCH_FONT_SIZE
+    ? MATCH_FONT_SIZE[role as keyof typeof MATCH_FONT_SIZE]
+    : base.fontSize) ?? 14;
+  return {
+    ...base,
+    fontSize,
+    lineHeight: Math.round(fontSize * 1.25),
+  };
+}
 
 const COMMENT_STYLE_COLOR = (colors: ReturnType<typeof useFanColors>) =>
   colors.textSecondary;
@@ -102,15 +141,22 @@ function kickoffLabel(dateString: string): string {
   });
 }
 
-function pickKind(selection: string): 'home' | 'away' | 'draw' {
-  if (selection === 'home_team') return 'home';
-  if (selection === 'away_team') return 'away';
-  return 'draw';
+function normalizePick(selection: string): string {
+  return selection.trim().toLowerCase().replace(/[\s-]+/g, '_');
+}
+
+function pickKind(selection: string): 'home' | 'away' | 'draw' | 'unknown' {
+  const value = normalizePick(selection);
+  if (['home_team', 'home', 'hometeam', '1', 'team1', 'home_side'].includes(value) || /(^|\W)home(\W|$)/.test(value)) return 'home';
+  if (['away_team', 'away', 'awayteam', '2', 'team2', 'away_side'].includes(value) || /(^|\W)away(\W|$)/.test(value)) return 'away';
+  if (['draw', 'tie', 'x', 'level', 'drawn'].includes(value) || /(^|\W)(draw|tie)(\W|$)/.test(value)) return 'draw';
+  return 'unknown';
 }
 
 export function MatchCard({
   fixture,
   channel,
+  channelId,
   comments,
   latestComment,
   liveCommentary,
@@ -118,8 +164,13 @@ export function MatchCard({
   likesCount = 0,
   liked = false,
   onOpenVoteModal,
+  onOpenPokeModal,
+  onOpenPossessionModal,
   onOpenResults,
   onChatClick,
+  onChannelPress,
+  onChannelLongPress,
+  onWeeklyLeaderboardPress,
   onLike,
   onSubmitComment,
   onOpenLineups,
@@ -135,16 +186,112 @@ export function MatchCard({
   liked?: boolean;
   onOpen?: (fixture: Fixture) => void;
   onOpenVoteModal?: (fixture: Fixture) => void;
+  onOpenPokeModal?: (fixture: Fixture) => void;
+  onOpenPossessionModal?: (fixture: Fixture) => void;
   onOpenResults?: (fixture: Fixture) => void;
   onChatClick?: (fixture: Fixture) => void;
+  onChannelPress?: () => void;
+  onChannelLongPress?: () => void;
+  onWeeklyLeaderboardPress?: () => void;
   onLike?: (fixture: Fixture) => void;
   onSubmitComment?: (fixture: Fixture, text: string) => void;
   onOpenLineups?: (fixture: Fixture) => void;
 }) {
   const colors = useFanColors();
-  const { userId, isLoggedIn } = useAuth();
+  const { userId, username, isLoggedIn, authToken } = useAuth();
   const { requireLogin } = useLoginModal();
   const [draft, setDraft] = useState('');
+  const [openPokes, setOpenPokes] = useState<Poke[]>([]);
+  const pokeCacheKeyRef = useRef('');
+  const queryClient = useQueryClient();
+  const live = useFixtureLiveUpdates({
+    channelId,
+    fixtureId: String(fixture.matchId || fixture.id),
+    userId,
+    username,
+    authToken,
+    seed: fixture,
+  });
+  const liveFixture: Fixture = {
+    ...fixture,
+    status: live.status,
+    isLive: live.isLive,
+    homeScore: live.homeScore ?? fixture.homeScore,
+    awayScore: live.awayScore ?? fixture.awayScore,
+    timeElapsed: live.timeElapsed ?? fixture.timeElapsed,
+  };
+  const displayedLiveCommentary = live.commentary ?? liveCommentary;
+  useEffect(() => {
+    let active = true;
+    const fixtureId = String(fixture.matchId || fixture.id);
+    if (!channelId || !fixtureId) {
+      // Channel data can be temporarily unavailable during startup or a carousel
+      // transition. Do not erase a previously hydrated poke list for that gap.
+      return () => { active = false; };
+    }
+    const cacheKey = queryKeys.openPokes(fixtureId, channelId);
+    // Hydrate the visible list first; never make the UI wait for HTTP.
+    const cached = queryClient.getQueryData<Poke[]>(cacheKey);
+    const cacheIdentity = JSON.stringify(cacheKey);
+    if (pokeCacheKeyRef.current !== cacheIdentity) {
+      // Do not leak one fixture/channel's pokes into another card, but do not
+      // clear the same card merely because its effect re-runs during a status
+      // or authentication transition.
+      pokeCacheKeyRef.current = cacheIdentity;
+      setOpenPokes(cached ?? []);
+    } else if (cached) {
+      // An empty cached list is meaningful (for example, the final open poke
+      // was just matched); reflect it instead of keeping stale local rows.
+      setOpenPokes(cached);
+    }
+
+    // Subscribe to shared cache updates from poke actions/screens. ChatsScreen
+    // invalidates openPokes when the user scrolls back to the top.
+    let refresh = () => {};
+    const unsubscribe = queryClient.getQueryCache().subscribe((event) => {
+      if (!active) return;
+      const latest = queryClient.getQueryData<Poke[]>(cacheKey);
+      if (latest) setOpenPokes(latest);
+      // Only this card's cache invalidation should trigger its HTTP request.
+      // Matching just the first key segment made every card refetch for every
+      // other fixture, creating a burst of racing requests and stale responses.
+      if (event.type === 'updated' && event.action.type === 'invalidate') {
+        const eventKey = event.query.queryKey;
+        if (eventKey[0] === cacheKey[0]
+          && eventKey[1] === cacheKey[1]
+          && eventKey[2] === cacheKey[2]
+          && (eventKey[3] ?? 'main_fixture') === (cacheKey[3] ?? 'main_fixture')) {
+          refresh();
+        }
+      }
+    });
+
+    refresh = () => {
+      // Keep the last-known list for live fixtures; don't request a list that
+      // may be empty after the fixture has moved into play.
+      if (liveFixture.isLive || liveFixture.status?.toLowerCase() === 'live') return;
+      void getOpenPokes(fixtureId, authToken || undefined, channelId)
+        .then((items) => {
+          if (!active) return;
+          const next = items
+            .filter((item) => item.status.trim().toLowerCase() === 'open')
+            .sort((a, b) => (Date.parse(b.createdAt ?? '') || 0) - (Date.parse(a.createdAt ?? '') || 0));
+          const previous = queryClient.getQueryData<Poke[]>(cacheKey) ?? [];
+          // GET may be partial while writes propagate; keep cached rows until
+          // the server can return the complete list.
+          const stable = mergeOpenPokes(previous, next);
+          queryClient.setQueryData<Poke[]>(cacheKey, stable);
+          setOpenPokes(stable);
+        })
+        .catch(() => {
+          // HTTP/network errors must leave the last successful cache/UI intact.
+        });
+    };
+    void refresh();
+    const interval = setInterval(refresh, 2 * 60 * 1000);
+    return () => { active = false; unsubscribe(); clearInterval(interval); };
+  }, [authToken, channelId, fixture.id, fixture.matchId, liveFixture.isLive, liveFixture.status, queryClient]);
+  const longChannelPressFired = useRef(false);
   const [failedUri, setFailedUri] = useState<string | null>(null);
 
   // Random pick, fixed for this card's lifetime.
@@ -161,9 +308,11 @@ export function MatchCard({
       EMPTY_VOTE_PROMPTS[Math.floor(Math.random() * EMPTY_VOTE_PROMPTS.length)],
   );
 
-  const isLive = !!fixture.isLive || fixture.status === 'live';
+  const isLive = !!liveFixture.isLive || liveFixture.status?.toLowerCase() === 'live';
+  const matchMinute = getFormattedMinuteDisplay(liveFixture);
+  const isHalfTime = liveFixture.status?.toLowerCase() === 'half_time';
   const isCompleted =
-    fixture.status === 'completed' || fixture.status === 'finished';
+    liveFixture.status === 'completed' || liveFixture.status === 'finished';
   const voters = fixture.voters ?? [];
   const hasVoted = voters.some((v) => v.userId === userId);
 
@@ -175,21 +324,39 @@ export function MatchCard({
         return {
           id: v.userId,
           name: v.userName,
+          uri: v.uri ?? null,
           team:
             kind === 'home'
               ? fixture.homeTeam
               : kind === 'away'
                 ? fixture.awayTeam
-                : 'Draw',
-          color: outcomeColor(kind, colors),
+                : kind === 'draw'
+                  ? 'Draw'
+                  : v.selection || 'Vote recorded',
+          color: kind === 'unknown' ? colors.textTertiary : outcomeColor(kind, colors),
         };
       }),
     [voters, fixture.homeTeam, fixture.awayTeam, colors],
   );
 
+  const pokeItems = useMemo(() => openPokes.map((poke) => ({
+    id: `poke:${poke.id || [poke.matchId, poke.userId, poke.selection, poke.amount, poke.createdAt ?? ''].join(':')}`,
+    name: poke.userName || 'Fan',
+    uri: null,
+    team: poke.selection === 'home' ? fixture.homeTeam : fixture.awayTeam,
+    color: outcomeColor(poke.selection === 'home' ? 'home' : 'away', colors),
+  })), [openPokes, fixture.homeTeam, fixture.awayTeam, colors]);
+  // Pokes take priority. If fewer than three are open, fill the strip with
+  // voters, excluding anyone already represented by an open poke.
+  const priorityItems = useMemo(() => {
+    const selectedPokes = pokeItems.slice(0, 3);
+    const pokeUserIds = new Set(openPokes.slice(0, 3).map((poke) => poke.userId));
+    return [...selectedPokes, ...voterItems.filter((voter) => !pokeUserIds.has(voter.id))]
+      .slice(0, 3);
+  }, [pokeItems, openPokes, voterItems]);
   const fixtureLabel = `${fixture.homeTeam} vs ${fixture.awayTeam}`;
   // Teams with the score between them, or "vs" before kickoff.
-  const captionLabel = `${fixture.homeTeam} ${hasScores(fixture) ? scoreDisplay(fixture) : 'vs'
+  const captionLabel = `${fixture.homeTeam} ${hasScores(liveFixture) ? scoreDisplay(liveFixture) : 'vs'
     } ${fixture.awayTeam}`;
   const canComment = !!isLoggedIn && (isCompleted || hasVoted);
 
@@ -199,6 +366,7 @@ export function MatchCard({
   }
 
   function handleVote() {
+    if (isLive) return;
     if (!isLoggedIn) return requireLogin(handleVote);
     if (isCompleted) onOpenResults?.(fixture);
     else onOpenVoteModal?.(fixture);
@@ -222,6 +390,8 @@ export function MatchCard({
     setDraft('');
   }
 
+  const isTyping = draft.trim().length > 0;
+
   const placeholder = !isLoggedIn
     ? 'Log in to comment'
     : canComment
@@ -242,9 +412,19 @@ export function MatchCard({
       {/* Layer 2 — content */}
       <View pointerEvents="box-none">
         {/* Meta: league or channel on the left, date / live on the right */}
-        <View style={styles.metaRow} pointerEvents="none">
+        <View style={styles.metaRow}>
           {channel ? (
-            <View style={[styles.channelLabel, styles.grow]}>
+            <Pressable
+              style={[styles.channelLabel, styles.grow]}
+              onPress={() => {
+                if (longChannelPressFired.current) { longChannelPressFired.current = false; return; }
+                onChannelPress?.();
+              }}
+              onLongPress={() => { longChannelPressFired.current = true; onChannelLongPress?.(); }}
+              delayLongPress={450}
+              accessibilityRole="button"
+              accessibilityLabel={`Open ${channel.name} leaderboard; long press for chat`}
+            >
               <View
                 style={[
                   styles.channelAvatar,
@@ -269,7 +449,7 @@ export function MatchCard({
               </View>
               <Text
                 style={[
-                  fanText('competition', colors, '#FFFFFF'),
+                  fanText('competition', colors, colors.textPrimary),
                   styles.channelName,
                   styles.grow,
                 ]}
@@ -277,27 +457,60 @@ export function MatchCard({
               >
                 {channel.name}
               </Text>
-            </View>
+            </Pressable>
           ) : (
             <Text
-              style={[fanText('competition', colors, '#FFFFFF'), styles.grow]}
+              style={[fanText('competition', colors, colors.textPrimary), styles.grow]}
               numberOfLines={1}
             >
               {fixture.league || 'Unknown league'}
             </Text>
           )}
           {isLive ? (
-            <LiveBadge colors={colors} />
+            <View style={styles.liveTimeRow}>
+              <LiveBadge colors={colors} />
+              {!!matchMinute && (
+                <Text
+                  accessibilityLabel={`Match time ${matchMinute}`}
+                  style={[fanText('tag', colors, colors.textSecondary), styles.matchMinute]}
+                >
+                  {matchMinute}
+                </Text>
+              )}
+            </View>
+          ) : isHalfTime && matchMinute ? (
+            <Text style={[fanText('tag', colors, colors.textSecondary), styles.matchMinute]}>
+              {matchMinute}
+            </Text>
           ) : (
             <Text style={fanText('tag', colors, colors.textTertiary)}>
               {kickoffLabel(fixture.date)}
             </Text>
           )}
         </View>
+        {channel?.leaderName && (
+          <Pressable
+            style={styles.weeklyLeader}
+            onPress={onWeeklyLeaderboardPress}
+            accessibilityRole="button"
+            accessibilityLabel={`Open weekly leaderboard for ${channel.name}`}
+          >
+            <Text style={[styles.weeklyLeaderName, { color: colors.textSecondary }]} numberOfLines={1}>Leader: {channel.leaderName}</Text>
+            <Text style={[styles.weeklyLeaderPoints, { color: colors.primary }]}>{(channel.leaderPoints ?? 0).toLocaleString()} pts</Text>
+          </Pressable>
+        )}
+
+        {/* Competition / tournament type, e.g. Premier League or Serie A */}
+        <Text
+          style={[fanText('tag', colors, colors.textTertiary), styles.leagueName]}
+          numberOfLines={1}
+        >
+          {fixture.league || 'Unknown league'}
+        </Text>
 
         {/* Comment preview / live commentary */}
         <View style={[styles.lineRow, styles.previewRow]} pointerEvents="none">
-          {isLive && liveCommentary ? (
+          {isLive && displayedLiveCommentary ? (
             <>
               <Radio size={ICON.sm} color={colors.live} />
               <Text
@@ -307,10 +520,10 @@ export function MatchCard({
                 ]}
                 numberOfLines={1}
               >
-                {liveCommentary.text}
+                {displayedLiveCommentary.text}
               </Text>
               <Text style={fanText('tag', colors, colors.textTertiary)}>
-                {liveCommentary.minute}&apos;
+                {Math.floor(displayedLiveCommentary.minute)}&apos;
               </Text>
             </>
           ) : (
@@ -353,79 +566,72 @@ export function MatchCard({
         <View style={styles.stackRow}>
           <VoterList
             colors={colors}
-            voters={voterItems}
+            voters={priorityItems}
             emptyLabel={isCompleted ? 'No votes were cast' : emptyPrompt}
           />
         </View>
 
-        {/* One line: actions, comment box, teams + score */}
+        {/* Footer top row: comment input left, fixture teams right. */}
         <View style={styles.bottomRow}>
-          <View style={styles.actions}>
-            <ActionButton
-              icon={Vote}
-              label={isCompleted ? 'Results' : 'Vote'}
-              count={fixture.votes}
-              colors={colors}
-              onPress={handleVote}
-            />
-            <ActionButton
-              icon={Heart}
-              label={liked ? 'Unlike' : 'Like'}
-              count={likesCount}
-              active={liked}
-              activeColor={colors.away}
-              colors={colors}
-              onPress={handleLike}
-            />
-            <ActionButton
-              icon={MessageCircle}
-              label="Comments"
-              count={commentsCount ?? pool.length}
-              colors={colors}
-              onPress={handleChat}
-            />
-          </View>
-
-          {/* Middle: comment box */}
-          <View style={styles.inputCell}>
-            {!canComment && (
-              <Lock size={ICON.sm} color={colors.textTertiary} />
-            )}
-            <Input
-              style={[
-                styles.grow,
-                styles.noBorderInput,
-                fanText('caption', colors, colors.textSecondary),
-              ]}
-              colors={colors}
-              variant="inline"
-              value={draft}
-              onChangeText={setDraft}
-              editable={canComment}
-              placeholder={placeholder}
-              onSubmitEditing={handleSubmit}
-              returnKeyType="send"
-            />
-          </View>
-
-          {/* Right: Home vs Away + score → match details */}
-          <Pressable
-            onPress={handleLineups}
-            hitSlop={8}
-            style={({ pressed }) => [
-              styles.caption,
-              pressed && { opacity: PRESSED_OPACITY },
-            ]}
-            accessibilityRole="link"
-            accessibilityLabel={`Open match details: ${fixtureLabel}`}
-          >
-            <Text
-              style={fanText('tag', colors, colors.textTertiary)}
-              numberOfLines={1}
+          <View style={styles.footerTopRow}>
+            <View style={styles.inputCell}>
+              {!isLoggedIn ? (
+                <Pressable
+                  onPress={handleSubmit}
+                  accessibilityRole="button"
+                  accessibilityLabel="Log in to comment"
+                  hitSlop={8}
+                  style={({ pressed }) => [styles.guestCommentPrompt, pressed && { opacity: PRESSED_OPACITY }]}
+                >
+                  <Text numberOfLines={1} style={fanText('caption', colors, colors.textSecondary)}>Log in to comment</Text>
+                </Pressable>
+              ) : (
+                <>
+                  {!canComment && <Lock size={ICON.sm} color={colors.textTertiary} />}
+                  <Input
+                    style={[styles.grow, styles.noBorderInput, fanText('caption', colors, colors.textSecondary)]}
+                    colors={colors}
+                    variant="inline"
+                    value={draft}
+                    onChangeText={setDraft}
+                    editable={canComment}
+                    placeholder={placeholder}
+                    onSubmitEditing={handleSubmit}
+                    returnKeyType="send"
+                    accessibilityLabel={placeholder}
+                  />
+                  {isTyping && <Pressable onPress={handleSubmit} disabled={!canComment} accessibilityRole="button" accessibilityLabel="Send comment" style={({ pressed }) => ({ paddingHorizontal: 0, paddingVertical: 2, backgroundColor: 'transparent', opacity: pressed ? PRESSED_OPACITY : 1 })}><Text style={fanText('tag', colors, canComment ? colors.primary : colors.textTertiary)}>Send</Text></Pressable>}
+                </>
+              )}
+            </View>
+            <Pressable
+              onPress={handleLineups}
+              hitSlop={8}
+              style={({ pressed }) => [styles.caption, pressed && { opacity: PRESSED_OPACITY }]}
+              accessibilityRole="link"
+              accessibilityLabel={`Open match details: ${fixtureLabel}`}
             >
-              {captionLabel}
-            </Text>
-          </Pressable>
+              <View style={styles.teamMatchup}>
+                <TeamCrest name={fixture.homeTeam} fixture={fixture as unknown as Record<string, unknown>} side="home" size={16} />
+                <Text style={[fanText('tag', colors, colors.textPrimary), styles.teamName]} numberOfLines={2}>{fixture.homeTeam}</Text>
+                <Text style={fanText('tag', colors, colors.textTertiary)}>{hasScores(liveFixture) ? scoreDisplay(liveFixture) : 'vs'}</Text>
+                <Text style={[fanText('tag', colors, colors.textPrimary), styles.teamName]} numberOfLines={2}>{fixture.awayTeam}</Text>
+                <TeamCrest name={fixture.awayTeam} fixture={fixture as unknown as Record<string, unknown>} side="away" size={16} />
+              </View>
+            </Pressable>
+          </View>
+          <View style={styles.actions}>
+            <View style={styles.actionSlot}><ActionButton icon={Vote} label={isLive ? 'Live' : isCompleted ? 'Results' : 'Vote'} count={fixture.votes} colors={colors} onPress={handleVote} /></View>
+            <View style={styles.actionSlot}>
+              <Pressable disabled={isLive} onPress={() => { if (isLive) return; if (!isLoggedIn) return requireLogin(() => onOpenPokeModal?.(fixture)); onOpenPokeModal?.(fixture); }} hitSlop={8} accessibilityRole="button" accessibilityLabel={isLive ? "Poking unavailable for live matches" : "Poke on this match"} accessibilityState={{ disabled: isLive }} style={({ pressed }) => [styles.pokeButton, isLive && { opacity: 0.45 }, pressed && !isLive && { opacity: PRESSED_OPACITY }]}>
+                <View style={[styles.pokeCircle, { backgroundColor: colors.primaryDim }]}><Pointer size={ICON.sm} color={colors.primary} /></View>
+                <Text style={fanText('tag', colors, colors.primary)}>Poke</Text>
+              </Pressable>
+            </View>
+            <View style={styles.actionSlot}><Pressable onPress={() => { if (!isLoggedIn) return requireLogin(() => onOpenPossessionModal?.(fixture)); onOpenPossessionModal?.(fixture); }} hitSlop={8} accessibilityRole="button" accessibilityLabel="Open possession market" style={({ pressed }) => [styles.pokeButton, pressed && { opacity: PRESSED_OPACITY }]}><View style={[styles.pokeCircle, { backgroundColor: colors.primaryDim }]}><Activity size={ICON.sm} color={colors.primary} /></View></Pressable></View>
+            <View style={styles.actionSlot}><ActionButton icon={Heart} label={liked ? 'Unlike' : 'Like'} count={likesCount} active={liked} activeColor={colors.away} colors={colors} onPress={handleLike} /></View>
+            <View style={styles.actionSlot}><ActionButton icon={MessageCircle} label="Comments" count={commentsCount ?? pool.length} colors={colors} onPress={() => {}} /></View>
+          </View>
         </View>
       </View>
     </FeedItem>
@@ -433,6 +639,8 @@ export function MatchCard({
 }
 
 const styles = StyleSheet.create({
+  liveTimeRow: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  matchMinute: { fontVariant: ['tabular-nums'], flexShrink: 0 },
   grow: { flex: 1 },
   // Vertical rhythm between the card's sections.
   metaRow: {
@@ -442,8 +650,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   previewRow: { marginBottom: 0 },
+  leagueName: { marginTop: 2, marginBottom: 0, fontSize: 11, lineHeight: 14 },
   resultRow: { marginTop: 10 },
   stackRow: { marginTop: 14 },
+  weeklyLeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, paddingVertical: 3, paddingHorizontal: 0, zIndex: 3 },
+  weeklyLeaderName: { fontSize: 11, fontWeight: '600', flex: 1 },
+  weeklyLeaderPoints: { fontSize: 11, fontWeight: '800' },
   channelLabel: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -465,20 +677,33 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: FAN_SPACING.sm,
   },
-  // One horizontal line: actions | comment box | teams + score.
-  // Negative bottom margin cancels FeedItem's bottom padding so the row
-  // sits on the card floor. Tune FOOTER_BLEED if a gap remains.
+  // Slightly taller footer: input + teams on row one, four equal actions on row two.
   bottomRow: {
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    gap: FAN_SPACING.sm,
+    marginTop: 20,
+    marginBottom: -FOOTER_BLEED + 4,
+  },
+  footerTopRow: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: FAN_SPACING.sm,
-    marginTop: 18,
-    marginBottom: -FOOTER_BLEED,
+    width: '100%',
+    minWidth: 0,
   },
   actions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: FAN_SPACING.base,
+    width: '100%',
+    gap: 0,
+    minHeight: 32,
+  },
+  actionSlot: {
+    flex: 1,
+    minWidth: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   inputCell: {
     flex: 1,
@@ -487,9 +712,51 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: FAN_SPACING.sm,
   },
+  guestCommentPrompt: {
+    flex: 1,
+    minWidth: 0,
+    justifyContent: 'center',
+    alignSelf: 'stretch',
+    paddingVertical: 4,
+  },
+  pokeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    minHeight: 28,
+  },
+  pokeCircle: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  teamMatchup: {
+    flexDirection: 'row',
+    minWidth: 0,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    gap: 4,
+    maxWidth: '100%',
+  },
+  teamLogo: {
+    width: 16,
+    height: 16,
+    flexShrink: 0,
+    borderRadius: 8,
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  teamLogoImage: { width: '100%', height: '100%' },
+  teamFallback: { fontSize: 9, fontWeight: '700' },
+  teamName: { flexShrink: 1, minWidth: 0, maxWidth: 74 },
   caption: {
     flexShrink: 0,
-    maxWidth: '40%',
+    flex: 0.95,
+    minWidth: 0,
+    maxWidth: '48%',
     minHeight: 32,
     alignItems: 'flex-end',
     justifyContent: 'center',

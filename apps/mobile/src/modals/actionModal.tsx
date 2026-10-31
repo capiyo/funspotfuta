@@ -16,6 +16,8 @@
 //   - Team names appear once (match header); pills say Home / Away.
 //   - Sub-fixture titles/icons/settled results and the bet card restored.
 
+import { Avatar } from '@/components/ui/Avatar';
+import { TeamCrest } from '@/components/TeamCrest';
 import React, {
     useCallback,
     useEffect,
@@ -260,9 +262,9 @@ function CTA({
                 small ? styles.ctaSmall : styles.cta,
                 { backgroundColor: bg },
                 tone === 'ghost' && {
-                    borderWidth: StyleSheet.hairlineWidth,
+                    borderWidth: 0,
                     borderColor: colors.border,
-                    backgroundColor: colors.inputSurface,
+                    backgroundColor: colors.surfaceSunken,
                 },
                 isDisabled && { opacity: 0.5 },
                 pressed && !isDisabled && { opacity: PRESSED_OPACITY },
@@ -306,10 +308,10 @@ function OutcomePill({
             ]}
         >
             <Text
-                numberOfLines={1}
+                numberOfLines={2}
                 style={[
                     fanText('caption', colors, selected ? accent : colors.textPrimary),
-                    { fontWeight: '700' },
+                    { fontWeight: '700', textAlign: 'center', flexShrink: 1, flexWrap: 'wrap' },
                 ]}
             >
                 {label}
@@ -434,13 +436,14 @@ function BalanceBar({
 }
 
 function PersonTile({
-    name, subtitle, accent, isMe, badge, badgeColor, amountLabel, trailing, progress,
+    name, subtitle, accent, isMe, userId, badge, badgeColor, amountLabel, trailing, progress,
     colors, styles,
 }: {
     name: string;
     subtitle: string;
     accent: string;
     isMe?: boolean;
+    userId?: string;
     badge?: string;
     badgeColor?: string;
     amountLabel?: string;
@@ -458,9 +461,7 @@ function PersonTile({
             ]}
         >
             <View style={styles.personRow}>
-                <View style={[styles.avatar, { backgroundColor: dimOf(accent, colors), borderColor: accent }]}>
-                    <Text style={[styles.avatarText, { color: accent }]}>{initial}</Text>
-                </View>
+                <Avatar colors={colors} size="lg" userId={userId} label={initial} borderColor={accent} backgroundColor={dimOf(accent, colors)} />
                 <View style={{ flex: 1, minWidth: 0 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: FAN_SPACING.xs }}>
                         <Text
@@ -523,7 +524,9 @@ function TabBar({
                     {
                         width: `${widthPct}%` as any,
                         left: `${active * widthPct}%` as any,
-                        backgroundColor: colors.primary,
+                        backgroundColor: colors.surface,
+                        shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 3,
+                        shadowOffset: { width: 0, height: 1 }, elevation: 1,
                     },
                 ]}
             />
@@ -537,7 +540,9 @@ function TabBar({
                     >
                         <Text
                             numberOfLines={1}
-                            style={fanText('caption', colors, on ? colors.background : colors.textSecondary)}
+                            adjustsFontSizeToFit
+                            minimumFontScale={0.72}
+                            style={[fanText('caption', colors, on ? colors.textPrimary : colors.textTertiary), { textAlign: 'center', flexShrink: 1 }]}
                         >
                             {label}
                         </Text>
@@ -641,7 +646,7 @@ function DialogShell({
 }) {
     return (
         <Pressable style={styles.dialogBackdrop} onPress={onCancel}>
-            <Pressable style={styles.dialogCard} onPress={() => { }}>
+            <Pressable style={styles.dialogCard} onPress={(event) => event.stopPropagation()}>
                 {children}
             </Pressable>
         </Pressable>
@@ -936,7 +941,7 @@ export function SwipeableVotePledgeModal(props: Props) {
     const {
         visible, fixture, userId, username, authToken, isLoggedIn,
         hasUserVoted, userVoteSelection, channelId,
-        showPledgesTab = true, showSubFixturesTab = true, showBetsTab = false,
+        showPledgesTab = true, showSubFixturesTab = true, showBetsTab = true,
         onClose, onVote, onPledge, onShowJoinGroups,
         fetchVoters, fetchPledges, fetchSubFixtures, fetchSubFixturePledges,
         fetchBets, fetchBalance, topUp, withdraw,
@@ -1466,7 +1471,7 @@ export function SwipeableVotePledgeModal(props: Props) {
         return (
             <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
                 <Pressable style={styles.backdrop} onPress={onClose}>
-                    <Pressable style={[styles.sheet, { height: screenH * 0.72 }]} onPress={() => { }}>
+                    <Pressable style={[styles.sheet, { width: '100%', height: screenH * 0.5, maxHeight: '50%' }]} onPress={(event) => event.stopPropagation()}>
                         <HandleBar colors={colors} styles={styles} />
                         <View style={styles.joinGroupBox}>
                             <View style={styles.joinGroupIconWrap}>
@@ -1502,8 +1507,8 @@ export function SwipeableVotePledgeModal(props: Props) {
             <KeyboardAvoidingView style={{ flex: 1 }} behavior={kavBehavior}>
                 <Pressable style={styles.backdrop} onPress={onClose}>
                     <Pressable
-                        style={[styles.sheet, { height: screenH * 0.82, maxHeight: '100%' }]}
-                        onPress={() => { }}
+                        style={[styles.sheet, { width: '100%', height: screenH * 0.5, maxHeight: '50%' }]}
+                        onPress={(event) => event.stopPropagation()}
                     >
                         <HandleBar colors={colors} styles={styles} />
 
@@ -1540,13 +1545,9 @@ export function SwipeableVotePledgeModal(props: Props) {
 
                         {/* Match header — the ONLY place both team names appear together */}
                         <View style={styles.matchHeader}>
-                            <View style={styles.matchHeaderSide}>
-                                <Text
-                                    style={[fanText('caption', colors, colors.primary), { fontWeight: '700' }]}
-                                    numberOfLines={1}
-                                >
-                                    {fixture.homeTeam}
-                                </Text>
+                            <View style={[styles.matchHeaderSide, { flexDirection: 'row', alignItems: 'center', gap: 6 }]}>
+                                <TeamCrest name={fixture.homeTeam} fixture={fixture as unknown as Record<string,unknown>} side="home" size={26}/>
+                                <Text style={[fanText('caption', colors, colors.primary), { fontWeight: '700', flexShrink: 1 }]} numberOfLines={1}>{fixture.homeTeam}</Text>
                             </View>
                             <View style={styles.matchHeaderCenter}>
                                 <Text style={fanText('tag', colors, colors.textTertiary)}>VS</Text>
@@ -1557,13 +1558,9 @@ export function SwipeableVotePledgeModal(props: Props) {
                                     </View>
                                 )}
                             </View>
-                            <View style={[styles.matchHeaderSide, { alignItems: 'flex-end' }]}>
-                                <Text
-                                    style={[fanText('caption', colors, colors.away), { fontWeight: '700' }]}
-                                    numberOfLines={1}
-                                >
-                                    {fixture.awayTeam}
-                                </Text>
+                            <View style={[styles.matchHeaderSide, { alignItems: 'flex-end', flexDirection: 'row', justifyContent: 'flex-end', gap: 6 }]}>
+                                <Text style={[fanText('caption', colors, colors.away), { fontWeight: '700', flexShrink: 1 }]} numberOfLines={1}>{fixture.awayTeam}</Text>
+                                <TeamCrest name={fixture.awayTeam} fixture={fixture as unknown as Record<string,unknown>} side="away" size={26}/>
                             </View>
                         </View>
 
@@ -1777,7 +1774,7 @@ export function SwipeableVotePledgeModal(props: Props) {
                 {/* Pick */}
                 <View style={{ flexDirection: 'row', gap: FAN_SPACING.sm }}>
                     <OutcomePill
-                        label="Home"
+                        label={fixture.homeTeam}
                         sublabel={`${voteStats.homeCount} picks`}
                         selected={isHomeSel(mine)}
                         locked={locked}
@@ -1787,7 +1784,7 @@ export function SwipeableVotePledgeModal(props: Props) {
                         styles={styles}
                     />
                     <OutcomePill
-                        label="Away"
+                        label={fixture.awayTeam}
                         sublabel={`${voteStats.awayCount} picks`}
                         selected={isAwaySel(mine)}
                         locked={locked}
@@ -1856,10 +1853,11 @@ export function SwipeableVotePledgeModal(props: Props) {
                                 colors={colors}
                                 styles={styles}
                                 name={isMe ? 'You' : v.userName}
+                                userId={v.userId}
                                 subtitle={v.isComrade && !isMe ? 'comrade' : 'voter'}
                                 accent={accent}
                                 isMe={isMe}
-                                badge={displayVote(v.selection).toUpperCase()}
+                                badge={`✓ VOTE · ${displayVote(v.selection).toUpperCase()}`}
                                 badgeColor={accent}
                                 progress={pct}
                             />
@@ -1961,6 +1959,7 @@ export function SwipeableVotePledgeModal(props: Props) {
                                 colors={colors}
                                 styles={styles}
                                 name={isMe ? 'You' : p.userName}
+                                userId={p.userId}
                                 subtitle={isMe ? 'your pledge' : 'pledged'}
                                 accent={accent}
                                 isMe={isMe}
@@ -2330,10 +2329,13 @@ function createStyles(colors: FanColorPalette) {
         },
         sheet: {
             backgroundColor: colors.background,
+            width: '100%',
             borderTopLeftRadius: FAN_RADIUS.xl,
             borderTopRightRadius: FAN_RADIUS.xl,
+            borderBottomLeftRadius: FAN_RADIUS.lg,
+            borderBottomRightRadius: FAN_RADIUS.lg,
             overflow: 'hidden',
-            borderWidth: StyleSheet.hairlineWidth,
+            borderWidth: 0,
             borderColor: colors.border,
             borderBottomWidth: 0,
         },
@@ -2376,7 +2378,7 @@ function createStyles(colors: FanColorPalette) {
             height: 40,
             borderRadius: 20,
             backgroundColor: colors.inputSurface,
-            borderWidth: StyleSheet.hairlineWidth,
+            borderWidth: 0,
             borderColor: colors.border,
             alignItems: 'center',
             justifyContent: 'center',
@@ -2386,7 +2388,7 @@ function createStyles(colors: FanColorPalette) {
             height: 32,
             borderRadius: 16,
             backgroundColor: colors.inputSurface,
-            borderWidth: StyleSheet.hairlineWidth,
+            borderWidth: 0,
             borderColor: colors.border,
             alignItems: 'center',
             justifyContent: 'center',
@@ -2407,7 +2409,7 @@ function createStyles(colors: FanColorPalette) {
             paddingVertical: FAN_SPACING.sm,
             borderRadius: FAN_RADIUS.md,
             backgroundColor: colors.inputSurface,
-            borderWidth: StyleSheet.hairlineWidth,
+            borderWidth: 0,
             borderColor: colors.border,
             gap: FAN_SPACING.sm,
         },
@@ -2434,7 +2436,7 @@ function createStyles(colors: FanColorPalette) {
             padding: 3,
             borderRadius: FAN_RADIUS.md,
             backgroundColor: colors.inputSurface,
-            borderWidth: StyleSheet.hairlineWidth,
+            borderWidth: 0,
             borderColor: colors.border,
         },
         tabIndicator: {
@@ -2446,14 +2448,18 @@ function createStyles(colors: FanColorPalette) {
         },
         tabButton: {
             flex: 1,
+            minWidth: 0,
             alignItems: 'center',
+            justifyContent: 'center',
+            paddingHorizontal: 2,
             paddingVertical: FAN_SPACING.sm,
+            minHeight: 34,
             zIndex: 1,
         },
 
         // Layout
         tabBody: {
-            paddingHorizontal: FAN_SPACING.lg,
+            paddingHorizontal: FAN_SPACING.md,
             paddingTop: FAN_SPACING.xs,
             gap: FAN_SPACING.sm,
         },
@@ -2475,7 +2481,7 @@ function createStyles(colors: FanColorPalette) {
         card: {
             borderRadius: FAN_RADIUS.lg,
             backgroundColor: colors.surface,
-            borderWidth: StyleSheet.hairlineWidth,
+            borderWidth: 0,
             borderColor: colors.border,
             padding: FAN_SPACING.md,
             gap: FAN_SPACING.sm,
@@ -2530,7 +2536,7 @@ function createStyles(colors: FanColorPalette) {
             paddingVertical: 6,
             borderRadius: FAN_RADIUS.pill,
             backgroundColor: colors.surface,
-            borderWidth: StyleSheet.hairlineWidth,
+            borderWidth: 0,
             borderColor: colors.border,
         },
 
@@ -2538,7 +2544,7 @@ function createStyles(colors: FanColorPalette) {
         input: {
             borderRadius: FAN_RADIUS.md,
             backgroundColor: colors.inputSurface,
-            borderWidth: StyleSheet.hairlineWidth,
+            borderWidth: 0,
             borderColor: colors.border,
             paddingHorizontal: FAN_SPACING.md,
             paddingVertical: Platform.OS === 'ios' ? 11 : 8,
@@ -2578,7 +2584,7 @@ function createStyles(colors: FanColorPalette) {
             paddingVertical: FAN_SPACING.sm,
             borderRadius: FAN_RADIUS.md,
             backgroundColor: colors.inputSurface,
-            borderWidth: StyleSheet.hairlineWidth,
+            borderWidth: 0,
             borderColor: colors.border,
         },
 
@@ -2596,7 +2602,7 @@ function createStyles(colors: FanColorPalette) {
             paddingVertical: FAN_SPACING.sm,
             borderRadius: FAN_RADIUS.md,
             backgroundColor: colors.surface,
-            borderWidth: StyleSheet.hairlineWidth,
+            borderWidth: 0,
             borderColor: colors.border,
             marginBottom: FAN_SPACING.xs,
             gap: FAN_SPACING.sm,
@@ -2610,7 +2616,7 @@ function createStyles(colors: FanColorPalette) {
             width: 32,
             height: 32,
             borderRadius: 16,
-            borderWidth: StyleSheet.hairlineWidth,
+            borderWidth: 0,
             alignItems: 'center',
             justifyContent: 'center',
         },
@@ -2651,7 +2657,7 @@ function createStyles(colors: FanColorPalette) {
             paddingHorizontal: FAN_SPACING.md,
             paddingVertical: FAN_SPACING.sm,
             borderRadius: FAN_RADIUS.pill,
-            borderWidth: StyleSheet.hairlineWidth,
+            borderWidth: 0,
         },
         liveDotLg: { width: 6, height: 6, borderRadius: 3 },
 
@@ -2668,7 +2674,7 @@ function createStyles(colors: FanColorPalette) {
             paddingVertical: 6,
             borderRadius: FAN_RADIUS.pill,
             backgroundColor: colors.inputSurface,
-            borderWidth: StyleSheet.hairlineWidth,
+            borderWidth: 0,
             borderColor: colors.border,
         },
         spinnerWrap: {
@@ -2694,7 +2700,7 @@ function createStyles(colors: FanColorPalette) {
             paddingVertical: FAN_SPACING.sm,
             borderRadius: FAN_RADIUS.pill,
             backgroundColor: colors.inputSurface,
-            borderWidth: StyleSheet.hairlineWidth,
+            borderWidth: 0,
             borderColor: colors.border,
         },
         shareIcon: { fontSize: 14, color: colors.primary, fontWeight: '700' },
@@ -2719,7 +2725,7 @@ function createStyles(colors: FanColorPalette) {
             maxWidth: 400,
             backgroundColor: colors.inputSurface,
             borderRadius: FAN_RADIUS.lg,
-            borderWidth: StyleSheet.hairlineWidth,
+            borderWidth: 0,
             borderColor: colors.border,
             padding: FAN_SPACING.lg,
         },
@@ -2728,7 +2734,7 @@ function createStyles(colors: FanColorPalette) {
             paddingVertical: FAN_SPACING.sm,
             borderRadius: FAN_RADIUS.md,
             backgroundColor: colors.background,
-            borderWidth: StyleSheet.hairlineWidth,
+            borderWidth: 0,
             borderColor: colors.border,
             marginBottom: FAN_SPACING.md,
             gap: 2,
@@ -2753,7 +2759,7 @@ function createStyles(colors: FanColorPalette) {
             height: 88,
             borderRadius: 44,
             backgroundColor: colors.inputSurface,
-            borderWidth: StyleSheet.hairlineWidth,
+            borderWidth: 0,
             borderColor: colors.border,
             alignItems: 'center',
             justifyContent: 'center',

@@ -2,8 +2,7 @@
 //
 // Presentation, plus vote / pledge handlers aligned with the Flutter flow
 // (fixture_page.dart: _processVote / _processPledge).
-//   - status filter is a SegmentedControl
-//   - loading / empty / error use the shared list states
+// //   - loading / empty / error use the shared list states
 //   - no horizontal padding on the list: FeedItem owns the gutter
 //   - last card clears the floating tab bar (LIST_BOTTOM_INSET)
 //   - commentsOf() mocks two comments per fixture
@@ -26,24 +25,22 @@
 //   - the modal's payment / phone / sub-fixture props are bound to the user id
 //     and token here (modalApi), because the shims need both.
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
 import { View, FlatList, RefreshControl, StyleSheet } from 'react-native';
+import type { NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { sendChannelMessage } from '../../../../packages/core/src/api/send-channel-messages';
-import {
-  useQuery,
-  useQueryClient,
-  keepPreviousData,
-} from '@tanstack/react-query';
+import { sendChannelMessage } from '@funspot/core';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { useAuth } from '@/lib/auth/auth-context';
 import { useLoginModal } from '../modals/Login-modal-context';
 import {
-  getAllFixtures,
+  useFixtures,
+  queryKeys,
   Fixture,
   FanColorPalette,
-  FAN_SPACING,
   Voter,
 } from '@funspot/core';
 import {
@@ -52,18 +49,21 @@ import {
   ChannelHeaderData,
 } from '@/components/ChatsCard';
 import { channelHeaderOf } from '../modals/channelHeader';
-import { SegmentedControl } from '@/components/ui/Segmentedcontrol';
 import {
   EmptyState,
   ErrorBanner,
   SkeletonRows,
 } from '@/components/ui/ListsStates';
 import { SwipeableVotePledgeModal } from '@/modals/actionModal';
+import { PokeModal } from '@/modals/PokeModal';
+import { PossessionModal } from '@/modals/PossessionModal';
 import { AftermatchReviewModal } from '@/modals/AftermatchModal';
 import { MatchDetailsModal } from '@/modals/match/matchDetailsModals';
+import LeaderboardModal from '@/modals/LeaderboardModal';
+import { WeeklyLeaderboardModal } from '@/modals/WeeklyLeaderboardModal';
 
 import { useFanColors } from '@/theme/use-fan-colors';
-import { GUTTER, LIST_BOTTOM_INSET } from '@/theme/layout';
+import { LIST_BOTTOM_INSET } from '@/theme/layout';
 import { RootStackParamList } from '@/navigation/RootNavigator';
 import { useHome, useHomeList } from './home/home-context';
 // TODO: export these from @funspot/core instead of reaching into its src.
@@ -81,34 +81,17 @@ import {
   getUserPhone as shimGetUserPhone,
   placeSubFixturePledge as shimPlaceSubFixturePledge,
   matchSubFixturePledge as shimMatchSubFixturePledge,
-} from '../../../../packages/core/src/api/vote-modal-shims';
+} from '@funspot/core';
 import {
   castFixtureVote,
   createPledge,
   matchMainPledge as actionMatchMainPledge,
-} from '../../../../packages/core/src/api/vote-actions';
+} from '@funspot/core';
 
-type Filter = 'all' | 'live' | 'upcoming' | 'completed';
 type Pick = 'home' | 'away';
 type ActionResult = { success: boolean; message?: string; newBalance?: number };
 
-const EMPTY_COPY: Record<Filter, { title: string; hint: string }> = {
-  all: { title: 'No fixtures right now', hint: 'Check back soon.' },
-  live: {
-    title: 'Nothing live at the moment',
-    hint: 'Live matches show up here.',
-  },
-  upcoming: {
-    title: 'No upcoming fixtures',
-    hint: 'New fixtures appear as they are scheduled.',
-  },
-  completed: {
-    title: 'No completed matches yet',
-    hint: 'Finished matches appear here.',
-  },
-};
-
-const FIXTURES_KEY = ['fixtures'] as const;
+const FIXTURES_KEY = queryKeys.fixtures();
 const NO_FIXTURES: Fixture[] = [];
 
 const MOCK_COMMENTORS = [
@@ -174,15 +157,6 @@ function isLiveFixture(f: Fixture) {
 function isUpcomingFixture(f: Fixture) {
   return f.status === 'upcoming' || f.status === 'soon';
 }
-function isCompletedFixture(f: Fixture) {
-  return f.status === 'completed' || f.status === 'finished';
-}
-function matchesFilter(f: Fixture, filter: Filter) {
-  if (filter === 'all') return true;
-  if (filter === 'live') return isLiveFixture(f);
-  if (filter === 'upcoming') return isUpcomingFixture(f);
-  return isCompletedFixture(f);
-}
 function statusRank(f: Fixture) {
   if (isLiveFixture(f)) return 0;
   if (isUpcomingFixture(f)) return 1;
@@ -212,13 +186,30 @@ export default function ChatsScreen() {
     useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const queryClient = useQueryClient();
 
-  const { data, isPending, isError, error, refetch } = useQuery({
-    queryKey: FIXTURES_KEY,
-    queryFn: getAllFixtures,
-    placeholderData: keepPreviousData,
-    enabled: activeTab === 'Chats',
-  });
-  const fixtures = data ?? NO_FIXTURES;
+  const { data, isPending, isError, error, refetch } = useFixtures(
+    userId ?? undefined,
+    activeTab === 'Chats',
+    authToken,
+  );
+    const fixtures = useMemo(() => (data ?? NO_FIXTURES).map((fixture) => {
+    if (!userId) return fixture;
+    const cached = queryClient.getQueryData<{ voters?: Array<{ userId: string; username?: string; userName?: string; selection: string; isComrade?: boolean; votedAt?: Date; uri?: string | null }> }>(
+      queryKeys.fixtureVotes(fixture.matchId || fixture.id, userId),
+    );
+    if (!cached?.voters?.length) return fixture;
+    const localVoters: Voter[] = cached.voters.map((voter) => ({
+      userId: voter.userId,
+      userName: voter.userName ?? voter.username ?? 'Fan',
+      selection: voter.selection,
+      uri: voter.uri ?? null,
+      isCorrect: null,
+      pointsAwarded: null,
+      isComrade: voter.isComrade ?? false,
+      votedAt: voter.votedAt ? new Date(voter.votedAt) : new Date(),
+    }));
+    const merged = [...localVoters, ...(fixture.voters ?? []).filter((voter) => !localVoters.some((local) => local.userId === voter.userId))];
+    return { ...fixture, voters: merged };
+  }), [data, userId, queryClient]);
 
   const headerById = useMemo(() => {
     const map = new Map<string, ChannelHeaderData>();
@@ -227,13 +218,36 @@ export default function ChatsScreen() {
   }, [channels]);
 
   const [refreshing, setRefreshing] = useState(false);
-  const [filter, setFilter] = useState<Filter>('all');
+  const lastTopRefreshAt = useRef(0);
+  const scrolledAwayFromTop = useRef(false);
+  const handleFixtureScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    scrollProps.onScroll(event);
+    const offset = event.nativeEvent.contentOffset.y;
+    if (offset > 80) {
+      scrolledAwayFromTop.current = true;
+      return;
+    }
+    if (!scrolledAwayFromTop.current) return;
+    scrolledAwayFromTop.current = false;
+    const now = Date.now();
+    if (now - lastTopRefreshAt.current < 30_000) return;
+    lastTopRefreshAt.current = now;
+    void refetch();
+    void queryClient.invalidateQueries({ queryKey: ['openPokes'] });
+  }, [scrollProps.onScroll, refetch, queryClient]);
   const [modalFixture, setModalFixture] = useState<Fixture | null>(null);
+  const [pokeModalFixture, setPokeModalFixture] = useState<Fixture | null>(null);
+  const [pokeModalChannelId, setPokeModalChannelId] = useState<string | undefined>();
+  const [possessionFixture, setPossessionFixture] = useState<Fixture | null>(null);
+  const [possessionChannelId, setPossessionChannelId] = useState<string | undefined>();
   const [reviewFixture, setReviewFixture] = useState<Fixture | null>(null);
   const [matchDetailsFixture, setMatchDetailsFixture] =
     useState<Fixture | null>(null);
+  const [leaderboardChannel, setLeaderboardChannel] = useState<{ id: string; name: string } | null>(null);
+  const [weeklyChannel, setWeeklyChannel] = useState<{ id: string; name: string } | null>(null);
 
   const channelIds = useMemo(() => channels.map((c) => c.channelId), [channels]);
+  const [channelStartOffset] = useState(() => Math.floor(Math.random() * 3));
 
   // Channel of the card whose vote / results modal is open.
   const [sheetChannelId, setSheetChannelId] = useState<string | undefined>();
@@ -267,37 +281,16 @@ export default function ChatsScreen() {
     setRefreshing(true);
     try {
       await refetch();
+      await queryClient.invalidateQueries({ queryKey: ['openPokes'] });
     } finally {
       setRefreshing(false);
     }
-  }, [refetch]);
+  }, [refetch, queryClient]);
 
-  const liveCount = useMemo(
-    () => fixtures.filter(isLiveFixture).length,
-    [fixtures],
-  );
-
-  const filterOptions = useMemo(
-    () => [
-      { value: 'all' as const, label: 'All' },
-      {
-        value: 'live' as const,
-        label: liveCount > 0 ? `Live · ${liveCount}` : 'Live',
-      },
-      { value: 'upcoming' as const, label: 'Upcoming' },
-      { value: 'completed' as const, label: 'Completed' },
-    ],
-    [liveCount],
-  );
-
-  const filtered = useMemo(() => {
-    const matched = fixtures.filter((f) => matchesFilter(f, filter));
-    if (filter !== 'all') return matched;
-    return matched
-      .map((f, i) => ({ f, i }))
-      .sort((a, b) => statusRank(a.f) - statusRank(b.f) || a.i - b.i)
-      .map(({ f }) => f);
-  }, [fixtures, filter]);
+  const chatFixtures = useMemo(() => fixtures
+    .map((fixture, index) => ({ fixture, index }))
+    .sort((a, b) => statusRank(a.fixture) - statusRank(b.fixture) || a.index - b.index)
+    .map(({ fixture }) => fixture), [fixtures]);
 
   const openChat = useCallback(
     (fixture?: Fixture, channelId?: string) => {
@@ -306,7 +299,7 @@ export default function ChatsScreen() {
       if (!cid) return;
       navigation.navigate('Chat', {
         channelId: cid,
-        fixtureId: fixture ? fixture.matchId ?? fixture.id : undefined,
+        fixtureId: fixture ? fixture.matchId?.trim() || fixture.id?.trim() : undefined,
       });
     },
     [navigation, homeChannelId, isLoggedIn, requireLogin],
@@ -357,25 +350,151 @@ export default function ChatsScreen() {
   function addVoteToCache(fixture: Fixture, sel: Pick) {
     if (!userId) return;
     const selection = sel === 'home' ? 'home_team' : 'away_team';
+    const newVoter: Voter = {
+      userId,
+      userName: username ?? '',
+      selection,
+      votedAt: new Date(),
+      isComrade: false,
+      isCorrect: false,
+      pointsAwarded: 0,
+    };
+    const cacheVoter = {
+      userId, username: username ?? '', selection, isComrade: false, votedAt: new Date(),
+    };
+    // Update both persisted vote state and the fixture list before leaving the
+    // action sheet, so Messaging can unlock from cache without a vote refetch.
+    queryClient.setQueryData(queryKeys.fixtureVotes(fixture.matchId || fixture.id, userId), (previous: { homeVotes?: number; awayVotes?: number; drawVotes?: number; userVoteSelection?: string | null; voters?: Array<{ userId: string; username: string; selection: string; isComrade: boolean; votedAt: Date }> } | undefined) => ({
+      homeVotes: previous?.homeVotes ?? 0,
+      awayVotes: previous?.awayVotes ?? 0,
+      drawVotes: previous?.drawVotes ?? 0,
+      userVoteSelection: selection,
+      voters: [cacheVoter, ...(previous?.voters ?? []).filter((voter) => voter.userId !== userId)],
+    }));
     queryClient.setQueryData<Fixture[]>(FIXTURES_KEY, (prev = []) =>
       prev.map((fx) => {
         if (fx.id !== fixture.id && fx.matchId !== fixture.matchId) return fx;
-        if ((fx.voters ?? []).some((v) => v.userId === userId)) return fx;
-        const newVoter: Voter = {
-          userId,
-          userName: username ?? '',
-          selection,
-          votedAt: new Date(),
-          isComrade: false,
-          isCorrect: false,
-          pointsAwarded: 0,
-        };
-        return { ...fx, voters: [...(fx.voters ?? []), newVoter] };
+        return { ...fx, voters: [newVoter, ...(fx.voters ?? []).filter((v) => v.userId !== userId)] };
       }),
     );
   }
 
   // Voting: POST /actions/vote/cast with the server's own message on failure.
+  /**
+   * Keep the React Native card cache in sync with the same authenticated voter
+   * payload the action modal sees. Both the fixture query and user-scoped
+   * fixtureVotes snapshot are updated so all consumers re-render consistently.
+   */
+  const fetchVotersAndSyncCache = useCallback(async (fixtureId: string, token?: string | null) => {
+    const fetched = await fetchVoters(fixtureId, token);
+    const normalized: Voter[] = fetched
+      .filter((voter: Voter) => !!voter?.userId)
+      .map((voter: Voter) => ({
+        ...voter,
+        userId: String(voter.userId),
+        userName: String(voter.userName ?? 'Fan'),
+        selection: String(voter.selection ?? ''),
+        uri: voter.uri ?? null,
+        votedAt: voter.votedAt ? new Date(voter.votedAt) : new Date(),
+        isComrade: Boolean(voter.isComrade),
+        isCorrect: typeof voter.isCorrect === 'boolean' ? voter.isCorrect : null,
+        pointsAwarded: typeof voter.pointsAwarded === 'number' ? voter.pointsAwarded : null,
+      }));
+
+    let matchedFixture: Fixture | undefined;
+    queryClient.setQueryData<Fixture[]>(FIXTURES_KEY, (previous = []) => previous.map((current) => {
+      if (current.id !== fixtureId && current.matchId !== fixtureId) return current;
+      matchedFixture = current;
+      const merged = new Map<string, Voter>();
+      for (const voter of current.voters ?? []) merged.set(voter.userId, voter);
+      for (const voter of normalized) {
+        const prior = merged.get(voter.userId);
+        merged.set(voter.userId, {
+          ...prior,
+          ...voter,
+          userName: voter.userName || prior?.userName || 'Fan',
+          uri: voter.uri ?? prior?.uri ?? null,
+        });
+      }
+      return { ...current, voters: [...merged.values()] };
+    }));
+
+    const currentFixture = matchedFixture ?? (data ?? NO_FIXTURES).find(
+      (current) => current.id === fixtureId || current.matchId === fixtureId,
+    );
+    const ids = [...new Set([fixtureId, currentFixture?.id, currentFixture?.matchId].filter((id): id is string => !!id))];
+    for (const id of ids) {
+      queryClient.setQueryData(queryKeys.fixtureVotes(id, userId ?? 'anonymous'), (previous: {
+        homeVotes?: number;
+        awayVotes?: number;
+        drawVotes?: number;
+        userVoteSelection?: string | null;
+        voters?: Array<{ userId: string; username?: string; userName?: string; selection: string; isComrade?: boolean; votedAt?: Date; uri?: string | null }>;
+      } | undefined) => {
+        const merged = new Map<string, NonNullable<NonNullable<typeof previous>['voters']>[number]>();
+        for (const voter of previous?.voters ?? []) merged.set(voter.userId, voter);
+        for (const voter of normalized) {
+          const prior = merged.get(voter.userId);
+          merged.set(voter.userId, {
+            ...prior,
+            userId: voter.userId,
+            username: voter.userName,
+            userName: voter.userName,
+            selection: voter.selection,
+            isComrade: voter.isComrade,
+            votedAt: voter.votedAt,
+            uri: voter.uri ?? prior?.uri ?? null,
+          });
+        }
+        const ownVote = normalized.find((voter) => voter.userId === userId);
+        return {
+          homeVotes: previous?.homeVotes ?? 0,
+          awayVotes: previous?.awayVotes ?? 0,
+          drawVotes: previous?.drawVotes ?? 0,
+          userVoteSelection: ownVote?.selection ?? previous?.userVoteSelection ?? null,
+          voters: [...merged.values()],
+        };
+      });
+    }
+    return fetched;
+  }, [queryClient, userId, data]);
+
+  // Hydrate each fixture's voter list as soon as Chats loads. Previously the
+  // complete list was reliably synchronized only by opening the Action modal,
+  // leaving cards stuck with the current user's cached vote until then.
+  const autoVoterSyncRef = useRef<{ token: string | null | undefined; fixtureIds: Set<string> }>({
+    token: undefined,
+    fixtureIds: new Set<string>(),
+  });
+  useEffect(() => {
+    const syncState = autoVoterSyncRef.current;
+    if (syncState.token !== authToken) {
+      syncState.token = authToken;
+      syncState.fixtureIds.clear();
+    }
+    if (!authToken || !data?.length) return;
+
+    const pendingIds = [...new Set(data
+      .map((fixture) => fixture.matchId || fixture.id)
+      .filter((id) => !!id && !syncState.fixtureIds.has(id)))];
+    // Mark all IDs before awaiting so cache updates from an earlier batch
+    // cannot schedule duplicate requests for the remaining fixtures.
+    for (const id of pendingIds) syncState.fixtureIds.add(id);
+    if (pendingIds.length === 0) return;
+
+    void (async () => {
+      for (let start = 0; start < pendingIds.length; start += 4) {
+        if (autoVoterSyncRef.current.token !== authToken) return;
+        await Promise.all(pendingIds.slice(start, start + 4).map(async (fixtureId) => {
+          try {
+            await fetchVotersAndSyncCache(fixtureId, authToken);
+          } catch {
+            // Keep Chats usable if a fixture's voter endpoint is temporarily unavailable.
+          }
+        }));
+      }
+    })();
+  }, [data, authToken, fetchVotersAndSyncCache]);
   async function handleModalVote(sel: Pick): Promise<ActionResult> {
     if (!liveModalFixture) return { success: false, message: 'No match selected' };
     if (!userId || !authToken || !username) {
@@ -412,7 +531,7 @@ export default function ChatsScreen() {
       alreadyVoted: !!myVote,
       authToken,
     });
-    if (r.success && r.votedNow) addVoteToCache(liveModalFixture, sel);
+    if (r.success) addVoteToCache(liveModalFixture, sel);
     return { success: r.success, message: r.message, newBalance: r.newBalance };
   }
 
@@ -439,33 +558,23 @@ export default function ChatsScreen() {
     };
   }, [userId, username, authToken]);
 
-  const listHeader = (
-    <View style={styles.header}>
-      <SegmentedControl
-        options={filterOptions}
-        value={filter}
-        onChange={setFilter}
-        colors={colors}
-      />
-      {loadError && <ErrorBanner colors={colors} message={loadError} />}
-    </View>
-  );
-
   return (
     <View style={styles.screen}>
       {isPending ? (
         <View style={{ paddingTop: topInset }}>
-          {listHeader}
+          {loadError && <ErrorBanner colors={colors} message={loadError} />}
           <SkeletonRows colors={colors} />
         </View>
       ) : (
         <FlatList
           style={styles.list}
-          data={filtered}
+          data={chatFixtures}
           keyExtractor={(fixture) => fixture.id || fixture.matchId}
           contentContainerStyle={[styles.content, { paddingTop: topInset }]}
           showsVerticalScrollIndicator={false}
           {...scrollProps}
+          onScroll={handleFixtureScroll}
+          scrollEventThrottle={16}
           scrollIndicatorInsets={{ top: topInset }}
           refreshControl={
             <RefreshControl
@@ -476,7 +585,7 @@ export default function ChatsScreen() {
               colors={[colors.primary]}
             />
           }
-          ListHeaderComponent={listHeader}
+          ListHeaderComponent={loadError ? <ErrorBanner colors={colors} message={loadError} /> : null}
           ListEmptyComponent={
             isError ? (
               <EmptyState
@@ -487,33 +596,49 @@ export default function ChatsScreen() {
             ) : (
               <EmptyState
                 colors={colors}
-                title={EMPTY_COPY[filter].title}
-                hint={EMPTY_COPY[filter].hint}
+                title={'No fixtures right now'}
+                hint={'New fixtures appear here as they are scheduled.'}
               />
             )
           }
-          renderItem={({ item: fixture }) => {
-            const cid =
-              channelIdFor(fixture.matchId || fixture.id, channelIds) ??
-              homeChannelId;
+          renderItem={({ item: fixture, index }) => {
+            const start = channels.length > 1 ? (channelStartOffset + index) % channels.length : 0;
+            const slideChannels = channels.length > 1
+              ? [...channels.slice(start), ...channels.slice(0, start)]
+              : channels;
             return (
-              <MatchCard
-                fixture={fixture}
-                channel={cid ? headerById.get(cid) : undefined}
-                comments={commentsOf(fixture)}
-                channelId={cid}
-                onOpenVoteModal={(f) => {
-                  setSheetChannelId(cid);
-                  setModalFixture(f);
+              <ChannelSwipeCarousel
+                channels={slideChannels}
+                renderSlide={(channel) => {
+                  const cid = channel?.channelId ?? homeChannelId;
+                  return <MatchCard
+                    fixture={fixture}
+                    channel={cid ? headerById.get(cid) : undefined}
+                    comments={commentsOf(fixture)}
+                    channelId={cid}
+                    onOpenVoteModal={(f) => { setSheetChannelId(cid); setModalFixture(f); }}
+                    onOpenPokeModal={(f) => { setPokeModalChannelId(cid); setPokeModalFixture(f); }}
+                    onOpenPossessionModal={(f) => { setPossessionChannelId(cid); setPossessionFixture(f); }}
+                    onOpenResults={(f) => { setSheetChannelId(cid); setReviewFixture(f); }}
+                    onChatClick={() => openChat(fixture, cid)}
+                    onChannelPress={() => {
+                      if (!cid) return;
+                      const open = () => setLeaderboardChannel({ id: cid, name: headerById.get(cid)?.name ?? 'Channel' });
+                      if (!isLoggedIn) return requireLogin(open);
+                      open();
+                    }}
+                    onChannelLongPress={() => openChat(fixture, cid)}
+                    onWeeklyLeaderboardPress={() => {
+                      if (!cid) return;
+                      const open = () => setWeeklyChannel({ id: cid, name: headerById.get(cid)?.name ?? 'Channel' });
+                      if (!isLoggedIn) return requireLogin(open);
+                      open();
+                    }}
+                    onLike={handleLike}
+                    onSubmitComment={(selectedFixture, text) => handleSubmitComment(selectedFixture, text, cid)}
+                    onOpenLineups={setMatchDetailsFixture}
+                  />;
                 }}
-                onOpenResults={(f) => {
-                  setSheetChannelId(cid);
-                  setReviewFixture(f);
-                }}
-                onChatClick={() => openChat(fixture, cid)}
-                onLike={handleLike}
-                onSubmitComment={handleSubmitComment}
-                onOpenLineups={setMatchDetailsFixture}
               />
             );
           }}
@@ -540,12 +665,11 @@ export default function ChatsScreen() {
           channelId={activeChannelId ?? ''}
           showPledgesTab
           showSubFixturesTab
-          showBetsTab
           onClose={() => setModalFixture(null)}
           onVote={handleModalVote}
           onPledge={handleModalPledge}
           onShowJoinGroups={() => { }}
-          fetchVoters={fetchVoters}
+          fetchVoters={fetchVotersAndSyncCache}
           fetchPledges={fetchPledges}
           fetchSubFixtures={fetchSubFixtures}
           fetchSubFixturePledges={fetchSubFixturePledges}
@@ -562,6 +686,29 @@ export default function ChatsScreen() {
         />
       )}
 
+      {pokeModalFixture && userId && userId !== 'guest' && (
+        <PokeModal
+          visible
+          fixture={pokeModalFixture}
+          userId={userId}
+          username={username ?? ''}
+          authToken={authToken}
+          onClose={() => { setPokeModalFixture(null); setPokeModalChannelId(undefined); }}
+          channelId={pokeModalChannelId ?? activeChannelId ?? undefined}/>
+      )}
+
+      {possessionFixture && (
+        <PossessionModal
+          fixture={possessionFixture}
+          channelId={possessionChannelId}
+          userId={userId ?? ''}
+          username={username ?? ''}
+          authToken={authToken}
+          isLoggedIn={!!isLoggedIn && !!userId && userId !== 'guest' && !!authToken}
+          onClose={() => { setPossessionFixture(null); setPossessionChannelId(undefined); }}
+        />
+      )}
+
       {reviewFixture && activeChannelId && (
         <AftermatchReviewModal
           visible
@@ -575,6 +722,20 @@ export default function ChatsScreen() {
         />
       )}
 
+      {leaderboardChannel && (
+        <LeaderboardModal
+          visible
+          channelId={leaderboardChannel.id}
+          channelName={leaderboardChannel.name}
+          onClose={() => setLeaderboardChannel(null)}
+        />
+      )}
+      <WeeklyLeaderboardModal
+        visible={!!weeklyChannel}
+        channelId={weeklyChannel?.id ?? null}
+        channelName={weeklyChannel?.name ?? 'Channel'}
+        onClose={() => setWeeklyChannel(null)}
+      />
       {matchDetailsFixture && (
         <MatchDetailsModal
           visible
@@ -594,9 +755,55 @@ function createStyles(colors: FanColorPalette) {
     screen: { flex: 1, backgroundColor: colors.background },
     list: { flex: 1 },
     content: { paddingBottom: LIST_BOTTOM_INSET },
-    header: {
-      paddingHorizontal: GUTTER,
-      paddingVertical: FAN_SPACING.md,
-    },
   });
+}
+type SwipeChannel = ReturnType<typeof useHome>['channels'][number];
+function ChannelSwipeCarousel({ channels: slideChannels, renderSlide }: {
+  channels: SwipeChannel[];
+  renderSlide: (channel: SwipeChannel | undefined) => ReactNode;
+}) {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [pageWidth, setPageWidth] = useState(0);
+  const count = Math.max(1, slideChannels.length);
+  return (
+    <View
+      onLayout={(event) => {
+        const nextWidth = Math.round(event.nativeEvent.layout.width);
+        setPageWidth((current) => current === nextWidth ? current : nextWidth);
+      }}
+      style={{ minWidth: 0, width: '100%' }}
+    >
+      <FlatList
+        horizontal
+        pagingEnabled
+        style={{ width: '100%', flexGrow: 0 }}
+        data={slideChannels.length ? slideChannels : [undefined]}
+        keyExtractor={(channel, index) => channel?.channelId ?? `no-channel-${index}`}
+        renderItem={({ item }) => (
+          <View style={{ width: pageWidth > 0 ? pageWidth : '100%', minWidth: 0 }}>
+            {renderSlide(item)}
+          </View>
+        )}
+        showsHorizontalScrollIndicator={false}
+        onMomentumScrollEnd={(event) => {
+          if (pageWidth > 0) setActiveIndex(Math.min(count - 1, Math.round(event.nativeEvent.contentOffset.x / pageWidth)));
+        }}
+        getItemLayout={pageWidth > 0
+          ? (_, index) => ({
+              length: pageWidth,
+              offset: pageWidth * index,
+              index,
+            })
+          : undefined}
+        scrollEnabled={count > 1}
+      />
+      {count > 1 && (
+        <View accessibilityLabel={`Channel ${activeIndex + 1} of ${count}`} style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 6, paddingVertical: 8 }}>
+          {slideChannels.map((channel, index) => (
+            <View key={channel.channelId} accessibilityLabel={channel.name} style={{ width: index === activeIndex ? 7 : 5, height: index === activeIndex ? 7 : 5, borderRadius: 4, backgroundColor: '#4B9B68', opacity: index === activeIndex ? 1 : 0.35 }} />
+          ))}
+        </View>
+      )}
+    </View>
+  );
 }

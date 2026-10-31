@@ -28,9 +28,10 @@
 //   - The modal's payment / phone / sub-fixture props are bound to the user id
 //     and token here (modalApi), because the shims need both.
 //
-// Still not ported: carousel, video upload/playback, comrade cards, archive
-// modal on username tap, delete message.
+// Still not ported: video upload/playback, comrade cards, archive modal on
+// username tap, delete message. The sponsored carousel is now shared with the leaderboard.
 
+import { TeamCrest } from '@/components/TeamCrest';
 import {
   useCallback,
   useEffect,
@@ -73,6 +74,7 @@ import {
 import {
   getUserChannels,
   getAllFixtures,
+  queryKeys,
   Channel,
   Fixture,
   ChatMessage,
@@ -105,15 +107,16 @@ import {
   Voter,
 } from '../../../../packages/core/src/api/use-channel-chat';
 import { useAuth } from '@/lib/auth/auth-context';
+import { Avatar } from '@/components/ui/Avatar';
 import { useToast } from '@/lib/toast/toast-context';
 import { useFanColors } from '@/theme/use-fan-colors';
+import AdCarousel from '@/components/AdCarousel';
 import { fanText } from '@/theme/use-fan-typography';
 import { PRESSED_OPACITY } from '@/theme/layout';
 import { Input } from '@/components/ui/input';
 import { SwipeableVotePledgeModal } from '@/modals/actionModal';
 import { AftermatchReviewModal } from '@/modals/AftermatchModal';
 import { MatchDetailsModal } from '@/modals/match/matchDetailsModals';
-import ComradesScreen from '@/modals/ComradesModal';
 import type { RootStackParamList } from '@/navigation/RootNavigator';
 
 type FanColors = ReturnType<typeof useFanColors>;
@@ -169,7 +172,9 @@ export default function MessageScreen() {
   const [activeChannelId, setActiveChannelId] = useState<string | null>(
     routeChannelId ?? null,
   );
-  const [autoFixture, setAutoFixture] = useState<Fixture | null>(null);
+  // Chats passes a fixtureId explicitly. Without one this is a channel-wide
+  // group chat, matching the nullable fixture context used by the Dart screen.
+  const [loadedRouteFixture, setLoadedRouteFixture] = useState<Fixture | null>(null);
   const [draft, setDraft] = useState('');
   const [replyTo, setReplyTo] = useState<ChatMessage | null>(null);
   const [optionsFor, setOptionsFor] = useState<ChatMessage | null>(null);
@@ -177,7 +182,6 @@ export default function MessageScreen() {
   const [voteModalOpen, setVoteModalOpen] = useState(false);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [matchDetailsOpen, setMatchDetailsOpen] = useState(false);
-  const [leaderboardOpen, setLeaderboardOpen] = useState(false);
   const [showVoters, setShowVoters] = useState(false);
   const [pendingImage, setPendingImage] = useState<RNImageAsset | null>(null);
   const [caption, setCaption] = useState('');
@@ -224,29 +228,54 @@ export default function MessageScreen() {
   const routeFixture = useMemo(() => {
     if (!routeFixtureId) return null;
     const cached = queryClient.getQueryData<Fixture[]>(FIXTURES_KEY) ?? [];
+    // Chats routes pass matchId first; prefer it to avoid cross-fixture id collisions.
     return (
-      cached.find(
-        (f) => f.id === routeFixtureId || f.matchId === routeFixtureId,
-      ) ?? null
+      cached.find((item) => item.matchId === routeFixtureId) ??
+      cached.find((item) => item.id === routeFixtureId) ??
+      null
     );
   }, [queryClient, routeFixtureId]);
 
   useEffect(() => {
-    if (routeFixtureId || !activeChannelId) return;
-    getAllFixtures().then((all) => {
-      const live = all.find(
-        (f) =>
-          f.status === 'live' ||
-          f.status === 'half_time' ||
-          f.status === 'upcoming' ||
-          f.status === 'soon',
-      );
-      setAutoFixture(live ?? all[0] ?? null);
-    });
-  }, [routeFixtureId, activeChannelId]);
+    if (!routeFixtureId || routeFixture) return;
+    let alive = true;
+    getAllFixtures()
+      .then((all) => {
+        if (!alive) return;
+        setLoadedRouteFixture(
+          all.find((item) => item.matchId === routeFixtureId) ??
+            all.find((item) => item.id === routeFixtureId) ??
+            null,
+        );
+      })
+      .catch(() => undefined);
+    return () => {
+      alive = false;
+    };
+  }, [routeFixtureId, routeFixture]);
 
-  const fixture = routeFixture ?? autoFixture;
-  const fixtureId = fixture?.matchId ?? fixture?.id ?? null;
+  const fixture =
+    routeFixture ??
+    (loadedRouteFixture?.id === routeFixtureId || loadedRouteFixture?.matchId === routeFixtureId
+      ? loadedRouteFixture
+      : null);
+// Keep an explicit route fixture ID scoped during lookup; never briefly use the group room.
+  const fixtureId = fixture?.matchId?.trim() || fixture?.id?.trim() || routeFixtureId?.trim() || null;
+
+  const cachedFetchBalance = useCallback(async (uid: string, token?: string | null, opts?: { forceRefresh?: boolean }) => {
+    const key = queryKeys.balance(uid);
+    const cached = queryClient.getQueryData<number>(key);
+    if (!opts?.forceRefresh && cached !== undefined) {
+      // Serve the persisted value immediately, then refresh the cache quietly.
+      void fetchBalance(uid, token ?? undefined, { forceRefresh: true })
+        .then((fresh) => queryClient.setQueryData(key, fresh))
+        .catch(() => undefined);
+      return cached;
+    }
+    const fresh = await fetchBalance(uid, token ?? undefined, opts);
+    queryClient.setQueryData(key, fresh);
+    return fresh;
+  }, [queryClient]);
 
   // ── Chat hook ──────────────────────────────────────────────
   const chat = useChannelChat({
@@ -283,6 +312,7 @@ export default function MessageScreen() {
     awayVotes,
     userVoteSelection,
     voters,
+    recordUserVote,
     refetchVoteCounts,
   } = chat;
 
@@ -445,68 +475,40 @@ export default function MessageScreen() {
   // ── Render ─────────────────────────────────────────────────
   return (
     <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}>
-      {/* Header */}
-      <View style={styles.header}>
+      {/* Keep the custom back and lineup controls on the carousel's horizontal row. */}
+      <View style={styles.carouselHeader}>
         <Pressable
           onPress={handleBack}
           hitSlop={8}
+          accessibilityRole="button"
+          accessibilityLabel="Back to chats"
           style={({ pressed }) => [
-            styles.iconButton,
+            styles.carouselControl,
+            { backgroundColor: colors.surfaceSunken },
             pressed && { opacity: PRESSED_OPACITY },
           ]}
         >
           <ArrowLeft size={18} color={colors.textPrimary} />
         </Pressable>
-
+        <View style={styles.carouselSlot}>
+          <AdCarousel showDots={false} flush fixture={fixture} />
+        </View>
         {fixture && (
           <Pressable
             onPress={() => setMatchDetailsOpen(true)}
             hitSlop={6}
-            style={styles.iconButton}
+            accessibilityRole="button"
+            accessibilityLabel="Open lineup and match details"
+            style={({ pressed }) => [
+              styles.carouselControl,
+              { backgroundColor: colors.surfaceSunken },
+              pressed && { opacity: PRESSED_OPACITY },
+            ]}
           >
-            <Info size={15} color={colors.textPrimary} />
+            <Info size={16} color={colors.textPrimary} />
           </Pressable>
         )}
-
-        <View style={styles.grow}>
-          {fixture ? (
-            <MatchStatusBar
-              colors={colors}
-              fixture={fixture}
-              status={matchStatus}
-              homeScore={homeScore}
-              awayScore={awayScore}
-              isLive={isLive}
-              timeElapsed={timeElapsed}
-              onPress={openVoteOrReview}
-            />
-          ) : (
-            <Text style={fanText('body', colors, colors.textPrimary)}>
-              Chat
-            </Text>
-          )}
-        </View>
-
-        <Pressable
-          onPress={() => setLeaderboardOpen(true)}
-          hitSlop={8}
-          style={styles.iconButton}
-        >
-          <Users size={16} color={colors.textPrimary} />
-        </Pressable>
       </View>
-
-      {/* Vote strip */}
-      {fixture && fixtureId && (
-        <VoteStrip
-          colors={colors}
-          fixture={fixture}
-          homeVotes={homeVotes}
-          awayVotes={awayVotes}
-          onOpenModal={openVoteOrReview}
-          onPressTotals={() => setShowVoters((v) => !v)}
-        />
-      )}
 
       {!activeChannelId ? (
         <View style={styles.emptyChannels}>
@@ -692,7 +694,7 @@ export default function MessageScreen() {
                     { backgroundColor: colors.primary },
                   ]}
                 >
-                  <Send size={16} color="#fff" />
+                  <Send size={16} color={colors.textInverse} />
                 </Pressable>
               )}
             </View>
@@ -740,6 +742,11 @@ export default function MessageScreen() {
         onRequestClose={() => setPendingImage(null)}
       >
         <View style={styles.overlay}>
+          <KeyboardAvoidingView
+            style={styles.captionKeyboardAvoiding}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={0}
+          >
           <View style={[styles.card, { backgroundColor: colors.surface }]}>
             <View style={styles.captionHeader}>
               <Text style={fanText('body', colors, colors.textPrimary)}>
@@ -787,10 +794,11 @@ export default function MessageScreen() {
                   { backgroundColor: colors.primary },
                 ]}
               >
-                <Text style={fanText('caption', colors, '#fff')}>Send</Text>
+                <Text style={fanText('caption', colors, colors.textInverse)}>Send</Text>
               </Pressable>
             </View>
           </View>
+          </KeyboardAvoidingView>
         </View>
       </Modal>
 
@@ -893,13 +901,16 @@ export default function MessageScreen() {
               return { success: false, message: 'Please sign in to vote' };
             }
             const r = await castFixtureVote({
-              fixtureId: fixture.matchId ?? fixture.id,
+              fixtureId: fixture.matchId?.trim() || fixture.id?.trim(),
               userId,
               username,
               selection: sel,
               authToken,
             });
             if (r.success) {
+              // Unlock the composer immediately from the confirmed vote result;
+              // the count endpoint may lag or omit the user's selection.
+              recordUserVote(sel);
               queryClient.invalidateQueries({ queryKey: FIXTURES_KEY });
               await refetchVoteCounts();
             }
@@ -912,7 +923,7 @@ export default function MessageScreen() {
               return { success: false, message: 'Please sign in to continue' };
             }
             const r = await createPledge({
-              fixtureId: fixture.matchId ?? fixture.id,
+              fixtureId: fixture.matchId?.trim() || fixture.id?.trim(),
               userId,
               username,
               selection: sel,
@@ -921,9 +932,11 @@ export default function MessageScreen() {
               alreadyVoted: hasVoted,
               authToken,
             });
-            if (r.success && r.votedNow) {
+            if (r.success) {
+              // A successful pledge either cast the vote or confirmed an existing one.
+              recordUserVote(sel);
               queryClient.invalidateQueries({ queryKey: FIXTURES_KEY });
-              await refetchVoteCounts();
+              if (r.votedNow) await refetchVoteCounts();
             }
             return {
               success: r.success,
@@ -937,7 +950,7 @@ export default function MessageScreen() {
           fetchSubFixtures={fetchSubFixtures}
           fetchSubFixturePledges={fetchSubFixturePledges}
           fetchBets={fetchBets}
-          fetchBalance={fetchBalance}
+          fetchBalance={cachedFetchBalance}
           topUp={modalApi.topUp}
           withdraw={modalApi.withdraw}
           getSavedPhone={modalApi.getSavedPhone}
@@ -978,11 +991,6 @@ export default function MessageScreen() {
         />
       )}
 
-      {/* Comrades / leaderboard */}
-      <ComradesScreen
-        visible={leaderboardOpen}
-        onClose={() => setLeaderboardOpen(false)}
-      />
     </SafeAreaView>
   );
 }
@@ -1072,17 +1080,13 @@ function MatchStatusBar({
           </Text>
         </View>
       )}
-      <Text
-        style={[
-          fanText('caption', colors, colors.textPrimary),
-          matchBarStyles.teams,
-        ]}
-        numberOfLines={1}
-      >
-        {fixture.homeTeam}{' '}
-        <Text style={fanText('caption', colors, colors.textTertiary)}>vs</Text>{' '}
-        {fixture.awayTeam}
-      </Text>
+      <View style={[matchBarStyles.teams, { flexDirection: 'row', alignItems: 'center', gap: 5 }]}>
+        <TeamCrest name={fixture.homeTeam} fixture={fixture as unknown as Record<string,unknown>} side="home" size={20}/>
+        <Text style={fanText('caption', colors, colors.textPrimary)} numberOfLines={1}>{fixture.homeTeam}</Text>
+        <Text style={fanText('caption', colors, colors.textTertiary)}>vs</Text>
+        <TeamCrest name={fixture.awayTeam} fixture={fixture as unknown as Record<string,unknown>} side="away" size={20}/>
+        <Text style={fanText('caption', colors, colors.textPrimary)} numberOfLines={1}>{fixture.awayTeam}</Text>
+      </View>
     </Pressable>
   );
 }
@@ -1231,9 +1235,12 @@ function VotersPanel({
       ) : (
         voters.map((v) => (
           <View key={v.userId} style={votersStyles.row}>
-            <Text style={fanText('caption', colors, colors.textPrimary)}>
-              {v.userId === userId ? 'You' : v.username}
-            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, flex: 1, minWidth: 0 }}>
+              <Avatar colors={colors} size="sm" userId={v.userId} label={v.username?.[0] ?? '?'} />
+              <Text numberOfLines={1} style={fanText('caption', colors, colors.textPrimary)}>
+                {v.userId === userId ? 'You' : v.username}
+              </Text>
+            </View>
             <Text style={fanText('tag', colors, colors.textTertiary)}>
               {displayVote(v.selection)}
             </Text>
@@ -1287,6 +1294,13 @@ function MessageBubble({
   const failed = isFailed(message);
   const hasImage = !!message.imageUrl && !uploading;
   const hasVideo = !!message.videoUrl && !uploading && !message.imageUrl;
+  const bubbleColor = failed
+    ? colors.away + '1A'
+    : isCommentary
+      ? colors.draw + '14'
+      : effectiveIsMe
+        ? colors.primary + '1A'
+        : colors.surface;
 
   return (
     <View style={bubbleStyles.column}>
@@ -1308,37 +1322,22 @@ function MessageBubble({
       )}
 
       <View style={[bubbleStyles.row, effectiveIsMe && bubbleStyles.rowMe]}>
-        {!effectiveIsMe && (
-          <View
-            style={[
-              bubbleStyles.avatar,
-              {
-                backgroundColor: isCommentary
-                  ? colors.draw + '1A'
-                  : colors.primary + '1A',
-              },
-            ]}
-          >
-            <Text style={{ fontSize: 12 }}>
-              {isCommentary
-                ? '⚽'
-                : message.username?.[0]?.toUpperCase() ?? '?'}
-            </Text>
+        {!effectiveIsMe && (isCommentary ? (
+          <View style={[bubbleStyles.avatar, { backgroundColor: colors.draw + '1A' }]}>
+            <Text style={{ fontSize: 12 }}>⚽</Text>
           </View>
-        )}
+        ) : (
+          <Avatar colors={colors} size="sm" userId={message.userId} label={message.username?.[0]?.toUpperCase() ?? '?'} />
+        ))}
 
         <Pressable
           onLongPress={onLongPress}
           delayLongPress={350}
           style={[
             bubbleStyles.bubble,
-            isCommentary
-              ? { backgroundColor: colors.draw + '14' }
-              : effectiveIsMe
-                ? { backgroundColor: colors.primary + '1A' }
-                : { backgroundColor: colors.surface },
+            effectiveIsMe ? bubbleStyles.bubbleMe : bubbleStyles.bubbleOther,
+            { backgroundColor: bubbleColor },
             message.isPending && !failed && { opacity: 0.6 },
-            failed && { backgroundColor: colors.away + '1A' },
           ]}
         >
           {message.replyTo && (
@@ -1400,7 +1399,8 @@ function MessageBubble({
           {!!message.text && (
             <Text
               style={[
-                fanText('caption', colors, colors.textPrimary),
+                fanText('body', colors, colors.textPrimary),
+                bubbleStyles.messageText,
                 isCommentary && bubbleStyles.italic,
               ]}
             >
@@ -1416,6 +1416,14 @@ function MessageBubble({
           >
             {failed ? 'Failed to send' : timeAgo(message.timestamp)}
           </Text>
+          <View
+            pointerEvents="none"
+            style={[
+              bubbleStyles.tail,
+              effectiveIsMe ? bubbleStyles.tailMe : bubbleStyles.tailOther,
+              { borderTopColor: bubbleColor },
+            ]}
+          />
         </Pressable>
       </View>
     </View>
@@ -1423,7 +1431,7 @@ function MessageBubble({
 }
 
 const bubbleStyles = StyleSheet.create({
-  column: { marginBottom: 8 },
+  column: { marginBottom: 5, paddingHorizontal: FAN_SPACING.sm },
   username: { marginLeft: 34, marginBottom: 2 },
   row: {
     flexDirection: 'row',
@@ -1433,18 +1441,39 @@ const bubbleStyles = StyleSheet.create({
   },
   rowMe: { justifyContent: 'flex-end' },
   avatar: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
     alignItems: 'center',
     justifyContent: 'center',
   },
   bubble: {
-    maxWidth: '78%',
+    maxWidth: '82%',
     borderRadius: FAN_RADIUS.lg,
-    paddingHorizontal: FAN_SPACING.sm,
-    paddingVertical: FAN_SPACING.xs,
+    paddingHorizontal: FAN_SPACING.md,
+    paddingVertical: FAN_SPACING.sm,
+    elevation: 1,
   },
+  bubbleMe: { borderBottomRightRadius: 3 },
+  bubbleOther: { borderBottomLeftRadius: 3 },
+  tail: {
+    position: 'absolute',
+    bottom: 0,
+    width: 0,
+    height: 0,
+    borderTopWidth: 8,
+  },
+  tailMe: {
+    right: -5,
+    borderLeftWidth: 8,
+    borderLeftColor: 'transparent',
+  },
+  tailOther: {
+    left: -5,
+    borderRightWidth: 8,
+    borderRightColor: 'transparent',
+  },
+  messageText: { lineHeight: 20, flexShrink: 1 },
   replyQuote: {
     borderLeftWidth: 2,
     paddingLeft: FAN_SPACING.sm,
@@ -1464,7 +1493,7 @@ const bubbleStyles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  timestamp: { marginTop: 2, textAlign: 'right' },
+  timestamp: { marginTop: 4, textAlign: 'right' },
   italic: { fontStyle: 'italic' },
 });
 
@@ -1495,10 +1524,38 @@ function createStyles(colors: FanColors, bottomInset: number) {
       flexDirection: 'row',
       alignItems: 'center',
       gap: FAN_SPACING.sm,
-      paddingHorizontal: FAN_SPACING.lg,
+      paddingHorizontal: FAN_SPACING.md,
       paddingVertical: FAN_SPACING.sm,
     },
+    carouselHeader: {
+      position: 'relative',
+      minHeight: 68,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: FAN_SPACING.xs,
+      paddingHorizontal: FAN_SPACING.xs,
+      paddingVertical: 2,
+    },
+    carouselSlot: {
+      position: 'absolute',
+      left: FAN_SPACING.xs,
+      right: FAN_SPACING.xs,
+      top: 2,
+      bottom: 2,
+      minWidth: 0,
+    },
+    carouselControl: {
+      zIndex: 1,
+      width: 32,
+      height: 32,
+      borderRadius: 16,
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexShrink: 0,
+    },
     iconButton: { padding: 4 },
+    feedButton: { paddingHorizontal: 8, paddingVertical: 6, borderRadius: 8, backgroundColor: colors.primary + '14' },
+    comradesButton: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 6, paddingVertical: 6 },
     emptyChannels: {
       flex: 1,
       alignItems: 'center',
@@ -1512,8 +1569,9 @@ function createStyles(colors: FanColors, bottomInset: number) {
       paddingVertical: FAN_SPACING.xxl,
     },
     messagesContent: {
-      paddingHorizontal: FAN_SPACING.sm,
-      paddingVertical: FAN_SPACING.sm,
+      paddingHorizontal: 0,
+      paddingTop: 0,
+      paddingBottom: FAN_SPACING.sm,
       flexGrow: 1,
     },
     typingRow: {
@@ -1586,7 +1644,8 @@ function createStyles(colors: FanColors, bottomInset: number) {
       paddingHorizontal: FAN_SPACING.md,
       paddingVertical: FAN_SPACING.xs,
     },
-    overlay: {
+    captionKeyboardAvoiding: { flex: 1, justifyContent: 'center' },
+  overlay: {
       flex: 1,
       backgroundColor: 'rgba(0,0,0,0.5)',
       alignItems: 'center',

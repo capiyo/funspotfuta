@@ -24,9 +24,11 @@
 //      profiles (see header).
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   View,
   Text,
+  Image,
   TextInput,
   Pressable,
   ScrollView,
@@ -34,11 +36,14 @@ import {
   StyleSheet,
   Modal,
   Keyboard,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import {
   X,
   ArrowLeft,
   User as UserIcon,
+  Camera,
   Shield,
   Globe2,
   Phone,
@@ -49,7 +54,8 @@ import {
   Minus,
   Wallet,
 } from 'lucide-react-native';
-import { FAN_SPACING, FAN_RADIUS } from '@funspot/core';
+import { FAN_SPACING, FAN_RADIUS, uploadProfileAvatar, queryKeys } from '@funspot/core';
+import * as ImagePicker from 'expo-image-picker';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useToast } from '@/lib/toast/toast-context';
 import { useFanColors } from '@/theme/use-fan-colors';
@@ -104,6 +110,7 @@ export default function ProfileModal({
   const styles = createStyles(colors);
   const { userId, username, phone, authToken, logout } = useAuth();
   const toast = useToast();
+  const queryClient = useQueryClient();
 
   // ── Which profile is being viewed ───────────────────────────
   // When non-null, we're viewing another user's profile (member
@@ -118,6 +125,7 @@ export default function ProfileModal({
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
+  const [avatarUploading, setAvatarUploading] = useState(false);
 
   const [balance, setBalance] = useState(0);
   const [balanceLoading, setBalanceLoading] = useState(true);
@@ -218,6 +226,42 @@ export default function ProfileModal({
       cancelled = true;
     };
   }, [visible, targetUserId, authToken, isCurrentUser]);
+
+  async function handleAvatarLongPress() {
+    if (!isCurrentUser || !userId || avatarUploading) return;
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      toast.showError('Allow photo access to choose a profile image');
+      return;
+    }
+    const picked = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: false,
+      quality: 0.85,
+    });
+    if (picked.canceled || !picked.assets[0]) return;
+    setAvatarUploading(true);
+    try {
+      const asset = picked.assets[0];
+      const imageResponse = await fetch(asset.uri);
+      const imageBlob = await imageResponse.blob();
+      const uploadBlob = imageBlob.type.startsWith('image/')
+        ? imageBlob
+        : new Blob([imageBlob], { type: asset.mimeType ?? 'image/jpeg' });
+      const result = await uploadProfileAvatar(
+        userId,
+        uploadBlob,
+        authToken ?? undefined,
+      );
+      setProfile((current) => current ? { ...current, avatarUrl: result.avatarUrl } : current);
+      queryClient.setQueryData(queryKeys.profile(userId), (current: unknown) => current && typeof current === 'object' ? { ...(current as Record<string, unknown>), avatarUrl: result.avatarUrl } : current);
+      toast.showSuccess('Profile image updated');
+    } catch (error) {
+      toast.showError(error instanceof Error ? error.message : 'Could not update profile image');
+    } finally {
+      setAvatarUploading(false);
+    }
+  }
 
   // ── Balance + saved phones (self only) ──────────────────────
   const refreshBalance = useCallback(async () => {
@@ -385,9 +429,11 @@ export default function ProfileModal({
         Array.isArray(decoded) && decoded.length > 0
           ? decoded[0]
           : decoded;
-      const saved = userDataFromJson(raw);
+      const parsedSaved = userDataFromJson(raw);
+      const saved = { ...parsedSaved, avatarUrl: parsedSaved.avatarUrl ?? profile?.avatarUrl ?? null };
 
       setProfile(saved);
+      queryClient.setQueryData(queryKeys.profile(userId), (current: unknown) => current && typeof current === 'object' ? { ...(current as Record<string, unknown>), ...saved } : saved);
       setProfileExists(true);
       setEditing(false);
       setBalance(saved.balance);
@@ -804,6 +850,11 @@ export default function ProfileModal({
         statusBarTranslucent
       >
         <Pressable style={styles.backdrop} onPress={onClose}>
+          <KeyboardAvoidingView
+            style={styles.keyboardAvoiding}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={0}
+          >
           <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
             <View style={styles.handleWrap}>
               <View style={styles.handle} />
@@ -820,21 +871,28 @@ export default function ProfileModal({
                   <ArrowLeft size={16} color={colors.textSecondary} />
                 </Pressable>
               )}
-              <View
+              <Pressable
+                onLongPress={() => { void handleAvatarLongPress(); }}
+                delayLongPress={550}
+                disabled={!isCurrentUser || avatarUploading}
+                accessibilityRole="button"
+                accessibilityLabel={isCurrentUser ? 'Long press to change profile image' : 'Profile image'}
                 style={[
                   styles.headerAvatar,
                   {
                     backgroundColor: colors.primaryDim,
                     borderColor: colors.borderActive,
+                    overflow: 'hidden',
                   },
                 ]}
               >
-                <Text style={[styles.headerAvatarText, { color: colors.primary }]}>
-                  {(profile?.nickname || targetUsername || '?')
-                    .charAt(0)
-                    .toUpperCase()}
-                </Text>
-              </View>
+                <Image
+                  source={{ uri: profile?.avatarUrl ?? `https://i.pravatar.cc/150?u=${encodeURIComponent(targetUserId || 'guest')}` }}
+                  style={{ width: 36, height: 36, borderRadius: 18 }}
+                />
+                {isCurrentUser && <View pointerEvents="none" style={{ position: 'absolute', right: -2, bottom: -2, width: 16, height: 16, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.primary, borderWidth: 2, borderColor: colors.background }}><Camera size={9} color={colors.textInverse} /></View>}
+                {avatarUploading && <ActivityIndicator size="small" color={colors.primary} style={{ position: 'absolute' }} />}
+              </Pressable>
               <View style={{ flex: 1, marginLeft: FAN_SPACING.md }}>
                 <Text
                   style={[styles.headerTitle, { color: colors.textPrimary }]}
@@ -894,6 +952,7 @@ export default function ProfileModal({
               </View>
             )}
           </Pressable>
+          </KeyboardAvoidingView>
         </Pressable>
       </Modal>
 
@@ -940,7 +999,8 @@ export default function ProfileModal({
 
 function createStyles(colors: FanColors) {
   return StyleSheet.create({
-    backdrop: {
+    keyboardAvoiding: { flex: 1, justifyContent: 'flex-end' },
+  backdrop: {
       flex: 1,
       backgroundColor: 'rgba(0,0,0,0.5)',
       justifyContent: 'flex-end',

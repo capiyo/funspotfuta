@@ -121,11 +121,21 @@ export interface SimplifiedPlayer {
     number: number;
     position: string;
     captain: boolean;
+    /** Stable ID from the lineup provider, when supplied. */
+    providerId?: string | null;
+    /** Existing provider headshot URL, when supplied with the lineup. */
+    photoUrl?: string | null;
+    /** Team identity supplied by the lineup payload, when available. */
+    teamName?: string | null;
+    rating?: number | null;
+    imageUrl?: string | null;
 }
 
 export function parseSimplifiedPlayer(json: any): SimplifiedPlayer {
     const name =
         json?.name?.toString() ??
+        json?.player?.name?.toString() ??
+        json?.athlete?.name?.toString() ??
         json?.displayName?.toString() ??
         json?.fullName?.toString() ??
         `Player ${json?.competitorId ?? json?.id ?? ''}`;
@@ -152,8 +162,15 @@ export function parseSimplifiedPlayer(json: any): SimplifiedPlayer {
             : posField?.toString() ?? '';
 
     const captain = json?.captain === true;
+    const providerId = (json?.athleteId ?? json?.athlete_id ?? json?.player_id ?? json?.playerId ?? json?.player?.id ?? json?.athlete?.id ?? json?.competitorId ?? json?.id ?? null)?.toString() ?? null;
+    const photoCandidate = json?.photoUrl ?? json?.photo_url ?? json?.headshotUrl ?? json?.headshot_url ?? json?.imageUrl ?? json?.image_url ?? json?.player?.photo ?? json?.player?.image ?? json?.athlete?.photo ?? json?.photo ?? json?.image ?? json?.picture ?? null;
+    const photoUrl = typeof photoCandidate === 'string' && photoCandidate.startsWith('https://') ? photoCandidate : null;
+    const rawRating = json?.rating ?? json?.ranking ?? json?.playerRating ?? null;
+    const rating = typeof rawRating === 'number' && Number.isFinite(rawRating) ? rawRating : null;
+    const teamCandidate = json?.teamName ?? json?.team_name ?? json?.team?.name ?? null;
+    const teamName = typeof teamCandidate === 'string' ? teamCandidate : null;
 
-    return { name, number, position, captain };
+    return { name, number, position, captain, providerId, photoUrl, teamName, rating, imageUrl: photoUrl };
 }
 
 // ═══════════════════════════════════════════════════════════════

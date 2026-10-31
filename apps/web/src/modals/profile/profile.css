@@ -1,0 +1,152 @@
+/* Funspot profile design system.
+   Values mirror packages/core/src/theme.ts; the profile never invents its own palette. */
+:root {
+  --profile-bg: #FFFFFF;
+  --profile-surface: #FFFFFF;
+  --profile-surface-raised: #FFFFFF;
+  --profile-surface-muted: #EDF2F5;
+  --profile-input: #FFFFFF;
+  --profile-border: #DDEADE;
+  --profile-border-strong: #BFD9C0;
+  --profile-primary: #1F551F;
+  --profile-primary-hover: #143E14;
+  --profile-primary-tint: #F0F7F0;
+  --profile-primary-muted: #E3EFE3;
+  --profile-on-primary: #FFFFFF;
+  --profile-text: #162B16;
+  --profile-text-secondary: #557D55;
+  --profile-text-muted: #739273;
+  --profile-danger: #D93025;
+  --profile-radius: 8px;
+  --profile-space-1: 4px;
+  --profile-space-2: 8px;
+  --profile-space-3: 12px;
+  --profile-control-height: 38px;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --profile-bg: #0F1E27;
+    --profile-surface: #0F1E27;
+    --profile-surface-raised: #0F1E27;
+    --profile-surface-muted: #192730;
+    --profile-input: #192730;
+    --profile-border: #1D421D;
+    --profile-border-strong: #2E5E2E;
+    --profile-primary: #4FD14F;
+    --profile-primary-hover: #2E962E;
+    --profile-primary-tint: #103010;
+    --profile-primary-muted: #163E16;
+    --profile-on-primary: #0F1E27;
+    --profile-text: #F2F8F2;
+    --profile-text-secondary: #A9C4A9;
+    --profile-text-muted: #6E926E;
+    --profile-danger: #FF5A45;
+  }
+}
+
+/* Layout and scrolling */
+.profile-ellipsis { display:block; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.profile-sidebar-rich { display:flex; flex-direction:column; gap:10px; width:100%; min-width:0; padding:12px 12px 16px; overflow-y:auto; scrollbar-width:none; box-sizing:border-box; color:var(--profile-text); }
+.profile-sidebar-rich::-webkit-scrollbar, .profile-modal-shell::-webkit-scrollbar { display:none; }
+.profile-modal-shell { width:min(420px,100%); max-height:85vh; overflow-y:auto; scrollbar-width:none; border-radius:12px; background:var(--profile-bg); color:var(--profile-text); box-sizing:border-box; }
+.profile-header-row { display:flex; flex-direction:row; align-items:center; gap:10px; min-width:0; }
+.profile-header-name-column { display:flex; flex:1; flex-direction:column; min-width:0; }
+.profile-header-view-link { flex:0 0 auto; margin-left:auto; white-space:nowrap; }
+.profile-sidebar-post-action, .profile-sidebar-post-action .button { width:100%; min-width:0; }
+.profile-sidebar-post-action .button { display:flex; align-items:center; justify-content:center; min-height:var(--profile-control-height); padding:8px 12px; background:var(--profile-primary) !important; border:1px solid var(--profile-primary) !important; border-radius:var(--profile-radius); color:var(--profile-on-primary) !important; font-size:13px; font-weight:700; box-sizing:border-box; }
+
+/* Guest and authenticated identity fields share one component appearance. */
+.profile-guest-preview, .profile-authenticated-view { display:flex; flex-direction:column; align-items:stretch; gap:var(--profile-space-2); width:100%; min-width:0; }
+.profile-guest-fields, .profile-account-details { display:flex; flex-direction:column; gap:var(--profile-space-2); width:100%; min-width:0; }
+.profile-guest-field, .profile-authenticated-field {
+  display:flex; flex-direction:row; align-items:center; gap:10px !important;
+  width:100%; min-width:0; min-height:48px; padding:9px 10px !important;
+  background:var(--profile-surface) !important; border:1px solid var(--profile-border-strong) !important;
+  border-radius:var(--profile-radius) !important; text-align:left; box-sizing:border-box;
+}
+.profile-guest-field .profile-guest-field-icon, .profile-authenticated-field > svg {
+  display:block; flex:0 0 16px; width:16px; height:16px; color:var(--profile-primary) !important;
+}
+.profile-guest-field .profile-guest-field-copy, .profile-authenticated-field > div {
+  display:flex; flex:1 1 auto; flex-direction:column; gap:2px; min-width:0; overflow-wrap:anywhere;
+}
+.profile-guest-field .profile-guest-field-copy > span, .profile-authenticated-field > div > span:first-child {
+  display:block; margin:0 0 2px; color:var(--profile-text-muted) !important; font-size:10px !important; font-weight:500 !important; line-height:1.3;
+}
+.profile-guest-field strong, .profile-authenticated-field > div > span:last-child {
+  display:block; color:var(--profile-text) !important; font-size:13px !important; font-weight:650 !important; line-height:1.35; overflow-wrap:anywhere;
+}
+.profile-guest-banner { display:flex; align-items:center; gap:8px; padding:8px 10px; background:var(--profile-primary-tint); border:1px solid var(--profile-border-strong); border-radius:var(--profile-radius); color:var(--profile-primary); font-size:11px; box-sizing:border-box; }
+.profile-guest-login { display:flex; align-items:center; justify-content:center; gap:7px; width:100%; min-height:var(--profile-control-height); padding:8px 12px; background:var(--profile-primary) !important; border:1px solid var(--profile-primary) !important; border-radius:var(--profile-radius); color:var(--profile-on-primary) !important; font-size:13px; font-weight:700; box-sizing:border-box; cursor:pointer; }
+.profile-guest-channels-heading { display:flex; align-items:center; justify-content:space-between; gap:8px; min-width:0; color:var(--profile-text); }
+.profile-guest-channels-heading .count, .profile-guest-channels-heading [data-count] { display:inline-flex; align-items:center; justify-content:center; flex:0 0 20px; width:20px; height:20px; border-radius:50%; background:var(--profile-primary); color:var(--profile-on-primary); font-size:10px; font-weight:700; }
+.profile-loading-indicator { width:16px; height:16px; border:2px solid var(--profile-border); border-top-color:var(--profile-primary); border-radius:50%; animation:profile-spin .8s linear infinite; }
+@keyframes profile-spin { to { transform:rotate(360deg); } }
+
+/* Shared action buttons: the classes own their fill, border, and text color.
+   !important is limited to theme-critical properties that otherwise lose to RN-port inline styles. */
+.profile-primary-action, .profile-secondary-action, .profile-expand-toggle {
+  display:inline-flex !important; align-items:center !important; justify-content:center !important; gap:6px !important;
+  min-height:var(--profile-control-height) !important; padding:8px 12px !important; border:1px solid transparent !important;
+  border-radius:var(--profile-radius) !important; font-size:13px !important; font-weight:700 !important; line-height:1.2 !important;
+  box-sizing:border-box !important; cursor:pointer; transition:background-color 120ms ease, filter 120ms ease;
+}
+.profile-primary-action { background:var(--profile-primary) !important; border-color:var(--profile-primary) !important; color:var(--profile-on-primary) !important; }
+.profile-primary-action *, .profile-guest-login *, .profile-action-text-primary { color:var(--profile-on-primary) !important; }
+.profile-action-text-primary { display:inline !important; visibility:visible !important; opacity:1 !important; flex:0 1 auto !important; white-space:nowrap !important; font-size:13px !important; font-weight:700 !important; line-height:1.2 !important; }
+.profile-secondary-action, .profile-expand-toggle { background:var(--profile-primary-tint) !important; border-color:var(--profile-border-strong) !important; color:var(--profile-primary) !important; }
+.profile-secondary-action *, .profile-expand-toggle * { color:var(--profile-primary) !important; }
+/* Logout is a primary account action, not a muted cancel control. */
+.profile-logout-action { background:var(--profile-primary) !important; border-color:var(--profile-primary) !important; color:var(--profile-on-primary) !important; }
+.profile-logout-action * { color:var(--profile-on-primary) !important; }
+.profile-logout-action:hover { background:var(--profile-primary-hover) !important; border-color:var(--profile-primary-hover) !important; }
+.profile-primary-action:hover, .profile-guest-login:hover { background:var(--profile-primary-hover) !important; border-color:var(--profile-primary-hover) !important; }
+.profile-secondary-action:hover, .profile-expand-toggle:hover { background:var(--profile-primary-muted) !important; border-color:var(--profile-primary) !important; }
+.profile-primary-action:focus-visible, .profile-secondary-action:focus-visible, .profile-expand-toggle:focus-visible, .profile-guest-login:focus-visible, .profile-modal-shell button:focus-visible {
+  outline:2px solid var(--profile-primary) !important; outline-offset:2px !important;
+}
+.profile-primary-action:disabled, .profile-secondary-action:disabled { opacity:.55 !important; cursor:not-allowed !important; }
+.profile-authenticated-view .profile-primary-action, .profile-authenticated-view .profile-secondary-action,
+.profile-edit-view .profile-primary-action, .profile-edit-view .profile-secondary-action { flex:1 1 0; width:100%; }
+
+/* Stats and editable controls */
+.profile-account-stats { display:flex; flex-direction:row; gap:8px; width:100%; min-width:0; }
+.profile-account-stat { display:flex; flex:1 1 0; flex-direction:column; gap:4px; min-width:0; padding:9px 8px; background:var(--profile-surface); border:1px solid var(--profile-border-strong); border-radius:var(--profile-radius); box-sizing:border-box; }
+.profile-account-stat > span { color:var(--profile-text-muted); font-size:10px; line-height:1.3; }
+.profile-account-stat > strong { color:var(--profile-text); font-size:15px; font-weight:750; line-height:1.3; overflow-wrap:anywhere; }
+.profile-expand-toggle { align-self:flex-start; min-height:32px !important; }
+.profile-edit-view { display:flex; flex-direction:column; gap:12px; width:100%; min-width:0; }
+.profile-edit-view > div:not(:first-child) { width:100%; }
+.profile-edit-view input { width:100%; min-width:0; min-height:var(--profile-control-height); padding:8px 10px !important; color:var(--profile-text) !important; background:var(--profile-input) !important; border:1px solid var(--profile-border-strong) !important; border-radius:var(--profile-radius) !important; outline:none; box-sizing:border-box; }
+.profile-edit-view input:focus { border-color:var(--profile-primary) !important; box-shadow:0 0 0 2px var(--profile-primary-tint); }
+.profile-edit-view label { color:var(--profile-primary) !important; }
+.profile-edit-view > div > div { background:var(--profile-input) !important; border:1px solid var(--profile-border-strong) !important; border-radius:var(--profile-radius) !important; }
+.profile-edit-view > div > div > svg { color:var(--profile-primary) !important; }
+
+/* Channel tabs and leaderboard stay within the same theme system. */
+.profile-channel-track { display:flex; flex-direction:row; overflow-x:auto; scroll-snap-type:x mandatory; scrollbar-width:none; -ms-overflow-style:none; min-width:0; overscroll-behavior-x:contain; touch-action:pan-x; }
+.profile-channel-track::-webkit-scrollbar { display:none; }
+.profile-channel-panel { flex:0 0 100%; width:100%; min-width:0; scroll-snap-align:start; box-sizing:border-box; }
+.profile-channel-panel > * { min-width:0; box-sizing:border-box; }
+.profile-channel-tabbar { display:flex; flex-direction:row; width:100%; min-width:0; border:1px solid var(--profile-border-strong); border-radius:var(--profile-radius); background:var(--profile-primary-tint); overflow:hidden; }
+.profile-channel-tabbar [role="tab"] { display:flex; flex:1 1 0; align-items:center; justify-content:center; min-width:0; padding:8px 6px; border:1px solid transparent; background:transparent; color:var(--profile-text-secondary); font:inherit; font-size:12px; font-weight:650; overflow:hidden; }
+.profile-channel-tabbar [role="tab"][aria-selected="true"] { background:var(--profile-primary) !important; border-color:var(--profile-primary) !important; color:var(--profile-on-primary) !important; }
+.profile-channel-tabbar [role="tab"] > span { display:block; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.profile-channel-header { border-color:var(--profile-border-strong) !important; }
+.profile-member-card { border-color:var(--profile-border) !important; }
+.profile-modal-shell .profile-channel-panel button { min-height:28px; padding:4px 8px; border:1px solid var(--profile-border-strong) !important; border-radius:6px; background:var(--profile-primary-tint) !important; color:var(--profile-primary) !important; font:inherit; font-size:11px; font-weight:650; cursor:pointer; }
+.profile-modal-shell .profile-channel-panel button span { color:var(--profile-primary) !important; }
+.profile-leaderboard-section { min-width:0; border-top:1px solid var(--profile-border); padding:var(--profile-space-3); max-height:340px; box-sizing:border-box; }
+@media (min-width:651px) {
+  .profile-leaderboard-section { margin:8px 10px 12px; border:1px solid var(--profile-border-strong); border-radius:var(--profile-radius); background:var(--profile-primary-tint); }
+}
+@media (max-width:650px) {
+  .profile-modal-shell { width:100%; max-height:78vh; height:78vh; border-radius:18px 18px 0 0; }
+  .profile-guest-field, .profile-authenticated-field { min-height:46px; }
+  .profile-account-stats { gap:6px; }
+  .profile-account-stat { padding:8px 6px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .profile-primary-action, .profile-secondary-action, .profile-expand-toggle { transition:none; }
+  .profile-loading-indicator { animation-duration:1.5s; }
+}

@@ -1,50 +1,37 @@
 import { useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
+import { useProfileAvatar } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
+import { useAuth } from '@/lib/auth/auth-context';
 
 export function MiniAvatar({
     colors,
     label,
+    userId,
     uri,
 }: {
     colors: ReturnType<typeof useFanColors>;
     label: string;
+    userId?: string;
     uri?: string | null;
 }) {
     const [failed, setFailed] = useState(false);
+    const { authToken } = useAuth();
+    const profileAvatar = useProfileAvatar(userId, authToken);
+    const imageUri = profileAvatar ?? uri ?? `https://i.pravatar.cc/150?u=${encodeURIComponent(userId ?? label ?? 'guest')}`;
     return (
-        <View
-            style={[
-                styles.box,
-                { backgroundColor: colors.surfaceSunken, borderColor: colors.border },
-            ]}
-        >
-            {uri && !failed ? (
-                <Image
-                    source={{ uri }}
-                    style={styles.img}
-                    resizeMode="cover"
-                    onError={() => setFailed(true)}
-                />
+        <View style={[styles.box, { backgroundColor: colors.surfaceSunken, borderColor: colors.border }]}>
+            {imageUri && !failed ? (
+                <Image source={{ uri: imageUri }} style={styles.img} resizeMode="cover" onError={() => setFailed(true)} />
             ) : (
-                <Text style={fanText('tag', colors, colors.primary)}>
-                    {(label || '?').charAt(0).toUpperCase()}
-                </Text>
+                <Text style={fanText('tag', colors, colors.primary)}>{(label || '?').charAt(0).toUpperCase()}</Text>
             )}
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    box: {
-        width: 24,
-        height: 24,
-        borderRadius: 12,
-        borderWidth: StyleSheet.hairlineWidth,
-        alignItems: 'center',
-        justifyContent: 'center',
-        overflow: 'hidden',
-    },
+    box: { width: 24, height: 24, borderRadius: 12, borderWidth: StyleSheet.hairlineWidth, alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
     img: { width: '100%', height: '100%' },
 });

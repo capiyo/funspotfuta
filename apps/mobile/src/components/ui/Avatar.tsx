@@ -14,13 +14,15 @@
 // isn't here, add it to SIZES below rather than overriding inline.
 
 import { View, Text, Image, StyleSheet } from 'react-native';
-import { FanColorPalette } from '@funspot/core';
+import { FanColorPalette, useProfileAvatar } from '@funspot/core';
 import { fanText } from '@/theme/use-fan-typography';
+import { useAuth } from '@/lib/auth/auth-context';
 
 const SIZES = {
     sm: 24, // MatchCard team avatars, small inline badges
     md: 28, // AppHeader avatar, chip-adjacent avatars
     lg: 32, // PostCard / MatchCard voter avatars — the "primary" social avatar size
+    xl: 44, // leaderboard champion and expanded profile identity
 } as const;
 
 export type AvatarSize = keyof typeof SIZES;
@@ -29,6 +31,7 @@ export function Avatar({
     colors,
     size = 'md',
     uri,
+    userId,
     label,
     borderColor,
     backgroundColor,
@@ -37,6 +40,7 @@ export function Avatar({
     size?: AvatarSize;
     /** Image URI. Takes priority over `label` when present. */
     uri?: string | null;
+    userId?: string;
     /** Fallback content when no `uri`: an initial letter or a single emoji. */
     label?: string;
     /** Optional ring color — used for team-tinted (home/away) avatars. */
@@ -44,12 +48,15 @@ export function Avatar({
     backgroundColor?: string;
 }) {
     const dim = SIZES[size];
+    const { authToken } = useAuth();
+    const profileAvatar = useProfileAvatar(userId, authToken);
+    const imageUri = profileAvatar ?? uri ?? `https://i.pravatar.cc/150?u=${encodeURIComponent(userId ?? label ?? 'guest')}`;
     const styles = createStyles(colors, dim, borderColor, backgroundColor);
 
     return (
         <View style={styles.circle}>
-            {uri ? (
-                <Image source={{ uri }} style={styles.image} />
+            {imageUri ? (
+                <Image source={{ uri: imageUri }} style={styles.image} />
             ) : (
                 <Text style={fanText('badge', colors, colors.primary)}>{label}</Text>
             )}

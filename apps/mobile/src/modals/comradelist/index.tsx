@@ -63,6 +63,7 @@ import { useAuth } from '@/lib/auth/auth-context';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { useToast } from '@/lib/toast/toast-context';
 import { NotificationService } from '@/lib/api/notification-service';
+import AdCarousel from '@/components/AdCarousel';
 import { ComradeCard } from './comradeCard';
 import {
     type ComradeProfile,
@@ -883,6 +884,7 @@ export default function ComradeListModal({
 
                     {/* Body */}
                     <View style={styles.body}>
+                        {screen === 'list' && <View style={{ paddingTop: 8 }}><AdCarousel /></View>}
                         {screen === 'list' && renderListScreen()}
                         {screen === 'picker' && renderPickerScreen()}
                         {screen === 'profile' && renderProfileScreen()}

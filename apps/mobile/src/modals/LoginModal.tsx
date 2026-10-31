@@ -277,6 +277,11 @@ export default function LoginModal({ visible, onClose, onSuccess }: LoginModalPr
       return;
     }
 
+    if (!firebaseAuth) {
+      toast('Phone login is unavailable in this app build. Update the app and try again.', { error: true });
+      return;
+    }
+
     setLoading(true);
     const e164 = buildE164(phoneInput, country.dial);
     setVerifiedPhone(e164);
@@ -448,7 +453,7 @@ export default function LoginModal({ visible, onClose, onSuccess }: LoginModalPr
   // Android auto-verification (Flutter's verificationCompleted): Firebase may
   // sign the user in without the code being typed.
   useEffect(() => {
-    if (step !== 'otp') return;
+    if (step !== 'otp' || !firebaseAuth) return;
     const unsub = onAuthStateChanged(firebaseAuth, async (user: FirebaseAuthTypes.User | null) => {
       if (!user || otpHandledRef.current) return;
       if (user.phoneNumber && user.phoneNumber !== verifiedPhone) return;
@@ -926,11 +931,11 @@ function makeStyles(colors: ReturnType<typeof useFanColors>) {
     },
     termsRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 2 },
     checkbox: {
-      width: 18,
-      height: 18,
-      borderRadius: 4,
-      borderWidth: 1,
-      borderColor: colors.border,
+      width: 20,
+      height: 20,
+      borderRadius: 5,
+      borderWidth: 2,
+      borderColor: colors.primary,
       alignItems: 'center',
       justifyContent: 'center',
     },

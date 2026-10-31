@@ -4,19 +4,12 @@
 // color in both apps/web (converted to CSS vars) and apps/mobile
 // (consumed directly as JS objects in StyleSheets).
 //
-// PALETTE UPDATE: brand accents recolored from navy-slate to a green
-// family based on #01FF01. The dark card/home background remains the
-// original #0F1E27 — only bluish UI accents (borders, primary, text
-// tints, glow shadows) were swapped to green. scoreAway and the
-// voteAway gradient stay blue since they are semantic "away" colors,
-// not brand-blue.
-//
-// Dark mode is intentionally FLAT in the original: background,
-// backgroundTint, surface, surfaceElevated, and surfaceSunken all
-// resolve to the same value (#0F1E27) — no tiered card depth. Light
-// mode keeps its tiers. inputSurface/inputSurfaceDisabled exist only to
-// lift form inputs one notch off that flat dark background so they
-// don't disappear into the card behind them.
+// Shared stadium palette: near-black green canvas, deep green-black cards,
+// vivid floodlit green brand actions, soft grey-green text, gold reserved
+// for trophy/rank emphasis, and red for live/away semantic states. Web and
+// React Native consume this same palette so shared components stay aligned.
+// Dark mode intentionally uses a restrained two-level surface system: the
+// page canvas is #070d09, cards are #0e1612, and controls use #161f1a.
 
 export interface FanColorPalette {
   background: string;
@@ -61,45 +54,45 @@ export interface FanColorPalette {
 }
 
 export const FAN_COLORS_DARK: FanColorPalette = {
-  background: '#0F1E27',
-  backgroundTint: '#0F1E27',
-  surface: '#0F1E27',
-  surfaceElevated: '#0F1E27',
-  surfaceSunken: '#0F1E27',
-  inputSurface: '#192730',
-  inputSurfaceDisabled: '#111F28',
+  background: '#070d09',
+  backgroundTint: '#070d09',
+  surface: '#0e1612',
+  surfaceElevated: '#0e1612',
+  surfaceSunken: '#0a100c',
+  inputSurface: '#161f1a',
+  inputSurfaceDisabled: '#0e1612',
 
-  border: '#1D421D',
-  borderActive: '#2E5E2E',
-  borderFocus: '#4FD14F',
+  border: 'rgba(255,255,255,0.08)',
+  borderActive: 'rgba(125,241,98,0.55)',
+  borderFocus: '#7df162',
 
-  primary: '#4FD14F',
-  primaryDark: '#2E962E',
-  primaryMuted: '#163E16',
-  primaryDim: '#103010',
-  primaryGlow: 'rgba(79,209,79,0.25)',
+  primary: '#7df162',
+  primaryDark: '#4fb83b',
+  primaryMuted: '#1a3218',
+  primaryDim: '#101d10',
+  primaryGlow: 'rgba(125,241,98,0.25)',
 
-  secondary: '#FF7A29',
-  secondaryDim: '#3A2414',
-  secondaryGlow: 'rgba(255,122,41,0.2)',
+  secondary: '#161f1a',
+  secondaryDim: '#0e1612',
+  secondaryGlow: 'rgba(125,241,98,0.10)',
 
-  draw: '#FFC53D',
-  drawDim: '#352A0C',
-  drawGlow: 'rgba(255,197,61,0.25)',
+  draw: '#f9ad26',
+  drawDim: '#2a2110',
+  drawGlow: 'rgba(249,173,38,0.20)',
 
-  away: '#FF5A45',
-  awayDim: '#391712',
-  awayGlow: 'rgba(255,90,69,0.25)',
-  live: '#FF5A45',
+  away: '#ff3d42',
+  awayDim: '#2b1112',
+  awayGlow: 'rgba(255,61,66,0.22)',
+  live: '#ff3d42',
 
-  textPrimary: '#F2F8F2',
-  textSecondary: '#A9C4A9',
-  textTertiary: '#6E926E',
-  textInverse: '#FFFFFF',
+  textPrimary: '#edf4ee',
+  textSecondary: '#e0e6e1',
+  textTertiary: '#89968d',
+  textInverse: '#061308',
 
-  scoreHome: '#4FD14F',
-  scoreAway: '#5FA8FF',
-  scoreDash: '#33495A',
+  scoreHome: '#7df162',
+  scoreAway: '#ff3d42',
+  scoreDash: '#59675d',
 };
 
 export const FAN_COLORS_LIGHT: FanColorPalette = {
@@ -121,9 +114,9 @@ export const FAN_COLORS_LIGHT: FanColorPalette = {
   primaryDim: '#F0F7F0',
   primaryGlow: 'rgba(31,85,31,0.13)',
 
-  secondary: '#FFD9BD',
-  secondaryDim: '#FFF3EA',
-  secondaryGlow: 'rgba(255,217,189,0.13)',
+  secondary: '#E7EEE7',
+  secondaryDim: '#F3F7F3',
+  secondaryGlow: 'rgba(31,85,31,0.10)',
 
   draw: '#C79000',
   drawDim: '#FFF6E0',
@@ -140,7 +133,7 @@ export const FAN_COLORS_LIGHT: FanColorPalette = {
   textInverse: '#FFFFFF',
 
   scoreHome: '#1F551F',
-  scoreAway: '#2B6CB0',
+  scoreAway: '#D93025',
   scoreDash: '#B7C4CC',
 };
 
@@ -341,13 +334,13 @@ export function fanGradient(role: 'voteHome' | 'voteDraw' | 'voteAway' | 'fire' 
     case 'voteHome':
       return [p.primary, p.primaryDark];
     case 'voteDraw':
-      return [p.draw, isDark ? '#C98A00' : '#A67700'];
+      return [p.draw, isDark ? '#d88f12' : '#a56c00'];
     case 'voteAway':
-      return [p.scoreAway, isDark ? '#2E6FE0' : '#1D4ED8'];
+      return [p.scoreAway, isDark ? '#d82e35' : '#b91c24'];
     case 'fire':
       return [p.draw, p.away];
     case 'cta':
-      return isDark ? ['#01FF01', '#22D3EE'] : [p.primary, p.primaryDark];
+      return isDark ? [p.primary, p.primaryDark] : [p.primary, p.primaryDark];
   }
 }
 
