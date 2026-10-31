@@ -11,9 +11,11 @@ export function TeamCrest({ name, fixture, side, size = 24 }: Props) {
   const idField = side === 'home' ? 'homeCompetitorId' : 'awayCompetitorId';
   const snakeIdField = side === 'home' ? 'home_competitor_id' : 'away_competitor_id';
   const supplied = fixture[imageField];
+  const rawId = fixture[idField] ?? fixture[snakeIdField];
+  const competitorId = typeof rawId === 'number' || typeof rawId === 'string' ? rawId : null;
   const source = typeof supplied === 'string' && supplied.startsWith('https://imagecache.365scores.com/')
     ? supplied
-    : build365ScoresCompetitorImageUrl(fixture[idField] as number | string | null | undefined ?? fixture[snakeIdField] as number | string | null | undefined);
+    : build365ScoresCompetitorImageUrl(competitorId);
 
   return <View accessibilityLabel={name + ' crest'}
     style={[styles.circle, { width: size, height: size, borderRadius: size / 2,

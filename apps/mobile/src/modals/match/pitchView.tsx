@@ -856,13 +856,12 @@ export function PitchView({
     const [showHomeOverflow, setShowHomeOverflow] = useState(false);
     const [showAwayOverflow, setShowAwayOverflow] = useState(false);
     const [headshots, setHeadshots] = useState<Record<string, string>>({});
-    const headshotEndpoint = process.env.EXPO_PUBLIC_PLAYER_HEADSHOT_ENDPOINT || 'https://funspot.co.ke/.netlify/functions/player-headshots';
 
     useEffect(() => {
         let cancelled = false;
         setHeadshots({});
         const batch = [...homePlayers.map((player) => ({ player, teamName: homeTeam })), ...awayPlayers.map((player) => ({ player, teamName: awayTeam }))];
-        void resolvePlayerHeadshots(batch, headshotEndpoint, AsyncStorage).then((result) => { if (!cancelled) setHeadshots(result); });
+        void resolvePlayerHeadshots(batch, undefined, AsyncStorage).then((result) => { if (!cancelled) setHeadshots(result); });
         return () => { cancelled = true; };
     }, [homePlayers, awayPlayers, homeTeam, awayTeam, headshotEndpoint]);
     const [pitchSize, setPitchSize] = useState<{ width: number; height: number }>({
