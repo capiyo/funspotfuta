@@ -65,8 +65,32 @@ export function parseMatchStatistics(json: any): MatchStatistics {
         stats = data;
     }
 
-    const home = stats?.home ?? {};
-    const away = stats?.away ?? {};
+    // The latest-statistics endpoint is a flattened snake_case object,
+    // while history and WebSocket events use nested home/away snapshots.
+    const home = stats?.home ?? {
+        possession: stats?.ball_possession_home,
+        shots: stats?.total_shots_home,
+        shotsOnTarget: stats?.shots_on_target_home,
+        shotsOffTarget: stats?.shots_off_target_home,
+        corners: stats?.corners_home,
+        fouls: stats?.fouls_home,
+        offsides: stats?.offsides_home,
+        yellowCards: stats?.yellow_cards_home,
+        redCards: stats?.red_cards_home,
+        passAccuracy: stats?.pass_accuracy_home,
+    };
+    const away = stats?.away ?? {
+        possession: stats?.ball_possession_away,
+        shots: stats?.total_shots_away,
+        shotsOnTarget: stats?.shots_on_target_away,
+        shotsOffTarget: stats?.shots_off_target_away,
+        corners: stats?.corners_away,
+        fouls: stats?.fouls_away,
+        offsides: stats?.offsides_away,
+        yellowCards: stats?.yellow_cards_away,
+        redCards: stats?.red_cards_away,
+        passAccuracy: stats?.pass_accuracy_away,
+    };
 
     return {
         ballPossessionHome: getPercent(home, 'possession', 'ball_possession'),
