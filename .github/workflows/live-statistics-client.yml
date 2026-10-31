@@ -3,9 +3,6 @@ name: Live statistics client typecheck
 on:
   pull_request:
     branches: [master]
-  push:
-    branches:
-      - feature/live-possession-statistics-client
 
 jobs:
   typecheck:
