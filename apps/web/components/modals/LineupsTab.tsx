@@ -8,10 +8,13 @@ import type { LineupsData } from '@funspot/core/src/types/matchDetails';
 import { useFanColors, hexWithAlpha } from '@/lib/theme/use-fan-colors';
 import { BenchColumn, PitchView } from './PitchView';
 
-function FormationPill({ teamName, formation, color, alignRight = false }: { teamName: string; formation: string; color: string; alignRight?: boolean }) {
+function FormationPill({ teamName, formation, color, alignRight = false, imageUrl }: { teamName: string; formation: string; color: string; alignRight?: boolean; imageUrl?: string | null }) {
   return (
     <div className={`flex min-w-0 flex-col ${alignRight ? 'items-end' : 'items-start'}`}>
-      <span className="max-w-[120px] truncate text-fan-tag" style={{ color }}>{teamName}</span>
+      <span className="flex max-w-[150px] items-center gap-1.5">
+        {imageUrl ? <img src={imageUrl} alt="" className="h-[18px] w-[18px] shrink-0 object-contain" loading="lazy" /> : null}
+        <span className="truncate text-fan-tag" style={{ color }}>{teamName}</span>
+      </span>
       <span className="mt-[3px] rounded-fan-pill border px-2 py-px text-[11px] font-bold" style={{ background: hexWithAlpha(color, 0.12), borderColor: hexWithAlpha(color, 0.3), color }}>{formation}</span>
     </div>
   );
@@ -41,7 +44,7 @@ export function LineupsTab({ fixture, lineups, loading, error }: { fixture: Fixt
   return (
     <div className="flex flex-col">
       <div className="flex items-center justify-between px-3 py-2">
-        <FormationPill teamName={fixture.homeTeam} formation={lineups.homeFormation} color={c.primary} />
+        <FormationPill teamName={fixture.homeTeam} formation={lineups.homeFormation} color={c.primary} imageUrl={fixture.homeTeamImageUrl} />
         {hasBench && (
           <button
             type="button"
@@ -53,7 +56,7 @@ export function LineupsTab({ fixture, lineups, loading, error }: { fixture: Fixt
             <span className="text-fan-button" style={{ color: showBench ? '#fff' : c.textSecondary }}>Bench</span>
           </button>
         )}
-        <FormationPill teamName={fixture.awayTeam} formation={lineups.awayFormation} color={c.away} alignRight />
+        <FormationPill teamName={fixture.awayTeam} formation={lineups.awayFormation} color={c.away} imageUrl={fixture.awayTeamImageUrl} alignRight />
       </div>
 
       {/* Bench drawer — height/opacity transition mirrors the RN/Flutter SizeTransition */}
