@@ -24,6 +24,12 @@ function hasValidStatistics(data:any):boolean {
       return fields.some(field=>positive(home?.[field])||positive(away?.[field])); }
     return false;
   }
+  if(stats?.home||stats?.away||stats?.statistics?.home||stats?.statistics?.away){
+    const nested=stats?.statistics?.home||stats?.statistics?.away?stats.statistics:stats;
+    const home=nested?.home??{},away=nested?.away??{};
+    const fields=['possession','ball_possession','shots','total_shots','shotsOnTarget','shots_on_target','corners','fouls','offsides','yellowCards','yellow_cards','passAccuracy','pass_accuracy'];
+    return fields.some(field=>{const hv=home[field],av=away[field];return (hv!==null&&hv!==undefined&&Number.isFinite(Number(hv))&&Number(hv)>0)||(av!==null&&av!==undefined&&Number.isFinite(Number(av))&&Number(av)>0);});
+  }
   const fields=['ball_possession_home','ball_possession_away','total_shots_home','total_shots_away','shots_on_target_home','shots_on_target_away','corners_home','corners_away','fouls_home','fouls_away','offsides_home','offsides_away','yellow_cards_home','yellow_cards_away','pass_accuracy_home','pass_accuracy_away'];
   return fields.some(field=>{const value=stats?.[field];return value!==null&&value!==undefined&&Number.isFinite(Number(value))&&Number(value)>0;});
 }
@@ -96,7 +102,7 @@ export function MatchDetailsModal({visible,fixture,userId,username,authToken,onC
     if(roomId)webSocketService.acquireRoom(roomId);
     const unsubscribe=webSocketService.onStatisticsUpdated(event=>{
       if(String(event.fixture_id)!==String(fixture.matchId))return;
-      if(!hasValidStatistics({statistics:event.statistics}))return;
+      if(!hasValidStatistics(event.statistics))return;
       liveStatisticsReceived.current=true;setStatistics(parseMatchStatistics({statistics:event.statistics}));
       setHasStats(true);setStatsError('');setLoadingStats(false);
     });
