@@ -1,6 +1,27 @@
 const API_BASE = 'https://v3.football.api-sports.io/teams';
 const MEDIA_LOGO = /^https:\/\/media\.api-sports\.io\/football\/teams\/(\d+)\.png$/;
 
+// High-confidence display-name aliases. Every alias resolves to one provider name;
+// the returned provider record must still match that canonical name and country.
+const TEAM_ALIASES = new Map([
+  ['man utd', 'manchester united'],
+  ['man united', 'manchester united'],
+  ['manchester utd', 'manchester united'],
+  ['man city', 'manchester city'],
+  ['spurs', 'tottenham hotspur'],
+  ['wolves', 'wolverhampton wanderers'],
+  ['west ham', 'west ham united'],
+  ['newcastle', 'newcastle united'],
+  ['brighton', 'brighton and hove albion'],
+  ['notts forest', 'nottingham forest'],
+  ['atleti', 'atletico madrid'],
+  ['psg', 'paris saint germain'],
+  ['bayern', 'bayern munich'],
+  ['dortmund', 'borussia dortmund'],
+  ['barca', 'barcelona'],
+  ['juve', 'juventus'],
+]);
+
 function normalize(value) {
   let normalized = String(value || '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
     .replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, ' ').trim().replace(/\s+/g, ' ');
@@ -40,17 +61,18 @@ export const handler = async (event) => {
 
   try {
     const url = new URL(API_BASE);
-    url.searchParams.set('search', name);
+    const wanted = normalize(name);
+    const canonicalName = TEAM_ALIASES.get(wanted) || wanted;
+    url.searchParams.set('search', canonicalName);
     if (country) url.searchParams.set('country', country);
     const response = await fetch(url, { headers: { 'x-apisports-key': apiKey, Accept: 'application/json' } });
     if (!response.ok) return { statusCode: 502, headers: { ...headers, 'Cache-Control': 'no-store' }, body: JSON.stringify({ error: 'Team provider unavailable' }) };
     const payload = await response.json();
     if (payload.errors && Object.keys(payload.errors).length) return { statusCode: 502, headers: { ...headers, 'Cache-Control': 'no-store' }, body: JSON.stringify({ error: 'Team provider rejected the lookup' }) };
 
-    const wanted = normalize(name);
     const wantedCountry = normalize(country);
     const candidates = (Array.isArray(payload.response) ? payload.response : []).filter((item) =>
-      item?.team && normalize(item.team.name) === wanted && Number.isInteger(Number(item.team.id)) &&
+      item?.team && normalize(item.team.name) === canonicalName && Number.isInteger(Number(item.team.id)) &&
       (!wantedCountry || normalize(item.team.country) === wantedCountry)
     );
     if (candidates.length !== 1) {
