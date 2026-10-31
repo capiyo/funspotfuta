@@ -44,9 +44,10 @@ function getInt(obj: any, field1: string, field2?: string): number {
 
 function getPercent(obj: any, field1: string, field2?: string): number {
     const v = obj?.[field1] ?? (field2 ? obj?.[field2] : undefined);
-    if (typeof v === 'number') {
-        // Dart: if (val is double) return (val * 100).round(); if int return val
-        return Number.isInteger(v) ? v : Math.round(v * 100);
+    if (typeof v === 'number' && Number.isFinite(v)) {
+        // Providers may send percentages as either 0..1 ratios or 0..100 values.
+        // The live backend validates/stores the latter, including decimal values.
+        return v > 0 && v < 1 ? Math.round(v * 100) : Math.round(v);
     }
     return 0;
 }
