@@ -401,8 +401,7 @@ export function MatchDetailsModal({
                     </View>
 
                     {/* Conditional tab bar */}
-                    {hasStats ? (
-                        <View style={styles.tabBar}>
+                    <View style={styles.tabBar}>
                             <Pressable
                                 style={styles.tab}
                                 onPress={() => setActiveTab('lineups')}
@@ -432,7 +431,7 @@ export function MatchDetailsModal({
                                 )}
                             </Pressable>
                             <Pressable
-                                style={styles.tab}
+                                style={[styles.tab, !hasStats && { display: 'none' }]}
                                 onPress={() => setActiveTab('stats')}
                             >
                                 <Text
@@ -459,8 +458,7 @@ export function MatchDetailsModal({
                                     <View style={styles.tabIndicatorEmpty} />
                                 )}
                             </Pressable>
-                        </View>
-                    ) : null}
+                    </View>
 
                     {/* Content */}
                     <View
