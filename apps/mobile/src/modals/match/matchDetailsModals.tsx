@@ -81,6 +81,21 @@ function hasValidStatistics(data: any): boolean {
         return false;
     }
 
+    if (stats?.home || stats?.away || stats?.statistics?.home || stats?.statistics?.away) {
+        const nested = stats?.statistics?.home || stats?.statistics?.away ? stats.statistics : stats;
+        const home = nested?.home ?? {};
+        const away = nested?.away ?? {};
+        const fields = [
+            'possession', 'ball_possession', 'shots', 'total_shots',
+            'shotsOnTarget', 'shots_on_target', 'corners', 'fouls',
+            'offsides', 'yellowCards', 'yellow_cards', 'passAccuracy', 'pass_accuracy',
+        ];
+        return fields.some((field) => {
+            const homeValue = home[field], awayValue = away[field];
+            return (homeValue !== null && homeValue !== undefined && Number.isFinite(Number(homeValue)) && Number(homeValue) > 0)
+                || (awayValue !== null && awayValue !== undefined && Number.isFinite(Number(awayValue)) && Number(awayValue) > 0);
+        });
+    }
     const flatFields = [
         'ball_possession_home', 'ball_possession_away',
         'total_shots_home', 'total_shots_away',
@@ -268,7 +283,7 @@ export function MatchDetailsModal({
 
         const unsubscribe = webSocketService.onStatisticsUpdated((event) => {
             if (String(event.fixture_id) !== String(fixture.matchId)) return;
-            if (!hasValidStatistics({ statistics: event.statistics })) return;
+            if (!hasValidStatistics(event.statistics)) return;
             liveStatisticsReceived.current = true;
             setStatistics(parseMatchStatistics({ statistics: event.statistics }));
             setHasStats(true);
