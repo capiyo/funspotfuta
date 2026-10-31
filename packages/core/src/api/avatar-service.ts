@@ -19,7 +19,10 @@ function avatarUrlFromResponse(value: unknown): string {
 export async function uploadProfileAvatar(userId: string, file: Blob, authToken?: string): Promise<AvatarUploadResult> {
   if (!userId.trim()) throw new Error('A signed-in user is required to change the profile image');
   if (file.size <= 0 || file.size > 8 * 1024 * 1024) throw new Error('Choose an image smaller than 8 MB');
-  if (!file.type.startsWith('image/')) throw new Error('Choose a valid image file');
+  const supportedTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
+  if (!supportedTypes.has(file.type.toLowerCase())) {
+    throw new Error('Choose a JPEG, PNG, or WebP image');
+  }
 
   const form = new FormData();
   form.append('image', file);
@@ -30,7 +33,18 @@ export async function uploadProfileAvatar(userId: string, file: Blob, authToken?
   });
   if (!response.ok) {
     const detail = await response.text().catch(() => '');
-    throw new Error(detail || `Avatar upload failed (HTTP ${response.status})`);
+    let message = detail;
+    try {
+      const parsed = JSON.parse(detail) as { message?: unknown; error?: unknown };
+      message = typeof parsed.message === 'string'
+        ? parsed.message
+        : typeof parsed.error === 'string'
+          ? parsed.error
+          : detail;
+    } catch {
+      // The server may return a plain-text proxy or gateway error.
+    }
+    throw new Error(message || `Avatar upload failed (HTTP ${response.status})`);
   }
   return { avatarUrl: avatarUrlFromResponse(await response.json()) };
 }
