@@ -9,6 +9,7 @@ export * from './types/chat-message';
 export * from './types/post';
 export * from './types/leaderboard';
 export * from './types/channels';
+export * from './types/statistics';
 export * from './theme';
 
 export * from './api/config';

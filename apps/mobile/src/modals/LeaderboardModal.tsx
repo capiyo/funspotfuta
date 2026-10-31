@@ -172,7 +172,7 @@ export default function LeaderboardScreen({
     if (!visible || !userId || !authToken) return;
     getUserChannels(userId, authToken).then((c) => {
       setChannels(c);
-      setActiveChannelId((prev) => prev ?? c[0]?.id ?? null);
+      setActiveChannelId((prev) => prev ?? c[0]?.channelId ?? null);
     });
   }, [visible, userId, authToken]);
 
@@ -205,7 +205,7 @@ export default function LeaderboardScreen({
 
   const resolvedChannelName =
     channelName ??
-    channels.find((c) => c.id === activeChannelId)?.name ??
+    channels.find((c) => c.channelId === activeChannelId)?.name ??
     'Leaderboard';
 
   return (
@@ -249,7 +249,7 @@ export default function LeaderboardScreen({
                 dropdownIconColor={colors.textSecondary}
               >
                 {channels.map((c) => (
-                  <Picker.Item key={c.id} label={c.name} value={c.id} />
+                  <Picker.Item key={c.channelId} label={c.name} value={c.channelId} />
                 ))}
               </Picker>
             </View>

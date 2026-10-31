@@ -1,5 +1,5 @@
 // components/MatchDetailsModal.tsx
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
     View,
     Text,
@@ -9,7 +9,7 @@ import {
     useWindowDimensions,
 } from 'react-native';
 
-import { FAN_SPACING, FAN_RADIUS } from '@funspot/core';
+import { FAN_SPACING, FAN_RADIUS, webSocketService } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
 import type { Fixture } from '../../../../../packages/core/src/types/fixture';
@@ -112,6 +112,7 @@ export function MatchDetailsModal({
     const [lineupsError, setLineupsError] = useState('');
 
     const [hasStats, setHasStats] = useState(false);
+    const liveStatisticsReceived = useRef(false);
 
     const headers = authToken
         ? { Authorization: `Bearer ${authToken}` }
@@ -174,6 +175,7 @@ export function MatchDetailsModal({
             if (res.status === 200) {
                 const data = await res.json();
                 if (hasValidStatistics(data)) {
+                    if (liveStatisticsReceived.current) { setLoadingStats(false); return; }
                     setStatistics(parseMatchStatistics(data));
                     setHasStats(true);
                     setLoadingStats(false);
@@ -191,6 +193,7 @@ export function MatchDetailsModal({
                 if (data?.success === true) {
                     const stats = data?.data ?? data;
                     if (hasValidStatistics(stats)) {
+                        if (liveStatisticsReceived.current) { setLoadingStats(false); return; }
                         setStatistics(parseMatchStatistics(stats));
                         setHasStats(true);
                         setLoadingStats(false);
@@ -199,15 +202,19 @@ export function MatchDetailsModal({
                 }
             }
 
-            setHasStats(false);
-            setStatistics(null);
-            setStatsError('Statistics available after match starts');
+            if (!liveStatisticsReceived.current) {
+                setHasStats(false);
+                setStatistics(null);
+                setStatsError('Statistics available after match starts');
+            }
             setLoadingStats(false);
         } catch (e) {
             console.warn('❌ Error fetching statistics:', e);
-            setHasStats(false);
-            setStatistics(null);
-            setStatsError('Statistics coming soon');
+            if (!liveStatisticsReceived.current) {
+                setHasStats(false);
+                setStatistics(null);
+                setStatsError('Statistics coming soon');
+            }
             setLoadingStats(false);
         }
     }, [fixture.matchId, authToken]);
@@ -218,6 +225,7 @@ export function MatchDetailsModal({
         if (!visible) return;
         // Reset state each time the modal is opened so a reopened modal
         // doesn't flash the previous match's lineups/stats.
+        liveStatisticsReceived.current = false;
         setActiveTab('lineups');
         setStatistics(null);
         setLineups(null);
@@ -232,6 +240,36 @@ export function MatchDetailsModal({
         fetchLineups();
         fetchStatistics();
         // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [visible, fixture.matchId]);
+
+    // Apply backend statistics.updated events immediately while this match is open.
+    // The active fixture room is leased so the modal also receives updates when
+    // the originating chat/card is no longer mounted.
+    useEffect(() => {
+        if (!visible || !fixture?.matchId) return;
+
+        const channelId = webSocketService.getCurrentChannelId();
+        const roomId = channelId ? `${channelId}_${fixture.matchId}` : null;
+        const alreadyJoined = roomId ? webSocketService.isInRoom(roomId) : false;
+        if (channelId && !alreadyJoined) {
+            webSocketService.joinChannelFixtureRoom(channelId, fixture.matchId);
+        }
+
+        const unsubscribe = webSocketService.onStatisticsUpdated((event) => {
+            if (String(event.fixture_id) !== String(fixture.matchId)) return;
+            liveStatisticsReceived.current = true;
+            setStatistics(parseMatchStatistics({ statistics: event.statistics }));
+            setHasStats(true);
+            setStatsError('');
+            setLoadingStats(false);
+        });
+
+        return () => {
+            unsubscribe();
+            if (channelId && !alreadyJoined) {
+                webSocketService.leaveChannelFixtureRoom(channelId, fixture.matchId);
+            }
+        };
     }, [visible, fixture.matchId]);
 
     if (!fixture) return null;
