@@ -37,6 +37,7 @@ export function MatchDetailsModal({visible,fixture,userId,username,authToken,onC
   const [loadingStats,setLoadingStats]=useState(true),[loadingLineups,setLoadingLineups]=useState(true);
   const [statsError,setStatsError]=useState(''),[lineupsError,setLineupsError]=useState('');
   const [hasStats,setHasStats]=useState(false);
+  const liveStatisticsReceived=useRef(false);
   const fetchLineups=useCallback(async()=>{
     const headers=authToken?{Authorization:`Bearer ${authToken}`}:undefined;
     if(lineupsMatchId!==fixture.matchId)setLoadingLineups(true);setLineupsError('');
@@ -54,9 +55,9 @@ export function MatchDetailsModal({visible,fixture,userId,username,authToken,onC
     setLoadingStats(true);setStatsError('');
     try {
       const res=await fetch(`${API_BASE}/games/${fixture.matchId}/statistics/latest`,{headers});
-      if(res.status===200) { const data=await res.json(); if(hasValidStatistics(data)) { setStatistics(parseMatchStatistics(data));setHasStats(true);setLoadingStats(false);return; } }
+      if(res.status===200) { const data=await res.json(); if(hasValidStatistics(data)) { if(!liveStatisticsReceived.current){setStatistics(parseMatchStatistics(data));setHasStats(true);}setLoadingStats(false);return; } }
       const fullRes=await fetch(`${API_BASE}/games/${fixture.matchId}/statistics`,{headers});
-      if(fullRes.status===200) { const data=await fullRes.json(); if(data?.success===true) { const stats=data?.data??data; if(hasValidStatistics(stats)) { setStatistics(parseMatchStatistics(stats));setHasStats(true);setLoadingStats(false);return; } } }
+      if(fullRes.status===200) { const data=await fullRes.json(); if(data?.success===true) { const stats=data?.data??data; if(hasValidStatistics(stats)) { if(!liveStatisticsReceived.current){setStatistics(parseMatchStatistics(stats));setHasStats(true);}setLoadingStats(false);return; } } }
       setHasStats(false);setStatistics(null);setStatsError('Statistics available after match starts');setLoadingStats(false);
     } catch(error) { console.warn('❌ Error fetching statistics:',error);setHasStats(false);setStatistics(null);setStatsError('Statistics coming soon');setLoadingStats(false); }
   },[fixture.matchId,authToken]);
@@ -74,7 +75,7 @@ export function MatchDetailsModal({visible,fixture,userId,username,authToken,onC
       else if(!event.shiftKey&&document.activeElement===items[items.length-1]){event.preventDefault();items[0].focus();}
     };
     document.addEventListener('keydown',keydown);
-    setActiveTab('lineups');setStatistics(null);setLoadingStats(true);if(lineupsMatchId!==fixture.matchId)setLoadingLineups(true);setStatsError('');setLineupsError('');setHasStats(false);
+    liveStatisticsReceived.current=false;setActiveTab('lineups');setStatistics(null);setLoadingStats(true);if(lineupsMatchId!==fixture.matchId)setLoadingLineups(true);setStatsError('');setLineupsError('');setHasStats(false);
     void fetchLineups();void fetchStatistics();
     return()=>{document.removeEventListener('keydown',keydown);previous?.focus();};
   // Fetch only when the modal opens or the selected match changes. Callback identity
@@ -91,7 +92,7 @@ export function MatchDetailsModal({visible,fixture,userId,username,authToken,onC
     if(roomId)webSocketService.acquireRoom(roomId);
     const unsubscribe=webSocketService.onStatisticsUpdated(event=>{
       if(String(event.fixture_id)!==String(fixture.matchId))return;
-      setStatistics(parseMatchStatistics({statistics:event.statistics}));
+      liveStatisticsReceived.current=true;setStatistics(parseMatchStatistics({statistics:event.statistics}));
       setHasStats(true);setStatsError('');setLoadingStats(false);
     });
     return()=>{unsubscribe();if(roomId)webSocketService.releaseRoom(roomId);};
