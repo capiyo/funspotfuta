@@ -12,9 +12,16 @@ The recursive GitHub tree comparison found 70 mobile source files and 70 same-pa
 The Home route is the only intended screen-layout divergence: desktop navbar on top, profile/channel sidebar on the left, and Chats/Feed panes at 50/50 with independent scrolling. Narrow screens use the shared Chats/Feed pill tab bar. RootNavigator exposes Home/Tabs and Chat only; there are no Arena, Logs, Trending, FixtureDetail, or History screen routes. Providers are ordered Auth → Toast → LoginModal, with NotificationGate mounted by the login-modal provider.
 
 ## Validation
-GitHub Actions run for code commit 2143f43d649166d8ac5d4b68f13e08b76f3cc3fd passed npm run typecheck:core, npm run typecheck:web, npm run typecheck:mobile, npm run lint:web, and npm run build:web.
+GitHub Actions run for feature commit `da18f163ae1ca2c250803ccfa59ebcd08893724b` passed:
+- Core tests and shared-core, web, and React Native typechecks
+- Android JavaScript bundle export
+- Web lint and Vite production build
+- Generated public crawl-file checks
+- ChatsCard Playwright parity at 360, 390, 600, 700, 1280, and 1920px
+- Match Details Playwright test: Lineups-only before stats are ready, then swipe to Stats and back to Lineups
+- Home shell, Feed, responsive layout, and comments-modal Playwright checks
 
-The run validates code at that commit. Documentation-only commits may follow it; the latest branch head must be checked again before treating a later code change as validated. No live Firebase SMS, web push delivery, production API behavior, or browser end-to-end session has been manually verified here.
+The feature-specific browser checks are automated CI tests, not manual device testing. Live Firebase SMS, web push delivery, production API behavior, and Netlify deploy-preview success remain unverified. Netlify preview status checks are currently failing across the configured preview sites; their diagnostic pages were not accessible during this review.
 
 ## Remaining parity work
 - apps/web/src/screens/ChatsScreen.tsx remains much shorter than mobile and still needs a full pass for fixture lists, voting/pledging, refresh and modal wiring.
@@ -24,6 +31,6 @@ The run validates code at that commit. Documentation-only commits may follow it;
 - Browser notification permission, Firebase phone OTP, token registration, and actual production API responses still require a live configured test.
 
 ## Repository integrity
-- apps/mobile is the source of truth and has not been intentionally modified by this port work.
+- apps/mobile remains the source of truth for the web port. The separate Match Details swipe-tab enhancement was committed to master mobile; the Vite port branch continues to leave apps/mobile unchanged.
 - The same-path audit is recorded in docs/PORT_MAP.md; no missing mobile-relative paths remain in the current tree comparison.
-- Keep PR #4 as draft until the remaining parity work and live browser checks are complete.
+- PR #4 is kept as draft until the remaining parity work and Netlify deployment checks are resolved.
