@@ -1363,7 +1363,7 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
   }
   .home-screen .chats-column .segmented-control {
     display: grid !important;
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
     gap: 0 !important;
   }
   .home-screen .chats-column .segmented-control > button {
@@ -1485,7 +1485,7 @@ body:has(.home-screen) .home-screen .desktop-home-header { border-bottom: 0 !imp
   }
   .home-screen .chats-column .segmented-control {
     display: grid !important;
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
   }
   .home-screen .chats-column .segmented-control > button {
     width: 100% !important;
@@ -2963,7 +2963,7 @@ body:has(.home-screen) .home-screen *:not(.profile-card):not(.profile-card *):no
 }
 .match-card .match-card-actions {
   display: grid !important;
-  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
   align-items: center !important;
   gap: 4px !important;
   width: 100% !important;
@@ -3004,7 +3004,7 @@ body:has(.home-screen) .home-screen *:not(.profile-card):not(.profile-card *):no
   .match-card .match-card-bottom .match-card-actions {
     display: grid !important;
     flex: 0 0 auto !important;
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
     flex-flow: initial !important;
     width: 100% !important;
     min-width: 0 !important;
