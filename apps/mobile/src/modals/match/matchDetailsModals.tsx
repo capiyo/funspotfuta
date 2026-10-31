@@ -250,7 +250,10 @@ export function MatchDetailsModal({
 
         const channelId = webSocketService.getCurrentChannelId();
         const roomId = channelId ? `${channelId}_${fixture.matchId}` : null;
-        if (roomId) webSocketService.acquireRoom(roomId);
+        const alreadyJoined = roomId ? webSocketService.isInRoom(roomId) : false;
+        if (channelId && !alreadyJoined) {
+            webSocketService.joinChannelFixtureRoom(channelId, fixture.matchId);
+        }
 
         const unsubscribe = webSocketService.onStatisticsUpdated((event) => {
             if (String(event.fixture_id) !== String(fixture.matchId)) return;
@@ -263,7 +266,9 @@ export function MatchDetailsModal({
 
         return () => {
             unsubscribe();
-            if (roomId) webSocketService.releaseRoom(roomId);
+            if (channelId && !alreadyJoined) {
+                webSocketService.leaveChannelFixtureRoom(channelId, fixture.matchId);
+            }
         };
     }, [visible, fixture.matchId]);
 
