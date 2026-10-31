@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - run: npm ci
+      - run: npm install --no-audit --no-fund
       - name: Typecheck shared core
         run: npm run typecheck --workspace=@funspot/core
       - name: Typecheck React Native app
