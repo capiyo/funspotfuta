@@ -261,6 +261,8 @@ export interface Fixture {
   matchId: string;
   homeTeam: string;
   awayTeam: string;
+  homeTeamImageUrl: string | null;
+  awayTeamImageUrl: string | null;
   league: string;
   homeWin: number;
   awayWin: number;
@@ -321,6 +323,8 @@ export function fixtureFromJson(json: any): Fixture {
     matchId: (json.matchId ?? json.match_id ?? '').toString(),
     homeTeam: (json.homeTeam ?? json.home_team ?? '').toString(),
     awayTeam: (json.awayTeam ?? json.away_team ?? '').toString(),
+    homeTeamImageUrl: json.homeTeamImageUrl ?? json.home_team_image_url ?? null,
+    awayTeamImageUrl: json.awayTeamImageUrl ?? json.away_team_image_url ?? null,
     league: (json.league ?? '').toString(),
     homeWin: parseDouble(json.homeWin ?? json.home_win),
     awayWin: parseDouble(json.awayWin ?? json.away_win),
