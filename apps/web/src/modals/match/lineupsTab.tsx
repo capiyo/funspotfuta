@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Image } from 'react-native';
 import { AlertCircle, ArrowLeftRight, CircleDot, X } from 'lucide-react';
 import { FAN_SPACING, FAN_RADIUS } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
@@ -18,7 +17,10 @@ function hexWithAlpha(hex: string, alpha: number): string {
 function FormationPill({teamName,formation,color,alignRight=false,imageUrl}:{teamName:string;formation:string;color:string;alignRight?:boolean;imageUrl?:string|null}) {
   const colors=useFanColors();
   return <div className={`min-w-0 ${alignRight?'text-right':'text-left'}`}>
-    <p className="truncate" style={fanText('tag',colors,color)}>{teamName}</p>
+    <div className={`flex items-center gap-1.5 ${alignRight?'justify-end':'justify-start'}`}>
+      {imageUrl ? <img src={imageUrl} alt="" className="h-[18px] w-[18px] object-contain" loading="lazy"/> : null}
+      <p className="truncate" style={fanText('tag',colors,color)}>{teamName}</p>
+    </div>
     <div className="h-[3px]"/>
     <span className="inline-block rounded-md border px-2 py-[3px] text-[11px] font-bold" style={{backgroundColor:hexWithAlpha(color,.12),borderColor:hexWithAlpha(color,.3),color}}>{formation}</span>
   </div>;
@@ -46,13 +48,13 @@ export function LineupsTab({fixture,lineups,loading,error}:LineupsTabProps) {
   const hasBench=lineups.homeBench.length>0||lineups.awayBench.length>0;
   return <div className="flex min-h-0 flex-1 flex-col">
     <div className="flex items-center px-4 pb-1 pt-2">
-      <FormationPill teamName={fixture.homeTeam} formation={lineups.homeFormation} color={colors.primary}/>
+      <FormationPill teamName={fixture.homeTeam} formation={lineups.homeFormation} color={colors.primary} imageUrl={fixture.homeTeamImageUrl}/>
       <div className="flex-1"/>
       {hasBench&&<button type="button" onClick={()=>setShowBench(v=>!v)} className="flex items-center gap-1 rounded-full border px-3.5 py-2 text-xs font-semibold" style={{backgroundColor:showBench?colors.primary:colors.background,borderColor:showBench?colors.primary:colors.borderActive,color:showBench?'#fff':colors.textSecondary}}>
         {showBench?<X size={15}/>:<ArrowLeftRight size={15}/>}<span>Bench</span>
       </button>}
       <div className="flex-1"/>
-      <FormationPill teamName={fixture.awayTeam} formation={lineups.awayFormation} color={colors.away} alignRight/>
+      <FormationPill teamName={fixture.awayTeam} formation={lineups.awayFormation} color={colors.away} imageUrl={fixture.awayTeamImageUrl} alignRight/>
     </div>
     <div className={`grid transition-[grid-template-rows,opacity] duration-300 ${showBench?'grid-rows-[1fr] opacity-100':'grid-rows-[0fr] opacity-0'}`}>
       <div className="overflow-hidden">
