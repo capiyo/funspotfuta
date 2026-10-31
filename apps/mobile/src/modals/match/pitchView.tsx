@@ -3,6 +3,7 @@ import React, { useMemo, useState } from 'react';
 import {
     View,
     Text,
+    Image,
     StyleSheet,
     Pressable,
     LayoutChangeEvent,
@@ -530,11 +531,16 @@ function PlayerDot({ player, position, color, isHome }: PlayerDotProps) {
                 {
                     backgroundColor: color,
                     borderColor: '#FFFFFF',
+                    overflow: 'hidden',
                 },
                 fanShadowStyle('card', false),
             ]}
         >
-            <Text style={styles.playerDotText}>{player.number}</Text>
+            {player.imageUrl ? (
+                <Image source={{ uri: player.imageUrl }} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+            ) : (
+                <Text style={styles.playerDotText}>{player.number}</Text>
+            )}
         </View>
     );
 
@@ -548,6 +554,9 @@ function PlayerDot({ player, position, color, isHome }: PlayerDotProps) {
             >
                 {shortName(player.name)}
             </Text>
+            {player.rating != null ? (
+                <Text style={[styles.playerCaptain, { color: '#F8D66D' }]}>{player.rating.toFixed(1)}</Text>
+            ) : null}
             {player.captain ? (
                 <Text style={[styles.playerCaptain, { color }]}>C</Text>
             ) : null}
@@ -771,6 +780,7 @@ export function BenchColumn({ players, color }: BenchColumnProps) {
                         { backgroundColor: hexWithAlpha(color, 0.06) },
                     ]}
                 >
+                    {p.imageUrl ? <Image source={{ uri: p.imageUrl }} style={{ width: 22, height: 22, borderRadius: 11 }} /> : null}
                     <View
                         style={[
                             styles.benchNumber,
@@ -793,6 +803,7 @@ export function BenchColumn({ players, color }: BenchColumnProps) {
                     <Text style={[fanText('tag', colors), { color: colors.textTertiary }]}>
                         {p.position.toUpperCase()}
                     </Text>
+                    {p.rating != null ? <Text style={[fanText('tag', colors), { color: '#B88722' }]}>{p.rating.toFixed(1)}</Text> : null}
                     {p.captain ? (
                         <>
                             <View style={{ width: 4 }} />
