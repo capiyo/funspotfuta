@@ -67,12 +67,13 @@ function PlayerDot({ player, position, color, isHome }: { player: SimplifiedPlay
       className="flex items-center justify-center rounded-full border-2 border-white text-[11px] font-bold text-white shadow-md"
       style={{ width: DOT_SIZE, height: DOT_SIZE, background: color }}
     >
-      {player.number}
+      {player.imageUrl ? <img src={player.imageUrl} alt="" className="h-full w-full rounded-full object-cover" loading="lazy" /> : player.number}
     </span>
   );
   const label = (
     <span className="flex max-w-[84px] items-center gap-1 rounded-fan-sm bg-black/75 px-1.5 py-px">
       <span className="truncate text-fan-tag text-white">{shortName(player.name)}</span>
+      {player.rating != null && <span className="text-[9px] font-bold text-amber-300">{player.rating.toFixed(1)}</span>}
       {player.captain && <span className="text-[8px] font-extrabold" style={{ color }}>C</span>}
     </span>
   );
@@ -97,8 +98,10 @@ export function BenchColumn({ players, color }: { players: SimplifiedPlayer[]; c
       {players.slice(0, 9).map((p, idx) => (
         <div key={`${p.number}-${p.name}-${idx}`} className="flex items-center gap-1.5 rounded-fan-sm px-1.5 py-1" style={{ background: hexWithAlpha(color, 0.06) }}>
           <span className="flex h-5 min-w-[20px] items-center justify-center rounded-fan-sm px-1 text-[10px] font-bold" style={{ background: hexWithAlpha(color, 0.18), color }}>{p.number}</span>
+          {p.imageUrl ? <img src={p.imageUrl} alt="" className="h-[22px] w-[22px] shrink-0 rounded-full object-cover" loading="lazy" /> : null}
           <span className="min-w-0 flex-1 truncate text-fan-caption text-fan-textPrimary">{shortName(p.name)}</span>
           <span className="text-fan-tag text-fan-textTertiary">{p.position.toUpperCase()}</span>
+          {p.rating != null && <span className="text-[10px] font-semibold text-amber-600">{p.rating.toFixed(1)}</span>}
           {p.captain && <span className="text-[9px] font-extrabold" style={{ color }}>C</span>}
         </div>
       ))}
