@@ -1,40 +1,25 @@
-import { useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
-import { resolveTeamCrest } from '@funspot/core';
+import { build365ScoresCompetitorImageUrl } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
 
 type Props = { name: string; fixture: Record<string, unknown>; side: 'home' | 'away'; size?: number };
 
-function teamCountry(fixture: Record<string, unknown>, side: 'home' | 'away'): string | undefined {
-  for (const key of [side + 'Country', side + 'TeamCountry', side + '_country', side + '_team_country']) {
-    const value = fixture[key];
-    if (typeof value === 'string' && value.trim()) return value.trim();
-  }
-  return undefined;
-}
-
 export function TeamCrest({ name, fixture, side, size = 24 }: Props) {
   const colors = useFanColors();
-  const country = teamCountry(fixture, side);
-  const [source, setSource] = useState<string | null>(null);
-  const [failed, setFailed] = useState(false);
-
-  useEffect(() => {
-    let active = true;
-    setSource(null);
-    setFailed(false);
-    void resolveTeamCrest(name, 'https://funspot.co.ke/.netlify/functions/team-crest', country).then((url) => {
-      if (active) setSource(url);
-    });
-    return () => { active = false; };
-  }, [name, country]);
+  const imageField = side === 'home' ? 'homeTeamImageUrl' : 'awayTeamImageUrl';
+  const idField = side === 'home' ? 'homeCompetitorId' : 'awayCompetitorId';
+  const snakeIdField = side === 'home' ? 'home_competitor_id' : 'away_competitor_id';
+  const supplied = fixture[imageField];
+  const source = typeof supplied === 'string' && supplied.startsWith('https://imagecache.365scores.com/')
+    ? supplied
+    : build365ScoresCompetitorImageUrl(fixture[idField] as number | string | null | undefined ?? fixture[snakeIdField] as number | string | null | undefined);
 
   return <View accessibilityLabel={name + ' crest'}
     style={[styles.circle, { width: size, height: size, borderRadius: size / 2,
       borderColor: colors.border, backgroundColor: colors.surfaceSunken }]}>
-    {source && !failed
-      ? <Image source={{ uri: source }} resizeMode="contain" onError={() => setFailed(true)}
+    {source
+      ? <Image source={{ uri: source }} resizeMode="contain"
           style={{ width: '100%', height: '100%', padding: 2 }} />
       : <Text style={[fanText('tag', colors, colors.primary),
             { fontSize: Math.max(9, size * .42), fontWeight: '800' }]}>
