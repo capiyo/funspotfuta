@@ -171,8 +171,8 @@ try {
           }
         }
       }
-      const expectedVisibleFixtures = games.filter((game) => game.status !== 'completed').length;
-      assert(layout.cardCount === expectedVisibleFixtures, `Expected ${expectedVisibleFixtures} live/upcoming fixtures at ${width}px, got ${layout.cardCount}`);
+      const expectedVisibleFixtures = games.length;
+      assert(layout.cardCount === expectedVisibleFixtures, `Expected all ${expectedVisibleFixtures} fixtures (live, upcoming, and completed) at ${width}px, got ${layout.cardCount}`);
       assert(layout.feedCount >= 4, `Expected 4 feed posts at ${width}px, got ${layout.feedCount}`);
       assert(layout.login && layout.login.height >= 32 && layout.login.background !== 'rgba(0, 0, 0, 0)',
         `Guest login button is not filled at ${width}px: ${JSON.stringify(layout.login)}`);
