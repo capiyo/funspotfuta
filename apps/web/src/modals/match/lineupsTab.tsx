@@ -18,7 +18,7 @@ function FormationPill({teamName,formation,color,alignRight=false,imageUrl}:{tea
   const colors=useFanColors();
   return <div className={`min-w-0 ${alignRight?'text-right':'text-left'}`}>
     <div className={`flex items-center gap-1.5 ${alignRight?'justify-end':'justify-start'}`}>
-      {imageUrl ? <img src={imageUrl} alt="" className="h-[18px] w-[18px] object-contain" loading="lazy"/> : null}
+      {imageUrl ? <img src={imageUrl} alt="" className="h-[18px] w-[18px] rounded-full object-contain" loading="lazy"/> : null}
       <p className="truncate" style={fanText('tag',colors,color)}>{teamName}</p>
     </div>
     <div className="h-[3px]"/>
