@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Image } from 'react-native';
 import { AlertCircle, ArrowLeftRight, CircleDot, X } from 'lucide-react';
 import { FAN_SPACING, FAN_RADIUS } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
@@ -14,7 +15,7 @@ function hexWithAlpha(hex: string, alpha: number): string {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-function FormationPill({teamName,formation,color,alignRight=false}:{teamName:string;formation:string;color:string;alignRight?:boolean}) {
+function FormationPill({teamName,formation,color,alignRight=false,imageUrl}:{teamName:string;formation:string;color:string;alignRight?:boolean;imageUrl?:string|null}) {
   const colors=useFanColors();
   return <div className={`min-w-0 ${alignRight?'text-right':'text-left'}`}>
     <p className="truncate" style={fanText('tag',colors,color)}>{teamName}</p>
