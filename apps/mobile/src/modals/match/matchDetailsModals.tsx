@@ -9,7 +9,7 @@ import {
     useWindowDimensions,
 } from 'react-native';
 
-import { FAN_SPACING, FAN_RADIUS } from '@funspot/core';
+import { FAN_SPACING, FAN_RADIUS, webSocketService } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
 import type { Fixture } from '../../../../../packages/core/src/types/fixture';
@@ -232,6 +232,30 @@ export function MatchDetailsModal({
         fetchLineups();
         fetchStatistics();
         // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [visible, fixture.matchId]);
+
+    // Apply backend statistics.updated events immediately while this match is open.
+    // The active fixture room is leased so the modal also receives updates when
+    // the originating chat/card is no longer mounted.
+    useEffect(() => {
+        if (!visible || !fixture?.matchId) return;
+
+        const channelId = webSocketService.getCurrentChannelId();
+        const roomId = channelId ? `${channelId}_${fixture.matchId}` : null;
+        if (roomId) webSocketService.acquireRoom(roomId);
+
+        const unsubscribe = webSocketService.onStatisticsUpdated((event) => {
+            if (String(event.fixture_id) !== String(fixture.matchId)) return;
+            setStatistics(parseMatchStatistics({ statistics: event.statistics }));
+            setHasStats(true);
+            setStatsError('');
+            setLoadingStats(false);
+        });
+
+        return () => {
+            unsubscribe();
+            if (roomId) webSocketService.releaseRoom(roomId);
+        };
     }, [visible, fixture.matchId]);
 
     if (!fixture) return null;
