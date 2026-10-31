@@ -2,6 +2,7 @@ type CachedResolution = { expiresAt: number; value: string | null };
 const cache = new Map<string, CachedResolution>();
 const inFlight = new Map<string, Promise<string | null>>();
 const CACHE_TTL = 30 * 24 * 60 * 60 * 1000;
+const NEGATIVE_CACHE_TTL = 6 * 60 * 60 * 1000;
 
 export function normalizeTeamCrestName(value: string): string {
   let normalized = value.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
@@ -47,6 +48,10 @@ export async function resolveTeamCrest(
       const payload: unknown = await response.json();
       if (!payload || typeof payload !== 'object') return null;
       const logoUrl = (payload as { logoUrl?: unknown }).logoUrl;
+      if (logoUrl === null) {
+        cache.set(key, { value: null, expiresAt: Date.now() + NEGATIVE_CACHE_TTL });
+        return null;
+      }
       if (typeof logoUrl !== 'string' || !/^https:\/\/media\.api-sports\.io\/football\/teams\/\d+\.png$/.test(logoUrl)) return null;
       cache.set(key, { value: logoUrl, expiresAt: Date.now() + CACHE_TTL });
       return logoUrl;
