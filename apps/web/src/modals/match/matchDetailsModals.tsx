@@ -19,10 +19,13 @@ function hasValidStatistics(data:any):boolean {
   const stats=data?.data??data;
   if(Array.isArray(stats?.statistics)) {
     const snapshots=stats.statistics;
-    if(snapshots.length>0) { const latest=snapshots[snapshots.length-1],s=latest?.statistics??latest,home=s?.home??{},away=s?.away??{}; return (home?.possession??0)>0||(away?.possession??0)>0||(home?.shots??0)>0||(away?.shots??0)>0; }
+    if(snapshots.length>0) { const latest=snapshots[snapshots.length-1],s=latest?.statistics??latest,home=s?.home??{},away=s?.away??{}; const positive=(value:unknown)=>value!==null&&value!==undefined&&Number.isFinite(Number(value))&&Number(value)>0;
+      const fields=['possession','ball_possession','shots','total_shots','shotsOnTarget','shots_on_target','corners','fouls','offsides','yellowCards','yellow_cards','passAccuracy','pass_accuracy'];
+      return fields.some(field=>positive(home?.[field])||positive(away?.[field])); }
     return false;
   }
-  return (stats?.ball_possession_home??0)>0||(stats?.ball_possession_away??0)>0||(stats?.total_shots_home??0)>0||(stats?.total_shots_away??0)>0;
+  const fields=['ball_possession_home','ball_possession_away','total_shots_home','total_shots_away','shots_on_target_home','shots_on_target_away','corners_home','corners_away','fouls_home','fouls_away','offsides_home','offsides_away','yellow_cards_home','yellow_cards_away','pass_accuracy_home','pass_accuracy_away'];
+  return fields.some(field=>{const value=stats?.[field];return value!==null&&value!==undefined&&Number.isFinite(Number(value))&&Number(value)>0;});
 }
 
 export function MatchDetailsModal({visible,fixture,userId,username,authToken,onClose}:MatchDetailsModalProps) {
@@ -31,6 +34,7 @@ export function MatchDetailsModal({visible,fixture,userId,username,authToken,onC
   const onCloseRef=useRef(onClose);
   useEffect(()=>{onCloseRef.current=onClose;},[onClose]);
   const [activeTab,setActiveTab]=useState<'lineups'|'stats'>('lineups');
+  const swipeStart=useRef<{x:number;y:number}|null>(null);
   const [statistics,setStatistics]=useState<MatchStatistics|null>(null);
   const [lineups,setLineups]=useState<LineupsData|null>(null);
   const [lineupsMatchId,setLineupsMatchId]=useState<string|null>(null);
@@ -92,6 +96,7 @@ export function MatchDetailsModal({visible,fixture,userId,username,authToken,onC
     if(roomId)webSocketService.acquireRoom(roomId);
     const unsubscribe=webSocketService.onStatisticsUpdated(event=>{
       if(String(event.fixture_id)!==String(fixture.matchId))return;
+      if(!hasValidStatistics({statistics:event.statistics}))return;
       liveStatisticsReceived.current=true;setStatistics(parseMatchStatistics({statistics:event.statistics}));
       setHasStats(true);setStatsError('');setLoadingStats(false);
     });
@@ -111,7 +116,19 @@ export function MatchDetailsModal({visible,fixture,userId,username,authToken,onC
       {hasStats&&<div className="mx-4 flex border-b" style={{borderColor:'rgba(0,0,0,.1)'}}>
         {(['lineups','stats'] as const).map(tab=><button key={tab} type="button" onClick={()=>setActiveTab(tab)} className="relative flex-1 py-2.5 text-[13px] font-semibold tracking-wide" style={{color:activeTab===tab?colors.primary:colors.textSecondary}}>{tab==='lineups'?'LINEUPS':'STATS'}{activeTab===tab&&<span className="absolute inset-x-0 bottom-0 h-0.5 rounded" style={{backgroundColor:colors.primary}}/>}</button>)}
       </div>}
-      <div className="no-scrollbar min-h-0 flex-1">
+      <div
+        className="no-scrollbar min-h-0 flex-1"
+        onTouchStart={event=>{const touch=event.touches[0];swipeStart.current=touch?{x:touch.clientX,y:touch.clientY}:null;}}
+        onTouchEnd={event=>{
+          if(!hasStats){swipeStart.current=null;return;}
+          const touch=event.changedTouches[0],start=swipeStart.current;swipeStart.current=null;
+          if(!touch||!start)return;
+          const deltaX=touch.clientX-start.x,deltaY=touch.clientY-start.y;
+          if(Math.abs(deltaX)<56||Math.abs(deltaX)<Math.abs(deltaY)*1.25)return;
+          setActiveTab(deltaX<0?'stats':'lineups');
+        }}
+        style={{touchAction:'pan-y'}}
+      >
         {activeTab==='lineups'?<LineupsTab fixture={fixture} lineups={lineupsMatchId===fixture.matchId?lineups:null} loading={loadingLineups||lineupsMatchId!==fixture.matchId} error={lineupsMatchId===fixture.matchId?lineupsError:''}/>:hasStats&&statistics?<StatsTab homeTeam={fixture.homeTeam} awayTeam={fixture.awayTeam} statistics={statistics}/>:<p className="p-4 text-center text-xs" style={{color:colors.textSecondary}}>{loadingStats?'Loading statistics…':statsError}</p>}
       </div>
     </section>
