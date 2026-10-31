@@ -1,6 +1,8 @@
 name: Live statistics client typecheck
 
 on:
+  push:
+    branches: [master]
   pull_request:
     branches: [master]
 
