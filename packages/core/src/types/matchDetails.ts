@@ -121,8 +121,8 @@ export interface SimplifiedPlayer {
     number: number;
     position: string;
     captain: boolean;
-    rating: number | null;
-    imageUrl: string | null;
+    rating?: number | null;
+    imageUrl?: string | null;
 }
 
 export function parseSimplifiedPlayer(json: any): SimplifiedPlayer {
