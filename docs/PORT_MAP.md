@@ -54,7 +54,7 @@ Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This in
 | `src/modals/comradelist/types.ts` | 43 | `apps/web/src/modals/comradelist/types.ts` | PORTED |
 | `src/modals/joingroupmodal.tsx` | 794 | `apps/web/src/modals/joingroupmodal.tsx` | SUSPECT (5% line count) |
 | `src/modals/match/lineupsTab.tsx` | 362 | `apps/web/src/modals/match/lineupsTab.tsx` | SUSPECT (20% line count) |
-| `src/modals/match/matchDetailsModals.tsx` | 500 | `apps/web/src/modals/match/matchDetailsModals.tsx` | SUSPECT (20% line count) |
+| `src/modals/match/matchDetailsModals.tsx` | 500 | `apps/web/src/modals/match/matchDetailsModals.tsx` (live statistics events; Lineups-only until stats are valid; swipeable Lineups/Stats tabs; Playwright verified) | SUSPECT (20% line count; feature checks pass, broader modal parity still needs review) |
 | `src/modals/match/pitchView.tsx` | 1119 | `apps/web/src/modals/match/pitchView.tsx` (simplified view, suspect) | SUSPECT (18% line count) |
 | `src/modals/match/statsTab.tsx` | 236 | `apps/web/src/modals/match/statsTab.tsx` | SUSPECT (30% line count) |
 | `src/modals/profile/ChannelLeaderboard.tsx` | 563 | `apps/web/src/modals/profile/ChannelLeaderboard.tsx` (full source ported through browser view adapters) | PORTED — CI passed |
