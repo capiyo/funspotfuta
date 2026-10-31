@@ -1,0 +1,23 @@
+name: Live statistics client typecheck
+
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches:
+      - feature/live-possession-statistics-client
+
+jobs:
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Typecheck shared core
+        run: npm run typecheck --workspace=@funspot/core
+      - name: Typecheck React Native app
+        run: npm run typecheck --workspace=funspot
