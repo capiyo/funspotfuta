@@ -261,8 +261,8 @@ export interface Fixture {
   matchId: string;
   homeTeam: string;
   awayTeam: string;
-  homeTeamImageUrl: string | null;
-  awayTeamImageUrl: string | null;
+  homeTeamImageUrl?: string | null;
+  awayTeamImageUrl?: string | null;
   league: string;
   homeWin: number;
   awayWin: number;
