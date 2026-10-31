@@ -3,7 +3,7 @@
 // Lineups and statistics load independently, each with the same two-tier fallback
 // URLs as RN. The STATS tab only appears once valid statistics exist.
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { API_BASE, type Fixture } from '@funspot/core';
 import { parseMatchStatistics, parseLineupsData } from '@funspot/core/src/types/matchDetails';
 import type { MatchStatistics, LineupsData } from '@funspot/core/src/types/matchDetails';
@@ -45,6 +45,7 @@ export function MatchDetailsModal({ visible, fixture, authToken, onClose }: Matc
   const [loadingLineups, setLoadingLineups] = useState(true);
   const [lineupsError, setLineupsError] = useState('');
   const [hasStats, setHasStats] = useState(false);
+  const swipeStart = useRef<{ x: number; y: number } | null>(null);
 
   const matchId = fixture?.matchId;
 
@@ -157,9 +158,29 @@ export function MatchDetailsModal({ visible, fixture, authToken, onClose }: Matc
           </div>
         </div>
 
-        {hasStats && <div className="flex border-b border-fan-border">{tab('lineups', 'LINEUPS')}{tab('stats', 'STATS')}</div>}
+        <div className="flex border-b border-fan-border">
+          {tab('lineups', 'LINEUPS')}
+          {hasStats ? tab('stats', 'STATS') : null}
+        </div>
 
-        <div className="flex-1 overflow-y-auto">
+        <div
+          className="flex-1 overflow-y-auto"
+          onTouchStart={(event) => {
+            const touch = event.touches[0];
+            swipeStart.current = touch ? { x: touch.pageX, y: touch.pageY } : null;
+          }}
+          onTouchEnd={(event) => {
+            if (!hasStats) { swipeStart.current = null; return; }
+            const touch = event.changedTouches[0];
+            const start = swipeStart.current;
+            swipeStart.current = null;
+            if (!touch || !start) return;
+            const dx = touch.pageX - start.x;
+            const dy = touch.pageY - start.y;
+            if (Math.abs(dx) < 56 || Math.abs(dx) < Math.abs(dy) * 1.25) return;
+            setActiveTab(dx < 0 ? 'stats' : 'lineups');
+          }}
+        >
           {activeTab === 'lineups' || !hasStats ? (
             <LineupsTab fixture={fixture} lineups={lineups} loading={loadingLineups} error={lineupsError} />
           ) : statistics ? (
