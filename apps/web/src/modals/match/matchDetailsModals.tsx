@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { FAN_RADIUS, FAN_SPACING } from '@funspot/core';
+import { FAN_RADIUS, FAN_SPACING, webSocketService } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
 import type { Fixture } from '../../../../../packages/core/src/types/fixture';
@@ -80,6 +80,21 @@ export function MatchDetailsModal({visible,fixture,userId,username,authToken,onC
   // Fetch only when the modal opens or the selected match changes. Callback identity
   // must not restart loading and blank the pitch during ordinary parent re-renders.
   // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[visible,fixture.matchId]);
+
+  // Subscribe to live statistics while the selected fixture is open. The
+  // fixture room is leased independently so another screen can safely share it.
+  useEffect(()=>{
+    if(!visible||!fixture?.matchId)return;
+    const channelId=webSocketService.getCurrentChannelId();
+    const roomId=channelId?`${channelId}_${fixture.matchId}`:null;
+    if(roomId)webSocketService.acquireRoom(roomId);
+    const unsubscribe=webSocketService.onStatisticsUpdated(event=>{
+      if(String(event.fixture_id)!==String(fixture.matchId))return;
+      setStatistics(parseMatchStatistics({statistics:event.statistics}));
+      setHasStats(true);setStatsError('');setLoadingStats(false);
+    });
+    return()=>{unsubscribe();if(roomId)webSocketService.releaseRoom(roomId);};
   },[visible,fixture.matchId]);
 
   if(!visible||!fixture)return null;
