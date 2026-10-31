@@ -58,8 +58,8 @@ export function MatchDetailsModal({visible,fixture,userId,username,authToken,onC
       if(res.status===200) { const data=await res.json(); if(hasValidStatistics(data)) { if(!liveStatisticsReceived.current){setStatistics(parseMatchStatistics(data));setHasStats(true);}setLoadingStats(false);return; } }
       const fullRes=await fetch(`${API_BASE}/games/${fixture.matchId}/statistics`,{headers});
       if(fullRes.status===200) { const data=await fullRes.json(); if(data?.success===true) { const stats=data?.data??data; if(hasValidStatistics(stats)) { if(!liveStatisticsReceived.current){setStatistics(parseMatchStatistics(stats));setHasStats(true);}setLoadingStats(false);return; } } }
-      setHasStats(false);setStatistics(null);setStatsError('Statistics available after match starts');setLoadingStats(false);
-    } catch(error) { console.warn('❌ Error fetching statistics:',error);setHasStats(false);setStatistics(null);setStatsError('Statistics coming soon');setLoadingStats(false); }
+      if(!liveStatisticsReceived.current){setHasStats(false);setStatistics(null);setStatsError('Statistics available after match starts');}setLoadingStats(false);
+    } catch(error) { console.warn('❌ Error fetching statistics:',error);if(!liveStatisticsReceived.current){setHasStats(false);setStatistics(null);setStatsError('Statistics coming soon');}setLoadingStats(false); }
   },[fixture.matchId,authToken]);
 
   useEffect(()=>{
