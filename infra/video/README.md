@@ -73,3 +73,16 @@ Only ingest streams that Funspot owns or is licensed/authorized to distribute. A
 ## Status
 
 This is the infrastructure foundation and deployment contract, not a claim that live streaming is already connected to production fixtures. The Rust authorization adapter, Zig gateway runtime, hardened in-process C++ media worker, scraper metadata adapter, frontend player, licensed source configuration, and end-to-end verification are separate implementation milestones.
+
+## Learn and run the local pipeline
+
+Start with [LEARNING_LAB.md](./LEARNING_LAB.md) for the end-to-end protocol walkthrough and local synthetic source. The lab uses an FFmpeg-generated 720p test pattern and audio tone; it does not access third-party broadcasts.
+
+Run it with:
+
+```sh
+docker compose -f docker-compose.video.yml up -d srs
+docker compose -f docker-compose.video.yml -f docker-compose.demo.yml --profile demo up -d test-publisher
+```
+
+This proves the local publisher-to-SRS ingest and HLS packaging path. It does not yet exercise the C++ worker or Zig gateway, and it is not an authenticated production playback path.
