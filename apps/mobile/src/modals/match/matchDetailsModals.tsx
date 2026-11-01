@@ -380,8 +380,8 @@ export function MatchDetailsModal({
                                 </>
                             ) : null}
                         </View>
-                    </View>
                     <Pressable onPress={onClose} hitSlop={10} accessibilityRole="button" accessibilityLabel="Close live viewer" style={{ width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background }}><Text style={{ color: colors.textSecondary, fontSize: 24, lineHeight: 28 }}>×</Text></Pressable>
+                    </View>
 
                     {/* Fixture-scoped match tabs */}
                     {!watchMode && <View style={styles.tabBar}>
