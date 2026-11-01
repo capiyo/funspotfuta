@@ -33,9 +33,11 @@ The exact Rust route and token claims must be agreed with the current backend so
 
 ## Deployment
 
-The video compose file and SRS configuration provide the SRS deployment baseline. Bind SRS API/admin interfaces to the private Docker network only. Put TLS, public WebRTC UDP reachability, TURN where required, rate limiting, and origin restrictions at the deployment edge. Configure the public WebRTC candidate to the actual reachable media IP/DNS; the wildcard candidate is only a development placeholder.
+The deployment pins SRS to the stable v6.0-r3 release. SRS supports RTMP/SRT ingest and WebRTC/HLS delivery; the official release notes publish Docker tags for v6.0-r3. See the [SRS release record](https://github.com/ossrs/srs/releases/tag/v6.0-r3).
 
-Required environment values are documented in .env.example. Do not commit production credentials.
+From this directory, copy .env.example to .env, set SRS_PUBLIC_CANDIDATE to the externally reachable media IP, and run `docker compose -f docker-compose.video.yml up -d srs`. The default RTMP and HTTP bindings are loopback-only; change the bind addresses only when the edge/firewall is configured for the intended ingress. The WebRTC UDP port must be reachable by clients. The SRS HTTP API is exposed only to the Docker network and is not published on the host.
+
+Put TLS, TURN where required, rate limiting, and origin restrictions at the deployment edge. The wildcard candidate is a development fallback only. The HLS fragment value is a target/minimum slice setting, not a promise of exact end-to-end latency: actual TS duration also depends on the encoder GOP/keyframe interval. Required environment values are documented in .env.example. Do not commit production credentials.
 
 ## Rights and source policy
 
