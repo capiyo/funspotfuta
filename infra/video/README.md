@@ -5,7 +5,7 @@ This directory contains the independently deployable video plane for Funspot. It
 ## Architecture
 
 - **SRS 6** is the media server. It remains the upstream SRS implementation; we configure and operate it rather than reimplementing it.
-- **C++** owns native media-worker responsibilities where processing is required (FFmpeg/libav integration, probing, remuxing/transcoding and process supervision). It is not in the per-packet browser request path.
+- **C++** owns native media-worker responsibilities. The first worker reads an authorized ingest URL from a mounted secret file and launches FFmpeg directly (without a shell), normalizing to H.264/AAC for browser delivery. It is not in the per-packet browser request path.
 - **Zig** owns the lightweight video control/gateway service: stream lifecycle, fixture-to-stream association, authorization delegation, SRS control-plane calls, health and metrics.
 - **Existing Rust/Axum API** remains authoritative for users, sessions, fixture identity, membership and playback authorization. Do not migrate or duplicate that domain into Zig.
 - **React / React Native** render a fixture-scoped player in Match Details. Selecting a different fixture must switch the playback session without navigating away.
