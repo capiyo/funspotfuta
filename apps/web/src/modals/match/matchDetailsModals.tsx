@@ -39,7 +39,10 @@ export function MatchDetailsModal({visible,fixture,userId,username,authToken,onC
   const dialogRef=useRef<HTMLDivElement>(null);
   const onCloseRef=useRef(onClose);
   useEffect(()=>{onCloseRef.current=onClose;},[onClose]);
-  const [activeTab,setActiveTab]=useState<'lineups'|'stats'>('lineups');
+  const [activeTab,setActiveTab]=useState<'lineups'|'stats'|'video'>('lineups');
+  const [videoUrl,setVideoUrl]=useState('');
+  const [videoError,setVideoError]=useState('');
+  const [videoLoading,setVideoLoading]=useState(false);
   const swipeStart=useRef<{x:number;y:number}|null>(null);
   const [statistics,setStatistics]=useState<MatchStatistics|null>(null);
   const [lineups,setLineups]=useState<LineupsData|null>(null);
@@ -93,6 +96,26 @@ export function MatchDetailsModal({visible,fixture,userId,username,authToken,onC
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[visible,fixture.matchId]);
 
+  useEffect(()=>{
+    setVideoUrl('');
+    setVideoError('');
+    if(!visible||fixture.status!=='live')return;
+    if(!authToken){setVideoError('Sign in to watch this live fixture.');return;}
+    const controller=new AbortController();
+    setVideoLoading(true);
+    void fetch(`${API_BASE}/video/fixtures/${encodeURIComponent(fixture.matchId)}/grant`,{
+      headers:{Authorization:`Bearer ${authToken}`},
+      signal:controller.signal,
+    }).then(async response=>{
+      const payload=await response.json().catch(()=>null);
+      if(!response.ok||payload?.success!==true||typeof payload?.hls_url!=='string')throw new Error(payload?.error||'Live playback is not available.');
+      setVideoUrl(payload.hls_url);
+    }).catch(error=>{
+      if(!controller.signal.aborted)setVideoError(error instanceof Error?error.message:'Unable to load live playback.');
+    }).finally(()=>{if(!controller.signal.aborted)setVideoLoading(false);});
+    return()=>controller.abort();
+  },[visible,fixture.matchId,fixture.status,authToken]);
+
   // Subscribe to live statistics while the selected fixture is open. The
   // fixture room is leased independently so another screen can safely share it.
   useEffect(()=>{
@@ -120,7 +143,7 @@ export function MatchDetailsModal({visible,fixture,userId,username,authToken,onC
         <div className="min-w-0 flex-1 text-center"><p className="line-clamp-2" style={{...fanText('body',colors,colors.textPrimary),fontSize:13,fontWeight:400,lineHeight:'17px'}}>{fixture.awayTeam}</p>{fixture.date&&<p className="mt-1" style={fanText('caption',colors,colors.textSecondary)}>{formatTime(fixture.date)}</p>}</div>
       </header>
       <div className="mx-4 flex border-b" style={{borderColor:'rgba(0,0,0,.1)'}}>
-        {(['lineups','stats'] as const).filter(tab=>tab==='lineups'||hasStats).map(tab=><button key={tab} type="button" onClick={()=>setActiveTab(tab)} className="relative flex-1 py-2.5 text-[13px] font-semibold tracking-wide" style={{color:activeTab===tab?colors.primary:colors.textSecondary}}>{tab==='lineups'?'LINEUPS':'STATS'}{activeTab===tab&&<span className="absolute inset-x-0 bottom-0 h-0.5 rounded" style={{backgroundColor:colors.primary}}/>}</button>)}
+        {(['lineups',...(hasStats?['stats' as const]:[]),'video'] as const).map(tab=><button key={tab} type="button" onClick={()=>setActiveTab(tab)} className="relative flex-1 py-2.5 text-[13px] font-semibold tracking-wide" style={{color:activeTab===tab?colors.primary:colors.textSecondary}}>{tab.toUpperCase()}{activeTab===tab&&<span className="absolute inset-x-0 bottom-0 h-0.5 rounded" style={{backgroundColor:colors.primary}}/>}</button>)}
       </div>
       <div
         className="no-scrollbar min-h-0 flex-1"
@@ -135,7 +158,7 @@ export function MatchDetailsModal({visible,fixture,userId,username,authToken,onC
         }}
         style={{touchAction:'pan-y'}}
       >
-        {activeTab==='lineups'?<LineupsTab fixture={fixture} lineups={lineupsMatchId===fixture.matchId?lineups:null} loading={loadingLineups||lineupsMatchId!==fixture.matchId} error={lineupsMatchId===fixture.matchId?lineupsError:''}/>:hasStats&&statistics?<StatsTab homeTeam={fixture.homeTeam} awayTeam={fixture.awayTeam} statistics={statistics}/>:<p className="p-4 text-center text-xs" style={{color:colors.textSecondary}}>{loadingStats?'Loading statistics…':statsError}</p>}
+        {activeTab==='lineups'?<LineupsTab fixture={fixture} lineups={lineupsMatchId===fixture.matchId?lineups:null} loading={loadingLineups||lineupsMatchId!==fixture.matchId} error={lineupsMatchId===fixture.matchId?lineupsError:''/>:activeTab==='stats'?hasStats&&statistics?<StatsTab homeTeam={fixture.homeTeam} awayTeam={fixture.awayTeam} statistics={statistics}/>:<p className="p-4 text-center text-xs" style={{color:colors.textSecondary}}>{loadingStats?'Loading statistics…':statsError}</p>:<div className="flex h-full min-h-0 flex-col justify-center gap-3 p-4"><div className="aspect-video w-full overflow-hidden rounded-xl bg-black">{videoUrl?<video key={videoUrl} src={videoUrl} controls autoPlay playsInline className="h-full w-full" />:<div className="flex h-full items-center justify-center px-5 text-center text-sm text-white">{videoLoading?'Connecting to live stream…':videoError||'No live stream is available for this fixture.'}</div>}</div><p className="text-center text-xs" style={{color:colors.textSecondary}}>Live video · HLS</p></div>}
       </div>
     </section>
   </div>,document.body);
