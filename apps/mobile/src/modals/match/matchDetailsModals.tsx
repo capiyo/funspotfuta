@@ -1,5 +1,6 @@
 // components/MatchDetailsModal.tsx
 import React, { useCallback, useEffect, useState } from 'react';
+import { Video, ResizeMode } from 'expo-av';
 import {
     View,
     Text,
@@ -100,7 +101,10 @@ export function MatchDetailsModal({
     const colors = useFanColors();
     const { height: windowHeight } = useWindowDimensions();
 
-    const [activeTab, setActiveTab] = useState<'lineups' | 'stats'>('lineups');
+    const [activeTab, setActiveTab] = useState<'lineups' | 'stats' | 'video'>('lineups');
+    const [videoUrl, setVideoUrl] = useState('');
+    const [videoLoading, setVideoLoading] = useState(false);
+    const [videoError, setVideoError] = useState('');
 
     const [statistics, setStatistics] = useState<MatchStatistics | null>(null);
     const [lineups, setLineups] = useState<LineupsData | null>(null);
@@ -238,6 +242,35 @@ export function MatchDetailsModal({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [visible, fixture.matchId]);
 
+    useEffect(() => {
+        setVideoUrl('');
+        setVideoError('');
+        if (!visible || fixture.status !== 'live') return;
+        if (!authToken) {
+            setVideoError('Sign in to watch this live fixture.');
+            return;
+        }
+        const controller = new AbortController();
+        setVideoLoading(true);
+        void fetch(`${API_BASE}/video/fixtures/${encodeURIComponent(fixture.matchId)}/grant`, {
+            headers: { Authorization: `Bearer ${authToken}` },
+            signal: controller.signal,
+        }).then(async response => {
+            const payload = await response.json().catch(() => null);
+            if (!response.ok || payload?.success !== true || typeof payload?.hls_url !== 'string') {
+                throw new Error(payload?.error || 'Live playback is not available.');
+            }
+            setVideoUrl(payload.hls_url);
+        }).catch(error => {
+            if (!controller.signal.aborted) {
+                setVideoError(error instanceof Error ? error.message : 'Unable to load live playback.');
+            }
+        }).finally(() => {
+            if (!controller.signal.aborted) setVideoLoading(false);
+        });
+        return () => controller.abort();
+    }, [visible, fixture.matchId, fixture.status, authToken]);
+
     if (!fixture) return null;
 
     const home = fixture.homeScore ?? 0;
@@ -344,70 +377,22 @@ export function MatchDetailsModal({
                         </View>
                     </View>
 
-                    {/* Conditional tab bar */}
-                    {hasStats ? (
-                        <View style={styles.tabBar}>
-                            <Pressable
-                                style={styles.tab}
-                                onPress={() => setActiveTab('lineups')}
-                            >
-                                <Text
-                                    style={[
-                                        styles.tabLabel,
-                                        {
-                                            color:
-                                                activeTab === 'lineups'
-                                                    ? colors.primary
-                                                    : colors.textSecondary,
-                                        },
-                                    ]}
-                                >
-                                    LINEUPS
+                    {/* Fixture-scoped match tabs */}
+                    <View style={styles.tabBar}>
+                        {(['lineups', ...(hasStats ? ['stats' as const] : []), 'video'] as const).map(tab => (
+                            <Pressable key={tab} style={styles.tab} onPress={() => setActiveTab(tab)}>
+                                <Text style={[styles.tabLabel, { color: activeTab === tab ? colors.primary : colors.textSecondary }]}>
+                                    {tab.toUpperCase()}
                                 </Text>
-                                {activeTab === 'lineups' ? (
-                                    <View
-                                        style={[
-                                            styles.tabIndicator,
-                                            { backgroundColor: colors.primary },
-                                        ]}
-                                    />
-                                ) : (
-                                    <View style={styles.tabIndicatorEmpty} />
-                                )}
+                                {activeTab === tab ? (
+                                    <View style={[styles.tabIndicator, { backgroundColor: colors.primary }]} />
+                                ) : <View style={styles.tabIndicatorEmpty} />}
                             </Pressable>
-                            <Pressable
-                                style={styles.tab}
-                                onPress={() => setActiveTab('stats')}
-                            >
-                                <Text
-                                    style={[
-                                        styles.tabLabel,
-                                        {
-                                            color:
-                                                activeTab === 'stats'
-                                                    ? colors.primary
-                                                    : colors.textSecondary,
-                                        },
-                                    ]}
-                                >
-                                    STATS
-                                </Text>
-                                {activeTab === 'stats' ? (
-                                    <View
-                                        style={[
-                                            styles.tabIndicator,
-                                            { backgroundColor: colors.primary },
-                                        ]}
-                                    />
-                                ) : (
-                                    <View style={styles.tabIndicatorEmpty} />
-                                )}
-                            </Pressable>
-                        </View>
-                    ) : null}
+                        ))}
+                    </View>
 
                     {/* Content */}
-                    <View style={{ flex: 1 }}>
+                    <View style={{ flex: 1, justifyContent: activeTab === 'video' ? 'center' : 'flex-start', padding: activeTab === 'video' ? 12 : 0 }}>
                         {activeTab === 'lineups' ? (
                             <LineupsTab
                                 fixture={fixture}
@@ -415,13 +400,28 @@ export function MatchDetailsModal({
                                 loading={loadingLineups || lineupsMatchId !== fixture.matchId}
                                 error={lineupsMatchId === fixture.matchId ? lineupsError : ''}
                             />
-                        ) : hasStats && statistics ? (
-                            <StatsTab
-                                homeTeam={fixture.homeTeam}
-                                awayTeam={fixture.awayTeam}
-                                statistics={statistics}
-                            />
-                        ) : null}
+                        ) : activeTab === 'stats' ? (
+                            hasStats && statistics ? (
+                                <StatsTab homeTeam={fixture.homeTeam} awayTeam={fixture.awayTeam} statistics={statistics} />
+                            ) : null
+                        ) : (
+                            <View style={{ width: '100%', aspectRatio: 16 / 9, backgroundColor: '#000', borderRadius: 12, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' }}>
+                                {videoUrl ? (
+                                    <Video
+                                        key={videoUrl}
+                                        source={{ uri: videoUrl }}
+                                        style={{ width: '100%', height: '100%' }}
+                                        useNativeControls
+                                        resizeMode={ResizeMode.CONTAIN}
+                                        shouldPlay
+                                    />
+                                ) : (
+                                    <Text style={{ color: '#fff', fontSize: 13, textAlign: 'center', paddingHorizontal: 20 }}>
+                                        {videoLoading ? 'Connecting to live stream…' : videoError || 'No live stream is available for this fixture.'}
+                                    </Text>
+                                )}
+                            </View>
+                        )}
                     </View>
                 </View>
             </View>
