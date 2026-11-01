@@ -42,7 +42,7 @@ Put TLS, TURN where required, rate limiting, and origin restrictions at the depl
 
 ### Running one authorized fixture ingest
 
-Start SRS first. Then prepare the source URL as a protected host file outside Git, readable by the worker's unprivileged UID 65532. Copy `worker.env.example` to `worker.env` and set `VIDEO_INGEST_SOURCE_FILE` and `VIDEO_STREAM_KEY`. Run one worker container per authorized fixture:
+Start SRS first. Then prepare the source URL as a protected host file outside Git, readable by the worker's unprivileged UID 65532. Copy `worker.env.example` to `worker.env` and set `VIDEO_INGEST_SOURCE_FILE`, `VIDEO_STREAM_KEY`, and the exact comma-separated `VIDEO_ALLOWED_SOURCE_HOSTS` list. The worker rejects source URLs whose hostname is not an exact allowlist entry; wildcard entries are rejected. Run one worker container per authorized fixture:
 
 ```sh
 docker compose -f docker-compose.video.yml up -d srs
