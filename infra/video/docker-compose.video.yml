@@ -1,6 +1,6 @@
 services:
   srs:
-    image: ossrs/srs:6
+    image: ossrs/srs:v6.0-r3
     container_name: funspot-srs
     restart: unless-stopped
     command: ["./objs/srs", "-c", "conf/srs.conf"]
