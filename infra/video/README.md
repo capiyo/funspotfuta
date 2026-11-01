@@ -6,9 +6,9 @@ This directory contains the independently deployable video plane for Funspot. It
 
 - **SRS 6** is the media server. It remains the upstream SRS implementation; we configure and operate it rather than reimplementing it.
 - **C++** owns native media-worker responsibilities. The first worker reads an authorized ingest URL from a mounted secret file and launches FFmpeg directly (without a shell), normalizing to H.264/AAC for browser delivery. It is not in the per-packet browser request path.
-- **Zig** owns the lightweight video control/gateway service: stream lifecycle, fixture-to-stream association, authorization delegation, SRS control-plane calls, health and metrics.
+- **Zig** is the intended lightweight video control/gateway runtime for stream lifecycle, fixture-to-stream association, authorization delegation and SRS control-plane calls. Current code only validates startup configuration and identifiers; the persistent HTTP service, lifecycle manager, health and metrics are not implemented yet.
 - **Existing Rust/Axum API** remains authoritative for users, sessions, fixture identity, membership and playback authorization. Do not migrate or duplicate that domain into Zig.
-- **React / React Native** render a fixture-scoped player in Match Details. Selecting a different fixture must switch the playback session without navigating away.
+- **React / React Native** must render a fixture-scoped player in Match Details. This player is not wired yet; selecting a different fixture must eventually switch playback without navigating away.
 
 ## Delivery protocol
 
@@ -72,4 +72,4 @@ Only ingest streams that Funspot owns or is licensed/authorized to distribute. A
 
 ## Status
 
-This is the infrastructure foundation and deployment contract, not a claim that live streaming is already connected to production fixtures. The Rust authorization adapter, Zig gateway runtime, C++ media worker, scraper metadata adapter, frontend player, licensed source configuration, and end-to-end verification are separate implementation milestones.
+This is the infrastructure foundation and deployment contract, not a claim that live streaming is already connected to production fixtures. The Rust authorization adapter, Zig gateway runtime, hardened in-process C++ media worker, scraper metadata adapter, frontend player, licensed source configuration, and end-to-end verification are separate implementation milestones.
