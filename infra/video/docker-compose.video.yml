@@ -20,6 +20,27 @@ services:
     security_opt:
       - no-new-privileges:true
 
+  video-edge:
+    image: nginx:1.27-alpine
+    container_name: funspot-video-edge
+    restart: unless-stopped
+    depends_on:
+      - srs
+    ports:
+      - "${VIDEO_EDGE_BIND:-127.0.0.1}:8088:8080/tcp"
+    volumes:
+      - ./nginx-playback.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - funspot-video
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    read_only: true
+    tmpfs:
+      - /var/cache/nginx:size=16m
+      - /var/run:size=1m
+
 networks:
   funspot-video:
     name: funspot-video
