@@ -118,7 +118,7 @@ export function MatchDetailsModal({visible,fixture,userId,username,authToken,onC
         setVideoUrl(payload.hls_url);
         if(typeof RTCPeerConnection==='undefined'||typeof payload?.rtc_api_url!=='string'||typeof payload?.webrtc_url!=='string')return;
 
-        const activePeer=new RTCPeerConnection();
+        const activePeer=new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'}]});
         peer=activePeer;
         peerRef.current=activePeer;
         activePeer.addTransceiver('audio',{direction:'recvonly'});
