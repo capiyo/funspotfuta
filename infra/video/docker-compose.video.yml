@@ -27,7 +27,7 @@ services:
 networks:
   funspot-video:
     name: funspot-video
-    internal: true
+    driver: bridge
 
 volumes:
   srs-hls:
