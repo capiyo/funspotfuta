@@ -1,9 +1,23 @@
 name: Web port validation
 on:
   push:
-    branches: [web-port-from-master]
+    branches: [web-port-from-master, feature/srs-cpp-zig-video-platform]
+    paths:
+      - "apps/web/**"
+      - "apps/mobile/**"
+      - "packages/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/web-port-ci.yml"
   pull_request:
-    branches: [master]
+    branches: [master, web-port-from-master]
+    paths:
+      - "apps/web/**"
+      - "apps/mobile/**"
+      - "packages/**"
+      - "package.json"
+      - "package-lock.json"
+      - ".github/workflows/web-port-ci.yml"
 jobs:
   validate:
     runs-on: ubuntu-latest

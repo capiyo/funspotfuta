@@ -1,0 +1,77 @@
+name: Video plane CI
+
+on:
+  pull_request:
+    paths:
+      - "infra/video/**"
+      - ".github/workflows/video-plane-ci.yml"
+  push:
+    branches:
+      - "feature/srs-cpp-zig-video-platform"
+    paths:
+      - "infra/video/**"
+      - ".github/workflows/video-plane-ci.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  validate-video-plane:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Zig 0.13
+        uses: mlugg/setup-zig@v2
+        with:
+          version: 0.13.0
+
+      - name: Build Zig gateway bootstrap
+        working-directory: infra/video/zig-gateway
+        run: zig build
+
+      - name: Run Zig validation tests
+        working-directory: infra/video/zig-gateway
+        run: zig build test
+
+      - name: Install C++ and media validation tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends cmake g++ ffmpeg
+
+      - name: Build C++ worker with strict warnings
+        working-directory: infra/video/cpp-worker
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+          cmake --build build --parallel
+          ctest --test-dir build --output-on-failure
+
+      - name: Smoke-test H.264/AAC low-latency encode profile
+        run: |
+          ffmpeg -hide_banner -loglevel error \
+            -f lavfi -i testsrc2=size=640x360:rate=25 \
+            -f lavfi -i sine=frequency=1000:sample_rate=48000 \
+            -t 1 -vf "scale=w='min(1280,iw)':h=-2" \
+            -c:v libx264 -preset veryfast -tune zerolatency \
+            -profile:v baseline -pix_fmt yuv420p -b:v 2500k \
+            -maxrate 2500k -bufsize 5000k -g 50 -keyint_min 50 \
+            -sc_threshold 0 -c:a aac -b:a 128k -ar 48000 -ac 2 \
+            -f null -
+
+      - name: Validate SRS Compose configuration
+        working-directory: infra/video
+        run: |
+          cp .env.example .env
+          docker compose -f docker-compose.video.yml config --quiet
+          docker compose -f docker-compose.video.yml -f docker-compose.demo.yml --profile demo config --quiet
+
+      - name: Validate playback edge Nginx configuration
+        run: docker run --rm -v "$PWD/infra/video/nginx-playback.conf:/etc/nginx/conf.d/default.conf:ro" nginx:1.27-alpine nginx -t
+
+      - name: Build worker container image
+        run: |
+          docker build \
+            -f infra/video/cpp-worker/Dockerfile \
+            -t funspot-video-worker:ci \
+            infra/video/cpp-worker
