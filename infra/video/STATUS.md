@@ -4,14 +4,14 @@
 
 - SRS 6 configuration for RTMP ingest, WebRTC playback and HLS fallback.
 - Isolated SRS compose deployment; the SRS HTTP API is exposed only to the Docker network and is not published as a host port.
-- C++20 FFmpeg launcher that reads its input URL from a mounted secret file, validates the protocol and fixture stream key, and invokes FFmpeg directly without shell interpolation. The URL is still visible in FFmpeg's process arguments while running; this is documented as a production blocker.
+- C++20 FFmpeg launcher that reads its input URL from a mounted secret file, validates the protocol and fixture stream key, enforces an exact configured source-host allowlist, and invokes FFmpeg directly without shell interpolation. The URL is still visible in FFmpeg's process arguments while running; this is documented as a production blocker.
 - Zig 0.13 gateway bootstrap package with strict required-environment validation and fixture-ID / URL validation tests.
 - Rights and security boundaries documented.
 
 ## Not complete / not production enabled
 
 - The Zig program is currently a configuration/bootstrap validator, not yet the long-running HTTP gateway. It must not be exposed as a playback endpoint.
-- C++ currently runs one fixed H.264/AAC transcode profile per worker. Adaptive bitrate ladders, hardware acceleration, worker supervision/restart policy, source allowlisting beyond protocol validation, and metrics are not implemented.
+- C++ currently runs one fixed H.264/AAC transcode profile per worker. It enforces exact source-host allowlisting (no wildcard hosts), but does not pin DNS results or protect against a compromised allowlisted provider. Adaptive bitrate ladders, hardware acceleration, worker supervision/restart policy, source allowlisting beyond protocol validation, and metrics are not implemented.
 - No playback authorization route has been added to Axum. The current backend auth implementation has legacy insecure fallback behavior when JWT_SECRET is absent; the video plane must fail closed and must not reuse that fallback.
 - No signed-grant enforcement exists at the media edge yet. Returning an unsigned SRS URL to clients is not acceptable.
 - No Camel1 media extraction or relay is implemented. Fixture metadata discovery is separate from authorization to distribute a broadcast.
