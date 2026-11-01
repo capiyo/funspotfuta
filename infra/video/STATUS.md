@@ -11,7 +11,7 @@
 ## Not complete / not production enabled
 
 - The Zig program is currently a configuration/bootstrap validator, not yet the long-running HTTP gateway. It must not be exposed as a playback endpoint.
-- C++ currently launches FFmpeg in stream-copy/remux mode. Adaptive transcoding ladders, codec compatibility policy, hardware acceleration, worker supervision, and metrics are not implemented.
+- C++ currently runs one fixed H.264/AAC transcode profile per worker. Adaptive bitrate ladders, hardware acceleration, worker supervision/restart policy, source allowlisting beyond protocol validation, and metrics are not implemented.
 - No playback authorization route has been added to Axum. The current backend auth implementation has legacy insecure fallback behavior when JWT_SECRET is absent; the video plane must fail closed and must not reuse that fallback.
 - No signed-grant enforcement exists at the media edge yet. Returning an unsigned SRS URL to clients is not acceptable.
 - No Camel1 media extraction or relay is implemented. Fixture metadata discovery is separate from authorization to distribute a broadcast.
