@@ -1,4 +1,7 @@
+#include <algorithm>
 #include <cerrno>
+#include <cctype>
+#include <cstdlib>
 #include <cstring>
 #include <fstream>
 #include <iostream>
@@ -36,6 +39,68 @@ bool allowed_input(std::string_view value) {
         if (ch <= 0x20 || ch == 0x7f) return false;
     }
     return true;
+}
+
+std::string normalized_host(std::string_view host) {
+    std::string result(host);
+    std::transform(result.begin(), result.end(), result.begin(),
+                   [](unsigned char ch) { return static_cast<char>(std::tolower(ch)); });
+    if (!result.empty() && result.back() == '.') result.pop_back();
+    return result;
+}
+
+bool source_host_allowed(std::string_view url, std::string_view allowed_hosts) {
+    const auto scheme_end = url.find("://");
+    if (scheme_end == std::string_view::npos) return false;
+    const auto authority_start = scheme_end + 3;
+    const auto authority_end = url.find_first_of("/?#", authority_start);
+    auto authority = url.substr(authority_start,
+        authority_end == std::string_view::npos ? url.size() - authority_start
+                                                : authority_end - authority_start);
+    const auto at = authority.rfind('@');
+    if (at != std::string_view::npos) authority.remove_prefix(at + 1);
+    if (authority.empty()) return false;
+
+    std::string_view host = authority;
+    if (authority.front() == '[') {
+        const auto close = authority.find(']');
+        if (close == std::string_view::npos) return false;
+        host = authority.substr(1, close - 1);
+        if (close + 1 < authority.size() && authority[close + 1] != ':') return false;
+    } else {
+        const auto colon = authority.rfind(':');
+        if (colon != std::string_view::npos) {
+            if (authority.find(':') != colon) return false;
+            host = authority.substr(0, colon);
+        }
+    }
+    if (host.empty()) return false;
+    for (const unsigned char ch : host) {
+        const bool valid = (ch >= 'a' && ch <= 'z') ||
+            (ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9') ||
+            ch == '.' || ch == '-' || ch == ':';
+        if (!valid) return false;
+    }
+    const auto candidate = normalized_host(host);
+
+    std::size_t start = 0;
+    while (start <= allowed_hosts.size()) {
+        const auto comma = allowed_hosts.find(',', start);
+        auto entry = allowed_hosts.substr(start,
+            comma == std::string_view::npos ? allowed_hosts.size() - start
+                                            : comma - start);
+        while (!entry.empty() && std::isspace(static_cast<unsigned char>(entry.front()))) {
+            entry.remove_prefix(1);
+        }
+        while (!entry.empty() && std::isspace(static_cast<unsigned char>(entry.back()))) {
+            entry.remove_suffix(1);
+        }
+        if (!entry.empty() && entry.find('*') == std::string_view::npos &&
+            normalized_host(entry) == candidate) return true;
+        if (comma == std::string_view::npos) break;
+        start = comma + 1;
+    }
+    return false;
 }
 
 void usage(const char* program) {
@@ -80,8 +145,13 @@ int main(int argc, char** argv) {
     }
 
     if (!allowed_input(input)) {
-        std::cerr << "Invalid source protocol or URL. Only authorized sources "
-                     "may be supplied.\n";
+        std::cerr << "Invalid source protocol or URL.\\n";
+        return 2;
+    }
+
+    const char* allowed_hosts = std::getenv("VIDEO_ALLOWED_SOURCE_HOSTS");
+    if (allowed_hosts == nullptr || !source_host_allowed(input, allowed_hosts)) {
+        std::cerr << "Source host is not present in VIDEO_ALLOWED_SOURCE_HOSTS.\\n";
         return 2;
     }
 
