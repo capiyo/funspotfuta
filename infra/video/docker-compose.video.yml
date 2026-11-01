@@ -4,6 +4,8 @@ services:
     container_name: funspot-srs
     restart: unless-stopped
     command: ["./objs/srs", "-c", "conf/srs.conf"]
+    environment:
+      CANDIDATE: ${SRS_PUBLIC_CANDIDATE:-*}
     ports:
       - "${SRS_RTMP_BIND:-127.0.0.1}:1935:1935/tcp"
       - "${SRS_HTTP_BIND:-127.0.0.1}:8080:8080/tcp"
