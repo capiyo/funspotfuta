@@ -11,6 +11,8 @@ services:
       - ${VIDEO_STREAM_KEY:?Set VIDEO_STREAM_KEY for the selected Funspot fixture}
     secrets:
       - ingest_source
+    environment:
+      VIDEO_ALLOWED_SOURCE_HOSTS: ${VIDEO_ALLOWED_SOURCE_HOSTS:?Set an exact comma-separated source host allowlist}
     networks:
       - funspot-video
     security_opt:
