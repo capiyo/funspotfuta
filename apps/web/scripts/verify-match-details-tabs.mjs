@@ -17,6 +17,13 @@ const fixture = {
   voters: [],
   available_for_voting: true,
 };
+const liveFixture = {
+  ...fixture,
+  id: 'live-watch-test-fixture',
+  match_id: 'live-watch-test-fixture',
+  status: 'live',
+  is_live: true,
+};
 let statisticsReady = false;
 const browser = await chromium.launch({ headless: true });
 
@@ -31,7 +38,11 @@ try {
   await page.route('**/api/games**', route => route.fulfill({
     status: 200,
     contentType: 'application/json',
-    body: JSON.stringify([fixture]),
+    body: JSON.stringify([fixture, liveFixture]),
+  }));
+  await page.route('**/api/video/fixtures/live-watch-test-fixture/grant', route => route.fulfill({
+    status: 200, contentType: 'application/json',
+    body: JSON.stringify({ success: true, grant: 'test-grant', hls_url: 'https://video.example.test/live/test.m3u8' }),
   }));
   await page.route('**/api/channels/all**', route => route.fulfill({
     status: 200, contentType: 'application/json', body: JSON.stringify({ channels: [] }),
@@ -75,7 +86,7 @@ try {
 
   await page.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 45000 });
   await page.waitForSelector('.home-screen .match-card', { timeout: 45000 });
-  const openDetails = page.getByRole('button', { name: /Open match details:/ }).first();
+  const openDetails = page.getByRole('button', { name: /Open match details:/ }).last();
   await openDetails.click();
   let dialog = page.getByRole('dialog');
   await dialog.waitFor({ state: 'visible', timeout: 15000 });
@@ -86,6 +97,16 @@ try {
   await dialog.getByText('No live stream is available for this fixture.').waitFor({ state: 'visible' });
   await page.keyboard.press('Escape');
   await dialog.waitFor({ state: 'detached', timeout: 10000 });
+
+  const watchButton = page.getByRole('button', { name: 'Watch Arsenal vs Chelsea' }).first();
+  await watchButton.click();
+  const watchDialog = page.getByRole('dialog', { name: 'Arsenal vs Chelsea live stream' });
+  await watchDialog.waitFor({ state: 'visible', timeout: 15000 });
+  await watchDialog.locator('video').waitFor({ state: 'attached', timeout: 15000 });
+  const watchHeightRatio = await watchDialog.evaluate(element => element.getBoundingClientRect().height / window.innerHeight);
+  assert.ok(watchHeightRatio > 0.83 && watchHeightRatio < 0.87, `Watch modal should occupy about 85vh, got ${watchHeightRatio}`);
+  await watchDialog.getByRole('button', { name: 'Close live viewer' }).click();
+  await watchDialog.waitFor({ state: 'detached', timeout: 10000 });
 
   statisticsReady = true;
   await openDetails.click();
@@ -112,7 +133,7 @@ try {
     area.dispatchEvent(new TouchEvent('touchend', { bubbles: true, cancelable: true, touches: [], changedTouches: [end] }));
   });
   await dialog.getByText('4-3-3', { exact: true }).waitFor({ state: 'visible', timeout: 5000 });
-  console.log(JSON.stringify({ passed: true, noStatsShowsLineupsOnly: true, swipeToStats: true, swipeBackToLineups: true }));
+  console.log(JSON.stringify({ passed: true, noStatsShowsLineupsOnly: true, swipeToStats: true, swipeBackToLineups: true, fixtureWatchModal85vh: true }));
   await context.close();
 } finally {
   await browser.close();
