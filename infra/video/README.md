@@ -35,14 +35,14 @@ The exact Rust route and token claims must be agreed with the current backend so
 
 The deployment pins SRS to the stable v6.0-r3 release. SRS supports RTMP/SRT ingest and WebRTC/HLS delivery; the official release notes publish Docker tags for v6.0-r3. See the [SRS release record](https://github.com/ossrs/srs/releases/tag/v6.0-r3).
 
-From this directory, copy .env.example to .env, set SRS_PUBLIC_CANDIDATE to the externally reachable media IP, and run `docker compose -f docker-compose.video.yml up -d srs`. The default RTMP and HTTP bindings are loopback-only; change the bind addresses only when the edge/firewall is configured for the intended ingress. The WebRTC UDP port must be reachable by clients. The SRS HTTP API is exposed only to the Docker network and is not published on the host.
+From this directory, copy `srs.env.example` to `.env`, set `SRS_PUBLIC_CANDIDATE` to the externally reachable media IP, and run `docker compose -f docker-compose.video.yml up -d srs`. The default RTMP and HTTP bindings are loopback-only; change the bind addresses only when the edge/firewall is configured for the intended ingress. The WebRTC UDP port must be reachable by clients. The SRS HTTP API is exposed only to the Docker network and is not published on the host.
 
-Put TLS, TURN where required, rate limiting, and origin restrictions at the deployment edge. The wildcard candidate is a development fallback only. The HLS fragment value is a target/minimum slice setting, not a promise of exact end-to-end latency: actual TS duration also depends on the encoder GOP/keyframe interval. Required environment values are documented in .env.example. Do not commit production credentials.
+Put TLS, TURN where required, rate limiting, and origin restrictions at the deployment edge. The wildcard candidate is a development fallback only. The HLS fragment value is a target/minimum slice setting, not a promise of exact end-to-end latency: actual TS duration also depends on the encoder GOP/keyframe interval. Required SRS environment values are documented in `srs.env.example`. Do not commit production credentials.
 
 
 ### Running one authorized fixture ingest
 
-Start SRS first. Then prepare the source URL as a protected host file (create a private directory, keep it outside Git, and ensure the file is readable by the worker's unprivileged UID 65532 while the directory itself remains private). Copy worker.env.example to worker.env and set VIDEO_INGEST_SOURCE_FILE and VIDEO_STREAM_KEY. Run one worker container per authorized fixture:
+Start SRS first. Then prepare the source URL as a protected host file outside Git, readable by the worker's unprivileged UID 65532. Copy `worker.env.example` to `worker.env` and set `VIDEO_INGEST_SOURCE_FILE` and `VIDEO_STREAM_KEY`. Run one worker container per authorized fixture:
 
 ```sh
 docker compose -f docker-compose.video.yml up -d srs
@@ -50,6 +50,8 @@ docker compose --env-file worker.env -f docker-compose.worker.yml up -d --build
 ```
 
 The worker normalizes the incoming feed to H.264/AAC and pushes it to the private SRS RTMP endpoint. Stop/remove the worker when the fixture ends. This is currently a manually managed one-worker-per-stream path; the Zig lifecycle manager is not yet wired to create or retire workers automatically.
+
+**Credential exposure limitation:** the C++ launcher reads the source URL from a mounted secret file, but FFmpeg receives the URL as its `-i` argument. A privileged process inspector on the worker host/container may therefore see it while FFmpeg is running. Do not use long-lived reusable credentials in this prototype. Before production, move ingest into an in-process libavformat integration or an equivalent credential-isolating design.
 
 ## Rights and source policy
 
