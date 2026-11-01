@@ -103,6 +103,23 @@ bool source_host_allowed(std::string_view url, std::string_view allowed_hosts) {
     return false;
 }
 
+bool run_self_tests() {
+    const bool cases[] = {
+        source_host_allowed("https://provider.example/live", "provider.example"),
+        source_host_allowed("https://USER:PASS@PROVIDER.EXAMPLE:443/live", "provider.example"),
+        source_host_allowed("rtmps://[2001:db8::1]:443/live", "2001:db8::1"),
+        !source_host_allowed("https://cdn.provider.example/live", "provider.example"),
+        !source_host_allowed("https://provider.example.evil/live", "provider.example"),
+        !source_host_allowed("https://provider.example/live", "*.provider.example"),
+        !source_host_allowed("https://provider.example:443/live", "other.example"),
+        !source_host_allowed("https://[broken/live", "provider.example"),
+    };
+    for (const bool passed : cases) {
+        if (!passed) return false;
+    }
+    return true;
+}
+
 void usage(const char* program) {
     std::cerr << "Usage: " << program
               << " --input-file /run/secrets/ingest_source --stream <fixture-stream-key>\n";
@@ -111,6 +128,15 @@ void usage(const char* program) {
 }  // namespace
 
 int main(int argc, char** argv) {
+    if (argc == 2 && std::string_view(argv[1]) == "--self-test") {
+        if (!run_self_tests()) {
+            std::cerr << "Source host allowlist self-test failed.\\n";
+            return 1;
+        }
+        std::cout << "Source host allowlist self-test passed.\\n";
+        return 0;
+    }
+
     std::string input_file_path;
     std::string stream_key;
 
