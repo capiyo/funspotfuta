@@ -17,12 +17,6 @@ services:
       - srs-hls:/usr/local/srs/objs/nginx/html
     networks:
       - funspot-video
-    healthcheck:
-      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:1985/api/v1/versions || exit 1"]
-      interval: 15s
-      timeout: 5s
-      retries: 5
-      start_period: 20s
     security_opt:
       - no-new-privileges:true
 
