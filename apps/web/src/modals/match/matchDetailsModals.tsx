@@ -102,7 +102,7 @@ export function MatchDetailsModal({visible,fixture,userId,username,authToken,pre
     setVideoUrl('');
     setVideoError('');
     if(videoRef.current)videoRef.current.srcObject=null;
-    if(!visible||activeTab!=='video'||fixture.status!=='live')return;
+    if(!visible||activeTab!=='video'||!(fixture.isLive||fixture.status?.toLowerCase()==='live'))return;
     if(!authToken){setVideoError('Sign in to watch this live fixture.');return;}
     const controller=new AbortController();
     let peer:RTCPeerConnection|null=null;
@@ -165,7 +165,7 @@ export function MatchDetailsModal({visible,fixture,userId,username,authToken,pre
       if(peerRef.current===peer)peerRef.current=null;
       if(videoRef.current)videoRef.current.srcObject=null;
     };
-  },[visible,activeTab,fixture.matchId,fixture.status,authToken]);
+  },[visible,activeTab,fixture.matchId,fixture.status,fixture.isLive,authToken]);
 
   // Subscribe to live statistics while the selected fixture is open. The
   // fixture room is leased independently so another screen can safely share it.
@@ -184,7 +184,7 @@ export function MatchDetailsModal({visible,fixture,userId,username,authToken,pre
   },[visible,fixture.matchId]);
 
   if(!visible||!fixture)return null;
-  const home=fixture.homeScore??0,away=fixture.awayScore??0,isLive=fixture.status==='live';
+  const home=fixture.homeScore??0,away=fixture.awayScore??0,isLive=!!fixture.isLive||fixture.status?.toLowerCase()==='live';
   const watchMode=presentation==='watch';
   return createPortal(<div className={`fixed inset-0 z-[1000] flex ${watchMode?'items-center justify-center p-3 sm:p-6':'items-end justify-center'} bg-black/70`} onMouseDown={e=>{if(e.target===e.currentTarget)onClose();}}>
     <section ref={dialogRef} role="dialog" aria-modal="true" aria-label={`${fixture.homeTeam} vs ${fixture.awayTeam} ${watchMode?'live stream':'match details'}`} className={`flex w-full flex-col overflow-hidden ${watchMode?'max-w-6xl rounded-2xl shadow-2xl':'max-w-2xl rounded-t-[20px]'}`} style={{height:watchMode?'85vh':'88vh',backgroundColor:colors.surface}}>
