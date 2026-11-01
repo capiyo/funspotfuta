@@ -28,6 +28,9 @@
 - The configured FFmpeg H.264/AAC profile passed a one-second synthetic lavfi encode smoke test.
 - Both Compose YAML files parsed successfully with PyYAML; this is not a full Docker Compose validation.
 - A GitHub Actions workflow now runs Zig 0.13 build/tests, the strict C++ worker build, an FFmpeg encode smoke test, SRS Compose validation, and the worker Docker image build. These checks are not claimed as passed until the workflow has actually run.
+- GitHub Video plane CI passed on commit `54bbb664`: Zig 0.13 build/tests, strict C++ build, synthetic FFmpeg encode, SRS/demo Compose validation, Nginx config validation, and C++ worker Docker image build all succeeded.
+- Backend video grant CI passed on commit `5fa1f710`: changed-file rustfmt and `cargo check --all-targets` succeeded.
+- Frontend validation passed core tests, web/mobile TypeScript checks, Android JS bundle export, web lint and Vite production build on commit `54bbb664`. The Playwright UI verification (including the Video tab assertion) is still running; the latest STUN-only adjustment is also undergoing a fresh workflow run.
 - Docker image build, SRS connectivity, device playback, load, failover, and security tests have not been run.
 
 ## Self-review findings
