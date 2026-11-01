@@ -39,6 +39,18 @@ From this directory, copy .env.example to .env, set SRS_PUBLIC_CANDIDATE to the 
 
 Put TLS, TURN where required, rate limiting, and origin restrictions at the deployment edge. The wildcard candidate is a development fallback only. The HLS fragment value is a target/minimum slice setting, not a promise of exact end-to-end latency: actual TS duration also depends on the encoder GOP/keyframe interval. Required environment values are documented in .env.example. Do not commit production credentials.
 
+
+### Running one authorized fixture ingest
+
+Start SRS first. Then prepare the source URL as a protected host file (create a private directory, keep it outside Git, and ensure the file is readable by the worker's unprivileged UID 65532 while the directory itself remains private). Copy worker.env.example to worker.env and set VIDEO_INGEST_SOURCE_FILE and VIDEO_STREAM_KEY. Run one worker container per authorized fixture:
+
+```sh
+docker compose -f docker-compose.video.yml up -d srs
+docker compose --env-file worker.env -f docker-compose.worker.yml up -d --build
+```
+
+The worker normalizes the incoming feed to H.264/AAC and pushes it to the private SRS RTMP endpoint. Stop/remove the worker when the fixture ends. This is currently a manually managed one-worker-per-stream path; the Zig lifecycle manager is not yet wired to create or retire workers automatically.
+
 ## Rights and source policy
 
 Only ingest streams that Funspot owns or is licensed/authorized to distribute. A fixture listing or a "watch live" link on a third-party site does not establish embedding, rebroadcasting, scraping, or redistribution rights. The Camel1 adapter may discover fixture metadata and permitted provider embed references; it must not extract protected media URLs, defeat DRM/login/paywalls, or relay a provider's stream without written rights.
