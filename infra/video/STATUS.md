@@ -21,7 +21,8 @@
 - Backend PR #3 now includes grant issuance and a grant revalidation endpoint. Its current compile/test workflow still needs to be checked on the latest commit. The legacy login-token generator retains an insecure `JWT_SECRET` fallback if the environment variable is absent; video grant issuance itself fails closed when the secret is missing.
 - The media edge enforces the signed grant through the Rust authorization endpoint, but the Nginx configuration still needs a live integration test against the deployed Render API and SRS instance. TLS termination, DNS, and WebRTC UDP reachability remain deployment requirements.
 - No Camel1 media extraction or relay is implemented. Fixture metadata discovery is separate from authorization to distribute a broadcast.
-- Frontend players are wired into Match Details, but have not yet been built or exercised on real browsers/devices.
+- Frontend players are wired into Match Details, and ChatsCards now expose a fixture-specific Watch action only for live fixtures. Selecting Watch opens the same fixture's video-only viewer: a centered wide 85vh modal on web and an 85vh native bottom sheet on mobile. The viewer skips lineup/stat fetches and requests a grant only while its video surface is active.
+- Browser verification now covers the Watch action, fixture-scoped live grant request, video element mounting, close behavior and 85vh modal sizing; the workflow is running for the latest feature commit.
 - The synthetic lab exercises an FFmpeg-generated publisher into SRS; it does not yet run through the C++ worker or Zig gateway. It is an isolated media-server learning/test path, not an end-to-end Funspot player.
 - No production SRS host, public candidate, TLS, TURN, DNS, firewall or licensed ingest source has been configured.
 - C++ source passed a local `g++ -std=c++20 -Wall -Wextra -Wpedantic -Werror -fsyntax-only` check during self-review.
