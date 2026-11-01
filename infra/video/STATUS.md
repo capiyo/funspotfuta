@@ -18,8 +18,10 @@
 - No frontend player is wired into Match Details.
 - No production SRS host, public candidate, TLS, TURN, DNS, firewall or licensed ingest source has been configured.
 - C++ source passed a local `g++ -std=c++20 -Wall -Wextra -Wpedantic -Werror -fsyntax-only` check during self-review.
+- The configured FFmpeg H.264/AAC profile passed a one-second synthetic lavfi encode smoke test.
+- Both Compose YAML files parsed successfully with PyYAML; this is not a full Docker Compose validation.
 - Zig build/tests could not be executed because Zig is not installed in the available environment.
-- Docker Compose parsing, SRS connectivity, device playback, load, failover, and security tests have not been run.
+- Docker image build, SRS connectivity, device playback, load, failover, and security tests have not been run.
 
 ## Self-review findings
 
