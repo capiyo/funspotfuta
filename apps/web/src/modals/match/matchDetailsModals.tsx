@@ -37,6 +37,8 @@ function hasValidStatistics(data:any):boolean {
 export function MatchDetailsModal({visible,fixture,userId,username,authToken,onClose}:MatchDetailsModalProps) {
   const colors=useFanColors();
   const dialogRef=useRef<HTMLDivElement>(null);
+  const videoRef=useRef<HTMLVideoElement>(null);
+  const peerRef=useRef<RTCPeerConnection|null>(null);
   const onCloseRef=useRef(onClose);
   useEffect(()=>{onCloseRef.current=onClose;},[onClose]);
   const [activeTab,setActiveTab]=useState<'lineups'|'stats'|'video'>('lineups');
@@ -99,21 +101,69 @@ export function MatchDetailsModal({visible,fixture,userId,username,authToken,onC
   useEffect(()=>{
     setVideoUrl('');
     setVideoError('');
+    if(videoRef.current)videoRef.current.srcObject=null;
     if(!visible||fixture.status!=='live')return;
     if(!authToken){setVideoError('Sign in to watch this live fixture.');return;}
     const controller=new AbortController();
+    let peer:RTCPeerConnection|null=null;
     setVideoLoading(true);
-    void fetch(`${API_BASE}/video/fixtures/${encodeURIComponent(fixture.matchId)}/grant`,{
-      headers:{Authorization:`Bearer ${authToken}`},
-      signal:controller.signal,
-    }).then(async response=>{
-      const payload=await response.json().catch(()=>null);
-      if(!response.ok||payload?.success!==true||typeof payload?.hls_url!=='string')throw new Error(payload?.error||'Live playback is not available.');
-      setVideoUrl(payload.hls_url);
-    }).catch(error=>{
-      if(!controller.signal.aborted)setVideoError(error instanceof Error?error.message:'Unable to load live playback.');
-    }).finally(()=>{if(!controller.signal.aborted)setVideoLoading(false);});
-    return()=>controller.abort();
+    void (async()=>{
+      try {
+        const response=await fetch(`${API_BASE}/video/fixtures/${encodeURIComponent(fixture.matchId)}/grant`,{
+          headers:{Authorization:`Bearer ${authToken}`},
+          signal:controller.signal,
+        });
+        const payload=await response.json().catch(()=>null);
+        if(!response.ok||payload?.success!==true||typeof payload?.hls_url!=='string')throw new Error(payload?.error||'Live playback is not available.');
+        setVideoUrl(payload.hls_url);
+        if(typeof RTCPeerConnection==='undefined'||typeof payload?.rtc_api_url!=='string'||typeof payload?.webrtc_url!=='string')return;
+
+        peer=new RTCPeerConnection();
+        peerRef.current=peer;
+        peer.addTransceiver('audio',{direction:'recvonly'});
+        peer.addTransceiver('video',{direction:'recvonly'});
+        peer.ontrack=event=>{
+          if(videoRef.current&&event.streams[0])videoRef.current.srcObject=event.streams[0];
+        };
+        await peer.setLocalDescription(await peer.createOffer());
+        if(peer.iceGatheringState!=='complete'){
+          await new Promise<void>((resolve,reject)=>{
+            const timeout=window.setTimeout(()=>reject(new Error('Timed out preparing the low-latency connection.')),10000);
+            const onState=()=>{
+              if(peer?.iceGatheringState==='complete'){
+                window.clearTimeout(timeout);
+                peer?.removeEventListener('icegatheringstatechange',onState);
+                resolve();
+              }
+            };
+            peer?.addEventListener('icegatheringstatechange',onState);
+            controller.signal.addEventListener('abort',()=>{window.clearTimeout(timeout);reject(new DOMException('Aborted','AbortError'));},{once:true});
+          });
+        }
+        const rtcResponse=await fetch(payload.rtc_api_url,{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({api:payload.rtc_api_url,streamurl:payload.webrtc_url,clientip:null,sdp:peer.localDescription?.sdp}),
+          signal:controller.signal,
+        });
+        const rtcPayload=await rtcResponse.json();
+        if(!rtcResponse.ok||rtcPayload?.code!==0||typeof rtcPayload?.sdp!=='string')throw new Error('Low-latency playback is unavailable; using HLS fallback.');
+        await peer.setRemoteDescription({type:'answer',sdp:rtcPayload.sdp});
+      } catch(error) {
+        if(!controller.signal.aborted){
+          const message=error instanceof Error?error.message:'Unable to start live playback.';
+          if(videoRef.current&&!videoRef.current.srcObject)setVideoError(message);
+        }
+      } finally {
+        if(!controller.signal.aborted)setVideoLoading(false);
+      }
+    })();
+    return()=>{
+      controller.abort();
+      peer?.close();
+      if(peerRef.current===peer)peerRef.current=null;
+      if(videoRef.current)videoRef.current.srcObject=null;
+    };
   },[visible,fixture.matchId,fixture.status,authToken]);
 
   // Subscribe to live statistics while the selected fixture is open. The
@@ -158,7 +208,7 @@ export function MatchDetailsModal({visible,fixture,userId,username,authToken,onC
         }}
         style={{touchAction:'pan-y'}}
       >
-        {activeTab==='lineups'?<LineupsTab fixture={fixture} lineups={lineupsMatchId===fixture.matchId?lineups:null} loading={loadingLineups||lineupsMatchId!==fixture.matchId} error={lineupsMatchId===fixture.matchId?lineupsError:''}/>:activeTab==='stats'?hasStats&&statistics?<StatsTab homeTeam={fixture.homeTeam} awayTeam={fixture.awayTeam} statistics={statistics}/>:<p className="p-4 text-center text-xs" style={{color:colors.textSecondary}}>{loadingStats?'Loading statistics…':statsError}</p>:<div className="flex h-full min-h-0 flex-col justify-center gap-3 p-4"><div className="aspect-video w-full overflow-hidden rounded-xl bg-black">{videoUrl?<video key={videoUrl} src={videoUrl} controls autoPlay playsInline className="h-full w-full" />:<div className="flex h-full items-center justify-center px-5 text-center text-sm text-white">{videoLoading?'Connecting to live stream…':videoError||'No live stream is available for this fixture.'}</div>}</div><p className="text-center text-xs" style={{color:colors.textSecondary}}>Live video · HLS</p></div>}
+        {activeTab==='lineups'?<LineupsTab fixture={fixture} lineups={lineupsMatchId===fixture.matchId?lineups:null} loading={loadingLineups||lineupsMatchId!==fixture.matchId} error={lineupsMatchId===fixture.matchId?lineupsError:''}/>:activeTab==='stats'?hasStats&&statistics?<StatsTab homeTeam={fixture.homeTeam} awayTeam={fixture.awayTeam} statistics={statistics}/>:<p className="p-4 text-center text-xs" style={{color:colors.textSecondary}}>{loadingStats?'Loading statistics…':statsError}</p>:<div className="flex h-full min-h-0 flex-col justify-center gap-3 p-4"><div className="aspect-video w-full overflow-hidden rounded-xl bg-black">{videoUrl?<video ref={videoRef} key={videoUrl} src={videoRef.current?.srcObject?undefined:videoUrl} controls autoPlay playsInline className="h-full w-full" />:<div className="flex h-full items-center justify-center px-5 text-center text-sm text-white">{videoLoading?'Connecting to live stream…':videoError||'No live stream is available for this fixture.'}</div>}</div><p className="text-center text-xs" style={{color:colors.textSecondary}}>Live video · HLS</p></div>}
       </div>
     </section>
   </div>,document.body);
