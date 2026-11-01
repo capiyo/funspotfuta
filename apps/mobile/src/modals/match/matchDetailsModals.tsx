@@ -249,7 +249,7 @@ export function MatchDetailsModal({
     useEffect(() => {
         setVideoUrl('');
         setVideoError('');
-        if (!visible || fixture.status !== 'live') return;
+        if (!visible || activeTab !== 'video' || fixture.status !== 'live') return;
         if (!authToken) {
             setVideoError('Sign in to watch this live fixture.');
             return;
@@ -273,7 +273,7 @@ export function MatchDetailsModal({
             if (!controller.signal.aborted) setVideoLoading(false);
         });
         return () => controller.abort();
-    }, [visible, fixture.matchId, fixture.status, authToken]);
+    }, [visible, activeTab, fixture.matchId, fixture.status, authToken]);
 
     if (!fixture) return null;
 
@@ -293,7 +293,7 @@ export function MatchDetailsModal({
             <View style={styles.backdrop}>
                 <Pressable
                     accessibilityRole="button"
-                    accessibilityLabel="Close match details"
+                    accessibilityLabel={watchMode ? "Close live viewer" : "Close match details"}
                     onPress={onClose}
                     style={StyleSheet.absoluteFill}
                 />
