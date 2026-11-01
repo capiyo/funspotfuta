@@ -20,12 +20,12 @@
 - C++ source passed a local `g++ -std=c++20 -Wall -Wextra -Wpedantic -Werror -fsyntax-only` check during self-review.
 - The configured FFmpeg H.264/AAC profile passed a one-second synthetic lavfi encode smoke test.
 - Both Compose YAML files parsed successfully with PyYAML; this is not a full Docker Compose validation.
-- Zig build/tests could not be executed because Zig is not installed in the available environment.
+- A GitHub Actions workflow now runs Zig 0.13 build/tests, the strict C++ worker build, an FFmpeg encode smoke test, SRS Compose validation, and the worker Docker image build. These checks are not claimed as passed until the workflow has actually run.
 - Docker image build, SRS connectivity, device playback, load, failover, and security tests have not been run.
 
 ## Self-review findings
 
-- The deployment guide referenced a missing `.env.example`; it has been corrected to use the committed `srs.env.example` and `worker.env.example` templates.
+- The deployment guide and CI use the committed `.env.example` and `worker.env.example` templates.
 - Removed an SRS healthcheck that assumed `wget` existed in the upstream image without verifying that assumption.
 - The C++ worker still passes the source URL to FFmpeg as a CLI argument. Mounted secret-file storage avoids putting it in the worker's own startup arguments, but does not hide it from privileged process inspection once FFmpeg starts. Replace this with an in-process libavformat worker before accepting reusable provider credentials.
 - The RTMP and HTTP host bindings remain loopback-only by default. Do not expose RTMP publishing or HLS playback publicly until SRS publish authorization and a grant-enforcing playback edge are implemented.
