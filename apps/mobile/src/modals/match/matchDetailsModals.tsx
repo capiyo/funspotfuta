@@ -39,6 +39,7 @@ export interface MatchDetailsModalProps {
     userId: string;
     username: string;
     authToken?: string | null;
+    presentation?: 'details' | 'watch';
     onClose: () => void;
 }
 
@@ -96,6 +97,7 @@ export function MatchDetailsModal({
     userId,
     username,
     authToken,
+    presentation = 'details',
     onClose,
 }: MatchDetailsModalProps) {
     const colors = useFanColors();
@@ -227,7 +229,7 @@ export function MatchDetailsModal({
         if (!visible) return;
         // Reset state each time the modal is opened so a reopened modal
         // doesn't flash the previous match's lineups/stats.
-        setActiveTab('lineups');
+        setActiveTab(presentation === 'watch' ? 'video' : 'lineups');
         setStatistics(null);
         setLoadingStats(true);
         if (lineupsMatchId !== fixture.matchId) setLoadingLineups(true);
@@ -237,10 +239,12 @@ export function MatchDetailsModal({
 
         // Independent loading — mirror Future.wait([_fetchLineups(), _fetchStatistics()])
         // which in the original awaits both but neither gates the other's UI.
-        fetchLineups();
-        fetchStatistics();
+        if (presentation === 'details') {
+            fetchLineups();
+            fetchStatistics();
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [visible, fixture.matchId]);
+    }, [visible, fixture.matchId, presentation]);
 
     useEffect(() => {
         setVideoUrl('');
@@ -276,7 +280,8 @@ export function MatchDetailsModal({
     const home = fixture.homeScore ?? 0;
     const away = fixture.awayScore ?? 0;
     const isLive = fixture.status === 'live';
-    const modalHeight = windowHeight * 0.88;
+    const watchMode = presentation === 'watch';
+    const modalHeight = windowHeight * (watchMode ? 0.85 : 0.88);
 
     return (
         <Modal
@@ -376,9 +381,10 @@ export function MatchDetailsModal({
                             ) : null}
                         </View>
                     </View>
+                    <Pressable onPress={onClose} hitSlop={10} accessibilityRole="button" accessibilityLabel="Close live viewer" style={{ width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background }}><Text style={{ color: colors.textSecondary, fontSize: 24, lineHeight: 28 }}>×</Text></Pressable>
 
                     {/* Fixture-scoped match tabs */}
-                    <View style={styles.tabBar}>
+                    {!watchMode && <View style={styles.tabBar}>
                         {(['lineups', ...(hasStats ? ['stats' as const] : []), 'video'] as const).map(tab => (
                             <Pressable key={tab} style={styles.tab} onPress={() => setActiveTab(tab)}>
                                 <Text style={[styles.tabLabel, { color: activeTab === tab ? colors.primary : colors.textSecondary }]}>
@@ -389,10 +395,10 @@ export function MatchDetailsModal({
                                 ) : <View style={styles.tabIndicatorEmpty} />}
                             </Pressable>
                         ))}
-                    </View>
+                    </View>}
 
                     {/* Content */}
-                    <View style={{ flex: 1, justifyContent: activeTab === 'video' ? 'center' : 'flex-start', padding: activeTab === 'video' ? 12 : 0 }}>
+                    <View style={{ flex: 1, minHeight: 0, justifyContent: watchMode ? 'flex-start' : activeTab === 'video' ? 'center' : 'flex-start', padding: watchMode ? 12 : activeTab === 'video' ? 12 : 0 }}>
                         {activeTab === 'lineups' ? (
                             <LineupsTab
                                 fixture={fixture}
@@ -405,7 +411,7 @@ export function MatchDetailsModal({
                                 <StatsTab homeTeam={fixture.homeTeam} awayTeam={fixture.awayTeam} statistics={statistics} />
                             ) : null
                         ) : (
-                            <View style={{ width: '100%', aspectRatio: 16 / 9, backgroundColor: '#000', borderRadius: 12, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' }}>
+                            <View style={{ width: '100%', flex: watchMode ? 1 : undefined, aspectRatio: watchMode ? undefined : 16 / 9, minHeight: watchMode ? 0 : undefined, backgroundColor: '#000', borderRadius: 12, overflow: 'hidden', alignItems: 'center', justifyContent: 'center' }}>
                                 {videoUrl ? (
                                     <Video
                                         key={videoUrl}
