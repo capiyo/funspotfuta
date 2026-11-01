@@ -243,6 +243,7 @@ export default function ChatsScreen() {
   const [reviewFixture, setReviewFixture] = useState<Fixture | null>(null);
   const [matchDetailsFixture, setMatchDetailsFixture] =
     useState<Fixture | null>(null);
+  const [watchFixture, setWatchFixture] = useState<Fixture | null>(null);
   const [leaderboardChannel, setLeaderboardChannel] = useState<{ id: string; name: string } | null>(null);
   const [weeklyChannel, setWeeklyChannel] = useState<{ id: string; name: string } | null>(null);
 
@@ -637,6 +638,7 @@ export default function ChatsScreen() {
                     onLike={handleLike}
                     onSubmitComment={(selectedFixture, text) => handleSubmitComment(selectedFixture, text, cid)}
                     onOpenLineups={setMatchDetailsFixture}
+                    onWatchFixture={setWatchFixture}
                   />;
                 }}
               />
@@ -736,6 +738,17 @@ export default function ChatsScreen() {
         channelName={weeklyChannel?.name ?? 'Channel'}
         onClose={() => setWeeklyChannel(null)}
       />
+      {watchFixture && (
+        <MatchDetailsModal
+          visible
+          fixture={watchFixture}
+          userId={userId ?? ''}
+          username={username ?? ''}
+          authToken={authToken}
+          presentation="watch"
+          onClose={() => setWatchFixture(null)}
+        />
+      )}
       {matchDetailsFixture && (
         <MatchDetailsModal
           visible
