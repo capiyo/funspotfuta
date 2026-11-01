@@ -66,6 +66,9 @@ jobs:
           docker compose -f docker-compose.video.yml config --quiet
           docker compose -f docker-compose.video.yml -f docker-compose.demo.yml --profile demo config --quiet
 
+      - name: Validate playback edge Nginx configuration
+        run: docker run --rm -v "$PWD/infra/video/nginx-playback.conf:/etc/nginx/conf.d/default.conf:ro" nginx:1.27-alpine nginx -t
+
       - name: Build worker container image
         run: |
           docker build \
