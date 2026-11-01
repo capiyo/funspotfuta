@@ -82,6 +82,8 @@ try {
   await dialog.getByRole('button', { name: 'LINEUPS' }).waitFor({ state: 'visible' });
   assert.equal(await dialog.getByRole('button', { name: 'STATS' }).count(), 0,
     'Stats tab must stay hidden until usable statistics exist');
+  await dialog.getByRole('button', { name: 'VIDEO' }).click();
+  await dialog.getByText('No live stream is available for this fixture.').waitFor({ state: 'visible' });
   await page.keyboard.press('Escape');
   await dialog.waitFor({ state: 'detached', timeout: 10000 });
 
