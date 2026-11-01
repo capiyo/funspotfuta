@@ -32,6 +32,7 @@ import {
   MessageCircle,
   Pointer,
   Radio,
+  Tv,
   Vote,
 } from 'lucide-react';
 import {
@@ -139,6 +140,7 @@ export function MatchCard({
   onLike,
   onSubmitComment,
   onOpenLineups,
+  onWatchFixture,
 }: {
   fixture: Fixture;
   channel?: ChannelHeaderData;
@@ -161,6 +163,7 @@ export function MatchCard({
   onLike?: (fixture: Fixture) => void;
   onSubmitComment?: (fixture: Fixture, text: string) => void;
   onOpenLineups?: (fixture: Fixture) => void;
+  onWatchFixture?: (fixture: Fixture) => void;
 }) {
   const colors = useFanColors();
   const { userId, username, isLoggedIn, authToken } = useAuth();
@@ -690,7 +693,8 @@ export function MatchCard({
               <TeamCrest name={fixture.awayTeam} fixture={fixture as unknown as Record<string, unknown>} side="away" size={16} />
             </button>
           </div>
-          <div className="match-card-actions" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, minmax(0, 1fr))', alignItems: 'center', gap: 4, width: '100%' }}>
+          <div className="match-card-actions" style={{ display: 'grid', gridTemplateColumns: `repeat(${isLive ? 6 : 5}, minmax(0, 1fr))`, alignItems: 'center', gap: 4, width: '100%' }}>
+            {isLive && <div className="match-card-action-slot" style={{ display: 'flex', justifyContent: 'center', minWidth: 0 }}><button type="button" aria-label={`Watch ${fixture.homeTeam} vs ${fixture.awayTeam}`} title="Watch live" onClick={() => onWatchFixture?.(fixture)} style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 2, minWidth: 0, padding: 0, border: 0, background: 'transparent', color: colors.primary, fontSize: 11, fontWeight: 600, cursor: 'pointer' }}><span style={{ display: 'inline-flex', width: 28, height: 28, alignItems: 'center', justifyContent: 'center', borderRadius: '50%', background: colors.primaryDim }}><Tv size={15} aria-hidden="true" /></span><span>Watch</span></button></div>}
             <div className="match-card-action-slot" style={{ display: 'flex', justifyContent: 'center', minWidth: 0 }}><ActionButton icon={Vote} label={isLive ? 'Live' : isCompleted ? 'Results' : 'Vote'} count={fixture.votes} colors={colors} onPress={handleVote} /></div>
             <div className="match-card-action-slot" style={{ display: 'flex', justifyContent: 'center', minWidth: 0 }}>
               <button type="button" className="match-card-poke" aria-label={isLive ? 'Poking unavailable for live matches' : 'Poke on this match'} disabled={isLive} onClick={() => { if (isLive) return; if (!isLoggedIn) return requireLogin(() => onOpenPokeModal?.(fixture)); onOpenPokeModal?.(fixture); }} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 28, height: 28, minHeight: 28, padding: 0, border: 0, borderRadius: 0, background: 'transparent', color: colors.primary, fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap', opacity: isLive ? 0.45 : 1, cursor: isLive ? 'not-allowed' : 'pointer' }}>
