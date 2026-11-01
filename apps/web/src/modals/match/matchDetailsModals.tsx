@@ -142,7 +142,7 @@ export function MatchDetailsModal({visible,fixture,userId,username,authToken,onC
         }
         const rtcResponse=await fetch(payload.rtc_api_url,{
           method:'POST',
-          headers:{'Content-Type':'application/json'},
+          headers:{'Content-Type':'application/json',Authorization:`Bearer ${payload.grant}`},
           body:JSON.stringify({api:payload.rtc_api_url,streamurl:payload.webrtc_url,clientip:null,sdp:peer.localDescription?.sdp}),
           signal:controller.signal,
         });
