@@ -249,7 +249,7 @@ export function MatchDetailsModal({
     useEffect(() => {
         setVideoUrl('');
         setVideoError('');
-        if (!visible || activeTab !== 'video' || fixture.status !== 'live') return;
+        if (!visible || activeTab !== 'video' || !(fixture.isLive || fixture.status?.toLowerCase() === 'live')) return;
         if (!authToken) {
             setVideoError('Sign in to watch this live fixture.');
             return;
@@ -273,13 +273,13 @@ export function MatchDetailsModal({
             if (!controller.signal.aborted) setVideoLoading(false);
         });
         return () => controller.abort();
-    }, [visible, activeTab, fixture.matchId, fixture.status, authToken]);
+    }, [visible, activeTab, fixture.matchId, fixture.status, fixture.isLive, authToken]);
 
     if (!fixture) return null;
 
     const home = fixture.homeScore ?? 0;
     const away = fixture.awayScore ?? 0;
-    const isLive = fixture.status === 'live';
+    const isLive = !!fixture.isLive || fixture.status?.toLowerCase() === 'live';
     const watchMode = presentation === 'watch';
     const modalHeight = windowHeight * (watchMode ? 0.85 : 0.88);
 
