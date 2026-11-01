@@ -7,15 +7,17 @@
 - C++20 FFmpeg launcher that reads its input URL from a mounted secret file, validates the protocol and fixture stream key, enforces an exact configured source-host allowlist, and invokes FFmpeg directly without shell interpolation. The URL is still visible in FFmpeg's process arguments while running; this is documented as a production blocker.
 - Zig 0.13 gateway bootstrap package with strict required-environment validation and fixture-ID / URL validation tests.
 - Rights and security boundaries documented.
+- Isolated synthetic streaming lab: SRS plus a generated 720p30 H.264/AAC RTMP publisher, with a step-by-step protocol and architecture guide in `LEARNING_LAB.md`.
 
 ## Not complete / not production enabled
 
 - The Zig program is currently a configuration/bootstrap validator, not yet the long-running HTTP gateway. It must not be exposed as a playback endpoint.
 - C++ currently runs one fixed H.264/AAC transcode profile per worker. It enforces exact source-host allowlisting (no wildcard hosts), but does not pin DNS results or protect against a compromised allowlisted provider. Adaptive bitrate ladders, hardware acceleration, worker supervision/restart policy, source allowlisting beyond protocol validation, and metrics are not implemented.
-- No playback authorization route has been added to Axum. The current backend auth implementation has legacy insecure fallback behavior when JWT_SECRET is absent; the video plane must fail closed and must not reuse that fallback.
+- A draft Axum playback-grant route now exists in `capiyo/funspot-Backend` PR #3. Its CI compile check was still running at last inspection; it is not yet verified or merged. The legacy login-token generator still has an insecure `JWT_SECRET` fallback.
 - No signed-grant enforcement exists at the media edge yet. Returning an unsigned SRS URL to clients is not acceptable.
 - No Camel1 media extraction or relay is implemented. Fixture metadata discovery is separate from authorization to distribute a broadcast.
 - No frontend player is wired into Match Details.
+- The synthetic lab exercises an FFmpeg-generated publisher into SRS; it does not yet run through the C++ worker or Zig gateway. It is an isolated media-server learning/test path, not an end-to-end Funspot player.
 - No production SRS host, public candidate, TLS, TURN, DNS, firewall or licensed ingest source has been configured.
 - C++ source passed a local `g++ -std=c++20 -Wall -Wextra -Wpedantic -Werror -fsyntax-only` check during self-review.
 - The configured FFmpeg H.264/AAC profile passed a one-second synthetic lavfi encode smoke test.
