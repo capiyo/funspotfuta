@@ -33,6 +33,7 @@ import {
   MessageCircle,
   Pointer,
   Radio,
+  Tv,
   Vote,
 } from 'lucide-react-native';
 import {
@@ -174,6 +175,7 @@ export function MatchCard({
   onLike,
   onSubmitComment,
   onOpenLineups,
+  onWatchFixture,
 }: {
   fixture: Fixture;
   channel?: ChannelHeaderData;
@@ -196,6 +198,7 @@ export function MatchCard({
   onLike?: (fixture: Fixture) => void;
   onSubmitComment?: (fixture: Fixture, text: string) => void;
   onOpenLineups?: (fixture: Fixture) => void;
+  onWatchFixture?: (fixture: Fixture) => void;
 }) {
   const colors = useFanColors();
   const { userId, username, isLoggedIn, authToken } = useAuth();
@@ -621,6 +624,7 @@ export function MatchCard({
             </Pressable>
           </View>
           <View style={styles.actions}>
+            {isLive && <View style={styles.actionSlot}><Pressable onPress={() => onWatchFixture?.(fixture)} hitSlop={8} accessibilityRole="button" accessibilityLabel={`Watch ${fixture.homeTeam} vs ${fixture.awayTeam}`} style={({ pressed }) => [styles.pokeButton, pressed && { opacity: PRESSED_OPACITY }]}><View style={[styles.pokeCircle, { backgroundColor: colors.primaryDim }]}><Tv size={ICON.sm} color={colors.primary} /></View><Text style={fanText('tag', colors, colors.primary)}>Watch</Text></Pressable></View>}
             <View style={styles.actionSlot}><ActionButton icon={Vote} label={isLive ? 'Live' : isCompleted ? 'Results' : 'Vote'} count={fixture.votes} colors={colors} onPress={handleVote} /></View>
             <View style={styles.actionSlot}>
               <Pressable disabled={isLive} onPress={() => { if (isLive) return; if (!isLoggedIn) return requireLogin(() => onOpenPokeModal?.(fixture)); onOpenPokeModal?.(fixture); }} hitSlop={8} accessibilityRole="button" accessibilityLabel={isLive ? "Poking unavailable for live matches" : "Poke on this match"} accessibilityState={{ disabled: isLive }} style={({ pressed }) => [styles.pokeButton, isLive && { opacity: 0.45 }, pressed && !isLive && { opacity: PRESSED_OPACITY }]}>
