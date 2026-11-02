@@ -308,8 +308,15 @@ export function MatchCard({
         }
         if (latestResponse.ok) {
           const data = await latestResponse.json();
-          const timestamp = data?.latest_comment?.timestamp;
-          if (active && typeof timestamp === 'string' && !Number.isNaN(Date.parse(timestamp))) {
+          const rawTimestamp = data?.latest_comment?.timestamp;
+          const timestamp = typeof rawTimestamp === 'string'
+            ? rawTimestamp
+            : typeof rawTimestamp?.$date === 'string'
+              ? rawTimestamp.$date
+              : typeof rawTimestamp?.$date?.$numberLong === 'string'
+                ? new Date(Number(rawTimestamp.$date.$numberLong)).toISOString()
+                : null;
+          if (active && timestamp && !Number.isNaN(Date.parse(timestamp))) {
             setLatestMessageAt(timestamp);
           }
         }
