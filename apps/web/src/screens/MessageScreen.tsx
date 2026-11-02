@@ -341,6 +341,7 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
   }, []);
 
   useEffect(() => { markReadRef.current = markRead; }, [markRead]);
+  useEffect(() => { void markRead(); }, [markRead]);
   useEffect(() => () => { void markReadRef.current?.(); }, []);
 
   const sendWithReply = useCallback(async (text: string, reply: ReplyData | null) => {
