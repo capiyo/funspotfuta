@@ -16,7 +16,7 @@ async function initializeEncryptedCache(): Promise<boolean> {
     let encryptionKey = await SecureStore.getItemAsync(ENCRYPTION_KEY_ID);
     // Recover from an interrupted/older development build that stored a key
     // outside MMKV 2.12.x's strict 16-byte AES-128 limit.
-    if (encryptionKey && !/^[\\x21-\\x7E]{16}$/.test(encryptionKey)) {
+    if (encryptionKey && !/^[\x21-\x7E]{16}$/.test(encryptionKey)) {
       await SecureStore.deleteItemAsync(ENCRYPTION_KEY_ID);
       encryptionKey = null;
     }
