@@ -3,7 +3,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { useQueryClient } from '@tanstack/react-query';
 import { firebaseAuth } from '../firebase';
-import { indexedDbQueryPersister } from '../query-persistence';
+import { indexedDbQueryPersister, secureBrowserSession } from '../query-persistence';
 import { getAllFixtures, getVotesByUserStrict, feedQueryOptions, comradesQueryOptions, profileQueryOptions, queryKeys } from '@funspot/core';
 
 type AuthState = {
@@ -17,7 +17,7 @@ type AuthState = {
 };
 type LoginOptions = { phone?: string; refreshToken?: string };
 type AuthContextValue = AuthState & {
-  login: (userId: string, username: string, authToken: string, phoneOrOptions?: string | LoginOptions) => boolean;
+  login: (userId: string, username: string, authToken: string, phoneOrOptions?: string | LoginOptions) => Promise<boolean>;
   logout: () => Promise<void>;
   updateAuthToken: (newToken: string, newRefreshToken?: string) => Promise<boolean>;
   updateUserData: (userId: string, username: string, phone?: string) => Promise<void>;
@@ -29,24 +29,29 @@ const initialState: AuthState = {
   isInitialized: false, isLoggedIn: false, userId: null, username: null, phone: null, authToken: null, refreshToken: null,
 };
 const AuthContext = createContext<AuthContextValue | null>(null);
-const LOGOUT_KEYS = [
+const LEGACY_KEYS = [
   'usertoken','user','isLoggedIn','userId','username','phone','refreshToken','userBets','userProfile',
   'availableGames','notifications','notificationCount','cachedPosts','cachedFixtures','lastCarouselFetch',
   'forceNewUser','comrades','channels','votes','messages',
 ];
 
-function readStoredState(): AuthState {
+async function readStoredState(): Promise<AuthState> {
   try {
-    const token = sessionStorage.getItem('usertoken');
-    const rawUser = sessionStorage.getItem('user');
+    const [token, rawUser, refreshToken] = await Promise.all([
+      secureBrowserSession.getToken(),
+      secureBrowserSession.getUser(),
+      secureBrowserSession.getRefreshToken(),
+    ]);
     const user = rawUser ? JSON.parse(rawUser) : null;
     const id = user?.id ?? user?.userId ?? user?._id ?? null;
     return {
       isInitialized: true, isLoggedIn: Boolean(token && id), userId: id ? String(id) : null,
-      username: user?.username ?? user?.name ?? null, phone: sessionStorage.getItem('phone') ?? user?.phone ?? null,
-      authToken: token, refreshToken: sessionStorage.getItem('refreshToken'),
+      username: user?.username ?? user?.name ?? null, phone: user?.phone ?? null,
+      authToken: token, refreshToken,
     };
-  } catch { return { ...initialState, isInitialized: true }; }
+  } catch {
+    return { ...initialState, isInitialized: true };
+  }
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
@@ -55,20 +60,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const previousAuthIdentity = useRef<string | null>(null);
 
   useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      try {
+        // One-time migration from legacy browser storage. Credentials and
+        // profile metadata are encrypted before legacy plaintext is erased.
+        const [legacyToken, legacyUser, legacyRefresh] = [
+          localStorage.getItem('usertoken'),
+          localStorage.getItem('user'),
+          localStorage.getItem('refreshToken'),
+        ];
+        if (legacyToken && legacyUser && !(await secureBrowserSession.getToken())) {
+          await secureBrowserSession.setToken(legacyToken);
+          await secureBrowserSession.setUser(legacyUser);
+          if (legacyRefresh) await secureBrowserSession.setRefreshToken(legacyRefresh);
+        }
+        LEGACY_KEYS.forEach((key) => localStorage.removeItem(key));
+        const restored = await readStoredState();
+        if (!cancelled) setState(restored);
+      } catch (error) {
+        if (import.meta.env.DEV) console.warn('[auth] encrypted browser session restore failed', error);
+        if (!cancelled) setState({ ...initialState, isInitialized: true });
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  useEffect(() => {
     if (!state.isInitialized) return;
     const identity = state.isLoggedIn && state.userId ? state.userId : null;
     const previous = previousAuthIdentity.current;
     previousAuthIdentity.current = identity;
     if (previous === null || previous === identity) return;
-
-    // Never carry one signed-in user's in-memory or persisted data into a
-    // different account (or a logged-out session).
     queryClient.clear();
     void indexedDbQueryPersister.removeClient();
   }, [state.isInitialized, state.isLoggedIn, state.userId, queryClient]);
 
-  // Warm account data sequentially after hydration/auth initialization. Each
-  // prefetch uses the same canonical query options as its consuming hook.
   const prefetchedUserId = useRef<string | null>(null);
   useEffect(() => {
     if (!state.isInitialized) return;
@@ -102,52 +129,39 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [state.isInitialized, state.isLoggedIn, state.userId, state.authToken, queryClient]);
 
   useEffect(() => {
-    // Migrate the legacy durable browser session into tab-scoped storage once.
-    // sessionStorage survives reloads but is discarded when the tab session ends.
-    try {
-      if (!sessionStorage.getItem('usertoken')) {
-        const legacyToken = localStorage.getItem('usertoken');
-        const legacyUser = localStorage.getItem('user');
-        if (legacyToken && legacyUser) {
-          sessionStorage.setItem('usertoken', legacyToken);
-          sessionStorage.setItem('user', legacyUser);
-          for (const key of ['phone', 'refreshToken', 'isLoggedIn']) {
-            const value = localStorage.getItem(key);
-            if (value !== null) sessionStorage.setItem(key, value);
-          }
-        }
-      }
-      for (const key of LOGOUT_KEYS) localStorage.removeItem(key);
-    } catch {
-      // Private browsing/storage restrictions leave the user signed out.
-    }
-    setState(readStoredState());
-  }, []);
-
-  useEffect(() => {
     if (!firebaseAuth) return;
     return onAuthStateChanged(firebaseAuth, async (user) => {
       if (!user) return;
       try {
+        const [storedToken, storedUser] = await Promise.all([
+          secureBrowserSession.getToken(),
+          secureBrowserSession.getUser(),
+        ]);
+        if (!storedToken || !storedUser) return;
         const token = await user.getIdToken();
-        if (!sessionStorage.getItem('usertoken') || !sessionStorage.getItem('user')) return;
-        sessionStorage.setItem('usertoken', token);
+        await secureBrowserSession.setToken(token);
         setState((current) => current.isLoggedIn ? { ...current, authToken: token } : current);
       } catch {
-        // Keep the persisted backend session if Firebase cannot refresh its ID token.
+        // Keep the backend session if Firebase cannot refresh its ID token.
       }
     });
   }, []);
 
-  const login = useCallback((userId: string, username: string, authToken: string, phoneOrOptions?: string | LoginOptions): boolean => {
+  const login = useCallback(async (
+    userId: string, username: string, authToken: string,
+    phoneOrOptions?: string | LoginOptions,
+  ): Promise<boolean> => {
     const opts: LoginOptions = typeof phoneOrOptions === 'string' ? { phone: phoneOrOptions } : phoneOrOptions ?? {};
     try {
       const user = { id: userId, username, phone: opts.phone ?? '' };
-      sessionStorage.setItem('usertoken', authToken);
-      sessionStorage.setItem('user', JSON.stringify(user));
-      sessionStorage.setItem('isLoggedIn', 'true');
-      if (opts.phone) sessionStorage.setItem('phone', opts.phone);
-      if (opts.refreshToken) sessionStorage.setItem('refreshToken', opts.refreshToken);
+      await secureBrowserSession.setToken(authToken);
+      await secureBrowserSession.setUser(JSON.stringify(user));
+      if (opts.refreshToken) await secureBrowserSession.setRefreshToken(opts.refreshToken);
+      else await secureBrowserSession.clear();
+      // clear() also removes the just-written token, so restore it when no
+      // refresh token was issued.
+      if (!opts.refreshToken) await secureBrowserSession.setToken(authToken);
+      LEGACY_KEYS.forEach((key) => localStorage.removeItem(key));
       setState({ isInitialized: true, isLoggedIn: true, userId, username, phone: opts.phone ?? null, authToken, refreshToken: opts.refreshToken ?? null });
       return true;
     } catch {
@@ -158,17 +172,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(async () => {
     queryClient.clear();
-    await indexedDbQueryPersister.removeClient();
+    await Promise.all([indexedDbQueryPersister.removeClient(), secureBrowserSession.clear()]);
     if (firebaseAuth) await signOut(firebaseAuth).catch(() => undefined);
-    LOGOUT_KEYS.forEach((key) => sessionStorage.removeItem(key));
+    LEGACY_KEYS.forEach((key) => localStorage.removeItem(key));
     setState({ ...initialState, isInitialized: true });
   }, [queryClient]);
 
   const updateAuthToken = useCallback(async (newToken: string, newRefreshToken?: string): Promise<boolean> => {
     if (!state.isLoggedIn) return false;
     try {
-      sessionStorage.setItem('usertoken', newToken);
-      if (newRefreshToken) sessionStorage.setItem('refreshToken', newRefreshToken);
+      await secureBrowserSession.setToken(newToken);
+      if (newRefreshToken) await secureBrowserSession.setRefreshToken(newRefreshToken);
       setState((current) => ({ ...current, authToken: newToken, refreshToken: newRefreshToken ?? current.refreshToken }));
       return true;
     } catch { return false; }
@@ -176,25 +190,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const updateUserData = useCallback(async (userId: string, username: string, phone?: string) => {
     try {
-      const raw = sessionStorage.getItem('user');
+      const raw = await secureBrowserSession.getUser();
       if (raw) {
         const user = JSON.parse(raw);
+        user.id = userId;
         user.username = username;
         if (phone) user.phone = phone;
-        sessionStorage.setItem('user', JSON.stringify(user));
+        await secureBrowserSession.setUser(JSON.stringify(user));
       }
-      if (phone) sessionStorage.setItem('phone', phone);
       setState((current) => ({ ...current, userId, username, phone: phone ?? current.phone }));
     } catch {
-      // Match mobile behavior: storage failures do not crash the screen.
+      // Keep the current in-memory state if encrypted storage is unavailable.
     }
   }, []);
 
   const hasValidSession = useCallback(() => Boolean(state.isLoggedIn && state.authToken && state.userId), [state.isLoggedIn, state.authToken, state.userId]);
   const clearAllAppData = useCallback(async () => {
-    try { sessionStorage.clear(); for (const key of LOGOUT_KEYS) localStorage.removeItem(key); } finally {
+    try {
+      LEGACY_KEYS.forEach((key) => localStorage.removeItem(key));
+      sessionStorage.clear();
+    } finally {
       queryClient.clear();
-      await indexedDbQueryPersister.removeClient();
+      await Promise.all([indexedDbQueryPersister.removeClient(), secureBrowserSession.clear()]);
       setState({ ...initialState, isInitialized: true });
     }
   }, [queryClient]);
