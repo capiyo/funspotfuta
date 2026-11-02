@@ -60,7 +60,7 @@ async function readClient(): Promise<PersistedClient | undefined> {
   try {
     const [snapshot, key] = await Promise.all([
       requestValue(db.transaction(STORE_NAME, 'readonly').objectStore(STORE_NAME).get(CACHE_KEY)) as Promise<EncryptedSnapshot | string | undefined>,
-      requestValue(db.transaction(KEY_STORE_NAME, 'readonly').objectStore(KEY_STORE_NAME).get(keyId)) as Promise<CryptoKey | undefined>,
+      requestValue(db.transaction(KEY_STORE_NAME, 'readonly').objectStore(KEY_STORE_NAME).get(CACHE_KEY)) as Promise<CryptoKey | undefined>,
     ]);
     // Old plaintext snapshots are deliberately not restored and must be
     // physically erased during the one-time migration, not merely ignored.
