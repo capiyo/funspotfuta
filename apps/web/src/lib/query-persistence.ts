@@ -96,7 +96,7 @@ async function writeClient(client: PersistedClient): Promise<void> {
     const key = await getOrCreateEncryptionKey(db);
     const iv = crypto.getRandomValues(new Uint8Array(12));
     const plaintext = new TextEncoder().encode(serializePersistedClient(compactPersistedClient(client)));
-    const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, plaintext);
+    const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv.buffer as ArrayBuffer }, key, plaintext);
     await new Promise<void>((resolve, reject) => {
       const transaction = db.transaction(STORE_NAME, 'readwrite');
       transaction.objectStore(STORE_NAME).put({ iv, ciphertext } satisfies EncryptedSnapshot, CACHE_KEY);
