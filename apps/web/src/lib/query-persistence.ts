@@ -165,6 +165,7 @@ export const secureBrowserSession = {
   setToken: (value: string) => writeEncryptedValue(AUTH_TOKEN_KEY, value),
   getRefreshToken: () => readEncryptedValue(AUTH_REFRESH_KEY),
   setRefreshToken: (value: string) => writeEncryptedValue(AUTH_REFRESH_KEY, value),
+  clearRefreshToken: () => removeEncryptedValue(AUTH_REFRESH_KEY),
   getUser: () => readEncryptedValue(AUTH_USER_KEY),
   setUser: (value: string) => writeEncryptedValue(AUTH_USER_KEY, value),
   clear: async () => {
