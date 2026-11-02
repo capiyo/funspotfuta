@@ -169,7 +169,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(async () => {
     queryClient.clear();
-    await Promise.all([indexedDbQueryPersister.removeClient(), secureBrowserSession.clear()]);
+    const results = await Promise.allSettled([
+      indexedDbQueryPersister.removeClient(),
+      secureBrowserSession.clear(),
+    ]);
+    if (results.some((result) => result.status === 'rejected') && import.meta.env.DEV) {
+      console.warn('[auth] one or more browser logout cleanup operations failed', results);
+    }
     if (firebaseAuth) await signOut(firebaseAuth).catch(() => undefined);
     LEGACY_KEYS.forEach((key) => localStorage.removeItem(key));
     setState({ ...initialState, isInitialized: true });
