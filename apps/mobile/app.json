@@ -38,7 +38,8 @@
         {
           "androidAppId": "ca-app-pub-8671302794311438~5256663624"
         }
-      ]
+      ],
+      "expo-secure-store"
     ]
   }
 }
