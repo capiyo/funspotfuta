@@ -33,11 +33,37 @@ async function initializeEncryptedCache(): Promise<boolean> {
     }
 
     const { MMKV } = require('react-native-mmkv') as typeof import('react-native-mmkv');
-    // Remove the legacy unencrypted store once the secure key is available.
+    // Migrate the previous auth namespace into Keychain/Keystore before
+    // erasing the old unencrypted MMKV file.
     try {
-      new MMKV({ id: 'app-cache' }).clearAll();
+      const legacy = new MMKV({ id: 'app-cache' });
+      const [secureToken, secureUser] = await Promise.all([
+        SecureStore.getItemAsync('auth.usertoken'),
+        SecureStore.getItemAsync('auth.user'),
+      ]);
+      const legacyToken = legacy.getString('auth:usertoken');
+      const legacyUser = legacy.getString('auth:user');
+      if (!secureToken && !secureUser && legacyToken && legacyUser) {
+        let migratedUser = legacyUser;
+        const legacyPhone = legacy.getString('auth:phone');
+        try {
+          const parsed: unknown = JSON.parse(legacyUser);
+          if (parsed && typeof parsed === 'object' && legacyPhone) {
+            migratedUser = JSON.stringify({ ...(parsed as Record<string, unknown>), phone: legacyPhone });
+          }
+        } catch {
+          // Preserve the original serialized user; AuthProvider validates it.
+        }
+        await SecureStore.setItemAsync('auth.usertoken', legacyToken);
+        await SecureStore.setItemAsync('auth.user', migratedUser);
+        const legacyRefresh = legacy.getString('auth:refreshToken');
+        if (legacyRefresh) await SecureStore.setItemAsync('auth.refreshToken', legacyRefresh);
+      }
+      legacy.clearAll();
     } catch {
-      // A missing legacy store is expected on fresh installs.
+      // A missing legacy store is expected on fresh installs. SecureStore
+      // failures are handled by the outer guard, which keeps the cache volatile.
+      throw new Error('Unable to migrate legacy native session securely');
     }
     mmkv = new MMKV({ id: 'app-cache-v2', encryptionKey });
     for (const [key, value] of fallback) mmkv.set(key, value);
