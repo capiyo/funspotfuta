@@ -1,0 +1,45 @@
+name: Chat unread and mentions validation
+
+on:
+  push:
+    branches: [feature/chat-unread-mentions]
+  pull_request:
+    branches: [web-port-from-master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: chat-unread-mentions-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install workspace dependencies
+        run: npm install --no-audit --no-fund
+      - name: Core tests
+        run: npm run test:core
+      - name: Typecheck shared core
+        run: npm run typecheck:core
+      - name: Typecheck web
+        run: npm run typecheck:web
+      - name: Typecheck React Native (iOS and Android shared app)
+        run: npm run typecheck:mobile
+      - name: Lint web
+        run: npm run lint:web
+      - name: Build web
+        run: npm run build:web
+      - name: Bundle Android app
+        working-directory: apps/mobile
+        run: npx expo export --platform android --output-dir /tmp/funspot-android
+      - name: Bundle iOS app
+        working-directory: apps/mobile
+        run: npx expo export --platform ios --output-dir /tmp/funspot-ios
