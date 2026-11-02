@@ -133,7 +133,7 @@ describe('open poke cache reconciliation', () => {
       ...PERSIST_OPTIONS,
     });
     expect(restarted.getQueryData(key)).toBeUndefined();
-    expect(PERSIST_OPTIONS.buster).toBe('v8');
+    expect(PERSIST_OPTIONS.buster).toBe('v9');
     restarted.clear();
   });
 
@@ -172,7 +172,7 @@ describe('open poke cache reconciliation', () => {
     const messages = Array.from({ length: 90 }, (_, id) => ({ id }));
     const persisted = {
       timestamp: Date.now(),
-      buster: 'v8',
+      buster: 'v9',
       clientState: {
         mutations: [],
         queries: [{
