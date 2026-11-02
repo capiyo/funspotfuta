@@ -137,6 +137,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(async () => {
     queryClient.clear();
+    await indexedDbQueryPersister.removeClient();
     if (firebaseAuth) await signOut(firebaseAuth).catch(() => undefined);
     LOGOUT_KEYS.forEach((key) => localStorage.removeItem(key));
     setState({ ...initialState, isInitialized: true });
@@ -172,6 +173,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const clearAllAppData = useCallback(async () => {
     try { localStorage.clear(); } finally {
       queryClient.clear();
+      await indexedDbQueryPersister.removeClient();
       setState({ ...initialState, isInitialized: true });
     }
   }, [queryClient]);
