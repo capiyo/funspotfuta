@@ -133,7 +133,7 @@ describe('open poke cache reconciliation', () => {
       ...PERSIST_OPTIONS,
     });
     expect(restarted.getQueryData(key)).toBeUndefined();
-    expect(PERSIST_OPTIONS.buster).toBe('v6');
+    expect(PERSIST_OPTIONS.buster).toBe('v7');
     restarted.clear();
   });
 
@@ -195,6 +195,22 @@ describe('open poke cache reconciliation', () => {
     expect(shouldDehydrateMutation?.({
       state: { isPaused: true, variables: { fixtureId: 'fixture-1', authToken: 'never-persist' } },
     } as never)).toBe(false);
+  });
+
+  it('never persists successful query data containing credentials', () => {
+    const shouldDehydrate = PERSIST_OPTIONS.dehydrateOptions.shouldDehydrateQuery;
+    expect(shouldDehydrate?.({
+      queryKey: ['profile', 'user-1'],
+      state: { data: { username: 'fan', nested: { accessToken: 'must-not-persist' } }, status: 'success' },
+    } as never)).toBe(false);
+    expect(shouldDehydrate?.({
+      queryKey: ['profile', 'user-1'],
+      state: { data: { username: 'fan', authorization: 'Bearer secret' }, status: 'success' },
+    } as never)).toBe(false);
+    expect(shouldDehydrate?.({
+      queryKey: ['profile', 'user-1'],
+      state: { data: { username: 'fan', avatarUrl: 'https://cdn.example/avatar.png' }, status: 'success' },
+    } as never)).toBe(true);
   });
 
   it('does not dehydrate failed queries over a previous successful snapshot', () => {
