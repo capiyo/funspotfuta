@@ -256,16 +256,16 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
     recordUserVote, refetchVoteCounts,
   } = chat;
 
-  const mentionMatch = draft.match(/(?:^|\\s)@([^\\s@]*)$/);
+  const mentionMatch = draft.match(/(?:^|\s)@([^\s@]*)$/);
   const mentionSuggestions = mentionMatch
     ? channelMembers.filter((member) => member.userId !== userId
       && member.username.toLowerCase().includes(mentionMatch[1].toLowerCase())).slice(0, 6)
     : [];
   function selectMention(member: Channel['members'][number]) {
-    const match = draft.match(/(?:^|\\s)@([^\\s@]*)$/);
+    const match = draft.match(/(?:^|\s)@([^\s@]*)$/);
     if (!match) return;
     const prefix = draft.slice(0, draft.length - match[0].length);
-    setDraft(prefix + (prefix && !/\\s$/.test(prefix) ? ' ' : '') + '@' + member.username + ' ');
+    setDraft(prefix + (prefix && !/\s$/.test(prefix) ? ' ' : '') + '@' + member.username + ' ');
   }
   function getMentionedUserIds(text: string): string[] {
     const tokens = text.match(/@[A-Za-z0-9_.-]+/g) ?? [];
