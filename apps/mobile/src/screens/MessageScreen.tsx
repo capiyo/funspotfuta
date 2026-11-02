@@ -403,6 +403,7 @@ export default function MessageScreen() {
   useEffect(() => {
     markReadRef.current = markRead;
   }, [markRead]);
+  useEffect(() => { void markRead(); }, [markRead]);
   useEffect(() => {
     return () => {
       void markReadRef.current?.();
