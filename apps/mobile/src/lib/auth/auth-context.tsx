@@ -105,6 +105,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         }
 
+        if (token && user) await AsyncStorage.multiRemove(LOGOUT_KEYS);
         if (!cancelled) setState(parseSession(token, user, refresh));
       } catch (error) {
         if (__DEV__) console.warn('[auth] secure session restore failed', error);
