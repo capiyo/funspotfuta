@@ -6,6 +6,7 @@
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { mobileCache } from '@funspot/storage';
+import { clearMobileQueryCache } from '../../../QueryProvider';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 interface AuthState {
@@ -183,6 +184,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       opts?: { phone?: string; refreshToken?: string }
     ): Promise<boolean> => {
       try {
+        if (state.userId && state.userId !== userId) clearMobileQueryCache();
         const userData = { id: userId, username, phone: opts?.phone ?? '' };
         writeCachedSession({
           authToken,
@@ -216,11 +218,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return false;
       }
     },
-    []
+    [state.userId]
   );
 
   const logout = useCallback(async () => {
     try {
+      clearMobileQueryCache();
       clearCachedSession();
       await AsyncStorage.multiRemove(LOGOUT_KEYS);
     } finally {
@@ -272,6 +275,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const clearAllAppData = useCallback(async () => {
     try {
+      clearMobileQueryCache();
       clearCachedSession();
       await AsyncStorage.clear();
     } finally {
