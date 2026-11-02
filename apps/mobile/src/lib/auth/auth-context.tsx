@@ -141,13 +141,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [state.userId]);
 
   const logout = useCallback(async () => {
-    try {
-      await clearMobileQueryCache();
-      await clearSecureSession();
-      await AsyncStorage.multiRemove(LOGOUT_KEYS);
-    } finally {
-      setState({ ...initialState, isInitialized: true });
-    }
+    const results = await Promise.allSettled([
+      clearMobileQueryCache(),
+      clearSecureSession(),
+      AsyncStorage.multiRemove(LOGOUT_KEYS),
+    ]);
+    const failed = results.filter((result) => result.status === 'rejected');
+    if (failed.length && __DEV__) console.warn('[auth] one or more logout cleanup operations failed', failed);
+    setState({ ...initialState, isInitialized: true });
   }, []);
 
   const updateAuthToken = useCallback(async (newToken: string, newRefreshToken?: string): Promise<boolean> => {
@@ -183,13 +184,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const clearAllAppData = useCallback(async () => {
-    try {
-      await clearMobileQueryCache();
-      await clearSecureSession();
-      await AsyncStorage.clear();
-    } finally {
-      setState({ ...initialState, isInitialized: true });
-    }
+    const results = await Promise.allSettled([
+      clearMobileQueryCache(),
+      clearSecureSession(),
+      AsyncStorage.clear(),
+    ]);
+    const failed = results.filter((result) => result.status === 'rejected');
+    if (failed.length && __DEV__) console.warn('[auth] one or more app-data cleanup operations failed', failed);
+    setState({ ...initialState, isInitialized: true });
   }, []);
 
   const value = useMemo<AuthContextValue>(
