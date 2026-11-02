@@ -16,11 +16,11 @@ async function initializeEncryptedCache(): Promise<boolean> {
     let encryptionKey = await SecureStore.getItemAsync(ENCRYPTION_KEY_ID);
     if (!encryptionKey) {
       // MMKV 2.12.x uses AES-128 and accepts at most 16 UTF-8 bytes.
-      // Use 16 URL-safe ASCII characters so the native key is exactly
-      // 16 bytes; each character carries 6 random bits (96-bit entropy).
+      // Use 16 printable ASCII characters so the native key is exactly
+      // 16 bytes and has over 100 bits of random entropy.
       const bytes = await Crypto.getRandomBytesAsync(16);
-      const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
-      encryptionKey = Array.from(bytes, (byte) => alphabet[byte & 63]).join('');
+      const alphabet = Array.from({ length: 94 }, (_, index) => String.fromCharCode(33 + index)).join('');
+      encryptionKey = Array.from(bytes, (byte) => alphabet[byte % alphabet.length]).join('');
       await SecureStore.setItemAsync(ENCRYPTION_KEY_ID, encryptionKey, {
         keychainAccessible: SecureStore.AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY,
       });
