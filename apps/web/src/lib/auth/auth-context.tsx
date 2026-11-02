@@ -157,10 +157,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await secureBrowserSession.setToken(authToken);
       await secureBrowserSession.setUser(JSON.stringify(user));
       if (opts.refreshToken) await secureBrowserSession.setRefreshToken(opts.refreshToken);
-      else await secureBrowserSession.clear();
-      // clear() also removes the just-written token, so restore it when no
-      // refresh token was issued.
-      if (!opts.refreshToken) await secureBrowserSession.setToken(authToken);
+      else await secureBrowserSession.clearRefreshToken();
       LEGACY_KEYS.forEach((key) => localStorage.removeItem(key));
       setState({ isInitialized: true, isLoggedIn: true, userId, username, phone: opts.phone ?? null, authToken, refreshToken: opts.refreshToken ?? null });
       return true;
