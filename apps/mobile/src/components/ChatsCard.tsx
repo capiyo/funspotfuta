@@ -297,6 +297,9 @@ export function MatchCard({
   useEffect(() => {
     let active = true;
     const resolvedFixtureId = String(fixture.matchId || fixture.id || '');
+    // A reused card must never briefly show another fixture's unread state or time.
+    setUnreadCount(channel?.unreadCount ?? 0);
+    setLatestMessageAt(null);
     if (!channelId || !resolvedFixtureId || !userId || !authToken) {
       setUnreadCount(channel?.unreadCount ?? 0);
       setLatestMessageAt(null);
