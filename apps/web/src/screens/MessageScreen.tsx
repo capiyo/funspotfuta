@@ -648,7 +648,7 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       aria-label="Type a message"
       className="message-composer-input max-h-28 min-h-10 flex-1 resize-none bg-transparent py-2.5 text-[13px] outline-none"
       style={{ color: colors.textPrimary, ...fanText('caption', colors, colors.textPrimary) }}/>
-          </form>}
+          </form>
           </div>}
           {isLoggedIn && !voteGateActive && draft.trim().length > 0 && <button
       type="button"
