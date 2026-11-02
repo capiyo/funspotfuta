@@ -3,7 +3,7 @@ import { QueryClient } from '@tanstack/react-query';
 import { persistQueryClientRestore, persistQueryClientSave } from '@tanstack/react-query-persist-client';
 import type { KVStorage } from '@funspot/storage';
 import { createAppQueryClient, PERSIST_OPTIONS } from '../queryClient';
-import { deserializePersistedClient, serializePersistedClient } from '../persistence/serialization';
+import { compactPersistedClient, deserializePersistedClient, serializePersistedClient } from '../persistence/serialization';
 import { mergeOpenPokes } from '../api/pokes-service';
 import type { Poke } from '../api/pokes-service';
 import { capCachedMessages, mergeCachedList, queryKeys } from './queryKeys';
@@ -133,7 +133,7 @@ describe('open poke cache reconciliation', () => {
       ...PERSIST_OPTIONS,
     });
     expect(restarted.getQueryData(key)).toBeUndefined();
-    expect(PERSIST_OPTIONS.buster).toBe('v7');
+    expect(PERSIST_OPTIONS.buster).toBe('v8');
     restarted.clear();
   });
 
@@ -166,6 +166,28 @@ describe('open poke cache reconciliation', () => {
     });
     expect(client.getQueryData<{ userVoteSelection: string }>(voteKey)?.userVoteSelection).toBe('home_team');
     client.clear();
+  });
+
+  it('bounds persisted message lists and total retained query count', () => {
+    const messages = Array.from({ length: 90 }, (_, id) => ({ id }));
+    const persisted = {
+      timestamp: Date.now(),
+      buster: 'v8',
+      clientState: {
+        mutations: [],
+        queries: [{
+          queryKey: ['chatMessages', 'fixture-1', 'channel-1'],
+          state: { data: { messages }, status: 'success', dataUpdatedAt: Date.now() },
+        }, ...Array.from({ length: 175 }, (_, index) => ({
+          queryKey: ['fixtures', String(index)],
+          state: { data: [{ id: index }], status: 'success', dataUpdatedAt: Date.now() - index },
+        }))],
+      },
+    };
+    const compacted = compactPersistedClient(persisted as never);
+    expect(compacted.clientState.queries.length).toBeLessThanOrEqual(150);
+    const chat = compacted.clientState.queries.find((query) => query.queryKey[0] === 'chatMessages');
+    expect((chat?.state.data as { messages: unknown[] }).messages).toHaveLength(50);
   });
 
   it('round-trips Date values through persisted cache serialization', () => {
