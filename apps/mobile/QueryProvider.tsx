@@ -13,7 +13,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
-import { focusManager, hydrate } from '@tanstack/react-query';
+import NetInfo from '@react-native-community/netinfo';
+import { focusManager, onlineManager, hydrate } from '@tanstack/react-query';
 import {
     PersistQueryClientProvider,
     persistQueryClientSave,
@@ -104,6 +105,9 @@ export function QueryProvider({
     }, []);
 
     useEffect(() => {
+        onlineManager.setEventListener((setOnline) => NetInfo.addEventListener((state) => {
+            setOnline(Boolean(state.isConnected && state.isInternetReachable !== false));
+        }));
         let refreshTimer: ReturnType<typeof setInterval> | undefined;
         const startBackgroundRefresh = () => {
             if (refreshTimer) clearInterval(refreshTimer);
@@ -155,6 +159,9 @@ export function QueryProvider({
             persistOptions={persistOptions}
             onSuccess={() => {
                 restored.current = true;
+                void queryClient.resumePausedMutations().catch((error) => {
+                    if (__DEV__) console.warn('[query-cache] resume paused mutations failed', error);
+                });
                 prefetchStartupData();
                 onReady?.();
             }}
