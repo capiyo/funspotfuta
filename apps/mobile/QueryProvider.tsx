@@ -29,6 +29,16 @@ import { mobileCache, mobileStorage } from '@funspot/storage';
 
 const { queryClient, persister, persistOptions } = createAppQueryClient(mobileStorage);
 
+/**
+ * Clear both live query state and its durable snapshot before changing the
+ * authenticated identity. This is intentionally exported for AuthProvider:
+ * account boundaries must not depend on a screen being mounted.
+ */
+export function clearMobileQueryCache(): void {
+    queryClient.clear();
+    persister.removeClient();
+}
+
 // MMKV is synchronous. Hydrate the in-memory QueryClient before React mounts,
 // so cached screens can render on the very first frame instead of waiting for
 // PersistQueryClientProvider's async restore lifecycle.
