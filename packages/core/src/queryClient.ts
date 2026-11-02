@@ -115,10 +115,10 @@ export const PERSIST_OPTIONS = {
       if (containsCredential(query.state.data)) return false;
       return typeof key === 'string' && PERSISTED_KEYS.has(key);
     },
-    // Only replay-safe paused mutations may survive restart. Never persist a
-    // mutation whose variables contain bearer tokens, passwords or credentials.
-    shouldDehydrateMutation: (mutation: { state: { isPaused: boolean; variables?: unknown } }) =>
-      mutation.state.isPaused && !containsCredential(mutation.state.variables),
+    // Mutations are deliberately not persisted: mutationFn closures cannot be
+    // serialized, and replaying an unknown action after restart is unsafe.
+    // Offline retries remain in memory and resume when connectivity returns.
+    shouldDehydrateMutation: () => false,
   },
 } as const;
 
