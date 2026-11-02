@@ -22,10 +22,13 @@ const DAY = 24 * 60 * 60 * 1000;
  * and other secrets must never be stored as query data.
  */
 function containsCredential(value: unknown, depth = 0): boolean {
-  if (depth > 8 || value === null || typeof value !== 'object') return false;
+  // Fail closed for unexpectedly deep payloads rather than risk persisting a
+  // credential hidden beyond the inspection limit.
+  if (depth > 8) return true;
+  if (value === null || typeof value !== 'object') return false;
   if (Array.isArray(value)) return value.some((item) => containsCredential(item, depth + 1));
   return Object.entries(value as Record<string, unknown>).some(([key, child]) => {
-    if (/(^|_)(auth|access|refresh)?token$|password|secret|credential|authorization/i.test(key)) return true;
+    if (/token$|password|secret|credential|authorization|api[_-]?key|private[_-]?key|cookie/i.test(key)) return true;
     return containsCredential(child, depth + 1);
   });
 }
