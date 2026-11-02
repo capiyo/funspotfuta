@@ -179,7 +179,7 @@ describe('open poke cache reconciliation', () => {
           queryKey: ['chatMessages', 'fixture-1', 'channel-1'],
           state: { data: { messages }, status: 'success', dataUpdatedAt: Date.now() },
         }, ...Array.from({ length: 175 }, (_, index) => ({
-          queryKey: ['fixtures', String(index)],
+          queryKey: ['misc', String(index)],
           state: { data: [{ id: index }], status: 'success', dataUpdatedAt: Date.now() - index },
         }))],
       },
