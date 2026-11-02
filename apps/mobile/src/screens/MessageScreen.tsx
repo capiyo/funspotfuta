@@ -415,7 +415,7 @@ export default function MessageScreen() {
       // Only `replyTo` carries the quote; the text body stays clean.
       await send(text, { ...(reply ? { replyTo: reply } : {}), mentionedUserIds: getMentionedUserIds(text) });
     },
-    [send],
+    [send, channelMembers, userId],
   );
 
   async function handleSend() {
