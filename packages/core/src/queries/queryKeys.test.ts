@@ -209,11 +209,11 @@ describe('open poke cache reconciliation', () => {
     expect('optional' in data).toBe(false);
   });
 
-  it('does not persist paused mutations that carry credentials', () => {
+  it('does not persist paused mutations without a registered replay-safe mutation function', () => {
     const shouldDehydrateMutation = PERSIST_OPTIONS.dehydrateOptions.shouldDehydrateMutation;
     expect(shouldDehydrateMutation?.({
       state: { isPaused: true, variables: { fixtureId: 'fixture-1', selection: 'home_team' } },
-    } as never)).toBe(true);
+    } as never)).toBe(false);
     expect(shouldDehydrateMutation?.({
       state: { isPaused: true, variables: { fixtureId: 'fixture-1', authToken: 'never-persist' } },
     } as never)).toBe(false);
