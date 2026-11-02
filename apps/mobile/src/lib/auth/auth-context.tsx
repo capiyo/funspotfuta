@@ -48,7 +48,7 @@ function parseSession(token: string | null, rawUser: string | null, refreshToken
     return {
       isLoggedIn: true, isInitialized: true, userId: String(rawId),
       username: typeof value.username === 'string' ? value.username : typeof value.name === 'string' ? value.name : '',
-      phone: value.phone == null ? null : String(value.phone), authToken, refreshToken,
+      phone: value.phone == null ? null : String(value.phone), authToken: token, refreshToken,
     };
   } catch {
     return { ...initialState, isInitialized: true };
