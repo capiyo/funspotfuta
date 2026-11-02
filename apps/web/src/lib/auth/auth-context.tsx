@@ -37,14 +37,14 @@ const LOGOUT_KEYS = [
 
 function readStoredState(): AuthState {
   try {
-    const token = localStorage.getItem('usertoken');
-    const rawUser = localStorage.getItem('user');
+    const token = sessionStorage.getItem('usertoken');
+    const rawUser = sessionStorage.getItem('user');
     const user = rawUser ? JSON.parse(rawUser) : null;
     const id = user?.id ?? user?.userId ?? user?._id ?? null;
     return {
       isInitialized: true, isLoggedIn: Boolean(token && id), userId: id ? String(id) : null,
-      username: user?.username ?? user?.name ?? null, phone: localStorage.getItem('phone') ?? user?.phone ?? null,
-      authToken: token, refreshToken: localStorage.getItem('refreshToken'),
+      username: user?.username ?? user?.name ?? null, phone: sessionStorage.getItem('phone') ?? user?.phone ?? null,
+      authToken: token, refreshToken: sessionStorage.getItem('refreshToken'),
     };
   } catch { return { ...initialState, isInitialized: true }; }
 }
@@ -101,7 +101,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => { cancelled = true; };
   }, [state.isInitialized, state.isLoggedIn, state.userId, state.authToken, queryClient]);
 
-  useEffect(() => { setState(readStoredState()); }, []);
+  useEffect(() => {
+    // Migrate the legacy durable browser session into tab-scoped storage once.
+    // sessionStorage survives reloads but is discarded when the tab session ends.
+    try {
+      if (!sessionStorage.getItem('usertoken')) {
+        const legacyToken = localStorage.getItem('usertoken');
+        const legacyUser = localStorage.getItem('user');
+        if (legacyToken && legacyUser) {
+          sessionStorage.setItem('usertoken', legacyToken);
+          sessionStorage.setItem('user', legacyUser);
+          for (const key of ['phone', 'refreshToken', 'isLoggedIn']) {
+            const value = localStorage.getItem(key);
+            if (value !== null) sessionStorage.setItem(key, value);
+          }
+        }
+      }
+      for (const key of LOGOUT_KEYS) localStorage.removeItem(key);
+    } catch {
+      // Private browsing/storage restrictions leave the user signed out.
+    }
+    setState(readStoredState());
+  }, []);
 
   useEffect(() => {
     if (!firebaseAuth) return;
@@ -109,8 +130,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (!user) return;
       try {
         const token = await user.getIdToken();
-        if (!localStorage.getItem('usertoken') || !localStorage.getItem('user')) return;
-        localStorage.setItem('usertoken', token);
+        if (!sessionStorage.getItem('usertoken') || !sessionStorage.getItem('user')) return;
+        sessionStorage.setItem('usertoken', token);
         setState((current) => current.isLoggedIn ? { ...current, authToken: token } : current);
       } catch {
         // Keep the persisted backend session if Firebase cannot refresh its ID token.
@@ -122,11 +143,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const opts: LoginOptions = typeof phoneOrOptions === 'string' ? { phone: phoneOrOptions } : phoneOrOptions ?? {};
     try {
       const user = { id: userId, username, phone: opts.phone ?? '' };
-      localStorage.setItem('usertoken', authToken);
-      localStorage.setItem('user', JSON.stringify(user));
-      localStorage.setItem('isLoggedIn', 'true');
-      if (opts.phone) localStorage.setItem('phone', opts.phone);
-      if (opts.refreshToken) localStorage.setItem('refreshToken', opts.refreshToken);
+      sessionStorage.setItem('usertoken', authToken);
+      sessionStorage.setItem('user', JSON.stringify(user));
+      sessionStorage.setItem('isLoggedIn', 'true');
+      if (opts.phone) sessionStorage.setItem('phone', opts.phone);
+      if (opts.refreshToken) sessionStorage.setItem('refreshToken', opts.refreshToken);
       setState({ isInitialized: true, isLoggedIn: true, userId, username, phone: opts.phone ?? null, authToken, refreshToken: opts.refreshToken ?? null });
       return true;
     } catch {
@@ -139,15 +160,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     queryClient.clear();
     await indexedDbQueryPersister.removeClient();
     if (firebaseAuth) await signOut(firebaseAuth).catch(() => undefined);
-    LOGOUT_KEYS.forEach((key) => localStorage.removeItem(key));
+    LOGOUT_KEYS.forEach((key) => sessionStorage.removeItem(key));
     setState({ ...initialState, isInitialized: true });
   }, [queryClient]);
 
   const updateAuthToken = useCallback(async (newToken: string, newRefreshToken?: string): Promise<boolean> => {
     if (!state.isLoggedIn) return false;
     try {
-      localStorage.setItem('usertoken', newToken);
-      if (newRefreshToken) localStorage.setItem('refreshToken', newRefreshToken);
+      sessionStorage.setItem('usertoken', newToken);
+      if (newRefreshToken) sessionStorage.setItem('refreshToken', newRefreshToken);
       setState((current) => ({ ...current, authToken: newToken, refreshToken: newRefreshToken ?? current.refreshToken }));
       return true;
     } catch { return false; }
@@ -155,14 +176,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const updateUserData = useCallback(async (userId: string, username: string, phone?: string) => {
     try {
-      const raw = localStorage.getItem('user');
+      const raw = sessionStorage.getItem('user');
       if (raw) {
         const user = JSON.parse(raw);
         user.username = username;
         if (phone) user.phone = phone;
-        localStorage.setItem('user', JSON.stringify(user));
+        sessionStorage.setItem('user', JSON.stringify(user));
       }
-      if (phone) localStorage.setItem('phone', phone);
+      if (phone) sessionStorage.setItem('phone', phone);
       setState((current) => ({ ...current, userId, username, phone: phone ?? current.phone }));
     } catch {
       // Match mobile behavior: storage failures do not crash the screen.
@@ -171,7 +192,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const hasValidSession = useCallback(() => Boolean(state.isLoggedIn && state.authToken && state.userId), [state.isLoggedIn, state.authToken, state.userId]);
   const clearAllAppData = useCallback(async () => {
-    try { localStorage.clear(); } finally {
+    try { sessionStorage.clear(); for (const key of LOGOUT_KEYS) localStorage.removeItem(key); } finally {
       queryClient.clear();
       await indexedDbQueryPersister.removeClient();
       setState({ ...initialState, isInitialized: true });
