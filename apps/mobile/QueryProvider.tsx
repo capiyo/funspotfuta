@@ -34,9 +34,9 @@ const { queryClient, persister, persistOptions } = createAppQueryClient(mobileSt
  * authenticated identity. This is intentionally exported for AuthProvider:
  * account boundaries must not depend on a screen being mounted.
  */
-export function clearMobileQueryCache(): void {
+export async function clearMobileQueryCache(): Promise<void> {
     queryClient.clear();
-    persister.removeClient();
+    await persister.removeClient();
 }
 
 // MMKV is synchronous. Hydrate the in-memory QueryClient before React mounts,
