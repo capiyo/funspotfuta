@@ -345,7 +345,7 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
 
   const sendWithReply = useCallback(async (text: string, reply: ReplyData | null) => {
     await send(text, { ...(reply ? { replyTo: reply } : {}), mentionedUserIds: getMentionedUserIds(text) });
-  }, [send]);
+  }, [send, channelMembers, userId]);
 
   async function handleSend() {
     if (!draft.trim() || voteGateActive) return;
