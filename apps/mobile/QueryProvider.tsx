@@ -159,9 +159,6 @@ export function QueryProvider({
             persistOptions={persistOptions}
             onSuccess={() => {
                 restored.current = true;
-                void queryClient.resumePausedMutations().catch((error) => {
-                    if (__DEV__) console.warn('[query-cache] resume paused mutations failed', error);
-                });
                 prefetchStartupData();
                 onReady?.();
             }}
