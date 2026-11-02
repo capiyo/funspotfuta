@@ -7,6 +7,7 @@ const KEY_STORE_NAME = 'encryption-keys';
 const CACHE_KEY = 'FUNSPOT_QUERY_CACHE';
 const AUTH_TOKEN_KEY = 'FUNSPOT_AUTH_TOKEN';
 const AUTH_REFRESH_KEY = 'FUNSPOT_AUTH_REFRESH';
+const AUTH_USER_KEY = 'FUNSPOT_AUTH_USER';
 const DATABASE_VERSION = 2;
 
 type EncryptedSnapshot = { iv: Uint8Array; ciphertext: ArrayBuffer };
@@ -164,8 +165,10 @@ export const secureBrowserSession = {
   setToken: (value: string) => writeEncryptedValue(AUTH_TOKEN_KEY, value),
   getRefreshToken: () => readEncryptedValue(AUTH_REFRESH_KEY),
   setRefreshToken: (value: string) => writeEncryptedValue(AUTH_REFRESH_KEY, value),
+  getUser: () => readEncryptedValue(AUTH_USER_KEY),
+  setUser: (value: string) => writeEncryptedValue(AUTH_USER_KEY, value),
   clear: async () => {
-    await Promise.all([removeEncryptedValue(AUTH_TOKEN_KEY), removeEncryptedValue(AUTH_REFRESH_KEY)]);
+    await Promise.all([removeEncryptedValue(AUTH_TOKEN_KEY), removeEncryptedValue(AUTH_REFRESH_KEY), removeEncryptedValue(AUTH_USER_KEY)]);
   },
 };
 
