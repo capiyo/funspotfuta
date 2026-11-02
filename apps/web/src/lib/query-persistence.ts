@@ -5,6 +5,8 @@ const DATABASE_NAME = 'funspot-query-cache';
 const STORE_NAME = 'persisted-clients';
 const KEY_STORE_NAME = 'encryption-keys';
 const CACHE_KEY = 'FUNSPOT_QUERY_CACHE';
+const AUTH_TOKEN_KEY = 'FUNSPOT_AUTH_TOKEN';
+const AUTH_REFRESH_KEY = 'FUNSPOT_AUTH_REFRESH';
 const DATABASE_VERSION = 2;
 
 type EncryptedSnapshot = { iv: Uint8Array; ciphertext: ArrayBuffer };
@@ -33,9 +35,9 @@ function requestValue<T>(request: IDBRequest<T>): Promise<T> {
   });
 }
 
-async function getOrCreateEncryptionKey(db: IDBDatabase): Promise<CryptoKey> {
+async function getOrCreateEncryptionKey(db: IDBDatabase, keyId = CACHE_KEY): Promise<CryptoKey> {
   const existing = await new Promise<CryptoKey | undefined>((resolve, reject) => {
-    const request = db.transaction(KEY_STORE_NAME, 'readonly').objectStore(KEY_STORE_NAME).get(CACHE_KEY);
+    const request = db.transaction(KEY_STORE_NAME, 'readonly').objectStore(KEY_STORE_NAME).get(keyId);
     request.onsuccess = () => resolve(request.result as CryptoKey | undefined);
     request.onerror = () => reject(request.error ?? new Error('Unable to read cache encryption key'));
   });
@@ -45,7 +47,7 @@ async function getOrCreateEncryptionKey(db: IDBDatabase): Promise<CryptoKey> {
   const key = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
   await new Promise<void>((resolve, reject) => {
     const transaction = db.transaction(KEY_STORE_NAME, 'readwrite');
-    transaction.objectStore(KEY_STORE_NAME).put(key, CACHE_KEY);
+    transaction.objectStore(KEY_STORE_NAME).put(key, keyId);
     transaction.oncomplete = () => resolve();
     transaction.onerror = () => reject(transaction.error ?? new Error('Unable to save cache encryption key'));
     transaction.onabort = () => reject(transaction.error ?? new Error('Cache key save aborted'));
@@ -58,7 +60,7 @@ async function readClient(): Promise<PersistedClient | undefined> {
   try {
     const [snapshot, key] = await Promise.all([
       requestValue(db.transaction(STORE_NAME, 'readonly').objectStore(STORE_NAME).get(CACHE_KEY)) as Promise<EncryptedSnapshot | string | undefined>,
-      requestValue(db.transaction(KEY_STORE_NAME, 'readonly').objectStore(KEY_STORE_NAME).get(CACHE_KEY)) as Promise<CryptoKey | undefined>,
+      requestValue(db.transaction(KEY_STORE_NAME, 'readonly').objectStore(KEY_STORE_NAME).get(keyId)) as Promise<CryptoKey | undefined>,
     ]);
     // Old plaintext snapshots are deliberately not restored and must be
     // physically erased during the one-time migration, not merely ignored.
@@ -105,6 +107,67 @@ async function writeClient(client: PersistedClient): Promise<void> {
     db.close();
   }
 }
+
+async function writeEncryptedValue(storageKey: string, value: string): Promise<void> {
+  const db = await openDatabase();
+  try {
+    if (!globalThis.crypto?.subtle) throw new Error('Web Crypto unavailable; refusing plaintext credential storage');
+    const key = await getOrCreateEncryptionKey(db, storageKey);
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(value));
+    await new Promise<void>((resolve, reject) => {
+      const transaction = db.transaction(STORE_NAME, 'readwrite');
+      transaction.objectStore(STORE_NAME).put({ iv, ciphertext } satisfies EncryptedSnapshot, storageKey);
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error ?? new Error('Unable to save encrypted session'));
+      transaction.onabort = () => reject(transaction.error ?? new Error('Encrypted session write aborted'));
+    });
+  } finally {
+    db.close();
+  }
+}
+
+async function readEncryptedValue(storageKey: string): Promise<string | null> {
+  const db = await openDatabase();
+  try {
+    const [snapshot, key] = await Promise.all([
+      requestValue(db.transaction(STORE_NAME, 'readonly').objectStore(STORE_NAME).get(storageKey)) as Promise<EncryptedSnapshot | undefined>,
+      requestValue(db.transaction(KEY_STORE_NAME, 'readonly').objectStore(KEY_STORE_NAME).get(storageKey)) as Promise<CryptoKey | undefined>,
+    ]);
+    if (!snapshot || !key || !globalThis.crypto?.subtle) return null;
+    const plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: snapshot.iv }, key, snapshot.ciphertext);
+    return new TextDecoder().decode(plaintext);
+  } finally {
+    db.close();
+  }
+}
+
+async function removeEncryptedValue(storageKey: string): Promise<void> {
+  const db = await openDatabase();
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const transaction = db.transaction([STORE_NAME, KEY_STORE_NAME], 'readwrite');
+      transaction.objectStore(STORE_NAME).delete(storageKey);
+      transaction.objectStore(KEY_STORE_NAME).delete(storageKey);
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error ?? new Error('Unable to clear encrypted session'));
+      transaction.onabort = () => reject(transaction.error ?? new Error('Encrypted session clearing aborted'));
+    });
+  } finally {
+    db.close();
+  }
+}
+
+/** Browser credentials are encrypted at rest; the non-extractable key stays in IndexedDB. */
+export const secureBrowserSession = {
+  getToken: () => readEncryptedValue(AUTH_TOKEN_KEY),
+  setToken: (value: string) => writeEncryptedValue(AUTH_TOKEN_KEY, value),
+  getRefreshToken: () => readEncryptedValue(AUTH_REFRESH_KEY),
+  setRefreshToken: (value: string) => writeEncryptedValue(AUTH_REFRESH_KEY, value),
+  clear: async () => {
+    await Promise.all([removeEncryptedValue(AUTH_TOKEN_KEY), removeEncryptedValue(AUTH_REFRESH_KEY)]);
+  },
+};
 
 async function removeClient(): Promise<void> {
   const db = await openDatabase();
