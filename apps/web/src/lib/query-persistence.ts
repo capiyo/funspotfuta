@@ -79,7 +79,7 @@ async function readClient(): Promise<PersistedClient | undefined> {
     if (!snapshot || !key) return undefined;
     if (!globalThis.crypto?.subtle) return undefined;
     const plaintext = await crypto.subtle.decrypt(
-      { name: 'AES-GCM', iv: snapshot.iv },
+      { name: 'AES-GCM', iv: new Uint8Array(snapshot.iv).buffer },
       key,
       snapshot.ciphertext,
     );
@@ -115,7 +115,7 @@ async function writeEncryptedValue(storageKey: string, value: string): Promise<v
     if (!globalThis.crypto?.subtle) throw new Error('Web Crypto unavailable; refusing plaintext credential storage');
     const key = await getOrCreateEncryptionKey(db, storageKey);
     const iv = crypto.getRandomValues(new Uint8Array(12));
-    const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(value));
+    const ciphertext = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv.buffer as ArrayBuffer }, key, new TextEncoder().encode(value));
     await new Promise<void>((resolve, reject) => {
       const transaction = db.transaction(STORE_NAME, 'readwrite');
       transaction.objectStore(STORE_NAME).put({ iv, ciphertext } satisfies EncryptedSnapshot, storageKey);
@@ -136,7 +136,7 @@ async function readEncryptedValue(storageKey: string): Promise<string | null> {
       requestValue(db.transaction(KEY_STORE_NAME, 'readonly').objectStore(KEY_STORE_NAME).get(storageKey)) as Promise<CryptoKey | undefined>,
     ]);
     if (!snapshot || !key || !globalThis.crypto?.subtle) return null;
-    const plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: snapshot.iv }, key, snapshot.ciphertext);
+    const plaintext = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: new Uint8Array(snapshot.iv).buffer }, key, snapshot.ciphertext);
     return new TextDecoder().decode(plaintext);
   } finally {
     db.close();
