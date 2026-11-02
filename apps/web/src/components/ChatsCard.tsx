@@ -277,6 +277,54 @@ export function MatchCard({
     }
     onChannelPress?.();
   }
+  const [unreadCount, setUnreadCount] = useState(channel?.unreadCount ?? 0);
+  const [latestMessageAt, setLatestMessageAt] = useState<string | null>(null);
+  useEffect(() => {
+    let active = true;
+    const resolvedFixtureId = String(fixture.matchId || fixture.id || '');
+    if (!channelId || !resolvedFixtureId || !userId || !authToken) {
+      setUnreadCount(channel?.unreadCount ?? 0);
+      setLatestMessageAt(null);
+      return () => { active = false; };
+    }
+    const refreshChatMeta = async () => {
+      const base = 'https://clash-api-m5mr.onrender.com/api/channels/' +
+        encodeURIComponent(channelId) + '/fixtures/' + encodeURIComponent(resolvedFixtureId);
+      try {
+        const [unreadResponse, latestResponse] = await Promise.all([
+          fetch(base + '/unread/' + encodeURIComponent(userId), {
+            headers: { Authorization: 'Bearer ' + authToken, 'Cache-Control': 'no-cache' },
+          }),
+          fetch(base + '/comments/latest', {
+            headers: { Authorization: 'Bearer ' + authToken, 'Cache-Control': 'no-cache' },
+          }),
+        ]);
+        if (!active) return;
+        if (unreadResponse.ok) {
+          const data = await unreadResponse.json();
+          if (active && Number.isFinite(Number(data?.unread_count))) {
+            setUnreadCount(Math.max(0, Number(data.unread_count)));
+          }
+        }
+        if (latestResponse.ok) {
+          const data = await latestResponse.json();
+          const timestamp = data?.latest_comment?.timestamp;
+          if (active && typeof timestamp === 'string' && !Number.isNaN(Date.parse(timestamp))) {
+            setLatestMessageAt(timestamp);
+          }
+        }
+      } catch {
+        // Keep the last known counters/time when the connection is unavailable.
+      }
+    };
+    void refreshChatMeta();
+    const interval = setInterval(() => { void refreshChatMeta(); }, 30000);
+    return () => { active = false; clearInterval(interval); };
+  }, [channelId, fixture.matchId, fixture.id, userId, authToken, channel?.unreadCount]);
+  const latestMessageTimeLabel = latestMessageAt
+    ? new Date(latestMessageAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    : null;
+
   const [failedUri, setFailedUri] = useState<string | null>(null);
 
   // Random pick, fixed for this card's lifetime.
@@ -593,16 +641,20 @@ export function MatchCard({
               </button>
             ) : null}
 
-            {isLive ? (
-              <>
-                <LiveBadge colors={colors} />
-                {matchMinute && <span className="match-card-minute" aria-label={`Match time ${matchMinute}`} style={{ ...styles.date, color: colors.textSecondary, fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>{matchMinute}</span>}
-              </>
-            ) : isHalfTime && matchMinute ? (
-              <span className="match-card-minute" aria-label={`Match time ${matchMinute}`} style={{ ...styles.date, color: colors.textSecondary, whiteSpace: 'nowrap' }}>{matchMinute}</span>
-            ) : (
-              <span className="match-card-date" style={styles.date}>{kickoffLabel(fixture.date)}</span>
-            )}
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, flexShrink: 0 }}>
+              {latestMessageTimeLabel && <span aria-label={`Last message sent at ${latestMessageTimeLabel}`} title="Last message sent" style={{ ...styles.date, color: colors.textSecondary, fontVariantNumeric: 'tabular-nums' }}>{latestMessageTimeLabel}</span>}
+              {unreadCount > 0 && <span aria-label={`${unreadCount} unread messages`} title={`${unreadCount} unread messages`} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 21, height: 21, minWidth: 21, borderRadius: '50%', background: colors.primary, color: colors.textInverse, fontSize: 10, fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>{unreadCount > 99 ? '99+' : unreadCount}</span>}
+              {isLive ? (
+                <>
+                  <LiveBadge colors={colors} />
+                  {matchMinute && <span className="match-card-minute" aria-label={`Match time ${matchMinute}`} style={{ ...styles.date, color: colors.textSecondary, fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>{matchMinute}</span>}
+                </>
+              ) : isHalfTime && matchMinute ? (
+                <span className="match-card-minute" aria-label={`Match time ${matchMinute}`} style={{ ...styles.date, color: colors.textSecondary, whiteSpace: 'nowrap' }}>{matchMinute}</span>
+              ) : (
+                <span className="match-card-date" style={styles.date}>{kickoffLabel(fixture.date)}</span>
+              )}
+            </span>
           </div>
 
           {channel?.leaderName && (
