@@ -60,9 +60,20 @@ async function readClient(): Promise<PersistedClient | undefined> {
       requestValue(db.transaction(STORE_NAME, 'readonly').objectStore(STORE_NAME).get(CACHE_KEY)) as Promise<EncryptedSnapshot | string | undefined>,
       requestValue(db.transaction(KEY_STORE_NAME, 'readonly').objectStore(KEY_STORE_NAME).get(CACHE_KEY)) as Promise<CryptoKey | undefined>,
     ]);
-    // Old plaintext snapshots are deliberately not restored. The caller will
-    // fetch clean data and the old schema is invalidated by the cache buster.
-    if (!snapshot || typeof snapshot === 'string' || !key) return undefined;
+    // Old plaintext snapshots are deliberately not restored and must be
+    // physically erased during the one-time migration, not merely ignored.
+    if (typeof snapshot === 'string' || (snapshot && !key)) {
+      await new Promise<void>((resolve, reject) => {
+        const transaction = db.transaction([STORE_NAME, KEY_STORE_NAME], 'readwrite');
+        transaction.objectStore(STORE_NAME).delete(CACHE_KEY);
+        transaction.objectStore(KEY_STORE_NAME).delete(CACHE_KEY);
+        transaction.oncomplete = () => resolve();
+        transaction.onerror = () => reject(transaction.error ?? new Error('Unable to erase legacy cache'));
+        transaction.onabort = () => reject(transaction.error ?? new Error('Legacy cache erase aborted'));
+      });
+      return undefined;
+    }
+    if (!snapshot || !key) return undefined;
     if (!globalThis.crypto?.subtle) return undefined;
     const plaintext = await crypto.subtle.decrypt(
       { name: 'AES-GCM', iv: snapshot.iv },
