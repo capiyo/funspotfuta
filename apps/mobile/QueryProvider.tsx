@@ -11,7 +11,7 @@
 // - On background/inactive the cache is flushed to disk, but never before the
 //   restore has finished (that could overwrite the snapshot with an empty one).
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
 import { focusManager, hydrate } from '@tanstack/react-query';
 import {
@@ -25,7 +25,7 @@ import {
     getAllFixtures,
     getPosts,
 } from '@funspot/core';
-import { mobileCache, mobileStorage } from '@funspot/storage';
+import { mobileCache, mobileStorage, mobileStorageReady } from '@funspot/storage';
 
 const { queryClient, persister, persistOptions } = createAppQueryClient(mobileStorage);
 
@@ -60,7 +60,6 @@ function hydrateFromSynchronousAppCache(): void {
     }
 }
 
-hydrateFromSynchronousAppCache();
 
 // Keep in sync with FeedScreen's PAGE_SIZE and query shape.
 const FEED_PAGE_SIZE = 10;
@@ -92,6 +91,17 @@ export function QueryProvider({
     onReady?: () => void;
 }) {
     const restored = useRef(false);
+    const [storageReady, setStorageReady] = useState(false);
+
+    useEffect(() => {
+        let active = true;
+        void mobileStorageReady.then(() => {
+            if (!active) return;
+            hydrateFromSynchronousAppCache();
+            setStorageReady(true);
+        });
+        return () => { active = false; };
+    }, []);
 
     useEffect(() => {
         let refreshTimer: ReturnType<typeof setInterval> | undefined;
@@ -136,6 +146,8 @@ export function QueryProvider({
             subscription.remove();
         };
     }, []);
+
+    if (!storageReady) return null;
 
     return (
         <PersistQueryClientProvider
