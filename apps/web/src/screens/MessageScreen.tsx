@@ -131,6 +131,7 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
   // context from another match in the same channel.
   const [loadedRouteFixture, setLoadedRouteFixture] = useState<Fixture | null>(null);
   const [draft, setDraft] = useState('');
+  const [channelMembers, setChannelMembers] = useState<Channel['members']>([]);
   const [replyTo, setReplyTo] = useState<ChatMessage | null>(null);
   const [optionsFor, setOptionsFor] = useState<ChatMessage | null>(null);
   const [showAttachMenu, setShowAttachMenu] = useState(false);
@@ -166,6 +167,22 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       });
     return () => { alive = false; };
   }, [routeChannelId, userId, authToken]);
+
+  useEffect(() => {
+    if (!activeChannelId || !userId || !authToken) {
+      setChannelMembers([]);
+      return;
+    }
+    let alive = true;
+    getUserChannels(userId, authToken)
+      .then((channels: Channel[]) => {
+        if (!alive) return;
+        const selected = channels.find((item) => item.channelId === activeChannelId);
+        setChannelMembers(selected?.members ?? []);
+      })
+      .catch(() => { if (alive) setChannelMembers([]); });
+    return () => { alive = false; };
+  }, [activeChannelId, userId, authToken]);
 
   // Remote visibility flag controls pledge, bets and sub-fixture tabs.
   useEffect(() => {
@@ -239,6 +256,25 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
     recordUserVote, refetchVoteCounts,
   } = chat;
 
+  const mentionMatch = draft.match(/(?:^|\\s)@([^\\s@]*)$/);
+  const mentionSuggestions = mentionMatch
+    ? channelMembers.filter((member) => member.userId !== userId
+      && member.username.toLowerCase().includes(mentionMatch[1].toLowerCase())).slice(0, 6)
+    : [];
+  function selectMention(member: Channel['members'][number]) {
+    const match = draft.match(/(?:^|\\s)@([^\\s@]*)$/);
+    if (!match) return;
+    const prefix = draft.slice(0, draft.length - match[0].length);
+    setDraft(prefix + (prefix && !/\\s$/.test(prefix) ? ' ' : '') + '@' + member.username + ' ');
+  }
+  function getMentionedUserIds(text: string): string[] {
+    const tokens = text.match(/@[A-Za-z0-9_.-]+/g) ?? [];
+    return [...new Set(tokens.flatMap((token) => {
+      const member = channelMembers.find((candidate) => candidate.username.toLowerCase() === token.slice(1).toLowerCase());
+      return member && member.userId !== userId ? [member.userId] : [];
+    }))];
+  }
+
   const isCompleted = isCompletedStatus(matchStatus);
   const isUpcomingOrSoon = isUpcomingStatus(matchStatus);
   const requireVoteToChat = isUpcomingOrSoon && !!fixtureId;
@@ -308,7 +344,7 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
   useEffect(() => () => { void markReadRef.current?.(); }, []);
 
   const sendWithReply = useCallback(async (text: string, reply: ReplyData | null) => {
-    await send(text, reply ? { replyTo: reply } : {});
+    await send(text, { ...(reply ? { replyTo: reply } : {}), mentionedUserIds: getMentionedUserIds(text) });
   }, [send]);
 
   async function handleSend() {
@@ -593,7 +629,11 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       onClick={openVoteOrReview}
       className="flex min-h-9 flex-1 items-center justify-center gap-2 rounded-full px-4 text-xs font-semibold"
       style={{ background: dimColor(colors.draw), color: colors.draw }}>
-<Lock size={12}/>{matchStatus === 'soon' ? 'Vote before game starts 💬' : 'Vote to chat 💬'}</button> : <form
+<Lock size={12}/>{matchStatus === 'soon' ? 'Vote before game starts 💬' : 'Vote to chat 💬'}</button> : <div className="relative min-w-0 flex-1">
+            {mentionSuggestions.length > 0 && <div role="listbox" aria-label="Channel members to mention" className="absolute bottom-full left-0 right-0 z-30 mb-2 overflow-hidden rounded-xl border shadow-lg" style={{ background: colors.surface, borderColor: colors.border }}>
+              {mentionSuggestions.map((member) => <button key={member.userId} type="button" role="option" onClick={() => selectMention(member)} className="block w-full px-3 py-2 text-left text-xs" style={{ color: colors.textPrimary }}>@{member.username}</button>)}
+            </div>}
+            <form
       className="message-composer-form flex min-h-10 min-w-0 flex-1 items-end rounded-3xl px-4"
       style={{ background: colors.surfaceSunken }}
       onSubmit={(event) => { event.preventDefault(); void handleSend(); }}>
@@ -608,6 +648,7 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       className="message-composer-input max-h-28 min-h-10 flex-1 resize-none bg-transparent py-2.5 text-[13px] outline-none"
       style={{ color: colors.textPrimary, ...fanText('caption', colors, colors.textPrimary) }}/>
           </form>}
+          </div>}
           {isLoggedIn && !voteGateActive && draft.trim().length > 0 && <button
       type="button"
       onClick={() => void handleSend()}
@@ -995,7 +1036,7 @@ function MessageBubble({ colors, message, isMe, onLongPress, onImagePress, onRet
       style={{ color: colors.textTertiary }}>🎥 Video</span>
 </div>}
           {!!message.text && <p
-      className={`whitespace-pre-wrap break-words text-[14px] leading-[20px] ${commentary ? 'italic' : ''}`}>{message.text}</p>}
+      className={`whitespace-pre-wrap break-words text-[14px] leading-[20px] ${commentary ? 'italic' : ''}`}>{message.text.split(/(@[A-Za-z0-9_.-]+)/g).map((part, index) => part.startsWith('@') ? <span key={index} style={{ color: colors.primary, fontWeight: 700 }}>{part}</span> : part)}</p>}
           <div
       className="mt-1.5 flex items-center justify-end gap-2 text-[10px] font-medium tracking-normal"
       style={{ color: failed ? colors.away : colors.textTertiary }}>
