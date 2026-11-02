@@ -14,6 +14,12 @@ const ENCRYPTION_KEY_ID = 'funspot.app-cache.encryption-key';
 async function initializeEncryptedCache(): Promise<boolean> {
   try {
     let encryptionKey = await SecureStore.getItemAsync(ENCRYPTION_KEY_ID);
+    // Recover from an interrupted/older development build that stored a key
+    // outside MMKV 2.12.x's strict 16-byte AES-128 limit.
+    if (encryptionKey && !/^[\\x21-\\x7E]{16}$/.test(encryptionKey)) {
+      await SecureStore.deleteItemAsync(ENCRYPTION_KEY_ID);
+      encryptionKey = null;
+    }
     if (!encryptionKey) {
       // MMKV 2.12.x uses AES-128 and accepts at most 16 UTF-8 bytes.
       // Use 16 printable ASCII characters so the native key is exactly
