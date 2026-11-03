@@ -100,7 +100,10 @@ describe('open poke cache reconciliation', () => {
 
   it('bounds retained live commentary and feed comment history', () => {
     const events = Array.from({ length: 140 }, (_, id) => ({ id }));
-    const comments = Array.from({ length: 90 }, (_, id) => ({ id }));
+    const comments = Array.from({ length: 90 }, (_, id) => ({
+      id,
+      replies: Array.from({ length: 80 }, (_, replyId) => ({ id: replyId })),
+    }));
     const persisted = {
       timestamp: Date.now(),
       buster: 'v10',
@@ -123,6 +126,7 @@ describe('open poke cache reconciliation', () => {
     const feedComments = compacted.clientState.queries.find((query) => query.queryKey[0] === 'postComments');
     expect((commentary?.state.data as { events: unknown[] }).events).toHaveLength(100);
     expect(feedComments?.state.data).toHaveLength(50);
+    expect((feedComments?.state.data as Array<{ replies: unknown[] }>)[0].replies).toHaveLength(50);
   });
 
   it('persists fixture-scoped commentary independently for each match', () => {
