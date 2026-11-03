@@ -841,10 +841,12 @@ export const NotificationService = {
     async markAsRead(args: {
         userId: string;
         notificationIds?: string[];
+        fixtureId?: string;
     }): Promise<void> {
         try {
             const body: Record<string, any> = { user_id: args.userId };
             if (args.notificationIds) body.notification_ids = args.notificationIds;
+            if (args.fixtureId) body.fixture_id = args.fixtureId;
             await fetch(`${API_BASE_URL}/notifications/mark-read`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
