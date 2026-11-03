@@ -230,7 +230,7 @@ export default function ChatsScreen() {
     if (!cid) return;
     const fixtureId = fixture ? fixture.matchId?.trim() || fixture.id?.trim() : undefined;
     navigate(`/messages/${encodeURIComponent(cid)}${fixtureId ? `?fixtureId=${encodeURIComponent(fixtureId)}` : ''}`);
-  }, [navigate, homeChannelId, isLoggedIn, requireLogin]);
+  }, [navigate, homeChannelId, isLoggedIn, requireLogin, userId]);
 
   async function handleLike(_fixture: Fixture) {
     if (!userId) return;

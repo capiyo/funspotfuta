@@ -302,7 +302,7 @@ export default function ChatsScreen() {
         fixtureId: fixture ? fixture.matchId?.trim() || fixture.id?.trim() : undefined,
       });
     },
-    [navigation, homeChannelId, isLoggedIn, requireLogin],
+    [navigation, homeChannelId, isLoggedIn, requireLogin, userId],
   );
 
   async function handleLike(_fixture: Fixture) {
