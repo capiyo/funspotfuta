@@ -138,7 +138,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await SecureStore.setItemAsync(SECURE_KEYS.user, user, SECURE_STORE_OPTIONS);
       if (opts?.refreshToken) await SecureStore.setItemAsync(SECURE_KEYS.refresh, opts.refreshToken, SECURE_STORE_OPTIONS);
       else await SecureStore.deleteItemAsync(SECURE_KEYS.refresh);
-      if (state.userId !== userId) await clearMobileQueryCache();
+      if (state.userId !== userId) {
+        setState({ ...initialState, isInitialized: true });
+        await clearMobileQueryCache();
+      }
       await AsyncStorage.multiRemove(LOGOUT_KEYS);
       setState({
         isLoggedIn: true, isInitialized: true, userId, username,
@@ -154,6 +157,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [state.userId]);
 
   const logout = useCallback(async () => {
+    setState({ ...initialState, isInitialized: true });
     const results = await Promise.allSettled([
       clearMobileQueryCache(),
       clearSecureSession(),
@@ -198,6 +202,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const clearAllAppData = useCallback(async () => {
+    setState({ ...initialState, isInitialized: true });
     const results = await Promise.allSettled([
       clearMobileQueryCache(),
       clearSecureSession(),
