@@ -529,6 +529,12 @@ export const NotificationService = {
             }
 
             const fixtureData = unreadMap[fixtureId];
+            const previousCount = typeof fixtureData.unread_count === 'number'
+                ? fixtureData.unread_count
+                : Array.isArray(fixtureData.notification_data)
+                    ? fixtureData.notification_data.length
+                    : 0;
+            fixtureData.unread_count = Math.max(0, Math.trunc(previousCount)) + 1;
             const types: string[] = Array.isArray(fixtureData.types)
                 ? fixtureData.types
                 : [];
@@ -755,12 +761,15 @@ export const NotificationService = {
             if (!raw) return;
             const map = JSON.parse(raw);
             if (!map[fixtureId]) return;
-            const count = Array.isArray(map[fixtureId].notification_data)
-                ? map[fixtureId].notification_data.length
-                : 0;
+            const count = typeof map[fixtureId].unread_count === 'number'
+                ? Math.max(0, Math.trunc(map[fixtureId].unread_count))
+                : Array.isArray(map[fixtureId].notification_data)
+                    ? map[fixtureId].notification_data.length
+                    : 0;
             delete map[fixtureId];
             await writeString(K_UNREAD_NOTIFICATIONS, JSON.stringify(map));
-            for (let i = 0; i < count; i++) await this._decrementUnreadCommentCount();
+            const totalUnread = await readInt(K_UNREAD_COMMENT_COUNT, 0);
+            await writeInt(K_UNREAD_COMMENT_COUNT, Math.max(0, totalUnread - count));
             console.log(`[NotificationService] ✅ Cleared all unread for fixture ${fixtureId}`);
         } catch (e) {
             console.warn('[NotificationService] ❌ Clear unread error:', e);
