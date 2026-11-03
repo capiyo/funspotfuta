@@ -217,6 +217,7 @@ export default function PostCommentsModal({
     const { userId, username, authToken } = useAuth();
     const toast = useToast();
     const queryClient = useQueryClient();
+    const loadRequestId = useRef(0);
 
     const [comments, setComments] = useState<CommentData[]>([]);
     const [loading, setLoading] = useState(false);
@@ -237,6 +238,7 @@ export default function PostCommentsModal({
     const loadComments = useCallback(async () => {
         if (!postId) return;
 
+        const requestId = ++loadRequestId.current;
         setLoading(true);
         setError('');
 
@@ -257,7 +259,7 @@ export default function PostCommentsModal({
                 headers,
             });
 
-            if (res.status === 200) {
+            if (res.status === 200 && requestId === loadRequestId.current) {
                 const body = await res.json();
                 const raw = body?.comments;
                 const list: CommentData[] = Array.isArray(raw)
@@ -267,16 +269,16 @@ export default function PostCommentsModal({
                 setComments(list);
             } else {
                 // Match Flutter: keep cached on failure, only surface error if empty
-                if ((cachedComments?.length ?? comments.length) === 0) {
+                if (requestId === loadRequestId.current && (cachedComments?.length ?? comments.length) === 0) {
                     setError('Failed to load comments');
                 }
             }
         } catch (e: any) {
-            if ((cachedComments?.length ?? comments.length) === 0) {
+            if (requestId === loadRequestId.current && (cachedComments?.length ?? comments.length) === 0) {
                 setError(e?.message ?? 'Failed to load comments');
             }
         } finally {
-            setLoading(false);
+            if (requestId === loadRequestId.current) setLoading(false);
         }
     }, [postId, authToken, queryClient]);
 
@@ -404,8 +406,6 @@ export default function PostCommentsModal({
                     : data?.comment ?? data;
             const newComment = parseCommentFromJson(raw);
 
-            await sendPushNotification(newComment, parentCommentId);
-
             const commentsKey = queryKeys.postComments(postId);
             const next = queryClient.setQueryData<CommentData[]>(commentsKey, (previous = []) => {
                 if (parentCommentId) {
@@ -424,6 +424,7 @@ export default function PostCommentsModal({
                 return [newComment, ...previous];
             }) ?? [];
             setComments(next);
+            void sendPushNotification(newComment, parentCommentId);
 
             setDraft('');
             setReplyingTo(null);
