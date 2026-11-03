@@ -2,7 +2,7 @@ import * as SecureStore from 'expo-secure-store';
 import { getFcmTokenIfPermitted } from '@/lib/firebase';
 import { NotificationService } from '@/lib/api/notification-service';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { mobileStorageReady } from '@funspot/storage';
+import { mobileStorage, mobileStorageReady } from '@funspot/storage';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { clearMobileQueryCache } from '../../../QueryProvider';
 
@@ -35,6 +35,18 @@ const SECURE_STORE_OPTIONS = {
   keychainAccessible: SecureStore.AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY,
 } as const;
 const LEGACY_KEYS = ['usertoken', 'user', 'isLoggedIn', 'userId', 'username', 'phone', 'refreshToken'] as const;
+const NOTIFICATION_STORAGE_KEYS = [
+  'unread_notifications',
+  'unread_notification_count',
+  'unread_comment_count',
+  'pending_join_requests',
+] as const;
+
+async function clearNotificationStorage(): Promise<void> {
+  await mobileStorageReady;
+  for (const key of NOTIFICATION_STORAGE_KEYS) mobileStorage.removeItem(key);
+}
+
 const LOGOUT_KEYS = [
   ...LEGACY_KEYS, 'userBets', 'userProfile', 'availableGames', 'notifications',
   'notificationCount', 'cachedPosts', 'cachedFixtures', 'lastCarouselFetch',
@@ -142,7 +154,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       else await SecureStore.deleteItemAsync(SECURE_KEYS.refresh);
       if (state.userId !== userId) {
         setState({ ...initialState, isInitialized: true });
-        await clearMobileQueryCache();
+        await Promise.all([clearMobileQueryCache(), clearNotificationStorage()]);
       }
       await AsyncStorage.multiRemove(LOGOUT_KEYS);
       setState({
@@ -178,6 +190,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       clearMobileQueryCache(),
       clearSecureSession(),
       AsyncStorage.multiRemove(LOGOUT_KEYS),
+      clearNotificationStorage(),
     ]);
     const failed = results.filter((result) => result.status === 'rejected');
     if (failed.length && __DEV__) console.warn('[auth] one or more logout cleanup operations failed', failed);
@@ -198,7 +211,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const updateUserData = useCallback(async (userId: string, username: string, phone?: string) => {
     try {
-      if (state.userId !== userId) await clearMobileQueryCache();
+      if (state.userId !== userId) await Promise.all([clearMobileQueryCache(), clearNotificationStorage()]);
       const raw = await SecureStore.getItemAsync(SECURE_KEYS.user);
       if (raw) {
         const parsed: unknown = JSON.parse(raw);
@@ -223,6 +236,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       clearMobileQueryCache(),
       clearSecureSession(),
       AsyncStorage.clear(),
+      clearNotificationStorage(),
     ]);
     const failed = results.filter((result) => result.status === 'rejected');
     if (failed.length && __DEV__) console.warn('[auth] one or more app-data cleanup operations failed', failed);
