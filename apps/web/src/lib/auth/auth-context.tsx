@@ -167,6 +167,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setState({ isInitialized: true, isLoggedIn: true, userId, username, phone: opts.phone ?? null, authToken, refreshToken: opts.refreshToken ?? null });
       return true;
     } catch {
+      await secureBrowserSession.clear().catch(() => undefined);
       setState({ ...initialState, isInitialized: true });
       return false;
     }
