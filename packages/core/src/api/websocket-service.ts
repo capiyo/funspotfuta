@@ -465,6 +465,7 @@ class WebSocketService {
     videoThumbnailUrl?: string | null;
     isImage?: boolean;
     isVideo?: boolean;
+    mentionedUserIds?: string[];
     tempId?: string;
   }) {
     const payload: Record<string, any> = {
@@ -479,6 +480,7 @@ class WebSocketService {
       videoThumbnailUrl: params.videoThumbnailUrl ?? null,
       isImage: params.isImage ?? false,
       isVideo: params.isVideo ?? false,
+      mentionedUserIds: params.mentionedUserIds ?? [],
       channelId: params.channelId,
       fixtureId: params.fixtureId ?? null,
       timestamp: new Date().toISOString(),
@@ -526,6 +528,7 @@ class WebSocketService {
     videoThumbnailUrl?: string | null;
     isImage?: boolean;
     isVideo?: boolean;
+    mentionedUserIds?: string[];
     tempId?: string;
     onReconnectAttempt?: () => Promise<void> | void;
   }): Promise<boolean> {

@@ -1,4 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '../queries/queryKeys';
 import { webSocketService } from './websocket-service';
 
 export interface FixtureLiveSeed {
@@ -10,9 +12,44 @@ export interface FixtureLiveSeed {
 }
 
 export interface LiveFixtureCommentary {
+  id?: string;
   text: string;
   minute: number;
   timestamp?: string;
+}
+
+interface CachedLiveCommentary {
+  events: LiveFixtureCommentary[];
+}
+
+function normalizeCommentary(entry: Record<string, unknown>): LiveFixtureCommentary | null {
+  const text = entry.text == null ? '' : String(entry.text).trim();
+  if (!text) return null;
+  const minute = typeof entry.minute === 'number' ? entry.minute : Number(entry.minute ?? 0) || 0;
+  const rawTimestamp = entry.createdAt ?? entry.created_at ?? entry.timestamp;
+  const timestamp = rawTimestamp == null ? undefined : String(rawTimestamp);
+  const rawId = entry.id ?? entry.eventId ?? entry.event_id;
+  const id = rawId == null ? `${timestamp ?? ''}:${minute}:${text}` : String(rawId);
+  return { id, text, minute, ...(timestamp ? { timestamp } : {}) };
+}
+
+function mergeCommentary(
+  previous: readonly LiveFixtureCommentary[],
+  incoming: readonly LiveFixtureCommentary[],
+): LiveFixtureCommentary[] {
+  const unique = new Map<string, LiveFixtureCommentary>();
+  for (const entry of [...previous, ...incoming]) {
+    const id = entry.id ?? `${entry.timestamp ?? ''}:${entry.minute}:${entry.text}`;
+    unique.set(id, entry);
+  }
+  return [...unique.values()]
+    .sort((a, b) => {
+      const timeA = Date.parse(a.timestamp ?? '');
+      const timeB = Date.parse(b.timestamp ?? '');
+      if (Number.isFinite(timeA) && Number.isFinite(timeB) && timeA !== timeB) return timeA - timeB;
+      return a.minute - b.minute;
+    })
+    .slice(-100);
 }
 
 export interface FixtureLiveState {
@@ -62,11 +99,13 @@ export function useFixtureLiveUpdates(params: {
   seed?: FixtureLiveSeed | null;
 }): FixtureLiveState {
   const { channelId, fixtureId, userId, username, authToken, seed } = params;
+  const queryClient = useQueryClient();
+  const commentaryKey = useMemo(() => queryKeys.liveCommentary(fixtureId ?? 'unselected'), [fixtureId]);
   const [state, setState] = useState<FixtureLiveState>(() => {
     const status = seed?.status ?? 'upcoming';
     return {
       connected: false,
-      commentary: null,
+      commentary: queryClient.getQueryData<CachedLiveCommentary>(commentaryKey)?.events.slice(-1)[0] ?? null,
       status,
       isLive: seed?.isLive ?? isLiveStatus(status),
       homeScore: seed?.homeScore ?? null,
@@ -79,7 +118,7 @@ export function useFixtureLiveUpdates(params: {
     const status = seed?.status ?? 'upcoming';
     setState({
       connected: webSocketService.getIsConnected(),
-      commentary: null,
+      commentary: queryClient.getQueryData<CachedLiveCommentary>(commentaryKey)?.events.slice(-1)[0] ?? null,
       status,
       isLive: seed?.isLive ?? isLiveStatus(status),
       homeScore: seed?.homeScore ?? null,
@@ -89,7 +128,7 @@ export function useFixtureLiveUpdates(params: {
     // Seed only resets when the room identity changes; incoming socket events
     // should not be overwritten by unrelated fixture object refreshes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [channelId, fixtureId]);
+  }, [channelId, fixtureId, commentaryKey, queryClient]);
 
   useEffect(() => {
     if (!channelId || !fixtureId || !userId || !username) return;
@@ -126,49 +165,30 @@ export function useFixtureLiveUpdates(params: {
         ? payload.payload
         : payload) as Record<string, unknown>;
       if (!payloadMatchesFixture(payload, channelId, fixtureId) || !payloadMatchesFixture(data, channelId, fixtureId)) return;
-      const text = data.text == null ? '' : String(data.text);
-      if (!text.trim()) return;
-      const rawMinute = data.minute;
-      const rawTimestamp = data.createdAt ?? data.created_at ?? data.timestamp;
-      setState((previous) => ({
-        ...previous,
-        commentary: {
-          text,
-          minute: typeof rawMinute === 'number' ? rawMinute : Number(rawMinute ?? 0) || 0,
-          ...(rawTimestamp != null ? { timestamp: String(rawTimestamp) } : {}),
-        },
+      const entry = normalizeCommentary(data);
+      if (!entry) return;
+      const cached = queryClient.setQueryData<CachedLiveCommentary>(commentaryKey, (previous) => ({
+        events: mergeCommentary(previous?.events ?? [], [entry]),
       }));
+      setState((previous) => ({ ...previous, commentary: cached?.events.slice(-1)[0] ?? entry }));
     };
 
     const onCommentaryBulk = (payload: Record<string, unknown>) => {
       if (!payloadMatchesFixture(payload, channelId, fixtureId)) return;
       const rawEntries = Array.isArray(payload) ? payload : (payload.payload ?? payload.commentary);
       if (!Array.isArray(rawEntries)) return;
-      const entries = rawEntries.filter((entry): entry is Record<string, unknown> =>
-        !!entry && typeof entry === 'object' && payloadMatchesFixture(entry as Record<string, unknown>, channelId, fixtureId),
-      );
+      const entries = rawEntries
+        .filter((entry): entry is Record<string, unknown> =>
+          !!entry && typeof entry === 'object' && payloadMatchesFixture(entry as Record<string, unknown>, channelId, fixtureId),
+        )
+        .map(normalizeCommentary)
+        .filter((entry): entry is LiveFixtureCommentary => entry !== null);
       if (!entries.length) return;
-      // Commentary batches can arrive newest-first or oldest-first depending
-      // on the endpoint version; choose the newest timestamp when available.
-      const sorted = [...entries].sort((a, b) => {
-        const timeA = Date.parse(String(a.createdAt ?? a.created_at ?? a.timestamp ?? ''));
-        const timeB = Date.parse(String(b.createdAt ?? b.created_at ?? b.timestamp ?? ''));
-        if (!Number.isFinite(timeA) || !Number.isFinite(timeB)) return 0;
-        return timeA - timeB;
-      });
-      const latest = sorted[sorted.length - 1];
-      if (!latest) return;
-      const text = latest.text == null ? '' : String(latest.text);
-      if (!text.trim()) return;
-      const rawTimestamp = latest.createdAt ?? latest.created_at ?? latest.timestamp;
-      setState((previous) => ({
-        ...previous,
-        commentary: {
-          text,
-          minute: typeof latest.minute === 'number' ? latest.minute : Number(latest.minute ?? 0) || 0,
-          ...(rawTimestamp != null ? { timestamp: String(rawTimestamp) } : {}),
-        },
+      const cached = queryClient.setQueryData<CachedLiveCommentary>(commentaryKey, (previous) => ({
+        events: mergeCommentary(previous?.events ?? [], entries),
       }));
+      const latest = cached?.events.slice(-1)[0];
+      if (latest) setState((previous) => ({ ...previous, commentary: latest }));
     };
 
     const onMatchStatus = (payload: Record<string, unknown>) => {
@@ -252,7 +272,7 @@ export function useFixtureLiveUpdates(params: {
       webSocketService.off('match.ended', onMatchEnded);
       webSocketService.off('minute.update', onMinuteUpdate);
     };
-  }, [channelId, fixtureId, userId, username, authToken]);
+  }, [channelId, fixtureId, userId, username, authToken, commentaryKey, queryClient]);
 
   useEffect(() => {
     if (!channelId || !fixtureId || !userId || !username) return;

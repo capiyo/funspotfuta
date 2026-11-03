@@ -11,9 +11,10 @@
 // - On background/inactive the cache is flushed to disk, but never before the
 //   restore has finished (that could overwrite the snapshot with an empty one).
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
-import { focusManager, hydrate } from '@tanstack/react-query';
+import NetInfo from '@react-native-community/netinfo';
+import { focusManager, onlineManager, hydrate } from '@tanstack/react-query';
 import {
     PersistQueryClientProvider,
     persistQueryClientSave,
@@ -25,9 +26,21 @@ import {
     getAllFixtures,
     getPosts,
 } from '@funspot/core';
-import { mobileCache, mobileStorage } from '@funspot/storage';
+import { mobileCache, mobileStorage, mobileStorageReady } from '@funspot/storage';
 
-const { queryClient, persister, persistOptions } = createAppQueryClient(mobileStorage);
+const { queryClient, persister, persistOptions, resumePersistence } = createAppQueryClient(mobileStorage);
+
+/**
+ * Clear both live query state and its durable snapshot before changing the
+ * authenticated identity. This is intentionally exported for AuthProvider:
+ * account boundaries must not depend on a screen being mounted.
+ */
+export async function clearMobileQueryCache(): Promise<void> {
+    await queryClient.cancelQueries();
+    queryClient.clear();
+    await persister.removeClient();
+    resumePersistence();
+}
 
 // MMKV is synchronous. Hydrate the in-memory QueryClient before React mounts,
 // so cached screens can render on the very first frame instead of waiting for
@@ -50,7 +63,6 @@ function hydrateFromSynchronousAppCache(): void {
     }
 }
 
-hydrateFromSynchronousAppCache();
 
 // Keep in sync with FeedScreen's PAGE_SIZE and query shape.
 const FEED_PAGE_SIZE = 10;
@@ -82,8 +94,22 @@ export function QueryProvider({
     onReady?: () => void;
 }) {
     const restored = useRef(false);
+    const [storageReady, setStorageReady] = useState(false);
 
     useEffect(() => {
+        let active = true;
+        void mobileStorageReady.then(() => {
+            if (!active) return;
+            hydrateFromSynchronousAppCache();
+            setStorageReady(true);
+        });
+        return () => { active = false; };
+    }, []);
+
+    useEffect(() => {
+        onlineManager.setEventListener((setOnline) => NetInfo.addEventListener((state) => {
+            setOnline(Boolean(state.isConnected && state.isInternetReachable !== false));
+        }));
         let refreshTimer: ReturnType<typeof setInterval> | undefined;
         const startBackgroundRefresh = () => {
             if (refreshTimer) clearInterval(refreshTimer);
@@ -126,6 +152,8 @@ export function QueryProvider({
             subscription.remove();
         };
     }, []);
+
+    if (!storageReady) return null;
 
     return (
         <PersistQueryClientProvider

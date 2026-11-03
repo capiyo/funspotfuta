@@ -4,7 +4,7 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { useQueryClient } from '@tanstack/react-query';
 import { firebaseAuth } from '../firebase';
 import { getExistingWebPushToken, NotificationService } from '../api/notification-service';
-import { indexedDbQueryPersister } from '../query-persistence';
+import { indexedDbQueryPersister, secureBrowserSession } from '../query-persistence';
 import { getAllFixtures, getVotesByUserStrict, feedQueryOptions, comradesQueryOptions, profileQueryOptions, queryKeys } from '@funspot/core';
 
 type AuthState = {
@@ -18,7 +18,7 @@ type AuthState = {
 };
 type LoginOptions = { phone?: string; refreshToken?: string };
 type AuthContextValue = AuthState & {
-  login: (userId: string, username: string, authToken: string, phoneOrOptions?: string | LoginOptions) => boolean;
+  login: (userId: string, username: string, authToken: string, phoneOrOptions?: string | LoginOptions) => Promise<boolean>;
   logout: () => Promise<void>;
   updateAuthToken: (newToken: string, newRefreshToken?: string) => Promise<boolean>;
   updateUserData: (userId: string, username: string, phone?: string) => Promise<void>;
@@ -30,46 +30,111 @@ const initialState: AuthState = {
   isInitialized: false, isLoggedIn: false, userId: null, username: null, phone: null, authToken: null, refreshToken: null,
 };
 const AuthContext = createContext<AuthContextValue | null>(null);
-const LOGOUT_KEYS = [
+const LEGACY_KEYS = [
   'usertoken','user','isLoggedIn','userId','username','phone','refreshToken','userBets','userProfile',
   'availableGames','notifications','notificationCount','cachedPosts','cachedFixtures','lastCarouselFetch',
   'forceNewUser','comrades','channels','votes','messages',
 ];
 
-function readStoredState(): AuthState {
+async function readStoredState(): Promise<AuthState> {
   try {
-    const token = localStorage.getItem('usertoken');
-    const rawUser = localStorage.getItem('user');
+    const [token, rawUser, refreshToken] = await Promise.all([
+      secureBrowserSession.getToken(),
+      secureBrowserSession.getUser(),
+      secureBrowserSession.getRefreshToken(),
+    ]);
     const user = rawUser ? JSON.parse(rawUser) : null;
     const id = user?.id ?? user?.userId ?? user?._id ?? null;
     return {
       isInitialized: true, isLoggedIn: Boolean(token && id), userId: id ? String(id) : null,
-      username: user?.username ?? user?.name ?? null, phone: localStorage.getItem('phone') ?? user?.phone ?? null,
-      authToken: token, refreshToken: localStorage.getItem('refreshToken'),
+      username: user?.username ?? user?.name ?? null, phone: user?.phone ?? null,
+      authToken: token, refreshToken,
     };
-  } catch { return { ...initialState, isInitialized: true }; }
+  } catch {
+    return { ...initialState, isInitialized: true };
+  }
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
   const [state, setState] = useState<AuthState>(initialState);
-  const previousAuthIdentity = useRef<string | null>(null);
+  const authChannel = useRef<BroadcastChannel | null>(null);
+  const authBoundaryVersion = useRef(0);
 
+  // A logout or account switch in one tab invalidates private cache and
+  // credentials in every other tab on this origin.
   useEffect(() => {
-    if (!state.isInitialized) return;
-    const identity = state.isLoggedIn && state.userId ? state.userId : null;
-    const previous = previousAuthIdentity.current;
-    previousAuthIdentity.current = identity;
-    if (previous === null || previous === identity) return;
+    if (typeof BroadcastChannel === 'undefined') return;
+    const channel = new BroadcastChannel('funspot-auth-boundary-v1');
+    authChannel.current = channel;
+    channel.onmessage = (event: MessageEvent<unknown>) => {
+      if (!event.data || typeof event.data !== 'object') return;
+      const message = event.data as { type?: unknown };
+      if (message.type !== 'session-updated' && message.type !== 'logout' && message.type !== 'account-switch' && message.type !== 'clear-all') return;
+      authBoundaryVersion.current += 1;
+      if (message.type === 'session-updated') {
+        const version = authBoundaryVersion.current;
+        void readStoredState().then((restored) => {
+          if (version === authBoundaryVersion.current) setState(restored);
+        });
+        return;
+      }
+      setState({ ...initialState, isInitialized: true });
+      void (async () => {
+        await queryClient.cancelQueries();
+        queryClient.clear();
+        const cleanup = [indexedDbQueryPersister.removeClient()];
+        if (message.type !== 'account-switch') cleanup.push(secureBrowserSession.clear());
+        const results = await Promise.allSettled(cleanup);
+        if (results.some((result) => result.status === 'rejected') && import.meta.env.DEV) {
+          console.warn('[auth] cross-tab cache invalidation was incomplete', results);
+        }
+      })();
+    };
+    return () => {
+      channel.close();
+      authChannel.current = null;
+    };
+  }, [queryClient]);
+  useEffect(() => {
+    let cancelled = false;
+    const boundaryVersion = authBoundaryVersion.current;
+    void (async () => {
+      try {
+        // One-time migration from legacy browser storage. Credentials and
+        // profile metadata are encrypted before legacy plaintext is erased.
+        const [legacyToken, legacyUser, legacyRefresh] = [
+          localStorage.getItem('usertoken'),
+          localStorage.getItem('user'),
+          localStorage.getItem('refreshToken'),
+        ];
+        let [secureToken, secureUser] = await Promise.all([
+          secureBrowserSession.getToken(),
+          secureBrowserSession.getUser(),
+        ]);
+        if (Boolean(secureToken) !== Boolean(secureUser) || (!secureToken && !secureUser)) {
+          // Never combine a token and user record from different interrupted
+          // login attempts. Rebuild only from a complete legacy pair.
+          await secureBrowserSession.clear();
+          secureToken = null;
+          secureUser = null;
+        }
+        if (!secureToken && !secureUser && legacyToken && legacyUser) {
+          await secureBrowserSession.setToken(legacyToken);
+          await secureBrowserSession.setUser(legacyUser);
+          if (legacyRefresh) await secureBrowserSession.setRefreshToken(legacyRefresh);
+        }
+        LEGACY_KEYS.forEach((key) => localStorage.removeItem(key));
+        const restored = await readStoredState();
+        if (!cancelled && boundaryVersion === authBoundaryVersion.current) setState(restored);
+      } catch (error) {
+        if (import.meta.env.DEV) console.warn('[auth] encrypted browser session restore failed', error);
+        if (!cancelled && boundaryVersion === authBoundaryVersion.current) setState({ ...initialState, isInitialized: true });
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
 
-    // Never carry one signed-in user's in-memory or persisted data into a
-    // different account (or a logged-out session).
-    queryClient.clear();
-    void indexedDbQueryPersister.removeClient();
-  }, [state.isInitialized, state.isLoggedIn, state.userId, queryClient]);
-
-  // Warm account data sequentially after hydration/auth initialization. Each
-  // prefetch uses the same canonical query options as its consuming hook.
   const prefetchedUserId = useRef<string | null>(null);
   useEffect(() => {
     if (!state.isInitialized) return;
@@ -102,39 +167,58 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => { cancelled = true; };
   }, [state.isInitialized, state.isLoggedIn, state.userId, state.authToken, queryClient]);
 
-  useEffect(() => { setState(readStoredState()); }, []);
-
   useEffect(() => {
     if (!firebaseAuth) return;
     return onAuthStateChanged(firebaseAuth, async (user) => {
       if (!user) return;
+      const boundaryVersion = authBoundaryVersion.current;
       try {
+        const [storedToken, storedUser] = await Promise.all([
+          secureBrowserSession.getToken(),
+          secureBrowserSession.getUser(),
+        ]);
+        if (!storedToken || !storedUser || boundaryVersion !== authBoundaryVersion.current) return;
         const token = await user.getIdToken();
-        if (!localStorage.getItem('usertoken') || !localStorage.getItem('user')) return;
-        localStorage.setItem('usertoken', token);
+        if (boundaryVersion !== authBoundaryVersion.current) return;
+        await secureBrowserSession.setToken(token);
+        if (boundaryVersion !== authBoundaryVersion.current) return;
         setState((current) => current.isLoggedIn ? { ...current, authToken: token } : current);
       } catch {
-        // Keep the persisted backend session if Firebase cannot refresh its ID token.
+        // Keep the backend session if Firebase cannot refresh its ID token.
       }
     });
   }, []);
 
-  const login = useCallback((userId: string, username: string, authToken: string, phoneOrOptions?: string | LoginOptions): boolean => {
+  const login = useCallback(async (
+    userId: string, username: string, authToken: string,
+    phoneOrOptions?: string | LoginOptions,
+  ): Promise<boolean> => {
     const opts: LoginOptions = typeof phoneOrOptions === 'string' ? { phone: phoneOrOptions } : phoneOrOptions ?? {};
     try {
+      const operationVersion = ++authBoundaryVersion.current;
+      if (state.userId !== userId) {
+        authChannel.current?.postMessage({ type: 'account-switch' });
+        setState({ ...initialState, isInitialized: true });
+        await queryClient.cancelQueries();
+        queryClient.clear();
+        await indexedDbQueryPersister.removeClient();
+      }
       const user = { id: userId, username, phone: opts.phone ?? '' };
-      localStorage.setItem('usertoken', authToken);
-      localStorage.setItem('user', JSON.stringify(user));
-      localStorage.setItem('isLoggedIn', 'true');
-      if (opts.phone) localStorage.setItem('phone', opts.phone);
-      if (opts.refreshToken) localStorage.setItem('refreshToken', opts.refreshToken);
+      await secureBrowserSession.setToken(authToken);
+      await secureBrowserSession.setUser(JSON.stringify(user));
+      if (opts.refreshToken) await secureBrowserSession.setRefreshToken(opts.refreshToken);
+      else await secureBrowserSession.clearRefreshToken();
+      if (operationVersion !== authBoundaryVersion.current) return false;
+      LEGACY_KEYS.forEach((key) => localStorage.removeItem(key));
       setState({ isInitialized: true, isLoggedIn: true, userId, username, phone: opts.phone ?? null, authToken, refreshToken: opts.refreshToken ?? null });
+      authChannel.current?.postMessage({ type: 'session-updated' });
       return true;
     } catch {
+      await secureBrowserSession.clear().catch(() => undefined);
       setState({ ...initialState, isInitialized: true });
       return false;
     }
-  }, []);
+  }, [queryClient, state.userId]);
 
   const logout = useCallback(async () => {
     if (state.userId) {
@@ -151,42 +235,78 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Push cleanup is best-effort; logout must always complete.
       }
     }
+    authBoundaryVersion.current += 1;
+    authChannel.current?.postMessage({ type: 'logout' });
+    setState({ ...initialState, isInitialized: true });
+    await queryClient.cancelQueries();
     queryClient.clear();
+    const results = await Promise.allSettled([
+      indexedDbQueryPersister.removeClient(),
+      secureBrowserSession.clear(),
+    ]);
+    if (results.some((result) => result.status === 'rejected') && import.meta.env.DEV) {
+      console.warn('[auth] one or more browser logout cleanup operations failed', results);
+    }
     if (firebaseAuth) await signOut(firebaseAuth).catch(() => undefined);
-    LOGOUT_KEYS.forEach((key) => localStorage.removeItem(key));
+    LEGACY_KEYS.forEach((key) => localStorage.removeItem(key));
     setState({ ...initialState, isInitialized: true });
   }, [queryClient, state.authToken, state.userId]);
 
   const updateAuthToken = useCallback(async (newToken: string, newRefreshToken?: string): Promise<boolean> => {
     if (!state.isLoggedIn) return false;
     try {
-      localStorage.setItem('usertoken', newToken);
-      if (newRefreshToken) localStorage.setItem('refreshToken', newRefreshToken);
+      authBoundaryVersion.current += 1;
+      await secureBrowserSession.setToken(newToken);
+      if (newRefreshToken) await secureBrowserSession.setRefreshToken(newRefreshToken);
       setState((current) => ({ ...current, authToken: newToken, refreshToken: newRefreshToken ?? current.refreshToken }));
+      authChannel.current?.postMessage({ type: 'session-updated' });
       return true;
     } catch { return false; }
   }, [state.isLoggedIn]);
 
   const updateUserData = useCallback(async (userId: string, username: string, phone?: string) => {
     try {
-      const raw = localStorage.getItem('user');
+      if (state.userId !== userId) {
+        authBoundaryVersion.current += 1;
+        authChannel.current?.postMessage({ type: 'account-switch' });
+        setState({ ...initialState, isInitialized: true });
+        await queryClient.cancelQueries();
+        queryClient.clear();
+        await indexedDbQueryPersister.removeClient();
+      }
+      const raw = await secureBrowserSession.getUser();
       if (raw) {
         const user = JSON.parse(raw);
+        user.id = userId;
         user.username = username;
         if (phone) user.phone = phone;
-        localStorage.setItem('user', JSON.stringify(user));
+        await secureBrowserSession.setUser(JSON.stringify(user));
       }
-      if (phone) localStorage.setItem('phone', phone);
       setState((current) => ({ ...current, userId, username, phone: phone ?? current.phone }));
+      authChannel.current?.postMessage({ type: 'session-updated' });
     } catch {
-      // Match mobile behavior: storage failures do not crash the screen.
+      // Keep the current in-memory state if encrypted storage is unavailable.
     }
-  }, []);
+  }, [queryClient, state.userId]);
 
   const hasValidSession = useCallback(() => Boolean(state.isLoggedIn && state.authToken && state.userId), [state.isLoggedIn, state.authToken, state.userId]);
   const clearAllAppData = useCallback(async () => {
-    try { localStorage.clear(); } finally {
+    authBoundaryVersion.current += 1;
+    authChannel.current?.postMessage({ type: 'clear-all' });
+    try {
+      LEGACY_KEYS.forEach((key) => localStorage.removeItem(key));
+      sessionStorage.clear();
+    } finally {
+      setState({ ...initialState, isInitialized: true });
+      await queryClient.cancelQueries();
       queryClient.clear();
+      const results = await Promise.allSettled([
+        indexedDbQueryPersister.removeClient(),
+        secureBrowserSession.clear(),
+      ]);
+      if (results.some((result) => result.status === 'rejected') && import.meta.env.DEV) {
+        console.warn('[auth] one or more app-data cleanup operations failed', results);
+      }
       setState({ ...initialState, isInitialized: true });
     }
   }, [queryClient]);
