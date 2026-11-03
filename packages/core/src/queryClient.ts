@@ -163,8 +163,10 @@ export function createAppQueryClient(storage: KVStorage) {
     },
   });
 
-  // MMKV is synchronous, so use the sync persister.
-  const persister = createSyncStoragePersister({
+  // MMKV is synchronous. Own the debounce so account cleanup can cancel a
+  // queued write; the stock persister's throttle cannot be safely cancelled
+  // when a user logs out while a snapshot is pending.
+  const basePersister = createSyncStoragePersister({
     storage: {
       getItem: (key: string) => storage.getItem(key) as string | null,
       setItem: (key: string, value: string) => storage.setItem(key, value),
@@ -173,10 +175,78 @@ export function createAppQueryClient(storage: KVStorage) {
     key: 'FUNSPOT_QUERY_CACHE',
     serialize: (client) => serializePersistedClient(compactPersistedClient(client)),
     deserialize: deserializePersistedClient,
-    // Shorter window = less data lost if the app is killed without a
-    // background event (crash, dev reload, force-stop).
-    throttleTime: 500,
+    throttleTime: 0,
   });
+
+  type PersistedSnapshot = Parameters<typeof basePersister.persistClient>[0];
+  let pendingClient: PersistedSnapshot | undefined;
+  let writeTimer: ReturnType<typeof setTimeout> | undefined;
+  let writeInProgress = false;
+  let persistencePaused = false;
+  let pendingWaiters: Array<() => void> = [];
+
+  const resolvePendingWaiters = () => {
+    const waiters = pendingWaiters;
+    pendingWaiters = [];
+    waiters.forEach((resolve) => resolve());
+  };
+
+  const flushPendingWrite = async () => {
+    if (writeInProgress || !pendingClient || persistencePaused) return;
+    writeInProgress = true;
+    const client = pendingClient;
+    pendingClient = undefined;
+    const waiters = pendingWaiters;
+    pendingWaiters = [];
+    try {
+      await basePersister.persistClient(client);
+    } catch {
+      // Cache persistence is best-effort; live query data remains available.
+    } finally {
+      writeInProgress = false;
+      waiters.forEach((resolve) => resolve());
+      if (pendingClient && !writeTimer && !persistencePaused) {
+        writeTimer = setTimeout(() => {
+          writeTimer = undefined;
+          void flushPendingWrite();
+        }, 500);
+      }
+    }
+  };
+
+  const persister = {
+    persistClient: (client: PersistedSnapshot): Promise<void> => {
+      if (persistencePaused) return Promise.resolve();
+      pendingClient = client;
+      const completion = new Promise<void>((resolve) => pendingWaiters.push(resolve));
+      if (writeTimer) clearTimeout(writeTimer);
+      writeTimer = setTimeout(() => {
+        writeTimer = undefined;
+        void flushPendingWrite();
+      }, 500);
+      return completion;
+    },
+    restoreClient: () => basePersister.restoreClient(),
+    removeClient: async () => {
+      persistencePaused = true;
+      if (writeTimer) clearTimeout(writeTimer);
+      writeTimer = undefined;
+      pendingClient = undefined;
+      resolvePendingWaiters();
+      while (writeInProgress) await new Promise((resolve) => setTimeout(resolve, 10));
+      // Clear again after the in-flight write finishes, then delete the disk
+      // snapshot. New writes stay suppressed until resumePersistence().
+      if (writeTimer) clearTimeout(writeTimer);
+      writeTimer = undefined;
+      pendingClient = undefined;
+      resolvePendingWaiters();
+      await basePersister.removeClient();
+    },
+  };
+
+  const resumePersistence = () => {
+    persistencePaused = false;
+  };
 
   const persistOptions: Omit<PersistQueryClientOptions, 'queryClient'> = {
     persister,
@@ -185,5 +255,5 @@ export function createAppQueryClient(storage: KVStorage) {
     ...PERSIST_OPTIONS,
   };
 
-  return { queryClient, persister, persistOptions };
+  return { queryClient, persister, persistOptions, resumePersistence };
 }
