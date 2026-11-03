@@ -3,7 +3,7 @@
 ## Current branch
 - Repository: `capiyo/funspotfuta`
 - Branch: `web-port-from-master`
-- Current validated head: `b445b0421f80947ded757e7c469c7c6899aba6fc`
+- Current validated head: `f6791cc48c456afcc51a86d65ffb85bc2eb2dc2d`
 - Base: `master` at `a3e81ac602b304f6ae7d53189780ac7cd1e539e7`
 - PR: [#4](https://github.com/capiyo/funspotfuta/pull/4), intentionally draft while release checks remain outstanding.
 - This is a cross-platform integration branch: React Native changes are intentional and are validated alongside the browser app.
@@ -19,25 +19,25 @@
 - Master-side Firebase notification and live-statistics changes preserved.
 
 ## Automated validation on current head
-GitHub Actions Web port validation run #3150 passed on `b445b0421f80947ded757e7c469c7c6899aba6fc`:
+GitHub Actions Web port validation run #3158 passed on `f6791cc48c456afcc51a86d65ffb85bc2eb2dc2d`:
 - Core tests.
 - Shared core, web and React Native typechecks.
-- Android JavaScript bundle export.
+- Android and iOS JavaScript bundle exports.
 - Web lint and production Vite build.
 - Playwright ChatsCard checks at 360, 390, 600, 700, 1280 and 1920px.
 - Playwright Match Details Lineups/Stats navigation.
 - Playwright Home shell and Feed responsive checks.
 
-Public crawlability validation and live-statistics client/web typechecks also passed on this head. The dependent notification/AppCache feature-stack CI passed both Android and iOS Expo bundle exports. The current web-port workflow itself exports Android only.
+Public crawlability validation and live-statistics client/web typechecks also passed on this head. The current web-port validation workflow now exports both Android and iOS JavaScript bundles; both passed on this head.
 
 Automated checks do not establish live Firebase OTP, real FCM delivery, production API behavior or physical-device correctness.
 
 ## Netlify preview status
 For the current head, the GitHub status checks report:
-- `funspotfuta`: success
+- `funspotfuta`: pending at last status check
 - `funspotapp`: success
 - `friendly-treacle-0716d4`: success
-- `dapper-gaufre-2bc2d2`: failure (deployment `6aea3dbdf06bce30950985d0`)
+- `dapper-gaufre-2bc2d2`: failure (deployment `6aea46de1fc12a9f385246e0`)
 
 The failed deployment's Netlify diagnostic page is inaccessible from the current connection. Its failure is unresolved; do not claim all previews passed.
 
