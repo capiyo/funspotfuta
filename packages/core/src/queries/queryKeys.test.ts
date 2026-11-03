@@ -126,7 +126,8 @@ describe('open poke cache reconciliation', () => {
     const feedComments = compacted.clientState.queries.find((query) => query.queryKey[0] === 'postComments');
     expect((commentary?.state.data as { events: unknown[] }).events).toHaveLength(100);
     expect(feedComments?.state.data).toHaveLength(50);
-    expect((feedComments?.state.data as Array<{ replies: unknown[] }>)[0].replies).toHaveLength(50);
+    const cachedComment = (feedComments?.state.data as Array<{ replies: unknown[] }> | undefined)?.[0];
+    expect(cachedComment?.replies).toHaveLength(50);
   });
 
   it('persists fixture-scoped commentary independently for each match', () => {
