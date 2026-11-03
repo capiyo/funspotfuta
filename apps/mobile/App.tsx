@@ -36,6 +36,8 @@ import { QueryProvider } from './QueryProvider';
 import RootNavigator, { type RootStackParamList } from '@/navigation/RootNavigator';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { NotificationService } from '@/lib/api/notification-service';
+import { useQueryClient } from '@tanstack/react-query';
+import { queryKeys } from '@funspot/core';
 import { getFcmTokenIfPermitted, getInitialNotification, onForegroundMessage, onNotificationOpenedApp, onTokenRefresh } from '@/lib/firebase';
 
 SplashScreen.preventAutoHideAsync();
@@ -65,6 +67,7 @@ function openChatFromPush(data: Record<string, string> | undefined) {
 
 function NotificationRuntime() {
   const { isLoggedIn, userId, authToken } = useAuth();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (!isLoggedIn || !userId) return;
@@ -82,7 +85,13 @@ function NotificationRuntime() {
       void NotificationService.reconcileFromServer({ userId, authToken: authToken ?? undefined });
     };
     const stopForeground = onForegroundMessage((message) => {
-      void NotificationService.pushToStream({ data: message.data ?? {} });
+      const data = message.data ?? {};
+      void NotificationService.pushToStream({ data });
+      if (data.channel_id && data.fixture_id) {
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.fixtureUnreadCount(data.channel_id, data.fixture_id, userId),
+        });
+      }
     });
     const stopOpened = onNotificationOpenedApp((message) => openChatFromPush(message.data));
     const stopRefresh = onTokenRefresh(register);
@@ -103,7 +112,7 @@ function NotificationRuntime() {
       stopRefresh();
       appStateSubscription.remove();
     };
-  }, [authToken, isLoggedIn, userId]);
+  }, [authToken, isLoggedIn, queryClient, userId]);
 
   return null;
 }
