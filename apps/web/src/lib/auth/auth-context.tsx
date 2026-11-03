@@ -170,6 +170,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (!firebaseAuth) return;
     return onAuthStateChanged(firebaseAuth, async (user) => {
       if (!user) return;
+      const boundaryVersion = authBoundaryVersion.current;
       try {
         const [storedToken, storedUser] = await Promise.all([
           secureBrowserSession.getToken(),
