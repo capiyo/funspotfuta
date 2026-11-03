@@ -50,6 +50,7 @@ import {
 } from '../../../../packages/core/src/api/vote-actions';
 import { useChannelChat, type Voter } from '@/lib/api/use-channel-chat';
 import { useAuth } from '@/lib/auth/auth-context';
+import { NotificationService } from '@/lib/api/notification-service';
 import { useToast } from '@/lib/toast/toast-context';
 import { useFanColors } from '@/theme/use-fan-colors';
 import AdSenseCarousel from '@/components/AdSenseCarousel';
@@ -217,6 +218,24 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       : null);
 // Keep an explicit route fixture ID scoped during lookup; never briefly use the group room.
   const fixtureId = fixture?.matchId?.trim() || fixture?.id?.trim() || routeFixtureId?.trim() || null;
+
+  // A fixture chat is the read boundary for its push notifications. Keep this
+  // here (not only in ChatsScreen) so notification taps and carousel entry paths
+  // clear the same channel/fixture unread state.
+  useEffect(() => {
+    if (!userId || !activeChannelId || !fixtureId) return;
+    void NotificationService.clearUnreadForFixture(fixtureId);
+    void NotificationService.markAsRead({
+      userId,
+      fixtureId,
+      channelId: activeChannelId,
+    }).then(async () => {
+      await NotificationService.reconcileFromServer({ userId, authToken: authToken ?? undefined });
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.fixtureUnreadCount(activeChannelId, fixtureId, userId),
+      });
+    });
+  }, [activeChannelId, authToken, fixtureId, queryClient, userId]);
   const chat = useChannelChat({
     channelId: activeChannelId,
     fixtureId,
