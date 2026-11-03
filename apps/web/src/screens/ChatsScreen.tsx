@@ -12,6 +12,7 @@ import { useFixtures, queryKeys } from '@funspot/core';
 import { useAllChannels } from '@/hooks/useAllChannels';
 import { sendChannelMessage } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
+import { NotificationService } from '@/lib/api/notification-service';
 import { useLoginModal } from '@/modals/Login-modal-context';
 import { MatchCard, type LatestComment, type ChannelHeaderData } from '@/components/ChatsCard';
 import { channelHeaderOf } from '@/modals/channelHeader';
@@ -229,6 +230,10 @@ export default function ChatsScreen() {
     const cid = channelId ?? homeChannelId;
     if (!cid) return;
     const fixtureId = fixture ? fixture.matchId?.trim() || fixture.id?.trim() : undefined;
+    if (fixtureId && userId) {
+      void NotificationService.clearUnreadForFixture(fixtureId);
+      void NotificationService.markAsRead({ userId, fixtureId });
+    }
     navigate(`/messages/${encodeURIComponent(cid)}${fixtureId ? `?fixtureId=${encodeURIComponent(fixtureId)}` : ''}`);
   }, [navigate, homeChannelId, isLoggedIn, requireLogin, userId]);
 
