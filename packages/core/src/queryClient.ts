@@ -110,6 +110,9 @@ export const PERSIST_OPTIONS = {
       // Only persist successful, validated server responses. A query that
       // failed after hydration must not overwrite a good disk snapshot.
       if (query.state.status !== 'success' || query.state.data === undefined) return false;
+      // A token accidentally placed in a query key is just as dangerous as
+      // one in query data. Keys are identifiers, never credential carriers.
+      if (containsCredential(query.queryKey)) return false;
       // Query responses are untrusted persistence input too: a backend
       // regression must not turn the durable cache into a credential store.
       if (containsCredential(query.state.data)) return false;
