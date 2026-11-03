@@ -79,9 +79,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           SecureStore.getItemAsync(SECURE_KEYS.refresh),
         ]);
 
-        // One-time migration from the old plaintext stores. Delete legacy
-        // copies only after all secure writes have succeeded.
-        if (!token || !user) {
+        // One-time migration from the old plaintext stores. Never combine
+        // partial secure records with data from a different login attempt.
+        if (Boolean(token) !== Boolean(user)) {
+          await clearSecureSession();
+          token = null;
+          user = null;
+          refresh = null;
+        }
+        if (!token && !user) {
           const [legacyToken, legacyUser, legacyRefresh, legacyPhone] = await Promise.all([
             AsyncStorage.getItem('usertoken'),
             AsyncStorage.getItem('user'),
