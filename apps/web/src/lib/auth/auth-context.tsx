@@ -70,7 +70,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           localStorage.getItem('user'),
           localStorage.getItem('refreshToken'),
         ];
-        if (legacyToken && legacyUser && !(await secureBrowserSession.getToken())) {
+        const [secureToken, secureUser] = await Promise.all([
+          secureBrowserSession.getToken(),
+          secureBrowserSession.getUser(),
+        ]);
+        if (legacyToken && legacyUser && (!secureToken || !secureUser)) {
+          // Complete partial migrations too; don't erase the only valid legacy
+          // session just because an earlier write stopped halfway through.
           await secureBrowserSession.setToken(legacyToken);
           await secureBrowserSession.setUser(legacyUser);
           if (legacyRefresh) await secureBrowserSession.setRefreshToken(legacyRefresh);
@@ -93,7 +99,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     previousAuthIdentity.current = identity;
     if (previous === null || previous === identity) return;
     queryClient.clear();
-    void indexedDbQueryPersister.removeClient();
+    void indexedDbQueryPersister.removeClient().catch((error: unknown) => {
+      if (import.meta.env.DEV) console.warn('[auth] account-boundary cache clear failed', error);
+    });
   }, [state.isInitialized, state.isLoggedIn, state.userId, queryClient]);
 
   const prefetchedUserId = useRef<string | null>(null);
@@ -153,6 +161,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   ): Promise<boolean> => {
     const opts: LoginOptions = typeof phoneOrOptions === 'string' ? { phone: phoneOrOptions } : phoneOrOptions ?? {};
     try {
+      if (state.userId && state.userId !== userId) {
+        queryClient.clear();
+        await indexedDbQueryPersister.removeClient();
+      }
       const user = { id: userId, username, phone: opts.phone ?? '' };
       await secureBrowserSession.setToken(authToken);
       await secureBrowserSession.setUser(JSON.stringify(user));
@@ -165,7 +177,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setState({ ...initialState, isInitialized: true });
       return false;
     }
-  }, []);
+  }, [queryClient, state.userId]);
 
   const logout = useCallback(async () => {
     queryClient.clear();
@@ -214,7 +226,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       sessionStorage.clear();
     } finally {
       queryClient.clear();
-      await Promise.all([indexedDbQueryPersister.removeClient(), secureBrowserSession.clear()]);
+      const results = await Promise.allSettled([
+        indexedDbQueryPersister.removeClient(),
+        secureBrowserSession.clear(),
+      ]);
+      if (results.some((result) => result.status === 'rejected') && import.meta.env.DEV) {
+        console.warn('[auth] one or more app-data cleanup operations failed', results);
+      }
       setState({ ...initialState, isInitialized: true });
     }
   }, [queryClient]);
