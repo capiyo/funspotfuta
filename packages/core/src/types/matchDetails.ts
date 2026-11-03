@@ -142,6 +142,9 @@ export function parseSimplifiedPlayer(json: any): SimplifiedPlayer {
 
     const rawNumber =
         json?.number ??
+        json?.player?.number ??
+        json?.player?.jerseyNumber ??
+        json?.athlete?.jerseyNumber ??
         json?.jerseyNumber ??
         json?.jersey_number ??
         json?.shirtNumber ??
@@ -155,15 +158,20 @@ export function parseSimplifiedPlayer(json: any): SimplifiedPlayer {
     const number =
         typeof rawNumber === 'number' ? rawNumber : parseInt(String(rawNumber), 10) || 0;
 
-    const posField = json?.position;
+    const posField = json?.position ?? json?.player?.position ?? json?.athlete?.position;
     const position =
         posField && typeof posField === 'object'
             ? posField.shortName?.toString() ?? posField.name?.toString() ?? ''
             : posField?.toString() ?? '';
 
     const captain = json?.captain === true;
-    const providerId = (json?.athleteId ?? json?.athlete_id ?? json?.player_id ?? json?.playerId ?? json?.player?.id ?? json?.athlete?.id ?? json?.competitorId ?? json?.id ?? null)?.toString() ?? null;
-    const photoCandidate = json?.photoUrl ?? json?.photo_url ?? json?.headshotUrl ?? json?.headshot_url ?? json?.imageUrl ?? json?.image_url ?? json?.player?.photo ?? json?.player?.image ?? json?.athlete?.photo ?? json?.photo ?? json?.image ?? json?.picture ?? null;
+    // 365Scores athlete images are keyed by the player/athlete ID. A
+    // competitorId can identify a team or event participant, so never use
+    // it as a fallback image key.
+    const rawProviderId = json?.athleteId ?? json?.athlete_id ?? json?.player_id ??
+        json?.playerId ?? json?.player?.id ?? json?.athlete?.id ?? json?.id ?? null;
+    const providerId = rawProviderId == null ? null : String(rawProviderId).trim() || null;
+    const photoCandidate = json?.photoUrl ?? json?.photo_url ?? json?.headshotUrl ?? json?.headshot_url ?? json?.imageUrl ?? json?.image_url ?? json?.player?.photoUrl ?? json?.player?.photo_url ?? json?.player?.headshotUrl ?? json?.player?.imageUrl ?? json?.player?.photo ?? json?.player?.image ?? json?.athlete?.photoUrl ?? json?.athlete?.photo_url ?? json?.athlete?.imageUrl ?? json?.athlete?.photo ?? json?.athlete?.image ?? json?.photo ?? json?.image ?? json?.picture ?? null;
     const photoUrl = typeof photoCandidate === 'string' && photoCandidate.startsWith('https://') ? photoCandidate : null;
     const rawRating = json?.rating ?? json?.ranking ?? json?.playerRating ?? null;
     const rating = typeof rawRating === 'number' && Number.isFinite(rawRating) ? rawRating : null;
@@ -189,24 +197,51 @@ export interface LineupsData {
 }
 
 export function parseLineupsData(json: any): LineupsData {
-    const data = json?.data && typeof json.data === 'object' ? json.data : json;
+    const envelope = json?.data && typeof json.data === 'object' ? json.data : json;
+    const data = envelope?.lineups && typeof envelope.lineups === 'object'
+        ? envelope.lineups
+        : envelope;
+    const teams = data?.teams && typeof data.teams === 'object' ? data.teams : {};
+    const starting = data?.starting_xi && typeof data.starting_xi === 'object'
+        ? data.starting_xi
+        : data?.startingXI && typeof data.startingXI === 'object' ? data.startingXI : {};
+    const home = data?.home && typeof data.home === 'object'
+        ? data.home
+        : teams?.home && typeof teams.home === 'object' ? teams.home : {};
+    const away = data?.away && typeof data.away === 'object'
+        ? data.away
+        : teams?.away && typeof teams.away === 'object' ? teams.away : {};
 
-    const parseList = (raw: any): SimplifiedPlayer[] => {
-        if (!Array.isArray(raw)) return [];
+    const first = (...values: unknown[]): unknown =>
+        values.find((value) => value !== undefined && value !== null);
+    const asText = (value: unknown, fallback: string): string =>
+        typeof value === 'string' && value.trim() ? value.trim() : fallback;
+    const parseList = (...candidates: unknown[]): SimplifiedPlayer[] => {
+        // Prefer a populated representation over an earlier empty alias. The
+        // API has returned both flat and nested team shapes over time.
+        const arrays = candidates.filter(Array.isArray) as unknown[][];
+        const raw = arrays.find((items) => items.length > 0) ?? arrays[0];
+        if (!raw) return [];
         return raw
-            .filter((p) => p && typeof p === 'object')
-            .map((p) => parseSimplifiedPlayer(p));
+            .filter((player) => player && typeof player === 'object')
+            .map((player) => parseSimplifiedPlayer(player));
     };
 
     return {
-        homeFormation: data?.home_formation?.toString() ?? '4-3-3',
-        awayFormation: data?.away_formation?.toString() ?? '4-3-3',
-        homeCoach: data?.home_coach?.toString() ?? 'TBD',
-        awayCoach: data?.away_coach?.toString() ?? 'TBD',
-        homeStartingXI: parseList(data?.home_starting_xi),
-        homeBench: parseList(data?.home_bench),
-        awayStartingXI: parseList(data?.away_starting_xi),
-        awayBench: parseList(data?.away_bench),
+        homeFormation: asText(first(data?.home_formation, data?.homeFormation, home?.formation), '4-3-3'),
+        awayFormation: asText(first(data?.away_formation, data?.awayFormation, away?.formation), '4-3-3'),
+        homeCoach: asText(first(data?.home_coach, data?.homeCoach, home?.coach), 'TBD'),
+        awayCoach: asText(first(data?.away_coach, data?.awayCoach, away?.coach), 'TBD'),
+        homeStartingXI: parseList(
+            data?.home_starting_xi, data?.homeStartingXI, data?.home_starting_xi_players,
+            home?.starting_xi, home?.startingXI, home?.starting, home?.players, starting?.home,
+        ),
+        homeBench: parseList(data?.home_bench, data?.homeBench, home?.bench, home?.substitutes),
+        awayStartingXI: parseList(
+            data?.away_starting_xi, data?.awayStartingXI, data?.away_starting_xi_players,
+            away?.starting_xi, away?.startingXI, away?.starting, away?.players, starting?.away,
+        ),
+        awayBench: parseList(data?.away_bench, data?.awayBench, away?.bench, away?.substitutes),
     };
 }
 
