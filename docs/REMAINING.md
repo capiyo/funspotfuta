@@ -14,6 +14,7 @@ This document replaces the obsolete handoff checklist that listed old web line c
 - Match Details Lineups/Stats navigation and Home/Feed responsive checks.
 - Public crawlability and live-statistics client/web typechecks.
 - The dependent notification/AppCache feature stack passed Android and iOS bundle exports.
+- Web and mobile now clear unread notification/comment snapshots and pending join requests at logout/account switches, without clearing them during normal session restoration.
 
 ## Remaining functional parity work
 The AppCache checklist in `docs/APPCACHE_PARITY_MIGRATION.md` remains the detailed source of truth. In particular:
