@@ -31,7 +31,8 @@ import {
   signOut,
   type FirebaseAuthTypes,
 } from '@react-native-firebase/auth';
-import { firebaseAuth } from '@/lib/firebase';
+import { firebaseAuth, requestFcmToken } from '@/lib/firebase';
+import { NotificationService } from '@/lib/api/notification-service';
 import { useAuth } from '@/lib/auth/auth-context';
 import { checkUser, isUsernameTaken, pinLogin, setPin, registerUser } from '@funspot/core';
 import {
@@ -259,8 +260,21 @@ export default function LoginModal({ visible, onClose, onSuccess }: LoginModalPr
       toast('Login failed. Please try again.', { error: true });
       return;
     }
-    // TODO: port _registerFcmTokenAfterLogin here (register the FCM token with the
-    // backend now that userId + token are known), same as the Flutter app.
+    // Ask for native push permission only after an explicit successful sign-in.
+    // A denied permission or FCM outage must never block account access.
+    try {
+      const fcmToken = await requestFcmToken();
+      if (fcmToken) {
+        await NotificationService.registerToken({
+          userId,
+          fcmToken,
+          platform: Platform.OS,
+          authToken: token,
+        });
+      }
+    } catch (error) {
+      if (__DEV__) console.warn('[notifications] FCM registration skipped', error);
+    }
     onSuccess?.(userId, username);
     resetAndClose();
   }

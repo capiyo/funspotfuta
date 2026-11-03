@@ -136,6 +136,29 @@ export function onForegroundMessage(
     }
 }
 
+export function onTokenRefresh(callback: (token: string) => void): () => void {
+    const messaging = safelyGetMessaging();
+    const module = getMessagingModule();
+    if (!messaging || !module) return () => undefined;
+    try {
+        return module.onTokenRefresh(messaging, callback);
+    } catch {
+        return () => undefined;
+    }
+}
+
+export async function getFcmTokenIfPermitted(): Promise<string | null> {
+    const messaging = safelyGetMessaging();
+    const module = getMessagingModule();
+    if (!messaging || !module || !(await hasNotificationPermission())) return null;
+    try {
+        return await module.getToken(messaging);
+    } catch (error) {
+        if (__DEV__) console.warn('[firebase] Existing-permission FCM token retrieval failed', error);
+        return null;
+    }
+}
+
 // Register in index.js (app entry, outside any component) — mirrors
 // FirebaseMessaging.onBackgroundMessage in the Flutter original.
 export function registerBackgroundMessageHandler(

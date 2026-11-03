@@ -5,7 +5,7 @@ import { colors } from '@/theme';
 import { useAuth } from '@/lib/auth/auth-context';
 import { NotificationService, requestWebPushToken } from '@/lib/api/notification-service';
 
-export default function NotificationGate({ visible, onRetry }: { visible: boolean; onRetry: () => Promise<void> }) {
+export default function NotificationGate({ visible, onRetry, onSkip }: { visible: boolean; onRetry: () => Promise<void>; onSkip?: () => Promise<void> | void }) {
   const { userId, authToken } = useAuth();
   const dialogRef = useRef<HTMLDivElement>(null);
   const [requesting, setRequesting] = useState(false);
@@ -81,7 +81,7 @@ export default function NotificationGate({ visible, onRetry }: { visible: boolea
           style={{ background: colors.green }}>
           {requesting ? 'Requesting…' : unsupported ? 'Try Notifications Again' : 'Allow Notifications'}
         </button>
-        <button type="button" onClick={() => void onRetry()} disabled={requesting}
+        <button type="button" onClick={() => void (onSkip ? onSkip() : onRetry())} disabled={requesting}
           className="mt-3 w-full rounded-xl px-4 py-2 text-sm font-semibold disabled:opacity-60"
           style={{ color: colors.textMuted }}>
           Continue without notifications

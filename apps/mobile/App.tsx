@@ -6,7 +6,7 @@
 // show a blank/splash delay even when useful screen data was already cached.
 
 import { useCallback } from 'react';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import {
   NavigationContainer,
@@ -28,14 +28,48 @@ import {
 } from '@expo-google-fonts/saira-condensed';
 import * as SplashScreen from 'expo-splash-screen';
 
-import { AuthProvider } from '@/lib/auth/auth-context';
+import { AuthProvider, useAuth } from '@/lib/auth/auth-context';
 import { LoginModalProvider } from './src/modals/Login-modal-context';
 import { ToastProvider } from '@/lib/toast/toast-context';
 import { QueryProvider } from './QueryProvider';
 import RootNavigator from '@/navigation/RootNavigator';
 import { useFanColors } from '@/theme/use-fan-colors';
+import { NotificationService } from '@/lib/api/notification-service';
+import { getFcmTokenIfPermitted, onForegroundMessage, onTokenRefresh } from '@/lib/firebase';
 
 SplashScreen.preventAutoHideAsync();
+
+function NotificationRuntime() {
+  const { isLoggedIn, userId, authToken } = useAuth();
+
+  useEffect(() => {
+    if (!isLoggedIn || !userId) return;
+    let active = true;
+    const register = (token: string) => {
+      if (!active || !token) return;
+      void NotificationService.registerToken({
+        userId,
+        fcmToken: token,
+        platform: Platform.OS,
+        authToken: authToken ?? undefined,
+      });
+    };
+    const stopForeground = onForegroundMessage((message) => {
+      void NotificationService.pushToStream({ data: message.data ?? {} });
+    });
+    const stopRefresh = onTokenRefresh(register);
+    void getFcmTokenIfPermitted().then((token) => {
+      if (token) register(token);
+    });
+    return () => {
+      active = false;
+      stopForeground();
+      stopRefresh();
+    };
+  }, [authToken, isLoggedIn, userId]);
+
+  return null;
+}
 
 export default function App() {
   const colors = useFanColors();
@@ -78,6 +112,7 @@ export default function App() {
           <LoginModalProvider>
             <ToastProvider>
               <QueryProvider>
+                <NotificationRuntime />
                 <View style={{ flex: 1, backgroundColor: colors.background }} onLayout={onFirstContentLayout}>
                   <NavigationContainer theme={navTheme}>
                     <RootNavigator />
