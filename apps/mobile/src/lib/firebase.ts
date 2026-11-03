@@ -136,6 +136,30 @@ export function onForegroundMessage(
     }
 }
 
+export function onNotificationOpenedApp(
+    callback: Parameters<MessagingModule['onNotificationOpenedApp']>[1],
+): () => void {
+    const messaging = safelyGetMessaging();
+    const module = getMessagingModule();
+    if (!messaging || !module) return () => undefined;
+    try {
+        return module.onNotificationOpenedApp(messaging, callback);
+    } catch {
+        return () => undefined;
+    }
+}
+
+export async function getInitialNotification() {
+    const messaging = safelyGetMessaging();
+    const module = getMessagingModule();
+    if (!messaging || !module) return null;
+    try {
+        return await module.getInitialNotification(messaging);
+    } catch {
+        return null;
+    }
+}
+
 export function onTokenRefresh(callback: (token: string) => void): () => void {
     const messaging = safelyGetMessaging();
     const module = getMessagingModule();
