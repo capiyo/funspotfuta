@@ -302,6 +302,9 @@ export default function ChatsScreen() {
       if (fixtureId && userId) {
         void NotificationService.clearUnreadForFixture(fixtureId);
         void NotificationService.markAsRead({ userId, fixtureId });
+        void queryClient.invalidateQueries({
+          queryKey: queryKeys.fixtureUnreadCount(cid, fixtureId, userId),
+        });
       }
       navigation.navigate('Chat', {
         channelId: cid,
