@@ -283,8 +283,8 @@ export default function PostCommentsModal({
     }, [postId, authToken, queryClient]);
 
     useEffect(() => {
-        if (!visible) return;
-        void loadComments();
+        if (visible) void loadComments();
+        return () => { loadRequestId.current += 1; };
     }, [visible, loadComments]);
 
     // ── Push notifications (mirrors _sendPushNotification) ────────
