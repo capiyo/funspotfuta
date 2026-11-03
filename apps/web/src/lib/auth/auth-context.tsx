@@ -74,7 +74,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           secureBrowserSession.getToken(),
           secureBrowserSession.getUser(),
         ]);
-        if (Boolean(secureToken) !== Boolean(secureUser)) {
+        if (Boolean(secureToken) !== Boolean(secureUser) || (!secureToken && !secureUser)) {
           // Never combine a token and user record from different interrupted
           // login attempts. Rebuild only from a complete legacy pair.
           await secureBrowserSession.clear();
