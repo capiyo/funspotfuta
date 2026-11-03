@@ -7,7 +7,6 @@ import { ToastProvider } from '@/lib/toast/toast-context';
 import RootNavigator from '@/navigation/RootNavigator';
 import NotificationGate from '@/modals/NotificationGate';
 import { listenForForegroundMessages, NotificationService, requestWebPushToken, type ForegroundNotice } from '@/lib/api/notification-service';
-import { firebaseApp, webFirebaseConfig } from '@/lib/firebase';
 
 function AppRoutes() {
   const { isInitialized, isLoggedIn, userId, authToken } = useAuth();
@@ -28,13 +27,6 @@ function AppRoutes() {
     }).then((unsubscribe) => { stop = unsubscribe; }).catch(() => undefined);
     return () => stop?.();
   }, [queryClient, userId]);
-  useEffect(() => {
-    if (!firebaseApp || !('serviceWorker' in navigator)) return;
-    navigator.serviceWorker.register('/firebase-messaging-sw.js').then(async (registration) => {
-      await navigator.serviceWorker.ready;
-      (registration.active ?? navigator.serviceWorker.controller)?.postMessage({ type: 'FUNSPOT_FIREBASE_CONFIG', config: webFirebaseConfig });
-    }).catch(() => undefined);
-  }, []);
   useEffect(() => {
     setNotificationGateDismissed(false);
   }, [userId]);

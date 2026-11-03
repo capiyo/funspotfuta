@@ -1,11 +1,12 @@
 importScripts('https://www.gstatic.com/firebasejs/11.2.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/11.2.0/firebase-messaging-compat.js');
 
-let messagingReady = false;
-self.addEventListener('message', (event) => {
-  if (event.data?.type !== 'FUNSPOT_FIREBASE_CONFIG' || messagingReady) return;
-  try {
-    if (!firebase.apps.length) firebase.initializeApp(event.data.config);
+importScripts('/firebase-config.js');
+
+try {
+  const config = self.FUNSPOT_FIREBASE_CONFIG;
+  if (config && !firebase.apps.length) firebase.initializeApp(config);
+  if (config) {
     const messaging = firebase.messaging();
     messaging.onBackgroundMessage((payload) => {
       const title = payload.notification?.title || 'Funspot';
@@ -15,11 +16,10 @@ self.addEventListener('message', (event) => {
         icon: '/icons/app_icon.png',
       });
     });
-    messagingReady = true;
-  } catch (error) {
-    console.error('Firebase Messaging service worker setup failed', error);
   }
-});
+} catch (error) {
+  console.error('Firebase Messaging service worker setup failed', error);
+}
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
