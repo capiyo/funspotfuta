@@ -29,6 +29,9 @@ const initialState: AuthState = {
 };
 const AuthContext = createContext<AuthContextValue | null>(null);
 const SECURE_KEYS = { token: 'auth.usertoken', user: 'auth.user', refresh: 'auth.refreshToken' } as const;
+const SECURE_STORE_OPTIONS = {
+  keychainAccessible: SecureStore.AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY,
+} as const;
 const LEGACY_KEYS = ['usertoken', 'user', 'isLoggedIn', 'userId', 'username', 'phone', 'refreshToken'] as const;
 const LOGOUT_KEYS = [
   ...LEGACY_KEYS, 'userBets', 'userProfile', 'availableGames', 'notifications',
@@ -99,9 +102,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             } catch {
               normalizedUser = legacyUser;
             }
-            await SecureStore.setItemAsync(SECURE_KEYS.token, legacyToken);
-            await SecureStore.setItemAsync(SECURE_KEYS.user, normalizedUser);
-            if (legacyRefresh) await SecureStore.setItemAsync(SECURE_KEYS.refresh, legacyRefresh);
+            await SecureStore.setItemAsync(SECURE_KEYS.token, legacyToken, SECURE_STORE_OPTIONS);
+            await SecureStore.setItemAsync(SECURE_KEYS.user, normalizedUser, SECURE_STORE_OPTIONS);
+            if (legacyRefresh) await SecureStore.setItemAsync(SECURE_KEYS.refresh, legacyRefresh, SECURE_STORE_OPTIONS);
             token = legacyToken;
             user = normalizedUser;
             refresh = legacyRefresh;
@@ -125,9 +128,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   ): Promise<boolean> => {
     try {
       const user = JSON.stringify({ id: userId, username, phone: opts?.phone ?? '' });
-      await SecureStore.setItemAsync(SECURE_KEYS.token, authToken);
-      await SecureStore.setItemAsync(SECURE_KEYS.user, user);
-      if (opts?.refreshToken) await SecureStore.setItemAsync(SECURE_KEYS.refresh, opts.refreshToken);
+      await SecureStore.setItemAsync(SECURE_KEYS.token, authToken, SECURE_STORE_OPTIONS);
+      await SecureStore.setItemAsync(SECURE_KEYS.user, user, SECURE_STORE_OPTIONS);
+      if (opts?.refreshToken) await SecureStore.setItemAsync(SECURE_KEYS.refresh, opts.refreshToken, SECURE_STORE_OPTIONS);
       else await SecureStore.deleteItemAsync(SECURE_KEYS.refresh);
       if (state.userId && state.userId !== userId) await clearMobileQueryCache();
       await AsyncStorage.multiRemove(LOGOUT_KEYS);
@@ -158,8 +161,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const updateAuthToken = useCallback(async (newToken: string, newRefreshToken?: string): Promise<boolean> => {
     if (!state.isLoggedIn) return false;
     try {
-      await SecureStore.setItemAsync(SECURE_KEYS.token, newToken);
-      if (newRefreshToken) await SecureStore.setItemAsync(SECURE_KEYS.refresh, newRefreshToken);
+      await SecureStore.setItemAsync(SECURE_KEYS.token, newToken, SECURE_STORE_OPTIONS);
+      if (newRefreshToken) await SecureStore.setItemAsync(SECURE_KEYS.refresh, newRefreshToken, SECURE_STORE_OPTIONS);
       setState((current) => ({ ...current, authToken: newToken, refreshToken: newRefreshToken ?? current.refreshToken }));
       return true;
     } catch {
@@ -174,7 +177,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const parsed: unknown = JSON.parse(raw);
         if (!parsed || typeof parsed !== 'object') throw new Error('Invalid stored user');
         const next = { ...(parsed as Record<string, unknown>), id: userId, username, ...(phone ? { phone } : {}) };
-        await SecureStore.setItemAsync(SECURE_KEYS.user, JSON.stringify(next));
+        await SecureStore.setItemAsync(SECURE_KEYS.user, JSON.stringify(next), SECURE_STORE_OPTIONS);
       }
       setState((current) => ({ ...current, userId, username, phone: phone ?? current.phone }));
     } catch (error) {
