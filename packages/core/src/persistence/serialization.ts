@@ -10,7 +10,6 @@ const CACHE_PRIORITY: Record<string, number> = {
   comrades: 76, userComrades: 74, history: 70, historyGames: 68,
   aftermatch: 66, latestComments: 64, postComments: 62,
   notifications: 60, notificationSummary: 58, unreadCounts: 56,
-  balance: 50, transactions: 48,
 };
 
 function boundPayload(value: unknown, key = '', depth = 0): unknown {
