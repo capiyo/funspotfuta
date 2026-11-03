@@ -36,6 +36,7 @@ import { QueryProvider } from './QueryProvider';
 import RootNavigator, { type RootStackParamList } from '@/navigation/RootNavigator';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { NotificationService } from '@/lib/api/notification-service';
+import { useToast } from '@/lib/toast/toast-context';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@funspot/core';
 import { getFcmTokenIfPermitted, getInitialNotification, onForegroundMessage, onNotificationOpenedApp, onTokenRefresh } from '@/lib/firebase';
@@ -68,6 +69,7 @@ function openChatFromPush(data: Record<string, string> | undefined) {
 function NotificationRuntime() {
   const { isLoggedIn, userId, authToken } = useAuth();
   const queryClient = useQueryClient();
+  const toast = useToast();
 
   useEffect(() => {
     if (!isLoggedIn || !userId) return;
@@ -87,6 +89,9 @@ function NotificationRuntime() {
     const stopForeground = onForegroundMessage((message) => {
       const data = message.data ?? {};
       void NotificationService.pushToStream({ data });
+      const foregroundTitle = message.notification?.title ?? 'Funspot';
+      const foregroundBody = message.notification?.body ?? '';
+      if (foregroundBody) toast.showInfo(`${foregroundTitle}: ${foregroundBody}`);
       if (data.channel_id && data.fixture_id) {
         void queryClient.invalidateQueries({
           queryKey: queryKeys.fixtureUnreadCount(data.channel_id, data.fixture_id, userId),
@@ -112,7 +117,7 @@ function NotificationRuntime() {
       stopRefresh();
       appStateSubscription.remove();
     };
-  }, [authToken, isLoggedIn, queryClient, userId]);
+  }, [authToken, isLoggedIn, queryClient, toast, userId]);
 
   return null;
 }
