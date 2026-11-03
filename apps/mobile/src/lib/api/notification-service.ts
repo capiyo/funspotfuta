@@ -809,6 +809,25 @@ export const NotificationService = {
         }
     },
 
+    async unregisterToken(args: {
+        userId: string;
+        fcmToken: string;
+        authToken?: string;
+    }): Promise<void> {
+        try {
+            await fetch(`${API_BASE_URL}/notifications/unregister-token`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(args.authToken ? { Authorization: `Bearer ${args.authToken}` } : {}),
+                },
+                body: JSON.stringify({ user_id: args.userId, fcm_token: args.fcmToken }),
+            });
+        } catch (error) {
+            console.warn('[NotificationService] Token unregistration skipped', error);
+        }
+    },
+
     // ─── sendNotification ───────────────────────────────────────────
     async sendNotification(args: {
         userId: string;

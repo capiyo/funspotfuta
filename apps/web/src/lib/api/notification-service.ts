@@ -817,6 +817,25 @@ export const NotificationService = {
         }
     },
 
+    async unregisterToken(args: {
+        userId: string;
+        fcmToken: string;
+        authToken?: string;
+    }): Promise<void> {
+        try {
+            await fetch(`${API_BASE_URL}/notifications/unregister-token`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(args.authToken ? { Authorization: `Bearer ${args.authToken}` } : {}),
+                },
+                body: JSON.stringify({ user_id: args.userId, fcm_token: args.fcmToken }),
+            });
+        } catch (error) {
+            console.warn('[NotificationService] Token unregistration skipped', error);
+        }
+    },
+
     // ─── sendNotification ───────────────────────────────────────────
     async sendNotification(args: {
         userId: string;
@@ -1012,6 +1031,22 @@ export async function requestWebPushToken(): Promise<string | null> {
   const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
   await configureServiceWorker(registration);
   return getToken(messaging, { vapidKey, serviceWorkerRegistration: registration });
+}
+
+export async function getExistingWebPushToken(): Promise<string | null> {
+  if (typeof window === 'undefined' || !('Notification' in window) || !('serviceWorker' in navigator)
+    || Notification.permission !== 'granted' || !firebaseApp) return null;
+  const vapidKey = import.meta.env.VITE_FIREBASE_VAPID_KEY as string | undefined;
+  if (!vapidKey) return null;
+  const registration = await navigator.serviceWorker.getRegistration('/');
+  if (!registration) return null;
+  const messaging = await getFirebaseMessaging();
+  if (!messaging) return null;
+  try {
+    return await getToken(messaging, { vapidKey, serviceWorkerRegistration: registration });
+  } catch {
+    return null;
+  }
 }
 
 export async function listenForForegroundMessages(onNotice: (notice: ForegroundNotice) => void) {
