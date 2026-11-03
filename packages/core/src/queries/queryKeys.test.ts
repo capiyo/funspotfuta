@@ -215,6 +215,18 @@ describe('open poke cache reconciliation', () => {
     expect(shouldDehydrateMutation?.()).toBe(false);
   });
 
+  it('never persists query keys containing credential-shaped objects', () => {
+    const shouldDehydrate = PERSIST_OPTIONS.dehydrateOptions.shouldDehydrateQuery;
+    expect(shouldDehydrate?.({
+      queryKey: ['profile', { refreshToken: 'must-not-persist' }],
+      state: { data: { username: 'fan' }, status: 'success' },
+    } as never)).toBe(false);
+    expect(shouldDehydrate?.({
+      queryKey: ['profile', 'user-1'],
+      state: { data: { username: 'fan' }, status: 'success' },
+    } as never)).toBe(true);
+  });
+
   it('never persists successful query data containing credentials', () => {
     const shouldDehydrate = PERSIST_OPTIONS.dehydrateOptions.shouldDehydrateQuery;
     expect(shouldDehydrate?.({
