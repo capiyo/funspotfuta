@@ -4,7 +4,7 @@
 
 ## Current tree audit (2026-11-03)
 - Branch: `web-port-from-master`
-- Latest validated head: `b445b0421f80947ded757e7c469c7c6899aba6fc`
+- Latest validated head: `f6791cc48c456afcc51a86d65ffb85bc2eb2dc2d`
 - `apps/mobile/src`: 75 files
 - Same-relative-path counterparts in `apps/web/src`: 74
 - Mobile-only same-path file: `components/AdCarousel.tsx`; the browser messaging surface uses the web-specific `AdSenseCarousel`.
