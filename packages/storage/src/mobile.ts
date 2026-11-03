@@ -10,6 +10,9 @@ let mmkv: MMKVStore | null = null;
 let mmkvStartupError: unknown = null;
 const fallback = new Map<string, string>();
 const ENCRYPTION_KEY_ID = 'funspot.app-cache.encryption-key';
+const SECURE_SESSION_OPTIONS = {
+  keychainAccessible: SecureStore.AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY,
+} as const;
 
 async function initializeEncryptedCache(): Promise<boolean> {
   try {
@@ -57,10 +60,10 @@ async function initializeEncryptedCache(): Promise<boolean> {
         } catch {
           // Preserve the original serialized user; AuthProvider validates it.
         }
-        await SecureStore.setItemAsync('auth.usertoken', legacyToken);
-        await SecureStore.setItemAsync('auth.user', migratedUser);
+        await SecureStore.setItemAsync('auth.usertoken', legacyToken, SECURE_SESSION_OPTIONS);
+        await SecureStore.setItemAsync('auth.user', migratedUser, SECURE_SESSION_OPTIONS);
         const legacyRefresh = legacy.getString('auth:refreshToken');
-        if (legacyRefresh) await SecureStore.setItemAsync('auth.refreshToken', legacyRefresh);
+        if (legacyRefresh) await SecureStore.setItemAsync('auth.refreshToken', legacyRefresh, SECURE_SESSION_OPTIONS);
       }
       // Open and seed the encrypted destination before deleting the plaintext
       // source. If native encryption initialization fails, retain legacy data
