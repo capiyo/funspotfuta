@@ -1,24 +1,37 @@
-# Remaining web parity work
+# Remaining Funspot integration and release work
 
-Branch: `web-port-from-master` (draft PR #4)
+Branch: `web-port-from-master`  
+Validated head: `b445b0421f80947ded757e7c469c7c6899aba6fc`  
+Tracking PR: [#4](https://github.com/capiyo/funspotfuta/pull/4) (draft)
 
-The following requested files remain incomplete, in the exact requested order. Continue one file at a time, using the matching mobile file as the source of truth. Do not modify `apps/mobile`.
+This document replaces the obsolete handoff checklist that listed old web line counts and incorrectly said the React Native app must not be changed. The current project is intentionally cross-platform.
 
-1. `modals/CommentsModal.tsx` — mobile 1,042 lines; web 353 lines
-2. `modals/joingroupmodal.tsx` — mobile 793 lines; web 40 lines
-3. `modals/ChannelCreation.tsx` — mobile 978 lines; web 86 lines
-4. `modals/comradelist/index.tsx` — mobile 1,189 lines; web 328 lines
-5. `modals/comradelist/comradeCard.tsx` — mobile 278 lines; web 65 lines
-6. `modals/AftermatchModal.tsx` — mobile 912 lines; web 88 lines
-7. `modals/match/pitchView.tsx` — mobile 1,118 lines; web 200 lines
-8. `modals/match/matchDetailsModals.tsx` — mobile 499 lines; web 97 lines
-9. `modals/match/lineupsTab.tsx` — mobile 361 lines; web 72 lines
-10. `modals/match/statsTab.tsx` — mobile 235 lines; web 69 lines
-11. `modals/NotificationsModal.tsx` — mobile 312 lines; web 116 lines
-12. `screens/home/home-context.tsx` — mobile 385 lines; web 219 lines
-13. `screens/MessageScreen.tsx` — mobile 1,639 lines; web 1,044 lines. Compare side by side and add every missing mobile handler, effect, state variable, and API call; do not rewrite wholesale.
-14. `screens/ChatsScreen.tsx` — mobile 601 lines; web 408 lines. Compare side by side and add every missing mobile handler, effect, state variable, and API call; do not rewrite wholesale.
+## Completed and automatically verified on the validated head
+- Core tests and shared core, web and React Native typechecks.
+- Web lint and production Vite build.
+- Android JavaScript bundle export.
+- ChatsCard browser checks at 360, 390, 600, 700, 1280 and 1920px.
+- Match Details Lineups/Stats navigation and Home/Feed responsive checks.
+- Public crawlability and live-statistics client/web typechecks.
+- The dependent notification/AppCache feature stack passed Android and iOS bundle exports.
 
-## Validation status at handoff
+## Remaining functional parity work
+The AppCache checklist in `docs/APPCACHE_PARITY_MIGRATION.md` remains the detailed source of truth. In particular:
+1. Complete side-by-side behavior audits for the components still marked SUSPECT/PENDING in `docs/PORT_MAP.md`; prioritize login/OTP, channel creation/join, add-post, notifications, match pitch/lineups, and modal flows.
+2. Finish cache-backed domain wiring for remaining fixture consumers, vote/voter state, channels/channel fixtures, counts/latest comments, comrade search/stats/actions, feed interactions, history/aftermatch/live events and notifications.
+3. Route remaining shared profile edit, balance, saved-phone and transaction actions through appropriate shared query/mutation functions; never persist credentials or financial transaction history.
+4. Audit direct HTTP calls in web/mobile components and verify that shared data uses canonical cache keys and account-scoped state.
+5. Verify message pagination and dependent modal parity where the MessageScreen checklist still identifies gaps.
+6. Refresh the historical file-by-file parity inventory; file presence and line counts are triage signals, not proof of behavior parity.
 
-The GitHub Actions workflow runs `typecheck:core`, `typecheck:web`, `typecheck:mobile`, `lint:web`, and `build:web`. Runs for the latest changes were still running at handoff. A prior web typecheck reported errors in `addPostModal.tsx`, `ChatsScreen.tsx`, `HomeScreen.tsx`, and `appHeader.tsx`; the duplicate `onScroll` error introduced in `FeedScreen.tsx` was corrected in a follow-up commit. Re-run all checks and fix failures within the allowed scope before continuing.
+## Remaining release checks
+1. Resolve or explicitly disposition the failed Netlify preview `dapper-gaufre-2bc2d2` (deployment `6aea3dbdf06bce30950985d0`). The other three configured previews report success.
+2. Verify Firebase phone OTP and real web push/FCM delivery using live credentials.
+3. Verify production API behavior and backend notification delivery.
+4. Install and test on physical Android and iOS devices. Expo exports are bundle checks, not device tests.
+5. Verify encrypted IndexedDB/MMKV removal, account switching, offline launch and cache restoration on real browsers/devices.
+6. Confirm the Netlify site/domain mapping for `funspot.co.ke` before any production deploy.
+7. Run formatting checks in a local checkout; Prettier has not been verified by the current CI workflow.
+
+## Release rule
+Do not mark the integration complete, mark PR #4 ready, or deploy production until the failed preview is understood and the required live-service/device checks have either passed or are explicitly accepted as release risks. Current CI success is not a claim of production deployment.
