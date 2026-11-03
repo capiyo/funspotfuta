@@ -71,6 +71,17 @@ async function mock(page, state) {
         }))
       : []),
   }));
+  // Fixture hydration awaits both voter endpoints. Mock both explicitly so
+  // this visual test never waits on the external Render API or its fallbacks.
+  await page.route('**/api/actions/vote/fixture/**/voters', route => route.fulfill({
+    status: 200, contentType: 'application/json', body: JSON.stringify([]),
+  }));
+  await page.route('**/api/votes/votes/fixture/**', route => route.fulfill({
+    status: 200, contentType: 'application/json', body: JSON.stringify([]),
+  }));
+  await page.route('**/api/channels/*/fixtures/*/unread/*', route => route.fulfill({
+    status: 200, contentType: 'application/json', body: JSON.stringify({ unread_count: 0 }),
+  }));
   await page.route('https://www.thesportsdb.com/api/v1/json/3/searchteams.php**', route => {
     const name = new URL(route.request().url()).searchParams.get('t') || 'unknown';
     return route.fulfill({
