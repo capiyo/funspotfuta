@@ -205,6 +205,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const updateUserData = useCallback(async (userId: string, username: string, phone?: string) => {
     try {
+      if (state.userId !== userId) {
+        queryClient.clear();
+        await indexedDbQueryPersister.removeClient();
+      }
       const raw = await secureBrowserSession.getUser();
       if (raw) {
         const user = JSON.parse(raw);
@@ -217,7 +221,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // Keep the current in-memory state if encrypted storage is unavailable.
     }
-  }, []);
+  }, [queryClient, state.userId]);
 
   const hasValidSession = useCallback(() => Boolean(state.isLoggedIn && state.authToken && state.userId), [state.isLoggedIn, state.authToken, state.userId]);
   const clearAllAppData = useCallback(async () => {
