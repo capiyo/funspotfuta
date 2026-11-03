@@ -21,7 +21,7 @@
 // @react-native-firebase/messaging and passes it to pushToStream().
 
 import { getToken, onMessage } from 'firebase/messaging';
-import { firebaseApp, getFirebaseMessaging, webFirebaseConfig } from '../firebase';
+import { firebaseApp, getFirebaseMessaging } from '../firebase';
 
 // Browser storage adapter matching the mobileStorage contract.
 const mobileStorage = {
@@ -1013,12 +1013,6 @@ export default NotificationService;
 // Web FCM permission/token and foreground message helpers.
 export type ForegroundNotice = { title: string; body: string; data?: Record<string, string> };
 
-async function configureServiceWorker(registration: ServiceWorkerRegistration) {
-  await navigator.serviceWorker.ready;
-  const worker = registration.active ?? navigator.serviceWorker.controller;
-  worker?.postMessage({ type: 'FUNSPOT_FIREBASE_CONFIG', config: webFirebaseConfig });
-}
-
 export async function requestWebPushToken(): Promise<string | null> {
   if (!('Notification' in window) || !('serviceWorker' in navigator) || !firebaseApp) return null;
   if (Notification.permission === 'denied') return null;
@@ -1029,7 +1023,6 @@ export async function requestWebPushToken(): Promise<string | null> {
   const messaging = await getFirebaseMessaging();
   if (!messaging) return null;
   const registration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
-  await configureServiceWorker(registration);
   return getToken(messaging, { vapidKey, serviceWorkerRegistration: registration });
 }
 
