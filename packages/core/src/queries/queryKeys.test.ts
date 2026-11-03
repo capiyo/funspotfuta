@@ -125,6 +125,17 @@ describe('open poke cache reconciliation', () => {
     expect(feedComments?.state.data).toHaveLength(50);
   });
 
+  it('persists fixture-scoped commentary independently for each match', () => {
+    const shouldDehydrate = PERSIST_OPTIONS.dehydrateOptions.shouldDehydrateQuery;
+    const firstFixtureKey = queryKeys.liveCommentary('fixture-1');
+    const secondFixtureKey = queryKeys.liveCommentary('fixture-2');
+    expect(firstFixtureKey).not.toEqual(secondFixtureKey);
+    expect(shouldDehydrate?.({
+      queryKey: firstFixtureKey,
+      state: { data: { events: [{ id: 'goal-1', text: 'Goal', minute: 12 }] }, status: 'success' },
+    } as never)).toBe(true);
+  });
+
   it('persists and restores successful cache data across a new QueryClient', async () => {
     const storage = memoryStorage();
     const first = createAppQueryClient(storage);
