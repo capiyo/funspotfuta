@@ -81,7 +81,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         // One-time migration from the old plaintext stores. Never combine
         // partial secure records with data from a different login attempt.
-        if (Boolean(token) !== Boolean(user)) {
+        if (Boolean(token) !== Boolean(user) || (!token && !user && refresh)) {
           await clearSecureSession();
           token = null;
           user = null;
