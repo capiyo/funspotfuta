@@ -58,6 +58,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
   const [state, setState] = useState<AuthState>(initialState);
   const authChannel = useRef<BroadcastChannel | null>(null);
+  const authBoundaryVersion = useRef(0);
 
   // A logout or account switch in one tab invalidates private cache and
   // credentials in every other tab on this origin.
@@ -68,6 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     channel.onmessage = (event: MessageEvent<unknown>) => {
       if (!event.data || typeof event.data !== 'object') return;
       const message = event.data as { type?: unknown };
+      authBoundaryVersion.current += 1;
       if (message.type === 'session-updated') {
         void readStoredState().then(setState);
         return;
@@ -92,6 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [queryClient]);
   useEffect(() => {
     let cancelled = false;
+    const boundaryVersion = authBoundaryVersion.current;
     void (async () => {
       try {
         // One-time migration from legacy browser storage. Credentials and
@@ -119,7 +122,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         LEGACY_KEYS.forEach((key) => localStorage.removeItem(key));
         const restored = await readStoredState();
-        if (!cancelled) setState(restored);
+        if (!cancelled && boundaryVersion === authBoundaryVersion.current) setState(restored);
       } catch (error) {
         if (import.meta.env.DEV) console.warn('[auth] encrypted browser session restore failed', error);
         if (!cancelled) setState({ ...initialState, isInitialized: true });
