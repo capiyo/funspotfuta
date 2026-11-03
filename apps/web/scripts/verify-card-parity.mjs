@@ -107,9 +107,41 @@ const sharedRequiredSelectors = [
 async function inspect(width, state) {
   const context = await browser.newContext({ viewport: { width, height: 1000 }, deviceScaleFactor: 1 });
   const page = await context.newPage();
+  const browserDiagnostics = { requests: [], responses: [], console: [] };
+  page.on('request', request => {
+    if (request.url().includes('clash-api-m5mr.onrender.com')) {
+      browserDiagnostics.requests.push({ method: request.method(), url: request.url() });
+    }
+  });
+  page.on('response', response => {
+    if (response.url().includes('clash-api-m5mr.onrender.com')) {
+      browserDiagnostics.responses.push({ status: response.status(), url: response.url() });
+    }
+  });
+  page.on('console', message => {
+    if (message.type() === 'error') browserDiagnostics.console.push(message.text());
+  });
   await mock(page, state);
   await page.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 45000 });
-  await page.waitForSelector('.home-screen .match-card', { timeout: 45000 });
+  try {
+    await page.waitForSelector('.home-screen .match-card', { timeout: 45000 });
+  } catch (error) {
+    const stateSnapshot = await page.evaluate(() => ({
+      url: location.href,
+      title: document.title,
+      bodyText: document.body.innerText.slice(0, 1800),
+      homeScreen: Boolean(document.querySelector('.home-screen')),
+      profileSidebar: Boolean(document.querySelector('.home-screen .profile-sidebar-rich')),
+      fixtureList: Boolean(document.querySelector('.home-screen .chats-fixture-list')),
+      cards: document.querySelectorAll('.home-screen .match-card').length,
+      loading: Boolean(document.querySelector('.loading-screen')),
+    }));
+    throw new Error('ChatsCard did not render. Browser diagnostics: ' + JSON.stringify({
+      state: stateSnapshot,
+      network: browserDiagnostics,
+      cause: error instanceof Error ? error.message : String(error),
+    }));
+  }
   await page.waitForFunction(() => document.querySelectorAll('.home-screen .match-card').length >= 8, null, { timeout: 45000 });
   if (state !== 'guest') {
     await page.waitForSelector('.home-screen .match-card-channel-avatar', { timeout: 15000 });
