@@ -3,10 +3,8 @@
 // RN port of funspot's PostComments widget.
 //
 // Deviations from the Flutter source, all deliberate:
-//   1. No AppCache. The Flutter version caches comments to a RAM+disk store
-//      with a 30-second freshness window and falls back to cache on network
-//      failure. This port reproduces that with a module-level Map<postId,
-//      {comments, lastLoad}> — same semantics, no new dependency.
+//   1. Comments use the shared persistent React Query AppCache, with the
+//      Flutter-compatible 30-second freshness window and stale-cache fallback.
 //   2. No NotificationService.sendNotification. The Flutter version fires
 //      two pushes (reply → parent author, comment → post owner). The send
 //      function isn't exported by @funspot/core yet, so the calls are
@@ -246,8 +244,8 @@ export default function PostCommentsModal({
         const commentsKey = queryKeys.postComments(postId);
         const cachedComments = queryClient.getQueryData<CommentData[]>(commentsKey);
         const cachedAt = queryClient.getQueryState(commentsKey)?.dataUpdatedAt ?? 0;
+        setComments(cachedComments ?? []);
         if (cachedComments) {
-            setComments(cachedComments);
             if (Date.now() - cachedAt < 30_000) {
                 setLoading(false);
                 return;
