@@ -42,7 +42,7 @@ export function compactPersistedClient(client: PersistedClient): PersistedClient
   const ranked = client.clientState.queries.map((query, index) => {
     const boundedQuery = {
       ...query,
-      state: { ...query.state, data: boundPayload(query.state.data) },
+      state: { ...query.state, data: boundPayload(query.state.data, String(query.queryKey[0] ?? '')) },
     };
     return {
       query: boundedQuery,
@@ -72,7 +72,7 @@ export function compactPersistedClient(client: PersistedClient): PersistedClient
         .filter(({ index }) => retained.has(index))
         .map(({ query }) => ({
           ...query,
-          state: { ...query.state, data: boundPayload(query.state.data) },
+          state: { ...query.state, data: boundPayload(query.state.data, String(query.queryKey[0] ?? '')) },
         })),
     },
   };
