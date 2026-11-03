@@ -52,6 +52,18 @@ function flushPendingNotificationNavigation() {
   pendingNotificationChat = null;
 }
 
+function normalizePushData(data: Record<string, string | object> | undefined): Record<string, string> {
+  const normalized: Record<string, string> = {};
+  for (const [key, value] of Object.entries(data ?? {})) {
+    if (typeof value === 'string') normalized[key] = value;
+    else {
+      const serialized = JSON.stringify(value);
+      if (serialized !== undefined) normalized[key] = serialized;
+    }
+  }
+  return normalized;
+}
+
 function openChatFromPush(data: Record<string, string> | undefined) {
   const channelId = data?.channel_id;
   if (!channelId) return;
@@ -91,7 +103,7 @@ function NotificationRuntime() {
       });
     };
     const stopForeground = onForegroundMessage((message) => {
-      const data = message.data ?? {};
+      const data = normalizePushData(message.data);
       void NotificationService.pushToStream({ data });
       const foregroundTitle = message.notification?.title ?? 'Funspot';
       const foregroundBody = message.notification?.body ?? '';
@@ -102,13 +114,13 @@ function NotificationRuntime() {
         });
       }
     });
-    const stopOpened = onNotificationOpenedApp((message) => openChatFromPush(message.data));
+    const stopOpened = onNotificationOpenedApp((message) => openChatFromPush(normalizePushData(message.data)));
     const stopRefresh = onTokenRefresh(register);
     const appStateSubscription = AppState.addEventListener('change', (nextState) => {
       if (nextState === 'active') reconcile();
     });
     void getInitialNotification().then((message) => {
-      if (message) openChatFromPush(message.data);
+      if (message) openChatFromPush(normalizePushData(message.data));
     });
     reconcile();
     return () => {
