@@ -17,11 +17,21 @@ export default function NotificationGate({
     onRetry: () => Promise<void>;
 }) {
     const [requesting, setRequesting] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     async function handlePress() {
+        if (requesting) return;
         setRequesting(true);
-        await onRetry();
-        setRequesting(false);
+        setError(null);
+        try {
+            await onRetry();
+        } catch {
+            setError('Notifications could not be enabled. Check your device settings and try again.');
+        } finally {
+            // A rejected permission/token-registration request must never leave
+            // the gate permanently disabled.
+            setRequesting(false);
+        }
     }
 
     return (
@@ -36,7 +46,9 @@ export default function NotificationGate({
                         Funspot needs notification permission before you can log in, so you never miss
                         votes, comments, or comrade activity.
                     </Text>
+                    {error ? <Text accessibilityRole="alert" style={styles.error}>{error}</Text> : null}
                     <Pressable
+                        accessibilityRole="button"
                         onPress={handlePress}
                         disabled={requesting}
                         style={[styles.button, requesting && styles.buttonDisabled]}
@@ -87,6 +99,13 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         lineHeight: 18,
         marginBottom: 18,
+    },
+    error: {
+        color: '#FCA5A5',
+        fontSize: 12,
+        lineHeight: 17,
+        textAlign: 'center',
+        marginBottom: 14,
     },
     button: {
         width: '100%',
