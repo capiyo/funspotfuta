@@ -98,6 +98,7 @@ export default function PostCommentsModal({
   const { userId, username, authToken } = useAuth();
   const toast = useToast();
   const queryClient = useQueryClient();
+  const loadRequestId = useRef(0);
   const dialogRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -135,6 +136,7 @@ export default function PostCommentsModal({
 
   const loadComments = useCallback(async () => {
     if (!postId) return;
+    const requestId = ++loadRequestId.current;
     setLoading(true);
     setError('');
     const commentsKey = queryKeys.postComments(postId);
@@ -146,21 +148,24 @@ export default function PostCommentsModal({
     }
     try {
       const response = await fetch(`${API_BASE}/posts/${postId}/comments`, { headers });
-      if (response.status === 200) {
+      if (response.status === 200 && requestId === loadRequestId.current) {
         const body = await response.json();
         const raw = body?.comments;
         const list: CommentData[] = Array.isArray(raw) ? raw.map((comment: any) => parseCommentFromJson(comment)) : [];
         queryClient.setQueryData(commentsKey, list);
         setComments(list);
-      } else if ((cachedComments?.length ?? 0) === 0) {
+      } else if (requestId === loadRequestId.current && (cachedComments?.length ?? 0) === 0) {
         setError('Failed to load comments');
       }
     } catch (e: any) {
-      if ((cachedComments?.length ?? 0) === 0) setError(e?.message ?? 'Failed to load comments');
-    } finally { setLoading(false); }
+      if (requestId === loadRequestId.current && (cachedComments?.length ?? 0) === 0) setError(e?.message ?? 'Failed to load comments');
+    } finally { if (requestId === loadRequestId.current) setLoading(false); }
   }, [postId, authToken, queryClient]); // Headers intentionally follow the current auth token.
 
-  useEffect(() => { if (visible) void loadComments(); }, [visible, loadComments]);
+  useEffect(() => {
+    if (visible) void loadComments();
+    return () => { loadRequestId.current += 1; };
+  }, [visible, loadComments]);
 
   async function sendPushNotification(newComment: CommentData, parentCommentId: string | null) {
     try {
@@ -225,7 +230,6 @@ export default function PostCommentsModal({
       const data = await response.json();
       const raw = data?.success === true && data?.data ? data.data : data?.comment ?? data;
       const newComment = parseCommentFromJson(raw);
-      await sendPushNotification(newComment, parentCommentId);
       const commentsKey = queryKeys.postComments(postId);
       const next = queryClient.setQueryData<CommentData[]>(commentsKey, (previous = []) => {
         if (parentCommentId) {
@@ -240,6 +244,7 @@ export default function PostCommentsModal({
         return [newComment, ...previous];
       }) ?? [];
       setComments(next);
+      void sendPushNotification(newComment, parentCommentId);
       setDraft('');
       setReplyingTo(null);
       toast.showSuccess(parentCommentId ? 'Reply posted!' : 'Comment posted!');
