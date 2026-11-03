@@ -888,7 +888,8 @@ export default function ProfileModal({
               >
                 <Image
                   source={{ uri: profile?.avatarUrl ?? `https://i.pravatar.cc/150?u=${encodeURIComponent(targetUserId || 'guest')}` }}
-                  style={{ width: 36, height: 36, borderRadius: 18 }}
+                  style={{ width: 36, height: 36, aspectRatio: 1, borderRadius: 18 }}
+                  resizeMode="cover"
                 />
                 {isCurrentUser && <View pointerEvents="none" style={{ position: 'absolute', right: -2, bottom: -2, width: 16, height: 16, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.primary, borderWidth: 2, borderColor: colors.background }}><Camera size={9} color={colors.textInverse} /></View>}
                 {avatarUploading && <ActivityIndicator size="small" color={colors.primary} style={{ position: 'absolute' }} />}
