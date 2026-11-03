@@ -49,7 +49,7 @@ async function initializeEncryptedCache(): Promise<boolean> {
       ]);
       const legacyToken = legacy.getString('auth:usertoken');
       const legacyUser = legacy.getString('auth:user');
-      if (!secureToken && !secureUser && legacyToken && legacyUser) {
+      if ((!secureToken || !secureUser) && legacyToken && legacyUser) {
         let migratedUser = legacyUser;
         const legacyPhone = legacy.getString('auth:phone');
         try {
