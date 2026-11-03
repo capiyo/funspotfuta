@@ -9,7 +9,9 @@
     "start": "vite preview",
     "lint": "eslint src --ext .ts,.tsx",
     "typecheck": "tsc --noEmit",
-    "verify:card-parity": "node scripts/verify-card-parity.mjs"
+    "verify:card-parity": "node scripts/verify-card-parity.mjs",
+    "predev": "node scripts/generate-firebase-config.mjs",
+    "prebuild": "node scripts/generate-firebase-config.mjs"
   },
   "dependencies": {
     "@funspot/core": "*",

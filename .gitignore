@@ -61,6 +61,8 @@ ehthumbs.db
 *.swp
 *.swo
 
+apps/web/public/firebase-config.js
+
 # === Testing ===
 coverage/
 
