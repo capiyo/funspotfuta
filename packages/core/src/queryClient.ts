@@ -13,8 +13,8 @@ const DAY = 24 * 60 * 60 * 1000;
  * This is the shared persisted cache for web and mobile. It covers the Flutter
  * AppCache domains as those domains are migrated to React Query: fixtures,
  * votes, fixture/channel chat, channels, profile/account display data,
- * comrades, feed/post interactions, history, aftermatch, notifications and
- * per-fixture activity counters.
+ * comrades, feed/post interactions and comments, live fixture commentary,
+ * history, aftermatch, notifications and per-fixture activity counters.
  *
  * Adding a prefix permits data under that prefix to persist; each screen still
  * needs to read/write the matching query key (do not bypass this cache with
