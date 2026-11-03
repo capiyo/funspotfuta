@@ -25,6 +25,7 @@
 
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { NotificationService } from '@/lib/api/notification-service';
 import {
     View,
@@ -45,7 +46,7 @@ import {
     Send,
     AlertCircle,
 } from 'lucide-react-native';
-import { FAN_SPACING, FAN_RADIUS } from '@funspot/core';
+import { FAN_SPACING, FAN_RADIUS, queryKeys } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { useToast } from '@/lib/toast/toast-context';
@@ -54,7 +55,6 @@ import { Avatar } from '@/components/ui/Avatar';
 type FanColors = ReturnType<typeof useFanColors>;
 
 const API_BASE = 'https://clash-api-m5mr.onrender.com/api';
-const CACHE_FRESH_MS = 30_000;
 
 // ═══════════════════════════════════════════════════════════════
 //  COMMENT SHAPE  (matches _parseCommentFromJson)
@@ -114,31 +114,6 @@ function parseCommentFromJson(json: any): CommentData {
 
 function isReply(c: CommentData): boolean {
     return !!c.parent_comment_id && c.parent_comment_id.length > 0;
-}
-
-// ═══════════════════════════════════════════════════════════════
-//  MODULE-LEVEL CACHE  (mirrors AppCache.getCachedComments et al)
-// ═══════════════════════════════════════════════════════════════
-
-interface CacheEntry {
-    comments: CommentData[];
-    lastLoad: number;
-}
-
-const commentCache = new Map<string, CacheEntry>();
-
-function getCached(postId: string): CacheEntry | null {
-    return commentCache.get(postId) ?? null;
-}
-
-function setCache(postId: string, comments: CommentData[]): void {
-    commentCache.set(postId, { comments, lastLoad: Date.now() });
-}
-
-function patchCache(postId: string, updater: (prev: CommentData[]) => CommentData[]) {
-    const existing = commentCache.get(postId);
-    const next = updater(existing?.comments ?? []);
-    commentCache.set(postId, { comments: next, lastLoad: Date.now() });
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -243,6 +218,7 @@ export default function PostCommentsModal({
     const styles = createStyles(colors);
     const { userId, username, authToken } = useAuth();
     const toast = useToast();
+    const queryClient = useQueryClient();
 
     const [comments, setComments] = useState<CommentData[]>([]);
     const [loading, setLoading] = useState(false);
@@ -267,11 +243,12 @@ export default function PostCommentsModal({
         setError('');
 
         // Cache-first: show cached immediately if present
-        const cached = getCached(postId);
-        if (cached && cached.comments.length > 0) {
-            setComments(cached.comments);
-            // Fresh enough — skip the network call entirely, matching Flutter
-            if (Date.now() - cached.lastLoad < CACHE_FRESH_MS) {
+        const commentsKey = queryKeys.postComments(postId);
+        const cachedComments = queryClient.getQueryData<CommentData[]>(commentsKey);
+        const cachedAt = queryClient.getQueryState(commentsKey)?.dataUpdatedAt ?? 0;
+        if (cachedComments) {
+            setComments(cachedComments);
+            if (Date.now() - cachedAt < 30_000) {
                 setLoading(false);
                 return;
             }
@@ -288,22 +265,22 @@ export default function PostCommentsModal({
                 const list: CommentData[] = Array.isArray(raw)
                     ? raw.map((c: any) => parseCommentFromJson(c))
                     : [];
-                setCache(postId, list);
+                queryClient.setQueryData(commentsKey, list);
                 setComments(list);
             } else {
                 // Match Flutter: keep cached on failure, only surface error if empty
-                if (comments.length === 0) {
+                if ((cachedComments?.length ?? comments.length) === 0) {
                     setError('Failed to load comments');
                 }
             }
         } catch (e: any) {
-            if (comments.length === 0) {
+            if ((cachedComments?.length ?? comments.length) === 0) {
                 setError(e?.message ?? 'Failed to load comments');
             }
         } finally {
             setLoading(false);
         }
-    }, [postId, authToken]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [postId, authToken, queryClient]);
 
     useEffect(() => {
         if (!visible) return;
@@ -431,27 +408,24 @@ export default function PostCommentsModal({
 
             await sendPushNotification(newComment, parentCommentId);
 
-            setComments((prev) => {
-                let next: CommentData[];
+            const commentsKey = queryKeys.postComments(postId);
+            const next = queryClient.setQueryData<CommentData[]>(commentsKey, (previous = []) => {
                 if (parentCommentId) {
-                    const idx = prev.findIndex((c) => c.id === parentCommentId);
+                    const idx = previous.findIndex((comment) => comment.id === parentCommentId);
                     if (idx !== -1) {
-                        next = prev.slice();
-                        const parent = next[idx];
-                        next[idx] = {
+                        const updated = previous.slice();
+                        const parent = updated[idx];
+                        updated[idx] = {
                             ...parent,
                             replies: [newComment, ...(parent.replies ?? [])],
                             reply_count: (parent.reply_count ?? 0) + 1,
                         };
-                    } else {
-                        next = [newComment, ...prev];
+                        return updated;
                     }
-                } else {
-                    next = [newComment, ...prev];
                 }
-                setCache(postId, next);
-                return next;
-            });
+                return [newComment, ...previous];
+            }) ?? [];
+            setComments(next);
 
             setDraft('');
             setReplyingTo(null);
