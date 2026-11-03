@@ -6,6 +6,8 @@
 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { mobileCache } from '@funspot/storage';
+import { getFcmTokenIfPermitted } from '@/lib/firebase';
+import { NotificationService } from '@/lib/api/notification-service';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 interface AuthState {
@@ -221,12 +223,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(async () => {
     try {
-      clearCachedSession();
-      await AsyncStorage.multiRemove(LOGOUT_KEYS);
+      if (state.userId) {
+        const fcmToken = await getFcmTokenIfPermitted();
+        if (fcmToken) {
+          await NotificationService.unregisterToken({
+            userId: state.userId,
+            fcmToken,
+            authToken: state.authToken ?? undefined,
+          });
+        }
+      }
+    } catch (error) {
+      if (__DEV__) console.warn('[notifications] Logout token cleanup skipped', error);
     } finally {
+      clearCachedSession();
+      await AsyncStorage.multiRemove(LOGOUT_KEYS).catch(() => undefined);
       setState({ ...initialState, isInitialized: true });
     }
-  }, []);
+  }, [state.authToken, state.userId]);
 
   const updateAuthToken = useCallback(
     async (newToken: string, newRefreshToken?: string): Promise<boolean> => {

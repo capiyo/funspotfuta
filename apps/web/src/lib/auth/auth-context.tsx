@@ -3,6 +3,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { useQueryClient } from '@tanstack/react-query';
 import { firebaseAuth } from '../firebase';
+import { getExistingWebPushToken, NotificationService } from '../api/notification-service';
 import { indexedDbQueryPersister } from '../query-persistence';
 import { getAllFixtures, getVotesByUserStrict, feedQueryOptions, comradesQueryOptions, profileQueryOptions, queryKeys } from '@funspot/core';
 
@@ -136,11 +137,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const logout = useCallback(async () => {
+    if (state.userId) {
+      try {
+        const fcmToken = await getExistingWebPushToken();
+        if (fcmToken) {
+          await NotificationService.unregisterToken({
+            userId: state.userId,
+            fcmToken,
+            authToken: state.authToken ?? undefined,
+          });
+        }
+      } catch {
+        // Push cleanup is best-effort; logout must always complete.
+      }
+    }
     queryClient.clear();
     if (firebaseAuth) await signOut(firebaseAuth).catch(() => undefined);
     LOGOUT_KEYS.forEach((key) => localStorage.removeItem(key));
     setState({ ...initialState, isInitialized: true });
-  }, [queryClient]);
+  }, [queryClient, state.authToken, state.userId]);
 
   const updateAuthToken = useCallback(async (newToken: string, newRefreshToken?: string): Promise<boolean> => {
     if (!state.isLoggedIn) return false;
