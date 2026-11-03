@@ -1,0 +1,35 @@
+/* Each feed column owns its own vertical flow. A tall image or video in one
+   column never creates a matching row gap in the other column. */
+.feed-list-masonry {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  column-gap: 14px;
+  row-gap: 0;
+}
+
+.feed-post-column {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-width: 0;
+  gap: 0;
+}
+
+.feed-post-column > .feed-item {
+  display: flex;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 650px) {
+  .feed-list-masonry {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .feed-post-column {
+    display: contents;
+  }
+}

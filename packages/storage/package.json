@@ -1,0 +1,12 @@
+{
+  "name": "@funspot/storage",
+  "version": "0.0.0",
+  "private": true,
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "dependencies": {
+    "react-native-mmkv": "^2.12.2",
+    "expo-secure-store": "~13.0.2",
+    "expo-crypto": "~13.0.2"
+  }
+}

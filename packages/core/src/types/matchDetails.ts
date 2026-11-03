@@ -1,0 +1,224 @@
+// components/MatchDetailsModal/types.ts
+import type { Fixture } from './fixture';
+
+// ═══════════════════════════════════════════════════════════════
+//  ENUM
+// ═══════════════════════════════════════════════════════════════
+
+export enum PositionRank {
+    goalkeeper = 'goalkeeper',
+    defender = 'defender',
+    midfielder = 'midfielder',
+    forward = 'forward',
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  MATCH STATISTICS
+// ═══════════════════════════════════════════════════════════════
+
+export interface MatchStatistics {
+    ballPossessionHome: number;
+    ballPossessionAway: number;
+    totalShotsHome: number;
+    totalShotsAway: number;
+    shotsOnTargetHome: number;
+    shotsOnTargetAway: number;
+    cornersHome: number;
+    cornersAway: number;
+    foulsHome: number;
+    foulsAway: number;
+    offsidesHome: number;
+    offsidesAway: number;
+    yellowCardsHome: number;
+    yellowCardsAway: number;
+    passAccuracyHome: number;
+    passAccuracyAway: number;
+}
+
+function getInt(obj: any, field1: string, field2?: string): number {
+    const v1 = obj?.[field1];
+    const v2 = field2 ? obj?.[field2] : undefined;
+    const v = v1 ?? v2 ?? 0;
+    return typeof v === 'number' ? v : parseInt(String(v), 10) || 0;
+}
+
+function getPercent(obj: any, field1: string, field2?: string): number {
+    const v = obj?.[field1] ?? (field2 ? obj?.[field2] : undefined);
+    if (typeof v === 'number' && Number.isFinite(v)) {
+        // Providers may send percentages as either 0..1 ratios or 0..100 values.
+        // The live backend validates/stores the latter, including decimal values.
+        return v > 0 && v < 1 ? Math.round(v * 100) : Math.round(v);
+    }
+    return 0;
+}
+
+export function parseMatchStatistics(json: any): MatchStatistics {
+    const data = json?.data ?? json;
+    let stats: any;
+
+    if (Array.isArray(data?.statistics) && data.statistics.length > 0) {
+        const latest = data.statistics[data.statistics.length - 1];
+        stats = latest?.statistics ?? latest;
+    } else if (data?.statistics && typeof data.statistics === 'object') {
+        stats = data.statistics;
+    } else {
+        stats = data;
+    }
+
+    // The latest-statistics endpoint is a flattened snake_case object,
+    // while history and WebSocket events use nested home/away snapshots.
+    const home = stats?.home ?? {
+        possession: stats?.ball_possession_home,
+        shots: stats?.total_shots_home,
+        shotsOnTarget: stats?.shots_on_target_home,
+        shotsOffTarget: stats?.shots_off_target_home,
+        corners: stats?.corners_home,
+        fouls: stats?.fouls_home,
+        offsides: stats?.offsides_home,
+        yellowCards: stats?.yellow_cards_home,
+        redCards: stats?.red_cards_home,
+        passAccuracy: stats?.pass_accuracy_home,
+    };
+    const away = stats?.away ?? {
+        possession: stats?.ball_possession_away,
+        shots: stats?.total_shots_away,
+        shotsOnTarget: stats?.shots_on_target_away,
+        shotsOffTarget: stats?.shots_off_target_away,
+        corners: stats?.corners_away,
+        fouls: stats?.fouls_away,
+        offsides: stats?.offsides_away,
+        yellowCards: stats?.yellow_cards_away,
+        redCards: stats?.red_cards_away,
+        passAccuracy: stats?.pass_accuracy_away,
+    };
+
+    return {
+        ballPossessionHome: getPercent(home, 'possession', 'ball_possession'),
+        ballPossessionAway: getPercent(away, 'possession', 'ball_possession'),
+        totalShotsHome: getInt(home, 'shots', 'total_shots'),
+        totalShotsAway: getInt(away, 'shots', 'total_shots'),
+        shotsOnTargetHome: getInt(home, 'shotsOnTarget', 'shots_on_target'),
+        shotsOnTargetAway: getInt(away, 'shotsOnTarget', 'shots_on_target'),
+        cornersHome: getInt(home, 'corners'),
+        cornersAway: getInt(away, 'corners'),
+        foulsHome: getInt(home, 'fouls'),
+        foulsAway: getInt(away, 'fouls'),
+        offsidesHome: getInt(home, 'offsides'),
+        offsidesAway: getInt(away, 'offsides'),
+        yellowCardsHome: getInt(home, 'yellowCards', 'yellow_cards'),
+        yellowCardsAway: getInt(away, 'yellowCards', 'yellow_cards'),
+        passAccuracyHome: getPercent(home, 'passAccuracy', 'pass_accuracy'),
+        passAccuracyAway: getPercent(away, 'passAccuracy', 'pass_accuracy'),
+    };
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  SIMPLIFIED PLAYER
+// ═══════════════════════════════════════════════════════════════
+
+export interface SimplifiedPlayer {
+    name: string;
+    number: number;
+    position: string;
+    captain: boolean;
+    /** Stable ID from the lineup provider, when supplied. */
+    providerId?: string | null;
+    /** Existing provider headshot URL, when supplied with the lineup. */
+    photoUrl?: string | null;
+    /** Team identity supplied by the lineup payload, when available. */
+    teamName?: string | null;
+    rating?: number | null;
+    imageUrl?: string | null;
+}
+
+export function parseSimplifiedPlayer(json: any): SimplifiedPlayer {
+    const name =
+        json?.name?.toString() ??
+        json?.player?.name?.toString() ??
+        json?.athlete?.name?.toString() ??
+        json?.displayName?.toString() ??
+        json?.fullName?.toString() ??
+        `Player ${json?.competitorId ?? json?.id ?? ''}`;
+
+    const rawNumber =
+        json?.number ??
+        json?.jerseyNumber ??
+        json?.jersey_number ??
+        json?.shirtNumber ??
+        json?.shirt_number ??
+        json?.squadNumber ??
+        json?.squad_number ??
+        json?.shirtNo ??
+        json?.jerseyNo ??
+        json?.competitorId ??
+        0;
+    const number =
+        typeof rawNumber === 'number' ? rawNumber : parseInt(String(rawNumber), 10) || 0;
+
+    const posField = json?.position;
+    const position =
+        posField && typeof posField === 'object'
+            ? posField.shortName?.toString() ?? posField.name?.toString() ?? ''
+            : posField?.toString() ?? '';
+
+    const captain = json?.captain === true;
+    const providerId = (json?.athleteId ?? json?.athlete_id ?? json?.player_id ?? json?.playerId ?? json?.player?.id ?? json?.athlete?.id ?? json?.competitorId ?? json?.id ?? null)?.toString() ?? null;
+    const photoCandidate = json?.photoUrl ?? json?.photo_url ?? json?.headshotUrl ?? json?.headshot_url ?? json?.imageUrl ?? json?.image_url ?? json?.player?.photo ?? json?.player?.image ?? json?.athlete?.photo ?? json?.photo ?? json?.image ?? json?.picture ?? null;
+    const photoUrl = typeof photoCandidate === 'string' && photoCandidate.startsWith('https://') ? photoCandidate : null;
+    const rawRating = json?.rating ?? json?.ranking ?? json?.playerRating ?? null;
+    const rating = typeof rawRating === 'number' && Number.isFinite(rawRating) ? rawRating : null;
+    const teamCandidate = json?.teamName ?? json?.team_name ?? json?.team?.name ?? null;
+    const teamName = typeof teamCandidate === 'string' ? teamCandidate : null;
+
+    return { name, number, position, captain, providerId, photoUrl, teamName, rating, imageUrl: photoUrl };
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  LINEUPS
+// ═══════════════════════════════════════════════════════════════
+
+export interface LineupsData {
+    homeFormation: string;
+    awayFormation: string;
+    homeCoach: string;
+    awayCoach: string;
+    homeStartingXI: SimplifiedPlayer[];
+    homeBench: SimplifiedPlayer[];
+    awayStartingXI: SimplifiedPlayer[];
+    awayBench: SimplifiedPlayer[];
+}
+
+export function parseLineupsData(json: any): LineupsData {
+    const data = json?.data && typeof json.data === 'object' ? json.data : json;
+
+    const parseList = (raw: any): SimplifiedPlayer[] => {
+        if (!Array.isArray(raw)) return [];
+        return raw
+            .filter((p) => p && typeof p === 'object')
+            .map((p) => parseSimplifiedPlayer(p));
+    };
+
+    return {
+        homeFormation: data?.home_formation?.toString() ?? '4-3-3',
+        awayFormation: data?.away_formation?.toString() ?? '4-3-3',
+        homeCoach: data?.home_coach?.toString() ?? 'TBD',
+        awayCoach: data?.away_coach?.toString() ?? 'TBD',
+        homeStartingXI: parseList(data?.home_starting_xi),
+        homeBench: parseList(data?.home_bench),
+        awayStartingXI: parseList(data?.away_starting_xi),
+        awayBench: parseList(data?.away_bench),
+    };
+}
+
+// ═══════════════════════════════════════════════════════════════
+//  SHARED SHORT-NAME HELPER  (was duplicated in Flutter: _BenchColumn
+//  and _PlayerDot — factored into one place per the task brief)
+// ═══════════════════════════════════════════════════════════════
+
+export function shortName(name: string): string {
+    const parts = name.trim().split(' ');
+    if (parts.length === 1) {
+        return name.length > 12 ? `${name.substring(0, 11)}…` : name;
+    }
+    return `${parts[0][0]}. ${parts[parts.length - 1]}`;
+}
