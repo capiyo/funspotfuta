@@ -23,7 +23,7 @@
 // the league label in the top-left. Without it the card shows the league.
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import type { ChangeEvent, CSSProperties, KeyboardEvent } from 'react';
 import {
   Activity,
@@ -38,6 +38,7 @@ import {
   type Fixture,
   type Poke,
   getOpenPokes,
+  getFixtureUnreadCount,
   mergeOpenPokes,
   queryKeys,
   hasScores,
@@ -164,6 +165,13 @@ export function MatchCard({
 }) {
   const colors = useFanColors();
   const { userId, username, isLoggedIn, authToken } = useAuth();
+  const fixtureId = String(fixture.matchId || fixture.id || '');
+  const { data: fixtureUnreadCount = 0 } = useQuery({
+    queryKey: queryKeys.fixtureUnreadCount(channelId ?? '', fixtureId, userId ?? ''),
+    queryFn: () => getFixtureUnreadCount(channelId!, fixtureId, userId!, authToken ?? undefined),
+    enabled: Boolean(isLoggedIn && userId && channelId && fixtureId),
+    staleTime: 15_000,
+  });
   const { requireLogin } = useLoginModal();
   const [draft, setDraft] = useState('');
   const [openPokes, setOpenPokes] = useState<Poke[]>([]);
@@ -590,6 +598,7 @@ export function MatchCard({
                   )}
                 </span>
                 <span className="match-card-channel-name" style={styles.channelName}>{channel.name}</span>
+                {fixtureUnreadCount > 0 && <span aria-label={`${fixtureUnreadCount} unread messages`} style={{ minWidth: 18, height: 18, marginLeft: 6, padding: '0 5px', borderRadius: 9, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: colors.primary, color: '#fff', fontSize: 10, fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>{fixtureUnreadCount > 99 ? '99+' : fixtureUnreadCount}</span>}
               </button>
             ) : null}
 
