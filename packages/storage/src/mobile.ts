@@ -37,6 +37,9 @@ async function initializeEncryptedCache(): Promise<boolean> {
     // erasing the old unencrypted MMKV file.
     try {
       const legacy = new MMKV({ id: 'app-cache' });
+      // Preserve the previous query snapshot while moving it into encrypted
+      // MMKV. Query cache buster validation decides whether it is reusable.
+      const legacyQuerySnapshot = legacy.getString('FUNSPOT_QUERY_CACHE');
       const [secureToken, secureUser] = await Promise.all([
         SecureStore.getItemAsync('auth.usertoken'),
         SecureStore.getItemAsync('auth.user'),
@@ -60,12 +63,14 @@ async function initializeEncryptedCache(): Promise<boolean> {
         if (legacyRefresh) await SecureStore.setItemAsync('auth.refreshToken', legacyRefresh);
       }
       legacy.clearAll();
+      mmkv = new MMKV({ id: 'app-cache-v2', encryptionKey });
+      if (legacyQuerySnapshot) mmkv.set('FUNSPOT_QUERY_CACHE', legacyQuerySnapshot);
     } catch {
       // A missing legacy store is expected on fresh installs. SecureStore
       // failures are handled by the outer guard, which keeps the cache volatile.
       throw new Error('Unable to migrate legacy native session securely');
     }
-    mmkv = new MMKV({ id: 'app-cache-v2', encryptionKey });
+    if (!mmkv) mmkv = new MMKV({ id: 'app-cache-v2', encryptionKey });
     for (const [key, value] of fallback) mmkv.set(key, value);
     fallback.clear();
     return true;
@@ -103,6 +108,9 @@ export const mobileCache = {
     try {
       mmkv.set(key, value);
     } catch (error) {
+      // Preserve current-session behavior in memory if native persistence
+      // becomes unavailable; never switch to an unencrypted disk fallback.
+      fallback.set(key, value);
       if (isDevelopment) console.warn('[storage] encrypted MMKV write failed', error);
     }
   },
