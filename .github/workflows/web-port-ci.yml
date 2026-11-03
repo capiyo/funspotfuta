@@ -19,7 +19,9 @@ jobs:
       - run: npm run typecheck:web
       - run: npm run typecheck:mobile
       - name: Verify Android JavaScript bundle
-        run: cd apps/mobile && npx expo export --platform android --output-dir /tmp/funspot-mobile-export
+        run: cd apps/mobile && npx expo export --platform android --output-dir /tmp/funspot-mobile-android-export
+      - name: Verify iOS JavaScript bundle
+        run: cd apps/mobile && npx expo export --platform ios --output-dir /tmp/funspot-mobile-ios-export
       - run: npm run lint:web
       - run: npm run build:web
       - name: Install Playwright and Chromium
