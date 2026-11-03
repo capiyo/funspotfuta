@@ -4097,3 +4097,63 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visib
 .message-screen .message-send-button:focus-visible {
   box-shadow: 0 0 0 2px var(--fan-background, #070d09), 0 0 0 4px rgb(125 241 98 / 45%) !important;
 }
+
+
+/* Balanced desktop home: give Chats a deliberate working width and let Feed
+   use the remaining space without stretching individual post cards too far. */
+@media (min-width: 1200px) {
+  .home-screen .profile-sidebar-rich {
+    width: 300px;
+    flex: 0 0 300px;
+  }
+
+  .home-screen .home-columns {
+    display: grid;
+    grid-template-columns: clamp(480px, 34vw, 640px) minmax(0, 1fr);
+    column-gap: 16px;
+  }
+
+  .home-screen .chats-column {
+    border-right: 0;
+    min-width: 0;
+  }
+
+  .home-screen .feed-column {
+    min-width: 0;
+  }
+
+  .home-screen .feed-list-masonry {
+    width: 100%;
+    max-width: 840px;
+    box-sizing: border-box;
+    margin-inline: auto;
+    padding-inline: 12px;
+    column-gap: 16px;
+  }
+
+  .home-screen .match-card {
+    width: 100%;
+    max-width: 600px;
+    margin-inline: auto;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1199px) {
+  .home-screen .home-columns {
+    display: grid;
+    grid-template-columns: minmax(420px, 44%) minmax(0, 1fr);
+    column-gap: 12px;
+  }
+
+  .home-screen .chats-column {
+    border-right: 0;
+    min-width: 0;
+  }
+
+  .home-screen .feed-list-masonry {
+    max-width: 760px;
+    margin-inline: auto;
+    padding-inline: 10px;
+    box-sizing: border-box;
+  }
+}
