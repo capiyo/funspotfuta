@@ -755,6 +755,19 @@ interface BenchColumnProps {
 
 export function BenchColumn({ players, color }: BenchColumnProps) {
     const colors = useFanColors();
+    const [benchHeadshots, setBenchHeadshots] = useState<Record<string, string>>({});
+
+    useEffect(() => {
+        let cancelled = false;
+        const batch = players.map((player) => ({
+            player,
+            teamName: player.teamName ?? '',
+        }));
+        void resolvePlayerHeadshots(batch, undefined, AsyncStorage).then((result) => {
+            if (!cancelled) setBenchHeadshots(result);
+        });
+        return () => { cancelled = true; };
+    }, [players]);
 
     if (players.length === 0) {
         return (
@@ -778,6 +791,18 @@ export function BenchColumn({ players, color }: BenchColumnProps) {
                         { backgroundColor: hexWithAlpha(color, 0.06) },
                     ]}
                 >
+                    {(() => {
+                        const photoUrl = p.photoUrl ?? p.imageUrl ??
+                            benchHeadshots[playerHeadshotKey(p, p.teamName ?? '')];
+                        return photoUrl ? (
+                            <ExpoImage
+                                source={{ uri: photoUrl }}
+                                contentFit="cover"
+                                cachePolicy="memory-disk"
+                                style={{ width: 22, height: 22, borderRadius: 11 }}
+                            />
+                        ) : null;
+                    })()}
                     <View
                         style={[
                             styles.benchNumber,
