@@ -86,6 +86,45 @@ describe('open poke cache reconciliation', () => {
     expect(capCachedMessages(messages, 0)).toEqual([]);
   });
 
+  it('persists live commentary and feed comments as first-class AppCache data', () => {
+    const shouldDehydrate = PERSIST_OPTIONS.dehydrateOptions.shouldDehydrateQuery;
+    expect(shouldDehydrate?.({
+      queryKey: queryKeys.liveEvents('fixture-1'),
+      state: { data: { events: [{ id: 'event-1', text: 'Goal' }] }, status: 'success' },
+    } as never)).toBe(true);
+    expect(shouldDehydrate?.({
+      queryKey: queryKeys.postComments('post-1'),
+      state: { data: [{ id: 'comment-1', text: 'Great post' }], status: 'success' },
+    } as never)).toBe(true);
+  });
+
+  it('bounds retained live commentary and feed comment history', () => {
+    const events = Array.from({ length: 140 }, (_, id) => ({ id }));
+    const comments = Array.from({ length: 90 }, (_, id) => ({ id }));
+    const persisted = {
+      timestamp: Date.now(),
+      buster: 'v10',
+      clientState: {
+        mutations: [],
+        queries: [
+          {
+            queryKey: queryKeys.liveEvents('fixture-1'),
+            state: { data: { events }, status: 'success', dataUpdatedAt: Date.now() },
+          },
+          {
+            queryKey: queryKeys.postComments('post-1'),
+            state: { data: comments, status: 'success', dataUpdatedAt: Date.now() },
+          },
+        ],
+      },
+    };
+    const compacted = compactPersistedClient(persisted as never);
+    const commentary = compacted.clientState.queries.find((query) => query.queryKey[0] === 'liveEvents');
+    const feedComments = compacted.clientState.queries.find((query) => query.queryKey[0] === 'postComments');
+    expect((commentary?.state.data as { events: unknown[] }).events).toHaveLength(100);
+    expect(feedComments?.state.data).toHaveLength(50);
+  });
+
   it('persists and restores successful cache data across a new QueryClient', async () => {
     const storage = memoryStorage();
     const first = createAppQueryClient(storage);
