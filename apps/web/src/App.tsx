@@ -67,7 +67,6 @@ function AppRoutes() {
     };
     window.addEventListener('focus', reconcile);
     document.addEventListener('visibilitychange', handleVisibility);
-    void syncToken();
     reconcile();
     return () => {
       active = false;

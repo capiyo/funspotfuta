@@ -111,9 +111,6 @@ function NotificationRuntime() {
       if (message) openChatFromPush(message.data);
     });
     reconcile();
-    void getFcmTokenIfPermitted().then((token) => {
-      if (token) register(token);
-    });
     return () => {
       active = false;
       stopForeground();
