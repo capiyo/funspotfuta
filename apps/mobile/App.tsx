@@ -41,14 +41,26 @@ import { getFcmTokenIfPermitted, getInitialNotification, onForegroundMessage, on
 SplashScreen.preventAutoHideAsync();
 
 const navigationRef = createNavigationContainerRef<RootStackParamList>();
+let pendingNotificationChat: { channelId: string; fixtureId?: string } | null = null;
+
+function flushPendingNotificationNavigation() {
+  if (!navigationRef.isReady() || !pendingNotificationChat) return;
+  navigationRef.navigate('Chat', pendingNotificationChat);
+  pendingNotificationChat = null;
+}
 
 function openChatFromPush(data: Record<string, string> | undefined) {
   const channelId = data?.channel_id;
-  if (!channelId || !navigationRef.isReady()) return;
-  navigationRef.navigate('Chat', {
+  if (!channelId) return;
+  const params = {
     channelId,
     ...(data.fixture_id ? { fixtureId: data.fixture_id } : {}),
-  });
+  };
+  if (!navigationRef.isReady()) {
+    pendingNotificationChat = params;
+    return;
+  }
+  navigationRef.navigate('Chat', params);
 }
 
 function NotificationRuntime() {
@@ -139,7 +151,7 @@ export default function App() {
               <QueryProvider>
                 <NotificationRuntime />
                 <View style={{ flex: 1, backgroundColor: colors.background }} onLayout={onFirstContentLayout}>
-                  <NavigationContainer ref={navigationRef} theme={navTheme}>
+                  <NavigationContainer ref={navigationRef} onReady={flushPendingNotificationNavigation} theme={navTheme}>
                     <RootNavigator />
                   </NavigationContainer>
                   <StatusBar style={dark ? 'light' : 'dark'} />
