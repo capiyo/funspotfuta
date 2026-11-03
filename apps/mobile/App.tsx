@@ -6,12 +6,13 @@
 // show a blank/splash delay even when useful screen data was already cached.
 
 import { useCallback, useEffect } from 'react';
-import { Platform, View } from 'react-native';
+import { AppState, Platform, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import {
   NavigationContainer,
   DarkTheme,
   DefaultTheme,
+  createNavigationContainerRef,
 } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import {
@@ -32,12 +33,23 @@ import { AuthProvider, useAuth } from '@/lib/auth/auth-context';
 import { LoginModalProvider } from './src/modals/Login-modal-context';
 import { ToastProvider } from '@/lib/toast/toast-context';
 import { QueryProvider } from './QueryProvider';
-import RootNavigator from '@/navigation/RootNavigator';
+import RootNavigator, { type RootStackParamList } from '@/navigation/RootNavigator';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { NotificationService } from '@/lib/api/notification-service';
-import { getFcmTokenIfPermitted, onForegroundMessage, onTokenRefresh } from '@/lib/firebase';
+import { getFcmTokenIfPermitted, getInitialNotification, onForegroundMessage, onNotificationOpenedApp, onTokenRefresh } from '@/lib/firebase';
 
 SplashScreen.preventAutoHideAsync();
+
+const navigationRef = createNavigationContainerRef<RootStackParamList>();
+
+function openChatFromPush(data: Record<string, string> | undefined) {
+  const channelId = data?.channel_id;
+  if (!channelId || !navigationRef.isReady()) return;
+  navigationRef.navigate('Chat', {
+    channelId,
+    ...(data.fixture_id ? { fixtureId: data.fixture_id } : {}),
+  });
+}
 
 function NotificationRuntime() {
   const { isLoggedIn, userId, authToken } = useAuth();
@@ -54,17 +66,30 @@ function NotificationRuntime() {
         authToken: authToken ?? undefined,
       });
     };
+    const reconcile = () => {
+      void NotificationService.reconcileFromServer({ userId, authToken: authToken ?? undefined });
+    };
     const stopForeground = onForegroundMessage((message) => {
       void NotificationService.pushToStream({ data: message.data ?? {} });
     });
+    const stopOpened = onNotificationOpenedApp((message) => openChatFromPush(message.data));
     const stopRefresh = onTokenRefresh(register);
+    const appStateSubscription = AppState.addEventListener('change', (nextState) => {
+      if (nextState === 'active') reconcile();
+    });
+    void getInitialNotification().then((message) => {
+      if (message) openChatFromPush(message.data);
+    });
+    reconcile();
     void getFcmTokenIfPermitted().then((token) => {
       if (token) register(token);
     });
     return () => {
       active = false;
       stopForeground();
+      stopOpened();
       stopRefresh();
+      appStateSubscription.remove();
     };
   }, [authToken, isLoggedIn, userId]);
 
@@ -114,7 +139,7 @@ export default function App() {
               <QueryProvider>
                 <NotificationRuntime />
                 <View style={{ flex: 1, backgroundColor: colors.background }} onLayout={onFirstContentLayout}>
-                  <NavigationContainer theme={navTheme}>
+                  <NavigationContainer ref={navigationRef} theme={navTheme}>
                     <RootNavigator />
                   </NavigationContainer>
                   <StatusBar style={dark ? 'light' : 'dark'} />
