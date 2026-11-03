@@ -46,14 +46,28 @@ async function getOrCreateEncryptionKey(db: IDBDatabase, keyId = CACHE_KEY): Pro
 
   if (!globalThis.crypto?.subtle) throw new Error('Web Crypto is unavailable; refusing plaintext cache persistence');
   const key = await crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
-  await new Promise<void>((resolve, reject) => {
-    const transaction = db.transaction(KEY_STORE_NAME, 'readwrite');
-    transaction.objectStore(KEY_STORE_NAME).put(key, keyId);
-    transaction.oncomplete = () => resolve();
-    transaction.onerror = () => reject(transaction.error ?? new Error('Unable to save cache encryption key'));
-    transaction.onabort = () => reject(transaction.error ?? new Error('Cache key save aborted'));
-  });
-  return key;
+  try {
+    await new Promise<void>((resolve, reject) => {
+      const transaction = db.transaction(KEY_STORE_NAME, 'readwrite');
+      // add(), unlike put(), guarantees another tab cannot silently replace
+      // the key after a concurrent first-run initialization.
+      transaction.objectStore(KEY_STORE_NAME).add(key, keyId);
+      transaction.oncomplete = () => resolve();
+      transaction.onerror = () => reject(transaction.error ?? new Error('Unable to save cache encryption key'));
+      transaction.onabort = () => reject(transaction.error ?? new Error('Cache key save aborted'));
+    });
+    return key;
+  } catch {
+    // Another tab may have won the first-write race. Re-read its key rather
+    // than overwriting it and making that tab's ciphertext undecryptable.
+    const winner = await new Promise<CryptoKey | undefined>((resolve, reject) => {
+      const request = db.transaction(KEY_STORE_NAME, 'readonly').objectStore(KEY_STORE_NAME).get(keyId);
+      request.onsuccess = () => resolve(request.result as CryptoKey | undefined);
+      request.onerror = () => reject(request.error ?? new Error('Unable to read concurrently-created cache key'));
+    });
+    if (winner) return winner;
+    throw new Error('Unable to establish a stable cache encryption key');
+  }
 }
 
 async function readClient(): Promise<PersistedClient | undefined> {
