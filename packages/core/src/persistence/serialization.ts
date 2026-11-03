@@ -15,7 +15,7 @@ const CACHE_PRIORITY: Record<string, number> = {
 function boundPayload(value: unknown, key = '', depth = 0): unknown {
   if (depth > 12) return null;
   if (Array.isArray(value)) {
-    const limit = /^(messages|chatMessages|comments|postComments|historyComments|latestComments|notifications)$/i.test(key)
+    const limit = /^(messages|chatMessages|comments|postComments|historyComments|latestComments|notifications|replies)$/i.test(key)
       ? 50
       : /^(transactions|posts|voters|comrades|events|liveEvents|liveCommentary)$/i.test(key)
         ? 100
