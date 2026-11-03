@@ -217,8 +217,11 @@ export function parseLineupsData(json: any): LineupsData {
     const asText = (value: unknown, fallback: string): string =>
         typeof value === 'string' && value.trim() ? value.trim() : fallback;
     const parseList = (...candidates: unknown[]): SimplifiedPlayer[] => {
-        const raw = candidates.find(Array.isArray);
-        if (!Array.isArray(raw)) return [];
+        // Prefer a populated representation over an earlier empty alias. The
+        // API has returned both flat and nested team shapes over time.
+        const arrays = candidates.filter(Array.isArray) as unknown[][];
+        const raw = arrays.find((items) => items.length > 0) ?? arrays[0];
+        if (!raw) return [];
         return raw
             .filter((player) => player && typeof player === 'object')
             .map((player) => parseSimplifiedPlayer(player));
