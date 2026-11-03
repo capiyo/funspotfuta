@@ -69,7 +69,7 @@ export default function NotificationGate({ visible, onRetry, onSkip }: { visible
   if (!visible) return null;
   return createPortal(
     <div className="pointer-events-none fixed bottom-4 right-4 z-[1000] p-4" role="presentation">
-      <section ref={dialogRef} role="dialog" aria-modal="false" aria-labelledby="notification-gate-title"
+      <section ref={dialogRef} role="region" aria-label="Enable push notifications" aria-labelledby="notification-gate-title"
         className="pointer-events-auto w-full max-w-[340px] rounded-2xl border p-5 text-center shadow-2xl"
         style={{ borderColor: colors.border, background: colors.surface }}>
         <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full" style={{ background: 'rgba(76,217,100,.12)' }}>
