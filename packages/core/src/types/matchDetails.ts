@@ -142,6 +142,9 @@ export function parseSimplifiedPlayer(json: any): SimplifiedPlayer {
 
     const rawNumber =
         json?.number ??
+        json?.player?.number ??
+        json?.player?.jerseyNumber ??
+        json?.athlete?.jerseyNumber ??
         json?.jerseyNumber ??
         json?.jersey_number ??
         json?.shirtNumber ??
@@ -155,7 +158,7 @@ export function parseSimplifiedPlayer(json: any): SimplifiedPlayer {
     const number =
         typeof rawNumber === 'number' ? rawNumber : parseInt(String(rawNumber), 10) || 0;
 
-    const posField = json?.position;
+    const posField = json?.position ?? json?.player?.position ?? json?.athlete?.position;
     const position =
         posField && typeof posField === 'object'
             ? posField.shortName?.toString() ?? posField.name?.toString() ?? ''
@@ -168,7 +171,7 @@ export function parseSimplifiedPlayer(json: any): SimplifiedPlayer {
     const rawProviderId = json?.athleteId ?? json?.athlete_id ?? json?.player_id ??
         json?.playerId ?? json?.player?.id ?? json?.athlete?.id ?? json?.id ?? null;
     const providerId = rawProviderId == null ? null : String(rawProviderId).trim() || null;
-    const photoCandidate = json?.photoUrl ?? json?.photo_url ?? json?.headshotUrl ?? json?.headshot_url ?? json?.imageUrl ?? json?.image_url ?? json?.player?.photo ?? json?.player?.image ?? json?.athlete?.photo ?? json?.photo ?? json?.image ?? json?.picture ?? null;
+    const photoCandidate = json?.photoUrl ?? json?.photo_url ?? json?.headshotUrl ?? json?.headshot_url ?? json?.imageUrl ?? json?.image_url ?? json?.player?.photoUrl ?? json?.player?.photo_url ?? json?.player?.headshotUrl ?? json?.player?.imageUrl ?? json?.player?.photo ?? json?.player?.image ?? json?.athlete?.photoUrl ?? json?.athlete?.photo_url ?? json?.athlete?.imageUrl ?? json?.athlete?.photo ?? json?.athlete?.image ?? json?.photo ?? json?.image ?? json?.picture ?? null;
     const photoUrl = typeof photoCandidate === 'string' && photoCandidate.startsWith('https://') ? photoCandidate : null;
     const rawRating = json?.rating ?? json?.ranking ?? json?.playerRating ?? null;
     const rating = typeof rawRating === 'number' && Number.isFinite(rawRating) ? rawRating : null;
@@ -198,8 +201,16 @@ export function parseLineupsData(json: any): LineupsData {
     const data = envelope?.lineups && typeof envelope.lineups === 'object'
         ? envelope.lineups
         : envelope;
-    const home = data?.home && typeof data.home === 'object' ? data.home : {};
-    const away = data?.away && typeof data.away === 'object' ? data.away : {};
+    const teams = data?.teams && typeof data.teams === 'object' ? data.teams : {};
+    const starting = data?.starting_xi && typeof data.starting_xi === 'object'
+        ? data.starting_xi
+        : data?.startingXI && typeof data.startingXI === 'object' ? data.startingXI : {};
+    const home = data?.home && typeof data.home === 'object'
+        ? data.home
+        : teams?.home && typeof teams.home === 'object' ? teams.home : {};
+    const away = data?.away && typeof data.away === 'object'
+        ? data.away
+        : teams?.away && typeof teams.away === 'object' ? teams.away : {};
 
     const first = (...values: unknown[]): unknown =>
         values.find((value) => value !== undefined && value !== null);
@@ -220,12 +231,12 @@ export function parseLineupsData(json: any): LineupsData {
         awayCoach: asText(first(data?.away_coach, data?.awayCoach, away?.coach), 'TBD'),
         homeStartingXI: parseList(
             data?.home_starting_xi, data?.homeStartingXI, data?.home_starting_xi_players,
-            home?.starting_xi, home?.startingXI, home?.starting, home?.players,
+            home?.starting_xi, home?.startingXI, home?.starting, home?.players, starting?.home,
         ),
         homeBench: parseList(data?.home_bench, data?.homeBench, home?.bench, home?.substitutes),
         awayStartingXI: parseList(
             data?.away_starting_xi, data?.awayStartingXI, data?.away_starting_xi_players,
-            away?.starting_xi, away?.startingXI, away?.starting, away?.players,
+            away?.starting_xi, away?.startingXI, away?.starting, away?.players, starting?.away,
         ),
         awayBench: parseList(data?.away_bench, data?.awayBench, away?.bench, away?.substitutes),
     };
