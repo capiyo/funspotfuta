@@ -6,18 +6,18 @@ const MAX_PERSISTED_CHARS = 2_000_000;
 const CACHE_PRIORITY: Record<string, number> = {
   fixtures: 100, fixtureVotes: 98, openPokes: 97, userPokes: 95,
   userVotes: 96, voteCounts: 94, voters: 92, channelFixtures: 90,
-  channels: 88, chatMessages: 86, messages: 84, feed: 82, profile: 80,
+  channels: 88, chatMessages: 86, messages: 84, liveEvents: 83,
+  feed: 82, profile: 80, postComments: 79, latestComments: 78,
   comrades: 76, userComrades: 74, history: 70, historyGames: 68,
-  aftermatch: 66, latestComments: 64, postComments: 62,
-  notifications: 60, notificationSummary: 58, unreadCounts: 56,
+  aftermatch: 66, liveCommentary: 65, notifications: 60, notificationSummary: 58, unreadCounts: 56,
 };
 
 function boundPayload(value: unknown, key = '', depth = 0): unknown {
   if (depth > 12) return null;
   if (Array.isArray(value)) {
-    const limit = /^(messages|chatMessages|comments|postComments|historyComments|latestComments|notifications)$/i.test(key)
+    const limit = /^(messages|chatMessages|comments|postComments|historyComments|latestComments|notifications|replies)$/i.test(key)
       ? 50
-      : /^(transactions|posts|voters|comrades)$/i.test(key)
+      : /^(transactions|posts|voters|comrades|events|liveEvents|liveCommentary)$/i.test(key)
         ? 100
         : /^pages$/i.test(key)
           ? 5
@@ -42,7 +42,7 @@ export function compactPersistedClient(client: PersistedClient): PersistedClient
   const ranked = client.clientState.queries.map((query, index) => {
     const boundedQuery = {
       ...query,
-      state: { ...query.state, data: boundPayload(query.state.data) },
+      state: { ...query.state, data: boundPayload(query.state.data, String(query.queryKey[0] ?? '')) },
     };
     return {
       query: boundedQuery,
@@ -72,7 +72,7 @@ export function compactPersistedClient(client: PersistedClient): PersistedClient
         .filter(({ index }) => retained.has(index))
         .map(({ query }) => ({
           ...query,
-          state: { ...query.state, data: boundPayload(query.state.data) },
+          state: { ...query.state, data: boundPayload(query.state.data, String(query.queryKey[0] ?? '')) },
         })),
     },
   };

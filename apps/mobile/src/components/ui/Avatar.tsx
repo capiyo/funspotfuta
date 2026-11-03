@@ -56,7 +56,7 @@ export function Avatar({
     return (
         <View style={styles.circle}>
             {imageUri ? (
-                <Image source={{ uri: imageUri }} style={styles.image} />
+                <Image source={{ uri: imageUri }} style={styles.image} resizeMode="cover" />
             ) : (
                 <Text style={fanText('badge', colors, colors.primary)}>{label}</Text>
             )}

@@ -2,9 +2,18 @@ name: Chat unread and mentions validation
 
 on:
   push:
-    branches: [feature/chat-unread-mentions]
+    branches:
+      - feature/chat-unread-mentions
+      - feature/balance-desktop-chats-feed-widths
   pull_request:
-    branches: [web-port-from-master, feature/chat-unread-mentions]
+    branches:
+      - web-port-from-master
+      - feature/chat-unread-mentions
+      - feature/appcache-live-commentary-feed-comments
+      - feature/round-profile-avatars
+      - feature/possession-card-interaction
+      - feature/fix-two-sided-lineups-player-portraits
+      - feature/balance-desktop-chats-feed-widths
 
 permissions:
   contents: read

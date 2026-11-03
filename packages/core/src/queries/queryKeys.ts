@@ -31,6 +31,7 @@ export const queryKeys = {
   historyComments: (gameId: string, userId: string) => ['historyComments', gameId, userId] as const,
   aftermatch: (fixtureId: string, channelId: string) => ['aftermatch', fixtureId, channelId] as const,
   liveEvents: (fixtureId?: string) => ['liveEvents', fixtureId ?? 'all'] as const,
+  liveCommentary: (fixtureId: string) => ['liveCommentary', fixtureId] as const,
   postComments: (postId: string) => ['postComments', postId] as const,
   feed: (userId?: string) => userId ? ['feed', userId] as const : ['feed'] as const,
   notifications: (userId: string) => ['notifications', userId] as const,

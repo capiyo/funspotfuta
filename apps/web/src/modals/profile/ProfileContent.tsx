@@ -1162,7 +1162,9 @@ function createStyles(colors: FanColors): Record<string, CSSProperties> {
     headerAvatar: {
       width: 36,
       height: 36,
-      borderRadius: 18,
+      aspectRatio: 1,
+      borderRadius: '50%',
+      overflow: 'hidden',
       alignItems: 'center',
       justifyContent: 'center',
       borderWidth: 1,

@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { createPortal } from 'react-dom';
 import { AlertCircle, ArrowLeft, MessageCircle, Reply, Send, X } from 'lucide-react';
-import { FAN_SPACING, FAN_RADIUS } from '@funspot/core';
+import { FAN_SPACING, FAN_RADIUS, queryKeys } from '@funspot/core';
 import { NotificationService } from '@/lib/api/notification-service';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useFanColors } from '@/theme/use-fan-colors';
@@ -10,7 +11,6 @@ import { useToast } from '@/lib/toast/toast-context';
 
 type FanColors = ReturnType<typeof useFanColors>;
 const API_BASE = 'https://clash-api-m5mr.onrender.com/api';
-const CACHE_FRESH_MS = 30_000;
 
 interface CommentData {
   id: string;
@@ -49,14 +49,6 @@ function parseCommentFromJson(json: any): CommentData {
 }
 function isReply(comment: CommentData): boolean {
   return !!comment.parent_comment_id && comment.parent_comment_id.length > 0;
-}
-interface CacheEntry { comments: CommentData[]; lastLoad: number }
-const commentCache = new Map<string, CacheEntry>();
-function getCached(postId: string): CacheEntry | null { return commentCache.get(postId) ?? null; }
-function setCache(postId: string, comments: CommentData[]): void { commentCache.set(postId, { comments, lastLoad: Date.now() }); }
-function patchCache(postId: string, updater: (previous: CommentData[]) => CommentData[]): void {
-  const existing = commentCache.get(postId);
-  commentCache.set(postId, { comments: updater(existing?.comments ?? []), lastLoad: Date.now() });
 }
 async function trySendPushNotification(args: {
   userId: string; notificationType: string; title: string; body: string; data: Record<string, any>;
@@ -105,6 +97,8 @@ export default function PostCommentsModal({
   const colors = useFanColors();
   const { userId, username, authToken } = useAuth();
   const toast = useToast();
+  const queryClient = useQueryClient();
+  const loadRequestId = useRef(0);
   const dialogRef = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -142,30 +136,36 @@ export default function PostCommentsModal({
 
   const loadComments = useCallback(async () => {
     if (!postId) return;
+    const requestId = ++loadRequestId.current;
     setLoading(true);
     setError('');
-    const cached = getCached(postId);
-    if (cached && cached.comments.length > 0) {
-      setComments(cached.comments);
-      if (Date.now() - cached.lastLoad < CACHE_FRESH_MS) { setLoading(false); return; }
+    const commentsKey = queryKeys.postComments(postId);
+    const cachedComments = queryClient.getQueryData<CommentData[]>(commentsKey);
+    const cachedAt = queryClient.getQueryState(commentsKey)?.dataUpdatedAt ?? 0;
+    setComments(cachedComments ?? []);
+    if (cachedComments) {
+      if (Date.now() - cachedAt < 30_000) { setLoading(false); return; }
     }
     try {
       const response = await fetch(`${API_BASE}/posts/${postId}/comments`, { headers });
-      if (response.status === 200) {
+      if (response.status === 200 && requestId === loadRequestId.current) {
         const body = await response.json();
         const raw = body?.comments;
         const list: CommentData[] = Array.isArray(raw) ? raw.map((comment: any) => parseCommentFromJson(comment)) : [];
-        setCache(postId, list);
+        queryClient.setQueryData(commentsKey, list);
         setComments(list);
-      } else if ((cached?.comments.length ?? 0) === 0) {
+      } else if (requestId === loadRequestId.current && (cachedComments?.length ?? 0) === 0) {
         setError('Failed to load comments');
       }
     } catch (e: any) {
-      if ((cached?.comments.length ?? 0) === 0) setError(e?.message ?? 'Failed to load comments');
-    } finally { setLoading(false); }
-  }, [postId, authToken]); // Headers intentionally follow the current auth token.
+      if (requestId === loadRequestId.current && (cachedComments?.length ?? 0) === 0) setError(e?.message ?? 'Failed to load comments');
+    } finally { if (requestId === loadRequestId.current) setLoading(false); }
+  }, [postId, authToken, queryClient]); // Headers intentionally follow the current auth token.
 
-  useEffect(() => { if (visible) void loadComments(); }, [visible, loadComments]);
+  useEffect(() => {
+    if (visible) void loadComments();
+    return () => { loadRequestId.current += 1; };
+  }, [visible, loadComments]);
 
   async function sendPushNotification(newComment: CommentData, parentCommentId: string | null) {
     try {
@@ -230,20 +230,21 @@ export default function PostCommentsModal({
       const data = await response.json();
       const raw = data?.success === true && data?.data ? data.data : data?.comment ?? data;
       const newComment = parseCommentFromJson(raw);
-      await sendPushNotification(newComment, parentCommentId);
-      setComments((previous) => {
-        let next: CommentData[];
+      const commentsKey = queryKeys.postComments(postId);
+      const next = queryClient.setQueryData<CommentData[]>(commentsKey, (previous = []) => {
         if (parentCommentId) {
           const index = previous.findIndex((comment) => comment.id === parentCommentId);
           if (index !== -1) {
-            next = previous.slice();
-            const parent = next[index];
-            next[index] = { ...parent, replies: [newComment, ...(parent.replies ?? [])], reply_count: (parent.reply_count ?? 0) + 1 };
-          } else next = [newComment, ...previous];
-        } else next = [newComment, ...previous];
-        setCache(postId, next);
-        return next;
-      });
+            const updated = previous.slice();
+            const parent = updated[index];
+            updated[index] = { ...parent, replies: [newComment, ...(parent.replies ?? [])], reply_count: (parent.reply_count ?? 0) + 1 };
+            return updated;
+          }
+        }
+        return [newComment, ...previous];
+      }) ?? [];
+      setComments(next);
+      void sendPushNotification(newComment, parentCommentId);
       setDraft('');
       setReplyingTo(null);
       toast.showSuccess(parentCommentId ? 'Reply posted!' : 'Comment posted!');
