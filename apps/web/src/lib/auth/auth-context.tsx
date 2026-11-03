@@ -70,13 +70,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           localStorage.getItem('user'),
           localStorage.getItem('refreshToken'),
         ];
-        const [secureToken, secureUser] = await Promise.all([
+        let [secureToken, secureUser] = await Promise.all([
           secureBrowserSession.getToken(),
           secureBrowserSession.getUser(),
         ]);
-        if (legacyToken && legacyUser && (!secureToken || !secureUser)) {
-          // Complete partial migrations too; don't erase the only valid legacy
-          // session just because an earlier write stopped halfway through.
+        if (Boolean(secureToken) !== Boolean(secureUser)) {
+          // Never combine a token and user record from different interrupted
+          // login attempts. Rebuild only from a complete legacy pair.
+          await secureBrowserSession.clear();
+          secureToken = null;
+          secureUser = null;
+        }
+        if (!secureToken && !secureUser && legacyToken && legacyUser) {
           await secureBrowserSession.setToken(legacyToken);
           await secureBrowserSession.setUser(legacyUser);
           if (legacyRefresh) await secureBrowserSession.setRefreshToken(legacyRefresh);
