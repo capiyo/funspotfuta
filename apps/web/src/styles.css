@@ -4139,9 +4139,14 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visib
 }
 
 @media (min-width: 901px) and (max-width: 1199px) {
+  .home-screen .profile-sidebar-rich {
+    width: 190px;
+    flex: 0 0 190px;
+  }
+
   .home-screen .home-columns {
     display: grid;
-    grid-template-columns: minmax(420px, 44%) minmax(0, 1fr);
+    grid-template-columns: minmax(360px, 48%) minmax(0, 1fr);
     column-gap: 12px;
   }
 
