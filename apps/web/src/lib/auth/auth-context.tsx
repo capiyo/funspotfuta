@@ -30,6 +30,21 @@ const initialState: AuthState = {
   isInitialized: false, isLoggedIn: false, userId: null, username: null, phone: null, authToken: null, refreshToken: null,
 };
 const AuthContext = createContext<AuthContextValue | null>(null);
+const NOTIFICATION_STORAGE_KEYS = [
+  'unread_notifications',
+  'unread_notification_count',
+  'unread_comment_count',
+  'pending_join_requests',
+] as const;
+
+function clearNotificationStorage(): void {
+  try {
+    for (const key of NOTIFICATION_STORAGE_KEYS) localStorage.removeItem(key);
+  } catch {
+    // Storage may be unavailable; private query cache is still cleared below.
+  }
+}
+
 const LEGACY_KEYS = [
   'usertoken','user','isLoggedIn','userId','username','phone','refreshToken','userBets','userProfile',
   'availableGames','notifications','notificationCount','cachedPosts','cachedFixtures','lastCarouselFetch',
@@ -80,6 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return;
       }
       setState({ ...initialState, isInitialized: true });
+      clearNotificationStorage();
       void (async () => {
         await queryClient.cancelQueries();
         queryClient.clear();
@@ -197,6 +213,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const operationVersion = ++authBoundaryVersion.current;
       if (state.userId !== userId) {
+        clearNotificationStorage();
         authChannel.current?.postMessage({ type: 'account-switch' });
         setState({ ...initialState, isInitialized: true });
         await queryClient.cancelQueries();
@@ -237,6 +254,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     authBoundaryVersion.current += 1;
     authChannel.current?.postMessage({ type: 'logout' });
+    clearNotificationStorage();
     setState({ ...initialState, isInitialized: true });
     await queryClient.cancelQueries();
     queryClient.clear();
@@ -267,6 +285,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const updateUserData = useCallback(async (userId: string, username: string, phone?: string) => {
     try {
       if (state.userId !== userId) {
+        clearNotificationStorage();
         authBoundaryVersion.current += 1;
         authChannel.current?.postMessage({ type: 'account-switch' });
         setState({ ...initialState, isInitialized: true });
@@ -293,6 +312,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const clearAllAppData = useCallback(async () => {
     authBoundaryVersion.current += 1;
     authChannel.current?.postMessage({ type: 'clear-all' });
+    clearNotificationStorage();
     try {
       LEGACY_KEYS.forEach((key) => localStorage.removeItem(key));
       sessionStorage.clear();
