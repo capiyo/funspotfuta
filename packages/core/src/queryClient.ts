@@ -80,12 +80,11 @@ const PERSISTED_KEYS = new Set([
   'postStats',
   'followers',
   'following',
-  // Flutter AppCache: notifications and payment display data.
+  // Flutter AppCache: notifications. Financial balances and transaction
+  // histories are intentionally excluded: always fetch these from the server.
   'notifications',
   'notificationPreferences',
   'notificationSummary',
-  'balance',
-  'transactions',
 ]);
 
 /**
@@ -100,7 +99,7 @@ const PERSISTED_KEYS = new Set([
  * replace a previously successful persisted result.
  */
 export const PERSIST_OPTIONS = {
-  buster: 'v9',
+  buster: 'v10',
   dehydrateOptions: {
     shouldDehydrateQuery: (query: {
       queryKey: readonly unknown[];
