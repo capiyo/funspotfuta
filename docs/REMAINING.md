@@ -1,7 +1,7 @@
 # Remaining Funspot integration and release work
 
 Branch: `web-port-from-master`  
-Validated head: `b445b0421f80947ded757e7c469c7c6899aba6fc`  
+Validated head: `f6791cc48c456afcc51a86d65ffb85bc2eb2dc2d`  
 Tracking PR: [#4](https://github.com/capiyo/funspotfuta/pull/4) (draft)
 
 This document replaces the obsolete handoff checklist that listed old web line counts and incorrectly said the React Native app must not be changed. The current project is intentionally cross-platform.
@@ -9,7 +9,7 @@ This document replaces the obsolete handoff checklist that listed old web line c
 ## Completed and automatically verified on the validated head
 - Core tests and shared core, web and React Native typechecks.
 - Web lint and production Vite build.
-- Android JavaScript bundle export.
+- Android and iOS JavaScript bundle exports.
 - ChatsCard browser checks at 360, 390, 600, 700, 1280 and 1920px.
 - Match Details Lineups/Stats navigation and Home/Feed responsive checks.
 - Public crawlability and live-statistics client/web typechecks.
