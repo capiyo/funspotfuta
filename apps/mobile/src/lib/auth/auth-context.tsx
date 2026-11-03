@@ -172,6 +172,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const updateUserData = useCallback(async (userId: string, username: string, phone?: string) => {
     try {
+      if (state.userId !== userId) await clearMobileQueryCache();
       const raw = await SecureStore.getItemAsync(SECURE_KEYS.user);
       if (raw) {
         const parsed: unknown = JSON.parse(raw);
@@ -183,7 +184,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       if (__DEV__) console.warn('[auth] secure user update failed', error);
     }
-  }, []);
+  }, [state.userId]);
 
   const hasValidSession = useCallback(
     () => Boolean(state.isLoggedIn && state.authToken && state.userId),
