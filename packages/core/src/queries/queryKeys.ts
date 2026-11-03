@@ -16,6 +16,7 @@ export const queryKeys = {
   pledgeCounts: (fixtureId: string, channelId?: string) => ['pledgeCounts', fixtureId, channelId ?? 'all'] as const,
   betCounts: (fixtureId: string, channelId?: string) => ['betCounts', fixtureId, channelId ?? 'all'] as const,
   unreadCounts: (userId: string) => ['unreadCounts', userId] as const,
+  fixtureUnreadCount: (channelId: string, fixtureId: string, userId: string) => ['fixtureUnreadCount', channelId, fixtureId, userId] as const,
   latestComments: (fixtureId: string, channelId?: string) => ['latestComments', fixtureId, channelId ?? 'all'] as const,
   messages: (fixtureId: string, userId?: string) => ['messages', fixtureId, userId ?? 'public'] as const,
   chatMessages: (fixtureId: string, channelId: string, userId?: string) => ['chatMessages', fixtureId, channelId, userId ?? 'public'] as const,

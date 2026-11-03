@@ -352,6 +352,25 @@ export async function getAllChannels(authToken?: string): Promise<Channel[]> {
 // This flattens those into a single object so callers don't have to
 // walk into `activity.*` themselves.
 
+// GET /api/channels/:channel/fixtures/:fixture/unread/:user
+// Counts unread messages for one fixture in one channel and one account.
+export async function getFixtureUnreadCount(
+    channelId: string,
+    fixtureId: string,
+    userId: string,
+    authToken?: string,
+): Promise<number> {
+    const url = `${API_BASE_URL}/channels/${encodeURIComponent(channelId)}/fixtures/${encodeURIComponent(fixtureId)}/unread/${encodeURIComponent(userId)}`;
+    const response = await fetch(url, { headers: authHeaders(authToken) });
+    if (!response.ok) {
+        throw new Error(`Unread count request failed with status ${response.status}`);
+    }
+    const payload: unknown = await response.json();
+    if (!payload || typeof payload !== 'object') return 0;
+    const count = (payload as { unread_count?: unknown }).unread_count;
+    return typeof count === 'number' && Number.isFinite(count) ? Math.max(0, Math.trunc(count)) : 0;
+}
+
 export interface ChannelDetail {
     channelId: string;
     name: string;

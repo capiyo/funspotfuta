@@ -79,6 +79,12 @@ describe('open poke cache reconciliation', () => {
     expect(queryKeys.comrades('user-a')).not.toEqual(queryKeys.comrades('user-b'));
   });
 
+  it('scopes fixture unread counts by channel, fixture and user', () => {
+    expect(queryKeys.fixtureUnreadCount('channel-a', 'fixture-1', 'user-7')).toEqual([
+      'fixtureUnreadCount', 'channel-a', 'fixture-1', 'user-7',
+    ]);
+  });
+
   it('caps persisted fixture chat history to the newest 50 messages', () => {
     const messages = Array.from({ length: 80 }, (_, id) => ({ id }));
     expect(capCachedMessages(messages)).toHaveLength(50);

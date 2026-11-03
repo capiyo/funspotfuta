@@ -17,7 +17,7 @@ export * from './types/possession';
 export * from './api/possession-service';
 export * from './api/auth-service';
 export * from './api/database-service';
-export { getAllChannels } from './api/channels-service';
+export { getAllChannels, getFixtureUnreadCount } from './api/channels-service';
 export * from './api/comrade-service';
 // Resolve the legacy weekly-leaderboard exports from comrade-service in favor
 // of the canonical response shape consumed by both platform leaderboard UIs.
