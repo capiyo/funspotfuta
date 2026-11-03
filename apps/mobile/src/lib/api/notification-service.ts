@@ -238,7 +238,10 @@ export const NotificationService = {
                 notificationType === 'vote.cast' ||
                 notificationType === 'pledge.create' ||
                 notificationType === 'bet.matched' ||
-                notificationType === 'bet.settled'
+                notificationType === 'bet.settled' ||
+                notificationType === 'poke.create' ||
+                notificationType === 'poke.matched' ||
+                notificationType === 'poke.settled'
             ) {
                 if (!fixtureId) {
                     console.warn(`[NotificationService] ⚠️ Missing fixture_id for ${notificationType}`);
