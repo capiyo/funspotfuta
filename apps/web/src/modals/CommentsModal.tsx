@@ -140,8 +140,8 @@ export default function PostCommentsModal({
     const commentsKey = queryKeys.postComments(postId);
     const cachedComments = queryClient.getQueryData<CommentData[]>(commentsKey);
     const cachedAt = queryClient.getQueryState(commentsKey)?.dataUpdatedAt ?? 0;
+    setComments(cachedComments ?? []);
     if (cachedComments) {
-      setComments(cachedComments);
       if (Date.now() - cachedAt < 30_000) { setLoading(false); return; }
     }
     try {
