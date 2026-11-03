@@ -156,7 +156,8 @@ export function createAppQueryClient(storage: KVStorage) {
         placeholderData: keepPreviousData,
       },
       mutations: {
-        // Queue mutations while offline; providers resume them after hydration.
+        // Keep offline-first behavior while the process is alive. Mutations
+        // are deliberately not persisted or replayed after an app restart.
         networkMode: 'offlineFirst',
       },
     },
