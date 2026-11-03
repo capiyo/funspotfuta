@@ -2,7 +2,9 @@ name: Chat unread and mentions validation
 
 on:
   push:
-    branches: [feature/balance-desktop-chats-feed-widths]
+    branches:
+      - feature/chat-unread-mentions
+      - feature/balance-desktop-chats-feed-widths
   pull_request:
     branches:
       - web-port-from-master
