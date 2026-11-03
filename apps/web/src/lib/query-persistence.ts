@@ -272,10 +272,9 @@ export const indexedDbQueryPersister: Persister = {
     writeTimer = undefined;
     pendingClient = undefined;
     pendingWaiters.splice(0).forEach((resolve) => resolve());
-    try {
-      await removeClient();
-    } finally {
-      persistencePaused = false;
-    }
+    // Keep writes paused if durable deletion fails. A later successful
+    // account cleanup can resume persistence; never resurrect a failed logout.
+    await removeClient();
+    persistencePaused = false;
   },
 };
