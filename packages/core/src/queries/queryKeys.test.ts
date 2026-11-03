@@ -89,7 +89,7 @@ describe('open poke cache reconciliation', () => {
   it('persists live commentary and feed comments as first-class AppCache data', () => {
     const shouldDehydrate = PERSIST_OPTIONS.dehydrateOptions.shouldDehydrateQuery;
     expect(shouldDehydrate?.({
-      queryKey: queryKeys.liveEvents('fixture-1'),
+      queryKey: queryKeys.liveCommentary('fixture-1'),
       state: { data: { events: [{ id: 'event-1', text: 'Goal' }] }, status: 'success' },
     } as never)).toBe(true);
     expect(shouldDehydrate?.({
@@ -108,7 +108,7 @@ describe('open poke cache reconciliation', () => {
         mutations: [],
         queries: [
           {
-            queryKey: queryKeys.liveEvents('fixture-1'),
+            queryKey: queryKeys.liveCommentary('fixture-1'),
             state: { data: { events }, status: 'success', dataUpdatedAt: Date.now() },
           },
           {
@@ -119,7 +119,7 @@ describe('open poke cache reconciliation', () => {
       },
     };
     const compacted = compactPersistedClient(persisted as never);
-    const commentary = compacted.clientState.queries.find((query) => query.queryKey[0] === 'liveEvents');
+    const commentary = compacted.clientState.queries.find((query) => query.queryKey[0] === 'liveCommentary');
     const feedComments = compacted.clientState.queries.find((query) => query.queryKey[0] === 'postComments');
     expect((commentary?.state.data as { events: unknown[] }).events).toHaveLength(100);
     expect(feedComments?.state.data).toHaveLength(50);
