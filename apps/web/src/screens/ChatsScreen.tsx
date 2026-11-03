@@ -232,7 +232,9 @@ export default function ChatsScreen() {
     const fixtureId = fixture ? fixture.matchId?.trim() || fixture.id?.trim() : undefined;
     if (fixtureId && userId) {
       void NotificationService.clearUnreadForFixture(fixtureId);
-      void NotificationService.markAsRead({ userId, fixtureId });
+      void NotificationService.markAsRead({ userId, fixtureId }).then(() =>
+        NotificationService.reconcileFromServer({ userId, authToken: authToken ?? undefined }),
+      );
       void queryClient.invalidateQueries({
         queryKey: queryKeys.fixtureUnreadCount(cid, fixtureId, userId),
       });
