@@ -133,7 +133,7 @@ describe('open poke cache reconciliation', () => {
       ...PERSIST_OPTIONS,
     });
     expect(restarted.getQueryData(key)).toBeUndefined();
-    expect(PERSIST_OPTIONS.buster).toBe('v9');
+    expect(PERSIST_OPTIONS.buster).toBe('v10');
     restarted.clear();
   });
 
@@ -213,6 +213,16 @@ describe('open poke cache reconciliation', () => {
     const shouldDehydrateMutation = PERSIST_OPTIONS.dehydrateOptions.shouldDehydrateMutation;
     expect(shouldDehydrateMutation?.()).toBe(false);
     expect(shouldDehydrateMutation?.()).toBe(false);
+  });
+
+  it('does not persist balances or transaction history', () => {
+    const shouldDehydrate = PERSIST_OPTIONS.dehydrateOptions.shouldDehydrateQuery;
+    for (const key of ['balance', 'transactions']) {
+      expect(shouldDehydrate?.({
+        queryKey: [key, 'user-1'],
+        state: { data: { amount: 500 }, status: 'success' },
+      } as never)).toBe(false);
+    }
   });
 
   it('never persists query keys containing credential-shaped objects', () => {
