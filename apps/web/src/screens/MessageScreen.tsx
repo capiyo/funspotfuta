@@ -224,12 +224,12 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
   // clear the same channel/fixture unread state.
   useEffect(() => {
     if (!userId || !activeChannelId || !fixtureId) return;
-    void NotificationService.clearUnreadForFixture(fixtureId);
-    void NotificationService.markAsRead({
-      userId,
-      fixtureId,
-      channelId: activeChannelId,
-    }).then(async () => {
+    void NotificationService.clearUnreadForFixture(fixtureId).then(async () => {
+      await NotificationService.markAsRead({
+        userId,
+        fixtureId,
+        channelId: activeChannelId,
+      });
       await NotificationService.reconcileFromServer({ userId, authToken: authToken ?? undefined });
       await queryClient.invalidateQueries({
         queryKey: queryKeys.fixtureUnreadCount(activeChannelId, fixtureId, userId),
