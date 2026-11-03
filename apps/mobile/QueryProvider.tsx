@@ -28,7 +28,7 @@ import {
 } from '@funspot/core';
 import { mobileCache, mobileStorage, mobileStorageReady } from '@funspot/storage';
 
-const { queryClient, persister, persistOptions } = createAppQueryClient(mobileStorage);
+const { queryClient, persister, persistOptions, resumePersistence } = createAppQueryClient(mobileStorage);
 
 /**
  * Clear both live query state and its durable snapshot before changing the
@@ -36,8 +36,10 @@ const { queryClient, persister, persistOptions } = createAppQueryClient(mobileSt
  * account boundaries must not depend on a screen being mounted.
  */
 export async function clearMobileQueryCache(): Promise<void> {
+    await queryClient.cancelQueries();
     queryClient.clear();
     await persister.removeClient();
+    resumePersistence();
 }
 
 // MMKV is synchronous. Hydrate the in-memory QueryClient before React mounts,
