@@ -35,7 +35,6 @@ import { sendChannelMessage } from '@funspot/core';
 import { useQueryClient } from '@tanstack/react-query';
 
 import { useAuth } from '@/lib/auth/auth-context';
-import { NotificationService } from '@/lib/api/notification-service';
 import { useLoginModal } from '../modals/Login-modal-context';
 import {
   useFixtures,
@@ -299,21 +298,12 @@ export default function ChatsScreen() {
       const cid = channelId ?? homeChannelId;
       if (!cid) return;
       const fixtureId = fixture ? fixture.matchId?.trim() || fixture.id?.trim() : undefined;
-      if (fixtureId && userId) {
-        void NotificationService.clearUnreadForFixture(fixtureId);
-        void NotificationService.markAsRead({ userId, fixtureId }).then(() =>
-        NotificationService.reconcileFromServer({ userId, authToken: authToken ?? undefined }),
-      );
-        void queryClient.invalidateQueries({
-          queryKey: queryKeys.fixtureUnreadCount(cid, fixtureId, userId),
-        });
-      }
       navigation.navigate('Chat', {
         channelId: cid,
         fixtureId,
       });
     },
-    [navigation, homeChannelId, isLoggedIn, requireLogin, userId],
+    [navigation, homeChannelId, isLoggedIn, requireLogin],
   );
 
   async function handleLike(_fixture: Fixture) {
