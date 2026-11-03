@@ -57,6 +57,36 @@ async function readStoredState(): Promise<AuthState> {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
   const [state, setState] = useState<AuthState>(initialState);
+  const authChannel = useRef<BroadcastChannel | null>(null);
+
+  // A logout or account switch in one tab invalidates private cache and
+  // credentials in every other tab on this origin.
+  useEffect(() => {
+    if (typeof BroadcastChannel === 'undefined') return;
+    const channel = new BroadcastChannel('funspot-auth-boundary-v1');
+    authChannel.current = channel;
+    channel.onmessage = (event: MessageEvent<unknown>) => {
+      if (!event.data || typeof event.data !== 'object') return;
+      const message = event.data as { type?: unknown };
+      if (message.type !== 'logout' && message.type !== 'account-switch' && message.type !== 'clear-all') return;
+      setState({ ...initialState, isInitialized: true });
+      void (async () => {
+        await queryClient.cancelQueries();
+        queryClient.clear();
+        const results = await Promise.allSettled([
+          indexedDbQueryPersister.removeClient(),
+          secureBrowserSession.clear(),
+        ]);
+        if (results.some((result) => result.status === 'rejected') && import.meta.env.DEV) {
+          console.warn('[auth] cross-tab cache invalidation was incomplete', results);
+        }
+      })();
+    };
+    return () => {
+      channel.close();
+      authChannel.current = null;
+    };
+  }, [queryClient]);
   useEffect(() => {
     let cancelled = false;
     void (async () => {
@@ -153,6 +183,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const opts: LoginOptions = typeof phoneOrOptions === 'string' ? { phone: phoneOrOptions } : phoneOrOptions ?? {};
     try {
       if (state.userId !== userId) {
+        authChannel.current?.postMessage({ type: 'account-switch' });
         setState({ ...initialState, isInitialized: true });
         await queryClient.cancelQueries();
         queryClient.clear();
@@ -174,6 +205,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [queryClient, state.userId]);
 
   const logout = useCallback(async () => {
+    authChannel.current?.postMessage({ type: 'logout' });
     setState({ ...initialState, isInitialized: true });
     await queryClient.cancelQueries();
     queryClient.clear();
@@ -223,6 +255,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const hasValidSession = useCallback(() => Boolean(state.isLoggedIn && state.authToken && state.userId), [state.isLoggedIn, state.authToken, state.userId]);
   const clearAllAppData = useCallback(async () => {
+    authChannel.current?.postMessage({ type: 'clear-all' });
     try {
       LEGACY_KEYS.forEach((key) => localStorage.removeItem(key));
       sessionStorage.clear();
