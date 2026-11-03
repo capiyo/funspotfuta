@@ -206,12 +206,14 @@ async function removeClient(): Promise<void> {
 }
 
 const WRITE_THROTTLE_MS = 500;
+let persistencePaused = false;
 let pendingClient: PersistedClient | undefined;
 let writeTimer: ReturnType<typeof setTimeout> | undefined;
 let writeInProgress = false;
 let pendingWaiters: Array<() => void> = [];
 
 function scheduleWrite(client: PersistedClient): Promise<void> {
+  if (persistencePaused) return Promise.resolve();
   pendingClient = client;
   const completion = new Promise<void>((resolve) => pendingWaiters.push(resolve));
   if (writeTimer) clearTimeout(writeTimer);
@@ -257,14 +259,23 @@ export const indexedDbQueryPersister: Persister = {
     }
   },
   removeClient: async () => {
+    persistencePaused = true;
     if (writeTimer) clearTimeout(writeTimer);
     writeTimer = undefined;
     pendingClient = undefined;
     pendingWaiters.splice(0).forEach((resolve) => resolve());
     // Wait for an in-flight write before deleting both ciphertext and key.
     while (writeInProgress) await new Promise((resolve) => setTimeout(resolve, 10));
-    // Propagate failures so logout/account-switch callers can detect that
-    // durable private data could not be erased.
-    await removeClient();
+    // Re-clear after the in-flight write. scheduleWrite remains suppressed
+    // until deletion completes, so a queued snapshot cannot resurrect data.
+    if (writeTimer) clearTimeout(writeTimer);
+    writeTimer = undefined;
+    pendingClient = undefined;
+    pendingWaiters.splice(0).forEach((resolve) => resolve());
+    try {
+      await removeClient();
+    } finally {
+      persistencePaused = false;
+    }
   },
 };
