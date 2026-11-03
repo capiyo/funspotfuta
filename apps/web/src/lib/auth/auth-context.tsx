@@ -1,5 +1,5 @@
 /* eslint no-undef: "off" */
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { useQueryClient } from '@tanstack/react-query';
 import { firebaseAuth } from '../firebase';
@@ -57,8 +57,6 @@ async function readStoredState(): Promise<AuthState> {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
   const [state, setState] = useState<AuthState>(initialState);
-  const previousAuthIdentity = useRef<string | null>(null);
-
   useEffect(() => {
     let cancelled = false;
     void (async () => {
@@ -96,21 +94,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })();
     return () => { cancelled = true; };
   }, []);
-
-  useEffect(() => {
-    if (!state.isInitialized) return;
-    const identity = state.isLoggedIn && state.userId ? state.userId : null;
-    const previous = previousAuthIdentity.current;
-    previousAuthIdentity.current = identity;
-    if (previous === null || previous === identity) return;
-    void (async () => {
-      await queryClient.cancelQueries();
-      queryClient.clear();
-      await indexedDbQueryPersister.removeClient();
-    })().catch((error: unknown) => {
-      if (import.meta.env.DEV) console.warn('[auth] account-boundary cache clear failed', error);
-    });
-  }, [state.isInitialized, state.isLoggedIn, state.userId, queryClient]);
 
   const prefetchedUserId = useRef<string | null>(null);
   useEffect(() => {
