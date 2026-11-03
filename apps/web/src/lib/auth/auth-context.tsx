@@ -71,7 +71,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const message = event.data as { type?: unknown };
       authBoundaryVersion.current += 1;
       if (message.type === 'session-updated') {
-        void readStoredState().then(setState);
+        const version = authBoundaryVersion.current;
+        void readStoredState().then((restored) => {
+          if (version === authBoundaryVersion.current) setState(restored);
+        });
         return;
       }
       if (message.type !== 'logout' && message.type !== 'account-switch' && message.type !== 'clear-all') return;
@@ -188,6 +191,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   ): Promise<boolean> => {
     const opts: LoginOptions = typeof phoneOrOptions === 'string' ? { phone: phoneOrOptions } : phoneOrOptions ?? {};
     try {
+      const operationVersion = ++authBoundaryVersion.current;
       if (state.userId !== userId) {
         authChannel.current?.postMessage({ type: 'account-switch' });
         setState({ ...initialState, isInitialized: true });
@@ -200,6 +204,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await secureBrowserSession.setUser(JSON.stringify(user));
       if (opts.refreshToken) await secureBrowserSession.setRefreshToken(opts.refreshToken);
       else await secureBrowserSession.clearRefreshToken();
+      if (operationVersion !== authBoundaryVersion.current) return false;
       LEGACY_KEYS.forEach((key) => localStorage.removeItem(key));
       setState({ isInitialized: true, isLoggedIn: true, userId, username, phone: opts.phone ?? null, authToken, refreshToken: opts.refreshToken ?? null });
       authChannel.current?.postMessage({ type: 'session-updated' });
@@ -212,6 +217,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [queryClient, state.userId]);
 
   const logout = useCallback(async () => {
+    authBoundaryVersion.current += 1;
     authChannel.current?.postMessage({ type: 'logout' });
     setState({ ...initialState, isInitialized: true });
     await queryClient.cancelQueries();
@@ -231,9 +237,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const updateAuthToken = useCallback(async (newToken: string, newRefreshToken?: string): Promise<boolean> => {
     if (!state.isLoggedIn) return false;
     try {
+      authBoundaryVersion.current += 1;
       await secureBrowserSession.setToken(newToken);
       if (newRefreshToken) await secureBrowserSession.setRefreshToken(newRefreshToken);
       setState((current) => ({ ...current, authToken: newToken, refreshToken: newRefreshToken ?? current.refreshToken }));
+      authChannel.current?.postMessage({ type: 'session-updated' });
       return true;
     } catch { return false; }
   }, [state.isLoggedIn]);
@@ -241,6 +249,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const updateUserData = useCallback(async (userId: string, username: string, phone?: string) => {
     try {
       if (state.userId !== userId) {
+        authBoundaryVersion.current += 1;
+        authChannel.current?.postMessage({ type: 'account-switch' });
         setState({ ...initialState, isInitialized: true });
         await queryClient.cancelQueries();
         queryClient.clear();
@@ -255,6 +265,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await secureBrowserSession.setUser(JSON.stringify(user));
       }
       setState((current) => ({ ...current, userId, username, phone: phone ?? current.phone }));
+      authChannel.current?.postMessage({ type: 'session-updated' });
     } catch {
       // Keep the current in-memory state if encrypted storage is unavailable.
     }
@@ -262,6 +273,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const hasValidSession = useCallback(() => Boolean(state.isLoggedIn && state.authToken && state.userId), [state.isLoggedIn, state.authToken, state.userId]);
   const clearAllAppData = useCallback(async () => {
+    authBoundaryVersion.current += 1;
     authChannel.current?.postMessage({ type: 'clear-all' });
     try {
       LEGACY_KEYS.forEach((key) => localStorage.removeItem(key));
