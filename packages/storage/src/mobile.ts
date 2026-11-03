@@ -62,9 +62,12 @@ async function initializeEncryptedCache(): Promise<boolean> {
         const legacyRefresh = legacy.getString('auth:refreshToken');
         if (legacyRefresh) await SecureStore.setItemAsync('auth.refreshToken', legacyRefresh);
       }
-      legacy.clearAll();
+      // Open and seed the encrypted destination before deleting the plaintext
+      // source. If native encryption initialization fails, retain legacy data
+      // rather than destroying the only available cache.
       mmkv = new MMKV({ id: 'app-cache-v2', encryptionKey });
       if (legacyQuerySnapshot) mmkv.set('FUNSPOT_QUERY_CACHE', legacyQuerySnapshot);
+      legacy.clearAll();
     } catch {
       // A missing legacy store is expected on fresh installs. SecureStore
       // failures are handled by the outer guard, which keeps the cache volatile.
