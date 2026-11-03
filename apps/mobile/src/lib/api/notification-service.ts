@@ -22,6 +22,9 @@
 
 import { mobileStorage } from '../../../../../packages/storage/src/mobile';
 
+const registeredFcmTokenKeys = new Set<string>();
+const pendingFcmTokenRegistrations = new Map<string, Promise<boolean>>();
+
 const API_BASE_URL = 'https://clash-api-m5mr.onrender.com/api';
 
 // ─── Storage keys (exact match to the Dart source) ─────────────────
@@ -784,28 +787,37 @@ export const NotificationService = {
         authToken?: string;
     }): Promise<boolean> {
         const { userId, fcmToken, platform, authToken } = args;
-        try {
-            console.log(`[NotificationService] 📤 Registering token for user ${userId}`);
-            const res = await fetch(`${API_BASE_URL}/notifications/register-token`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
-                },
-                body: JSON.stringify({
-                    user_id: userId,
-                    fcm_token: fcmToken,
-                    platform,
-                }),
-            });
-            if (res.status === 200 || res.status === 201) {
-                const data = await res.json();
-                return data?.success === true;
+        const key = `${userId}:${fcmToken}`;
+        if (registeredFcmTokenKeys.has(key)) return true;
+        const pending = pendingFcmTokenRegistrations.get(key);
+        if (pending) return pending;
+
+        const registration = (async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/notifications/register-token`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+                    },
+                    body: JSON.stringify({ user_id: userId, fcm_token: fcmToken, platform }),
+                });
+                if (!response.ok) return false;
+                const result: unknown = await response.json();
+                const success = Boolean(result && typeof result === 'object'
+                    && (result as { success?: unknown }).success === true);
+                if (success) registeredFcmTokenKeys.add(key);
+                return success;
+            } catch (error) {
+                console.warn('[NotificationService] Token registration failed', error);
+                return false;
             }
-            return false;
-        } catch (e) {
-            console.warn('[NotificationService] ❌ registerToken error:', e);
-            return false;
+        })();
+        pendingFcmTokenRegistrations.set(key, registration);
+        try {
+            return await registration;
+        } finally {
+            pendingFcmTokenRegistrations.delete(key);
         }
     },
 
@@ -815,6 +827,7 @@ export const NotificationService = {
         authToken?: string;
     }): Promise<void> {
         try {
+            const key = `${args.userId}:${args.fcmToken}`;
             await fetch(`${API_BASE_URL}/notifications/unregister-token`, {
                 method: 'DELETE',
                 headers: {
@@ -823,6 +836,7 @@ export const NotificationService = {
                 },
                 body: JSON.stringify({ user_id: args.userId, fcm_token: args.fcmToken }),
             });
+            registeredFcmTokenKeys.delete(key);
         } catch (error) {
             console.warn('[NotificationService] Token unregistration skipped', error);
         }
