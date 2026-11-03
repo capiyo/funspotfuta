@@ -9,7 +9,7 @@ const CACHE_PRIORITY: Record<string, number> = {
   channels: 88, chatMessages: 86, messages: 84, liveEvents: 83,
   feed: 82, profile: 80, postComments: 79, latestComments: 78,
   comrades: 76, userComrades: 74, history: 70, historyGames: 68,
-  aftermatch: 66, notifications: 60, notificationSummary: 58, unreadCounts: 56,
+  aftermatch: 66, liveCommentary: 65, notifications: 60, notificationSummary: 58, unreadCounts: 56,
 };
 
 function boundPayload(value: unknown, key = '', depth = 0): unknown {
@@ -17,7 +17,7 @@ function boundPayload(value: unknown, key = '', depth = 0): unknown {
   if (Array.isArray(value)) {
     const limit = /^(messages|chatMessages|comments|postComments|historyComments|latestComments|notifications)$/i.test(key)
       ? 50
-      : /^(transactions|posts|voters|comrades|events|liveEvents)$/i.test(key)
+      : /^(transactions|posts|voters|comrades|events|liveEvents|liveCommentary)$/i.test(key)
         ? 100
         : /^pages$/i.test(key)
           ? 5
