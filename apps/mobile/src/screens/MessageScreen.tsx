@@ -177,6 +177,7 @@ export default function MessageScreen() {
   // group chat, matching the nullable fixture context used by the Dart screen.
   const [loadedRouteFixture, setLoadedRouteFixture] = useState<Fixture | null>(null);
   const [draft, setDraft] = useState('');
+  const [channelMembers, setChannelMembers] = useState<Channel['members']>([]);
   const [replyTo, setReplyTo] = useState<ChatMessage | null>(null);
   const [optionsFor, setOptionsFor] = useState<ChatMessage | null>(null);
   const [showAttachMenu, setShowAttachMenu] = useState(false);
@@ -204,6 +205,22 @@ export default function MessageScreen() {
       setActiveChannelId((prev) => prev ?? c[0]?.channelId ?? null);
     });
   }, [routeChannelId, userId, authToken]);
+
+  useEffect(() => {
+    if (!activeChannelId || !userId || !authToken) {
+      setChannelMembers([]);
+      return;
+    }
+    let alive = true;
+    getUserChannels(userId, authToken)
+      .then((channels: Channel[]) => {
+        if (!alive) return;
+        const selected = channels.find((item) => item.channelId === activeChannelId);
+        setChannelMembers(selected?.members ?? []);
+      })
+      .catch(() => { if (alive) setChannelMembers([]); });
+    return () => { alive = false; };
+  }, [activeChannelId, userId, authToken]);
 
   // ── Remote flag: pledges / bets / sub-fixture tabs ─────────
   useEffect(() => {
@@ -335,6 +352,29 @@ export default function MessageScreen() {
     })();
   }, [activeChannelId, authToken, fixtureId, markRead, queryClient, userId]);
 
+  const mentionMatch = draft.match(/(?:^|\s)@([^\s@]*)$/);
+  const mentionSuggestions = mentionMatch
+    ? channelMembers
+        .filter((member) => member.userId !== userId
+          && member.username.toLowerCase().includes(mentionMatch[1].toLowerCase()))
+        .slice(0, 6)
+    : [];
+  function selectMention(member: Channel['members'][number]) {
+    const match = draft.match(/(?:^|\s)@([^\s@]*)$/);
+    if (!match) return;
+    const prefix = draft.slice(0, draft.length - match[0].length);
+    setDraft(prefix + (prefix && !/\s$/.test(prefix) ? ' ' : '') + '@' + member.username + ' ');
+  }
+  function getMentionedUserIds(text: string): string[] {
+    const tokens = text.match(/@[A-Za-z0-9_.-]+/g) ?? [];
+    return [...new Set(tokens.flatMap((token) => {
+      const member = channelMembers.find((candidate) =>
+        candidate.username.toLowerCase() === token.slice(1).toLowerCase()
+      );
+      return member && member.userId !== userId ? [member.userId] : [];
+    }))];
+  }
+
   // ── Derived flags ──────────────────────────────────────────
   const isCompleted =
     matchStatus === 'completed' || matchStatus === 'finished';
@@ -382,6 +422,7 @@ export default function MessageScreen() {
   useEffect(() => {
     markReadRef.current = markRead;
   }, [markRead]);
+  useEffect(() => { void markRead(); }, [markRead]);
   useEffect(() => {
     return () => {
       void markReadRef.current?.();
@@ -392,9 +433,9 @@ export default function MessageScreen() {
   const sendWithReply = useCallback(
     async (text: string, reply: ReplyData | null) => {
       // Only `replyTo` carries the quote; the text body stays clean.
-      await send(text, reply ? { replyTo: reply } : {});
+      await send(text, { ...(reply ? { replyTo: reply } : {}), mentionedUserIds: getMentionedUserIds(text) });
     },
-    [send],
+    [send, channelMembers, userId],
   );
 
   async function handleSend() {
@@ -675,6 +716,15 @@ export default function MessageScreen() {
                 </Pressable>
               ) : (
                 <View style={styles.composerWrap}>
+                  {mentionSuggestions.length > 0 && (
+                    <View style={{ position: 'absolute', bottom: '100%', left: 0, right: 0, marginBottom: 8, borderRadius: 12, backgroundColor: colors.surface, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.border, overflow: 'hidden', zIndex: 20 }}>
+                      {mentionSuggestions.map((member) => (
+                        <Pressable key={member.userId} onPress={() => selectMention(member)} accessibilityRole="button" accessibilityLabel={`Mention ${member.username}`} style={{ paddingHorizontal: 12, paddingVertical: 10 }}>
+                          <Text style={fanText('caption', colors, colors.textPrimary)}>@{member.username}</Text>
+                        </Pressable>
+                      ))}
+                    </View>
+                  )}
                   <Input
                     style={[
                       fanText('caption', colors, colors.textPrimary),
@@ -1423,7 +1473,11 @@ function MessageBubble({
                 isCommentary && bubbleStyles.italic,
               ]}
             >
-              {message.text}
+              {message.text.split(/(@[A-Za-z0-9_.-]+)/g).map((part, index) =>
+                part.startsWith('@')
+                  ? <Text key={index} style={{ color: colors.primary, fontWeight: '700' }}>{part}</Text>
+                  : part
+              )}
             </Text>
           )}
 

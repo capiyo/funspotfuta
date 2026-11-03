@@ -42,7 +42,7 @@ The separate `LocalDatabase` keys are `messages_{fixtureId}`, `fixtures`, `fixtu
 
 The persisted-key allowlist only permits matching React Query entries to be written to disk. It does **not** automatically migrate component-owned state or raw `fetch` calls into cache-backed queries. Each screen must read through a shared query key, show cached data immediately when available, update cache after mutations, and refresh in the background. Network calls remain appropriate inside query functions and mutation functions; components should not independently fetch data into local state when the same data is shared.
 
-Account/profile display data and balance/transaction summaries may be cached, but passwords, auth tokens, payment credentials, and other secrets must not be persisted as query data.
+Only allowlisted, successful query responses are eligible for persistence. Credential-bearing data and credential-bearing query keys are rejected. Financial balances and transaction histories are deliberately excluded and must be fetched from the server. Private profile, chat and notification data may be cached only inside the encrypted platform stores described below.
 
 ## Implementation checklist
 
@@ -50,13 +50,19 @@ Account/profile display data and balance/transaction summaries may be cached, bu
 
 - [x] Read `lib/services/local_database.dart`, `lib/services/memory_manager.dart`, `lib/main.dart`, and fixture-page cache use.
 - [x] Record the known Flutter AppCache and LocalDatabase domains in the inventory table above.
-- [x] Expand persisted query-key prefixes for AppCache data domains.
-- [x] Persist only successful queries with defined data; bump the persisted-cache buster to `v5`, preserve Date/undefined values, and exclude credential-bearing paused mutations.
-- [x] Never persist mutation variables containing tokens, passwords, secrets, credentials or authorization fields. Mutations without credentials can still be persisted when paused.
-- [x] Set query and mutation network mode to `offlineFirst`; keep query `gcTime` aligned with the 7-day persistence max age.
+- [x] Expand persisted query-key prefixes for AppCache data domains, with a strict allowlist.
+- [x] Persist only successful query responses with defined data; preserve Date/undefined values; reject credential-bearing query data and query keys.
+- [x] Do not persist mutations. Offline mutations remain in memory only; they are not replayed after a process restart.
+- [x] Set query network mode to `offlineFirst`, query `gcTime` to one day, and persistence max age to one day.
+- [x] Bound durable cache snapshots to 150 queries and 2 MB; cap message/comment/notification lists at 50 and other high-volume lists.
 - [x] Wire React Native NetInfo to TanStack `onlineManager` and keep `AppState` wired to `focusManager`.
-- [x] Add IndexedDB-backed persistence for web, preserve Date values across JSON persistence, and clear its persisted blob during logout/account switching.
-- [x] Resume paused mutations after mobile persistence hydration.
+- [x] Add AES-GCM encrypted IndexedDB persistence for web using non-extractable origin-scoped Web Crypto keys; prevent concurrent first-run key creation from replacing the winning key.
+- [x] Add encrypted MMKV persistence for Android/iOS with a random AES-128 key stored in SecureStore/Keychain/Keystore; fall back to memory-only storage if encryption setup fails.
+- [x] Store mobile session credentials in SecureStore with device-only Keychain accessibility; store web session credentials encrypted in IndexedDB rather than localStorage.
+- [x] Migrate legacy native MMKV/AsyncStorage and browser localStorage sessions into secure stores before deleting plaintext copies; preserve a compatible old native query snapshot only after opening the encrypted destination.
+- [x] Cancel in-flight queries, clear in-memory data and remove durable snapshots on logout/account changes; cancel delayed writes so old snapshots cannot reappear.
+- [x] Exclude balances and transaction histories from durable query persistence; always fetch them from the server.
+- [x] Keep mutations non-persistent; no unknown action is replayed after restart.
 - [x] Add a shared query-key factory with user-scoped keys for profile, comrades, votes, messages, history and activity data.
 - [x] Add reusable merge-not-replace and 50-message cache-cap utilities.
 - [x] Add shared cache-first hooks for profile and comrades; export them from `@funspot/core`.
@@ -92,11 +98,30 @@ Account/profile display data and balance/transaction summaries may be cached, bu
 - [x] Web and mobile HistoryModal now use a shared paginated history hook with user-scoped cache keys; transient history HTTP errors throw rather than caching an empty list.
 - [ ] Wire history comments, aftermatch and live-event consumers/mutations to shared cache-backed hooks.
 - [ ] Notifications: migrate every consumer and mutation to shared query keys.
-- [x] Add query-cache clearing on logout/account switch in web and mobile; mobile provider order now makes the shared QueryClient available to AuthProvider.
-- [ ] Prove account-switch isolation with automated tests and verify the IndexedDB/MMKV removal path on devices.
+- [x] Add query-cache clearing on logout/account switch in web and mobile; mobile AuthProvider waits for secure storage migration before restoring a session.
+- [x] Add automated coverage for credential rejection, financial-data exclusion, buster invalidation, bounded snapshots and cache restore.
+- [ ] Verify encrypted IndexedDB/MMKV removal and legacy migration on physical browsers/devices; verify Keychain/Keystore behavior after app reinstall and backup restore.
 - [ ] Audit all HTTP usage in apps/web and apps/mobile; ensure components call core hooks rather than HTTP directly.
 - [ ] Verify offline launch and the full vote-to-chat UI flow end to end.
 - [x] Add Vitest coverage for merge-not-replace, user-scoped keys, the 50-message cap, persistence restore after creating a new QueryClient, Date serialization, buster invalidation, successful-query-only dehydration, credential-free paused mutations, optimistic rollback, query-client logout clearing, and cached vote availability; CI runs `npm run test:core`.
-- [ ] Run core/mobile/web typecheck, web lint/build and tests; wait for a successful GitHub Actions run.
+- [ ] Run core/mobile/web typecheck, web lint/build and Android/iOS bundle checks on the final commit; wait for a successful GitHub Actions run.
+- [ ] Perform physical-device offline launch, cache eviction, account-switch and logout/relogin tests on Android and iOS; test multi-tab logout and browser storage eviction on web.
 
 Status is intentionally not marked complete: the query-key foundation does not itself migrate all component-owned fetch/state paths. No unverified domain row should be checked off.
+
+
+## Production cache security and retention
+
+The current production cache design is intentionally different from a generic browser/local key-value cache:
+
+| Platform | Durable query cache | Session credentials | Failure behavior |
+| --- | --- | --- | --- |
+| Web | AES-GCM encrypted IndexedDB snapshot; non-extractable Web Crypto key stored in IndexedDB | AES-GCM encrypted IndexedDB records | If Web Crypto/IndexedDB is unavailable, do not write plaintext; use in-memory query state |
+| Android | Encrypted MMKV | Expo SecureStore backed by Android Keystore | If SecureStore or encrypted MMKV initialization fails, use memory-only cache |
+| iOS | Encrypted MMKV | Expo SecureStore backed by iOS Keychain, device-only accessibility | If SecureStore or encrypted MMKV initialization fails, use memory-only cache |
+
+The persisted cache uses buster v10 and a one-day maximum age. The serializer ranks useful query domains, caps the snapshot at 150 queries / 2 MB, and trims large lists. The allowlist rejects credentials recursively, including fields such as access/refresh tokens, passwords, authorization headers, API/access/private keys, cookies and session fields. It also rejects query keys containing credential-bearing objects. Mutations are not dehydrated. Balance and transaction-history queries are not allowlisted.
+
+Encryption at rest protects data if the storage files are inspected outside the running app. It does not protect against script execution inside the authenticated browser origin (for example, an XSS vulnerability), a compromised device, or an authorized app process. Web should move to backend-issued HttpOnly, Secure, SameSite cookies/BFF sessions if the authentication backend is redesigned to support that model. Physical-device and browser lifecycle tests remain required before describing the system as fully production-verified.
+
+The shared cache foundation is implemented, but the domain-wiring checklist above remains intentionally incomplete. A key being allowlisted does not prove every screen uses that key.

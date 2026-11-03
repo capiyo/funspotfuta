@@ -13,8 +13,8 @@ const DAY = 24 * 60 * 60 * 1000;
  * This is the shared persisted cache for web and mobile. It covers the Flutter
  * AppCache domains as those domains are migrated to React Query: fixtures,
  * votes, fixture/channel chat, channels, profile/account display data,
- * comrades, feed/post interactions, history, aftermatch, notifications and
- * per-fixture activity counters.
+ * comrades, feed/post interactions and comments, live fixture commentary,
+ * history, aftermatch, notifications and per-fixture activity counters.
  *
  * Adding a prefix permits data under that prefix to persist; each screen still
  * needs to read/write the matching query key (do not bypass this cache with
@@ -22,10 +22,13 @@ const DAY = 24 * 60 * 60 * 1000;
  * and other secrets must never be stored as query data.
  */
 function containsCredential(value: unknown, depth = 0): boolean {
-  if (depth > 8 || value === null || typeof value !== 'object') return false;
+  // Fail closed for unexpectedly deep payloads rather than risk persisting a
+  // credential hidden beyond the inspection limit.
+  if (depth > 8) return true;
+  if (value === null || typeof value !== 'object') return false;
   if (Array.isArray(value)) return value.some((item) => containsCredential(item, depth + 1));
   return Object.entries(value as Record<string, unknown>).some(([key, child]) => {
-    if (/(^|_)(auth|access|refresh)?token$|password|secret|credential|authorization/i.test(key)) return true;
+    if (/(^|[_-])(auth|session)|token|password|secret|credential|authorization|api[_-]?key|access[_-]?key|private[_-]?key|cookie|bearer/i.test(key)) return true;
     return containsCredential(child, depth + 1);
   });
 }
@@ -37,6 +40,7 @@ const PERSISTED_KEYS = new Set([
   'historyGames',
   'aftermatch',
   'liveEvents',
+  'liveCommentary',
   // Flutter AppCache: votes, voters, counts and fixture/channel activity.
   'userVotes',
   'fixtureVotes',
@@ -77,12 +81,11 @@ const PERSISTED_KEYS = new Set([
   'postStats',
   'followers',
   'following',
-  // Flutter AppCache: notifications and payment display data.
+  // Flutter AppCache: notifications. Financial balances and transaction
+  // histories are intentionally excluded: always fetch these from the server.
   'notifications',
   'notificationPreferences',
   'notificationSummary',
-  'balance',
-  'transactions',
 ]);
 
 /**
@@ -97,7 +100,7 @@ const PERSISTED_KEYS = new Set([
  * replace a previously successful persisted result.
  */
 export const PERSIST_OPTIONS = {
-  buster: 'v6',
+  buster: 'v10',
   dehydrateOptions: {
     shouldDehydrateQuery: (query: {
       queryKey: readonly unknown[];
@@ -107,12 +110,18 @@ export const PERSIST_OPTIONS = {
       // Only persist successful, validated server responses. A query that
       // failed after hydration must not overwrite a good disk snapshot.
       if (query.state.status !== 'success' || query.state.data === undefined) return false;
+      // A token accidentally placed in a query key is just as dangerous as
+      // one in query data. Keys are identifiers, never credential carriers.
+      if (containsCredential(query.queryKey)) return false;
+      // Query responses are untrusted persistence input too: a backend
+      // regression must not turn the durable cache into a credential store.
+      if (containsCredential(query.state.data)) return false;
       return typeof key === 'string' && PERSISTED_KEYS.has(key);
     },
-    // Only replay-safe paused mutations may survive restart. Never persist a
-    // mutation whose variables contain bearer tokens, passwords or credentials.
-    shouldDehydrateMutation: (mutation: { state: { isPaused: boolean; variables?: unknown } }) =>
-      mutation.state.isPaused && !containsCredential(mutation.state.variables),
+    // Mutations are deliberately not persisted: mutationFn closures cannot be
+    // serialized, and replaying an unknown action after restart is unsafe.
+    // Offline retries remain in memory and resume when connectivity returns.
+    shouldDehydrateMutation: () => false,
   },
 } as const;
 
@@ -148,14 +157,17 @@ export function createAppQueryClient(storage: KVStorage) {
         placeholderData: keepPreviousData,
       },
       mutations: {
-        // Queue mutations while offline; providers resume them after hydration.
+        // Keep offline-first behavior while the process is alive. Mutations
+        // are deliberately not persisted or replayed after an app restart.
         networkMode: 'offlineFirst',
       },
     },
   });
 
-  // MMKV is synchronous, so use the sync persister.
-  const persister = createSyncStoragePersister({
+  // MMKV is synchronous. Own the debounce so account cleanup can cancel a
+  // queued write; the stock persister's throttle cannot be safely cancelled
+  // when a user logs out while a snapshot is pending.
+  const basePersister = createSyncStoragePersister({
     storage: {
       getItem: (key: string) => storage.getItem(key) as string | null,
       setItem: (key: string, value: string) => storage.setItem(key, value),
@@ -164,10 +176,78 @@ export function createAppQueryClient(storage: KVStorage) {
     key: 'FUNSPOT_QUERY_CACHE',
     serialize: (client) => serializePersistedClient(compactPersistedClient(client)),
     deserialize: deserializePersistedClient,
-    // Shorter window = less data lost if the app is killed without a
-    // background event (crash, dev reload, force-stop).
-    throttleTime: 500,
+    throttleTime: 0,
   });
+
+  type PersistedSnapshot = Parameters<typeof basePersister.persistClient>[0];
+  let pendingClient: PersistedSnapshot | undefined;
+  let writeTimer: ReturnType<typeof setTimeout> | undefined;
+  let writeInProgress = false;
+  let persistencePaused = false;
+  let pendingWaiters: Array<() => void> = [];
+
+  const resolvePendingWaiters = () => {
+    const waiters = pendingWaiters;
+    pendingWaiters = [];
+    waiters.forEach((resolve) => resolve());
+  };
+
+  const flushPendingWrite = async () => {
+    if (writeInProgress || !pendingClient || persistencePaused) return;
+    writeInProgress = true;
+    const client = pendingClient;
+    pendingClient = undefined;
+    const waiters = pendingWaiters;
+    pendingWaiters = [];
+    try {
+      await basePersister.persistClient(client);
+    } catch {
+      // Cache persistence is best-effort; live query data remains available.
+    } finally {
+      writeInProgress = false;
+      waiters.forEach((resolve) => resolve());
+      if (pendingClient && !writeTimer && !persistencePaused) {
+        writeTimer = setTimeout(() => {
+          writeTimer = undefined;
+          void flushPendingWrite();
+        }, 500);
+      }
+    }
+  };
+
+  const persister = {
+    persistClient: (client: PersistedSnapshot): Promise<void> => {
+      if (persistencePaused) return Promise.resolve();
+      pendingClient = client;
+      const completion = new Promise<void>((resolve) => pendingWaiters.push(resolve));
+      if (writeTimer) clearTimeout(writeTimer);
+      writeTimer = setTimeout(() => {
+        writeTimer = undefined;
+        void flushPendingWrite();
+      }, 500);
+      return completion;
+    },
+    restoreClient: () => basePersister.restoreClient(),
+    removeClient: async () => {
+      persistencePaused = true;
+      if (writeTimer) clearTimeout(writeTimer);
+      writeTimer = undefined;
+      pendingClient = undefined;
+      resolvePendingWaiters();
+      while (writeInProgress) await new Promise((resolve) => setTimeout(resolve, 10));
+      // Clear again after the in-flight write finishes, then delete the disk
+      // snapshot. New writes stay suppressed until resumePersistence().
+      if (writeTimer) clearTimeout(writeTimer);
+      writeTimer = undefined;
+      pendingClient = undefined;
+      resolvePendingWaiters();
+      await basePersister.removeClient();
+    },
+  };
+
+  const resumePersistence = () => {
+    persistencePaused = false;
+  };
 
   const persistOptions: Omit<PersistQueryClientOptions, 'queryClient'> = {
     persister,
@@ -176,5 +256,5 @@ export function createAppQueryClient(storage: KVStorage) {
     ...PERSIST_OPTIONS,
   };
 
-  return { queryClient, persister, persistOptions };
+  return { queryClient, persister, persistOptions, resumePersistence };
 }

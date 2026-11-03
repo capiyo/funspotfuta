@@ -21,7 +21,7 @@ export function Avatar({ colors, size = 'md', uri, userId, label, borderColor, b
   const profileAvatar = useProfileAvatar(userId, authToken);
   const imageUri = profileAvatar ?? uri ?? getFanAvatarUri(userId ?? label ?? 'guest');
   const style: CSSProperties = {
-    width: dim, height: dim, borderRadius: '50%', backgroundColor: backgroundColor ?? colors.primaryMuted,
+    width: dim, height: dim, aspectRatio: 1, borderRadius: '50%', backgroundColor: backgroundColor ?? colors.primaryMuted,
     border: borderColor ? `1px solid ${borderColor}` : 'none', display: 'inline-flex',
     alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flex: '0 0 auto',
   };

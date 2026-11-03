@@ -285,6 +285,64 @@ export function MatchCard({
     }
     onChannelPress?.();
   }
+  const [unreadCount, setUnreadCount] = useState(channel?.unreadCount ?? 0);
+  const [latestMessageAt, setLatestMessageAt] = useState<string | null>(null);
+  useEffect(() => {
+    let active = true;
+    const resolvedFixtureId = String(fixture.matchId || fixture.id || '');
+    // A reused card must never briefly show another fixture's unread state or time.
+    setUnreadCount(channel?.unreadCount ?? 0);
+    setLatestMessageAt(null);
+    if (!channelId || !resolvedFixtureId || !userId || !authToken) {
+      setUnreadCount(channel?.unreadCount ?? 0);
+      setLatestMessageAt(null);
+      return () => { active = false; };
+    }
+    const refreshChatMeta = async () => {
+      const base = 'https://clash-api-m5mr.onrender.com/api/channels/' +
+        encodeURIComponent(channelId) + '/fixtures/' + encodeURIComponent(resolvedFixtureId);
+      try {
+        const [unreadResponse, latestResponse] = await Promise.all([
+          fetch(base + '/unread/' + encodeURIComponent(userId), {
+            headers: { Authorization: 'Bearer ' + authToken, 'Cache-Control': 'no-cache' },
+          }),
+          fetch(base + '/comments/latest', {
+            headers: { Authorization: 'Bearer ' + authToken, 'Cache-Control': 'no-cache' },
+          }),
+        ]);
+        if (!active) return;
+        if (unreadResponse.ok) {
+          const data = await unreadResponse.json();
+          if (active && Number.isFinite(Number(data?.unread_count))) {
+            setUnreadCount(Math.max(0, Number(data.unread_count)));
+          }
+        }
+        if (latestResponse.ok) {
+          const data = await latestResponse.json();
+          const rawTimestamp = data?.latest_comment?.timestamp;
+          const timestamp = typeof rawTimestamp === 'string'
+            ? rawTimestamp
+            : typeof rawTimestamp?.$date === 'string'
+              ? rawTimestamp.$date
+              : typeof rawTimestamp?.$date?.$numberLong === 'string'
+                ? new Date(Number(rawTimestamp.$date.$numberLong)).toISOString()
+                : null;
+          if (active && timestamp && !Number.isNaN(Date.parse(timestamp))) {
+            setLatestMessageAt(timestamp);
+          }
+        }
+      } catch {
+        // Keep the last known counters/time when the connection is unavailable.
+      }
+    };
+    void refreshChatMeta();
+    const interval = setInterval(() => { void refreshChatMeta(); }, 30000);
+    return () => { active = false; clearInterval(interval); };
+  }, [channelId, fixture.matchId, fixture.id, userId, authToken, channel?.unreadCount]);
+  const latestMessageTimeLabel = latestMessageAt
+    ? new Date(latestMessageAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    : null;
+
   const [failedUri, setFailedUri] = useState<string | null>(null);
 
   // Random pick, fixed for this card's lifetime.
@@ -602,16 +660,20 @@ export function MatchCard({
               </button>
             ) : null}
 
-            {isLive ? (
-              <>
-                <LiveBadge colors={colors} />
-                {matchMinute && <span className="match-card-minute" aria-label={`Match time ${matchMinute}`} style={{ ...styles.date, color: colors.textSecondary, fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>{matchMinute}</span>}
-              </>
-            ) : isHalfTime && matchMinute ? (
-              <span className="match-card-minute" aria-label={`Match time ${matchMinute}`} style={{ ...styles.date, color: colors.textSecondary, whiteSpace: 'nowrap' }}>{matchMinute}</span>
-            ) : (
-              <span className="match-card-date" style={styles.date}>{kickoffLabel(fixture.date)}</span>
-            )}
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, flexShrink: 0 }}>
+              {latestMessageTimeLabel && <span aria-label={`Last message sent at ${latestMessageTimeLabel}`} title="Last message sent" style={{ ...styles.date, color: colors.textSecondary, fontVariantNumeric: 'tabular-nums' }}>{latestMessageTimeLabel}</span>}
+              {unreadCount > 0 && <span aria-label={`${unreadCount} unread messages`} title={`${unreadCount} unread messages`} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 21, height: 21, minWidth: 21, borderRadius: '50%', background: colors.primary, color: colors.textInverse, fontSize: 10, fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>{unreadCount > 99 ? '99+' : unreadCount}</span>}
+              {isLive ? (
+                <>
+                  <LiveBadge colors={colors} />
+                  {matchMinute && <span className="match-card-minute" aria-label={`Match time ${matchMinute}`} style={{ ...styles.date, color: colors.textSecondary, fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>{matchMinute}</span>}
+                </>
+              ) : isHalfTime && matchMinute ? (
+                <span className="match-card-minute" aria-label={`Match time ${matchMinute}`} style={{ ...styles.date, color: colors.textSecondary, whiteSpace: 'nowrap' }}>{matchMinute}</span>
+              ) : (
+                <span className="match-card-date" style={styles.date}>{kickoffLabel(fixture.date)}</span>
+              )}
+            </span>
           </div>
 
           {channel?.leaderName && (
@@ -706,7 +768,7 @@ export function MatchCard({
                 <span className="match-card-poke-circle" style={{ display: 'inline-flex', flex: '0 0 28px', width: 28, minWidth: 28, height: 28, boxSizing: 'border-box', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', background: colors.primaryDim, color: colors.primary }}><Pointer size={15} aria-hidden="true" /></span><span>Poke</span>
               </button>
             </div>
-            <div className="match-card-action-slot" style={{ display: 'flex', justifyContent: 'center', minWidth: 0 }}><button type="button" aria-label="Open possession market" title="Possession" onClick={() => { if (!isLoggedIn) return requireLogin(() => onOpenPossessionModal?.(fixture)); onOpenPossessionModal?.(fixture); }} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, height: 28, minHeight: 28, padding: 0, border: 0, borderRadius: 0, background: 'transparent', color: colors.primary, fontSize: 12, fontWeight: 600, cursor: 'pointer' }}><span style={{ display: 'inline-flex', width: 28, height: 28, flex: '0 0 28px', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', background: colors.primaryDim }}><Activity size={15} aria-hidden="true" /></span></button></div>
+            <div className="match-card-action-slot" style={{ display: 'flex', justifyContent: 'center', minWidth: 0, position: 'relative', zIndex: 3, pointerEvents: 'auto' }}><button type="button" aria-label="Open possession market" title="Possession" onClick={(event) => { event.stopPropagation(); if (!isLoggedIn) return requireLogin(() => onOpenPossessionModal?.(fixture)); onOpenPossessionModal?.(fixture); }} style={{ display: 'inline-flex', alignItems: 'center', gap: 5, height: 28, minHeight: 28, minWidth: 28, padding: 0, border: 0, borderRadius: 0, background: 'transparent', color: colors.primary, fontSize: 12, fontWeight: 600, cursor: 'pointer', pointerEvents: 'auto', position: 'relative', zIndex: 3 }}><span style={{ display: 'inline-flex', width: 28, height: 28, flex: '0 0 28px', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', background: 'transparent' }}><Activity size={15} aria-hidden="true" /></span></button></div>
             <div className="match-card-action-slot" style={{ display: 'flex', justifyContent: 'center', minWidth: 0 }}><ActionButton icon={Heart} label={liked ? 'Unlike' : 'Like'} count={likesCount} active={liked} activeColor={colors.away} colors={colors} onPress={handleLike} /></div>
             <div className="match-card-action-slot" style={{ display: 'flex', justifyContent: 'center', minWidth: 0 }}><ActionButton icon={MessageCircle} label="Comments" count={commentsCount ?? pool.length} colors={colors} onPress={() => {}} /></div>
           </div>

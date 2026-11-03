@@ -3,7 +3,7 @@ import { QueryClient } from '@tanstack/react-query';
 import { persistQueryClientRestore, persistQueryClientSave } from '@tanstack/react-query-persist-client';
 import type { KVStorage } from '@funspot/storage';
 import { createAppQueryClient, PERSIST_OPTIONS } from '../queryClient';
-import { deserializePersistedClient, serializePersistedClient } from '../persistence/serialization';
+import { compactPersistedClient, deserializePersistedClient, serializePersistedClient } from '../persistence/serialization';
 import { mergeOpenPokes } from '../api/pokes-service';
 import type { Poke } from '../api/pokes-service';
 import { capCachedMessages, mergeCachedList, queryKeys } from './queryKeys';
@@ -92,6 +92,61 @@ describe('open poke cache reconciliation', () => {
     expect(capCachedMessages(messages, 0)).toEqual([]);
   });
 
+  it('persists live commentary and feed comments as first-class AppCache data', () => {
+    const shouldDehydrate = PERSIST_OPTIONS.dehydrateOptions.shouldDehydrateQuery;
+    expect(shouldDehydrate?.({
+      queryKey: queryKeys.liveCommentary('fixture-1'),
+      state: { data: { events: [{ id: 'event-1', text: 'Goal' }] }, status: 'success' },
+    } as never)).toBe(true);
+    expect(shouldDehydrate?.({
+      queryKey: queryKeys.postComments('post-1'),
+      state: { data: [{ id: 'comment-1', text: 'Great post' }], status: 'success' },
+    } as never)).toBe(true);
+  });
+
+  it('bounds retained live commentary and feed comment history', () => {
+    const events = Array.from({ length: 140 }, (_, id) => ({ id }));
+    const comments = Array.from({ length: 90 }, (_, id) => ({
+      id,
+      replies: Array.from({ length: 80 }, (_, replyId) => ({ id: replyId })),
+    }));
+    const persisted = {
+      timestamp: Date.now(),
+      buster: 'v10',
+      clientState: {
+        mutations: [],
+        queries: [
+          {
+            queryKey: queryKeys.liveCommentary('fixture-1'),
+            state: { data: { events }, status: 'success', dataUpdatedAt: Date.now() },
+          },
+          {
+            queryKey: queryKeys.postComments('post-1'),
+            state: { data: comments, status: 'success', dataUpdatedAt: Date.now() },
+          },
+        ],
+      },
+    };
+    const compacted = compactPersistedClient(persisted as never);
+    const commentary = compacted.clientState.queries.find((query) => query.queryKey[0] === 'liveCommentary');
+    const feedComments = compacted.clientState.queries.find((query) => query.queryKey[0] === 'postComments');
+    expect((commentary?.state.data as { events: unknown[] }).events).toHaveLength(100);
+    expect(feedComments?.state.data).toHaveLength(50);
+    const cachedComment = (feedComments?.state.data as Array<{ replies: unknown[] }> | undefined)?.[0];
+    expect(cachedComment?.replies).toHaveLength(50);
+  });
+
+  it('persists fixture-scoped commentary independently for each match', () => {
+    const shouldDehydrate = PERSIST_OPTIONS.dehydrateOptions.shouldDehydrateQuery;
+    const firstFixtureKey = queryKeys.liveCommentary('fixture-1');
+    const secondFixtureKey = queryKeys.liveCommentary('fixture-2');
+    expect(firstFixtureKey).not.toEqual(secondFixtureKey);
+    expect(shouldDehydrate?.({
+      queryKey: firstFixtureKey,
+      state: { data: { events: [{ id: 'goal-1', text: 'Goal', minute: 12 }] }, status: 'success' },
+    } as never)).toBe(true);
+  });
+
   it('persists and restores successful cache data across a new QueryClient', async () => {
     const storage = memoryStorage();
     const first = createAppQueryClient(storage);
@@ -139,7 +194,7 @@ describe('open poke cache reconciliation', () => {
       ...PERSIST_OPTIONS,
     });
     expect(restarted.getQueryData(key)).toBeUndefined();
-    expect(PERSIST_OPTIONS.buster).toBe('v6');
+    expect(PERSIST_OPTIONS.buster).toBe('v10');
     restarted.clear();
   });
 
@@ -174,6 +229,28 @@ describe('open poke cache reconciliation', () => {
     client.clear();
   });
 
+  it('bounds persisted message lists and total retained query count', () => {
+    const messages = Array.from({ length: 90 }, (_, id) => ({ id }));
+    const persisted = {
+      timestamp: Date.now(),
+      buster: 'v9',
+      clientState: {
+        mutations: [],
+        queries: [{
+          queryKey: ['chatMessages', 'fixture-1', 'channel-1'],
+          state: { data: { messages }, status: 'success', dataUpdatedAt: Date.now() },
+        }, ...Array.from({ length: 175 }, (_, index) => ({
+          queryKey: ['misc', String(index)],
+          state: { data: [{ id: index }], status: 'success', dataUpdatedAt: Date.now() - index },
+        }))],
+      },
+    };
+    const compacted = compactPersistedClient(persisted as never);
+    expect(compacted.clientState.queries.length).toBeLessThanOrEqual(150);
+    const chat = compacted.clientState.queries.find((query) => query.queryKey[0] === 'chatMessages');
+    expect((chat?.state.data as { messages: unknown[] }).messages).toHaveLength(50);
+  });
+
   it('round-trips Date values through persisted cache serialization', () => {
     const persisted = {
       timestamp: Date.now(),
@@ -193,14 +270,48 @@ describe('open poke cache reconciliation', () => {
     expect('optional' in data).toBe(false);
   });
 
-  it('does not persist paused mutations that carry credentials', () => {
+  it('does not persist paused mutations without a registered replay-safe mutation function', () => {
     const shouldDehydrateMutation = PERSIST_OPTIONS.dehydrateOptions.shouldDehydrateMutation;
-    expect(shouldDehydrateMutation?.({
-      state: { isPaused: true, variables: { fixtureId: 'fixture-1', selection: 'home_team' } },
-    } as never)).toBe(true);
-    expect(shouldDehydrateMutation?.({
-      state: { isPaused: true, variables: { fixtureId: 'fixture-1', authToken: 'never-persist' } },
+    expect(shouldDehydrateMutation?.()).toBe(false);
+    expect(shouldDehydrateMutation?.()).toBe(false);
+  });
+
+  it('does not persist balances or transaction history', () => {
+    const shouldDehydrate = PERSIST_OPTIONS.dehydrateOptions.shouldDehydrateQuery;
+    for (const key of ['balance', 'transactions']) {
+      expect(shouldDehydrate?.({
+        queryKey: [key, 'user-1'],
+        state: { data: { amount: 500 }, status: 'success' },
+      } as never)).toBe(false);
+    }
+  });
+
+  it('never persists query keys containing credential-shaped objects', () => {
+    const shouldDehydrate = PERSIST_OPTIONS.dehydrateOptions.shouldDehydrateQuery;
+    expect(shouldDehydrate?.({
+      queryKey: ['profile', { refreshToken: 'must-not-persist' }],
+      state: { data: { username: 'fan' }, status: 'success' },
     } as never)).toBe(false);
+    expect(shouldDehydrate?.({
+      queryKey: ['profile', 'user-1'],
+      state: { data: { username: 'fan' }, status: 'success' },
+    } as never)).toBe(true);
+  });
+
+  it('never persists successful query data containing credentials', () => {
+    const shouldDehydrate = PERSIST_OPTIONS.dehydrateOptions.shouldDehydrateQuery;
+    expect(shouldDehydrate?.({
+      queryKey: ['profile', 'user-1'],
+      state: { data: { username: 'fan', nested: { accessToken: 'must-not-persist' } }, status: 'success' },
+    } as never)).toBe(false);
+    expect(shouldDehydrate?.({
+      queryKey: ['profile', 'user-1'],
+      state: { data: { username: 'fan', authorization: 'Bearer secret' }, status: 'success' },
+    } as never)).toBe(false);
+    expect(shouldDehydrate?.({
+      queryKey: ['profile', 'user-1'],
+      state: { data: { username: 'fan', avatarUrl: 'https://cdn.example/avatar.png' }, status: 'success' },
+    } as never)).toBe(true);
   });
 
   it('does not dehydrate failed queries over a previous successful snapshot', () => {

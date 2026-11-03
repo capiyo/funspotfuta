@@ -40,13 +40,6 @@ createRoot(document.getElementById('root')!).render(
         maxAge: DAY,
         ...PERSIST_OPTIONS,
       }}
-      onSuccess={() => {
-        // Resume any mutations paused before an offline restart, only after the
-        // persisted cache has been restored.
-        void queryClient.resumePausedMutations().catch((error) => {
-          if (import.meta.env.DEV) console.warn('[query-cache] resume paused mutations failed', error);
-        });
-      }}
     >
       <BrowserRouter>
         <App />
