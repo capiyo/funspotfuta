@@ -161,7 +161,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   ): Promise<boolean> => {
     const opts: LoginOptions = typeof phoneOrOptions === 'string' ? { phone: phoneOrOptions } : phoneOrOptions ?? {};
     try {
-      if (state.userId && state.userId !== userId) {
+      if (state.userId !== userId) {
         queryClient.clear();
         await indexedDbQueryPersister.removeClient();
       }
