@@ -691,7 +691,7 @@ export function MatchCard({
                 <Text style={fanText('tag', colors, colors.primary)}>Poke</Text>
               </Pressable>
             </View>
-            <View style={styles.actionSlot}><Pressable onPress={() => { if (!isLoggedIn) return requireLogin(() => onOpenPossessionModal?.(fixture)); onOpenPossessionModal?.(fixture); }} hitSlop={8} accessibilityRole="button" accessibilityLabel="Open possession market" style={({ pressed }) => [styles.pokeButton, { zIndex: 3, elevation: 3 }, pressed && { opacity: PRESSED_OPACITY }]}><View style={[styles.pokeCircle, { backgroundColor: "transparent" }]}><Activity size={ICON.sm} color={colors.primary} /></View></Pressable></View>
+            <View style={[styles.actionSlot, { zIndex: 3, elevation: 3 }]} pointerEvents="box-none"><Pressable onPress={(event) => { event.stopPropagation(); if (!isLoggedIn) return requireLogin(() => onOpenPossessionModal?.(fixture)); onOpenPossessionModal?.(fixture); }} hitSlop={8} accessibilityRole="button" accessibilityLabel="Open possession market" style={({ pressed }) => [styles.pokeButton, { zIndex: 3, elevation: 3 }, pressed && { opacity: PRESSED_OPACITY }]}><View style={[styles.pokeCircle, { backgroundColor: "transparent" }]}><Activity size={ICON.sm} color={colors.primary} /></View></Pressable></View>
             <View style={styles.actionSlot}><ActionButton icon={Heart} label={liked ? 'Unlike' : 'Like'} count={likesCount} active={liked} activeColor={colors.away} colors={colors} onPress={handleLike} /></View>
             <View style={styles.actionSlot}><ActionButton icon={MessageCircle} label="Comments" count={commentsCount ?? pool.length} colors={colors} onPress={() => {}} /></View>
           </View>
