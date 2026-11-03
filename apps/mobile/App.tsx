@@ -85,6 +85,7 @@ function NotificationRuntime() {
     };
     const reconcile = () => {
       void NotificationService.reconcileFromServer({ userId, authToken: authToken ?? undefined });
+      void queryClient.invalidateQueries({ queryKey: ['fixtureUnreadCount'] });
     };
     const stopForeground = onForegroundMessage((message) => {
       const data = message.data ?? {};

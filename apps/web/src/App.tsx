@@ -59,6 +59,7 @@ function AppRoutes() {
     };
     const reconcile = () => {
       void NotificationService.reconcileFromServer({ userId, authToken: authToken ?? undefined });
+      void queryClient.invalidateQueries({ queryKey: ['fixtureUnreadCount'] });
     };
     const handleVisibility = () => {
       if (document.visibilityState === 'visible') reconcile();
