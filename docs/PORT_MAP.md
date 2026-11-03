@@ -1,5 +1,19 @@
 # Mobile-to-web port map
 
+> **Historical inventory:** The detailed file counts and PENDING/SUSPECT labels below are a 2026-10-11 snapshot. They are not a current completion checklist; refresh them against the current cross-platform branch before using them to make parity claims.
+
+## Current tree audit (2026-11-03)
+
+- Branch: `web-port-from-master`
+- Validated head: `3789e82f53add1ae8beba4a6961581dc4dc26ce7`
+- `apps/mobile/src`: 75 files
+- Same-relative-path counterparts in `apps/web/src`: 74
+- Mobile-only same-path file: `components/AdCarousel.tsx`; the browser messaging surface uses the web-specific `AdSenseCarousel`.
+- Web-only source files: 17
+- Path presence does not establish functional parity. Use behavior, API, loading/error states, accessibility and responsive interaction tests for completion decisions.
+
+---
+
 Source of truth: `master` at `84255b277d0568b05986aba8ec54daf748871b7b`. This inventories all 70 regular files under `apps/mobile/src/`; line counts were read from the exact source files. The required web target for each row is `apps/web/src/<same relative path>`. Existing legacy counterparts are comparison leads only, not evidence of parity.
 
 **Status:** `PENDING` means not yet ported and verified. No row is considered complete based on a similar name alone.
