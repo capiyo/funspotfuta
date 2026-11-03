@@ -127,10 +127,19 @@ function hexWithAlpha(hex: string, alpha: number) {
 
 export function BenchColumn({ players, color }: { players: SimplifiedPlayer[]; color: string }) {
   const colors = useFanColors();
+  const [benchHeadshots, setBenchHeadshots] = useState<Record<string, string>>({});
+  useEffect(() => {
+    let cancelled = false;
+    const batch = players.map((player) => ({ player, teamName: player.teamName ?? '' }));
+    void resolvePlayerHeadshots(batch).then((result) => {
+      if (!cancelled) setBenchHeadshots(result);
+    });
+    return () => { cancelled = true; };
+  }, [players]);
   if (!players.length) return <div className="text-center" style={fanText('caption', colors, colors.textTertiary)}>No data</div>;
   return <div className="space-y-1">
     {players.slice(0,9).map((p,idx) => <div key={`${p.number}-${p.name}-${idx}`} className="flex items-center gap-1.5 rounded px-1.5 py-1" style={{backgroundColor:hexWithAlpha(color,.06)}}>
-      {p.imageUrl ? <img src={p.imageUrl} alt="" className="h-5 w-5 rounded-full object-cover" loading="lazy"/> : null}
+      {(p.photoUrl || p.imageUrl || benchHeadshots[playerHeadshotKey(p, p.teamName ?? '')]) ? <img src={p.photoUrl || p.imageUrl || benchHeadshots[playerHeadshotKey(p, p.teamName ?? '')]} alt="" className="h-5 w-5 rounded-full object-cover" loading="lazy"/> : null}
       <span className="flex h-5 w-5 items-center justify-center rounded text-[10px] font-bold" style={{backgroundColor:hexWithAlpha(color,.18),color}}>{p.number}</span>
       <span className="min-w-0 flex-1 truncate" style={fanText('caption',colors,colors.textPrimary)}>{shortName(p.name)}</span>
       <span style={fanText('tag',colors,colors.textTertiary)}>{p.position.toUpperCase()}</span>
