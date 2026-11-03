@@ -40,6 +40,7 @@ const PERSISTED_KEYS = new Set([
   'historyGames',
   'aftermatch',
   'liveEvents',
+  'liveCommentary',
   // Flutter AppCache: votes, voters, counts and fixture/channel activity.
   'userVotes',
   'fixtureVotes',
