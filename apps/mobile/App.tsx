@@ -5,7 +5,7 @@
 // Google-font hook completion before mounting navigation made every cold resume
 // show a blank/splash delay even when useful screen data was already cached.
 
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { Platform, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import {

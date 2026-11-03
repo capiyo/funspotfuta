@@ -46,7 +46,11 @@ export default function NotificationGate({ visible, onRetry, onSkip }: { visible
       // Permission is requested only in direct response to this user click.
       const token = await requestWebPushToken();
       if (token && userId) {
-        await NotificationService.registerToken({ userId, fcmToken: token, platform: 'web', authToken: authToken ?? undefined });
+        const registered = await NotificationService.registerToken({ userId, fcmToken: token, platform: 'web', authToken: authToken ?? undefined });
+        if (!registered) {
+          setMessage('Your device permission is enabled, but registration with Funspot failed. Please try again.');
+          return;
+        }
       } else if (Notification.permission !== 'granted') {
         setMessage('Permission was not granted. You can enable notifications in your browser settings.');
         return;
