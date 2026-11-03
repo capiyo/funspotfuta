@@ -1,5 +1,6 @@
 import * as SecureStore from 'expo-secure-store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { mobileStorageReady } from '@funspot/storage';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { clearMobileQueryCache } from '../../../QueryProvider';
 
@@ -66,6 +67,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let cancelled = false;
     void (async () => {
       try {
+        // Wait until the storage layer has migrated any legacy MMKV session
+        // into Keychain/Keystore; otherwise both reads could race at startup.
+        await mobileStorageReady;
         let [token, user, refresh] = await Promise.all([
           SecureStore.getItemAsync(SECURE_KEYS.token),
           SecureStore.getItemAsync(SECURE_KEYS.user),
