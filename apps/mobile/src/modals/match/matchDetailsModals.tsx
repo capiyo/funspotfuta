@@ -1,5 +1,5 @@
 // components/MatchDetailsModal.tsx
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
     View,
     Text,
@@ -9,7 +9,7 @@ import {
     useWindowDimensions,
 } from 'react-native';
 
-import { FAN_SPACING, FAN_RADIUS } from '@funspot/core';
+import { FAN_SPACING, FAN_RADIUS, webSocketService } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
 import type { Fixture } from '../../../../../packages/core/src/types/fixture';
@@ -67,22 +67,47 @@ function hasValidStatistics(data: any): boolean {
             const s = latest?.statistics ?? latest;
             const home = s?.home ?? {};
             const away = s?.away ?? {};
-            return (
-                (home?.possession ?? 0) > 0 ||
-                (away?.possession ?? 0) > 0 ||
-                (home?.shots ?? 0) > 0 ||
-                (away?.shots ?? 0) > 0
+            const hasPositiveValue = (value: unknown) =>
+                value !== null && value !== undefined && Number.isFinite(Number(value)) && Number(value) > 0;
+            const fields = [
+                'possession', 'ball_possession', 'shots', 'total_shots',
+                'shotsOnTarget', 'shots_on_target', 'corners', 'fouls',
+                'offsides', 'yellowCards', 'yellow_cards', 'passAccuracy', 'pass_accuracy',
+            ];
+            return fields.some((field) =>
+                hasPositiveValue(home?.[field]) || hasPositiveValue(away?.[field]),
             );
         }
         return false;
     }
 
-    return (
-        (stats?.ball_possession_home ?? 0) > 0 ||
-        (stats?.ball_possession_away ?? 0) > 0 ||
-        (stats?.total_shots_home ?? 0) > 0 ||
-        (stats?.total_shots_away ?? 0) > 0
-    );
+    if (stats?.home || stats?.away || stats?.statistics?.home || stats?.statistics?.away) {
+        const nested = stats?.statistics?.home || stats?.statistics?.away ? stats.statistics : stats;
+        const home = nested?.home ?? {};
+        const away = nested?.away ?? {};
+        const fields = [
+            'possession', 'ball_possession', 'shots', 'total_shots',
+            'shotsOnTarget', 'shots_on_target', 'corners', 'fouls',
+            'offsides', 'yellowCards', 'yellow_cards', 'passAccuracy', 'pass_accuracy',
+        ];
+        return fields.some((field) => {
+            const homeValue = home[field], awayValue = away[field];
+            return (homeValue !== null && homeValue !== undefined && Number.isFinite(Number(homeValue)) && Number(homeValue) > 0)
+                || (awayValue !== null && awayValue !== undefined && Number.isFinite(Number(awayValue)) && Number(awayValue) > 0);
+        });
+    }
+    const flatFields = [
+        'ball_possession_home', 'ball_possession_away',
+        'total_shots_home', 'total_shots_away',
+        'shots_on_target_home', 'shots_on_target_away',
+        'corners_home', 'corners_away', 'fouls_home', 'fouls_away',
+        'offsides_home', 'offsides_away', 'yellow_cards_home', 'yellow_cards_away',
+        'pass_accuracy_home', 'pass_accuracy_away',
+    ];
+    return flatFields.some((field) => {
+        const value = stats?.[field];
+        return value !== null && value !== undefined && Number.isFinite(Number(value)) && Number(value) > 0;
+    });
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -101,6 +126,7 @@ export function MatchDetailsModal({
     const { height: windowHeight } = useWindowDimensions();
 
     const [activeTab, setActiveTab] = useState<'lineups' | 'stats'>('lineups');
+    const swipeStart = useRef<{ x: number; y: number } | null>(null);
 
     const [statistics, setStatistics] = useState<MatchStatistics | null>(null);
     const [lineups, setLineups] = useState<LineupsData | null>(null);
@@ -113,6 +139,7 @@ export function MatchDetailsModal({
     const [lineupsError, setLineupsError] = useState('');
 
     const [hasStats, setHasStats] = useState(false);
+    const liveStatisticsReceived = useRef(false);
 
     const headers = authToken
         ? { Authorization: `Bearer ${authToken}` }
@@ -179,6 +206,7 @@ export function MatchDetailsModal({
             if (res.status === 200) {
                 const data = await res.json();
                 if (hasValidStatistics(data)) {
+                    if (liveStatisticsReceived.current) { setLoadingStats(false); return; }
                     setStatistics(parseMatchStatistics(data));
                     setHasStats(true);
                     setLoadingStats(false);
@@ -196,6 +224,7 @@ export function MatchDetailsModal({
                 if (data?.success === true) {
                     const stats = data?.data ?? data;
                     if (hasValidStatistics(stats)) {
+                        if (liveStatisticsReceived.current) { setLoadingStats(false); return; }
                         setStatistics(parseMatchStatistics(stats));
                         setHasStats(true);
                         setLoadingStats(false);
@@ -204,15 +233,19 @@ export function MatchDetailsModal({
                 }
             }
 
-            setHasStats(false);
-            setStatistics(null);
-            setStatsError('Statistics available after match starts');
+            if (!liveStatisticsReceived.current) {
+                setHasStats(false);
+                setStatistics(null);
+                setStatsError('Statistics available after match starts');
+            }
             setLoadingStats(false);
         } catch (e) {
             console.warn('❌ Error fetching statistics:', e);
-            setHasStats(false);
-            setStatistics(null);
-            setStatsError('Statistics coming soon');
+            if (!liveStatisticsReceived.current) {
+                setHasStats(false);
+                setStatistics(null);
+                setStatsError('Statistics coming soon');
+            }
             setLoadingStats(false);
         }
     }, [fixture.matchId, authToken]);
@@ -223,6 +256,7 @@ export function MatchDetailsModal({
         if (!visible) return;
         // Reset state each time the modal is opened so a reopened modal
         // doesn't flash the previous match's lineups/stats.
+        liveStatisticsReceived.current = false;
         setActiveTab('lineups');
         setStatistics(null);
         setLoadingStats(true);
@@ -236,6 +270,37 @@ export function MatchDetailsModal({
         fetchLineups();
         fetchStatistics();
         // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [visible, fixture.matchId]);
+
+    // Apply backend statistics.updated events immediately while this match is open.
+    // The active fixture room is leased so the modal also receives updates when
+    // the originating chat/card is no longer mounted.
+    useEffect(() => {
+        if (!visible || !fixture?.matchId) return;
+
+        const channelId = webSocketService.getCurrentChannelId();
+        const roomId = channelId ? `${channelId}_${fixture.matchId}` : null;
+        const alreadyJoined = roomId ? webSocketService.isInRoom(roomId) : false;
+        if (channelId && !alreadyJoined) {
+            webSocketService.joinChannelFixtureRoom(channelId, fixture.matchId);
+        }
+
+        const unsubscribe = webSocketService.onStatisticsUpdated((event) => {
+            if (String(event.fixture_id) !== String(fixture.matchId)) return;
+            if (!hasValidStatistics(event.statistics)) return;
+            liveStatisticsReceived.current = true;
+            setStatistics(parseMatchStatistics({ statistics: event.statistics }));
+            setHasStats(true);
+            setStatsError('');
+            setLoadingStats(false);
+        });
+
+        return () => {
+            unsubscribe();
+            if (channelId && !alreadyJoined) {
+                webSocketService.leaveChannelFixtureRoom(channelId, fixture.matchId);
+            }
+        };
     }, [visible, fixture.matchId]);
 
     if (!fixture) return null;
@@ -345,8 +410,7 @@ export function MatchDetailsModal({
                     </View>
 
                     {/* Conditional tab bar */}
-                    {hasStats ? (
-                        <View style={styles.tabBar}>
+                    <View style={styles.tabBar}>
                             <Pressable
                                 style={styles.tab}
                                 onPress={() => setActiveTab('lineups')}
@@ -376,7 +440,7 @@ export function MatchDetailsModal({
                                 )}
                             </Pressable>
                             <Pressable
-                                style={styles.tab}
+                                style={[styles.tab, !hasStats && { display: 'none' }]}
                                 onPress={() => setActiveTab('stats')}
                             >
                                 <Text
@@ -403,11 +467,32 @@ export function MatchDetailsModal({
                                     <View style={styles.tabIndicatorEmpty} />
                                 )}
                             </Pressable>
-                        </View>
-                    ) : null}
+                    </View>
 
                     {/* Content */}
-                    <View style={{ flex: 1 }}>
+                    <View
+                        style={{ flex: 1 }}
+                        onTouchStart={(event) => {
+                            const touch = event.nativeEvent.touches[0];
+                            swipeStart.current = touch
+                                ? { x: touch.pageX, y: touch.pageY }
+                                : null;
+                        }}
+                        onTouchEnd={(event) => {
+                            if (!hasStats) {
+                                swipeStart.current = null;
+                                return;
+                            }
+                            const touch = event.nativeEvent.changedTouches[0];
+                            const start = swipeStart.current;
+                            swipeStart.current = null;
+                            if (!touch || !start) return;
+                            const deltaX = touch.pageX - start.x;
+                            const deltaY = touch.pageY - start.y;
+                            if (Math.abs(deltaX) < 56 || Math.abs(deltaX) < Math.abs(deltaY) * 1.25) return;
+                            setActiveTab(deltaX < 0 ? 'stats' : 'lineups');
+                        }}
+                    >
                         {activeTab === 'lineups' ? (
                             <LineupsTab
                                 fixture={fixture}
