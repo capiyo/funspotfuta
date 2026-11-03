@@ -69,6 +69,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     channel.onmessage = (event: MessageEvent<unknown>) => {
       if (!event.data || typeof event.data !== 'object') return;
       const message = event.data as { type?: unknown };
+      if (message.type !== 'session-updated' && message.type !== 'logout' && message.type !== 'account-switch' && message.type !== 'clear-all') return;
       authBoundaryVersion.current += 1;
       if (message.type === 'session-updated') {
         const version = authBoundaryVersion.current;
@@ -77,7 +78,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
         return;
       }
-      if (message.type !== 'logout' && message.type !== 'account-switch' && message.type !== 'clear-all') return;
       setState({ ...initialState, isInitialized: true });
       void (async () => {
         await queryClient.cancelQueries();
@@ -128,7 +128,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (!cancelled && boundaryVersion === authBoundaryVersion.current) setState(restored);
       } catch (error) {
         if (import.meta.env.DEV) console.warn('[auth] encrypted browser session restore failed', error);
-        if (!cancelled) setState({ ...initialState, isInitialized: true });
+        if (!cancelled && boundaryVersion === authBoundaryVersion.current) setState({ ...initialState, isInitialized: true });
       }
     })();
     return () => { cancelled = true; };
@@ -175,9 +175,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           secureBrowserSession.getToken(),
           secureBrowserSession.getUser(),
         ]);
-        if (!storedToken || !storedUser) return;
+        if (!storedToken || !storedUser || boundaryVersion !== authBoundaryVersion.current) return;
         const token = await user.getIdToken();
+        if (boundaryVersion !== authBoundaryVersion.current) return;
         await secureBrowserSession.setToken(token);
+        if (boundaryVersion !== authBoundaryVersion.current) return;
         setState((current) => current.isLoggedIn ? { ...current, authToken: token } : current);
       } catch {
         // Keep the backend session if Firebase cannot refresh its ID token.
