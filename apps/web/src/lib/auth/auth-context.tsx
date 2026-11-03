@@ -68,15 +68,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     channel.onmessage = (event: MessageEvent<unknown>) => {
       if (!event.data || typeof event.data !== 'object') return;
       const message = event.data as { type?: unknown };
+      if (message.type === 'session-updated') {
+        void readStoredState().then(setState);
+        return;
+      }
       if (message.type !== 'logout' && message.type !== 'account-switch' && message.type !== 'clear-all') return;
       setState({ ...initialState, isInitialized: true });
       void (async () => {
         await queryClient.cancelQueries();
         queryClient.clear();
-        const results = await Promise.allSettled([
-          indexedDbQueryPersister.removeClient(),
-          secureBrowserSession.clear(),
-        ]);
+        const cleanup = [indexedDbQueryPersister.removeClient()];
+        if (message.type !== 'account-switch') cleanup.push(secureBrowserSession.clear());
+        const results = await Promise.allSettled(cleanup);
         if (results.some((result) => result.status === 'rejected') && import.meta.env.DEV) {
           console.warn('[auth] cross-tab cache invalidation was incomplete', results);
         }
@@ -196,6 +199,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       else await secureBrowserSession.clearRefreshToken();
       LEGACY_KEYS.forEach((key) => localStorage.removeItem(key));
       setState({ isInitialized: true, isLoggedIn: true, userId, username, phone: opts.phone ?? null, authToken, refreshToken: opts.refreshToken ?? null });
+      authChannel.current?.postMessage({ type: 'session-updated' });
       return true;
     } catch {
       await secureBrowserSession.clear().catch(() => undefined);
