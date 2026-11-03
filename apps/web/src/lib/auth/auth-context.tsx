@@ -103,8 +103,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const previous = previousAuthIdentity.current;
     previousAuthIdentity.current = identity;
     if (previous === null || previous === identity) return;
-    queryClient.clear();
-    void indexedDbQueryPersister.removeClient().catch((error: unknown) => {
+    void (async () => {
+      await queryClient.cancelQueries();
+      queryClient.clear();
+      await indexedDbQueryPersister.removeClient();
+    })().catch((error: unknown) => {
       if (import.meta.env.DEV) console.warn('[auth] account-boundary cache clear failed', error);
     });
   }, [state.isInitialized, state.isLoggedIn, state.userId, queryClient]);
@@ -167,6 +170,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const opts: LoginOptions = typeof phoneOrOptions === 'string' ? { phone: phoneOrOptions } : phoneOrOptions ?? {};
     try {
       if (state.userId !== userId) {
+        setState({ ...initialState, isInitialized: true });
+        await queryClient.cancelQueries();
         queryClient.clear();
         await indexedDbQueryPersister.removeClient();
       }
@@ -185,6 +190,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [queryClient, state.userId]);
 
   const logout = useCallback(async () => {
+    setState({ ...initialState, isInitialized: true });
+    await queryClient.cancelQueries();
     queryClient.clear();
     const results = await Promise.allSettled([
       indexedDbQueryPersister.removeClient(),
@@ -211,6 +218,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const updateUserData = useCallback(async (userId: string, username: string, phone?: string) => {
     try {
       if (state.userId !== userId) {
+        setState({ ...initialState, isInitialized: true });
+        await queryClient.cancelQueries();
         queryClient.clear();
         await indexedDbQueryPersister.removeClient();
       }
@@ -234,6 +243,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       LEGACY_KEYS.forEach((key) => localStorage.removeItem(key));
       sessionStorage.clear();
     } finally {
+      setState({ ...initialState, isInitialized: true });
+      await queryClient.cancelQueries();
       queryClient.clear();
       const results = await Promise.allSettled([
         indexedDbQueryPersister.removeClient(),
