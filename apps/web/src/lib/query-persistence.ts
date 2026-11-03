@@ -249,10 +249,8 @@ export const indexedDbQueryPersister: Persister = {
     pendingWaiters.splice(0).forEach((resolve) => resolve());
     // Wait for an in-flight write before deleting both ciphertext and key.
     while (writeInProgress) await new Promise((resolve) => setTimeout(resolve, 10));
-    try {
-      await removeClient();
-    } catch (error) {
-      if (import.meta.env.DEV) console.warn('[query-cache] encrypted IndexedDB clear failed', error);
-    }
+    // Propagate failures so logout/account-switch callers can detect that
+    // durable private data could not be erased.
+    await removeClient();
   },
 };
