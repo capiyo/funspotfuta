@@ -834,7 +834,7 @@ export const NotificationService = {
             const body: Record<string, any> = { user_id: args.userId };
             if (args.notificationIds) body.notification_ids = args.notificationIds;
             await fetch(`${API_BASE_URL}/notifications/mark-read`, {
-                method: 'POST',
+                method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body),
             });
@@ -919,7 +919,7 @@ export const NotificationService = {
         const { userId, voteAlerts, likeAlerts, commentAlerts, authToken } = args;
         try {
             const res = await fetch(`${API_BASE_URL}/notifications/preferences`, {
-                method: 'POST',
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
