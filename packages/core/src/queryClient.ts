@@ -28,7 +28,7 @@ function containsCredential(value: unknown, depth = 0): boolean {
   if (value === null || typeof value !== 'object') return false;
   if (Array.isArray(value)) return value.some((item) => containsCredential(item, depth + 1));
   return Object.entries(value as Record<string, unknown>).some(([key, child]) => {
-    if (/token$|password|secret|credential|authorization|api[_-]?key|private[_-]?key|cookie/i.test(key)) return true;
+    if (/auth|session|token|password|secret|credential|authorization|api[_-]?key|access[_-]?key|private[_-]?key|cookie|bearer/i.test(key)) return true;
     return containsCredential(child, depth + 1);
   });
 }
