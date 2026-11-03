@@ -4,7 +4,7 @@ on:
   push:
     branches: [feature/chat-unread-mentions]
   pull_request:
-    branches: [web-port-from-master]
+    branches: [web-port-from-master, feature/chat-unread-mentions]
 
 permissions:
   contents: read
