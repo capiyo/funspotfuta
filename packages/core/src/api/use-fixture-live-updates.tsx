@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '../queries/queryKeys';
 import { webSocketService } from './websocket-service';
@@ -100,7 +100,7 @@ export function useFixtureLiveUpdates(params: {
 }): FixtureLiveState {
   const { channelId, fixtureId, userId, username, authToken, seed } = params;
   const queryClient = useQueryClient();
-  const commentaryKey = queryKeys.liveCommentary(fixtureId ?? 'unselected');
+  const commentaryKey = useMemo(() => queryKeys.liveCommentary(fixtureId ?? 'unselected'), [fixtureId]);
   const [state, setState] = useState<FixtureLiveState>(() => {
     const status = seed?.status ?? 'upcoming';
     return {
