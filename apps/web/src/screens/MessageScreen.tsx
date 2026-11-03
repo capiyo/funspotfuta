@@ -219,23 +219,7 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
 // Keep an explicit route fixture ID scoped during lookup; never briefly use the group room.
   const fixtureId = fixture?.matchId?.trim() || fixture?.id?.trim() || routeFixtureId?.trim() || null;
 
-  // A fixture chat is the read boundary for its push notifications. Keep this
-  // here (not only in ChatsScreen) so notification taps and carousel entry paths
-  // clear the same channel/fixture unread state.
-  useEffect(() => {
-    if (!userId || !activeChannelId || !fixtureId) return;
-    void NotificationService.clearUnreadForFixture(fixtureId).then(async () => {
-      await NotificationService.markAsRead({
-        userId,
-        fixtureId,
-        channelId: activeChannelId,
-      });
-      await NotificationService.reconcileFromServer({ userId, authToken: authToken ?? undefined });
-      await queryClient.invalidateQueries({
-        queryKey: queryKeys.fixtureUnreadCount(activeChannelId, fixtureId, userId),
-      });
-    });
-  }, [activeChannelId, authToken, fixtureId, queryClient, userId]);
+
   const chat = useChannelChat({
     channelId: activeChannelId,
     fixtureId,
@@ -257,6 +241,22 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
     timeElapsed, isLive, homeVotes, awayVotes, userVoteSelection, voters,
     recordUserVote, refetchVoteCounts,
   } = chat;
+
+  // Opening a conversation marks channel unread messages immediately. The
+  // push notification collection is cleared for this exact channel/fixture too.
+  useEffect(() => {
+    if (!activeChannelId || !userId) return;
+    void (async () => {
+      await markRead();
+      if (!fixtureId) return;
+      await NotificationService.clearUnreadForFixture(fixtureId);
+      await NotificationService.markAsRead({ userId, fixtureId, channelId: activeChannelId });
+      await NotificationService.reconcileFromServer({ userId, authToken: authToken ?? undefined });
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.fixtureUnreadCount(activeChannelId, fixtureId, userId),
+      });
+    })();
+  }, [activeChannelId, authToken, fixtureId, markRead, queryClient, userId]);
 
   const isCompleted = isCompletedStatus(matchStatus);
   const isUpcomingOrSoon = isUpcomingStatus(matchStatus);
