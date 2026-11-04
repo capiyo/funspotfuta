@@ -310,7 +310,7 @@ export default function PostCommentsModal({
             <button type="button" onClick={() => setReplyingTo(null)} aria-label="Cancel reply" className="rounded-full p-1" style={{ color: colors.textTertiary, background: colors.surface }}><X size={12} /></button>
           </div>}
           <div className="flex items-end gap-3">
-            <Avatar colors={colors} size="lg" userId={userId ?? undefined} label={initialsOf(username ?? 'U')} />
+            <span className="shrink-0 overflow-hidden rounded-full" style={{ width: 32, height: 32, borderRadius: '50%' }}><Avatar colors={colors} size="lg" userId={userId ?? undefined} label={initialsOf(username ?? 'U')} /></span>
             <div className="flex min-h-[42px] flex-1 items-end rounded-3xl pl-4" style={{ background: colors.surfaceSunken }}>
               <textarea ref={inputRef} value={draft} onChange={(event) => setDraft(event.target.value)}
                 onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void handleSubmit(); } }}
@@ -338,7 +338,7 @@ function CommentBubble({ colors, comment, currentUserId, parentUsername, onReply
       <Reply size={10} /> Reply to @{parentUsername}
     </div>}
     <div className={`flex items-end gap-3 ${isMe ? 'justify-end' : 'justify-start'}`}>
-      {!isMe && <button type="button" onClick={onReply} onContextMenu={(event) => { event.preventDefault(); onReply(); }} aria-label={`Reply to ${comment.user_name}`} className="shrink-0"><Avatar colors={colors} size="lg" userId={comment.user_id} label={initialsOf(comment.user_name)} /></button>}
+      {!isMe && <button type="button" onClick={onReply} onContextMenu={(event) => { event.preventDefault(); onReply(); }} aria-label={`Reply to ${comment.user_name}`} className="shrink-0 overflow-hidden rounded-full" style={{ width: 32, height: 32, borderRadius: '50%' }}><Avatar colors={colors} size="lg" userId={comment.user_id} label={initialsOf(comment.user_name)} /></button>}
       <div className={`flex max-w-[78%] shrink flex-col ${isMe ? 'items-end' : 'items-start'}`}>
         {!isMe && <span className="mb-1 mx-1 max-w-full truncate text-[10px] font-semibold">{comment.user_name}</span>}
         <button type="button" onClick={onReply} onContextMenu={(event) => { event.preventDefault(); onReply(); }}
