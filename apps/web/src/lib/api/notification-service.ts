@@ -24,17 +24,38 @@ import { getToken, onMessage } from 'firebase/messaging';
 import { firebaseApp, getFirebaseMessaging } from '../firebase';
 import { secureBrowserNotificationStorage } from '../query-persistence';
 
-// Keep the same async-compatible storage contract as mobile, but persist
-// private notification snapshots only in encrypted IndexedDB on the browser.
+// Keep the same async-compatible storage contract as mobile. Private
+// snapshots use encrypted IndexedDB; when it is unavailable, stay in memory
+// rather than falling back to plaintext browser storage.
+const notificationMemoryFallback = new Map<string, string>();
 const mobileStorage = {
-  getItem(key: string): Promise<string | null> {
-    return secureBrowserNotificationStorage.getItem(key);
+  async getItem(key: string): Promise<string | null> {
+    try {
+      const value = await secureBrowserNotificationStorage.getItem(key);
+      if (value !== null) {
+        notificationMemoryFallback.delete(key);
+        return value;
+      }
+    } catch {
+      // Continue with the volatile current-session copy.
+    }
+    return notificationMemoryFallback.get(key) ?? null;
   },
-  setItem(key: string, value: string): Promise<void> {
-    return secureBrowserNotificationStorage.setItem(key, value);
+  async setItem(key: string, value: string): Promise<void> {
+    try {
+      await secureBrowserNotificationStorage.setItem(key, value);
+      notificationMemoryFallback.delete(key);
+    } catch {
+      notificationMemoryFallback.set(key, value);
+    }
   },
-  removeItem(key: string): Promise<void> {
-    return secureBrowserNotificationStorage.removeItem(key);
+  async removeItem(key: string): Promise<void> {
+    notificationMemoryFallback.delete(key);
+    try {
+      await secureBrowserNotificationStorage.removeItem(key);
+    } catch {
+      // The volatile copy is still cleared; no plaintext fallback is used.
+    }
   },
 };
 
@@ -125,6 +146,17 @@ async function writeInt(key: string, value: number): Promise<void> {
 // ═══════════════════════════════════════════════════════════════════
 
 export const NotificationService = {
+    async clearLocalNotificationState(): Promise<void> {
+        notificationMemoryFallback.clear();
+        await Promise.all([
+            removeKey(K_UNREAD_NOTIFICATIONS),
+            removeKey(K_UNREAD_COUNT),
+            removeKey(K_UNREAD_COMMENT_COUNT),
+            removeKey(K_PENDING_JOIN_REQUESTS),
+            removeKey(K_PROCESSED_NOTIFICATION_IDS),
+        ]);
+    },
+
     setActiveUser(userId: string | null): void {
         setActiveNotificationUser(userId);
     },
