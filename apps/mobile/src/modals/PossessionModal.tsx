@@ -219,7 +219,7 @@ function createStyles(colors: ReturnType<typeof useFanColors>) {
     headerIcon: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.primaryDim },
     title: { color: colors.textPrimary, fontSize: 16, fontWeight: '800' },
     muted: { color: colors.textSecondary, fontSize: 12 },
-    closeButton: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surfaceSunken },
+    closeButton: { width: 32, height: 32, borderRadius: 24, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.surfaceSunken },
     close: { color: colors.textPrimary, fontSize: 30, lineHeight: 32 },
     matchHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingTop: 6, paddingBottom: 8, marginBottom: 6, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
     matchSide: { flex: 1, minWidth: 0 },
