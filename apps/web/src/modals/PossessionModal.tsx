@@ -144,21 +144,26 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
       style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', padding: 0, background: 'rgba(0,0,0,.58)' }}>
       <section role="dialog" aria-modal="true" aria-labelledby="possession-title" style={panel}>
         <div aria-hidden="true" style={{ width: 32, height: 4, borderRadius: 999, background: colors.border, margin: '0 auto 7px', flexShrink: 0 }} />
-        <header style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+        <header style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 5 }}>
+          <div aria-hidden="true" style={{ width: 36, height: 36, flex: '0 0 36px', display: 'grid', placeItems: 'center', borderRadius: '50%', background: colors.primaryDim, color: colors.primary, fontSize: 17 }}>✦</div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ color: colors.primary, fontSize: 11, fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase' }}>Possession market</div>
-            <h2 id="possession-title" style={{ margin: '4px 0 3px', fontSize: 20, lineHeight: 1.2 }}>Who controls the game?</h2>
-            <div style={{ ...muted, fontSize: 12 }}>{fixture.homeTeam} vs {fixture.awayTeam}</div>
+            <h2 id="possession-title" style={{ margin: 0, fontSize: 16, lineHeight: 1.3, fontWeight: 800 }}>Possession</h2>
+            <div style={{ ...muted, fontSize: 11, marginTop: 3 }}>{fixture.league || 'Match'}</div>
           </div>
-          <button type="button" onClick={onClose} aria-label="Close possession modal" style={{ ...control, border: 0, borderRadius: '50%', width: 36, height: 36, padding: 0, cursor: 'pointer' }}>×</button>
+          <button type="button" onClick={onClose} aria-label="Close possession modal" style={{ ...control, border: 0, borderRadius: '50%', width: 32, height: 32, padding: 0, cursor: 'pointer', background: colors.surfaceSunken, fontSize: 20 }}>×</button>
         </header>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0 8px', marginBottom: 6, borderBottom: `1px solid ${colors.border}` }}>
+          <div style={{ flex: 1, minWidth: 0, color: colors.primary, fontSize: 13, fontWeight: 800 }}>{fixture.homeTeam}</div>
+          <div style={{ display: 'grid', justifyItems: 'center', gap: 4, color: colors.textTertiary, fontSize: 10, fontWeight: 800 }}>VS{(fixture.isLive || fixture.status === 'live') && <span style={{ color: colors.textInverse, background: colors.away, borderRadius: 99, padding: '2px 6px', fontSize: 8 }}>LIVE</span>}</div>
+          <div style={{ flex: 1, minWidth: 0, textAlign: 'right', color: colors.away, fontSize: 13, fontWeight: 800 }}>{fixture.awayTeam}</div>
+        </div>
 
-        <div style={{ display: 'flex', gap: 8, marginTop: 18, padding: 4, borderRadius: 14, background: colors.background }}>
+        <div style={{ display: 'flex', gap: 8, marginTop: 3, marginBottom: 6, padding: 3, borderRadius: 9, background: colors.surfaceSunken, border: `1px solid ${colors.border}` }}>
           <button type="button" onClick={() => { setTab('vote'); setError(null); }} style={action(tab === 'vote')}>Vote</button>
           <button type="button" onClick={() => { setTab('poke'); setError(null); }} style={action(tab === 'poke')}>Poke</button>
         </div>
 
-        <div style={{ marginTop: 18 }}>
+        <div style={{ marginTop: 8 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'baseline' }}>
             <strong style={{ fontSize: 13 }}>Possession votes</strong>
             <span style={{ ...muted, fontSize: 11 }}>{totalVotes} {totalVotes === 1 ? 'vote' : 'votes'}</span>
@@ -205,7 +210,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
         {error && <p role="alert" style={{ color: colors.away, fontSize: 12, margin: '12px 0 0' }}>{error}</p>}
         {notice && <p role="status" style={{ color: colors.primary, fontSize: 12, margin: '12px 0 0' }}>{notice}</p>}
 
-        <div style={{ marginTop: 20 }}>
+        <div style={{ marginTop: 12 }}>
           <div style={{ display: 'flex', gap: 7, marginBottom: 8 }}>
             <button type="button" onClick={() => setPokeListTab('open')} style={action(pokeListTab === 'open')}>Unmatched ({(market?.pokes ?? []).filter((poke) => poke.status === 'open').length})</button>
             <button type="button" onClick={() => setPokeListTab('matched')} style={action(pokeListTab === 'matched')}>Matched ({(market?.pokes ?? []).filter((poke) => poke.status === 'matched' || poke.status === 'settled').length})</button>
