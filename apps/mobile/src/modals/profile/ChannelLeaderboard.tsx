@@ -308,7 +308,7 @@ export function ChannelLeaderboard({
                 style={[
                     styles.tabBar,
                     {
-                        backgroundColor: colors.surfaceSunken,
+                        backgroundColor: 'transparent',
                         borderColor: colors.border,
                     },
                 ]}
@@ -325,7 +325,7 @@ export function ChannelLeaderboard({
                             onPress={() => setActiveTab(idx)}
                             style={[
                                 styles.tab,
-                                isActive && { backgroundColor: colors.surface },
+                                isActive && { backgroundColor: 'transparent' },
                             ]}
                         >
                             <Text
@@ -353,7 +353,7 @@ export function ChannelLeaderboard({
                 style={[
                     styles.channelHeader,
                     {
-                        backgroundColor: colors.primaryDim,
+                        backgroundColor: 'transparent',
                         borderColor: colors.borderActive,
                     },
                 ]}
