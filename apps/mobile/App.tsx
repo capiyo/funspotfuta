@@ -96,6 +96,7 @@ function NotificationRuntime() {
       });
     };
     const reconcile = () => {
+      if (!active) return;
       void NotificationService.reconcileFromServer({ userId, authToken: authToken ?? undefined });
       void queryClient.invalidateQueries({ queryKey: ['fixtureUnreadCount'] });
       void getFcmTokenIfPermitted().then((token) => {
@@ -103,6 +104,7 @@ function NotificationRuntime() {
       });
     };
     const stopForeground = onForegroundMessage((message) => {
+      if (!active) return;
       const data = normalizePushData(message.data);
       void NotificationService.pushToStream({ messageId: message.messageId, data });
       const foregroundTitle = message.notification?.title ?? 'Funspot';
@@ -114,13 +116,15 @@ function NotificationRuntime() {
         });
       }
     });
-    const stopOpened = onNotificationOpenedApp((message) => openChatFromPush(normalizePushData(message.data)));
+    const stopOpened = onNotificationOpenedApp((message) => {
+      if (active) openChatFromPush(normalizePushData(message.data));
+    });
     const stopRefresh = onTokenRefresh(register);
     const appStateSubscription = AppState.addEventListener('change', (nextState) => {
       if (nextState === 'active') reconcile();
     });
     void getInitialNotification().then((message) => {
-      if (message) openChatFromPush(normalizePushData(message.data));
+      if (active && message) openChatFromPush(normalizePushData(message.data));
     });
     reconcile();
     return () => {
