@@ -129,7 +129,7 @@ function StatusLine({
         <View
             style={[
                 styles.statusLine,
-                { backgroundColor: hexWithAlpha(accent, 0.08) },
+                { backgroundColor: 'transparent' },
             ]}
         >
             {isSuccess ? (
@@ -274,7 +274,7 @@ export function DepositDialog({
                                 {
                                     color: colors.textPrimary,
                                     borderColor: colors.border,
-                                    backgroundColor: colors.inputSurface,
+                                    backgroundColor: 'transparent',
                                 },
                             ]}
                         />
@@ -291,7 +291,7 @@ export function DepositDialog({
                                 {
                                     color: colors.textPrimary,
                                     borderColor: colors.border,
-                                    backgroundColor: colors.inputSurface,
+                                    backgroundColor: 'transparent',
                                 },
                             ]}
                         />
@@ -507,7 +507,7 @@ export function WithdrawDialog({
                                 {
                                     color: colors.textPrimary,
                                     borderColor: colors.border,
-                                    backgroundColor: colors.inputSurface,
+                                    backgroundColor: 'transparent',
                                 },
                             ]}
                         />
@@ -524,7 +524,7 @@ export function WithdrawDialog({
                                 {
                                     color: colors.textPrimary,
                                     borderColor: colors.border,
-                                    backgroundColor: colors.inputSurface,
+                                    backgroundColor: 'transparent',
                                 },
                             ]}
                         />
@@ -639,7 +639,7 @@ function createStyles(colors: FanColors) {
             paddingHorizontal: FAN_SPACING.base,
             paddingVertical: FAN_SPACING.md,
             backgroundColor: 'transparent',
-            borderRadius: FAN_RADIUS.md,
+            borderRadius: 999,
             marginBottom: FAN_SPACING.base,
         },
         balanceStripText: { fontSize: 12, fontWeight: '600' },
