@@ -1,6 +1,6 @@
 /* eslint no-undef: "off" */
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { signOut } from 'firebase/auth';
 import { useQueryClient } from '@tanstack/react-query';
 import { firebaseAuth } from '../firebase';
 import { getExistingWebPushToken, NotificationService } from '../api/notification-service';
@@ -216,28 +216,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     })();
     return () => { cancelled = true; };
   }, [state.isInitialized, state.isLoggedIn, state.userId, state.authToken, queryClient]);
-
-  useEffect(() => {
-    if (!firebaseAuth) return;
-    return onAuthStateChanged(firebaseAuth, async (user) => {
-      if (!user) return;
-      const boundaryVersion = authBoundaryVersion.current;
-      try {
-        const [storedToken, storedUser] = await Promise.all([
-          secureBrowserSession.getToken(),
-          secureBrowserSession.getUser(),
-        ]);
-        if (!storedToken || !storedUser || boundaryVersion !== authBoundaryVersion.current) return;
-        const token = await user.getIdToken();
-        if (boundaryVersion !== authBoundaryVersion.current) return;
-        await secureBrowserSession.setToken(token);
-        if (boundaryVersion !== authBoundaryVersion.current) return;
-        setState((current) => current.isLoggedIn ? { ...current, authToken: token } : current);
-      } catch {
-        // Keep the backend session if Firebase cannot refresh its ID token.
-      }
-    });
-  }, []);
 
   const login = useCallback(async (
     userId: string, username: string, authToken: string,
