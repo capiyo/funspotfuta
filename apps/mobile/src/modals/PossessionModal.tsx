@@ -211,7 +211,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
 function createStyles(colors: ReturnType<typeof useFanColors>) {
   return StyleSheet.create({
     backdrop: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.58)' },
-    sheet: { width: screenW, alignSelf: 'stretch', backgroundColor: colors.surface, borderTopLeftRadius: 16, borderTopRightRadius: 16, overflow: 'hidden' },
+    sheet: { width: '100%', alignSelf: 'stretch', backgroundColor: colors.surface, borderTopLeftRadius: 16, borderTopRightRadius: 16, overflow: 'hidden' },
     
     content: { paddingHorizontal: 12, paddingTop: 6, paddingBottom: 8 },
     handle: { width: 32, height: 4, borderRadius: 999, backgroundColor: colors.border, alignSelf: 'center', marginTop: 0, marginBottom: 7 },
