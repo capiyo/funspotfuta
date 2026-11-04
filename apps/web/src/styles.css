@@ -4405,13 +4405,13 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visib
   }
 }
 
-/* Final desktop home sizing: keep Chats and Feed adjacent, then give Feed
-   enough width for genuinely large, readable post cards. */
+/* Final desktop home sizing: retain the two-column Feed masonry while
+   allocating more room to Feed and keeping Chats immediately beside it. */
 @media (min-width: 651px) {
   body:has(.home-screen) .home-screen .workspace > main.home-columns,
   .home-screen .home-columns {
     display: grid !important;
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr) !important;
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr) !important;
     column-gap: 8px !important;
     gap: 8px !important;
     width: 100% !important;
@@ -4439,9 +4439,10 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visib
 
   .home-screen .feed-column .feed-list-masonry {
     display: grid !important;
-    grid-template-columns: minmax(0, 1fr) !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    column-gap: 8px !important;
+    row-gap: 0 !important;
     width: 100% !important;
-    gap: 0 !important;
   }
 
   .home-screen .feed-column .feed-post-column,
@@ -4480,4 +4481,3 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visib
     object-fit: cover !important;
   }
 }
-
