@@ -1410,7 +1410,7 @@ function ActivityCard({
     <View
       style={[
         styles.activityCard,
-        { backgroundColor: colors.surface, borderColor: colors.border },
+        { backgroundColor: 'transparent', borderColor: colors.border },
       ]}
     >
       <View style={styles.activityHeaderRow}>
@@ -1514,7 +1514,7 @@ function createStyles(colors: FanColors) {
       alignSelf: 'stretch',
       borderTopLeftRadius: 28,
       borderTopRightRadius: 28,
-      backgroundColor: colors.surfaceSunken,
+      backgroundColor: 'transparent',
       overflow: 'hidden',
     },
     handleWrap: {
@@ -1537,7 +1537,7 @@ function createStyles(colors: FanColors) {
     headerIcon: {
       width: 32,
       height: 32,
-      borderRadius: 14,
+      borderRadius: 999,
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: hexWithAlpha(colors.primary, 0.14),
@@ -1556,7 +1556,7 @@ function createStyles(colors: FanColors) {
     closeBtn: {
       borderRadius: 999,
       padding: 6,
-      backgroundColor: colors.surfaceSunken,
+      backgroundColor: 'transparent',
     },
     screen: { flex: 1, minHeight: 0, minWidth: 0, width: '100%', alignSelf: 'stretch', backgroundColor: colors.surfaceSunken },
     content: {
@@ -1577,9 +1577,9 @@ function createStyles(colors: FanColors) {
       textAlign: 'center',
     },
     pickerWrap: {
-      borderRadius: 16,
+      borderRadius: 999,
       borderWidth: 0,
-      backgroundColor: colors.surfaceSunken,
+      backgroundColor: 'transparent',
       marginHorizontal: FAN_SPACING.md,
       marginBottom: FAN_SPACING.xs,
       overflow: 'hidden',
@@ -1592,8 +1592,8 @@ function createStyles(colors: FanColors) {
       marginTop: FAN_SPACING.xs,
       marginBottom: FAN_SPACING.sm,
       padding: 3,
-      borderRadius: 16,
-      backgroundColor: colors.surfaceSunken,
+      borderRadius: 999,
+      backgroundColor: 'transparent',
       borderWidth: 0,
     },
     tabButton: {
@@ -1632,7 +1632,7 @@ function createStyles(colors: FanColors) {
       gap: 4,
       paddingHorizontal: 8,
       paddingVertical: 3,
-      borderRadius: 12,
+      borderRadius: 999,
     },
     championPillText: {
       fontSize: 9,
@@ -1642,7 +1642,7 @@ function createStyles(colors: FanColors) {
     rankChip: {
       paddingHorizontal: 6,
       paddingVertical: 2,
-      borderRadius: 8,
+      borderRadius: 999,
     },
     rankChipText: {
       fontSize: 10,
@@ -1766,8 +1766,8 @@ function createStyles(colors: FanColors) {
       minWidth: 0,
       paddingHorizontal: 8,
       paddingVertical: 5,
-      borderRadius: 10,
-      backgroundColor: colors.surfaceSunken,
+      borderRadius: 999,
+      backgroundColor: 'transparent',
       marginBottom: 4,
     },
     statLabel: {
@@ -1798,7 +1798,7 @@ function createStyles(colors: FanColors) {
     onlinePill: {
       paddingHorizontal: 8,
       paddingVertical: 3,
-      borderRadius: 10,
+      borderRadius: 999,
     },
     onlinePillText: {
       fontSize: 8,
@@ -1825,7 +1825,7 @@ function createStyles(colors: FanColors) {
       paddingHorizontal: FAN_SPACING.md,
       paddingVertical: FAN_SPACING.sm,
       borderRadius: 18,
-      backgroundColor: colors.surfaceSunken,
+      backgroundColor: 'transparent',
       borderWidth: 0,
     },
     summaryRow: {
@@ -1871,7 +1871,7 @@ function createStyles(colors: FanColors) {
       gap: 4,
       paddingHorizontal: 8,
       paddingVertical: 3,
-      borderRadius: 14,
+      borderRadius: 999,
       borderWidth: 0,
       maxWidth: 160,
     },
@@ -1918,7 +1918,7 @@ function createStyles(colors: FanColors) {
     voterChip: {
       paddingHorizontal: 6,
       paddingVertical: 2,
-      borderRadius: 10,
+      borderRadius: 999,
     },
     voterChipText: {
       fontSize: 9,
@@ -1934,7 +1934,7 @@ function createStyles(colors: FanColors) {
       fontSize: 10,
     },
     activityCard: {
-      borderRadius: 14,
+      borderRadius: 999,
       borderWidth: 0,
       padding: FAN_SPACING.sm,
       marginBottom: FAN_SPACING.sm,
