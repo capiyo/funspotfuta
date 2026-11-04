@@ -1032,6 +1032,7 @@ export const NotificationService = {
     // ─── markAsRead (server sync) ───────────────────────────────────
     async markAsRead(args: {
         userId: string;
+        authToken: string;
         notificationIds?: string[];
         fixtureId?: string;
         channelId?: string;
@@ -1043,7 +1044,10 @@ export const NotificationService = {
             if (args.channelId) body.channel_id = args.channelId;
             await fetch(`${API_BASE_URL}/notifications/mark-read`, {
                 method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${args.authToken}`,
+                },
                 body: JSON.stringify(body),
             });
         } catch (e) {
