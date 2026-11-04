@@ -1505,7 +1505,7 @@ function createStyles(colors: FanColors) {
       maxHeight: '85%',
       borderTopLeftRadius: 28,
       borderTopRightRadius: 28,
-      backgroundColor: colors.surfaceSunken,
+      backgroundColor: 'transparent',
       overflow: 'hidden',
     },
     handleWrap: {
@@ -1547,7 +1547,7 @@ function createStyles(colors: FanColors) {
     closeBtn: {
       borderRadius: 999,
       padding: 6,
-      backgroundColor: colors.surfaceSunken,
+      backgroundColor: 'transparent',
     },
     screen: { backgroundColor: colors.background },
     content: {
@@ -1567,7 +1567,7 @@ function createStyles(colors: FanColors) {
     pickerWrap: {
       borderRadius: 16,
       borderWidth: 0,
-      backgroundColor: colors.surfaceSunken,
+      backgroundColor: 'transparent',
       marginHorizontal: FAN_SPACING.md,
       marginBottom: FAN_SPACING.xs,
       overflow: 'hidden',
@@ -1581,7 +1581,7 @@ function createStyles(colors: FanColors) {
       marginBottom: FAN_SPACING.sm,
       padding: 3,
       borderRadius: 16,
-      backgroundColor: colors.surfaceSunken,
+      backgroundColor: 'transparent',
       borderWidth: 0,
     },
     tabButton: {
@@ -1748,7 +1748,7 @@ function createStyles(colors: FanColors) {
       paddingHorizontal: 8,
       paddingVertical: 5,
       borderRadius: 10,
-      backgroundColor: colors.surfaceSunken,
+      backgroundColor: 'transparent',
       marginBottom: 4,
     },
     statLabel: {
@@ -1802,7 +1802,7 @@ function createStyles(colors: FanColors) {
       paddingHorizontal: FAN_SPACING.md,
       paddingVertical: FAN_SPACING.sm,
       borderRadius: 18,
-      backgroundColor: colors.surfaceSunken,
+      backgroundColor: 'transparent',
       borderWidth: 0,
     },
     summaryRow: {
