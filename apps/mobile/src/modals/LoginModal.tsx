@@ -382,6 +382,9 @@ export default function LoginModal({ visible, onClose, onSuccess }: LoginModalPr
       const res = await pinLogin(verifiedPhone, value);
       if (res.ok && res.token && res.user) {
         await performLogin(res.user.id, res.user.username ?? 'User', res.token, verifiedPhone);
+      } else if (res.status === 400 && res.message?.includes('PIN not set')) {
+        toast('This account has no PIN yet. Verify your phone with OTP to set one.', { error: true });
+        setStep('phone');
       } else {
         toast(withStatus(res.message ?? 'Incorrect PIN', res.status), { error: true });
       }
@@ -528,6 +531,7 @@ export default function LoginModal({ visible, onClose, onSuccess }: LoginModalPr
       }
       const res = await registerUser(name, verifiedPhone, pendingPin ?? undefined, firebaseIdToken);
       if (res.ok && res.token && res.user) {
+        verifiedFirebaseTokenRef.current = null;
         await performLogin(res.user.id, name, res.token, verifiedPhone);
       } else {
         toast(withStatus(res.message ?? 'Registration failed', res.status), { error: true });
