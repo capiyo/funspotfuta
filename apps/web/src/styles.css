@@ -4280,3 +4280,55 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visib
   .home-screen .floating-pill-item span { display: none; }
   .home-screen .floating-pill-item svg { width: 19px; height: 19px; }
 }
+
+
+/* Modal visual language: quiet surfaces, rounded geometry, and unboxed copy. */
+[role="dialog"], [aria-modal="true"] {
+  border-radius: 24px;
+}
+[role="dialog"] button:not([role="switch"]):not([data-keep-surface]),
+[aria-modal="true"] button:not([role="switch"]):not([data-keep-surface]) {
+  background: transparent;
+  box-shadow: none;
+  border-radius: 9999px;
+}
+[role="dialog"] button[aria-label],
+[aria-modal="true"] button[aria-label] {
+  width: 36px;
+  min-width: 36px;
+  height: 36px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  border: 0;
+}
+[role="dialog"] button:focus-visible,
+[aria-modal="true"] button:focus-visible,
+[role="dialog"] input:focus-visible,
+[aria-modal="true"] input:focus-visible,
+[role="dialog"] textarea:focus-visible,
+[aria-modal="true"] textarea:focus-visible {
+  outline: 2px solid var(--primary, #7df162);
+  outline-offset: 3px;
+}
+[role="dialog"] p,
+[role="dialog"] span,
+[role="dialog"] label,
+[role="dialog"] h1,
+[role="dialog"] h2,
+[role="dialog"] h3,
+[aria-modal="true"] p,
+[aria-modal="true"] span,
+[aria-modal="true"] label,
+[aria-modal="true"] h1,
+[aria-modal="true"] h2,
+[aria-modal="true"] h3 {
+  background-color: transparent;
+}
+[role="dialog"] input,
+[role="dialog"] textarea,
+[aria-modal="true"] input,
+[aria-modal="true"] textarea {
+  border-radius: 9999px;
+  box-shadow: none;
+}
