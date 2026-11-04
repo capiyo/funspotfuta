@@ -104,7 +104,7 @@ function NotificationRuntime() {
     };
     const stopForeground = onForegroundMessage((message) => {
       const data = normalizePushData(message.data);
-      void NotificationService.pushToStream({ data });
+      void NotificationService.pushToStream({ messageId: message.messageId, data });
       const foregroundTitle = message.notification?.title ?? 'Funspot';
       const foregroundBody = message.notification?.body ?? '';
       if (foregroundBody) toast.showInfo(`${foregroundTitle}: ${foregroundBody}`);
