@@ -227,7 +227,7 @@ function Card({
         <View
             style={[
                 styles.card,
-                tone === 'sunken' && { backgroundColor: colors.inputSurface },
+                tone === 'sunken' && { backgroundColor: 'transparent' },
                 style,
             ]}
         >
@@ -249,11 +249,8 @@ function CTA({
     small?: boolean;
 }) {
     const isDisabled = disabled || loading;
-    const bg =
-        tone === 'primary' ? colors.primary :
-            tone === 'danger' ? colors.away :
-                'transparent';
-    const fg = tone === 'ghost' ? colors.textPrimary : colors.background;
+    const bg = 'transparent';
+    const fg = tone === 'danger' ? colors.away : colors.primary;
     return (
         <Pressable
             onPress={isDisabled ? undefined : onPress}
@@ -264,7 +261,7 @@ function CTA({
                 tone === 'ghost' && {
                     borderWidth: 0,
                     borderColor: colors.border,
-                    backgroundColor: colors.surfaceSunken,
+                    backgroundColor: 'transparent',
                 },
                 isDisabled && { opacity: 0.5 },
                 pressed && !isDisabled && { opacity: PRESSED_OPACITY },
@@ -300,7 +297,7 @@ function OutcomePill({
             style={({ pressed }) => [
                 styles.outcomeCard,
                 {
-                    backgroundColor: selected ? dimOf(accent, colors) : colors.surface,
+                    backgroundColor: 'transparent',
                     borderColor: selected ? accent : colors.border,
                     borderWidth: selected ? 1.2 : StyleSheet.hairlineWidth,
                 },
@@ -457,7 +454,7 @@ function PersonTile({
         <View
             style={[
                 styles.personTile,
-                isMe && { backgroundColor: colors.primaryDim, borderColor: colors.primary },
+                isMe && { backgroundColor: 'transparent', borderColor: colors.primary },
             ]}
         >
             <View style={styles.personRow}>
