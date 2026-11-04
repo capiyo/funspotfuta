@@ -987,7 +987,7 @@ export const NotificationService = {
     // ─── markAsRead (server sync) ───────────────────────────────────
     async markAsRead(args: {
         userId: string;
-        authToken: string;
+        authToken?: string;
         notificationIds?: string[];
         fixtureId?: string;
         channelId?: string;
@@ -1001,7 +1001,7 @@ export const NotificationService = {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${args.authToken}`,
+                    ...(args.authToken ? { Authorization: `Bearer ${args.authToken}` } : {}),
                 },
                 body: JSON.stringify(body),
             });
