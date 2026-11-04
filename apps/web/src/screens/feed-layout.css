@@ -4,7 +4,7 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   align-items: start;
-  column-gap: 14px;
+  column-gap: 8px;
   row-gap: 0;
 }
 
