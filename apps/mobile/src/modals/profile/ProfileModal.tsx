@@ -1165,8 +1165,8 @@ function createStyles(colors: FanColors) {
       gap: FAN_SPACING.md,
       paddingHorizontal: FAN_SPACING.md,
       paddingVertical: FAN_SPACING.sm,
-      borderRadius: FAN_RADIUS.md,
-      borderWidth: 0.5,
+      borderRadius: 999,
+      borderWidth: 0,
     },
     fieldInput: { flex: 1, fontSize: 12, paddingVertical: 4 },
 
