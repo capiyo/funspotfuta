@@ -97,12 +97,12 @@ export async function setPin(userId: string, pin: string, authToken: string): Pr
 // POST /api/auth/login { phone } with a verified Firebase Phone Auth token.
 // Exchanges the short-lived Firebase identity for the backend JWT used by
 // every authenticated Funspot API route.
-export async function loginWithFirebaseToken(phone: string, firebaseIdToken: string): Promise<AuthResult> {
+export async function loginWithFirebaseToken(phone: string, username: string, firebaseIdToken: string): Promise<AuthResult> {
   try {
     const res = await fetch(`${AUTH_BASE}/login`, {
       method: 'POST',
       headers: authHeaders(firebaseIdToken),
-      body: JSON.stringify({ phone }),
+      body: JSON.stringify({ phone, username }),
     });
     const body = await res.json().catch(() => null);
     if (res.ok && body?.token && body?.user?.id) {
