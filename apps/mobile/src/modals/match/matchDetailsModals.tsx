@@ -551,7 +551,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 8,
         paddingVertical: 2,
         borderRadius: 12,
-        backgroundColor: 'rgba(255,0,0,0.12)', // red.withValues(alpha:0.12) — no token for "live red"
+        backgroundColor: 'transparent', // live state is conveyed by accent text and dot
     },
     livePillText: {
         fontSize: 10,
