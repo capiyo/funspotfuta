@@ -56,6 +56,7 @@ The AppCache checklist in `docs/APPCACHE_PARITY_MIGRATION.md` remains the detail
 
 ## Notification backend security blocker
 - The current Rust notification router exposes token registration/unregistration, user notification reads, mark-read, preference updates, and the client-callable send endpoint without an authentication layer. Handlers trust caller-supplied `user_id` values. Before production, enforce JWT authentication and user ownership for device-token/read/preference routes, and make notification sending a trusted server-side operation (or validate the authenticated actor and permitted recipient). Do not treat the frontend's optional Bearer header as protection until the backend verifies it.
+- The backend auth token generator also falls back to the literal JWT secret `secret` when `JWT_SECRET` is missing. Remove that fallback, fail closed on missing/weak configuration, and rotate the production secret before release.
 
 ## Release rule
 Do not mark the integration complete, mark PR #4 ready, or deploy production until the failed preview is understood and the required live-service/device checks have either passed or are explicitly accepted as release risks. Current CI success is not a claim of production deployment.
