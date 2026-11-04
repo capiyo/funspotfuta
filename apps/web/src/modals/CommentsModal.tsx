@@ -272,7 +272,7 @@ export default function PostCommentsModal({
           : { maxHeight: '88vh', height: '88vh', borderTopLeftRadius: FAN_RADIUS.xl, borderTopRightRadius: FAN_RADIUS.xl, background: colors.surface, borderColor: colors.border, color: colors.textPrimary }}>
         <div className={presentation === 'page' ? 'comments-page-handle hidden' : 'flex justify-center py-3'}><div className="h-1 w-9 rounded-full" style={{ background: colors.border }} /></div>
         <header className="flex items-center gap-3 border-b px-5 pb-3" style={{ borderColor: colors.border }}>
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ background: colors.primaryDim }}>
+          <div className="flex h-9 w-9 items-center justify-center rounded-full" style={{ background: 'transparent' }}>
             <MessageCircle size={18} color={colors.primary} />
           </div>
           <div className="min-w-0 flex-1">
@@ -282,7 +282,7 @@ export default function PostCommentsModal({
             </p>
           </div>
           <button type="button" onClick={onClose} aria-label={presentation === 'page' ? 'Back to feed' : 'Close comments'} className="flex h-8 w-8 items-center justify-center rounded-full border"
-            style={{ background: colors.surfaceSunken, borderColor: colors.border }}>{presentation === 'page' ? <ArrowLeft size={17} color={colors.textSecondary} /> : <X size={15} color={colors.textSecondary} />}</button>
+            style={{ background: 'transparent', borderColor: 'transparent' }}>{presentation === 'page' ? <ArrowLeft size={17} color={colors.textSecondary} /> : <X size={15} color={colors.textSecondary} />}</button>
         </header>
         <div ref={listRef} className="no-scrollbar min-h-0 flex-1 overflow-y-auto px-5 py-4" style={{ gap: FAN_SPACING.md }}>
           {loading && comments.length === 0 ? <div className="flex h-full flex-col items-center justify-center gap-3 py-12" role="status">
@@ -297,21 +297,21 @@ export default function PostCommentsModal({
             parentUsername={isReply(comment) ? comments.find((item) => item.id === comment.parent_comment_id)?.user_name ?? null : null}
             onReply={() => { setReplyingTo(comment); inputRef.current?.focus(); }} />)}
         </div>
-        {error && <div className="mx-5 mb-3 flex items-center gap-2 rounded-lg px-3 py-2 text-xs" style={{ background: hexWithAlpha(colors.away, 0.1), color: colors.away }}>
+        {error && <div className="mx-5 mb-3 flex items-center gap-2 rounded-lg px-3 py-2 text-xs" style={{ background: 'transparent', color: colors.away }}>
           <AlertCircle size={14} /> <span>{error}</span>
         </div>}
         <footer className="border-t px-4 pb-4 pt-3" style={{ borderColor: colors.border, background: colors.surface }}>
-          {replyingTo && <div className="mb-2 flex items-center gap-2 rounded-xl px-3 py-2" style={{ background: colors.primaryDim }}>
+          {replyingTo && <div className="mb-2 flex items-center gap-2 rounded-xl px-3 py-2" style={{ background: 'transparent' }}>
             <Reply size={14} color={colors.primary} />
             <div className="min-w-0 flex-1">
               <div className="text-[10px] font-semibold" style={{ color: colors.primary }}>Replying to @{replyingTo.user_name}</div>
               <div className="truncate text-[10px] italic" style={{ color: colors.textTertiary }}>{replyingTo.comment.length > 40 ? `${replyingTo.comment.slice(0, 40)}…` : replyingTo.comment}</div>
             </div>
-            <button type="button" onClick={() => setReplyingTo(null)} aria-label="Cancel reply" className="rounded-full p-1" style={{ color: colors.textTertiary, background: colors.surface }}><X size={12} /></button>
+            <button type="button" onClick={() => setReplyingTo(null)} aria-label="Cancel reply" className="rounded-full p-1" style={{ color: colors.textTertiary, background: 'transparent' }}><X size={12} /></button>
           </div>}
           <div className="flex items-end gap-3">
             <span className="shrink-0 overflow-hidden rounded-full" style={{ width: 32, height: 32, borderRadius: '50%', clipPath: 'circle(50%)' }}><Avatar colors={colors} size="lg" userId={userId ?? undefined} label={initialsOf(username ?? 'U')} /></span>
-            <div className="flex min-h-[42px] flex-1 items-end rounded-3xl pl-4" style={{ background: colors.surfaceSunken }}>
+            <div className="flex min-h-[42px] flex-1 items-end rounded-3xl pl-4" style={{ background: 'transparent' }}>
               <textarea ref={inputRef} value={draft} onChange={(event) => setDraft(event.target.value)}
                 onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void handleSubmit(); } }}
                 placeholder={replyingTo ? `Reply to @${replyingTo.user_name}…` : 'Write a comment…'} rows={1}
