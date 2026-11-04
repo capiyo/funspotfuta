@@ -201,9 +201,9 @@ export default function ComradesModal({ visible, onClose }: { visible: boolean; 
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: 12,
-    borderRadius: 12,
+    borderRadius: 999,
     border: 0,
-    background: colors.surface,
+    background: 'transparent',
     padding: '10px 12px',
     marginBottom: 8,
   };
@@ -242,7 +242,7 @@ export default function ComradesModal({ visible, onClose }: { visible: boolean; 
             aria-label="Close comrades"
             onClick={onClose}
             className="rounded-full p-1.5"
-            style={{ background: 'rgba(255,255,255,.06)' }}
+            style={{ background: 'transparent' }}
           >
             <X size={14} color={colors.textMuted} />
           </button>
@@ -276,7 +276,7 @@ export default function ComradesModal({ visible, onClose }: { visible: boolean; 
             <button
               type="submit"
               className="rounded-full px-4 text-xs font-bold"
-              style={{ background: colors.green, color: '#000' }}
+              style={{ background: 'transparent', color: colors.green }}
             >
               Search
             </button>
@@ -290,7 +290,7 @@ export default function ComradesModal({ visible, onClose }: { visible: boolean; 
                 value={selectedChannelId}
                 onChange={(event) => setSelectedChannelId(event.target.value)}
                 className="min-w-0 flex-1 rounded-full px-3 py-2 text-xs"
-                style={{ background: colors.surface, color: colors.textPrimary, border: 0 }}
+                style={{ background: 'transparent', color: colors.textPrimary, border: 0 }}
               >
                 {channels.map((channel) => <option key={channel.channelId} value={channel.channelId}>{channel.name}{channel.isAdmin ? ' · Admin' : ''}</option>)}
               </select>
@@ -319,7 +319,7 @@ export default function ComradesModal({ visible, onClose }: { visible: boolean; 
                       <button
                         type="button"
                         className="rounded-full px-3 py-1 text-[11px] font-bold disabled:opacity-60"
-                        style={{ background: colors.surface, color: colors.textPrimary }}
+                        style={{ background: 'transparent', color: colors.textPrimary }}
                         disabled={!selectedChannelId || channelBusyId === id || !channels.some((channel) => channel.channelId === selectedChannelId && channel.isAdmin)}
                         onClick={() => void handleAddToChannel(candidate)}
                       >
