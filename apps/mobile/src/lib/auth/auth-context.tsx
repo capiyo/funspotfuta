@@ -170,6 +170,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       if (__DEV__) console.warn('[auth] secure session write failed', error);
       await clearSecureSession().catch(() => undefined);
+      NotificationService.setActiveUser(null);
       setState({ ...initialState, isInitialized: true });
       return false;
     }
