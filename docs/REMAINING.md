@@ -1,14 +1,14 @@
 # Remaining Funspot integration and release work
 
 Branch: `web-port-from-master`  
-Validated head: `f6791cc48c456afcc51a86d65ffb85bc2eb2dc2d`  
+Notification hardening CI-verified head: `592a6e8ed5f1ecee6f3e094e1f4757b00ea8a3f0`  
 Tracking PR: [#4](https://github.com/capiyo/funspotfuta/pull/4) (draft)
 
 This document replaces the obsolete handoff checklist that listed old web line counts and incorrectly said the React Native app must not be changed. The current project is intentionally cross-platform.
 
 ## Notification hardening added after the last validated head
 
-The following implementation changes are now on `web-port-from-master`; they have not yet received a fresh CI or physical-device verification:
+The following implementation changes are on `web-port-from-master`. All four GitHub Actions workflows completed successfully on `592a6e8ed5f1ecee6f3e094e1f4757b00ea8a3f0`; physical-device and live-push verification remain outstanding:
 
 - Bind notification reconciliation to the active authenticated user and discard responses that finish after logout or account switching.
 - Recheck the session boundary after asynchronous badge persistence and before emitting reconciled badge events.
@@ -27,7 +27,15 @@ The following implementation changes are now on `web-port-from-master`; they hav
 
 These changes reduce client-side races and duplicate badge increments. They do not resolve the backend notification-router authorization blocker below, and they do not prove real push delivery.
 
-## Completed and automatically verified on the validated head
+## Completed and automatically verified on the notification-hardening CI head
+
+- Web port validation run #3271 passed: core tests, core/web/mobile typechecks, Android and iOS bundle exports, web lint/build, ChatsCard responsive checks, Match Details tabs, and Home/Feed responsive checks.
+- Public crawlability validation run #997 passed, including web typecheck, lint/build and generated crawl-file checks.
+- Live-statistics client typecheck run #136 passed for shared core and React Native.
+- Live-statistics web typecheck run #127 passed for shared core and React web.
+- These are CI checks on the stated commit; they are not physical-device push tests or production deployment verification.
+
+## Previously completed and automatically verified on the validated head
 - Core tests and shared core, web and React Native typechecks.
 - Web lint and production Vite build.
 - Android and iOS JavaScript bundle exports.
