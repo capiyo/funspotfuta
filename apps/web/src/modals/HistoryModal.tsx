@@ -425,8 +425,8 @@ function createStyles(colors: ReturnType<typeof useFanColors>) {
     closeBtn: {
       width: 32,
       height: 32,
-      borderRadius: 16,
-      backgroundColor: colors.inputSurface,
+      borderRadius: 999,
+      backgroundColor: 'transparent',
       alignItems: 'center',
       justifyContent: 'center',
     },
