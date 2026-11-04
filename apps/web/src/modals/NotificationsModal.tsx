@@ -48,7 +48,7 @@ export default function NotificationsModal({ visible, onClose }: { visible: bool
       try {
         const [counts, p] = await Promise.all([
           NotificationService.loadInitialBadgeCounts(),
-          NotificationService.getNotificationPreferences(userId),
+          NotificationService.getNotificationPreferences(userId, authToken ?? undefined),
         ]);
         if (cancelled) return;
         setSummary({ notifications: counts.unread_notifications, comments: counts.unread_comments });
@@ -60,7 +60,7 @@ export default function NotificationsModal({ visible, onClose }: { visible: bool
       }
     })();
     return () => { cancelled = true; };
-  }, [visible, userId]);
+  }, [authToken, visible, userId]);
 
   async function toggle(key: keyof NotificationPreferences) {
     if (!prefs || !userId || saving) return;
