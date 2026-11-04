@@ -140,9 +140,9 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
   });
 
   return (
-    <div role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}
+    <div className="possession-modal-overlay" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}
       style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', padding: 0, background: 'rgba(0,0,0,.58)' }}>
-      <section role="dialog" aria-modal="true" aria-labelledby="possession-title" style={panel}>
+      <section className="possession-modal-panel" role="dialog" aria-modal="true" aria-labelledby="possession-title" style={panel}>
         <div aria-hidden="true" style={{ width: 32, height: 4, borderRadius: 999, background: colors.border, margin: '0 auto 7px', flexShrink: 0 }} />
         <header style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 5 }}>
           <div aria-hidden="true" style={{ width: 36, height: 36, flex: '0 0 36px', display: 'grid', placeItems: 'center', borderRadius: '50%', background: colors.primaryDim, color: colors.primary, fontSize: 17 }}>✦</div>
