@@ -46,7 +46,7 @@ The AppCache checklist in `docs/APPCACHE_PARITY_MIGRATION.md` remains the detail
 6. Refresh the historical file-by-file parity inventory; file presence and line counts are triage signals, not proof of behavior parity.
 
 ## Remaining release checks
-1. Resolve or explicitly disposition the failed Netlify preview `dapper-gaufre-2bc2d2` (deployment `6aea3dbdf06bce30950985d0`). The other three configured previews report success.
+1. Resolve the currently pending `dapper-gaufre-2bc2d2` preview (latest PR-head deployment `6aeac9b07c90789a09ab5940`). On PR head `6b80ec4`, the `funspotfuta`, `friendly-treacle-0716d4`, and `funspotapp` previews report success. The earlier `dapper-gaufre` failure (`6aea3dbdf06bce30950985d0`) is historical; do not assume the current pending deployment has the same outcome.
 2. Verify Firebase phone OTP and real web push/FCM delivery using live credentials.
 3. Verify production API behavior and backend notification delivery.
 4. Install and test on physical Android and iOS devices. Expo exports are bundle checks, not device tests.
