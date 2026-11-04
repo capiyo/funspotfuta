@@ -97,6 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
         return;
       }
+      NotificationService.setActiveUser(null);
       setState({ ...initialState, isInitialized: true });
       clearNotificationStorage();
       void (async () => {
@@ -218,7 +219,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const opts: LoginOptions = typeof phoneOrOptions === 'string' ? { phone: phoneOrOptions } : phoneOrOptions ?? {};
     try {
       const operationVersion = ++authBoundaryVersion.current;
-      NotificationService.setActiveUser(userId);
       if (state.userId !== userId) {
         NotificationService.setActiveUser(null);
         clearNotificationStorage();
@@ -228,6 +228,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         queryClient.clear();
         await indexedDbQueryPersister.removeClient();
       }
+      NotificationService.setActiveUser(userId);
       const user = { id: userId, username, phone: opts.phone ?? '' };
       await secureBrowserSession.setToken(authToken);
       await secureBrowserSession.setUser(JSON.stringify(user));
