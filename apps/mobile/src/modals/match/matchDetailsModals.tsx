@@ -369,7 +369,7 @@ export function MatchDetailsModal({
                         <View
                             style={[
                                 styles.scoreBox,
-                                { backgroundColor: colors.background },
+                                { backgroundColor: 'transparent' },
                             ]}
                         >
                             <Text
@@ -525,8 +525,8 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
     },
     sheet: {
-        borderTopLeftRadius: 20, // Flutter used Radius.circular(20); FAN_RADIUS.xl is 18.
-        borderTopRightRadius: 20,
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
         overflow: 'hidden',
     },
     handleWrapper: {
@@ -562,7 +562,7 @@ const styles = StyleSheet.create({
         marginHorizontal: 12,
         paddingHorizontal: 10,
         paddingVertical: 4,
-        borderRadius: FAN_RADIUS.sm,
+        borderRadius: 999,
     },
     tabBar: {
         flexDirection: 'row',
