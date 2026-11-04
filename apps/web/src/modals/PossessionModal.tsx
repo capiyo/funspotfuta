@@ -122,7 +122,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
   }
 
   const panel: CSSProperties = {
-    width: '100vw', maxWidth: 448, height: '50dvh', maxHeight: '50dvh',
+    width: '100vw', maxWidth: '100vw', height: '50dvh', maxHeight: '50dvh',
     display: 'flex', flexDirection: 'column', overflowY: 'auto',
     background: colors.surface, color: colors.textPrimary,
     borderRadius: '24px 24px 0 0', padding: '6px 12px 8px', boxSizing: 'border-box',
