@@ -11,10 +11,9 @@
 // LAYOUT FIX (unchanged from prior version): HomeScreen doesn't use
 // Tab.Navigator, so this takes plain `active`/`onChange` props.
 
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Pressable, StyleSheet } from 'react-native';
 import { MessageCircle, Newspaper } from 'lucide-react-native';
 import { useFanColors } from '@/theme/use-fan-colors';
-import { fanText } from '@/theme/use-fan-typography';
 import { FAN_SPACING, FAN_RADIUS, FanColorPalette } from '@funspot/core';
 
 export type TabName = 'Chats' | 'Feed';
