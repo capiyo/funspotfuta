@@ -309,7 +309,7 @@ export function MatchDetailsModal({
     const home = fixture.homeScore ?? 0;
     const away = fixture.awayScore ?? 0;
     const isLive = fixture.status === 'live';
-    const modalHeight = windowHeight;
+    const modalHeight = windowHeight * 0.75;
 
     return (
         <Modal
@@ -526,8 +526,8 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
     },
     sheet: {
-        borderTopLeftRadius: 0,
-        borderTopRightRadius: 0,
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
         overflow: 'hidden',
     },
     topRail: { minHeight: 36, alignItems: 'center', justifyContent: 'center' },
