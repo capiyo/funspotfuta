@@ -116,7 +116,7 @@ export function MatchDetailsModal({visible,fixture,userId,username,authToken,onC
       <div className="flex justify-center pb-2 pt-3"><div className="h-1 w-10 rounded-full" style={{backgroundColor:colors.borderActive}}/></div>
       <header className="flex items-center gap-3 px-4 pb-3 pt-1">
         <div className="min-w-0 flex-1 text-center"><p className="line-clamp-2" style={{...fanText('body',colors,colors.textPrimary),fontSize:11,fontWeight:400,lineHeight:'14px'}}>{fixture.homeTeam}</p>{isLive&&<span className="mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold text-red-500" style={{background:'rgba(255,0,0,.12)'}}>LIVE</span>}</div>
-        <div className="shrink-0 rounded-lg px-3.5 py-1.5" style={{backgroundColor:colors.background}}><span style={{...fanText('scoreHero',colors,colors.textPrimary),fontSize:18,fontWeight:400,lineHeight:'22px'}}>{home} - {away}</span></div>
+        <div className="shrink-0 rounded-full px-4 py-1.5" style={{backgroundColor:colors.background}}><span style={{...fanText('scoreHero',colors,colors.textPrimary),fontSize:18,fontWeight:400,lineHeight:'22px'}}>{home} - {away}</span></div>
         <div className="min-w-0 flex-1 text-center"><p className="line-clamp-2" style={{...fanText('body',colors,colors.textPrimary),fontSize:13,fontWeight:400,lineHeight:'17px'}}>{fixture.awayTeam}</p>{fixture.date&&<p className="mt-1" style={fanText('caption',colors,colors.textSecondary)}>{formatTime(fixture.date)}</p>}</div>
       </header>
       <div className="mx-4 flex border-b" style={{borderColor:'rgba(0,0,0,.1)'}}>
