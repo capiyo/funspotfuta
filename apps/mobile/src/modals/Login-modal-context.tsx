@@ -7,9 +7,9 @@
 //   - any screen can also call `requireLogin(after?)` on-demand:
 //       - already logged in -> runs `after` immediately, returns true
 //       - not logged in -> opens LoginModal, remembers `after`, returns false
-//   - after a successful login, the remembered action re-runs, and we
-//     request/register the FCM token (mirrors initializeFCM's post-login
-//     registerToken call)
+//   - after a successful login, the remembered action re-runs; the
+//     authenticated NotificationRuntime owns FCM token registration and
+//     token-refresh handling centrally
 //
 // LoginModal is mounted once, here, so it can render over any screen.
 import {
