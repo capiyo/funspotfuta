@@ -80,7 +80,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
   async function submitPoke() {
     const points = Number(amount);
     if (!isLoggedIn || !userId || !username || !channelId) { setError('Sign in to create a possession poke'); return; }
-    if (!Number.isSafeInteger(points) || points <= 0) { setError('Enter a positive whole-number point amount'); return; }
+    if (!Number.isSafeInteger(points) || points < 5) { setError('Enter at least 5 whole-number points'); return; }
     setBusy(true); setError(null); setNotice(null);
     try {
       const result = await createPossessionPoke({ ...context, userId, username, selection, amount: points });
