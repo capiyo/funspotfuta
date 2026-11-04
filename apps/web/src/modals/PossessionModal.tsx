@@ -130,12 +130,12 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
   };
   const muted = { color: colors.textSecondary };
   const control = {
-    border: `1px solid ${colors.border}`, borderRadius: 14, background: colors.background,
+    border: `1px solid ${colors.border}`, borderRadius: 8, background: colors.surfaceSunken,
     color: colors.textPrimary, padding: '11px 13px', font: 'inherit', minWidth: 0,
   } as const;
   const action = (active: boolean): CSSProperties => ({
     ...control, flex: 1, cursor: 'pointer', borderColor: active ? colors.primary : colors.border,
-    background: active ? colors.primaryDim : colors.background,
+    background: active ? colors.primaryDim : colors.surfaceSunken,
     color: active ? colors.primary : colors.textPrimary, fontWeight: 700,
   });
 
