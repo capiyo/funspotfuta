@@ -14,7 +14,7 @@ export interface PossessionPoke {
   username: string;
   selection: PossessionSide;
   amount: number;
-  status: 'open' | 'matched' | 'settled' | 'cancelled';
+  status: 'open' | 'matched' | 'settled' | 'refunded' | 'cancelled';
   createdAt: string;
   finisherId?: string | null;
   finisherName?: string | null;
