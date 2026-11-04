@@ -20,7 +20,7 @@
 // caller (auth-context or a bootstrap file) receives the message from
 // @react-native-firebase/messaging and passes it to pushToStream().
 
-import { mobileStorage } from '../../../../../packages/storage/src/mobile';
+import { mobileStorage, mobileStorageReady } from '../../../../../packages/storage/src/mobile';
 
 const registeredFcmTokenKeys = new Set<string>();
 const pendingFcmTokenRegistrations = new Map<string, Promise<boolean>>();
@@ -74,6 +74,7 @@ function emitJoinRequest(event: Record<string, any>) {
 // ─── storage helpers (async wrappers around mobileStorage) ─────────
 async function readString(key: string): Promise<string | null> {
     try {
+        await mobileStorageReady;
         const v = await mobileStorage.getItem(key);
         return v ?? null;
     } catch {
@@ -82,6 +83,7 @@ async function readString(key: string): Promise<string | null> {
 }
 async function writeString(key: string, value: string): Promise<void> {
     try {
+        await mobileStorageReady;
         await mobileStorage.setItem(key, value);
     } catch (e) {
         console.warn('mobileStorage.setItem failed', key, e);
@@ -89,6 +91,7 @@ async function writeString(key: string, value: string): Promise<void> {
 }
 async function removeKey(key: string): Promise<void> {
     try {
+        await mobileStorageReady;
         await mobileStorage.removeItem(key);
     } catch (e) {
         console.warn('mobileStorage.removeItem failed', key, e);
