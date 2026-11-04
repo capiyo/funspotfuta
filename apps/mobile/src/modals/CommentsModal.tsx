@@ -560,7 +560,7 @@ export default function PostCommentsModal({
                                 <View
                                     style={[
                                         styles.replyIndicator,
-                                        { backgroundColor: colors.primaryDim },
+                                        { backgroundColor: 'transparent' },
                                     ]}
                                 >
                                     <Reply size={14} color={colors.primary} />
@@ -590,7 +590,7 @@ export default function PostCommentsModal({
                                         hitSlop={6}
                                         style={[
                                             styles.replyClose,
-                                            { backgroundColor: colors.surface },
+                                            { backgroundColor: 'transparent' },
                                         ]}
                                     >
                                         <X size={12} color={colors.textTertiary} />
@@ -605,7 +605,7 @@ export default function PostCommentsModal({
                                 <View
                                     style={[
                                         styles.inputWrap,
-                                        { backgroundColor: colors.surfaceSunken },
+                                        { backgroundColor: 'transparent' },
                                     ]}
                                 >
                                     <TextInput
