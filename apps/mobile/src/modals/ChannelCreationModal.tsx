@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
     backgroundColor: 'transparent',
-    borderRadius: 12,
+    borderRadius: 999,
     paddingHorizontal: 12,
     paddingVertical: 10,
     color: 'white',
