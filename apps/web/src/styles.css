@@ -4225,3 +4225,49 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visib
     max-height: 320px !important;
   }
 }
+
+/* Desktop workspace width contract: remove legacy card caps and auto-centering.
+   Chats and Feed share the available area with only a 5px separation. */
+@media (min-width: 651px) {
+  body:has(.home-screen) .home-screen .home-columns {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    column-gap: 5px !important;
+    padding: 0 !important;
+  }
+  body:has(.home-screen) .home-screen .home-column {
+    width: auto !important;
+    max-width: none !important;
+    min-width: 0 !important;
+  }
+  body:has(.home-screen) .home-screen .chats-fixture-row,
+  body:has(.home-screen) .home-screen .feed-column .post-card,
+  body:has(.home-screen) .home-screen .feed-column .feed-screen > .feed-item,
+  body:has(.home-screen) .home-screen .feed-column .feed-item {
+    width: 100% !important;
+    max-width: none !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+  body:has(.home-screen) .home-screen .feed-column .feed-list {
+    width: 100% !important;
+    align-items: stretch !important;
+  }
+  body:has(.home-screen) .home-screen .feed-column .feed-list-masonry {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    column-gap: 8px !important;
+    width: 100% !important;
+  }
+  body:has(.home-screen) .home-screen .feed-column .feed-post-column {
+    width: 100% !important;
+    min-width: 0 !important;
+    align-items: stretch !important;
+  }
+  body:has(.home-screen) .home-screen .feed-column .post-image-frame,
+  body:has(.home-screen) .home-screen .feed-column .post-video-frame {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: min(72vh, 560px) !important;
+  }
+}
