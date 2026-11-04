@@ -112,9 +112,9 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
   );
 
   return (
-    <Modal visible transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent presentationStyle="fullScreen">
+    <Modal visible transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent presentationStyle="overFullScreen">
       <Pressable style={styles.backdrop} onPress={onClose}>
-        <Pressable style={[styles.sheet, { height: screenH, maxHeight: screenH }]} onPress={(event) => event.stopPropagation()}>
+        <Pressable style={[styles.sheet, { height: screenH * 0.82, maxHeight: screenH * 0.82 }]} onPress={(event) => event.stopPropagation()}>
           <View style={styles.handle} />
           <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
             <View style={styles.header}>
@@ -211,8 +211,8 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
 
 function createStyles(colors: ReturnType<typeof useFanColors>) {
   return StyleSheet.create({
-    backdrop: { flex: 1, justifyContent: 'flex-start', backgroundColor: 'rgba(0,0,0,0.58)' },
-    sheet: { flex: 1, width: '100%', alignSelf: 'stretch', backgroundColor: colors.surface, borderRadius: 0, overflow: 'hidden' },
+    backdrop: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.58)' },
+    sheet: { width: '100%', alignSelf: 'stretch', backgroundColor: colors.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, overflow: 'hidden' },
     
     content: { paddingHorizontal: 12, paddingTop: 6, paddingBottom: 8 },
     handle: { width: 32, height: 4, borderRadius: 999, backgroundColor: colors.border, alignSelf: 'center', marginTop: 0, marginBottom: 7 },
