@@ -41,6 +41,19 @@ const K_UNREAD_COUNT = 'unread_notification_count';
 const K_UNREAD_COMMENT_COUNT = 'unread_comment_count';
 const K_PENDING_JOIN_REQUESTS = 'pending_join_requests';
 
+// Reconciliation is tied to the authenticated account. A response started by a
+// previous session must not overwrite badges after logout or account switching.
+let activeNotificationUserId: string | null = null;
+let notificationSessionVersion = 0;
+
+function setActiveNotificationUser(userId: string | null): void {
+    const nextUserId = userId?.trim() || null;
+    if (activeNotificationUserId === nextUserId) return;
+    activeNotificationUserId = nextUserId;
+    notificationSessionVersion += 1;
+}
+
+
 // ─── Listener registries (replace the three StreamControllers) ─────
 type Listener = (event: Record<string, any>) => void;
 
@@ -102,6 +115,10 @@ async function writeInt(key: string, value: number): Promise<void> {
 // ═══════════════════════════════════════════════════════════════════
 
 export const NotificationService = {
+    setActiveUser(userId: string | null): void {
+        setActiveNotificationUser(userId);
+    },
+
     // ─── Stream subscription helpers ────────────────────────────────
     onNotification(cb: Listener): () => void {
         _notificationListeners.add(cb);
@@ -328,6 +345,8 @@ export const NotificationService = {
         adminChannelIds?: string[];
     }): Promise<void> {
         const { userId, authToken, adminChannelIds = [] } = opts;
+        const sessionVersion = notificationSessionVersion;
+        if (activeNotificationUserId !== userId) return;
         try {
             console.log(`[NotificationService] 🔄 Reconciling with server for ${userId}`);
 
@@ -340,6 +359,9 @@ export const NotificationService = {
                 this._fetchUnreadSummary(userId, headers),
                 this._fetchTruePendingJoinCount(adminChannelIds, headers),
             ]);
+
+            // Both requests may complete after a logout or account switch.
+            if (sessionVersion !== notificationSessionVersion || activeNotificationUserId !== userId) return;
 
             if (unreadSummary) {
                 await writeInt(K_UNREAD_COUNT, unreadSummary.notifications ?? 0);
