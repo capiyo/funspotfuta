@@ -121,11 +121,12 @@ function normalizeActionResult(value: unknown): PossessionActionResult {
 export interface PossessionContext {
   fixtureId: string;
   channelId: string;
+  userId: string;
   authToken?: string | null;
 }
 
 export async function fetchPossessionMarket(context: PossessionContext): Promise<PossessionMarket> {
-  const query = new URLSearchParams({ fixture_id: context.fixtureId, channel_id: context.channelId });
+  const query = new URLSearchParams({ fixture_id: context.fixtureId, channel_id: context.channelId, user_id: context.userId });
   return normalizeMarket(await request<unknown>(`?${query.toString()}`, context.authToken));
 }
 
