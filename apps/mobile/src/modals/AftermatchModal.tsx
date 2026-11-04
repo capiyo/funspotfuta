@@ -745,7 +745,7 @@ function createStyles(colors: any) {
         banner: {
             marginHorizontal: 16, marginVertical: 6,
             paddingHorizontal: 12, paddingVertical: 8,
-            borderRadius: 10, borderWidth: 1,
+            borderRadius: 999, borderWidth: 0,
             flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
         },
         banner_primary: { backgroundColor: 'transparent', borderColor: colors.primary + '30' },
@@ -758,17 +758,18 @@ function createStyles(colors: any) {
         bannerLabel_draw: { color: colors.draw },
         bannerLabel_muted: { color: colors.textTertiary },
         bannerScore: {
-            paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6,
+            paddingHorizontal: 8, paddingVertical: 2, borderRadius: 999,
+            backgroundColor: 'transparent',
         },
-        bannerScore_primary: { backgroundColor: colors.primary + '20' },
-        bannerScore_away: { backgroundColor: colors.away + '20' },
-        bannerScore_draw: { backgroundColor: colors.draw + '20' },
-        bannerScore_muted: { backgroundColor: colors.border + '20' },
+        bannerScore_primary: { backgroundColor: 'transparent' },
+        bannerScore_away: { backgroundColor: 'transparent' },
+        bannerScore_draw: { backgroundColor: 'transparent' },
+        bannerScore_muted: { backgroundColor: 'transparent' },
         bannerScoreText: { fontSize: 11, fontWeight: '700' },
 
         // Tabs
         tabBar: { paddingHorizontal: 16, paddingVertical: 6, gap: 4 },
-        tab: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10 },
+        tab: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999 },
         tabActive: { backgroundColor: 'transparent' },
         tabText: { fontSize: 11, fontWeight: '600', color: colors.textTertiary },
         tabTextActive: { color: colors.textPrimary },
@@ -841,7 +842,7 @@ function createStyles(colors: any) {
         betId: { fontSize: 11, fontWeight: '700', color: colors.textPrimary },
         betSide: {
             flex: 1, alignItems: 'center',
-            borderRadius: 6, backgroundColor: 'transparent',
+            borderRadius: 999, backgroundColor: 'transparent',
             padding: 6,
         },
         betSideWinner: {
@@ -882,7 +883,7 @@ function createStyles(colors: any) {
         outcomeText: { fontSize: 10, color: colors.textSecondary },
         subPledgeRow: {
             flexDirection: 'row', alignItems: 'center', gap: 6,
-            paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6,
+            paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999,
             marginBottom: 2,
         },
         subPledgeName: { flex: 1, fontSize: 10, color: colors.textPrimary },
