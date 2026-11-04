@@ -589,8 +589,8 @@ function UserTile({
                         borderColor: withAlpha(MEMBER_ACCENT, 0.3),
                     }
                     : {
-                        backgroundColor: colors.surface,
-                        borderColor: colors.border,
+                        backgroundColor: 'transparent',
+                        borderColor: 'transparent',
                     },
             ]}
         >
