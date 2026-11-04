@@ -1050,7 +1050,7 @@ export const NotificationService = {
 export default NotificationService;
 
 // Web FCM permission/token and foreground message helpers.
-export type ForegroundNotice = { title: string; body: string; data?: Record<string, string> };
+export type ForegroundNotice = { title: string; body: string; messageId?: string; data?: Record<string, string> };
 
 export async function requestWebPushToken(): Promise<string | null> {
   if (!('Notification' in window) || !('serviceWorker' in navigator) || !firebaseApp) return null;
@@ -1085,6 +1085,7 @@ export async function listenForForegroundMessages(onNotice: (notice: ForegroundN
   const messaging = await getFirebaseMessaging();
   if (!messaging) return () => undefined;
   return onMessage(messaging, (payload) => onNotice({
+    messageId: payload.messageId,
     title: payload.notification?.title ?? 'Funspot',
     body: payload.notification?.body ?? '',
     data: payload.data as Record<string, string> | undefined,
