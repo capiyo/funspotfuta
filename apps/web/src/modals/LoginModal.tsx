@@ -1,5 +1,5 @@
 /* eslint no-undef: "off" */
-/** Browser port of apps/mobile/src/modals/LoginModal.tsx. Auth services remain unchanged. */
+/** Browser login flow: Firebase verifies phone ownership; Funspot issues the API session JWT. */
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import {
