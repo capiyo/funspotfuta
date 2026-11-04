@@ -288,7 +288,10 @@ export default function LoginModal({ visible = true, onClose, onSuccess }: Login
   try {
       const result = await pinLogin(verifiedPhone, value);
   if (result.ok && result.token && result.user) await performLogin(result.user.id, result.user.username ?? 'User', result.token, verifiedPhone);
-  else toast(withStatus(result.message ?? 'Incorrect PIN', result.status), { error: true });
+  else if (result.status === 400 && result.message?.includes('PIN not set')) {
+    toast('This account has no PIN yet. Verify your phone with OTP to set one.', { error: true });
+    setStep('phone');
+  } else toast(withStatus(result.message ?? 'Incorrect PIN', result.status), { error: true });
     } catch (error) { toastRawError('pin-login request failed', error); }
     finally { setLoading(false); }
   }
