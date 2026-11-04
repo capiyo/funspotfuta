@@ -495,8 +495,6 @@ interface PitchLabelProps {
 
 function PitchLabel({ label, color }: PitchLabelProps) {
     const colors = useFanColors();
-    const { width: screenWidth } = useWindowDimensions();
-    const pitchWidth = Math.max(1, Math.min(screenWidth - 28, maxHeight * PITCH_ASPECT_RATIO));
     return (
         <View style={[styles.pitchLabel, { backgroundColor: 'rgba(0,0,0,0.45)' }]}>
             <Text
@@ -883,6 +881,8 @@ export function PitchView({
     maxHeight,
 }: PitchViewProps) {
     const colors = useFanColors();
+    const { width: screenWidth } = useWindowDimensions();
+    const pitchWidth = Math.max(1, Math.min(screenWidth - 28, maxHeight * PITCH_ASPECT_RATIO));
     const [showHomeOverflow, setShowHomeOverflow] = useState(false);
     const [showAwayOverflow, setShowAwayOverflow] = useState(false);
     const [headshots, setHeadshots] = useState<Record<string, string>>({});
