@@ -693,10 +693,11 @@ export const NotificationService = {
             if (!raw) return 0;
             const map = JSON.parse(raw);
             const data = map?.[fixtureId];
-            const list = Array.isArray(data?.notification_data)
+            if (data?.has_unread !== true) return 0;
+            const list = Array.isArray(data.notification_data)
                 ? data.notification_data
                 : [];
-            const unreadCount = Number(data?.unread_count);
+            const unreadCount = Number(data.unread_count);
             return Number.isFinite(unreadCount) && unreadCount >= 0
                 ? Math.trunc(unreadCount)
                 : list.length;
