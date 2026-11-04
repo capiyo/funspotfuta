@@ -620,7 +620,7 @@ function UserTile({
                     style={[
                         styles.toggleBtn,
                         isSelected
-                            ? { backgroundColor: MEMBER_ACCENT, borderColor: MEMBER_ACCENT }
+                            ? { backgroundColor: 'transparent', borderColor: MEMBER_ACCENT }
                             : {
                                 backgroundColor: colors.bg,
                             },
@@ -960,7 +960,7 @@ const styles = StyleSheet.create({
     actionBtn: {
         flex: 1,
         height: 46,
-        borderRadius: 12,
+        borderRadius: 999,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -974,7 +974,7 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     createBtn: {
-        backgroundColor: MEMBER_ACCENT,
+        backgroundColor: 'transparent',
     },
     createBtnText: {
         color: '#000',
