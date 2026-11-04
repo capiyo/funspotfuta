@@ -14,19 +14,28 @@ function AppRoutes() {
   const [notificationGateDismissed, setNotificationGateDismissed] = useState(false);
   const [notice, setNotice] = useState<ForegroundNotice | null>(null);
   useEffect(() => {
+    if (!isLoggedIn || !userId) return;
+    let active = true;
     let stop: (() => void) | undefined;
     listenForForegroundMessages((incoming) => {
+      if (!active) return;
       setNotice(incoming);
       const data = incoming.data ?? {};
       void NotificationService.pushToStream({ data });
-      if (data.channel_id && data.fixture_id && userId) {
+      if (data.channel_id && data.fixture_id) {
         void queryClient.invalidateQueries({
           queryKey: queryKeys.fixtureUnreadCount(data.channel_id, data.fixture_id, userId),
         });
       }
-    }).then((unsubscribe) => { stop = unsubscribe; }).catch(() => undefined);
-    return () => stop?.();
-  }, [queryClient, userId]);
+    }).then((unsubscribe) => {
+      if (active) stop = unsubscribe;
+      else unsubscribe();
+    }).catch(() => undefined);
+    return () => {
+      active = false;
+      stop?.();
+    };
+  }, [isLoggedIn, queryClient, userId]);
   useEffect(() => {
     setNotificationGateDismissed(false);
   }, [userId]);
