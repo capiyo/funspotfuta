@@ -43,7 +43,7 @@ export function comradeWithStatsFromChannelMember(json: any, comradesList: Set<s
     bestStreak: 0,
     isOnline: false,
     rank: json.rank ?? 0,
-    avatarUrl: null,
+    avatarUrl: typeof (json.avatar_url ?? json.avatarUrl) === 'string' ? String(json.avatar_url ?? json.avatarUrl) : null,
     messageCount: json.message_count ?? 0,
   };
 }

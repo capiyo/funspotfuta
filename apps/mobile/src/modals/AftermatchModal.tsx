@@ -603,7 +603,7 @@ function SubFixtureCard({
                         const isMe = p.userId === userId;
                         const won = market.result === p.selection;
                         return (
-                            <View key={`${p.userId}-${i}`} style={[styles.subPledgeRow, isMe && { backgroundColor: colors.primaryDim }]}>
+                            <View key={`${p.userId}-${i}`} style={[styles.subPledgeRow, isMe && { backgroundColor: 'transparent' }]}>
                                 <Text style={{ fontSize: 12 }}>{won ? '🏆' : '•'}</Text>
                                 <Text style={[styles.subPledgeName, isMe && { color: colors.primary }]} numberOfLines={1}>
                                     {isMe ? 'You' : p.userName}
@@ -729,14 +729,14 @@ function createStyles(colors: any) {
         header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingBottom: 10, gap: 8 },
         headerIcon: {
             width: 36, height: 36, borderRadius: 18,
-            backgroundColor: colors.primaryDim,
+            backgroundColor: 'transparent',
             alignItems: 'center', justifyContent: 'center',
         },
         headerTitle: { fontSize: 15, fontWeight: '700', color: colors.textPrimary },
         headerSub: { fontSize: 11, color: colors.textTertiary },
         closeBtn: {
             width: 28, height: 28, borderRadius: 14,
-            backgroundColor: colors.surfaceSunken,
+            backgroundColor: 'transparent',
             alignItems: 'center', justifyContent: 'center',
         },
         closeBtnText: { fontSize: 12, color: colors.textSecondary, fontWeight: '600' },
@@ -745,31 +745,32 @@ function createStyles(colors: any) {
         banner: {
             marginHorizontal: 16, marginVertical: 6,
             paddingHorizontal: 12, paddingVertical: 8,
-            borderRadius: 10, borderWidth: 1,
+            borderRadius: 999, borderWidth: 0,
             flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8,
         },
-        banner_primary: { backgroundColor: colors.primaryDim, borderColor: colors.primary + '30' },
-        banner_away: { backgroundColor: colors.awayDim ?? colors.primaryDim, borderColor: colors.away + '30' },
-        banner_draw: { backgroundColor: colors.surfaceSunken, borderColor: colors.draw + '30' },
-        banner_muted: { backgroundColor: colors.surfaceSunken, borderColor: colors.border },
+        banner_primary: { backgroundColor: 'transparent', borderColor: 'transparent' },
+        banner_away: { backgroundColor: 'transparent', borderColor: 'transparent' },
+        banner_draw: { backgroundColor: 'transparent', borderColor: 'transparent' },
+        banner_muted: { backgroundColor: 'transparent', borderColor: 'transparent' },
         bannerLabel: { fontSize: 12, fontWeight: '700' },
         bannerLabel_primary: { color: colors.primary },
         bannerLabel_away: { color: colors.away },
         bannerLabel_draw: { color: colors.draw },
         bannerLabel_muted: { color: colors.textTertiary },
         bannerScore: {
-            paddingHorizontal: 8, paddingVertical: 2, borderRadius: 6,
+            paddingHorizontal: 8, paddingVertical: 2, borderRadius: 999,
+            backgroundColor: 'transparent',
         },
-        bannerScore_primary: { backgroundColor: colors.primary + '20' },
-        bannerScore_away: { backgroundColor: colors.away + '20' },
-        bannerScore_draw: { backgroundColor: colors.draw + '20' },
-        bannerScore_muted: { backgroundColor: colors.border + '20' },
+        bannerScore_primary: { backgroundColor: 'transparent' },
+        bannerScore_away: { backgroundColor: 'transparent' },
+        bannerScore_draw: { backgroundColor: 'transparent' },
+        bannerScore_muted: { backgroundColor: 'transparent' },
         bannerScoreText: { fontSize: 11, fontWeight: '700' },
 
         // Tabs
         tabBar: { paddingHorizontal: 16, paddingVertical: 6, gap: 4 },
-        tab: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10 },
-        tabActive: { backgroundColor: colors.surface },
+        tab: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 999 },
+        tabActive: { backgroundColor: 'transparent' },
         tabText: { fontSize: 11, fontWeight: '600', color: colors.textTertiary },
         tabTextActive: { color: colors.textPrimary },
 
@@ -783,10 +784,10 @@ function createStyles(colors: any) {
             borderRadius: 999, paddingHorizontal: 8, paddingVertical: 2,
             borderWidth: 1,
         },
-        statChip_neutral: { backgroundColor: colors.surfaceSunken, borderColor: colors.border + '30' },
-        statChip_primary: { backgroundColor: colors.primaryDim, borderColor: colors.primary + '30' },
-        statChip_draw: { backgroundColor: colors.surfaceSunken, borderColor: colors.draw + '30' },
-        statChip_away: { backgroundColor: colors.primaryDim, borderColor: colors.away + '30' },
+        statChip_neutral: { backgroundColor: 'transparent', borderColor: colors.border + '30' },
+        statChip_primary: { backgroundColor: 'transparent', borderColor: colors.primary + '30' },
+        statChip_draw: { backgroundColor: 'transparent', borderColor: colors.draw + '30' },
+        statChip_away: { backgroundColor: 'transparent', borderColor: colors.away + '30' },
         statChipText: { fontSize: 11, fontWeight: '600' },
         statChipText_neutral: { color: colors.textSecondary },
         statChipText_primary: { color: colors.primary },
@@ -794,27 +795,27 @@ function createStyles(colors: any) {
         statChipText_away: { color: colors.away },
 
         filterChip: {
-            borderRadius: 8, paddingHorizontal: 8, paddingVertical: 2,
-            borderWidth: 1, borderColor: colors.border + '30',
+            borderRadius: 999, paddingHorizontal: 8, paddingVertical: 2,
+            borderWidth: 0, borderColor: 'transparent',
         },
-        filterChipActive: { backgroundColor: colors.primaryDim, borderColor: colors.primary + '30' },
+        filterChipActive: { backgroundColor: 'transparent', borderColor: colors.primary + '30' },
         filterChipText: { fontSize: 10, color: colors.textTertiary },
         filterChipTextActive: { color: colors.primary, fontWeight: '600' },
 
         // Tiles
         tile: {
             flexDirection: 'row', alignItems: 'center', gap: 8,
-            borderRadius: 8, borderWidth: 1, borderColor: colors.border + '30',
-            backgroundColor: colors.surface,
+            borderRadius: 18, borderWidth: 0, borderColor: 'transparent',
+            backgroundColor: 'transparent',
             paddingHorizontal: 10, paddingVertical: 8,
             marginBottom: 4,
         },
-        tileMe: { backgroundColor: colors.primaryDim, borderColor: colors.primary + '40' },
+        tileMe: { backgroundColor: 'transparent', borderColor: colors.primary + '40' },
         avatar: {
             width: 24, height: 24, borderRadius: 12,
             borderWidth: 1,
             alignItems: 'center', justifyContent: 'center',
-            backgroundColor: colors.surfaceSunken,
+            backgroundColor: 'transparent',
         },
         avatarText: { fontSize: 10, fontWeight: '700' },
         tileName: { fontSize: 11, fontWeight: '600', color: colors.textPrimary },
@@ -822,10 +823,10 @@ function createStyles(colors: any) {
         payout: { fontSize: 11, fontWeight: '700' },
 
         badge: { borderRadius: 999, paddingHorizontal: 6, paddingVertical: 1 },
-        badge_primary: { backgroundColor: colors.primaryDim },
-        badge_away: { backgroundColor: colors.primaryDim },
-        badge_draw: { backgroundColor: colors.surfaceSunken },
-        badge_muted: { backgroundColor: colors.surfaceSunken },
+        badge_primary: { backgroundColor: 'transparent' },
+        badge_away: { backgroundColor: 'transparent' },
+        badge_draw: { backgroundColor: 'transparent' },
+        badge_muted: { backgroundColor: 'transparent' },
         badgeText: { fontSize: 9, fontWeight: '700' },
         badgeText_primary: { color: colors.primary },
         badgeText_away: { color: colors.away },
@@ -834,18 +835,18 @@ function createStyles(colors: any) {
 
         // Bets
         betCard: {
-            borderRadius: 10, borderWidth: 1, borderColor: colors.border + '30',
-            backgroundColor: colors.surface,
+            borderRadius: 18, borderWidth: 0, borderColor: 'transparent',
+            backgroundColor: 'transparent',
             padding: 10, marginBottom: 8,
         },
         betId: { fontSize: 11, fontWeight: '700', color: colors.textPrimary },
         betSide: {
             flex: 1, alignItems: 'center',
-            borderRadius: 6, backgroundColor: colors.surfaceSunken,
+            borderRadius: 999, backgroundColor: 'transparent',
             padding: 6,
         },
         betSideWinner: {
-            backgroundColor: colors.primaryDim,
+            backgroundColor: 'transparent',
             borderWidth: 1, borderColor: colors.primary + '40',
         },
         betSideLabel: { fontSize: 9, fontWeight: '700' },
@@ -853,7 +854,7 @@ function createStyles(colors: any) {
         betSideAmount: { fontSize: 9, color: colors.textTertiary, marginTop: 2 },
         vs: { fontSize: 9, fontWeight: '700', color: colors.textTertiary },
         potPill: {
-            backgroundColor: colors.primaryDim, borderRadius: 4,
+            backgroundColor: 'transparent', borderRadius: 999,
             paddingHorizontal: 6, paddingVertical: 2, marginTop: 2,
         },
         potText: { fontSize: 9, fontWeight: '700', color: colors.primary },
@@ -866,23 +867,23 @@ function createStyles(colors: any) {
 
         // Subs
         subCard: {
-            borderRadius: 10, borderWidth: 1, borderColor: colors.border + '30',
-            backgroundColor: colors.surface,
+            borderRadius: 18, borderWidth: 0, borderColor: 'transparent',
+            backgroundColor: 'transparent',
             padding: 10, marginBottom: 8,
         },
         subTitle: { flex: 1, fontSize: 11, fontWeight: '700', color: colors.textPrimary },
         outcomeChip: {
-            borderRadius: 8, backgroundColor: colors.surfaceSunken,
+            borderRadius: 999, backgroundColor: 'transparent',
             paddingHorizontal: 8, paddingVertical: 3,
         },
         outcomeChipWin: {
-            backgroundColor: colors.primaryDim,
+            backgroundColor: 'transparent',
             borderWidth: 1, borderColor: colors.primary + '40',
         },
         outcomeText: { fontSize: 10, color: colors.textSecondary },
         subPledgeRow: {
             flexDirection: 'row', alignItems: 'center', gap: 6,
-            paddingHorizontal: 8, paddingVertical: 4, borderRadius: 6,
+            paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999,
             marginBottom: 2,
         },
         subPledgeName: { flex: 1, fontSize: 10, color: colors.textPrimary },
@@ -893,8 +894,8 @@ function createStyles(colors: any) {
         emptyIcon: { fontSize: 40, color: colors.textTertiary, opacity: 0.4 },
         emptyLabel: { fontSize: 11, color: colors.textTertiary },
         retryBtn: {
-            marginTop: 8, borderRadius: 8,
-            backgroundColor: colors.primary,
+            marginTop: 8, borderRadius: 999,
+            backgroundColor: 'transparent',
             paddingHorizontal: 16, paddingVertical: 6,
         },
         retryText: { fontSize: 11, fontWeight: '600', color: '#fff' },
@@ -903,9 +904,9 @@ function createStyles(colors: any) {
         shareWrap: { padding: 12, borderTopWidth: 1, borderTopColor: colors.border + '20' },
         shareBtn: {
             flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
-            borderWidth: 1, borderColor: colors.border,
-            borderRadius: 8, paddingVertical: 8,
-            backgroundColor: colors.surfaceSunken,
+            borderWidth: 0, borderColor: 'transparent',
+            borderRadius: 999, paddingVertical: 8,
+            backgroundColor: 'transparent',
         },
         shareIcon: { fontSize: 12, color: colors.textSecondary },
         shareText: { fontSize: 11, fontWeight: '700', color: colors.textSecondary },

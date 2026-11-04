@@ -10,13 +10,14 @@
 // `members: ChannelMember[]` explicitly via the `Channel` re-export that
 // types/channel.ts provides.
 
-import { useMemo, useState } from 'react';
+import { Fragment, useMemo, useState } from 'react';
 import {
     View,
     Text,
     Pressable,
     StyleSheet,
     FlatList,
+    PanResponder,
 } from 'react-native';
 import { Star, Users, Crown, Award } from 'lucide-react-native';
 import {
@@ -27,6 +28,8 @@ import {
     memberVoteAccuracy,
 } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
+import { Avatar } from '@/components/ui/Avatar';
+import AdCarousel from '@/components/AdCarousel';
 
 type FanColors = ReturnType<typeof useFanColors>;
 
@@ -97,9 +100,7 @@ function MemberCard({
                         { backgroundColor: colors.primaryDim },
                     ]}
                 >
-                    <Text style={[styles.memberAvatarText, { color: colors.primary }]}>
-                        {(member.username?.[0] ?? '?').toUpperCase()}
-                    </Text>
+                    <Avatar colors={colors} size="lg" userId={member.userId} label={(member.username?.[0] ?? '?').toUpperCase()} />
                     <Text
                         style={[
                             styles.memberAvatarRank,
@@ -253,9 +254,32 @@ export function ChannelLeaderboard({
     const styles = createStyles(colors);
     const [activeTab, setActiveTab] = useState(0);
 
+
+
     // Cap at 3 tabs — matches the Flutter source's
     // `_userChannels.length.clamp(0, 3)`.
     const visibleChannels = useMemo(() => channels.slice(0, 3), [channels]);
+
+    // Horizontal swipes change channels; vertical movement remains available
+    // to the members list below.
+    const swipeResponder = useMemo(
+        () => PanResponder.create({
+            onMoveShouldSetPanResponder: (_event, gesture) =>
+                visibleChannels.length > 1 &&
+                Math.abs(gesture.dx) > 24 &&
+                Math.abs(gesture.dx) > Math.abs(gesture.dy) * 1.25,
+            onPanResponderRelease: (_event, gesture) => {
+                if (Math.abs(gesture.dx) < 45) return;
+                setActiveTab((current) =>
+                    Math.max(0, Math.min(
+                        visibleChannels.length - 1,
+                        current + (gesture.dx < 0 ? 1 : -1),
+                    )),
+                );
+            },
+        }),
+        [visibleChannels.length],
+    );
 
     if (visibleChannels.length === 0) {
         return (
@@ -284,7 +308,7 @@ export function ChannelLeaderboard({
                 style={[
                     styles.tabBar,
                     {
-                        backgroundColor: colors.surfaceSunken,
+                        backgroundColor: 'transparent',
                         borderColor: colors.border,
                     },
                 ]}
@@ -301,7 +325,7 @@ export function ChannelLeaderboard({
                             onPress={() => setActiveTab(idx)}
                             style={[
                                 styles.tab,
-                                isActive && { backgroundColor: colors.surface },
+                                isActive && { backgroundColor: 'transparent' },
                             ]}
                         >
                             <Text
@@ -323,12 +347,13 @@ export function ChannelLeaderboard({
                 })}
             </View>
 
-            {/* Channel header */}
+            {/* Swipeable channel panel */}
+            <View style={styles.swipePanel} {...swipeResponder.panHandlers}>
             <View
                 style={[
                     styles.channelHeader,
                     {
-                        backgroundColor: colors.primaryDim,
+                        backgroundColor: 'transparent',
                         borderColor: colors.borderActive,
                     },
                 ]}
@@ -391,6 +416,7 @@ export function ChannelLeaderboard({
                     </Text>
                 }
                 renderItem={({ item, index }) => (
+                    <View>
                     <MemberCard
                         colors={colors}
                         styles={styles}
@@ -404,8 +430,28 @@ export function ChannelLeaderboard({
                                 : undefined
                         }
                     />
+                    {index === 4 && <View style={{ marginVertical: 8 }}><AdCarousel /></View>}
+                    </View>
                 )}
             />
+            </View>
+            {visibleChannels.length > 1 && (
+                <View style={styles.pageDots} accessibilityLabel={`Channel ${activeTab + 1} of ${visibleChannels.length}`}>
+                    {visibleChannels.map((channel, index) => (
+                        <Pressable
+                            key={channel.channelId || index}
+                            accessibilityRole="button"
+                            accessibilityLabel={`Show ${channel.name}`}
+                            onPress={() => setActiveTab(index)}
+                            style={[
+                                styles.pageDot,
+                                { backgroundColor: index === activeTab ? colors.primary : colors.border },
+                                index === activeTab && styles.pageDotActive,
+                            ]}
+                        />
+                    ))}
+                </View>
+            )}
         </View>
     );
 }
@@ -417,6 +463,16 @@ export function ChannelLeaderboard({
 function createStyles(colors: FanColors) {
     return StyleSheet.create({
         wrap: { flex: 1 },
+        swipePanel: { flex: 1, minHeight: 0 },
+        pageDots: {
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: FAN_SPACING.xs,
+            paddingTop: FAN_SPACING.xs,
+        },
+        pageDot: { width: 5, height: 5, borderRadius: 3 },
+        pageDotActive: { width: 14 },
 
         emptyWrap: {
             flex: 1,
@@ -432,14 +488,14 @@ function createStyles(colors: FanColors) {
             flexDirection: 'row',
             marginHorizontal: FAN_SPACING.md,
             padding: 2,
-            borderRadius: FAN_RADIUS.md,
-            borderWidth: 0.5,
+            borderRadius: 999,
+            borderWidth: 0,
         },
         tab: {
             flex: 1,
             paddingVertical: 5,
             alignItems: 'center',
-            borderRadius: FAN_RADIUS.sm,
+            borderRadius: 999,
         },
         tabText: { fontSize: 9 },
 
@@ -452,8 +508,8 @@ function createStyles(colors: FanColors) {
             marginTop: FAN_SPACING.sm,
             paddingHorizontal: FAN_SPACING.md,
             paddingVertical: FAN_SPACING.md,
-            borderRadius: FAN_RADIUS.md,
-            borderWidth: 0.5,
+            borderRadius: 18,
+            borderWidth: 0,
         },
         channelAvatar: {
             width: 24,
@@ -489,10 +545,10 @@ function createStyles(colors: FanColors) {
         // Members
         membersList: { paddingVertical: FAN_SPACING.md },
         memberCard: {
-            backgroundColor: colors.surface,
-            borderRadius: FAN_RADIUS.md,
-            borderWidth: 0.5,
-            borderColor: hexWithAlpha(colors.border, 0.3),
+            backgroundColor: 'transparent',
+            borderRadius: 18,
+            borderWidth: 0,
+            borderColor: 'transparent',
             padding: FAN_SPACING.md,
             marginBottom: FAN_SPACING.sm,
         },
@@ -501,7 +557,9 @@ function createStyles(colors: FanColors) {
         memberAvatar: {
             width: 36,
             height: 36,
-            borderRadius: FAN_RADIUS.md,
+            borderRadius: 18,
+            overflow: 'hidden',
+            flexShrink: 0,
             alignItems: 'center',
             justifyContent: 'center',
         },

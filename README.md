@@ -1,114 +1,90 @@
-# Funspot — Monorepo (Web + iOS/Android)
+# Funspot
 
-A single codebase for the [capiyo/funspot](https://github.com/capiyo/funspot)
-Flutter app's real, live backend (`https://clash-api-m5mr.onrender.com/api`),
-split into a shared domain layer plus one app per platform:
+Funspot is a TypeScript monorepo for a football-fan community app. It contains an Expo/React Native mobile app, a React DOM web app, and a shared API/domain package.
 
+> **Project status:** Active development. The web app is a work in progress, not yet verified as fully feature- or visually equivalent to the mobile app. A matching file path or a successful TypeScript/build check does not prove feature parity. Check the current branch and CI results before relying on any feature in production.
+
+## Repository layout
+
+- `apps/mobile` — Expo and React Native app; the established mobile implementation is the reference for intended behavior.
+- `apps/web` — browser app built with React, Vite, TypeScript, Tailwind CSS, and React Router. It uses DOM/browser implementations rather than Next.js.
+- `packages/core` — shared TypeScript API clients, domain types, and query utilities.
+- `docs/PORT_MAP.md` — file-by-file mobile-to-web comparison and outstanding parity work.
+- `docs/PORT_REPORT.md` — migration findings and known verification gaps.
+- `docs/PORT_DECISIONS.md` — recorded implementation decisions.
+- `docs/FIREBASE_SETUP.md` — manual Firebase setup notes.
+
+## Current web experience
+
+The web Home is designed around a desktop navbar, a profile/channel sidebar, and Chats and Feed panes. On narrow screens, the layout switches to the mobile-style Chats/Feed tab interface. The app includes work on fixture cards and voting flows, feed posts and media, profile and channel UI, messaging, authentication, and modal flows.
+
+These are areas of ongoing implementation, **not a claim that every flow is complete or production-verified**. In particular, the port tracking documents still identify shorter or suspect web counterparts and outstanding parity work in ChatsScreen, the app header, login flow, feed and other UI components. Live Firebase phone verification, push-notification delivery, production API behavior, and full browser/device interaction testing require separate runtime verification.
+
+The guest comment prompt is implemented in the web Chats card and the React Native Chats card. This change alone does not establish that every guest/authentication interaction works end to end.
+
+## Requirements
+
+- Node.js and npm compatible with the repository's dependencies
+- Firebase web configuration for the browser app's Firebase-backed features
+- Access to the configured API for live data and end-to-end checks
+
+## Install and run
+
+Run these commands from the repository root:
+
+```sh
+npm install
+
+# Web development server (Vite)
+npm run dev:web
+
+# Expo development server
+npm run dev:mobile
 ```
-funspot-monorepo/
-├── packages/
-│   └── core/            @funspot/core — shared types + API client functions
-├── apps/
-│   ├── web/              Next.js 14 (App Router) — funspot-web
-│   └── mobile/            Expo / React Native — funspot-mobile (iOS + Android)
-└── package.json          npm workspaces root
+
+For Android or iOS native development, use the scripts in `apps/mobile/package.json` and the Expo/native toolchain required by your environment.
+
+## Checks available in the repository
+
+Run these individually from the repository root:
+
+```sh
+npm run typecheck:core
+npm run typecheck:web
+npm run typecheck:mobile
+npm run lint:web
+npm run build:web
+npm run test:core
 ```
 
-## Why this split
+The web package also provides a Chats card verification script:
 
-`packages/core` contains everything that is **pure TypeScript with no
-platform dependency** — data models (`Fixture`, `Bet`, `ChatMessage`, `Post`,
-etc.) and API client functions that just call `fetch` against the real
-backend. That's the majority of the ported logic, and it is byte-for-byte
-identical whether it runs in a browser or on a phone, so it lives once and
-both apps import it as `@funspot/core`.
-
-What's **not** in core — because it genuinely differs by platform — stays
-local to each app:
-
-| Concern | apps/web | apps/mobile |
-|---|---|---|
-| Persistent session storage | `localStorage` | `AsyncStorage` |
-| Toast notifications | DOM overlay | `Animated`/`View` overlay |
-| Image upload for chat/posts | `File`/`Blob` | `{ uri, name, type }` (expo-image-picker) |
-| Routing | Next.js App Router | React Navigation (stack + bottom tabs) |
-| UI primitives | HTML + Tailwind | React Native `View`/`Text`/`StyleSheet` |
-
-Each app has its own `auth-context.tsx`, `toast-context.tsx`,
-`media-service.ts`, and `posts-create.ts` for exactly this reason — same
-method names and behavior as their sibling, different implementation
-underneath.
-
-## packages/core
-
-See `packages/core/src/index.ts` for the full export list. Ported from:
-
-- `lib/models/fixture_models.dart`, `chat_message.dart`, `post_models.dart`,
-  and the smaller model files → `src/types/*.ts`
-- `lib/services/auth_service.dart`'s backend calls, `database_service.dart`,
-  `comrade_service.dart` (full), `bet_service.dart` (full), the sub-fixture
-  voting + posts/follow sections of `api_services.dart`,
-  `payment_service.dart`, `web_soecket.dart`, the REST half of
-  `notification_service.dart`, and the admin-only endpoints from
-  `admin_dashboard.dart` → `src/api/*.ts`
-
-Every function hits the **real production API** — there is no mock data.
-Full per-file mapping tables are in each app's own README (they were written
-before the monorepo split and are still accurate for the ported logic
-itself, just not the current file paths).
-
-## apps/web (Next.js)
-
-```bash
+```sh
 cd apps/web
-npm run dev
+npm run verify:card-parity
 ```
 
-14 routes: `/login`, `/home`, `/fixture/[matchId]`, `/chat`, `/trending`,
-`/profile`, `/feed`, `/comrades`, `/leaderboard`, `/history`,
-`/notifications`, `/admin/[channelId]`, plus the root redirect.
+A check passing validates only what that check covers. It does not verify Firebase Console configuration, actual SMS delivery, push delivery, API behavior against production, responsive rendering on real devices, or complete mobile/web parity. Record the result from the latest commit; do not reuse an older successful run as proof that newer changes pass.
 
-## apps/mobile (Expo — iOS + Android)
+## Web environment
 
-```bash
-cd apps/mobile
-npm run start   # then press i for iOS simulator, a for Android emulator
+Copy `apps/web/.env.example` to `apps/web/.env.local` if the example file is present, then configure the Firebase web settings and public VAPID key required by your environment. The API base used by the current web setup defaults to:
+
+```text
+https://clash-api-m5mr.onrender.com/api
 ```
 
-Same 12 screens as the web app's routes, using React Navigation: a login
-gate, a 5-tab bottom nav (Home, Trending, +Create, Chat, Profile — matching
-`bottom_navigation.dart`'s original layout/colors exactly), and stack
-screens for Fixture Detail, Feed, Comrades, Leaderboard, History,
-Notifications, and Admin.
+Use the appropriate API URL and Firebase project for your deployment. Never commit private credentials or secret keys. Public browser configuration values are not substitutes for securing backend endpoints.
 
-**This app was written and typechecked in a sandbox without Xcode or the
-Android SDK** — `tsc --noEmit` passes cleanly, but it has not been run on an
-actual simulator/device. Running `npm run ios` / `npm run android` for the
-first time locally is the real test; expect the normal first-run friction
-of a fresh Expo project (pod install on iOS, SDK/emulator setup on Android).
+## Parity and release status
 
-## Root workspace notes
+The migration is not complete while the port map contains `PENDING` or `SUSPECT` items, or while required live checks remain unverified. Before calling the web app release-ready:
 
-- `package.json`'s `overrides` pins `react`, `react-dom`, and `@types/react`
-  to the versions React Native 0.74 requires exactly (`18.2.0` /
-  `~18.2.79`). Without this, npm installs two copies of React (one for
-  Next.js's looser `^18.3.1` range, one for RN's exact pin), and Next's
-  production build fails with a `useContext` null error from the
-  duplicate-React problem. If you bump Next.js or RN independently in the
-  future and hit that error again, this is why — realign the override.
-- `apps/mobile/metro.config.js` points Metro (RN's bundler) at the
-  workspace root so it can see `packages/core` and the hoisted
-  `node_modules` — standard requirement for any Expo app in a monorepo.
-- `apps/web/next.config.mjs` sets `transpilePackages: ['@funspot/core']`
-  since core ships TypeScript source directly rather than a build step.
+1. Review and update `docs/PORT_MAP.md` against the current mobile source and web behavior.
+2. Complete the outstanding flows documented in `docs/PORT_REPORT.md`.
+3. Run the typechecks, lint, build, and relevant tests against the current commit.
+4. Exercise guest and authenticated paths, messaging, fixture actions, feed/media, profile, and modals in a real browser and on supported mobile devices.
+5. Verify Firebase SMS/OTP, notification registration and delivery, and API interactions with valid environment configuration.
+6. Keep the migration pull request in draft until these checks pass.
 
-## What's not ported (same reasons as before the monorepo split)
-
-- Firebase Phone-Auth OTP (needs live Firebase reCAPTCHA/SMS config)
-- FCM/Web Push notification *delivery* (the data half — unread counts,
-  preferences — is ported; actual push delivery isn't)
-- Local SQLite caching / offline queue (solved mobile connectivity
-  problems that don't apply the same way to a browser tab or a freshly
-  re-fetching RN screen)
-- Video in chat, admin dashboard's own payments UI (reuses the wallet's
-  `payment-service.ts` instead of duplicating it)
+Do not treat matching filenames, line-count comparisons, or static source review as proof of behavioral or visual parity.

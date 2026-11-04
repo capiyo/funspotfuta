@@ -1,11 +1,12 @@
 // components/MatchDetailsModal/PitchView.tsx
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
     View,
     Text,
     StyleSheet,
     Pressable,
     LayoutChangeEvent,
+    useWindowDimensions,
 } from 'react-native';
 import Svg, {
     Rect,
@@ -17,8 +18,10 @@ import Svg, {
     Stop,
 } from 'react-native-svg';
 import { ChevronDown, ChevronUp } from 'lucide-react-native';
+import { Image as ExpoImage } from 'expo-image';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import { FAN_SPACING, FAN_RADIUS } from '@funspot/core';
+import { FAN_SPACING, FAN_RADIUS, playerHeadshotKey, resolvePlayerHeadshots } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
 import { fanShadowStyle } from '../../theme/use-fan-shadow';
@@ -514,13 +517,14 @@ interface PlayerDotProps {
     position: PitchPosition;
     color: string;
     isHome: boolean;
+    photoUrl?: string;
 }
 
-const DOT_SIZE = 34;
+const DOT_SIZE = 30;
 // Approximate height of the [gap + name chip] block below/above the dot.
-const LABEL_BLOCK_HEIGHT = 21;
+const LABEL_BLOCK_HEIGHT = 18;
 
-function PlayerDot({ player, position, color, isHome }: PlayerDotProps) {
+function PlayerDot({ player, position, color, isHome, photoUrl }: PlayerDotProps) {
     const colors = useFanColors();
 
     const dot = (
@@ -534,7 +538,11 @@ function PlayerDot({ player, position, color, isHome }: PlayerDotProps) {
                 fanShadowStyle('card', false),
             ]}
         >
-            <Text style={styles.playerDotText}>{player.number}</Text>
+            {photoUrl ? (
+                <ExpoImage source={{ uri: photoUrl }} contentFit="cover" cachePolicy="memory-disk" style={{ width: DOT_SIZE - 5, height: DOT_SIZE - 5, borderRadius: (DOT_SIZE - 5) / 2 }} />
+            ) : (
+                <Text style={styles.playerDotText}>{player.number}</Text>
+            )}
         </View>
     );
 
@@ -748,6 +756,19 @@ interface BenchColumnProps {
 
 export function BenchColumn({ players, color }: BenchColumnProps) {
     const colors = useFanColors();
+    const [benchHeadshots, setBenchHeadshots] = useState<Record<string, string>>({});
+
+    useEffect(() => {
+        let cancelled = false;
+        const batch = players.map((player) => ({
+            player,
+            teamName: player.teamName ?? '',
+        }));
+        void resolvePlayerHeadshots(batch, undefined, AsyncStorage).then((result) => {
+            if (!cancelled) setBenchHeadshots(result);
+        });
+        return () => { cancelled = true; };
+    }, [players]);
 
     if (players.length === 0) {
         return (
@@ -771,6 +792,18 @@ export function BenchColumn({ players, color }: BenchColumnProps) {
                         { backgroundColor: hexWithAlpha(color, 0.06) },
                     ]}
                 >
+                    {(() => {
+                        const photoUrl = p.photoUrl ?? p.imageUrl ??
+                            benchHeadshots[playerHeadshotKey(p, p.teamName ?? '')];
+                        return photoUrl ? (
+                            <ExpoImage
+                                source={{ uri: photoUrl }}
+                                contentFit="cover"
+                                cachePolicy="memory-disk"
+                                style={{ width: 22, height: 22, borderRadius: 11 }}
+                            />
+                        ) : null;
+                    })()}
                     <View
                         style={[
                             styles.benchNumber,
@@ -833,9 +866,10 @@ export interface PitchViewProps {
     awayFormation: string;
     homePlayers: SimplifiedPlayer[];
     awayPlayers: SimplifiedPlayer[];
+    maxHeight: number;
 }
 
-const PITCH_ASPECT_RATIO = 0.68;
+const PITCH_ASPECT_RATIO = 0.5;
 
 export function PitchView({
     homeTeam,
@@ -844,17 +878,29 @@ export function PitchView({
     awayFormation,
     homePlayers,
     awayPlayers,
+    maxHeight,
 }: PitchViewProps) {
     const colors = useFanColors();
+    const { width: screenWidth } = useWindowDimensions();
+    const pitchWidth = Math.max(1, Math.min(screenWidth - 28, maxHeight * PITCH_ASPECT_RATIO));
     const [showHomeOverflow, setShowHomeOverflow] = useState(false);
     const [showAwayOverflow, setShowAwayOverflow] = useState(false);
+    const [headshots, setHeadshots] = useState<Record<string, string>>({});
+
+    useEffect(() => {
+        let cancelled = false;
+        setHeadshots({});
+        const batch = [...homePlayers.map((player) => ({ player, teamName: homeTeam })), ...awayPlayers.map((player) => ({ player, teamName: awayTeam }))];
+        void resolvePlayerHeadshots(batch, undefined, AsyncStorage).then((result) => { if (!cancelled) setHeadshots(result); });
+        return () => { cancelled = true; };
+    }, [homePlayers, awayPlayers, homeTeam, awayTeam]);
     const [pitchSize, setPitchSize] = useState<{ width: number; height: number }>({
         width: 0,
         height: 0,
     });
 
-    const cappedHome = homePlayers.slice(0, 11);
-    const cappedAway = awayPlayers.slice(0, 11);
+    const cappedHome = useMemo(() => homePlayers.slice(0, 11), [homePlayers]);
+    const cappedAway = useMemo(() => awayPlayers.slice(0, 11), [awayPlayers]);
     const homeOverflow = homePlayers.slice(11);
     const awayOverflow = awayPlayers.slice(11);
     const hasOverflow = homeOverflow.length > 0 || awayOverflow.length > 0;
@@ -885,7 +931,7 @@ export function PitchView({
 
     const onPitchLayout = (e: LayoutChangeEvent) => {
         const { width, height } = e.nativeEvent.layout;
-        if (width !== pitchSize.width || height !== pitchSize.height) {
+        if (Math.abs(width - pitchSize.width) > 0.5 || Math.abs(height - pitchSize.height) > 0.5) {
             setPitchSize({ width, height });
         }
     };
@@ -898,7 +944,7 @@ export function PitchView({
                 <View style={styles.overflowButtonRow}>
                     {homeOverflow.length > 0 ? (
                         <OverflowButton
-                            label={homeTeam}
+                            label="Home extras"
                             count={homeOverflow.length}
                             color={colors.primary}
                             expanded={showHomeOverflow}
@@ -910,7 +956,7 @@ export function PitchView({
                     ) : null}
                     {awayOverflow.length > 0 ? (
                         <OverflowButton
-                            label={awayTeam}
+                            label="Away extras"
                             count={awayOverflow.length}
                             color={colors.away}
                             expanded={showAwayOverflow}
@@ -930,7 +976,7 @@ export function PitchView({
             ) : null}
 
             <View
-                style={[styles.pitchContainer, { aspectRatio: PITCH_ASPECT_RATIO }]}
+                style={[styles.pitchContainer, { width: pitchWidth, aspectRatio: PITCH_ASPECT_RATIO, alignSelf: 'center' }]}
                 onLayout={onPitchLayout}
             >
                 <View style={styles.pitchClip}>
@@ -972,6 +1018,7 @@ export function PitchView({
                                         position={homePositions[i]}
                                         color={colors.primary}
                                         isHome
+                                        photoUrl={headshots[playerHeadshotKey(p, homeTeam)]}
                                     />
                                 ) : null,
                             )}
@@ -983,6 +1030,7 @@ export function PitchView({
                                         position={awayPositions[i]}
                                         color={colors.away}
                                         isHome={false}
+                                        photoUrl={headshots[playerHeadshotKey(p, awayTeam)]}
                                     />
                                 ) : null,
                             )}
@@ -1096,19 +1144,20 @@ const styles = StyleSheet.create({
         height: DOT_SIZE,
         borderRadius: DOT_SIZE / 2,
         borderWidth: 2.5,
+        overflow: 'hidden',
         alignItems: 'center',
         justifyContent: 'center',
     },
     playerDotText: {
-        fontSize: 12,
-        fontWeight: '800',
+        fontSize: 11,
+        fontWeight: '700',
         color: '#FFFFFF',
     },
     playerLabel: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 5,
-        paddingVertical: 2,
+        paddingHorizontal: 4,
+        paddingVertical: 1,
         borderRadius: 4,
     },
     playerCaptain: {

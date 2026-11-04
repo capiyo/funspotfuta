@@ -261,32 +261,38 @@ export function HomeProvider({ children }: { children: ReactNode }) {
     const dragging = useRef(false);
     const momentum = useRef(false);
     const gestureAware = useRef(false);
+    const lastDirection = useRef<'up' | 'down' | 'still'>('still');
 
     const reportScroll = useCallback((offsetY: number) => {
-        if (offsetY <= 0) {
-            setHeaderVisible(true);
+        const offset = Math.max(0, offsetY);
+        if (offset <= 0) {
+            lastDirection.current = 'still';
             lastScrollY.current = 0;
+            setHeaderVisible(true);
             return;
         }
 
         const userDriven = !gestureAware.current || dragging.current || momentum.current;
-        if (!userDriven) {
-            lastScrollY.current = offsetY;
-            return;
-        }
+        const diff = offset - lastScrollY.current;
+        // Always advance the baseline. Comparing against an old threshold
+        // anchor makes a short upward reversal appear to do nothing.
+        lastScrollY.current = offset;
+        if (!userDriven || Math.abs(diff) < 1) return;
 
-        const diff = offsetY - lastScrollY.current;
-        if (diff > SCROLL_THRESHOLD) {
-            setHeaderVisible(false);
-            lastScrollY.current = offsetY;
-        } else if (diff < -SCROLL_THRESHOLD) {
+        if (diff < 0) {
+            lastDirection.current = 'up';
+            // Reveal on the first genuine upward movement so the user never
+            // has to scroll down again to recover the header and tab controls.
             setHeaderVisible(true);
-            lastScrollY.current = offsetY;
+        } else {
+            lastDirection.current = 'down';
+            if (diff >= SCROLL_THRESHOLD) setHeaderVisible(false);
         }
     }, []);
 
     const resetHeaderOnTabChange = useCallback(() => {
         lastScrollY.current = 0;
+        lastDirection.current = 'still';
         dragging.current = false;
         momentum.current = false;
         setHeaderVisible(true);
@@ -314,12 +320,14 @@ export function HomeProvider({ children }: { children: ReactNode }) {
             },
             onScrollEndDrag: () => {
                 dragging.current = false;
+                if (lastDirection.current === 'up') setHeaderVisible(true);
             },
             onMomentumScrollBegin: () => {
                 momentum.current = true;
             },
             onMomentumScrollEnd: () => {
                 momentum.current = false;
+                if (lastDirection.current === 'up') setHeaderVisible(true);
             },
             scrollEventThrottle: 16,
         }),

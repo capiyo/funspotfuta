@@ -1,0 +1,20 @@
+name: Live statistics web typecheck
+
+on:
+  pull_request:
+    branches: [master]
+
+jobs:
+  typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm install --no-audit --no-fund
+      - name: Typecheck shared core
+        run: npm run typecheck --workspace=@funspot/core
+      - name: Typecheck React web app
+        run: npm run typecheck --workspace=funspot-web

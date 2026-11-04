@@ -50,6 +50,8 @@ export function PostCard({
     onOpenComments,
     onRepost,
     onShare,
+    requireLogin,
+    onFollow,
 }: {
     post: Post;
     index: number;
@@ -59,6 +61,8 @@ export function PostCard({
     onOpenComments: (post: Post, index: number) => void;
     onRepost?: (post: Post) => void;
     onShare?: (post: Post) => void;
+    requireLogin?: (after?: () => void) => boolean;
+    onFollow?: (post: Post) => void;
 }) {
     const colors = useFanColors();
     const [following, setFollowing] = useState(false);
@@ -74,21 +78,13 @@ export function PostCard({
 
     return (
         <FeedItem colors={colors}>
-            {/* Layer 1: invisible full-card tap target → comments */}
-            <Pressable
-                onPress={() => onOpenComments(post, index)}
-                style={StyleSheet.absoluteFill}
-                android_ripple={{ color: colors.border, borderless: false }}
-                accessibilityRole="button"
-                accessibilityLabel={`Open comments on ${userName}'s post`}
-            />
-
+            {/* No full-card overlay: keep footer actions reliably tappable on Android. */}
             {/* Layer 2: content */}
             <View pointerEvents="box-none">
                 {/* Meta: author on the left, tags / date on the right */}
                 <View style={styles.metaRow} pointerEvents="none">
                     <View style={[styles.author, styles.grow]}>
-                        <MiniAvatar colors={colors} label={userName} />
+                        <MiniAvatar colors={colors} label={userName} userId={post.userId ?? undefined} />
                         <Text
                             style={[
                                 fanText('competition', colors, '#FFFFFF'),
@@ -129,6 +125,7 @@ export function PostCard({
                             videoThumbnailUrl={(post as any).videoThumbnailUrl ?? null}
                             width={(post as any).imageWidth}
                             height={(post as any).imageHeight}
+                            onPress={() => requireLogin ? requireLogin(() => onOpenComments(post, index)) : onOpenComments(post, index)}
                         />
                     </View>
                 )}
@@ -143,7 +140,7 @@ export function PostCard({
                             active={liked}
                             activeColor={colors.away}
                             colors={colors}
-                            onPress={() => onLike(post, index)}
+                            onPress={() => requireLogin ? requireLogin(() => onLike(post, index)) : onLike(post, index)}
                         />
                         <ActionButton
                             icon={MessageCircle}
@@ -156,20 +153,20 @@ export function PostCard({
                             icon={Repeat2}
                             label="Repost"
                             colors={colors}
-                            onPress={() => onRepost?.(post)}
+                            onPress={() => requireLogin ? requireLogin(() => onRepost?.(post)) : onRepost?.(post)}
                         />
                         <ActionButton
                             icon={Share2}
                             label="Share"
                             colors={colors}
-                            onPress={() => onShare?.(post)}
+                            onPress={() => requireLogin ? requireLogin(() => onShare?.(post)) : onShare?.(post)}
                         />
                     </View>
 
                     <View style={styles.rightCell}>
                         {!isOwnPost && !following && (
                             <Pressable
-                                onPress={() => setFollowing(true)}
+                                onPress={() => requireLogin ? requireLogin(() => { setFollowing(true); onFollow?.(post); }) : (setFollowing(true), onFollow?.(post))}
                                 hitSlop={HIT_SLOP}
                                 style={({ pressed }) => [
                                     styles.follow,

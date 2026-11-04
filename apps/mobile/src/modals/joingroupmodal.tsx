@@ -602,8 +602,8 @@ const styles = StyleSheet.create({
     },
     sheet: {
         maxHeight: '82%',
-        borderTopLeftRadius: 18,
-        borderTopRightRadius: 18,
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
         backgroundColor: colors.bg,
         overflow: 'hidden',
     },
@@ -629,7 +629,7 @@ const styles = StyleSheet.create({
         borderRadius: 22,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#1A1A3E',
+        backgroundColor: 'transparent',
     },
     headerTitle: { color: 'white', fontSize: 17, fontWeight: '700' },
     headerSubRow: {
@@ -645,7 +645,7 @@ const styles = StyleSheet.create({
     slotsPill: {
         paddingHorizontal: 8,
         paddingVertical: 2,
-        borderRadius: 10,
+        borderRadius: 999,
     },
     slotsPillText: {
         fontSize: 10,
@@ -657,9 +657,9 @@ const styles = StyleSheet.create({
         borderRadius: 18,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: withAlpha('#FFFFFF', 0.06),
-        borderWidth: 1,
-        borderColor: colors.border,
+        backgroundColor: 'transparent',
+        borderWidth: 0,
+        borderColor: 'transparent',
     },
 
     divider: { height: 1, backgroundColor: colors.border },
@@ -671,8 +671,8 @@ const styles = StyleSheet.create({
         alignItems: 'flex-start',
         gap: 10,
         padding: 12,
-        borderRadius: 12,
-        borderWidth: 1,
+        borderRadius: 999,
+        borderWidth: 0,
     },
     infoText: {
         flex: 1,
@@ -719,7 +719,7 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#1A1A3E',
+        backgroundColor: 'transparent',
     },
     channelAvatarText: {
         fontSize: 14,
@@ -747,7 +747,7 @@ const styles = StyleSheet.create({
         gap: 6,
         paddingHorizontal: 12,
         paddingVertical: 6,
-        borderRadius: 16,
+        borderRadius: 999,
     },
     pendingPillText: {
         fontSize: 11,
@@ -759,7 +759,7 @@ const styles = StyleSheet.create({
         gap: 4,
         paddingHorizontal: 12,
         paddingVertical: 6,
-        borderRadius: 16,
+        borderRadius: 999,
         borderWidth: 1,
     },
     fullPillText: {
@@ -769,7 +769,7 @@ const styles = StyleSheet.create({
     joinBtn: {
         paddingHorizontal: 16,
         paddingVertical: 8,
-        borderRadius: 16,
+        borderRadius: 999,
         borderWidth: 1,
     },
     joinBtnText: {

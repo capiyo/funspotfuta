@@ -11,10 +11,9 @@
 // LAYOUT FIX (unchanged from prior version): HomeScreen doesn't use
 // Tab.Navigator, so this takes plain `active`/`onChange` props.
 
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { View, Pressable, StyleSheet } from 'react-native';
 import { MessageCircle, Newspaper } from 'lucide-react-native';
 import { useFanColors } from '@/theme/use-fan-colors';
-import { fanText } from '@/theme/use-fan-typography';
 import { FAN_SPACING, FAN_RADIUS, FanColorPalette } from '@funspot/core';
 
 export type TabName = 'Chats' | 'Feed';
@@ -50,10 +49,7 @@ export function FloatingPillTabBar({
               }}
               style={[styles.item, isActive && styles.itemActive]}
             >
-              <Icon size={16} color={isActive ? colors.textInverse : colors.textTertiary} />
-              <Text style={fanText('tag', colors, isActive ? colors.textInverse : colors.textTertiary)}>
-                {name.toLowerCase()}
-              </Text>
+              <Icon size={19} color={isActive ? colors.textInverse : colors.textTertiary} />
             </Pressable>
           );
         })}
@@ -86,9 +82,9 @@ function createStyles(colors: FanColorPalette) {
     item: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: FAN_SPACING.xs,
-      paddingHorizontal: FAN_SPACING.base,
-      paddingVertical: FAN_SPACING.sm + 2,
+      width: 44,
+      height: 44,
+      justifyContent: 'center',
       borderRadius: FAN_RADIUS.pill,
     },
     itemActive: {

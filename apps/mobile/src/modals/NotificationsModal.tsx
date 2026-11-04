@@ -73,7 +73,7 @@ export default function NotificationsScreen({
         // are just the persisted totals, so read those directly.
         const [counts, p] = await Promise.all([
           NotificationService.loadInitialBadgeCounts(),
-          NotificationService.getNotificationPreferences(userId),
+          NotificationService.getNotificationPreferences(userId, authToken ?? undefined),
         ]);
         if (cancelled) return;
         setSummary({
@@ -93,7 +93,7 @@ export default function NotificationsScreen({
     return () => {
       cancelled = true;
     };
-  }, [visible, userId]);
+  }, [authToken, visible, userId]);
 
   async function toggle(key: keyof NotificationPreferences) {
     if (!prefs || !userId) return;
@@ -241,7 +241,7 @@ function createStyles(colors: FanColors) {
     closeBtn: {
       borderRadius: 999,
       padding: 6,
-      backgroundColor: colors.surfaceSunken,
+      backgroundColor: 'transparent',
     },
     screen: { backgroundColor: colors.background },
     content: {
@@ -256,9 +256,9 @@ function createStyles(colors: FanColors) {
     statCard: {
       flex: 1,
       borderRadius: FAN_RADIUS.lg,
-      borderWidth: 1,
-      borderColor: colors.border,
-      backgroundColor: colors.surface,
+      borderWidth: 0,
+      borderColor: 'transparent',
+      backgroundColor: 'transparent',
       padding: FAN_SPACING.base,
       alignItems: 'center',
     },
@@ -274,9 +274,9 @@ function createStyles(colors: FanColors) {
     },
     prefList: {
       borderRadius: FAN_RADIUS.lg,
-      borderWidth: 1,
-      borderColor: colors.border,
-      backgroundColor: colors.surface,
+      borderWidth: 0,
+      borderColor: 'transparent',
+      backgroundColor: 'transparent',
       overflow: 'hidden',
     },
     prefRow: {

@@ -20,6 +20,7 @@ export interface VoterItem {
     id: string;
     /** May start with an emoji, e.g. "🔥 FireStriker" */
     name: string;
+    uri?: string | null;
     /** Team (or "Draw") this person picked */
     team: string;
     /** Pick colour, used for the avatar ring and the team text */
@@ -78,6 +79,8 @@ export function VoterList({
                                 colors={colors}
                                 size="sm"
                                 label={icon || initials(name)}
+                                uri={v.uri}
+                                userId={v.id}
                                 borderColor={v.color}
                             />
                             <View style={styles.text}>
@@ -87,9 +90,7 @@ export function VoterList({
                                 >
                                     {name}
                                 </Text>
-                                <Text style={fanText('tag', colors, v.color)} numberOfLines={1}>
-                                    {v.team}
-                                </Text>
+                                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}><Text style={fanText('tag', colors, v.color)} numberOfLines={1}>{v.team}</Text><Text accessibilityLabel={v.id.startsWith('poke:') ? "poke mark" : "vote mark"} style={{ color: v.color, fontSize: 8, fontWeight: '800', backgroundColor: `${v.color}18`, overflow: 'hidden', borderRadius: 4, paddingHorizontal: 4, paddingVertical: 1 }}>{v.id.startsWith('poke:') ? '↗ poke' : '✓ vote'}</Text></View>
                             </View>
                         </View>
                     );

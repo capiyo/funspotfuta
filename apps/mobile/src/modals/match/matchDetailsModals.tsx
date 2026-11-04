@@ -9,9 +9,10 @@ import {
     useWindowDimensions,
 } from 'react-native';
 
-import { FAN_SPACING, FAN_RADIUS, webSocketService } from '@funspot/core';
+import { webSocketService } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
+import { X } from 'lucide-react-native';
 import type { Fixture } from '../../../../../packages/core/src/types/fixture';
 
 import type { MatchStatistics, LineupsData } from '../../../../../packages/core/src/types/matchDetails';
@@ -130,6 +131,7 @@ export function MatchDetailsModal({
 
     const [statistics, setStatistics] = useState<MatchStatistics | null>(null);
     const [lineups, setLineups] = useState<LineupsData | null>(null);
+    const [lineupsMatchId, setLineupsMatchId] = useState<string | null>(null);
 
     const [loadingStats, setLoadingStats] = useState(true);
     const [loadingLineups, setLoadingLineups] = useState(true);
@@ -147,7 +149,7 @@ export function MatchDetailsModal({
     // ── Fetch lineups (independent of stats) ─────────────────────
 
     const fetchLineups = useCallback(async () => {
-        setLoadingLineups(true);
+        if (lineupsMatchId !== fixture.matchId) setLoadingLineups(true);
         setLineupsError('');
         try {
             const res = await fetch(
@@ -159,6 +161,7 @@ export function MatchDetailsModal({
                 const data = await res.json();
                 if (data?.success === true && data?.data != null) {
                     setLineups(parseLineupsData(data.data));
+                    setLineupsMatchId(fixture.matchId);
                     setLoadingLineups(false);
                     return;
                 }
@@ -173,19 +176,22 @@ export function MatchDetailsModal({
                 const data = await fallbackRes.json();
                 if (data?.success === true && data?.data != null) {
                     setLineups(parseLineupsData(data.data));
+                    setLineupsMatchId(fixture.matchId);
                     setLoadingLineups(false);
                     return;
                 }
             }
 
+            setLineupsMatchId(fixture.matchId);
             setLineupsError('No lineup available');
             setLoadingLineups(false);
         } catch (e) {
             console.warn('❌ Error fetching lineups:', e);
+            setLineupsMatchId(fixture.matchId);
             setLineupsError('No network error');
             setLoadingLineups(false);
         }
-    }, [fixture.matchId, authToken]);
+    }, [fixture.matchId, authToken, lineupsMatchId]);
 
     // ── Fetch statistics (independent of lineups) ────────────────
 
@@ -254,9 +260,8 @@ export function MatchDetailsModal({
         liveStatisticsReceived.current = false;
         setActiveTab('lineups');
         setStatistics(null);
-        setLineups(null);
         setLoadingStats(true);
-        setLoadingLineups(true);
+        if (lineupsMatchId !== fixture.matchId) setLoadingLineups(true);
         setStatsError('');
         setLineupsError('');
         setHasStats(false);
@@ -304,7 +309,7 @@ export function MatchDetailsModal({
     const home = fixture.homeScore ?? 0;
     const away = fixture.awayScore ?? 0;
     const isLive = fixture.status === 'live';
-    const modalHeight = windowHeight * 0.88;
+    const modalHeight = windowHeight * 0.75;
 
     return (
         <Modal
@@ -313,36 +318,41 @@ export function MatchDetailsModal({
             animationType="slide"
             onRequestClose={onClose}
         >
-            <Pressable style={styles.backdrop} onPress={onClose}>
+            <View style={styles.backdrop}>
                 <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel="Close match details"
+                    onPress={onClose}
+                    style={StyleSheet.absoluteFill}
+                />
+                <View
                     style={[
                         styles.sheet,
                         {
                             height: modalHeight,
+                            width: '100%',
+                            borderRadius: 0,
                             backgroundColor: colors.surface,
                         },
                     ]}
-                    onPress={() => { }}
                 >
-                    {/* Handle */}
-                    <View style={styles.handleWrapper}>
-                        <View
-                            style={[
-                                styles.handle,
-                                { backgroundColor: colors.borderActive },
-                            ]}
-                        />
+                    {/* Compact top rail keeps the pitch dominant and provides an explicit close action. */}
+                    <View style={styles.topRail}>
+                        <View style={[styles.handle, { backgroundColor: colors.borderActive }]} />
+                        <Pressable onPress={onClose} accessibilityRole="button" accessibilityLabel="Close match details" style={styles.closeButton}>
+                            <X size={19} color={colors.textSecondary} />
+                        </Pressable>
                     </View>
 
-                    {/* Header */}
-                    <View style={styles.header}>
+                    {/* Keep match metadata out of the pitch-first lineup view. */}
+                    {activeTab !== 'lineups' ? <View style={styles.header}>
                         <View style={{ flex: 1, alignItems: 'center' }}>
                             <Text
                                 numberOfLines={2}
                                 ellipsizeMode="tail"
                                 style={[
-                                    fanText('title', colors),
-                                    { textAlign: 'center', color: colors.textPrimary },
+                                    fanText('body', colors),
+                                    { textAlign: 'center', color: colors.textPrimary, fontSize: 11, fontWeight: '400', lineHeight: 14 },
                                 ]}
                             >
                                 {fixture.homeTeam}
@@ -360,13 +370,13 @@ export function MatchDetailsModal({
                         <View
                             style={[
                                 styles.scoreBox,
-                                { backgroundColor: colors.background },
+                                { backgroundColor: 'transparent' },
                             ]}
                         >
                             <Text
                                 style={[
                                     fanText('scoreHero', colors),
-                                    { color: colors.textPrimary },
+                                    { color: colors.textPrimary, fontSize: 18, lineHeight: 22, fontWeight: '400' },
                                 ]}
                             >
                                 {home} - {away}
@@ -379,7 +389,7 @@ export function MatchDetailsModal({
                                 ellipsizeMode="tail"
                                 style={[
                                     fanText('title', colors),
-                                    { textAlign: 'center', color: colors.textPrimary },
+                                    { textAlign: 'center', color: colors.textPrimary, fontSize: 12, fontWeight: '400', lineHeight: 16 },
                                 ]}
                             >
                                 {fixture.awayTeam}
@@ -398,7 +408,7 @@ export function MatchDetailsModal({
                                 </>
                             ) : null}
                         </View>
-                    </View>
+                    </View> : null}
 
                     {/* Conditional tab bar */}
                     <View style={styles.tabBar}>
@@ -487,9 +497,9 @@ export function MatchDetailsModal({
                         {activeTab === 'lineups' ? (
                             <LineupsTab
                                 fixture={fixture}
-                                lineups={lineups}
-                                loading={loadingLineups}
-                                error={lineupsError}
+                                lineups={lineupsMatchId === fixture.matchId ? lineups : null}
+                                loading={loadingLineups || lineupsMatchId !== fixture.matchId}
+                                error={lineupsMatchId === fixture.matchId ? lineupsError : ''}
                             />
                         ) : hasStats && statistics ? (
                             <StatsTab
@@ -499,8 +509,8 @@ export function MatchDetailsModal({
                             />
                         ) : null}
                     </View>
-                </Pressable>
-            </Pressable>
+                </View>
+            </View>
         </Modal>
     );
 }
@@ -516,15 +526,12 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
     },
     sheet: {
-        borderTopLeftRadius: 20, // Flutter used Radius.circular(20); FAN_RADIUS.xl is 18.
-        borderTopRightRadius: 20,
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
         overflow: 'hidden',
     },
-    handleWrapper: {
-        paddingTop: 12,
-        paddingBottom: 8,
-        alignItems: 'center',
-    },
+    topRail: { minHeight: 36, alignItems: 'center', justifyContent: 'center' },
+    closeButton: { position: 'absolute', right: 12, top: 2, width: 32, height: 32, alignItems: 'center', justifyContent: 'center', borderRadius: 16 },
     handle: {
         width: 40,
         height: 4,
@@ -542,7 +549,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 8,
         paddingVertical: 2,
         borderRadius: 12,
-        backgroundColor: 'rgba(255,0,0,0.12)', // red.withValues(alpha:0.12) — no token for "live red"
+        backgroundColor: 'transparent', // live state is conveyed by accent text and dot
     },
     livePillText: {
         fontSize: 10,
@@ -551,9 +558,9 @@ const styles = StyleSheet.create({
     },
     scoreBox: {
         marginHorizontal: 12,
-        paddingHorizontal: 14,
-        paddingVertical: 6,
-        borderRadius: FAN_RADIUS.sm,
+        paddingHorizontal: 10,
+        paddingVertical: 4,
+        borderRadius: 999,
     },
     tabBar: {
         flexDirection: 'row',

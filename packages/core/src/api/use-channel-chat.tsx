@@ -14,17 +14,19 @@
 // Delivery itself lives in ./send-channel-message so other screens
 // (e.g. the Arena match card comment box) send with the exact same payload.
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { capCachedMessages, queryKeys } from '../queries/queryKeys';
 import { webSocketService } from './websocket-service';
 import {
     sendChannelMessage,
     type SendPayloadExtras,
 } from './send-channel-messages';
 import {
-    ChatMessage,
+    type ChatMessage,
     chatMessageFromJson,
     chatMessageCommentary,
-} from '@funspot/core';
+} from '../types/chat-message';
 
 export type { SendPayloadExtras };
 
@@ -72,6 +74,66 @@ function toFrontendSelection(raw: string): string {
     return raw;
 }
 
+/**
+ * The Flutter socket is a single connection subscribed to multiple rooms.
+ * Every mounted hook receives the same event bus, so events with an explicit
+ * room identity must be filtered before touching this conversation's state.
+ * Older server payloads that omit a field remain compatible.
+ */
+function belongsToConversation(
+    payload: Record<string, any>,
+    channelId: string,
+    fixtureId: string | null,
+): boolean {
+    // The socket is shared across every mounted room. Require an explicit
+    // channel identity so one channel's chat/typing events cannot leak into another.
+    const eventChannel = payload.channelId ?? payload.channel_id;
+    if (eventChannel == null || String(eventChannel) !== channelId) return false;
+
+    const eventFixture = payload.fixtureId ?? payload.fixture_id;
+    if (fixtureId) {
+        // Fixture conversations must never accept unscoped or other-fixture events.
+        return eventFixture != null && String(eventFixture) === String(fixtureId);
+    }
+
+    // The channel-wide room accepts only channel-level messages.
+    return eventFixture == null || String(eventFixture) === '';
+}
+
+/**
+ * Commentary is always fixture-specific. Unlike ordinary channel messages,
+ * a commentary event without a fixture identity must never enter a conversation:
+ * the singleton socket broadcasts events to every mounted hook.
+ */
+function commentaryBelongsToFixture(
+    envelope: Record<string, any>,
+    entry: Record<string, any>,
+    channelId: string,
+    fixtureId: string | null,
+): boolean {
+    if (!fixtureId) return false;
+
+    const nested = envelope.payload && typeof envelope.payload === 'object' && !Array.isArray(envelope.payload)
+        ? envelope.payload as Record<string, any>
+        : null;
+    const candidates = [entry, nested, envelope].filter(
+        (candidate): candidate is Record<string, any> => candidate != null,
+    );
+
+    let eventFixture: unknown;
+    for (const candidate of candidates) {
+        eventFixture = candidate.fixtureId ?? candidate.fixture_id;
+        if (eventFixture != null) break;
+    }
+    if (eventFixture == null || String(eventFixture) !== String(fixtureId)) return false;
+
+    for (const candidate of candidates) {
+        const eventChannel = candidate.channelId ?? candidate.channel_id;
+        if (eventChannel != null && String(eventChannel) !== channelId) return false;
+    }
+    return true;
+}
+
 // ── Hook ────────────────────────────────────────────────────────────
 
 export function useChannelChat({
@@ -83,8 +145,29 @@ export function useChannelChat({
     fixtureStatus = null,
     seed = null,
 }: Params) {
+    const queryClient = useQueryClient();
+    const cachedVotes = fixtureId
+        ? queryClient.getQueryData<{ homeVotes: number; awayVotes: number; drawVotes: number; userVoteSelection: string | null; voters: Voter[] }>(queryKeys.fixtureVotes(fixtureId, userId ?? 'anonymous'))
+        : undefined;
+    const messagesQueryKey = useMemo(() => queryKeys.chatMessages(fixtureId ?? 'overall', channelId ?? 'none', userId ?? undefined), [fixtureId, channelId, userId]);
+    const messageCacheIdentity = `${channelId ?? ''}:${fixtureId ?? ''}:${userId ?? 'public'}`;
+    const restoreMessages = (cached: ChatMessage[] | undefined): ChatMessage[] => capCachedMessages(
+        (cached ?? []).map((message, index) => {
+            const rawTimestamp = message.timestamp as unknown;
+            const timestamp = rawTimestamp instanceof Date ? rawTimestamp : new Date(String(rawTimestamp ?? ''));
+            return {
+                ...message,
+                timestamp: Number.isNaN(timestamp.getTime()) ? new Date(0) : timestamp,
+                seq: Number.isFinite(message.seq) ? message.seq : index + 1,
+            };
+        }),
+    );
+
     // ── Messages ────────────────────────────────────────────────
-    const [messages, setMessages] = useState<ChatMessage[]>([]);
+    const [messages, setMessages] = useState<ChatMessage[]>(() => restoreMessages(
+        queryClient.getQueryData<ChatMessage[]>(messagesQueryKey),
+    ));
+    const messagesIdentityRef = useRef(messageCacheIdentity);
     const [connected, setConnected] = useState(false);
     const [loadingHistory, setLoadingHistory] = useState(false);
     const [uploadingImage, setUploadingImage] = useState(false);
@@ -100,13 +183,44 @@ export function useChannelChat({
     const [isLive, setIsLive] = useState(seed?.isLive ?? false);
 
     // ── Live vote state ─────────────────────────────────────────
-    const [homeVotes, setHomeVotes] = useState(0);
-    const [awayVotes, setAwayVotes] = useState(0);
-    const [drawVotes, setDrawVotes] = useState(0);
+    const [homeVotes, setHomeVotes] = useState(cachedVotes?.homeVotes ?? 0);
+    const [awayVotes, setAwayVotes] = useState(cachedVotes?.awayVotes ?? 0);
+    const [drawVotes, setDrawVotes] = useState(cachedVotes?.drawVotes ?? 0);
     const [userVoteSelection, setUserVoteSelection] = useState<string | null>(
-        null,
+        cachedVotes?.userVoteSelection ?? null,
     );
-    const [voters, setVoters] = useState<Voter[]>([]);
+    const [voters, setVoters] = useState<Voter[]>(cachedVotes?.voters ?? []);
+
+    // Vote identity and voter names survive navigation, backgrounding and cold starts.
+    // Keep this snapshot separate from the periodically refreshed fixture payload.
+    const voteCacheIdentity = `${fixtureId ?? ""}:${userId ?? "anonymous"}`;
+    const persistedFixtureIdRef = useRef(voteCacheIdentity);
+    useEffect(() => {
+        if (persistedFixtureIdRef.current !== voteCacheIdentity) {
+            persistedFixtureIdRef.current = voteCacheIdentity;
+            return;
+        }
+        if (!fixtureId) return;
+        queryClient.setQueryData(queryKeys.fixtureVotes(fixtureId, userId ?? 'anonymous'), {
+            homeVotes,
+            awayVotes,
+            drawVotes,
+            userVoteSelection,
+            voters,
+        });
+    }, [queryClient, fixtureId, userId, voteCacheIdentity, homeVotes, awayVotes, drawVotes, userVoteSelection, voters]);
+
+    // Restore the cached vote snapshot whenever the selected fixture changes.
+    useEffect(() => {
+        const snapshot = fixtureId
+            ? queryClient.getQueryData<{ homeVotes: number; awayVotes: number; drawVotes: number; userVoteSelection: string | null; voters: Voter[] }>(queryKeys.fixtureVotes(fixtureId, userId ?? 'anonymous'))
+            : undefined;
+        setHomeVotes(snapshot?.homeVotes ?? 0);
+        setAwayVotes(snapshot?.awayVotes ?? 0);
+        setDrawVotes(snapshot?.drawVotes ?? 0);
+        setUserVoteSelection(snapshot?.userVoteSelection ?? null);
+        setVoters(snapshot?.voters ?? []);
+    }, [queryClient, fixtureId, userId]);
 
     // ── Internals ───────────────────────────────────────────────
     const seqRef = useRef(0);
@@ -161,6 +275,14 @@ export function useChannelChat({
         [authToken],
     );
 
+    // Persist a bounded snapshot and restore Date values after JSON hydration.
+    // Skip the render immediately after a fixture/channel switch so old messages
+    // cannot be written into the newly selected conversation's cache key.
+    useEffect(() => {
+        if (messagesIdentityRef.current !== messageCacheIdentity) return;
+        queryClient.setQueryData<ChatMessage[]>(messagesQueryKey, capCachedMessages(messages));
+    }, [queryClient, messagesQueryKey, messageCacheIdentity, messages]);
+
     // ── Seed match state when the fixture changes ───────────────
     useEffect(() => {
         if (!seed) return;
@@ -177,10 +299,12 @@ export function useChannelChat({
         if (!channelId) return;
         let cancelled = false;
 
-        setMessages([]);
-        seenIdsRef.current = new Set();
-        seqRef.current = 0;
-        setLoadingHistory(true);
+        const cached = restoreMessages(queryClient.getQueryData<ChatMessage[]>(messagesQueryKey));
+        messagesIdentityRef.current = messageCacheIdentity;
+        seenIdsRef.current = new Set(cached.map((message) => message.id));
+        seqRef.current = cached.reduce((max, message) => Math.max(max, message.seq), 0);
+        setMessages(cached);
+        setLoadingHistory(cached.length === 0);
 
         const url = fixtureId
             ? `${API_BASE_URL}/channels/${channelId}/messages?fixture_id=${fixtureId}&limit=100&_=${Date.now()}`
@@ -190,8 +314,26 @@ export function useChannelChat({
             .then((r) => (r.ok ? r.json() : { messages: [] }))
             .then((data) => {
                 if (cancelled) return;
-                const raw: any[] = data?.messages ?? [];
-                const parsed: ChatMessage[] = raw.map((item) => ({
+                const raw: any[] = Array.isArray(data?.messages) ? data.messages : [];
+                const scopedRaw = raw.filter((item) => {
+                    if (!item || typeof item !== 'object') return false;
+                    const itemFixture = item.fixtureId ?? item.fixture_id;
+                    const username = String(item.username ?? item.sender_name ?? item.user_name ?? '');
+                    const isCommentary = item.isCommentary === true
+                        || item.is_commentary === true
+                        || item.commentaryType != null
+                        || item.commentary_type != null
+                        || username.toLowerCase().includes('commentary');
+
+                    // Commentary is never part of a channel-wide group chat.
+                    if (!fixtureId) return !isCommentary;
+                    // Reject explicitly cross-fixture history and commentary
+                    // rows whose fixture cannot be proven from the API result.
+                    if (itemFixture != null && String(itemFixture) !== String(fixtureId)) return false;
+                    if (isCommentary && itemFixture == null) return false;
+                    return true;
+                });
+                const parsed: ChatMessage[] = scopedRaw.map((item) => ({
                     ...chatMessageFromJson(item),
                     seq: nextSeq(),
                 }));
@@ -214,7 +356,7 @@ export function useChannelChat({
         return () => {
             cancelled = true;
         };
-    }, [channelId, fixtureId, authHeaders]);
+    }, [channelId, fixtureId, authHeaders, queryClient, messagesQueryKey, messageCacheIdentity]);
 
     // ── Commentary bootstrap (REST) ─────────────────────────────
     useEffect(() => {
@@ -312,21 +454,81 @@ export function useChannelChat({
                     if (b.userId === userId) return 1;
                     return a.username.localeCompare(b.username);
                 });
-            setVoters(parsed);
+            // Some API responses lag immediately after a successful vote. Merge
+            // instead of replacing with an empty/stale list so the voter stack
+            // never flashes away while the backend catches up.
+            setVoters((previous) => {
+                const merged = new Map(previous.map((v) => [v.userId, v]));
+                for (const voter of parsed) merged.set(voter.userId, voter);
+                return [...merged.values()].sort((a, b) => {
+                    if (a.userId === userId) return -1;
+                    if (b.userId === userId) return 1;
+                    return a.username.localeCompare(b.username);
+                });
+            });
         } catch {
             /* silent */
         }
     }, [fixtureId, userId, authHeaders]);
 
+    const recordUserVote = useCallback((selection: string) => {
+        if (!fixtureId || !userId) return;
+        const normalized = toFrontendSelection(selection);
+        setUserVoteSelection(normalized);
+        setVoters((previous) => {
+            const existing = previous.find((v) => v.userId === userId);
+            const mine: Voter = {
+                userId,
+                username: username ?? existing?.username ?? 'You',
+                selection: normalized,
+                isComrade: existing?.isComrade ?? false,
+                votedAt: new Date(),
+            };
+            return [mine, ...previous.filter((v) => v.userId !== userId)];
+        });
+        queryClient.setQueryData<{
+            homeVotes: number; awayVotes: number; drawVotes: number;
+            userVoteSelection: string | null; voters: Voter[];
+        }>(['fixtureVotes', fixtureId, userId], (previous) => {
+            const existing = previous?.voters ?? [];
+            const mine: Voter = {
+                userId,
+                username: username ?? existing.find((v) => v.userId === userId)?.username ?? 'You',
+                selection: normalized,
+                isComrade: existing.find((v) => v.userId === userId)?.isComrade ?? false,
+                votedAt: new Date(),
+            };
+            return {
+                homeVotes: previous?.homeVotes ?? 0,
+                awayVotes: previous?.awayVotes ?? 0,
+                drawVotes: previous?.drawVotes ?? 0,
+                userVoteSelection: normalized,
+                voters: [mine, ...existing.filter((v) => v.userId !== userId)],
+            };
+        });
+    }, [fixtureId, userId, username, queryClient]);
+
     // Initial fetch (once per channel+fixture)
     useEffect(() => {
         if (!channelId || !fixtureId || !userId) return;
-        const key = `${channelId}:${fixtureId}`;
+        const key = `${channelId}:${fixtureId}:${userId}`;
+        // A confirmed local vote is persisted in the QueryClient cache. Do not
+        // refetch vote counts/voters on every Messaging screen mount; socket
+        // vote.update events and explicit user refreshes can reconcile it.
+        const cached = queryClient.getQueryData<{ userVoteSelection: string | null; voters: Voter[] }>(
+            queryKeys.fixtureVotes(fixtureId, userId),
+        );
+        if (cached?.userVoteSelection && cached.voters?.some((voter) => voter.userId === userId)) {
+            voteCountsFetchedRef.current = key;
+            return;
+        }
         if (voteCountsFetchedRef.current === key) return;
         voteCountsFetchedRef.current = key;
-        void fetchVoteCounts();
-        void fetchVoters();
-    }, [channelId, fixtureId, userId, fetchVoteCounts, fetchVoters]);
+        void (async () => {
+            await fetchVoteCounts();
+            await fetchVoters();
+        })();
+    }, [channelId, fixtureId, userId, queryClient, fetchVoteCounts, fetchVoters]);
 
     // ── Socket connect + subscriptions ──────────────────────────
     useEffect(() => {
@@ -352,6 +554,8 @@ export function useChannelChat({
 
         // chat.message
         const onChatMessage = (payload: Record<string, any>) => {
+            if (!belongsToConversation(payload, channelId, fixtureId)) return;
+
             const incomingTempId = payload.tempId as string | undefined;
 
             if (
@@ -377,30 +581,36 @@ export function useChannelChat({
 
         // commentary.new
         const onCommentaryNew = (payload: Record<string, any>) => {
-            const data = payload.payload ?? payload;
+            const data = payload.payload && typeof payload.payload === 'object'
+                ? payload.payload as Record<string, any>
+                : payload;
+            if (!commentaryBelongsToFixture(payload, data, channelId, fixtureId)) return;
+
             insertSorted(
                 chatMessageCommentary({
                     minute: data.minute ?? 0,
                     text: data.text ?? '',
                     type: data.type ?? 'update',
-                    createdAt: parseCommentaryTimestamp(data.createdAt),
+                    createdAt: parseCommentaryTimestamp(data.createdAt ?? data.created_at),
                     seq: nextSeq(),
                 }),
             );
         };
 
-        // commentary.bulk
+        // commentary.bulk — the envelope may carry fixture identity for all entries.
         const onCommentaryBulk = (payload: Record<string, any>) => {
-            const entries = payload.payload ?? payload;
+            if (!fixtureId) return;
+            const entries = payload.payload ?? payload.commentary ?? payload;
             if (!Array.isArray(entries)) return;
             for (const raw of entries) {
                 if (!raw || typeof raw !== 'object') continue;
+                if (!commentaryBelongsToFixture(payload, raw, channelId, fixtureId)) continue;
                 insertSorted(
                     chatMessageCommentary({
                         minute: raw.minute ?? 0,
                         text: raw.text ?? '',
                         type: raw.type ?? 'update',
-                        createdAt: parseCommentaryTimestamp(raw.createdAt),
+                        createdAt: parseCommentaryTimestamp(raw.createdAt ?? raw.created_at),
                         seq: nextSeq(),
                     }),
                 );
@@ -409,6 +619,8 @@ export function useChannelChat({
 
         // typing — service sends 'userId', not 'fromUserId'
         const onTyping = (payload: Record<string, any>) => {
+            if (!belongsToConversation(payload, channelId, fixtureId)) return;
+
             const fromUserId = (payload.userId ?? payload.fromUserId) as
                 | string
                 | undefined;
@@ -489,6 +701,21 @@ export function useChannelChat({
             }
         };
 
+        // Balance notifications are user-scoped. When the backend emits one,
+        // mirror it into the persisted AppCache so the action modal and other
+        // screens can reuse the latest known balance without polling.
+        const onBalanceUpdate = (payload: Record<string, any>) => {
+            const data = payload.payload && typeof payload.payload === 'object'
+                ? payload.payload as Record<string, any>
+                : payload;
+            const eventUserId = data.userId ?? data.user_id ?? data.id;
+            if (!userId || eventUserId == null || String(eventUserId) !== String(userId)) return;
+            const rawBalance = data.balance ?? data.newBalance ?? data.new_balance ?? data.user?.balance;
+            const balance = typeof rawBalance === 'number' ? rawBalance : Number(rawBalance);
+            if (rawBalance == null || !Number.isFinite(balance) || balance < 0) return;
+            queryClient.setQueryData(queryKeys.balance(userId), balance);
+        };
+
         // vote.update
         const onVoteUpdate = (payload: Record<string, any>) => {
             const id = payload.fixture_id?.toString();
@@ -507,13 +734,22 @@ export function useChannelChat({
         };
 
         // connected / room.joined — catch-up
-        const onConnectedOrJoined = () => {
+        const onConnectedOrJoined = (payload: Record<string, any> = {}) => {
+            // room.joined can acknowledge a different room on the shared socket.
+            const acknowledgedRoom = payload.room_id ?? payload.roomId;
+            const expectedRoom = fixtureId ? `${channelId}_${fixtureId}` : `${channelId}_overall`;
+            if (acknowledgedRoom != null && String(acknowledgedRoom) !== expectedRoom) return;
             if (fixtureId) {
                 webSocketService.send('get.commentary', { fixtureId });
                 webSocketService.send('get.latest.comment', { fixtureId, channelId });
                 webSocketService.requestCurrentMinute({ fixtureId, channelId });
             }
-            void fetchVoteCounts();
+            const cached = queryClient.getQueryData<{ userVoteSelection: string | null }>(
+                queryKeys.fixtureVotes(fixtureId ?? '', userId ?? 'anonymous'),
+            );
+            // Avoid a vote-count round trip every time the Messaging screen is
+            // opened when a confirmed selection is already in persisted cache.
+            if (!cached?.userVoteSelection) void fetchVoteCounts();
         };
 
         webSocketService.on('chat.message', onChatMessage);
@@ -525,6 +761,9 @@ export function useChannelChat({
         webSocketService.on('match.ended', onMatchEnded);
         webSocketService.on('minute.update', onMinuteUpdate);
         webSocketService.on('vote.update', onVoteUpdate);
+        webSocketService.on('balance.update', onBalanceUpdate);
+        webSocketService.on('balance.updated', onBalanceUpdate);
+        webSocketService.on('user.balance.updated', onBalanceUpdate);
         webSocketService.on('connected', onConnectedOrJoined);
         webSocketService.on('room.joined', onConnectedOrJoined);
 
@@ -539,6 +778,9 @@ export function useChannelChat({
             webSocketService.off('match.ended', onMatchEnded);
             webSocketService.off('minute.update', onMinuteUpdate);
             webSocketService.off('vote.update', onVoteUpdate);
+            webSocketService.off('balance.update', onBalanceUpdate);
+            webSocketService.off('balance.updated', onBalanceUpdate);
+            webSocketService.off('user.balance.updated', onBalanceUpdate);
             webSocketService.off('connected', onConnectedOrJoined);
             webSocketService.off('room.joined', onConnectedOrJoined);
         };
@@ -547,11 +789,13 @@ export function useChannelChat({
 
     // ── Leave room on unmount (additive) ────────────────────────
     useEffect(() => {
-        if (!channelId) return;
+        if (!channelId || !userId || !username) return;
+        const roomId = fixtureId ? `${channelId}_${fixtureId}` : `${channelId}_overall`;
+        webSocketService.acquireRoom(roomId);
         return () => {
-            webSocketService.leaveChannelFixtureRoom(channelId, fixtureId);
+            webSocketService.releaseRoom(roomId);
         };
-    }, [channelId, fixtureId]);
+    }, [channelId, fixtureId, userId, username]);
 
     // ── Clear typing timer on unmount ───────────────────────────
     useEffect(() => {
@@ -696,13 +940,23 @@ export function useChannelChat({
 
     // ── Outgoing typing indicator ───────────────────────────────
     const sendTyping = useCallback(() => {
-        if (!username) return;
-        webSocketService.send('typing', { isTyping: true, username });
+        if (!channelId || !username) return;
+        webSocketService.sendTyping({
+            channelId,
+            fixtureId: fixtureId ?? undefined,
+            isTyping: true,
+            username,
+        });
         if (typingStopRef.current) clearTimeout(typingStopRef.current);
         typingStopRef.current = setTimeout(() => {
-            webSocketService.send('typing', { isTyping: false, username });
+            webSocketService.sendTyping({
+                channelId,
+                fixtureId: fixtureId ?? undefined,
+                isTyping: false,
+                username,
+            });
         }, 2000);
-    }, [username]);
+    }, [channelId, fixtureId, username]);
 
     // ── markRead ────────────────────────────────────────────────
     const markRead = useCallback(async () => {
@@ -746,6 +1000,7 @@ export function useChannelChat({
         // imperative refetch
         refetchVoteCounts: fetchVoteCounts,
         refetchVoters: fetchVoters,
+        recordUserVote,
     };
 }
 

@@ -15,19 +15,39 @@
     ],
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.tech.Funzy"
+      "bundleIdentifier": "com.tech.Funzy",
+      "infoPlist": {
+        "UIBackgroundModes": [
+          "remote-notification"
+        ]
+      }
     },
     "android": {
       "package": "com.tech.Funzy",
+      "googleServicesFile": "./google-services.json",
+      "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
         "foregroundImage": "./assets/icons/app_icon.png",
         "backgroundColor": "#0B0F1A"
-      }
+      },
+      "permissions": [
+        "POST_NOTIFICATIONS"
+      ]
     },
     "extra": {
       "eas": {
         "projectId": "4f4e3792-3b0c-49d7-99ff-fffa3ea288d3"
       }
-    }
+    },
+    "plugins": [
+      "@react-native-firebase/app",
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-8671302794311438~5256663624"
+        }
+      ],
+      "expo-secure-store"
+    ]
   }
 }

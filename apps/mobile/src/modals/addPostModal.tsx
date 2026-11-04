@@ -29,6 +29,8 @@ import {
     ActivityIndicator,
     StyleSheet,
     Modal,
+    KeyboardAvoidingView,
+    Platform,
 } from 'react-native';
 import { launchImageLibrary, Asset } from 'react-native-image-picker';
 import {
@@ -95,6 +97,7 @@ export default function AddPostModal({
     const [video, setVideo] = useState<PickedMedia | null>(null);
     const [caption, setCaption] = useState('');
     const [posting, setPosting] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
 
     // Reset on every open, matching the Flutter modal's fresh-state
     // behaviour each time it's presented.
@@ -104,6 +107,7 @@ export default function AddPostModal({
         setVideo(null);
         setCaption('');
         setPosting(false);
+        setUploadProgress(0);
     }, [visible]);
 
     const hasCaption = caption.trim().length > 0;
@@ -182,6 +186,7 @@ export default function AddPostModal({
         }
 
         setPosting(true);
+        setUploadProgress(0);
         try {
             await createPost({
                 userId,
@@ -193,6 +198,7 @@ export default function AddPostModal({
                 video: video
                     ? { uri: video.uri, name: video.name, type: video.type }
                     : undefined,
+                onProgress: setUploadProgress,
             });
             toast.showSuccess(
                 hasVideo
@@ -256,6 +262,11 @@ export default function AddPostModal({
             statusBarTranslucent
         >
             <Pressable style={styles.backdrop} onPress={onClose}>
+                <KeyboardAvoidingView
+                    style={styles.keyboardAvoiding}
+                    behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                    keyboardVerticalOffset={0}
+                >
                 <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
                     <View style={styles.handleWrap}>
                         <View style={styles.handle} />
@@ -285,6 +296,8 @@ export default function AddPostModal({
                     <ScrollView
                         style={styles.body}
                         contentContainerStyle={styles.bodyContent}
+                        keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+                        automaticallyAdjustKeyboardInsets={Platform.OS === 'ios'}
                         keyboardShouldPersistTaps="handled"
                     >
                         {/* Caption */}
@@ -442,7 +455,23 @@ export default function AddPostModal({
                             </View>
                         )}
 
-                        {/* Actions */}
+
+                    </ScrollView>
+
+                    <View style={styles.footer}>
+                        {posting && (
+                            <View style={styles.uploadProgressWrap} accessibilityLiveRegion="polite">
+                                <View style={styles.uploadProgressLabels}>
+                                    <Text style={styles.uploadProgressText}>
+                                        {hasVideo ? 'Uploading video in background…' : hasImage ? 'Uploading image…' : 'Publishing post…'}
+                                    </Text>
+                                    <Text style={styles.uploadProgressText}>{uploadProgress}%</Text>
+                                </View>
+                                <View style={styles.uploadProgressTrack}>
+                                    <View style={[styles.uploadProgressFill, { width: `${uploadProgress}%` }]} />
+                                </View>
+                            </View>
+                        )}
                         <View style={styles.actionsRow}>
                             <Pressable
                                 onPress={clearAll}
@@ -454,51 +483,30 @@ export default function AddPostModal({
                                 ]}
                             >
                                 <RotateCcw size={16} color={colors.textSecondary} />
-                                <Text
-                                    style={[styles.clearBtnText, { color: colors.textSecondary }]}
-                                >
-                                    Clear
-                                </Text>
+                                <Text style={[styles.clearBtnText, { color: colors.textSecondary }]}>Clear</Text>
                             </Pressable>
-
                             <Pressable
                                 onPress={handleSubmit}
                                 disabled={!canPost}
                                 style={[
                                     styles.actionBtn,
                                     styles.postBtn,
-                                    !canPost && {
-                                        backgroundColor: colors.surface,
-                                        borderWidth: 1,
-                                        borderColor: colors.border,
-                                    },
+                                    !canPost && { backgroundColor: 'transparent', borderWidth: 0, borderColor: 'transparent' },
                                 ]}
                             >
                                 {posting ? (
-                                    <ActivityIndicator
-                                        size="small"
-                                        color={canPost ? '#000000' : colors.textSecondary}
-                                    />
+                                    <ActivityIndicator size="small" color={colors.textSecondary} />
                                 ) : (
                                     <>
-                                        <PostIcon
-                                            size={16}
-                                            color={canPost ? '#000000' : colors.textSecondary}
-                                        />
-                                        <Text
-                                            style={[
-                                                styles.postBtnText,
-                                                { color: canPost ? '#000000' : colors.textSecondary },
-                                            ]}
-                                        >
-                                            {postButtonLabel()}
-                                        </Text>
+                                        <PostIcon size={16} color={canPost ? '#000000' : colors.textSecondary} />
+                                        <Text style={[styles.postBtnText, { color: canPost ? '#000000' : colors.textSecondary }]}>{postButtonLabel()}</Text>
                                     </>
                                 )}
                             </Pressable>
                         </View>
-                    </ScrollView>
+                    </View>
                 </Pressable>
+                </KeyboardAvoidingView>
             </Pressable>
         </Modal>
     );
@@ -568,13 +576,15 @@ function MediaAction({
 
 function createStyles(colors: FanColors) {
     return StyleSheet.create({
-        backdrop: {
+        keyboardAvoiding: { flex: 1, justifyContent: 'flex-end' },
+    backdrop: {
             flex: 1,
             backgroundColor: 'rgba(0,0,0,0.5)',
             justifyContent: 'flex-end',
         },
         sheet: {
             maxHeight: '85%',
+            flexShrink: 1,
             backgroundColor: colors.surface,
             borderTopLeftRadius: 24,
             borderTopRightRadius: 24,
@@ -634,13 +644,13 @@ function createStyles(colors: FanColors) {
             borderRadius: 18,
             alignItems: 'center',
             justifyContent: 'center',
-            backgroundColor: colors.surfaceElevated,
-            borderWidth: 1,
-            borderColor: colors.border,
+            backgroundColor: 'transparent',
+            borderWidth: 0,
+            borderColor: 'transparent',
         },
 
         // Body
-        body: { flexGrow: 0 },
+        body: { flex: 1, minHeight: 0 },
         bodyContent: {
             paddingHorizontal: FAN_SPACING.lg,
             paddingBottom: FAN_SPACING.xl,
@@ -648,10 +658,10 @@ function createStyles(colors: FanColors) {
 
         // Caption
         captionWrap: {
-            backgroundColor: colors.surfaceElevated,
-            borderRadius: FAN_RADIUS.lg,
-            borderWidth: 1,
-            borderColor: colors.border,
+            backgroundColor: 'transparent',
+            borderRadius: 24,
+            borderWidth: 0,
+            borderColor: 'transparent',
             marginTop: FAN_SPACING.xs,
             marginBottom: FAN_SPACING.base,
         },
@@ -678,10 +688,10 @@ function createStyles(colors: FanColors) {
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'space-evenly',
-            backgroundColor: colors.surfaceElevated,
-            borderRadius: FAN_RADIUS.lg,
-            borderWidth: 1,
-            borderColor: colors.border,
+            backgroundColor: 'transparent',
+            borderRadius: 24,
+            borderWidth: 0,
+            borderColor: 'transparent',
             paddingVertical: FAN_SPACING.base,
             marginBottom: FAN_SPACING.base,
         },
@@ -740,7 +750,7 @@ function createStyles(colors: FanColors) {
             gap: 4,
             paddingHorizontal: 10,
             paddingVertical: 5,
-            borderRadius: 8,
+            borderRadius: 999,
         },
         mediaBadgeText: {
             color: '#FFFFFF',
@@ -754,7 +764,7 @@ function createStyles(colors: FanColors) {
             right: 12,
             paddingHorizontal: 8,
             paddingVertical: 4,
-            borderRadius: 6,
+            borderRadius: 999,
             backgroundColor: 'rgba(0,0,0,0.75)',
         },
         fileSizeText: {
@@ -786,14 +796,44 @@ function createStyles(colors: FanColors) {
             paddingHorizontal: 14,
             paddingVertical: 8,
             borderRadius: 999,
-            backgroundColor: colors.primaryMuted,
-            borderWidth: 1,
-            borderColor: colors.primary,
+            backgroundColor: 'transparent',
+            borderWidth: 0,
+            borderColor: 'transparent',
         },
         typeBadgeText: {
             color: colors.primary,
             fontSize: 13,
             fontWeight: '700',
+        },
+
+        // Pinned footer keeps submit controls visible while media previews scroll.
+        footer: {
+            flexShrink: 0,
+            paddingHorizontal: FAN_SPACING.lg,
+            paddingTop: FAN_SPACING.sm,
+            paddingBottom: FAN_SPACING.lg,
+            borderTopWidth: 1,
+            borderTopColor: colors.border,
+            backgroundColor: 'transparent',
+        },
+        uploadProgressWrap: { marginBottom: FAN_SPACING.sm },
+        uploadProgressLabels: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            marginBottom: FAN_SPACING.xs,
+        },
+        uploadProgressText: { color: colors.textSecondary, fontSize: 11 },
+        uploadProgressTrack: {
+            height: 6,
+            borderRadius: 999,
+            overflow: 'hidden',
+            backgroundColor: colors.surfaceElevated,
+        },
+        uploadProgressFill: {
+            height: '100%',
+            borderRadius: 999,
+            backgroundColor: colors.primary,
         },
 
         // Actions
@@ -813,9 +853,9 @@ function createStyles(colors: FanColors) {
         },
         clearBtn: {
             flex: 1,
-            backgroundColor: colors.surfaceElevated,
-            borderWidth: 1,
-            borderColor: colors.border,
+            backgroundColor: 'transparent',
+            borderWidth: 0,
+            borderColor: 'transparent',
         },
         clearBtnText: {
             fontSize: 14,
@@ -823,9 +863,10 @@ function createStyles(colors: FanColors) {
         },
         postBtn: {
             flex: 2,
-            backgroundColor: colors.primary,
+            backgroundColor: 'transparent',
         },
         postBtnText: {
+            color: colors.primary,
             fontSize: 14,
             fontWeight: '700',
             letterSpacing: 0.5,

@@ -63,6 +63,7 @@ import { useAuth } from '@/lib/auth/auth-context';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { useToast } from '@/lib/toast/toast-context';
 import { NotificationService } from '@/lib/api/notification-service';
+import AdCarousel from '@/components/AdCarousel';
 import { ComradeCard } from './comradeCard';
 import {
     type ComradeProfile,
@@ -430,7 +431,7 @@ export default function ComradeListModal({
                         </Text>
                         <Pressable
                             onPress={fetchComrades}
-                            style={[styles.retryBtn, { backgroundColor: colors.primary }]}
+                            style={styles.retryBtn}
                         >
                             <Text style={styles.retryBtnText}>Retry</Text>
                         </Pressable>
@@ -649,10 +650,7 @@ export default function ComradeListModal({
                         style={[
                             styles.pickerFooterBtn,
                             {
-                                backgroundColor:
-                                    selectedChannelIds.size === 0
-                                        ? colors.surface
-                                        : colors.primary,
+                                backgroundColor: 'transparent',
                             },
                         ]}
                     >
@@ -883,6 +881,7 @@ export default function ComradeListModal({
 
                     {/* Body */}
                     <View style={styles.body}>
+                        {screen === 'list' && <View style={{ paddingTop: 8 }}><AdCarousel /></View>}
                         {screen === 'list' && renderListScreen()}
                         {screen === 'picker' && renderPickerScreen()}
                         {screen === 'profile' && renderProfileScreen()}
@@ -1012,7 +1011,7 @@ function createStyles(colors: FanColors) {
             borderRadius: 14,
             alignItems: 'center',
             justifyContent: 'center',
-            backgroundColor: colors.surfaceSunken,
+            backgroundColor: 'transparent',
             marginRight: FAN_SPACING.sm,
         },
         headerIcon: {
@@ -1030,7 +1029,7 @@ function createStyles(colors: FanColors) {
             borderRadius: 16,
             alignItems: 'center',
             justifyContent: 'center',
-            backgroundColor: colors.surface,
+            backgroundColor: 'transparent',
         },
 
         body: { flex: 1 },
@@ -1044,8 +1043,8 @@ function createStyles(colors: FanColors) {
             flexDirection: 'row',
             alignItems: 'center',
             gap: FAN_SPACING.md,
-            borderRadius: FAN_RADIUS.lg,
-            borderWidth: 1,
+            borderRadius: 999,
+            borderWidth: 0,
             paddingHorizontal: FAN_SPACING.lg,
             paddingVertical: FAN_SPACING.md,
         },
@@ -1067,10 +1066,10 @@ function createStyles(colors: FanColors) {
         retryBtn: {
             paddingHorizontal: FAN_SPACING.xl,
             paddingVertical: FAN_SPACING.md,
-            borderRadius: 20,
+            borderRadius: 999,
             marginTop: FAN_SPACING.sm,
         },
-        retryBtnText: { color: '#FFFFFF', fontWeight: '600', fontSize: 12 },
+        retryBtnText: { color: colors.primary, fontWeight: '700', fontSize: 12 },
 
         // Picker screen
         pickerHeader: {
@@ -1134,7 +1133,8 @@ function createStyles(colors: FanColors) {
         },
         pickerFooterBtn: {
             height: 48,
-            borderRadius: FAN_RADIUS.lg,
+            borderRadius: 999,
+            backgroundColor: 'transparent',
             alignItems: 'center',
             justifyContent: 'center',
         },
@@ -1171,8 +1171,8 @@ function createStyles(colors: FanColors) {
             flexDirection: 'row',
             alignItems: 'center',
             padding: FAN_SPACING.base,
-            borderRadius: FAN_RADIUS.md,
-            borderWidth: 1,
+            borderRadius: 18,
+            borderWidth: 0,
         },
         profileInfoBannerText: { fontSize: 11, flex: 1 },
         profileFooter: {
@@ -1180,8 +1180,8 @@ function createStyles(colors: FanColors) {
         },
         profileCloseBtn: {
             height: 44,
-            borderRadius: FAN_RADIUS.lg,
-            borderWidth: 1,
+            borderRadius: 999,
+            borderWidth: 0,
             alignItems: 'center',
             justifyContent: 'center',
         },

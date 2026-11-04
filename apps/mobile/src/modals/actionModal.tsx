@@ -16,6 +16,8 @@
 //   - Team names appear once (match header); pills say Home / Away.
 //   - Sub-fixture titles/icons/settled results and the bet card restored.
 
+import { Avatar } from '@/components/ui/Avatar';
+import { TeamCrest } from '@/components/TeamCrest';
 import React, {
     useCallback,
     useEffect,
@@ -225,7 +227,7 @@ function Card({
         <View
             style={[
                 styles.card,
-                tone === 'sunken' && { backgroundColor: colors.inputSurface },
+                tone === 'sunken' && { backgroundColor: 'transparent' },
                 style,
             ]}
         >
@@ -247,11 +249,8 @@ function CTA({
     small?: boolean;
 }) {
     const isDisabled = disabled || loading;
-    const bg =
-        tone === 'primary' ? colors.primary :
-            tone === 'danger' ? colors.away :
-                'transparent';
-    const fg = tone === 'ghost' ? colors.textPrimary : colors.background;
+    const bg = 'transparent';
+    const fg = tone === 'danger' ? colors.away : colors.primary;
     return (
         <Pressable
             onPress={isDisabled ? undefined : onPress}
@@ -260,9 +259,9 @@ function CTA({
                 small ? styles.ctaSmall : styles.cta,
                 { backgroundColor: bg },
                 tone === 'ghost' && {
-                    borderWidth: StyleSheet.hairlineWidth,
+                    borderWidth: 0,
                     borderColor: colors.border,
-                    backgroundColor: colors.inputSurface,
+                    backgroundColor: 'transparent',
                 },
                 isDisabled && { opacity: 0.5 },
                 pressed && !isDisabled && { opacity: PRESSED_OPACITY },
@@ -298,7 +297,7 @@ function OutcomePill({
             style={({ pressed }) => [
                 styles.outcomeCard,
                 {
-                    backgroundColor: selected ? dimOf(accent, colors) : colors.surface,
+                    backgroundColor: 'transparent',
                     borderColor: selected ? accent : colors.border,
                     borderWidth: selected ? 1.2 : StyleSheet.hairlineWidth,
                 },
@@ -306,10 +305,10 @@ function OutcomePill({
             ]}
         >
             <Text
-                numberOfLines={1}
+                numberOfLines={2}
                 style={[
                     fanText('caption', colors, selected ? accent : colors.textPrimary),
-                    { fontWeight: '700' },
+                    { fontWeight: '700', textAlign: 'center', flexShrink: 1, flexWrap: 'wrap' },
                 ]}
             >
                 {label}
@@ -385,11 +384,11 @@ function Chip({
             onPress={onPress}
             style={({ pressed }) => [
                 styles.filterChip,
-                active && { backgroundColor: colors.primary, borderColor: colors.primary },
+                active && { backgroundColor: 'transparent', borderColor: colors.primary }
                 pressed && { opacity: PRESSED_OPACITY },
             ]}
         >
-            <Text style={fanText('tag', colors, active ? colors.background : colors.textSecondary)}>
+            <Text style={fanText('tag', colors, active ? colors.primary : colors.textSecondary)}>
                 {label}
             </Text>
         </Pressable>
@@ -434,13 +433,14 @@ function BalanceBar({
 }
 
 function PersonTile({
-    name, subtitle, accent, isMe, badge, badgeColor, amountLabel, trailing, progress,
+    name, subtitle, accent, isMe, userId, badge, badgeColor, amountLabel, trailing, progress,
     colors, styles,
 }: {
     name: string;
     subtitle: string;
     accent: string;
     isMe?: boolean;
+    userId?: string;
     badge?: string;
     badgeColor?: string;
     amountLabel?: string;
@@ -454,13 +454,11 @@ function PersonTile({
         <View
             style={[
                 styles.personTile,
-                isMe && { backgroundColor: colors.primaryDim, borderColor: colors.primary },
+                isMe && { backgroundColor: 'transparent', borderColor: colors.primary },
             ]}
         >
             <View style={styles.personRow}>
-                <View style={[styles.avatar, { backgroundColor: dimOf(accent, colors), borderColor: accent }]}>
-                    <Text style={[styles.avatarText, { color: accent }]}>{initial}</Text>
-                </View>
+                <Avatar colors={colors} size="lg" userId={userId} label={initial} borderColor={accent} backgroundColor={dimOf(accent, colors)} />
                 <View style={{ flex: 1, minWidth: 0 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: FAN_SPACING.xs }}>
                         <Text
@@ -523,7 +521,9 @@ function TabBar({
                     {
                         width: `${widthPct}%` as any,
                         left: `${active * widthPct}%` as any,
-                        backgroundColor: colors.primary,
+                        backgroundColor: 'transparent',
+                        shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 3,
+                        shadowOffset: { width: 0, height: 1 }, elevation: 1,
                     },
                 ]}
             />
@@ -537,7 +537,9 @@ function TabBar({
                     >
                         <Text
                             numberOfLines={1}
-                            style={fanText('caption', colors, on ? colors.background : colors.textSecondary)}
+                            adjustsFontSizeToFit
+                            minimumFontScale={0.72}
+                            style={[fanText('caption', colors, on ? colors.textPrimary : colors.textTertiary), { textAlign: 'center', flexShrink: 1 }]}
                         >
                             {label}
                         </Text>
@@ -641,7 +643,7 @@ function DialogShell({
 }) {
     return (
         <Pressable style={styles.dialogBackdrop} onPress={onCancel}>
-            <Pressable style={styles.dialogCard} onPress={() => { }}>
+            <Pressable style={styles.dialogCard} onPress={(event) => event.stopPropagation()}>
                 {children}
             </Pressable>
         </Pressable>
@@ -936,7 +938,7 @@ export function SwipeableVotePledgeModal(props: Props) {
     const {
         visible, fixture, userId, username, authToken, isLoggedIn,
         hasUserVoted, userVoteSelection, channelId,
-        showPledgesTab = true, showSubFixturesTab = true, showBetsTab = false,
+        showPledgesTab = true, showSubFixturesTab = true, showBetsTab = true,
         onClose, onVote, onPledge, onShowJoinGroups,
         fetchVoters, fetchPledges, fetchSubFixtures, fetchSubFixturePledges,
         fetchBets, fetchBalance, topUp, withdraw,
@@ -1466,7 +1468,7 @@ export function SwipeableVotePledgeModal(props: Props) {
         return (
             <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
                 <Pressable style={styles.backdrop} onPress={onClose}>
-                    <Pressable style={[styles.sheet, { height: screenH * 0.72 }]} onPress={() => { }}>
+                    <Pressable style={[styles.sheet, { width: '100%', height: screenH * 0.5, maxHeight: '50%' }]} onPress={(event) => event.stopPropagation()}>
                         <HandleBar colors={colors} styles={styles} />
                         <View style={styles.joinGroupBox}>
                             <View style={styles.joinGroupIconWrap}>
@@ -1502,8 +1504,8 @@ export function SwipeableVotePledgeModal(props: Props) {
             <KeyboardAvoidingView style={{ flex: 1 }} behavior={kavBehavior}>
                 <Pressable style={styles.backdrop} onPress={onClose}>
                     <Pressable
-                        style={[styles.sheet, { height: screenH * 0.82, maxHeight: '100%' }]}
-                        onPress={() => { }}
+                        style={[styles.sheet, { width: '100%', height: screenH * 0.5, maxHeight: '50%' }]}
+                        onPress={(event) => event.stopPropagation()}
                     >
                         <HandleBar colors={colors} styles={styles} />
 
@@ -1540,13 +1542,9 @@ export function SwipeableVotePledgeModal(props: Props) {
 
                         {/* Match header — the ONLY place both team names appear together */}
                         <View style={styles.matchHeader}>
-                            <View style={styles.matchHeaderSide}>
-                                <Text
-                                    style={[fanText('caption', colors, colors.primary), { fontWeight: '700' }]}
-                                    numberOfLines={1}
-                                >
-                                    {fixture.homeTeam}
-                                </Text>
+                            <View style={[styles.matchHeaderSide, { flexDirection: 'row', alignItems: 'center', gap: 6 }]}>
+                                <TeamCrest name={fixture.homeTeam} fixture={fixture as unknown as Record<string,unknown>} side="home" size={26}/>
+                                <Text style={[fanText('caption', colors, colors.primary), { fontWeight: '700', flexShrink: 1 }]} numberOfLines={1}>{fixture.homeTeam}</Text>
                             </View>
                             <View style={styles.matchHeaderCenter}>
                                 <Text style={fanText('tag', colors, colors.textTertiary)}>VS</Text>
@@ -1557,13 +1555,9 @@ export function SwipeableVotePledgeModal(props: Props) {
                                     </View>
                                 )}
                             </View>
-                            <View style={[styles.matchHeaderSide, { alignItems: 'flex-end' }]}>
-                                <Text
-                                    style={[fanText('caption', colors, colors.away), { fontWeight: '700' }]}
-                                    numberOfLines={1}
-                                >
-                                    {fixture.awayTeam}
-                                </Text>
+                            <View style={[styles.matchHeaderSide, { alignItems: 'flex-end', flexDirection: 'row', justifyContent: 'flex-end', gap: 6 }]}>
+                                <Text style={[fanText('caption', colors, colors.away), { fontWeight: '700', flexShrink: 1 }]} numberOfLines={1}>{fixture.awayTeam}</Text>
+                                <TeamCrest name={fixture.awayTeam} fixture={fixture as unknown as Record<string,unknown>} side="away" size={26}/>
                             </View>
                         </View>
 
@@ -1777,7 +1771,7 @@ export function SwipeableVotePledgeModal(props: Props) {
                 {/* Pick */}
                 <View style={{ flexDirection: 'row', gap: FAN_SPACING.sm }}>
                     <OutcomePill
-                        label="Home"
+                        label={fixture.homeTeam}
                         sublabel={`${voteStats.homeCount} picks`}
                         selected={isHomeSel(mine)}
                         locked={locked}
@@ -1787,7 +1781,7 @@ export function SwipeableVotePledgeModal(props: Props) {
                         styles={styles}
                     />
                     <OutcomePill
-                        label="Away"
+                        label={fixture.awayTeam}
                         sublabel={`${voteStats.awayCount} picks`}
                         selected={isAwaySel(mine)}
                         locked={locked}
@@ -1856,10 +1850,11 @@ export function SwipeableVotePledgeModal(props: Props) {
                                 colors={colors}
                                 styles={styles}
                                 name={isMe ? 'You' : v.userName}
+                                userId={v.userId}
                                 subtitle={v.isComrade && !isMe ? 'comrade' : 'voter'}
                                 accent={accent}
                                 isMe={isMe}
-                                badge={displayVote(v.selection).toUpperCase()}
+                                badge={`✓ VOTE · ${displayVote(v.selection).toUpperCase()}`}
                                 badgeColor={accent}
                                 progress={pct}
                             />
@@ -1961,6 +1956,7 @@ export function SwipeableVotePledgeModal(props: Props) {
                                 colors={colors}
                                 styles={styles}
                                 name={isMe ? 'You' : p.userName}
+                                userId={p.userId}
                                 subtitle={isMe ? 'your pledge' : 'pledged'}
                                 accent={accent}
                                 isMe={isMe}
@@ -2329,11 +2325,14 @@ function createStyles(colors: FanColorPalette) {
             justifyContent: 'flex-end',
         },
         sheet: {
-            backgroundColor: colors.background,
+            backgroundColor: 'transparent',
+            width: '100%',
             borderTopLeftRadius: FAN_RADIUS.xl,
             borderTopRightRadius: FAN_RADIUS.xl,
+            borderBottomLeftRadius: FAN_RADIUS.lg,
+            borderBottomRightRadius: FAN_RADIUS.lg,
             overflow: 'hidden',
-            borderWidth: StyleSheet.hairlineWidth,
+            borderWidth: 0,
             borderColor: colors.border,
             borderBottomWidth: 0,
         },
@@ -2356,9 +2355,9 @@ function createStyles(colors: FanColorPalette) {
             alignItems: 'center',
             gap: FAN_SPACING.sm,
             padding: FAN_SPACING.md,
-            borderRadius: FAN_RADIUS.md,
-            backgroundColor: colors.inputSurface,
-            borderWidth: 1,
+            borderRadius: FAN_RADIUS.pill,
+            backgroundColor: 'transparent',
+            borderWidth: 0,
         },
         bannerDot: { width: 8, height: 8, borderRadius: 4 },
 
@@ -2375,8 +2374,8 @@ function createStyles(colors: FanColorPalette) {
             width: 40,
             height: 40,
             borderRadius: 20,
-            backgroundColor: colors.inputSurface,
-            borderWidth: StyleSheet.hairlineWidth,
+            backgroundColor: 'transparent',
+            borderWidth: 0,
             borderColor: colors.border,
             alignItems: 'center',
             justifyContent: 'center',
@@ -2385,8 +2384,8 @@ function createStyles(colors: FanColorPalette) {
             width: 32,
             height: 32,
             borderRadius: 16,
-            backgroundColor: colors.inputSurface,
-            borderWidth: StyleSheet.hairlineWidth,
+            backgroundColor: 'transparent',
+            borderWidth: 0,
             borderColor: colors.border,
             alignItems: 'center',
             justifyContent: 'center',
@@ -2405,9 +2404,9 @@ function createStyles(colors: FanColorPalette) {
             marginBottom: FAN_SPACING.sm,
             paddingHorizontal: FAN_SPACING.md,
             paddingVertical: FAN_SPACING.sm,
-            borderRadius: FAN_RADIUS.md,
-            backgroundColor: colors.inputSurface,
-            borderWidth: StyleSheet.hairlineWidth,
+            borderRadius: FAN_RADIUS.pill,
+            backgroundColor: 'transparent',
+            borderWidth: 0,
             borderColor: colors.border,
             gap: FAN_SPACING.sm,
         },
@@ -2419,7 +2418,7 @@ function createStyles(colors: FanColorPalette) {
             backgroundColor: colors.awayDim,
             paddingHorizontal: FAN_SPACING.sm,
             paddingVertical: 2,
-            borderRadius: 6,
+            borderRadius: FAN_RADIUS.pill,
             gap: 4,
         },
         liveDot: { width: 5, height: 5, borderRadius: 2.5, backgroundColor: colors.away },
@@ -2432,28 +2431,32 @@ function createStyles(colors: FanColorPalette) {
             marginHorizontal: FAN_SPACING.lg,
             marginBottom: FAN_SPACING.sm,
             padding: 3,
-            borderRadius: FAN_RADIUS.md,
-            backgroundColor: colors.inputSurface,
-            borderWidth: StyleSheet.hairlineWidth,
+            borderRadius: FAN_RADIUS.pill,
+            backgroundColor: 'transparent',
+            borderWidth: 0,
             borderColor: colors.border,
         },
         tabIndicator: {
             position: 'absolute',
             top: 3,
             bottom: 3,
-            borderRadius: FAN_RADIUS.md - 3,
+            borderRadius: FAN_RADIUS.pill,
             opacity: 0.9,
         },
         tabButton: {
             flex: 1,
+            minWidth: 0,
             alignItems: 'center',
+            justifyContent: 'center',
+            paddingHorizontal: 2,
             paddingVertical: FAN_SPACING.sm,
+            minHeight: 34,
             zIndex: 1,
         },
 
         // Layout
         tabBody: {
-            paddingHorizontal: FAN_SPACING.lg,
+            paddingHorizontal: FAN_SPACING.md,
             paddingTop: FAN_SPACING.xs,
             gap: FAN_SPACING.sm,
         },
@@ -2474,8 +2477,8 @@ function createStyles(colors: FanColorPalette) {
         // Card primitive
         card: {
             borderRadius: FAN_RADIUS.lg,
-            backgroundColor: colors.surface,
-            borderWidth: StyleSheet.hairlineWidth,
+            backgroundColor: 'transparent',
+            borderWidth: 0,
             borderColor: colors.border,
             padding: FAN_SPACING.md,
             gap: FAN_SPACING.sm,
@@ -2489,7 +2492,7 @@ function createStyles(colors: FanColorPalette) {
             height: 6,
             borderRadius: 3,
             overflow: 'hidden',
-            backgroundColor: colors.background,
+            backgroundColor: 'transparent',
         },
         splitHome: { height: '100%' },
         splitAway: { height: '100%' },
@@ -2500,7 +2503,7 @@ function createStyles(colors: FanColorPalette) {
             paddingVertical: FAN_SPACING.sm + 2,
             paddingHorizontal: FAN_SPACING.sm,
             borderRadius: FAN_RADIUS.md,
-            backgroundColor: colors.surface,
+            backgroundColor: 'transparent',
             borderColor: colors.border,
             alignItems: 'center',
             justifyContent: 'center',
@@ -2529,16 +2532,16 @@ function createStyles(colors: FanColorPalette) {
             paddingHorizontal: FAN_SPACING.md,
             paddingVertical: 6,
             borderRadius: FAN_RADIUS.pill,
-            backgroundColor: colors.surface,
-            borderWidth: StyleSheet.hairlineWidth,
+            backgroundColor: 'transparent',
+            borderWidth: 0,
             borderColor: colors.border,
         },
 
         // Inputs & CTA
         input: {
-            borderRadius: FAN_RADIUS.md,
-            backgroundColor: colors.inputSurface,
-            borderWidth: StyleSheet.hairlineWidth,
+            borderRadius: FAN_RADIUS.pill,
+            backgroundColor: 'transparent',
+            borderWidth: 0,
             borderColor: colors.border,
             paddingHorizontal: FAN_SPACING.md,
             paddingVertical: Platform.OS === 'ios' ? 11 : 8,
@@ -2576,9 +2579,9 @@ function createStyles(colors: FanColorPalette) {
             gap: FAN_SPACING.sm,
             paddingHorizontal: FAN_SPACING.md,
             paddingVertical: FAN_SPACING.sm,
-            borderRadius: FAN_RADIUS.md,
-            backgroundColor: colors.inputSurface,
-            borderWidth: StyleSheet.hairlineWidth,
+            borderRadius: FAN_RADIUS.pill,
+            backgroundColor: 'transparent',
+            borderWidth: 0,
             borderColor: colors.border,
         },
 
@@ -2594,9 +2597,9 @@ function createStyles(colors: FanColorPalette) {
         personTile: {
             paddingHorizontal: FAN_SPACING.sm,
             paddingVertical: FAN_SPACING.sm,
-            borderRadius: FAN_RADIUS.md,
-            backgroundColor: colors.surface,
-            borderWidth: StyleSheet.hairlineWidth,
+            borderRadius: FAN_RADIUS.pill,
+            backgroundColor: 'transparent',
+            borderWidth: 0,
             borderColor: colors.border,
             marginBottom: FAN_SPACING.xs,
             gap: FAN_SPACING.sm,
@@ -2610,7 +2613,7 @@ function createStyles(colors: FanColorPalette) {
             width: 32,
             height: 32,
             borderRadius: 16,
-            borderWidth: StyleSheet.hairlineWidth,
+            borderWidth: 0,
             alignItems: 'center',
             justifyContent: 'center',
         },
@@ -2621,9 +2624,9 @@ function createStyles(colors: FanColorPalette) {
             letterSpacing: 0.4,
             paddingHorizontal: 6,
             paddingVertical: 2,
-            borderRadius: 6,
+            borderRadius: FAN_RADIUS.pill,
             overflow: 'hidden',
-            backgroundColor: colors.background,
+            backgroundColor: 'transparent',
         },
         progressTrack: {
             height: 3,
@@ -2651,7 +2654,7 @@ function createStyles(colors: FanColorPalette) {
             paddingHorizontal: FAN_SPACING.md,
             paddingVertical: FAN_SPACING.sm,
             borderRadius: FAN_RADIUS.pill,
-            borderWidth: StyleSheet.hairlineWidth,
+            borderWidth: 0,
         },
         liveDotLg: { width: 6, height: 6, borderRadius: 3 },
 
@@ -2667,8 +2670,8 @@ function createStyles(colors: FanColorPalette) {
             paddingHorizontal: FAN_SPACING.md,
             paddingVertical: 6,
             borderRadius: FAN_RADIUS.pill,
-            backgroundColor: colors.inputSurface,
-            borderWidth: StyleSheet.hairlineWidth,
+            backgroundColor: 'transparent',
+            borderWidth: 0,
             borderColor: colors.border,
         },
         spinnerWrap: {
@@ -2684,7 +2687,7 @@ function createStyles(colors: FanColorPalette) {
             paddingBottom: FAN_SPACING.lg,
             borderTopWidth: StyleSheet.hairlineWidth,
             borderTopColor: colors.border,
-            backgroundColor: colors.background,
+            backgroundColor: 'transparent',
         },
         shareBtn: {
             flexDirection: 'row',
@@ -2693,8 +2696,8 @@ function createStyles(colors: FanColorPalette) {
             gap: FAN_SPACING.sm,
             paddingVertical: FAN_SPACING.sm,
             borderRadius: FAN_RADIUS.pill,
-            backgroundColor: colors.inputSurface,
-            borderWidth: StyleSheet.hairlineWidth,
+            backgroundColor: 'transparent',
+            borderWidth: 0,
             borderColor: colors.border,
         },
         shareIcon: { fontSize: 14, color: colors.primary, fontWeight: '700' },
@@ -2717,9 +2720,9 @@ function createStyles(colors: FanColorPalette) {
         dialogCard: {
             width: '100%',
             maxWidth: 400,
-            backgroundColor: colors.inputSurface,
+            backgroundColor: 'transparent',
             borderRadius: FAN_RADIUS.lg,
-            borderWidth: StyleSheet.hairlineWidth,
+            borderWidth: 0,
             borderColor: colors.border,
             padding: FAN_SPACING.lg,
         },
@@ -2727,8 +2730,8 @@ function createStyles(colors: FanColorPalette) {
             paddingHorizontal: FAN_SPACING.md,
             paddingVertical: FAN_SPACING.sm,
             borderRadius: FAN_RADIUS.md,
-            backgroundColor: colors.background,
-            borderWidth: StyleSheet.hairlineWidth,
+            backgroundColor: 'transparent',
+            borderWidth: 0,
             borderColor: colors.border,
             marginBottom: FAN_SPACING.md,
             gap: 2,
@@ -2752,8 +2755,8 @@ function createStyles(colors: FanColorPalette) {
             width: 88,
             height: 88,
             borderRadius: 44,
-            backgroundColor: colors.inputSurface,
-            borderWidth: StyleSheet.hairlineWidth,
+            backgroundColor: 'transparent',
+            borderWidth: 0,
             borderColor: colors.border,
             alignItems: 'center',
             justifyContent: 'center',

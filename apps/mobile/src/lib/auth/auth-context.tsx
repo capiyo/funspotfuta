@@ -1,11 +1,10 @@
-// RN adaptation of funspot/lib/services/auth_service.dart — same storage
-// keys, same method names/behavior as the web port
-// (funspot-next/lib/auth/auth-context.tsx), but backed by AsyncStorage
-// (React Native's persistent key-value store) instead of localStorage,
-// which means every storage op is async here.
-
+import * as SecureStore from 'expo-secure-store';
+import { getFcmTokenIfPermitted } from '@/lib/firebase';
+import { NotificationService } from '@/lib/api/notification-service';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { mobileStorage, mobileStorageReady } from '@funspot/storage';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { clearMobileQueryCache } from '../../../QueryProvider';
 
 interface AuthState {
   isLoggedIn: boolean;
@@ -18,12 +17,7 @@ interface AuthState {
 }
 
 interface AuthContextValue extends AuthState {
-  login: (
-    userId: string,
-    username: string,
-    authToken: string,
-    opts?: { phone?: string; refreshToken?: string }
-  ) => Promise<boolean>;
+  login: (userId: string, username: string, authToken: string, opts?: { phone?: string; refreshToken?: string }) => Promise<boolean>;
   logout: () => Promise<void>;
   updateAuthToken: (newToken: string, newRefreshToken?: string) => Promise<boolean>;
   updateUserData: (userId: string, username: string, phone?: string) => Promise<void>;
@@ -32,181 +26,247 @@ interface AuthContextValue extends AuthState {
 }
 
 const initialState: AuthState = {
-  isLoggedIn: false,
-  isInitialized: false,
-  userId: null,
-  username: null,
-  phone: null,
-  authToken: null,
-  refreshToken: null,
+  isLoggedIn: false, isInitialized: false, userId: null, username: null,
+  phone: null, authToken: null, refreshToken: null,
 };
-
 const AuthContext = createContext<AuthContextValue | null>(null);
+const SECURE_KEYS = { token: 'auth.usertoken', user: 'auth.user', refresh: 'auth.refreshToken' } as const;
+const SECURE_STORE_OPTIONS = {
+  keychainAccessible: SecureStore.AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY,
+} as const;
+const LEGACY_KEYS = ['usertoken', 'user', 'isLoggedIn', 'userId', 'username', 'phone', 'refreshToken'] as const;
+const NOTIFICATION_STORAGE_KEYS = [
+  'unread_notifications',
+  'unread_notification_count',
+  'unread_comment_count',
+  'pending_join_requests',
+  'processed_notification_ids',
+] as const;
+
+async function clearNotificationStorage(): Promise<void> {
+  await mobileStorageReady;
+  for (const key of NOTIFICATION_STORAGE_KEYS) mobileStorage.removeItem(key);
+}
 
 const LOGOUT_KEYS = [
-  'usertoken',
-  'user',
-  'isLoggedIn',
-  'userId',
-  'username',
-  'phone',
-  'refreshToken',
-  'userBets',
-  'userProfile',
-  'availableGames',
-  'notifications',
-  'notificationCount',
-  'cachedPosts',
-  'cachedFixtures',
-  'lastCarouselFetch',
-  'forceNewUser',
-  'comrades',
-  'channels',
-  'votes',
-  'messages',
+  ...LEGACY_KEYS, 'userBets', 'userProfile', 'availableGames', 'notifications',
+  'notificationCount', 'cachedPosts', 'cachedFixtures', 'lastCarouselFetch',
+  'forceNewUser', 'comrades', 'channels', 'votes', 'messages',
 ];
+
+type StoredUser = { id?: unknown; userId?: unknown; _id?: unknown; username?: unknown; name?: unknown; phone?: unknown };
+
+function parseSession(token: string | null, rawUser: string | null, refreshToken: string | null): AuthState {
+  if (!token || !rawUser) return { ...initialState, isInitialized: true };
+  try {
+    const user: unknown = JSON.parse(rawUser);
+    if (!user || typeof user !== 'object') return { ...initialState, isInitialized: true };
+    const value = user as StoredUser;
+    const rawId = value.id ?? value.userId ?? value._id;
+    if (typeof rawId !== 'string' && typeof rawId !== 'number') return { ...initialState, isInitialized: true };
+    return {
+      isLoggedIn: true, isInitialized: true, userId: String(rawId),
+      username: typeof value.username === 'string' ? value.username : typeof value.name === 'string' ? value.name : '',
+      phone: value.phone == null ? null : String(value.phone), authToken: token, refreshToken,
+    };
+  } catch {
+    return { ...initialState, isInitialized: true };
+  }
+}
+
+async function clearSecureSession(): Promise<void> {
+  await Promise.all(Object.values(SECURE_KEYS).map((key) => SecureStore.deleteItemAsync(key)));
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AuthState>(initialState);
 
   useEffect(() => {
-    (async () => {
+    let cancelled = false;
+    void (async () => {
       try {
-        const [authToken, userString, phone, refreshToken] = await Promise.all([
-          AsyncStorage.getItem('usertoken'),
-          AsyncStorage.getItem('user'),
-          AsyncStorage.getItem('phone'),
-          AsyncStorage.getItem('refreshToken'),
+        // Wait until the storage layer has migrated any legacy MMKV session
+        // into Keychain/Keystore; otherwise both reads could race at startup.
+        await mobileStorageReady;
+        let [token, user, refresh] = await Promise.all([
+          SecureStore.getItemAsync(SECURE_KEYS.token),
+          SecureStore.getItemAsync(SECURE_KEYS.user),
+          SecureStore.getItemAsync(SECURE_KEYS.refresh),
         ]);
 
-        if (authToken && userString) {
-          try {
-            const userData = JSON.parse(userString);
-            const userId = userData.id ?? userData.userId ?? userData._id ?? null;
-            const username = userData.username ?? userData.name ?? '';
-
-            if (!userId) {
-              setState({ ...initialState, isInitialized: true });
-            } else {
-              setState({
-                isLoggedIn: true,
-                isInitialized: true,
-                userId,
-                username,
-                phone: phone ?? userData.phone?.toString() ?? '',
-                authToken,
-                refreshToken,
-              });
-            }
-          } catch {
-            setState({ ...initialState, isInitialized: true });
-          }
-        } else {
-          setState({ ...initialState, isInitialized: true });
+        // One-time migration from the old plaintext stores. Never combine
+        // partial secure records with data from a different login attempt.
+        if (Boolean(token) !== Boolean(user) || (!token && !user && refresh)) {
+          await clearSecureSession();
+          token = null;
+          user = null;
+          refresh = null;
         }
-      } catch {
-        setState({ ...initialState, isInitialized: true });
+        if (!token && !user) {
+          const [legacyToken, legacyUser, legacyRefresh, legacyPhone] = await Promise.all([
+            AsyncStorage.getItem('usertoken'),
+            AsyncStorage.getItem('user'),
+            AsyncStorage.getItem('refreshToken'),
+            AsyncStorage.getItem('phone'),
+          ]);
+          if (legacyToken && legacyUser) {
+            let normalizedUser = legacyUser;
+            try {
+              const parsed: unknown = JSON.parse(legacyUser);
+              if (parsed && typeof parsed === 'object') {
+                const record = parsed as Record<string, unknown>;
+                normalizedUser = JSON.stringify({
+                  ...record,
+                  ...(legacyPhone ? { phone: legacyPhone } : {}),
+                });
+              }
+            } catch {
+              normalizedUser = legacyUser;
+            }
+            await SecureStore.setItemAsync(SECURE_KEYS.token, legacyToken, SECURE_STORE_OPTIONS);
+            await SecureStore.setItemAsync(SECURE_KEYS.user, normalizedUser, SECURE_STORE_OPTIONS);
+            if (legacyRefresh) await SecureStore.setItemAsync(SECURE_KEYS.refresh, legacyRefresh, SECURE_STORE_OPTIONS);
+            token = legacyToken;
+            user = normalizedUser;
+            refresh = legacyRefresh;
+            await AsyncStorage.multiRemove(LOGOUT_KEYS);
+          }
+        }
+
+        if (token && user) await AsyncStorage.multiRemove(LOGOUT_KEYS);
+        if (!cancelled) {
+          const restored = parseSession(token, user, refresh);
+          NotificationService.setActiveUser(restored.userId);
+          setState(restored);
+        }
+      } catch (error) {
+        if (__DEV__) console.warn('[auth] secure session restore failed', error);
+        if (!cancelled) setState({ ...initialState, isInitialized: true });
       }
     })();
+    return () => { cancelled = true; };
   }, []);
 
-  const login = useCallback(
-    async (
-      userId: string,
-      username: string,
-      authToken: string,
-      opts?: { phone?: string; refreshToken?: string }
-    ): Promise<boolean> => {
-      try {
-        const userData = { id: userId, username, phone: opts?.phone ?? '' };
-        await Promise.all([
-          AsyncStorage.setItem('usertoken', authToken),
-          AsyncStorage.setItem('user', JSON.stringify(userData)),
-          AsyncStorage.setItem('isLoggedIn', 'true'),
-          opts?.phone ? AsyncStorage.setItem('phone', opts.phone) : Promise.resolve(),
-          opts?.refreshToken ? AsyncStorage.setItem('refreshToken', opts.refreshToken) : Promise.resolve(),
-        ]);
-
-        setState({
-          isLoggedIn: true,
-          isInitialized: true,
-          userId,
-          username,
-          phone: opts?.phone ?? null,
-          authToken,
-          refreshToken: opts?.refreshToken ?? null,
-        });
-        return true;
-      } catch {
+  const login = useCallback(async (
+    userId: string, username: string, authToken: string,
+    opts?: { phone?: string; refreshToken?: string },
+  ): Promise<boolean> => {
+    NotificationService.setActiveUser(userId);
+    try {
+      const user = JSON.stringify({ id: userId, username, phone: opts?.phone ?? '' });
+      await SecureStore.setItemAsync(SECURE_KEYS.token, authToken, SECURE_STORE_OPTIONS);
+      await SecureStore.setItemAsync(SECURE_KEYS.user, user, SECURE_STORE_OPTIONS);
+      if (opts?.refreshToken) await SecureStore.setItemAsync(SECURE_KEYS.refresh, opts.refreshToken, SECURE_STORE_OPTIONS);
+      else await SecureStore.deleteItemAsync(SECURE_KEYS.refresh);
+      if (state.userId !== userId) {
         setState({ ...initialState, isInitialized: true });
-        return false;
+        await Promise.all([clearMobileQueryCache(), clearNotificationStorage()]);
       }
-    },
-    []
-  );
+      await AsyncStorage.multiRemove(LOGOUT_KEYS);
+      setState({
+        isLoggedIn: true, isInitialized: true, userId, username,
+        phone: opts?.phone ?? null, authToken, refreshToken: opts?.refreshToken ?? null,
+      });
+      return true;
+    } catch (error) {
+      if (__DEV__) console.warn('[auth] secure session write failed', error);
+      await clearSecureSession().catch(() => undefined);
+      NotificationService.setActiveUser(null);
+      setState({ ...initialState, isInitialized: true });
+      return false;
+    }
+  }, [state.userId]);
 
   const logout = useCallback(async () => {
+    NotificationService.setActiveUser(null);
+    // Stop foreground listeners and token refresh registration immediately;
+    // network cleanup must not keep the authenticated runtime alive.
+    setState({ ...initialState, isInitialized: true });
     try {
-      await AsyncStorage.multiRemove(LOGOUT_KEYS);
-    } finally {
-      setState({ ...initialState, isInitialized: true });
-    }
-  }, []);
-
-  const updateAuthToken = useCallback(
-    async (newToken: string, newRefreshToken?: string): Promise<boolean> => {
-      if (!state.isLoggedIn) return false;
-      try {
-        await AsyncStorage.setItem('usertoken', newToken);
-        if (newRefreshToken) await AsyncStorage.setItem('refreshToken', newRefreshToken);
-        setState((s) => ({ ...s, authToken: newToken, refreshToken: newRefreshToken ?? s.refreshToken }));
-        return true;
-      } catch {
-        return false;
+      if (state.userId) {
+        const fcmToken = await getFcmTokenIfPermitted();
+        if (fcmToken) {
+          await NotificationService.unregisterToken({
+            userId: state.userId,
+            fcmToken,
+            authToken: state.authToken ?? undefined,
+          });
+        }
       }
-    },
-    [state.isLoggedIn]
-  );
+    } catch (error) {
+      if (__DEV__) console.warn('[notifications] Logout token cleanup skipped', error);
+    }
+    const results = await Promise.allSettled([
+      clearMobileQueryCache(),
+      clearSecureSession(),
+      AsyncStorage.multiRemove(LOGOUT_KEYS),
+      clearNotificationStorage(),
+    ]);
+    const failed = results.filter((result) => result.status === 'rejected');
+    if (failed.length && __DEV__) console.warn('[auth] one or more logout cleanup operations failed', failed);
+    setState({ ...initialState, isInitialized: true });
+  }, [state.authToken, state.userId]);
+
+  const updateAuthToken = useCallback(async (newToken: string, newRefreshToken?: string): Promise<boolean> => {
+    if (!state.isLoggedIn) return false;
+    try {
+      await SecureStore.setItemAsync(SECURE_KEYS.token, newToken, SECURE_STORE_OPTIONS);
+      if (newRefreshToken) await SecureStore.setItemAsync(SECURE_KEYS.refresh, newRefreshToken, SECURE_STORE_OPTIONS);
+      setState((current) => ({ ...current, authToken: newToken, refreshToken: newRefreshToken ?? current.refreshToken }));
+      return true;
+    } catch {
+      return false;
+    }
+  }, [state.isLoggedIn]);
 
   const updateUserData = useCallback(async (userId: string, username: string, phone?: string) => {
     try {
-      const userString = await AsyncStorage.getItem('user');
-      if (userString) {
-        const userData = JSON.parse(userString);
-        userData.username = username;
-        if (phone) userData.phone = phone;
-        await AsyncStorage.setItem('user', JSON.stringify(userData));
+      if (state.userId !== userId) {
+        NotificationService.setActiveUser(null);
+        await Promise.all([clearMobileQueryCache(), clearNotificationStorage()]);
       }
-      if (phone) await AsyncStorage.setItem('phone', phone);
-      setState((s) => ({ ...s, userId, username, phone: phone ?? s.phone }));
-    } catch {
-      /* matches Dart: swallow and log */
+      const raw = await SecureStore.getItemAsync(SECURE_KEYS.user);
+      if (raw) {
+        const parsed: unknown = JSON.parse(raw);
+        if (!parsed || typeof parsed !== 'object') throw new Error('Invalid stored user');
+        const next = { ...(parsed as Record<string, unknown>), id: userId, username, ...(phone ? { phone } : {}) };
+        await SecureStore.setItemAsync(SECURE_KEYS.user, JSON.stringify(next), SECURE_STORE_OPTIONS);
+      }
+      NotificationService.setActiveUser(userId);
+      setState((current) => ({ ...current, userId, username, phone: phone ?? current.phone }));
+    } catch (error) {
+      if (__DEV__) console.warn('[auth] secure user update failed', error);
     }
-  }, []);
+  }, [state.userId]);
 
   const hasValidSession = useCallback(
     () => Boolean(state.isLoggedIn && state.authToken && state.userId),
-    [state.isLoggedIn, state.authToken, state.userId]
+    [state.isLoggedIn, state.authToken, state.userId],
   );
 
   const clearAllAppData = useCallback(async () => {
-    try {
-      await AsyncStorage.clear();
-    } finally {
-      setState({ ...initialState, isInitialized: true });
-    }
+    NotificationService.setActiveUser(null);
+    setState({ ...initialState, isInitialized: true });
+    const results = await Promise.allSettled([
+      clearMobileQueryCache(),
+      clearSecureSession(),
+      AsyncStorage.clear(),
+      clearNotificationStorage(),
+    ]);
+    const failed = results.filter((result) => result.status === 'rejected');
+    if (failed.length && __DEV__) console.warn('[auth] one or more app-data cleanup operations failed', failed);
+    setState({ ...initialState, isInitialized: true });
   }, []);
 
   const value = useMemo<AuthContextValue>(
     () => ({ ...state, login, logout, updateAuthToken, updateUserData, hasValidSession, clearAllAppData }),
-    [state, login, logout, updateAuthToken, updateUserData, hasValidSession, clearAllAppData]
+    [state, login, logout, updateAuthToken, updateUserData, hasValidSession, clearAllAppData],
   );
-
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth(): AuthContextValue {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used within an AuthProvider');
-  return ctx;
+  const context = useContext(AuthContext);
+  if (!context) throw new Error('useAuth must be used within AuthProvider');
+  return context;
 }

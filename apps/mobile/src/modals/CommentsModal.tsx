@@ -3,10 +3,8 @@
 // RN port of funspot's PostComments widget.
 //
 // Deviations from the Flutter source, all deliberate:
-//   1. No AppCache. The Flutter version caches comments to a RAM+disk store
-//      with a 30-second freshness window and falls back to cache on network
-//      failure. This port reproduces that with a module-level Map<postId,
-//      {comments, lastLoad}> — same semantics, no new dependency.
+//   1. Comments use the shared persistent React Query AppCache, with the
+//      Flutter-compatible 30-second freshness window and stale-cache fallback.
 //   2. No NotificationService.sendNotification. The Flutter version fires
 //      two pushes (reply → parent author, comment → post owner). The send
 //      function isn't exported by @funspot/core yet, so the calls are
@@ -25,6 +23,7 @@
 
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { NotificationService } from '@/lib/api/notification-service';
 import {
     View,
@@ -45,15 +44,15 @@ import {
     Send,
     AlertCircle,
 } from 'lucide-react-native';
-import { FAN_SPACING, FAN_RADIUS } from '@funspot/core';
+import { FAN_SPACING, FAN_RADIUS, queryKeys } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { useToast } from '@/lib/toast/toast-context';
+import { Avatar } from '@/components/ui/Avatar';
 
 type FanColors = ReturnType<typeof useFanColors>;
 
 const API_BASE = 'https://clash-api-m5mr.onrender.com/api';
-const CACHE_FRESH_MS = 30_000;
 
 // ═══════════════════════════════════════════════════════════════
 //  COMMENT SHAPE  (matches _parseCommentFromJson)
@@ -113,31 +112,6 @@ function parseCommentFromJson(json: any): CommentData {
 
 function isReply(c: CommentData): boolean {
     return !!c.parent_comment_id && c.parent_comment_id.length > 0;
-}
-
-// ═══════════════════════════════════════════════════════════════
-//  MODULE-LEVEL CACHE  (mirrors AppCache.getCachedComments et al)
-// ═══════════════════════════════════════════════════════════════
-
-interface CacheEntry {
-    comments: CommentData[];
-    lastLoad: number;
-}
-
-const commentCache = new Map<string, CacheEntry>();
-
-function getCached(postId: string): CacheEntry | null {
-    return commentCache.get(postId) ?? null;
-}
-
-function setCache(postId: string, comments: CommentData[]): void {
-    commentCache.set(postId, { comments, lastLoad: Date.now() });
-}
-
-function patchCache(postId: string, updater: (prev: CommentData[]) => CommentData[]) {
-    const existing = commentCache.get(postId);
-    const next = updater(existing?.comments ?? []);
-    commentCache.set(postId, { comments: next, lastLoad: Date.now() });
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -242,6 +216,8 @@ export default function PostCommentsModal({
     const styles = createStyles(colors);
     const { userId, username, authToken } = useAuth();
     const toast = useToast();
+    const queryClient = useQueryClient();
+    const loadRequestId = useRef(0);
 
     const [comments, setComments] = useState<CommentData[]>([]);
     const [loading, setLoading] = useState(false);
@@ -262,15 +238,17 @@ export default function PostCommentsModal({
     const loadComments = useCallback(async () => {
         if (!postId) return;
 
+        const requestId = ++loadRequestId.current;
         setLoading(true);
         setError('');
 
         // Cache-first: show cached immediately if present
-        const cached = getCached(postId);
-        if (cached && cached.comments.length > 0) {
-            setComments(cached.comments);
-            // Fresh enough — skip the network call entirely, matching Flutter
-            if (Date.now() - cached.lastLoad < CACHE_FRESH_MS) {
+        const commentsKey = queryKeys.postComments(postId);
+        const cachedComments = queryClient.getQueryData<CommentData[]>(commentsKey);
+        const cachedAt = queryClient.getQueryState(commentsKey)?.dataUpdatedAt ?? 0;
+        setComments(cachedComments ?? []);
+        if (cachedComments) {
+            if (Date.now() - cachedAt < 30_000) {
                 setLoading(false);
                 return;
             }
@@ -281,32 +259,32 @@ export default function PostCommentsModal({
                 headers,
             });
 
-            if (res.status === 200) {
+            if (res.status === 200 && requestId === loadRequestId.current) {
                 const body = await res.json();
                 const raw = body?.comments;
                 const list: CommentData[] = Array.isArray(raw)
                     ? raw.map((c: any) => parseCommentFromJson(c))
                     : [];
-                setCache(postId, list);
+                queryClient.setQueryData(commentsKey, list);
                 setComments(list);
             } else {
                 // Match Flutter: keep cached on failure, only surface error if empty
-                if (comments.length === 0) {
+                if (requestId === loadRequestId.current && (cachedComments?.length ?? comments.length) === 0) {
                     setError('Failed to load comments');
                 }
             }
         } catch (e: any) {
-            if (comments.length === 0) {
+            if (requestId === loadRequestId.current && (cachedComments?.length ?? comments.length) === 0) {
                 setError(e?.message ?? 'Failed to load comments');
             }
         } finally {
-            setLoading(false);
+            if (requestId === loadRequestId.current) setLoading(false);
         }
-    }, [postId, authToken]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [postId, authToken, queryClient]);
 
     useEffect(() => {
-        if (!visible) return;
-        void loadComments();
+        if (visible) void loadComments();
+        return () => { loadRequestId.current += 1; };
     }, [visible, loadComments]);
 
     // ── Push notifications (mirrors _sendPushNotification) ────────
@@ -428,29 +406,25 @@ export default function PostCommentsModal({
                     : data?.comment ?? data;
             const newComment = parseCommentFromJson(raw);
 
-            await sendPushNotification(newComment, parentCommentId);
-
-            setComments((prev) => {
-                let next: CommentData[];
+            const commentsKey = queryKeys.postComments(postId);
+            const next = queryClient.setQueryData<CommentData[]>(commentsKey, (previous = []) => {
                 if (parentCommentId) {
-                    const idx = prev.findIndex((c) => c.id === parentCommentId);
+                    const idx = previous.findIndex((comment) => comment.id === parentCommentId);
                     if (idx !== -1) {
-                        next = prev.slice();
-                        const parent = next[idx];
-                        next[idx] = {
+                        const updated = previous.slice();
+                        const parent = updated[idx];
+                        updated[idx] = {
                             ...parent,
                             replies: [newComment, ...(parent.replies ?? [])],
                             reply_count: (parent.reply_count ?? 0) + 1,
                         };
-                    } else {
-                        next = [newComment, ...prev];
+                        return updated;
                     }
-                } else {
-                    next = [newComment, ...prev];
                 }
-                setCache(postId, next);
-                return next;
-            });
+                return [newComment, ...previous];
+            }) ?? [];
+            setComments(next);
+            void sendPushNotification(newComment, parentCommentId);
 
             setDraft('');
             setReplyingTo(null);
@@ -479,7 +453,7 @@ export default function PostCommentsModal({
             <View style={styles.backdrop}>
                 <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
                 <KeyboardAvoidingView
-                    behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
                     style={styles.kavWrap}
                 >
                     <View style={styles.sheet}>
@@ -586,7 +560,7 @@ export default function PostCommentsModal({
                                 <View
                                     style={[
                                         styles.replyIndicator,
-                                        { backgroundColor: colors.primaryDim },
+                                        { backgroundColor: 'transparent' },
                                     ]}
                                 >
                                     <Reply size={14} color={colors.primary} />
@@ -616,7 +590,7 @@ export default function PostCommentsModal({
                                         hitSlop={6}
                                         style={[
                                             styles.replyClose,
-                                            { backgroundColor: colors.surface },
+                                            { backgroundColor: 'transparent' },
                                         ]}
                                     >
                                         <X size={12} color={colors.textTertiary} />
@@ -625,20 +599,13 @@ export default function PostCommentsModal({
                             )}
 
                             <View style={styles.inputRow}>
-                                <View
-                                    style={[
-                                        styles.inputAvatar,
-                                        { backgroundColor: colors.primary },
-                                    ]}
-                                >
-                                    <Text style={styles.inputAvatarText}>
-                                        {initialsOf(username ?? 'U')}
-                                    </Text>
+                                <View style={styles.inputAvatarWrap}>
+                                    <Avatar colors={colors} size="lg" userId={userId ?? undefined} label={initialsOf(username ?? 'U')} />
                                 </View>
                                 <View
                                     style={[
                                         styles.inputWrap,
-                                        { backgroundColor: colors.surfaceSunken },
+                                        { backgroundColor: 'transparent' },
                                     ]}
                                 >
                                     <TextInput
@@ -733,19 +700,7 @@ function CommentBubble({
             >
                 {!isMe && (
                     <Pressable onLongPress={onReply} style={styles.avatarWrap}>
-                        <View
-                            style={[
-                                styles.bubbleAvatar,
-                                {
-                                    backgroundColor: colors.primaryDim,
-                                    borderColor: colors.primaryMuted,
-                                },
-                            ]}
-                        >
-                            <Text style={[styles.bubbleAvatarText, { color: colors.primary }]}>
-                                {initialsOf(comment.user_name)}
-                            </Text>
-                        </View>
+                        <Avatar colors={colors} size="lg" userId={comment.user_id} label={initialsOf(comment.user_name)} />
                     </Pressable>
                 )}
 
@@ -769,11 +724,11 @@ function CommentBubble({
                             styles.bubble,
                             isMe
                                 ? {
-                                    backgroundColor: colors.primaryDim,
+                                    backgroundColor: 'transparent',
                                     borderColor: colors.primaryMuted,
                                 }
                                 : {
-                                    backgroundColor: colors.surfaceSunken,
+                                    backgroundColor: 'transparent',
                                     borderColor: colors.border,
                                 },
                             isMe
@@ -799,21 +754,7 @@ function CommentBubble({
 
                 {isMe && (
                     <Pressable onLongPress={onReply} style={styles.avatarWrap}>
-                        <View
-                            style={[
-                                styles.bubbleAvatar,
-                                {
-                                    backgroundColor: colors.primary,
-                                    borderColor: colors.primary,
-                                },
-                            ]}
-                        >
-                            <Text
-                                style={[styles.bubbleAvatarText, { color: colors.textInverse }]}
-                            >
-                                {initialsOf(comment.user_name)}
-                            </Text>
-                        </View>
+                        <Avatar colors={colors} size="lg" userId={comment.user_id} label={initialsOf(comment.user_name)} />
                     </Pressable>
                 )}
             </View>
@@ -838,11 +779,11 @@ function createStyles(colors: FanColors) {
         },
         sheet: {
             height: '88%',
-            backgroundColor: colors.surface,
+            backgroundColor: 'transparent',
             borderTopLeftRadius: 20,
             borderTopRightRadius: 20,
-            borderWidth: 1,
-            borderColor: colors.border,
+            borderWidth: 0,
+            borderColor: 'transparent',
             overflow: 'hidden',
         },
 
@@ -868,10 +809,10 @@ function createStyles(colors: FanColors) {
         headerIcon: {
             width: 36,
             height: 36,
-            borderRadius: FAN_RADIUS.lg,
+            borderRadius: 18,
             alignItems: 'center',
             justifyContent: 'center',
-            backgroundColor: colors.primaryDim,
+            backgroundColor: 'transparent',
         },
         headerTitle: { fontSize: 15, fontWeight: '600' },
         headerSub: { fontSize: 11, marginTop: 1 },
@@ -881,9 +822,9 @@ function createStyles(colors: FanColors) {
             borderRadius: 16,
             alignItems: 'center',
             justifyContent: 'center',
-            backgroundColor: colors.surfaceSunken,
-            borderWidth: 1,
-            borderColor: colors.border,
+            backgroundColor: 'transparent',
+            borderWidth: 0,
+            borderColor: 'transparent',
         },
 
         center: {
@@ -916,7 +857,20 @@ function createStyles(colors: FanColors) {
             alignItems: 'flex-end',
             gap: FAN_SPACING.md,
         },
-        avatarWrap: {},
+        avatarWrap: {
+            width: 32,
+            height: 32,
+            flexShrink: 0,
+            borderRadius: 16,
+            overflow: 'hidden',
+        },
+        inputAvatarWrap: {
+            width: 32,
+            height: 32,
+            flexShrink: 0,
+            borderRadius: 16,
+            overflow: 'hidden',
+        },
         bubbleAvatar: {
             width: 36,
             height: 36,
@@ -937,6 +891,11 @@ function createStyles(colors: FanColors) {
             paddingHorizontal: 14,
             paddingVertical: 10,
             borderWidth: 1,
+            shadowColor: '#000000',
+            shadowOpacity: 0,
+            shadowRadius: 0,
+            shadowOffset: { width: 0, height: 2 },
+            elevation: 0,
         },
         bubbleMe: {
             borderTopLeftRadius: 16,
@@ -970,7 +929,7 @@ function createStyles(colors: FanColors) {
             marginBottom: FAN_SPACING.md,
             paddingHorizontal: FAN_SPACING.md,
             paddingVertical: FAN_SPACING.md,
-            borderRadius: FAN_RADIUS.md,
+            borderRadius: 999,
         },
         errorText: { fontSize: 11, flex: 1 },
 
@@ -980,7 +939,7 @@ function createStyles(colors: FanColors) {
             paddingTop: FAN_SPACING.md,
             paddingBottom: FAN_SPACING.md,
             borderTopWidth: 0.5,
-            backgroundColor: colors.surface,
+            backgroundColor: 'transparent',
         },
         replyIndicator: {
             flexDirection: 'row',
@@ -1001,7 +960,7 @@ function createStyles(colors: FanColors) {
         replyClose: {
             width: 20,
             height: 20,
-            borderRadius: 10,
+            borderRadius: 999,
             alignItems: 'center',
             justifyContent: 'center',
         },

@@ -29,6 +29,8 @@ import {
     ActivityIndicator,
     StyleSheet,
     Modal,
+    KeyboardAvoidingView,
+    Platform,
 } from 'react-native';
 import {
     X,
@@ -47,9 +49,8 @@ import { createChannel } from '@funspot/core';
 import { colors } from '@/theme';
 
 // ── Palette accents not in the design tokens ─────────────────────
-const ADMIN_ACCENT = '#F59E0B';
-const MEMBER_ACCENT = '#10B981';
-const DANGER = '#EF4444';
+const ADMIN_ACCENT = colors.amber;
+const MEMBER_ACCENT = colors.green;
 
 // ── Local fetchers ───────────────────────────────────────────────
 // getAllProfiles / getAllChannels are not exported by @funspot/core,
@@ -364,6 +365,11 @@ export default function CreateChannelModal({
             statusBarTranslucent
         >
             <Pressable style={styles.backdrop} onPress={onClose}>
+                <KeyboardAvoidingView
+                    style={styles.keyboardAvoiding}
+                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                    keyboardVerticalOffset={0}
+                >
                 <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
                     <View style={styles.handleWrap}>
                         <View style={styles.handle} />
@@ -536,6 +542,7 @@ export default function CreateChannelModal({
                         </Pressable>
                     </View>
                 </Pressable>
+                </KeyboardAvoidingView>
             </Pressable>
         </Modal>
     );
@@ -582,8 +589,8 @@ function UserTile({
                         borderColor: withAlpha(MEMBER_ACCENT, 0.3),
                     }
                     : {
-                        backgroundColor: colors.surface,
-                        borderColor: colors.border,
+                        backgroundColor: 'transparent',
+                        borderColor: 'transparent',
                     },
             ]}
         >
@@ -593,7 +600,7 @@ function UserTile({
                     style={[
                         styles.avatar,
                         {
-                            borderColor: isSelected ? MEMBER_ACCENT : colors.border,
+                            borderColor: 'transparent',
                         },
                     ]}
                 >
@@ -613,10 +620,9 @@ function UserTile({
                     style={[
                         styles.toggleBtn,
                         isSelected
-                            ? { backgroundColor: MEMBER_ACCENT, borderColor: MEMBER_ACCENT }
+                            ? { backgroundColor: 'transparent', borderColor: MEMBER_ACCENT }
                             : {
-                                backgroundColor: colors.surface,
-                                borderColor: colors.border,
+                                backgroundColor: colors.bg,
                             },
                     ]}
                 >
@@ -716,6 +722,7 @@ function withAlpha(hex: string, alpha: number): string {
 // ═══════════════════════════════════════════════════════════════
 
 const styles = StyleSheet.create({
+    keyboardAvoiding: { flex: 1, justifyContent: 'flex-end' },
     backdrop: {
         flex: 1,
         backgroundColor: 'rgba(0,0,0,0.5)',
@@ -724,8 +731,8 @@ const styles = StyleSheet.create({
     sheet: {
         maxHeight: '92%',
         minHeight: '85%',
-        borderTopLeftRadius: 18,
-        borderTopRightRadius: 18,
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
         backgroundColor: colors.bg,
         overflow: 'hidden',
     },
@@ -734,7 +741,7 @@ const styles = StyleSheet.create({
         width: 40,
         height: 4,
         borderRadius: 2,
-        backgroundColor: 'rgba(255,255,255,0.15)',
+        backgroundColor: colors.border,
     },
 
     // Header
@@ -755,7 +762,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: withAlpha(MEMBER_ACCENT, 0.3),
     },
-    headerTitle: { color: 'white', fontSize: 18, fontWeight: '700' },
+    headerTitle: { color: colors.textPrimary, fontSize: 18, fontWeight: '700' },
     headerSub: { color: colors.textMuted, fontSize: 11, marginTop: 2 },
     closeBtn: {
         width: 36,
@@ -763,9 +770,8 @@ const styles = StyleSheet.create({
         borderRadius: 18,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: 'rgba(255,255,255,0.06)',
-        borderWidth: 1,
-        borderColor: colors.border,
+        backgroundColor: 'transparent',
+        borderWidth: 0,
     },
 
     // Input
@@ -777,14 +783,14 @@ const styles = StyleSheet.create({
         marginVertical: 6,
         paddingHorizontal: 14,
         paddingVertical: 4,
-        borderRadius: 12,
-        borderWidth: 1,
-        borderColor: colors.border,
-        backgroundColor: colors.surface,
+        borderRadius: 999,
+        borderWidth: 0,
+        borderColor: 'transparent',
+        backgroundColor: 'transparent',
     },
     input: {
         flex: 1,
-        color: 'white',
+        color: colors.textPrimary,
         fontSize: 13,
         paddingVertical: 8,
     },
@@ -833,7 +839,7 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     centerTitle: {
-        color: 'white',
+        color: colors.textPrimary,
         fontSize: 14,
         fontWeight: '600',
         marginTop: 4,
@@ -846,8 +852,9 @@ const styles = StyleSheet.create({
 
     // User tile
     userTile: {
-        borderRadius: 12,
-        borderWidth: 1,
+        borderRadius: 18,
+        borderWidth: 0,
+        backgroundColor: 'transparent',
         padding: 12,
         marginBottom: 8,
     },
@@ -863,10 +870,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: withAlpha(MEMBER_ACCENT, 0.1),
-        borderWidth: 1,
+        borderWidth: 0,
     },
     avatarText: { fontSize: 16, fontWeight: '700' },
-    userName: { color: 'white', fontSize: 13, fontWeight: '600' },
+    userName: { color: colors.textPrimary, fontSize: 13, fontWeight: '600' },
     userHandle: { color: colors.textMuted, fontSize: 10, marginTop: 1 },
     toggleBtn: {
         width: 28,
@@ -874,7 +881,7 @@ const styles = StyleSheet.create({
         borderRadius: 14,
         alignItems: 'center',
         justifyContent: 'center',
-        borderWidth: 1,
+        borderWidth: 0,
     },
 
     // Stat grid
@@ -886,7 +893,7 @@ const styles = StyleSheet.create({
         paddingVertical: 2,
     },
     statLabel: { color: colors.textMuted, fontSize: 9 },
-    statValue: { color: 'white', fontSize: 10 },
+    statValue: { color: colors.textPrimary, fontSize: 10 },
 
     // Footer
     tileFooter: {
@@ -901,7 +908,7 @@ const styles = StyleSheet.create({
         borderRadius: 999,
     },
     statusPillText: {
-        color: 'white',
+        color: colors.textPrimary,
         fontSize: 7,
         fontWeight: '700',
         letterSpacing: 0.3,
@@ -930,11 +937,10 @@ const styles = StyleSheet.create({
         paddingVertical: 4,
         borderRadius: 999,
         backgroundColor: withAlpha(MEMBER_ACCENT, 0.1),
-        borderWidth: 0.5,
-        borderColor: withAlpha(MEMBER_ACCENT, 0.35),
+        borderWidth: 0,
         maxWidth: 180,
     },
-    chipText: { color: 'white', fontSize: 11 },
+    chipText: { color: colors.textPrimary, fontSize: 11 },
     chipClose: {
         width: 16,
         height: 16,
@@ -955,7 +961,7 @@ const styles = StyleSheet.create({
     actionBtn: {
         flex: 1,
         height: 46,
-        borderRadius: 12,
+        borderRadius: 999,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -969,7 +975,7 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     createBtn: {
-        backgroundColor: MEMBER_ACCENT,
+        backgroundColor: 'transparent',
     },
     createBtnText: {
         color: '#000',
