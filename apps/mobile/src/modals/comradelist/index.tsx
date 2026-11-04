@@ -431,7 +431,7 @@ export default function ComradeListModal({
                         </Text>
                         <Pressable
                             onPress={fetchComrades}
-                            style={[styles.retryBtn, { backgroundColor: colors.primary }]}
+                            style={styles.retryBtn}
                         >
                             <Text style={styles.retryBtnText}>Retry</Text>
                         </Pressable>
@@ -650,10 +650,7 @@ export default function ComradeListModal({
                         style={[
                             styles.pickerFooterBtn,
                             {
-                                backgroundColor:
-                                    selectedChannelIds.size === 0
-                                        ? colors.surface
-                                        : colors.primary,
+                                backgroundColor: 'transparent',
                             },
                         ]}
                     >
