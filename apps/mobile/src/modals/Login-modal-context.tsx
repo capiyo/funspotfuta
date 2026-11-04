@@ -12,8 +12,6 @@
 //     registerToken call)
 //
 // LoginModal is mounted once, here, so it can render over any screen.
-import { Platform } from 'react-native';
-
 import {
     createContext,
     useCallback,
@@ -26,8 +24,7 @@ import {
 import LoginModal from '@/modals/LoginModal';
 import NotificationGate from '@/modals/NotificationGate';
 import { useAuth } from '@/lib/auth/auth-context';
-import { hasNotificationPermission, requestNotificationPermission, requestFcmToken } from '@/lib/firebase';
-import { registerToken } from '@funspot/core';
+import { hasNotificationPermission, requestNotificationPermission } from '@/lib/firebase';
 
 type LoginModalCtx = {
     requireLogin: (after?: () => void) => boolean;
@@ -38,7 +35,7 @@ const Ctx = createContext<LoginModalCtx>({
 });
 
 export function LoginModalProvider({ children }: { children: ReactNode }) {
-    const { isLoggedIn, isInitialized, userId, authToken } = useAuth();
+    const { isLoggedIn, isInitialized } = useAuth();
     const [open, setOpen] = useState(false);
     const [gated, setGated] = useState(false); // true while waiting on notification permission
     const pending = useRef<(() => void) | undefined>(undefined);
@@ -91,33 +88,18 @@ export function LoginModalProvider({ children }: { children: ReactNode }) {
 
     async function handleRetryPermission() {
         const granted = await requestNotificationPermission();
-        if (granted) {
-            setGated(false);
-            setOpen(true);
+        if (!granted) {
+            throw new Error('Notifications are still disabled. Enable them in your device settings, then try again.');
         }
+        setGated(false);
+        setOpen(true);
     }
 
-    // ── Post-login: register FCM token, then run pending action ──
+    // ── Post-login: the global NotificationRuntime owns token registration
+    // and token-refresh handling, avoiding a second independent registration.
     async function handleSuccess() {
         setOpen(false);
         setGated(false);
-
-        if (userId) {
-            const token = await requestFcmToken();
-            if (token) {
-                const fcmToken = token; // narrows string | null -> string
-                try {
-                    await registerToken({
-                        userId,
-                        fcmToken,
-                        platform: Platform.OS === 'ios' ? 'ios' : 'android',
-                        authToken: authToken ?? undefined,
-                    });
-                } catch (e) {
-                    console.error('FCM token registration failed:', e);
-                }
-            }
-        }
 
         const fn = pending.current;
         pending.current = undefined;
