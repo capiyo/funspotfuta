@@ -949,8 +949,12 @@ export const NotificationService = {
         fcmToken: string;
         authToken?: string;
     }): Promise<void> {
+        const key = `${args.userId}:${args.fcmToken}`;
         try {
-            const key = `${args.userId}:${args.fcmToken}`;
+            // If registration is still in flight, let it settle before DELETE;
+            // otherwise its late success could resurrect a token after logout.
+            const pending = pendingFcmTokenRegistrations.get(key);
+            if (pending) await pending.catch(() => false);
             await fetch(`${API_BASE_URL}/notifications/unregister-token`, {
                 method: 'DELETE',
                 headers: {
@@ -959,9 +963,12 @@ export const NotificationService = {
                 },
                 body: JSON.stringify({ user_id: args.userId, fcm_token: args.fcmToken }),
             });
-            registeredFcmTokenKeys.delete(key);
         } catch (error) {
             console.warn('[NotificationService] Token unregistration skipped', error);
+        } finally {
+            // Force a future authenticated session to verify registration again,
+            // even when the network failed during logout.
+            registeredFcmTokenKeys.delete(key);
         }
     },
 
