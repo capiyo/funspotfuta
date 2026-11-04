@@ -1558,7 +1558,7 @@ function createStyles(colors: FanColors) {
       padding: 6,
       backgroundColor: 'transparent',
     },
-    screen: { flex: 1, minHeight: 0, minWidth: 0, width: '100%', alignSelf: 'stretch', backgroundColor: colors.surfaceSunken },
+    screen: { flex: 1, minHeight: 0, minWidth: 0, width: '100%', alignSelf: 'stretch', backgroundColor: 'transparent' },
     content: {
       flexDirection: 'column',
       alignItems: 'stretch',
@@ -1577,7 +1577,7 @@ function createStyles(colors: FanColors) {
       textAlign: 'center',
     },
     pickerWrap: {
-      borderRadius: 999,
+      borderRadius: 18,
       borderWidth: 0,
       backgroundColor: 'transparent',
       marginHorizontal: FAN_SPACING.md,
@@ -1934,7 +1934,7 @@ function createStyles(colors: FanColors) {
       fontSize: 10,
     },
     activityCard: {
-      borderRadius: 999,
+      borderRadius: 18,
       borderWidth: 0,
       padding: FAN_SPACING.sm,
       marginBottom: FAN_SPACING.sm,
