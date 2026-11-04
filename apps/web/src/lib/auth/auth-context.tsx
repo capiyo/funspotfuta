@@ -276,6 +276,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(async () => {
     NotificationService.setActiveUser(null);
+    authBoundaryVersion.current += 1;
+    authChannel.current?.postMessage({ type: 'logout' });
+    // Unmount authenticated listeners before waiting for best-effort FCM cleanup.
+    setState({ ...initialState, isInitialized: true });
+    await clearNotificationStorage();
     if (state.userId) {
       try {
         const fcmToken = await getExistingWebPushToken();
@@ -290,10 +295,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Push cleanup is best-effort; logout must always complete.
       }
     }
-    authBoundaryVersion.current += 1;
-    authChannel.current?.postMessage({ type: 'logout' });
-    await clearNotificationStorage();
-    setState({ ...initialState, isInitialized: true });
     await queryClient.cancelQueries();
     queryClient.clear();
     const results = await Promise.allSettled([
