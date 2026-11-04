@@ -1,6 +1,5 @@
 import { MessageCircle, Newspaper } from 'lucide-react';
 import { useFanColors } from '@/theme/use-fan-colors';
-import { fanText } from '@/theme/use-fan-typography';
 import { FAN_SPACING, FAN_RADIUS } from '@funspot/core';
 
 export type TabName = 'Chats' | 'Feed';
@@ -23,10 +22,11 @@ export function FloatingPillTabBar({ active, onChange }: {
           aria-current={isActive ? 'page' : undefined}
           onClick={() => { if (!isActive) onChange(name); }}
           className={isActive ? 'floating-pill-item active' : 'floating-pill-item'}
-          style={{ background: isActive ? colors.primary : 'transparent', borderRadius: FAN_RADIUS.pill, padding: `${FAN_SPACING.sm + 2}px ${FAN_SPACING.base}px`, color: isActive ? colors.textInverse : colors.textTertiary }}
+          aria-label={name}
+          title={name}
+          style={{ background: isActive ? colors.primary : 'transparent', borderRadius: '50%', width: 44, height: 44, padding: 0, color: isActive ? colors.textInverse : colors.textTertiary }}
         >
           <Icon size={16} aria-hidden="true" />
-          <span style={fanText('tag', colors, isActive ? colors.textInverse : colors.textTertiary)}>{name.toLowerCase()}</span>
         </button>;
       })}
     </div>
