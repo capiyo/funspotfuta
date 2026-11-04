@@ -690,7 +690,7 @@ export function SwipeableVotePledgeModal({
                 </div>
 
                 {/* Match header */}
-                <div className="mx-4 mb-1 flex items-center justify-center gap-fan-sm rounded-fan-lg border border-fan-border/30 bg-fan-surface px-fan-md py-fan-sm">
+                <div className="mx-4 mb-1 flex items-center justify-center gap-fan-sm rounded-fan-pill border-0 bg-transparent px-fan-md py-fan-sm">
                     <span className="rounded-fan-md bg-fan-primary/10 px-fan-sm py-[3px] text-fan-caption font-bold text-fan-primary">
                         {fixture.homeTeam}
                     </span>
@@ -710,19 +710,19 @@ export function SwipeableVotePledgeModal({
 
                 {/* Tab bar */}
                 {tabLabels.length > 1 && (
-                    <div className="mx-4 my-1 flex gap-0.5 rounded-fan-lg border-[0.5px] border-fan-border bg-fan-surfaceSunken p-0.5">
+                    <div className="mx-4 my-1 flex gap-0.5 rounded-fan-pill border-0 bg-transparent p-0.5">
                         {tabLabels.map((label, i) => {
                             const active = i === tab;
                             return (
                                 <button
                                     key={label}
                                     onClick={() => setTab(i)}
-                                    className="relative flex-1 rounded-fan-md px-fan-sm py-1.5 text-fan-tag font-semibold text-fan-textTertiary"
+                                    className="relative flex-1 rounded-fan-pill px-fan-sm py-1.5 text-fan-tag font-semibold text-fan-textTertiary"
                                 >
                                     {active && (
                                         <motion.span
                                             layoutId="vote-modal-tab-indicator"
-                                            className="absolute inset-0 rounded-fan-md bg-fan-surface shadow-sm"
+                                            className="absolute inset-0 rounded-fan-pill bg-transparent shadow-none"
                                             transition={{
                                                 type: 'tween',
                                                 duration: 0.22,
@@ -907,7 +907,7 @@ export function SwipeableVotePledgeModal({
                                         !locked && setSelectedVote(o.key as Selection)
                                     }
                                     disabled={locked}
-                                    className={`flex flex-1 flex-col items-center gap-0.5 rounded-fan-md border px-fan-sm py-fan-sm text-center transition ${selected
+                                    className={`flex flex-1 flex-col items-center gap-0.5 rounded-fan-pill border border-transparent bg-transparent px-fan-sm py-fan-sm text-center transition ${selected
                                             ? `${bgClass} border-transparent`
                                             : 'border-fan-border/30 bg-fan-surface'
                                         } disabled:opacity-100`}
@@ -1054,7 +1054,7 @@ export function SwipeableVotePledgeModal({
                         onChange={(e) => setPledgeAmount(e.target.value)}
                         placeholder="Amount (KES)"
                         disabled={!selectedPledgeOption || isLive}
-                        className="w-full rounded-fan-md border-[0.5px] border-fan-border bg-fan-surfaceSunken px-fan-sm py-fan-sm text-fan-caption text-fan-textPrimary outline-none disabled:opacity-50"
+                        className="w-full rounded-fan-pill border-0 bg-transparent px-fan-sm py-fan-sm text-fan-caption text-fan-textPrimary outline-none disabled:opacity-50"
                     />
                     <button
                         onClick={handlePledge}
@@ -1182,7 +1182,7 @@ export function SwipeableVotePledgeModal({
                         return (
                             <div
                                 key={market.id}
-                                className="mb-fan-sm rounded-fan-lg border-[0.5px] border-fan-border/30 bg-fan-surface p-fan-md"
+                                className="mb-fan-sm rounded-fan-2xl border-0 bg-transparent p-fan-md"
                             >
                                 <button
                                     onClick={() =>
@@ -1227,7 +1227,7 @@ export function SwipeableVotePledgeModal({
                                                     }))
                                                 }
                                                 disabled={locked}
-                                                className={`flex-1 truncate rounded-fan-md border px-fan-sm py-fan-xs text-fan-tag font-semibold transition ${on
+                                                className={`flex-1 truncate rounded-fan-pill border border-transparent bg-transparent px-fan-sm py-fan-xs text-fan-tag font-semibold transition ${on
                                                         ? voteColorClass(o.key) +
                                                         ' border-transparent bg-fan-primaryDim'
                                                         : 'border-fan-border/30 bg-fan-surface text-fan-textPrimary'
@@ -1479,7 +1479,7 @@ function BalanceBar({
     onWithdraw: () => void;
 }) {
     return (
-        <div className="flex items-center gap-fan-sm rounded-fan-md border-[0.5px] border-fan-borderActive bg-fan-primaryDim px-fan-md py-fan-sm">
+        <div className="flex items-center gap-fan-sm rounded-fan-pill border-0 bg-transparent px-fan-md py-fan-sm">
             <span className="text-[14px]">💰</span>
             <span className="flex-1 text-fan-caption font-bold text-fan-textPrimary">
                 {loading ? 'Loading…' : `KES ${balance.toFixed(2)}`}
@@ -1524,7 +1524,7 @@ function PersonTile({
     const initial = name?.[0]?.toUpperCase() ?? '?';
     return (
         <div
-            className={`mb-fan-xs flex items-center gap-fan-sm rounded-fan-md border-[0.5px] px-fan-sm py-fan-xs ${isMe
+            className={`mb-fan-xs flex items-center gap-fan-sm rounded-fan-pill border-0 bg-transparent px-fan-sm py-fan-xs ${isMe
                     ? 'border-fan-borderActive bg-fan-primaryDim'
                     : 'border-fan-border/20 bg-fan-surface'
                 }`}
@@ -1586,7 +1586,7 @@ function MatchMainDialog({
             <p className="mb-fan-md text-fan-title font-bold text-fan-textPrimary">
                 Match Pledge
             </p>
-            <div className="mb-fan-sm rounded-fan-md border-[0.5px] border-fan-border bg-fan-surfaceSunken px-fan-md py-fan-sm">
+            <div className="mb-fan-sm rounded-fan-pill border-0 bg-transparent px-fan-md py-fan-sm">
                 <p className="text-fan-caption text-fan-textPrimary">
                     {pledge.userName} · Picked {pledge.selectionDisplay}
                 </p>
@@ -1673,7 +1673,7 @@ function MatchSubDialog({
                         <button
                             key={k}
                             onClick={() => onSelectionChange(k)}
-                            className={`flex-1 rounded-fan-md border px-fan-sm py-fan-xs text-fan-tag font-semibold transition ${on
+                            className={`flex-1 rounded-fan-pill border border-transparent bg-transparent px-fan-sm py-fan-xs text-fan-tag font-semibold transition ${on
                                     ? 'border-transparent bg-fan-primaryDim text-fan-primary'
                                     : 'border-fan-border/30 bg-fan-surface text-fan-textPrimary'
                                 }`}
@@ -1833,7 +1833,7 @@ function DialogShell({
             onClick={onCancel}
         >
             <div
-                className="w-full max-w-sm rounded-fan-lg bg-fan-surface p-fan-lg shadow-2xl"
+                className="w-full max-w-sm rounded-fan-2xl bg-fan-surface p-fan-lg shadow-2xl"
                 onClick={(e) => e.stopPropagation()}
             >
                 {children}
