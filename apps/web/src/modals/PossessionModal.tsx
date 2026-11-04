@@ -93,8 +93,8 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
       setError('Sign in to create a possession poke');
       return;
     }
-    if (!Number.isSafeInteger(points) || points <= 0) {
-      setError('Enter a positive whole-number point amount');
+    if (!Number.isSafeInteger(points) || points < 5) {
+      setError('Enter at least 5 whole-number points');
       return;
     }
     setBusy(true); setError(null); setNotice(null);
