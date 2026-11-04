@@ -275,7 +275,7 @@ function createStyles(colors: FanColorPalette) {
     error: { color: colors.away, marginTop: 10, fontSize: 13 },
     success: { color: colors.primary, marginTop: 10, fontSize: 13, fontWeight: '700' },
     primaryButton: { marginTop: 14, backgroundColor: 'transparent', padding: 13, borderRadius: 999, alignItems: 'center' },
-    primaryText: { color: colors.textInverse, fontWeight: '800' },
+    primaryText: { color: colors.primary, fontWeight: '800' },
     pokerRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 8, paddingVertical: 10, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
     note: { color: colors.textTertiary, fontSize: 11, marginTop: 14, lineHeight: 16 },
   });
