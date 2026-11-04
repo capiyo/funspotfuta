@@ -482,8 +482,8 @@ export default function ProfileModal({
         style={[
           styles.balanceCard,
           {
-            backgroundColor: colors.surface,
-            borderColor: colors.borderActive,
+            backgroundColor: 'transparent',
+            borderColor: 'transparent',
           },
         ]}
       >
@@ -519,7 +519,7 @@ export default function ProfileModal({
             style={[
               styles.actionChip,
               {
-                backgroundColor: colors.surfaceSunken,
+                backgroundColor: 'transparent',
                 borderWidth: 0.5,
                 borderColor: colors.border,
               },
@@ -553,7 +553,7 @@ export default function ProfileModal({
       <View
         style={[
           styles.infoRow,
-          { backgroundColor: colors.surfaceSunken },
+          { backgroundColor: 'transparent' },
         ]}
       >
         <Icon size={12} color={colors.primary} />
@@ -617,7 +617,7 @@ export default function ProfileModal({
               style={[
                 styles.actionBtn,
                 {
-                  backgroundColor: colors.surfaceSunken,
+                  backgroundColor: 'transparent',
                   borderWidth: 0.5,
                   borderColor: colors.border,
                 },
@@ -667,7 +667,7 @@ export default function ProfileModal({
           style={[
             styles.fieldWrap,
             {
-              backgroundColor: colors.surfaceSunken,
+              backgroundColor: 'transparent',
               borderColor: colors.border,
             },
           ]}
@@ -798,7 +798,7 @@ export default function ProfileModal({
             style={[
               styles.actionBtn,
               {
-                backgroundColor: colors.surfaceSunken,
+                backgroundColor: 'transparent',
                 borderWidth: 0.5,
                 borderColor: colors.border,
               },
@@ -1035,10 +1035,10 @@ function createStyles(colors: FanColors) {
     backBtn: {
       width: 28,
       height: 28,
-      borderRadius: 14,
+      borderRadius: 999,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: colors.surfaceSunken,
+      backgroundColor: 'transparent',
       marginRight: FAN_SPACING.sm,
     },
     headerAvatar: {
@@ -1055,10 +1055,10 @@ function createStyles(colors: FanColors) {
     closeBtn: {
       width: 28,
       height: 28,
-      borderRadius: 14,
+      borderRadius: 999,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: colors.surfaceSunken,
+      backgroundColor: 'transparent',
     },
 
     scroll: { flexGrow: 0 },
@@ -1085,7 +1085,7 @@ function createStyles(colors: FanColors) {
     balanceIcon: {
       width: 32,
       height: 32,
-      borderRadius: 16,
+      borderRadius: 999,
       alignItems: 'center',
       justifyContent: 'center',
     },
