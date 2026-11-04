@@ -557,7 +557,9 @@ function createStyles(colors: FanColors) {
         memberAvatar: {
             width: 36,
             height: 36,
-            borderRadius: FAN_RADIUS.md,
+            borderRadius: 18,
+            overflow: 'hidden',
+            flexShrink: 0,
             alignItems: 'center',
             justifyContent: 'center',
         },
