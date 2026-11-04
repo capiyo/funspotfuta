@@ -308,7 +308,7 @@ export function MatchDetailsModal({
     const home = fixture.homeScore ?? 0;
     const away = fixture.awayScore ?? 0;
     const isLive = fixture.status === 'live';
-    const modalHeight = windowHeight * 0.88;
+    const modalHeight = windowHeight;
 
     return (
         <Modal
@@ -329,6 +329,8 @@ export function MatchDetailsModal({
                         styles.sheet,
                         {
                             height: modalHeight,
+                            width: '100%',
+                            borderRadius: 0,
                             backgroundColor: colors.surface,
                         },
                     ]}
@@ -343,8 +345,8 @@ export function MatchDetailsModal({
                         />
                     </View>
 
-                    {/* Header */}
-                    <View style={styles.header}>
+                    {/* Keep match metadata out of the pitch-first lineup view. */}
+                    {activeTab !== 'lineups' ? <View style={styles.header}>
                         <View style={{ flex: 1, alignItems: 'center' }}>
                             <Text
                                 numberOfLines={2}
@@ -407,7 +409,7 @@ export function MatchDetailsModal({
                                 </>
                             ) : null}
                         </View>
-                    </View>
+                    </View> : null}
 
                     {/* Conditional tab bar */}
                     <View style={styles.tabBar}>
@@ -525,13 +527,13 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-end',
     },
     sheet: {
-        borderTopLeftRadius: 24,
-        borderTopRightRadius: 24,
+        borderTopLeftRadius: 0,
+        borderTopRightRadius: 0,
         overflow: 'hidden',
     },
     handleWrapper: {
-        paddingTop: 12,
-        paddingBottom: 8,
+        paddingTop: 6,
+        paddingBottom: 3,
         alignItems: 'center',
     },
     handle: {
