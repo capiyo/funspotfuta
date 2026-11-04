@@ -3,11 +3,11 @@
 // 1:1 port of funspot/lib/modals/login_modal.dart
 //
 //   phone (+ accept terms) -> Firebase phone OTP
-//      codeSent / auto-verified -> otp -> signIn:
-//          existing user -> exchange Firebase ID token for backend JWT
-//          new user      -> username -> Firebase-verified backend registration
-//      ANY Firebase failure -> existing backend PIN login only; creating a
-//      new account or setting a PIN requires successful phone verification
+//      codeSent / auto-verified -> verify Firebase ID token with backend:
+//          existing user -> exchange for backend JWT (set PIN if missing)
+//          new user      -> Firebase-verified backend registration
+//      Firebase failure -> existing backend PIN login only; new accounts and
+//      PIN setup require successful phone verification
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Modal,
