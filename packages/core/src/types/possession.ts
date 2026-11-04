@@ -27,7 +27,7 @@ export interface PossessionPoke {
 export interface PossessionMarket {
   fixtureId: string;
   channelId: string;
-  status: 'open' | 'closed' | 'settled';
+  status: 'open' | 'closed' | 'settling' | 'settled';
   homePossession?: number | null;
   awayPossession?: number | null;
   homeVotes: number;
@@ -36,7 +36,7 @@ export interface PossessionMarket {
   votes: PossessionVote[];
   pokes: PossessionPoke[];
   settlement?: {
-    winner: PossessionSide | null;
+    winner: PossessionSide | 'draw' | null;
     settledAt: string;
     homePossession?: number | null;
     awayPossession?: number | null;
