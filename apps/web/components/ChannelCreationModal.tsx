@@ -55,14 +55,14 @@ export function ChannelCreationModal({ onClose }: { onClose: () => void }) {
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="e.g. Sunday League Squad"
-          className="mb-fan-base w-full rounded-fan-lg border border-fan-border bg-fan-inputSurface px-fan-base py-fan-md text-fan-body text-fan-textPrimary outline-none focus:border-fan-primary"
+          className="mb-fan-base w-full rounded-fan-pill border border-transparent bg-transparent px-fan-base py-fan-md text-fan-body text-fan-textPrimary outline-none focus:border-fan-primary"
         />
 
         <label className="mb-fan-sm block text-fan-caption text-fan-textTertiary">Season</label>
         <input
           value={season}
           onChange={(e) => setSeason(e.target.value)}
-          className="mb-fan-lg w-full rounded-fan-lg border border-fan-border bg-fan-inputSurface px-fan-base py-fan-md text-fan-body text-fan-textPrimary outline-none focus:border-fan-primary"
+          className="mb-fan-lg w-full rounded-fan-pill border border-transparent bg-transparent px-fan-base py-fan-md text-fan-body text-fan-textPrimary outline-none focus:border-fan-primary"
         />
 
         {error && <p className="mb-fan-base text-fan-caption text-fan-away">{error}</p>}
@@ -70,7 +70,7 @@ export function ChannelCreationModal({ onClose }: { onClose: () => void }) {
         <button
           onClick={handleCreate}
           disabled={submitting}
-          className="w-full rounded-fan-lg bg-fan-primary py-fan-base text-fan-body font-semibold text-fan-textInverse disabled:opacity-60"
+          className="w-full rounded-fan-pill bg-transparent py-fan-base text-fan-body font-semibold text-fan-textInverse disabled:opacity-60"
         >
           {submitting ? 'Creating…' : 'Create Channel'}
         </button>
