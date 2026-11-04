@@ -644,9 +644,9 @@ function createStyles(colors: FanColors) {
             borderRadius: 18,
             alignItems: 'center',
             justifyContent: 'center',
-            backgroundColor: colors.surfaceElevated,
-            borderWidth: 1,
-            borderColor: colors.border,
+            backgroundColor: 'transparent',
+            borderWidth: 0,
+            borderColor: 'transparent',
         },
 
         // Body
@@ -658,10 +658,10 @@ function createStyles(colors: FanColors) {
 
         // Caption
         captionWrap: {
-            backgroundColor: colors.surfaceElevated,
-            borderRadius: FAN_RADIUS.lg,
-            borderWidth: 1,
-            borderColor: colors.border,
+            backgroundColor: 'transparent',
+            borderRadius: 24,
+            borderWidth: 0,
+            borderColor: 'transparent',
             marginTop: FAN_SPACING.xs,
             marginBottom: FAN_SPACING.base,
         },
@@ -688,10 +688,10 @@ function createStyles(colors: FanColors) {
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'space-evenly',
-            backgroundColor: colors.surfaceElevated,
-            borderRadius: FAN_RADIUS.lg,
-            borderWidth: 1,
-            borderColor: colors.border,
+            backgroundColor: 'transparent',
+            borderRadius: 24,
+            borderWidth: 0,
+            borderColor: 'transparent',
             paddingVertical: FAN_SPACING.base,
             marginBottom: FAN_SPACING.base,
         },
@@ -750,7 +750,7 @@ function createStyles(colors: FanColors) {
             gap: 4,
             paddingHorizontal: 10,
             paddingVertical: 5,
-            borderRadius: 8,
+            borderRadius: 999,
         },
         mediaBadgeText: {
             color: '#FFFFFF',
@@ -764,7 +764,7 @@ function createStyles(colors: FanColors) {
             right: 12,
             paddingHorizontal: 8,
             paddingVertical: 4,
-            borderRadius: 6,
+            borderRadius: 999,
             backgroundColor: 'rgba(0,0,0,0.75)',
         },
         fileSizeText: {
@@ -796,9 +796,9 @@ function createStyles(colors: FanColors) {
             paddingHorizontal: 14,
             paddingVertical: 8,
             borderRadius: 999,
-            backgroundColor: colors.primaryMuted,
-            borderWidth: 1,
-            borderColor: colors.primary,
+            backgroundColor: 'transparent',
+            borderWidth: 0,
+            borderColor: 'transparent',
         },
         typeBadgeText: {
             color: colors.primary,
@@ -814,7 +814,7 @@ function createStyles(colors: FanColors) {
             paddingBottom: FAN_SPACING.lg,
             borderTopWidth: 1,
             borderTopColor: colors.border,
-            backgroundColor: colors.surface,
+            backgroundColor: 'transparent',
         },
         uploadProgressWrap: { marginBottom: FAN_SPACING.sm },
         uploadProgressLabels: {
@@ -853,9 +853,9 @@ function createStyles(colors: FanColors) {
         },
         clearBtn: {
             flex: 1,
-            backgroundColor: colors.surfaceElevated,
-            borderWidth: 1,
-            borderColor: colors.border,
+            backgroundColor: 'transparent',
+            borderWidth: 0,
+            borderColor: 'transparent',
         },
         clearBtnText: {
             fontSize: 14,
@@ -863,9 +863,10 @@ function createStyles(colors: FanColors) {
         },
         postBtn: {
             flex: 2,
-            backgroundColor: colors.primary,
+            backgroundColor: 'transparent',
         },
         postBtnText: {
+            color: colors.primary,
             fontSize: 14,
             fontWeight: '700',
             letterSpacing: 0.5,
