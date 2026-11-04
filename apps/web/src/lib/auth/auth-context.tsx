@@ -90,7 +90,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (message.type === 'session-updated') {
         const version = authBoundaryVersion.current;
         void readStoredState().then((restored) => {
-          if (version === authBoundaryVersion.current) setState(restored);
+          if (version === authBoundaryVersion.current) {
+            NotificationService.setActiveUser(restored.userId);
+            setState(restored);
+          }
         });
         return;
       }
@@ -142,7 +145,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         LEGACY_KEYS.forEach((key) => localStorage.removeItem(key));
         const restored = await readStoredState();
-        if (!cancelled && boundaryVersion === authBoundaryVersion.current) setState(restored);
+        if (!cancelled && boundaryVersion === authBoundaryVersion.current) {
+          NotificationService.setActiveUser(restored.userId);
+          setState(restored);
+        }
       } catch (error) {
         if (import.meta.env.DEV) console.warn('[auth] encrypted browser session restore failed', error);
         if (!cancelled && boundaryVersion === authBoundaryVersion.current) setState({ ...initialState, isInitialized: true });
@@ -212,7 +218,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const opts: LoginOptions = typeof phoneOrOptions === 'string' ? { phone: phoneOrOptions } : phoneOrOptions ?? {};
     try {
       const operationVersion = ++authBoundaryVersion.current;
+      NotificationService.setActiveUser(userId);
       if (state.userId !== userId) {
+        NotificationService.setActiveUser(null);
         clearNotificationStorage();
         authChannel.current?.postMessage({ type: 'account-switch' });
         setState({ ...initialState, isInitialized: true });
@@ -238,6 +246,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [queryClient, state.userId]);
 
   const logout = useCallback(async () => {
+    NotificationService.setActiveUser(null);
     if (state.userId) {
       try {
         const fcmToken = await getExistingWebPushToken();
@@ -301,6 +310,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (phone) user.phone = phone;
         await secureBrowserSession.setUser(JSON.stringify(user));
       }
+      NotificationService.setActiveUser(userId);
       setState((current) => ({ ...current, userId, username, phone: phone ?? current.phone }));
       authChannel.current?.postMessage({ type: 'session-updated' });
     } catch {
@@ -310,6 +320,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const hasValidSession = useCallback(() => Boolean(state.isLoggedIn && state.authToken && state.userId), [state.isLoggedIn, state.authToken, state.userId]);
   const clearAllAppData = useCallback(async () => {
+    NotificationService.setActiveUser(null);
     authBoundaryVersion.current += 1;
     authChannel.current?.postMessage({ type: 'clear-all' });
     clearNotificationStorage();
