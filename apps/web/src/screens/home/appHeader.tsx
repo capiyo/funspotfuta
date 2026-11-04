@@ -369,7 +369,7 @@ export function AppHeader(props: HeaderProps = {}) {
             <button type="button" onClick={() => setNotifOpen(true)} aria-label="Notifications"
               className="mobile-home-icon-button" style={{ color: colors.textSecondary }}>
               <Bell size={18} />
-              {unreadCount > 0 && <span className="mobile-home-notification-count" style={{ background: colors.primary }}>{unreadCount > 99 ? '99+' : unreadCount}</span>}
+              {unreadCount > 0 && <span className="mobile-home-notification-count" style={{ background: colors.primary }}>{unreadCount}</span>}
             </button>
             <button type="button"
               onClick={() => props.onRefresh ? props.onRefresh() : void queryClient.invalidateQueries({ queryKey: ['channels'] })}
