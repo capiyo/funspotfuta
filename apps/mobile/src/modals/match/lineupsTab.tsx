@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
     View,
     Text,
+    LayoutChangeEvent,
     StyleSheet,
     Pressable,
     ActivityIndicator,
@@ -120,6 +121,8 @@ export function LineupsTab({
 }: LineupsTabProps) {
     const colors = useFanColors();
     const [showBench, setShowBench] = useState(false);
+    const [availableHeight, setAvailableHeight] = useState(0);
+    const onLayout = (event: LayoutChangeEvent) => setAvailableHeight(event.nativeEvent.layout.height);
     const benchAnim = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
@@ -157,7 +160,7 @@ export function LineupsTab({
     const benchScaleY = benchAnim;
 
     return (
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1 }} onLayout={onLayout}>
             {/* Formation header row with Bench button */}
             <View style={styles.formationRow}>
                 <FormationPill
@@ -283,6 +286,7 @@ export function LineupsTab({
                     awayFormation={lineups.awayFormation}
                     homePlayers={lineups.homeStartingXI}
                     awayPlayers={lineups.awayStartingXI}
+                    maxHeight={Math.max(240, availableHeight - (showBench ? 240 : 76))}
                 />
             </ScrollView>
         </View>
