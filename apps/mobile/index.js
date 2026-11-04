@@ -8,7 +8,7 @@ import { NotificationService } from './src/lib/api/notification-service';
 // registered in main.dart before runApp().
 registerBackgroundMessageHandler(async (remoteMessage) => {
     console.log('Background FCM message received');
-    await NotificationService.pushToStream({ data: remoteMessage.data ?? {} });
+    await NotificationService.pushToStream({ messageId: remoteMessage.messageId, data: remoteMessage.data ?? {} });
 });
 
 registerRootComponent(App);
