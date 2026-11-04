@@ -273,7 +273,7 @@ function Card({
             className="action-card"
             style={[
                 styles.card,
-                tone === 'sunken' && { backgroundColor: colors.inputSurface },
+                tone === 'sunken' && { backgroundColor: 'transparent' },
                 style,
             ]}
         >
@@ -295,11 +295,8 @@ function CTA({
     small?: boolean;
 }) {
     const isDisabled = disabled || loading;
-    const bg =
-        tone === 'primary' ? colors.primary :
-            tone === 'danger' ? colors.away :
-                'transparent';
-    const fg = tone === 'ghost' ? colors.textPrimary : colors.background;
+    const bg = 'transparent';
+    const fg = tone === 'danger' ? colors.away : colors.primary;
     return (
         <Pressable
             className="action-cta"
@@ -348,7 +345,7 @@ function OutcomePill({
             style={({ pressed }) => [
                 styles.outcomeCard,
                 {
-                    backgroundColor: selected ? dimOf(accent, colors) : colors.surface,
+                    backgroundColor: 'transparent',
                     borderColor: selected ? accent : colors.border,
                     borderWidth: selected ? 1.2 : StyleSheet.hairlineWidth,
                 },
