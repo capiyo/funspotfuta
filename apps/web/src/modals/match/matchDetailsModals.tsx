@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { FAN_RADIUS, FAN_SPACING, webSocketService } from '@funspot/core';
+import { webSocketService } from '@funspot/core';
 import { X } from 'lucide-react';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
