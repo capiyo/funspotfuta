@@ -101,7 +101,7 @@ function makeStyles(colors: ReturnType<typeof useFanColors>) {
     list: { flexGrow: 0 },
     listContent: { paddingBottom: 12 },
     row: { minHeight: 54, flexDirection: 'row', alignItems: 'center', gap: 12, borderWidth: 0 },
-    meRow: { backgroundColor: colors.surfaceSunken, borderRadius: 10, paddingHorizontal: 8 },
+    meRow: { backgroundColor: 'transparent', borderRadius: 999, paddingHorizontal: 8 },
     rank: { width: 34, color: colors.textSecondary, fontSize: 13, fontWeight: '700', textAlign: 'center' },
     name: { flex: 1, color: colors.textPrimary, fontSize: 14, fontWeight: '600' },
     points: { color: colors.primary, fontSize: 14, fontWeight: '800' },
