@@ -9,7 +9,7 @@ import {
     useWindowDimensions,
 } from 'react-native';
 
-import { FAN_SPACING, FAN_RADIUS, webSocketService } from '@funspot/core';
+import { webSocketService } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
 import { X } from 'lucide-react-native';
