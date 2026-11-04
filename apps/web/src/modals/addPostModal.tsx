@@ -470,7 +470,7 @@ function PostHeader({
                 aria-label="Close"
                 className="flex h-9 w-9 items-center justify-center rounded-full border"
                 style={{
-                    background: colors.surfaceElevated,
+                    background: 'transparent',
                     borderColor: colors.border,
                 }}
             >
@@ -497,7 +497,7 @@ function CaptionEditor({
         <div
             className="relative mb-4 mt-1 rounded-xl border"
             style={{
-                background: colors.surfaceElevated,
+                background: 'transparent',
                 borderColor: hasCaption ? colors.primary : colors.border,
                 borderWidth: hasCaption ? 1.5 : 1,
             }}
@@ -555,7 +555,7 @@ function MediaActions({
         <div
             className="mb-4 flex items-center justify-evenly gap-2 rounded-xl border px-2 py-3"
             style={{
-                background: colors.surfaceElevated,
+                background: 'transparent',
                 borderColor: colors.border,
             }}
         >
@@ -838,7 +838,7 @@ function PostActions({
                 disabled={posting || (!hasCaption && !hasMedia)}
                 className="flex h-12 flex-1 items-center justify-center gap-2 rounded-full border text-sm font-semibold disabled:opacity-50"
                 style={{
-                    background: colors.surfaceElevated,
+                    background: 'transparent',
                     borderColor: colors.border,
                     color: colors.textSecondary,
                 }}
@@ -853,9 +853,9 @@ function PostActions({
                 disabled={!canPost}
                 className="flex h-12 flex-[2] items-center justify-center gap-2 rounded-full text-sm font-bold tracking-wide disabled:opacity-60"
                 style={{
-                    background: canPost ? colors.primary : colors.surface,
-                    color: canPost ? '#000000' : colors.textSecondary,
-                    border: canPost ? 'none' : '1px solid ' + colors.border,
+                    background: 'transparent',
+                    color: canPost ? colors.primary : colors.textSecondary,
+                    border: 'none',
                 }}
             >
                 {posting ? (
