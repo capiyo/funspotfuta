@@ -491,7 +491,7 @@ export default function AddPostModal({
                                 style={[
                                     styles.actionBtn,
                                     styles.postBtn,
-                                    !canPost && { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
+                                    !canPost && { backgroundColor: 'transparent', borderWidth: 0, borderColor: 'transparent' },
                                 ]}
                             >
                                 {posting ? (
