@@ -53,7 +53,7 @@
 .profile-header-name-column { display:flex; flex:1; flex-direction:column; min-width:0; }
 .profile-header-view-link { flex:0 0 auto; margin-left:auto; white-space:nowrap; }
 .profile-sidebar-post-action, .profile-sidebar-post-action .button { width:100%; min-width:0; }
-.profile-sidebar-post-action .button { display:flex; align-items:center; justify-content:center; min-height:var(--profile-control-height); padding:8px 12px; background:var(--profile-primary) !important; border:1px solid var(--profile-primary) !important; border-radius:var(--profile-radius); color:var(--profile-on-primary) !important; font-size:13px; font-weight:700; box-sizing:border-box; }
+.profile-sidebar-post-action .button { display:flex; align-items:center; justify-content:center; min-height:var(--profile-control-height); padding:8px 12px; background:transparent !important; border:0 !important; border-radius:var(--profile-radius); color:var(--profile-primary) !important; font-size:13px; font-weight:700; box-sizing:border-box; }
 
 /* Guest and authenticated identity fields share one component appearance. */
 .profile-guest-preview, .profile-authenticated-view { display:flex; flex-direction:column; align-items:stretch; gap:var(--profile-space-2); width:100%; min-width:0; }
@@ -92,7 +92,7 @@
   box-sizing:border-box !important; cursor:pointer; transition:background-color 120ms ease, filter 120ms ease;
 }
 .profile-primary-action { background:transparent !important; border-color:transparent !important; color:var(--profile-primary) !important; }
-.profile-primary-action *, .profile-guest-login *, .profile-action-text-primary { color:var(--profile-primary) !important; }
+.profile-primary-action *, .profile-guest-login *, .profile-sidebar-post-action .button *, .profile-action-text-primary { color:var(--profile-primary) !important; }
 .profile-action-text-primary { display:inline !important; visibility:visible !important; opacity:1 !important; flex:0 1 auto !important; white-space:nowrap !important; font-size:13px !important; font-weight:700 !important; line-height:1.2 !important; }
 .profile-secondary-action, .profile-expand-toggle { background:transparent !important; border-color:transparent !important; color:var(--profile-primary) !important; }
 .profile-secondary-action *, .profile-expand-toggle * { color:var(--profile-primary) !important; }
