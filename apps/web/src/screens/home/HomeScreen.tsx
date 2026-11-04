@@ -20,7 +20,7 @@ function HomeScreenContent() {
   const { userId, username, authToken, isLoggedIn, logout } = useAuth();
   const {
     channels, activeChannelId, setActiveChannelId,
-    loadingChannels, reloadChannels, activeTab, setActiveTab, headerVisible,
+    loadingChannels, reloadChannels, activeTab, setActiveTab, headerVisible, reportScroll,
   } = useHome();
   const [pushStatus, setPushStatus] = useState('');
   const navigate = useNavigate();
@@ -35,15 +35,25 @@ function HomeScreenContent() {
       header.classList.toggle('home-has-scrolled', scrolled);
     };
     const scrollers = root.querySelectorAll<HTMLElement>('.home-column, .chats-fixture-list, .feed-screen');
+    const reportNestedScroll = (event: Event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement) || !root.contains(target)) return;
+      reportScroll(target.scrollTop, target);
+      updateShadow();
+    };
+    // Scroll events do not bubble. Capture them at the home root so every
+    // active nested pane reports direction, including fixture and feed lists.
+    root.addEventListener('scroll', reportNestedScroll, { capture: true, passive: true });
     scrollers.forEach((node) => node.addEventListener('scroll', updateShadow, { passive: true }));
     window.addEventListener('scroll', updateShadow, { passive: true });
     updateShadow();
     return () => {
+      root.removeEventListener('scroll', reportNestedScroll, true);
       scrollers.forEach((node) => node.removeEventListener('scroll', updateShadow));
       window.removeEventListener('scroll', updateShadow);
       header.classList.remove('home-has-scrolled');
     };
-  }, []);
+  }, [reportScroll]);
 
   return (
     <div
