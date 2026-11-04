@@ -754,8 +754,7 @@ body:has(.home-screen) .home-screen .home-columns,
 body:has(.home-screen) .home-screen .home-column,
 body:has(.home-screen) .home-screen .pane-content,
 body:has(.home-screen) .home-screen .pane-heading,
-body:has(.home-screen) .home-screen .mobile-home-tabs,
-body:has(.home-screen) .home-screen .feed-screen,
+body:has(.home-screen) body:has(.home-screen) .home-screen .feed-screen,
 body:has(.home-screen) .home-screen .feed-item,
 body:has(.home-screen) .home-screen .post-card,
 body:has(.home-screen) .home-screen .chats-fixture-list,
@@ -4370,5 +4369,38 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visib
     padding-bottom: max(12px, env(safe-area-inset-bottom)) !important;
     overflow-y: auto !important;
     overscroll-behavior: contain;
+  }
+}
+
+
+/* The floating circular tabs must be the only visible navigation surface. */
+@media (max-width: 650px) {
+  .home-screen .mobile-home-tabs,
+  body:has(.home-screen) .home-screen .mobile-home-tabs {
+    display: block !important;
+    width: max-content !important;
+    max-width: calc(100vw - 24px) !important;
+    background: transparent !important;
+    background-color: transparent !important;
+    border: 0 !important;
+    outline: 0 !important;
+    box-shadow: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+  .home-screen .mobile-home-tabs::before,
+  .home-screen .mobile-home-tabs::after,
+  .home-screen .mobile-home-tabs .floating-pill-wrap::before,
+  .home-screen .mobile-home-tabs .floating-pill-wrap::after {
+    content: none !important;
+    display: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+  .home-screen .mobile-home-tabs .floating-pill-wrap {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
   }
 }
