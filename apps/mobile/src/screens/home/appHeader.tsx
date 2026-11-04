@@ -28,12 +28,14 @@ import {
     ScrollView,
     StyleSheet,
     Modal,
+    Alert,
 } from 'react-native';
 import { Bell } from 'lucide-react-native';
+import * as ImagePicker from 'expo-image-picker';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useQueryClient } from '@tanstack/react-query';
-import { Channel, FanColorPalette, FAN_SPACING, FAN_RADIUS, useProfileAvatar } from '@funspot/core';
+import { Channel, FanColorPalette, FAN_SPACING, FAN_RADIUS, useProfileAvatar, uploadProfileAvatar, queryKeys } from '@funspot/core';
 import { getProfile } from '@funspot/core/src/api/profile-service';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useLoginModal } from '../../modals/Login-modal-context';
@@ -82,6 +84,7 @@ export function AppHeader({ onAddChannel }: { onAddChannel?: () => void }) {
     const [postOpen, setPostOpen] = useState(false);
     const [createChannelOpen, setCreateChannelOpen] = useState(false);
     const [chipLeaderboardChannel, setChipLeaderboardChannel] = useState<Channel | null>(null);
+    const [avatarUploading, setAvatarUploading] = useState(false);
 
     // Menu anchor: measured from the avatar so the dropdown sits right below it.
     const avatarRef = useRef<View>(null);
@@ -108,6 +111,39 @@ export function AppHeader({ onAddChannel }: { onAddChannel?: () => void }) {
 
     const profileAvatar = useProfileAvatar(userId ?? undefined, authToken);
     const avatarUri = profileAvatar ?? `https://i.pravatar.cc/150?u=${userId ?? 'guest'}`;
+    async function handleAvatarLongPress() {
+        if (!userId || avatarUploading) return;
+        try {
+            const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+            if (!permission.granted) {
+                Alert.alert('Photo access needed', 'Allow photo library access to choose a profile image.');
+                return;
+            }
+            const picked = await ImagePicker.launchImageLibraryAsync({
+                mediaTypes: ImagePicker.MediaTypeOptions.Images,
+                allowsEditing: false,
+                quality: 0.85,
+            });
+            if (picked.canceled || !picked.assets[0]) return;
+            setAvatarUploading(true);
+            const asset = picked.assets[0];
+            const imageResponse = await fetch(asset.uri);
+            const imageBlob = await imageResponse.blob();
+            const uploadBlob = imageBlob.type.startsWith('image/')
+                ? imageBlob
+                : new Blob([imageBlob], { type: asset.mimeType ?? 'image/jpeg' });
+            const result = await uploadProfileAvatar(userId, uploadBlob, authToken ?? undefined);
+            queryClient.setQueryData(queryKeys.profile(userId), (current: unknown) => {
+                if (!current || typeof current !== 'object') return current;
+                return { ...(current as Record<string, unknown>), avatarUrl: result.avatarUrl };
+            });
+            await queryClient.invalidateQueries({ queryKey: queryKeys.profile(userId) });
+        } catch (error) {
+            Alert.alert('Profile image not updated', error instanceof Error ? error.message : 'Could not upload the selected image.');
+        } finally {
+            setAvatarUploading(false);
+        }
+    }
     const hasJoinedChannels = channels.length > 0;
 
     async function joinAfterProfileCheck(channel: Channel) {
@@ -153,12 +189,15 @@ export function AppHeader({ onAddChannel }: { onAddChannel?: () => void }) {
                             ref={avatarRef}
                             collapsable={false}
                             onPress={openMenu}
+                            onLongPress={() => { void handleAvatarLongPress(); }}
+                            delayLongPress={550}
+                            disabled={avatarUploading}
                             hitSlop={8}
                             accessibilityRole="button"
                             accessibilityLabel="Menu"
                             style={styles.avatar}
                         >
-                            <Image source={{ uri: avatarUri }} style={styles.avatarImg} />
+                            <Image source={{ uri: avatarUri }} style={[styles.avatarImg, avatarUploading && { opacity: 0.55 }]} />
                         </Pressable>
                     ) : (
                         <Pressable
