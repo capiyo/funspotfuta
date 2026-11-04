@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { CSSProperties, RefObject, KeyboardEvent as ReactKeyboardEvent, MouseEvent as ReactMouseEvent } from 'react';
+import type { CSSProperties, RefObject, KeyboardEvent as ReactKeyboardEvent, MouseEvent as ReactMouseEvent, PointerEvent as ReactPointerEvent, ChangeEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
@@ -22,6 +22,7 @@ import HistoryModal from '@/modals/HistoryModal';
 import CreateChannelModal from '@/modals/ChannelCreation';
 import { NotificationService } from '@/lib/api/notification-service';
 import { getFanAvatarUri } from '@/lib/avatar-uri';
+import { uploadProfileAvatar, queryKeys } from '@funspot/core';
 
 type HeaderProps = {
   channels?: Channel[];
@@ -111,6 +112,10 @@ export function AppHeader(props: HeaderProps = {}) {
   const [unreadCount, setUnreadCount] = useState(0);
   const [menuAnchor, setMenuAnchor] = useState({ top: 0, right: 8 });
   const avatarRef = useRef<HTMLButtonElement>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+  const avatarHoldTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const suppressAvatarClick = useRef(false);
+  const [avatarUploading, setAvatarUploading] = useState(false);
   const mobileMenuButtonRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const closeMenu = useCallback(() => setMenuOpen(false), []);
@@ -162,6 +167,37 @@ export function AppHeader(props: HeaderProps = {}) {
   const comradesList = queryClient.getQueryData<string[]>(['comrades']) ?? [];
   const profileAvatar = useProfileAvatar(userId ?? undefined, authToken);
   const avatarUri = profileAvatar ?? getFanAvatarUri(userId);
+  const cancelAvatarHold = useCallback(() => {
+    if (avatarHoldTimer.current) clearTimeout(avatarHoldTimer.current);
+    avatarHoldTimer.current = null;
+  }, []);
+  const beginAvatarHold = useCallback((event: ReactPointerEvent<HTMLButtonElement>) => {
+    if (event.pointerType === 'mouse' && event.button !== 0) return;
+    cancelAvatarHold();
+    suppressAvatarClick.current = false;
+    avatarHoldTimer.current = setTimeout(() => {
+      suppressAvatarClick.current = true;
+      avatarInputRef.current?.click();
+    }, 550);
+  }, [cancelAvatarHold]);
+  const handleAvatarFile = useCallback(async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.currentTarget.files?.[0];
+    event.currentTarget.value = '';
+    if (!file || !userId || avatarUploading) return;
+    setAvatarUploading(true);
+    try {
+      const result = await uploadProfileAvatar(userId, file, authToken ?? undefined);
+      queryClient.setQueryData(queryKeys.profile(userId), (current: unknown) => {
+        if (!current || typeof current !== 'object') return current;
+        return { ...(current as Record<string, unknown>), avatarUrl: result.avatarUrl };
+      });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.profile(userId) });
+    } catch (error) {
+      window.alert(error instanceof Error ? error.message : 'Could not update profile image');
+    } finally {
+      setAvatarUploading(false);
+    }
+  }, [userId, authToken, avatarUploading, queryClient]);
   const hasJoinedChannels = joinedChannels.length > 0;
   const publicChannels = publicChannelsQuery.data ?? [];
   const availableChannels = allChannels.length > 0 ? allChannels : publicChannels.length > 0 ? publicChannels : joinedChannels;
@@ -279,7 +315,18 @@ export function AppHeader(props: HeaderProps = {}) {
                 <button
                   ref={avatarRef}
                   type="button"
-                  onClick={() => openMenu(avatarRef.current)}
+                  onClick={() => {
+                    if (suppressAvatarClick.current) {
+                      suppressAvatarClick.current = false;
+                      return;
+                    }
+                    openMenu(avatarRef.current);
+                  }}
+                  onPointerDown={beginAvatarHold}
+                  onPointerUp={cancelAvatarHold}
+                  onPointerLeave={cancelAvatarHold}
+                  onPointerCancel={cancelAvatarHold}
+                  onContextMenu={(event) => event.preventDefault()}
                   onKeyDown={(event: ReactKeyboardEvent<HTMLButtonElement>) => {
                     if (event.key === 'ArrowDown') { event.preventDefault(); openMenu(avatarRef.current); }
                   }}
@@ -289,6 +336,7 @@ export function AppHeader(props: HeaderProps = {}) {
                   className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full"
                   style={{ background: colors.primaryMuted, borderRadius: "50%", padding: 0, overflow: "hidden" }}
                 ><img src={avatarUri} alt="" className="h-full w-full object-cover" style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover", display: "block" }} /></button>
+                <input ref={avatarInputRef} type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={handleAvatarFile} />
                 <button type="button" className="hidden max-w-28 items-center gap-1 truncate text-xs sm:flex" style={{ color: colors.textSecondary }} onClick={() => openMenu(avatarRef.current)}>
                   {currentUsername ?? 'Profile'} <ChevronDown size={13} />
                 </button>
@@ -327,7 +375,9 @@ export function AppHeader(props: HeaderProps = {}) {
               onClick={() => props.onRefresh ? props.onRefresh() : void queryClient.invalidateQueries({ queryKey: ['channels'] })}
               aria-label="Refresh" className="mobile-home-icon-button" style={{ color: colors.textSecondary }}><RefreshCw size={17} /></button>
             <button ref={mobileMenuButtonRef} type="button" onClick={() => openMenu(mobileMenuButtonRef.current)}
-              aria-label="Open menu" aria-haspopup="menu" aria-expanded={menuOpen}
+              onPointerDown={loggedIn ? beginAvatarHold : undefined} onPointerUp={cancelAvatarHold} onPointerLeave={cancelAvatarHold} onPointerCancel={cancelAvatarHold}
+              onContextMenu={(event) => { if (loggedIn) event.preventDefault(); }}
+              aria-label="Open menu; long-press profile image to change it" aria-haspopup="menu" aria-expanded={menuOpen}
               className="mobile-home-menu-button" style={{ color: colors.textSecondary, background: loggedIn ? colors.primaryMuted : 'transparent', borderRadius: loggedIn ? "50%" : undefined, overflow: loggedIn ? "hidden" : undefined, padding: loggedIn ? 0 : undefined }}>
               {loggedIn ? <img src={avatarUri} alt="" style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover", display: "block" }} /> : <Menu size={20} />}
             </button>
