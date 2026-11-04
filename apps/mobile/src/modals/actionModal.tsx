@@ -384,11 +384,11 @@ function Chip({
             onPress={onPress}
             style={({ pressed }) => [
                 styles.filterChip,
-                active && { backgroundColor: colors.primary, borderColor: colors.primary },
+                active && { backgroundColor: 'transparent', borderColor: colors.primary }
                 pressed && { opacity: PRESSED_OPACITY },
             ]}
         >
-            <Text style={fanText('tag', colors, active ? colors.background : colors.textSecondary)}>
+            <Text style={fanText('tag', colors, active ? colors.primary : colors.textSecondary)}>
                 {label}
             </Text>
         </Pressable>
