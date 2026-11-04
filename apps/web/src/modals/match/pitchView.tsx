@@ -153,7 +153,7 @@ export interface PitchViewProps {
   homeTeam: string; awayTeam: string; homeFormation: string; awayFormation: string;
   homePlayers: SimplifiedPlayer[]; awayPlayers: SimplifiedPlayer[];
 }
-const PITCH_ASPECT_RATIO = 2.05;
+const PITCH_HEIGHT_PER_WIDTH = 1.6;
 const GRASS_EVEN = '#0D5E1A', GRASS_ODD = '#0A5218';
 
 export function PitchView({ homeTeam, awayTeam, homeFormation, awayFormation, homePlayers, awayPlayers }: PitchViewProps) {
@@ -169,7 +169,7 @@ export function PitchView({ homeTeam, awayTeam, homeFormation, awayFormation, ho
   }, [homePlayers, awayPlayers, homeTeam, awayTeam]);
   const cappedHome=useMemo(()=>homePlayers.slice(0,11),[homePlayers]), cappedAway=useMemo(()=>awayPlayers.slice(0,11),[awayPlayers]);
   const homeOverflow=homePlayers.slice(11), awayOverflow=awayPlayers.slice(11);
-  const width=600, height=width*PITCH_ASPECT_RATIO;
+  const width=600, height=width*PITCH_HEIGHT_PER_WIDTH;
   const homePositions=useMemo(()=>calculatePositions(cappedHome,homeFormation,{isHome:true,width,height}),[cappedHome,homeFormation]);
   const awayPositions=useMemo(()=>calculatePositions(cappedAway,awayFormation,{isHome:false,width,height}),[cappedAway,awayFormation]);
   const renderPlayers=(players:SimplifiedPlayer[],positions:PitchPosition[],color:string,isHome:boolean)=>players.slice(0,11).map((player,index)=>{
