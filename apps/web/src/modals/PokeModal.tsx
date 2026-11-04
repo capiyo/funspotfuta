@@ -39,12 +39,12 @@ const panelStyle = (colors: FanColorPalette): CSSProperties => ({
   '--surface-sunken': colors.surfaceSunken, '--text-secondary': colors.textSecondary, '--text-inverse': colors.textInverse,
 } as CSSProperties);
 const buttonStyle: CSSProperties = {
-  minHeight: 42, border: 0, borderRadius: 8, padding: '10px 14px',
+  minHeight: 42, border: 0, borderRadius: 999, padding: '10px 14px',
   fontWeight: 700, cursor: 'pointer',
 };
 const fieldStyle: CSSProperties = {
-  width: '100%', minHeight: 42, borderRadius: 8, padding: '9px 11px',
-  border: '1px solid var(--border)', background: 'var(--background)',
+  width: '100%', minHeight: 42, borderRadius: 999, padding: '9px 11px',
+  border: '1px solid var(--border)', background: 'transparent',
   color: 'inherit', boxSizing: 'border-box',
 };
 
@@ -361,7 +361,7 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
         <label style={{ display: 'block', marginTop: 16, fontSize: 13, fontWeight: 700 }} htmlFor="poke-stake">Points to stake (minimum 5)</label>
         <input id="poke-stake" type="number" min={5} step={1} value={stake} onChange={(event) => setStake(event.target.value)} style={{ ...fieldStyle, marginTop: 7 }} />
 
-        <div style={{ marginTop: 10, padding: 10, borderRadius: 8, background: 'var(--background)' }}>
+        <div style={{ marginTop: 10, padding: 10, borderRadius: 8, background: 'transparent' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, fontSize: 12 }}><span style={{ color: 'var(--muted, #a7abb3)' }}>Your pick</span><strong>{selection === 'home_team' ? fixture.homeTeam : fixture.awayTeam}</strong></div>
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, marginTop: 7, fontSize: 12 }}><span style={{ color: 'var(--muted, #a7abb3)' }}>Opponent stake</span><strong>{Number.isInteger(Number(stake)) && Number(stake) >= 5 ? `${Number(stake)} points to match` : '—'}</strong></div>
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, marginTop: 7, paddingTop: 7, borderTop: '1px solid var(--border, #454950)', fontSize: 12 }}><span style={{ color: 'var(--muted, #a7abb3)' }}>If you win</span><strong style={{ color: 'var(--primary, #36c875)' }}>{balance !== null && Number.isInteger(Number(stake)) && Number(stake) >= 5 && Number(stake) <= balance ? `${balance + Number(stake)} pts balance` : '—'}</strong></div>
