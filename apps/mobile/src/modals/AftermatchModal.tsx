@@ -769,7 +769,7 @@ function createStyles(colors: any) {
         // Tabs
         tabBar: { paddingHorizontal: 16, paddingVertical: 6, gap: 4 },
         tab: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 10 },
-        tabActive: { backgroundColor: colors.surface },
+        tabActive: { backgroundColor: 'transparent' },
         tabText: { fontSize: 11, fontWeight: '600', color: colors.textTertiary },
         tabTextActive: { color: colors.textPrimary },
 
