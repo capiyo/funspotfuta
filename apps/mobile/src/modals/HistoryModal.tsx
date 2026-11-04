@@ -418,8 +418,8 @@ function createStyles(colors: ReturnType<typeof useFanColors>) {
     },
     sheet: {
       maxHeight: '88%',
-      borderTopLeftRadius: FAN_RADIUS.xl,
-      borderTopRightRadius: FAN_RADIUS.xl,
+      borderTopLeftRadius: 24,
+      borderTopRightRadius: 24,
       backgroundColor: colors.background,
       overflow: 'hidden',
     },
@@ -440,8 +440,8 @@ function createStyles(colors: ReturnType<typeof useFanColors>) {
     closeBtn: {
       width: 32,
       height: 32,
-      borderRadius: 16,
-      backgroundColor: colors.inputSurface,
+      borderRadius: 999,
+      backgroundColor: 'transparent',
       alignItems: 'center',
       justifyContent: 'center',
     },
