@@ -21,7 +21,7 @@ function AppRoutes() {
       if (!active) return;
       setNotice(incoming);
       const data = incoming.data ?? {};
-      void NotificationService.pushToStream({ data });
+      void NotificationService.pushToStream({ messageId: incoming.messageId, data });
       if (data.channel_id && data.fixture_id) {
         void queryClient.invalidateQueries({
           queryKey: queryKeys.fixtureUnreadCount(data.channel_id, data.fixture_id, userId),
