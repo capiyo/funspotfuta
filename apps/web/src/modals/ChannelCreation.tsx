@@ -60,7 +60,7 @@ export default function CreateChannelModal({visible,onClose,onChannelCreated}:{v
   <section ref={dialogRef} role="dialog" aria-modal="true" aria-label="Create Channel" className="flex max-h-[90vh] w-full max-w-xl flex-col overflow-hidden rounded-t-3xl md:rounded-3xl" style={{background:colors.bg}}>
    <div className="flex justify-center pb-2 pt-3"><div className="h-1 w-8 rounded-full" style={{background:colors.border}}/></div>
    <header className="flex items-center gap-3 px-4 pb-3">
-    <div className="flex h-10 w-10 items-center justify-center rounded-xl" style={{background:withAlpha(MEMBER_ACCENT,.12)}}><UserPlus size={20} color={MEMBER_ACCENT}/></div>
+    <div className="flex h-10 w-10 items-center justify-center rounded-full" style={{background:withAlpha(MEMBER_ACCENT,.12)}}><UserPlus size={20} color={MEMBER_ACCENT}/></div>
     <div className="min-w-0 flex-1"><h2 className="text-sm font-bold" style={{color:colors.textPrimary}}>Create Channel</h2><p className="text-[11px]" style={{color:colors.textMuted}}>Add members to your group</p></div>
     <button type="button" aria-label="Close" onClick={onClose} disabled={creating} className="rounded-full p-2"><X size={16} color={colors.textMuted}/></button>
    </header>
