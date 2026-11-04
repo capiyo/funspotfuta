@@ -133,7 +133,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         if (token && user) await AsyncStorage.multiRemove(LOGOUT_KEYS);
-        if (!cancelled) setState(parseSession(token, user, refresh));
+        if (!cancelled) {
+          const restored = parseSession(token, user, refresh);
+          NotificationService.setActiveUser(restored.userId);
+          setState(restored);
+        }
       } catch (error) {
         if (__DEV__) console.warn('[auth] secure session restore failed', error);
         if (!cancelled) setState({ ...initialState, isInitialized: true });
@@ -146,6 +150,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     userId: string, username: string, authToken: string,
     opts?: { phone?: string; refreshToken?: string },
   ): Promise<boolean> => {
+    NotificationService.setActiveUser(userId);
     try {
       const user = JSON.stringify({ id: userId, username, phone: opts?.phone ?? '' });
       await SecureStore.setItemAsync(SECURE_KEYS.token, authToken, SECURE_STORE_OPTIONS);
@@ -171,6 +176,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [state.userId]);
 
   const logout = useCallback(async () => {
+    NotificationService.setActiveUser(null);
     try {
       if (state.userId) {
         const fcmToken = await getFcmTokenIfPermitted();
@@ -211,7 +217,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const updateUserData = useCallback(async (userId: string, username: string, phone?: string) => {
     try {
-      if (state.userId !== userId) await Promise.all([clearMobileQueryCache(), clearNotificationStorage()]);
+      if (state.userId !== userId) {
+        NotificationService.setActiveUser(null);
+        await Promise.all([clearMobileQueryCache(), clearNotificationStorage()]);
+      }
       const raw = await SecureStore.getItemAsync(SECURE_KEYS.user);
       if (raw) {
         const parsed: unknown = JSON.parse(raw);
@@ -219,6 +228,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const next = { ...(parsed as Record<string, unknown>), id: userId, username, ...(phone ? { phone } : {}) };
         await SecureStore.setItemAsync(SECURE_KEYS.user, JSON.stringify(next), SECURE_STORE_OPTIONS);
       }
+      NotificationService.setActiveUser(userId);
       setState((current) => ({ ...current, userId, username, phone: phone ?? current.phone }));
     } catch (error) {
       if (__DEV__) console.warn('[auth] secure user update failed', error);
@@ -231,6 +241,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const clearAllAppData = useCallback(async () => {
+    NotificationService.setActiveUser(null);
     setState({ ...initialState, isInitialized: true });
     const results = await Promise.allSettled([
       clearMobileQueryCache(),
