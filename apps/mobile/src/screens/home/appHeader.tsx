@@ -85,6 +85,7 @@ export function AppHeader({ onAddChannel }: { onAddChannel?: () => void }) {
     const [createChannelOpen, setCreateChannelOpen] = useState(false);
     const [chipLeaderboardChannel, setChipLeaderboardChannel] = useState<Channel | null>(null);
     const [avatarUploading, setAvatarUploading] = useState(false);
+    const suppressAvatarMenuPress = useRef(false);
 
     // Menu anchor: measured from the avatar so the dropdown sits right below it.
     const avatarRef = useRef<View>(null);
@@ -112,6 +113,7 @@ export function AppHeader({ onAddChannel }: { onAddChannel?: () => void }) {
     const profileAvatar = useProfileAvatar(userId ?? undefined, authToken);
     const avatarUri = profileAvatar ?? `https://i.pravatar.cc/150?u=${userId ?? 'guest'}`;
     async function handleAvatarLongPress() {
+        suppressAvatarMenuPress.current = true;
         if (!userId || avatarUploading) return;
         try {
             const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -188,7 +190,13 @@ export function AppHeader({ onAddChannel }: { onAddChannel?: () => void }) {
                         <Pressable
                             ref={avatarRef}
                             collapsable={false}
-                            onPress={openMenu}
+                            onPress={() => {
+                                if (suppressAvatarMenuPress.current) {
+                                    suppressAvatarMenuPress.current = false;
+                                    return;
+                                }
+                                openMenu();
+                            }}
                             onLongPress={() => { void handleAvatarLongPress(); }}
                             delayLongPress={550}
                             disabled={avatarUploading}
