@@ -241,6 +241,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return true;
     } catch {
       await secureBrowserSession.clear().catch(() => undefined);
+      NotificationService.setActiveUser(null);
       setState({ ...initialState, isInitialized: true });
       return false;
     }
