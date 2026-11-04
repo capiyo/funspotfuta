@@ -4271,3 +4271,12 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visib
     max-height: min(72vh, 560px) !important;
   }
 }
+
+
+/* Circular floating navigation: two compact, independently tappable round controls. */
+@media (max-width: 650px) {
+  .home-screen .floating-pill { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 5px !important; border-radius: 999px !important; }
+  .home-screen .floating-pill-item { width: 44px; height: 44px; min-height: 44px; padding: 0 !important; border-radius: 50% !important; }
+  .home-screen .floating-pill-item span { display: none; }
+  .home-screen .floating-pill-item svg { width: 19px; height: 19px; }
+}
