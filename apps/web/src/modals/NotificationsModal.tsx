@@ -90,17 +90,17 @@ export default function NotificationsModal({ visible, onClose }: { visible: bool
         <div className="flex justify-center pb-2 pt-4"><div className="h-[3px] w-8 rounded-full" style={{ background: colors.border }} /></div>
         <header className="flex items-center justify-between px-5 py-3">
           <h2 className="text-[15px] font-bold">Notifications</h2>
-          <button type="button" onClick={onClose} aria-label="Close notifications" className="rounded-full p-2" style={{ background: colors.surfaceSunken }}><X size={14} color={colors.textSecondary} /></button>
+          <button type="button" onClick={onClose} aria-label="Close notifications" className="rounded-full p-2" style={{ background: 'transparent' }}><X size={14} color={colors.textSecondary} /></button>
         </header>
         {loading ? <div className="py-10 text-center" role="status" style={{ color: colors.primary }}>Loading…</div> :
           <div className="no-scrollbar overflow-y-auto px-5 pb-8" style={{ maxHeight: 'calc(80vh - 72px)' }}>
             {summary && <div className="mb-4 flex gap-3">
               {[{ label: 'Unread notifications', value: summary.notifications }, { label: 'Unread comments', value: summary.comments }].map((item) =>
-                <div key={item.label} className="flex flex-1 flex-col items-center rounded-xl border p-3" style={{ borderColor: colors.border, background: colors.surface, gap: FAN_SPACING.xs }}>
+                <div key={item.label} className="flex flex-1 flex-col items-center rounded-2xl p-3" style={{ gap: FAN_SPACING.xs }}>
                   <strong className="text-xl font-extrabold">{item.value}</strong><span className="text-[10px]" style={{ color: colors.textTertiary }}>{item.label}</span>
                 </div>)}
             </div>}
-            {prefs && <div className="overflow-hidden rounded-xl border" style={{ borderColor: colors.border, background: colors.surface }}>
+            {prefs && <div className="overflow-hidden rounded-2xl">
               {(Object.keys(LABELS) as (keyof NotificationPreferences)[]).map((key, i) =>
                 <div key={key} className="flex items-center justify-between px-4 py-3.5" style={{ borderTop: i ? `1px solid ${colors.border}` : undefined }}>
                   <span className="text-[13px]">{LABELS[key]}</span>
