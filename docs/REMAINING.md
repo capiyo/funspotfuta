@@ -6,6 +6,18 @@ Tracking PR: [#4](https://github.com/capiyo/funspotfuta/pull/4) (draft)
 
 This document replaces the obsolete handoff checklist that listed old web line counts and incorrectly said the React Native app must not be changed. The current project is intentionally cross-platform.
 
+## Notification hardening added after the last validated head
+
+The following implementation changes are now on `web-port-from-master`; they have not yet received a fresh CI or physical-device verification:
+
+- Bind notification reconciliation to the active authenticated user and discard responses that finish after logout or account switching.
+- Recheck the session boundary after asynchronous badge persistence and before emitting reconciled badge events.
+- Reset the active notification session after failed login attempts and on logout/account boundaries.
+- Attach web foreground FCM listeners only while a user is authenticated; tear down listeners safely if asynchronous registration resolves after unmount.
+- Carry Firebase message IDs through web, Android and iOS foreground/background handlers and deduplicate repeated deliveries using a bounded 500-ID persisted window. Events without a stable FCM/event ID cannot be deduplicated by this client mechanism.
+
+These changes reduce client-side races and duplicate badge increments. They do not resolve the backend notification-router authorization blocker below, and they do not prove real push delivery.
+
 ## Completed and automatically verified on the validated head
 - Core tests and shared core, web and React Native typechecks.
 - Web lint and production Vite build.
