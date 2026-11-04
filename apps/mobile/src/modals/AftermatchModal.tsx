@@ -794,8 +794,8 @@ function createStyles(colors: any) {
         statChipText_away: { color: colors.away },
 
         filterChip: {
-            borderRadius: 8, paddingHorizontal: 8, paddingVertical: 2,
-            borderWidth: 1, borderColor: colors.border + '30',
+            borderRadius: 999, paddingHorizontal: 8, paddingVertical: 2,
+            borderWidth: 0, borderColor: 'transparent',
         },
         filterChipActive: { backgroundColor: colors.primaryDim, borderColor: colors.primary + '30' },
         filterChipText: { fontSize: 10, color: colors.textTertiary },
@@ -804,8 +804,8 @@ function createStyles(colors: any) {
         // Tiles
         tile: {
             flexDirection: 'row', alignItems: 'center', gap: 8,
-            borderRadius: 8, borderWidth: 1, borderColor: colors.border + '30',
-            backgroundColor: colors.surface,
+            borderRadius: 18, borderWidth: 0, borderColor: 'transparent',
+            backgroundColor: 'transparent',
             paddingHorizontal: 10, paddingVertical: 8,
             marginBottom: 4,
         },
@@ -834,8 +834,8 @@ function createStyles(colors: any) {
 
         // Bets
         betCard: {
-            borderRadius: 10, borderWidth: 1, borderColor: colors.border + '30',
-            backgroundColor: colors.surface,
+            borderRadius: 18, borderWidth: 0, borderColor: 'transparent',
+            backgroundColor: 'transparent',
             padding: 10, marginBottom: 8,
         },
         betId: { fontSize: 11, fontWeight: '700', color: colors.textPrimary },
@@ -866,13 +866,13 @@ function createStyles(colors: any) {
 
         // Subs
         subCard: {
-            borderRadius: 10, borderWidth: 1, borderColor: colors.border + '30',
-            backgroundColor: colors.surface,
+            borderRadius: 18, borderWidth: 0, borderColor: 'transparent',
+            backgroundColor: 'transparent',
             padding: 10, marginBottom: 8,
         },
         subTitle: { flex: 1, fontSize: 11, fontWeight: '700', color: colors.textPrimary },
         outcomeChip: {
-            borderRadius: 8, backgroundColor: colors.surfaceSunken,
+            borderRadius: 999, backgroundColor: 'transparent',
             paddingHorizontal: 8, paddingVertical: 3,
         },
         outcomeChipWin: {
@@ -893,8 +893,8 @@ function createStyles(colors: any) {
         emptyIcon: { fontSize: 40, color: colors.textTertiary, opacity: 0.4 },
         emptyLabel: { fontSize: 11, color: colors.textTertiary },
         retryBtn: {
-            marginTop: 8, borderRadius: 8,
-            backgroundColor: colors.primary,
+            marginTop: 8, borderRadius: 999,
+            backgroundColor: 'transparent',
             paddingHorizontal: 16, paddingVertical: 6,
         },
         retryText: { fontSize: 11, fontWeight: '600', color: '#fff' },
