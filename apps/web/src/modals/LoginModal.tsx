@@ -489,7 +489,7 @@ export default function LoginModal({ visible = true, onClose, onSuccess }: Login
           style={{ color: colors.textTertiary }}>PHONE NUMBER</label>
       <div
           className="flex items-stretch rounded-full border"
-          style={{ borderColor: colors.border, background: colors.surfaceSunken }}>
+          style={{ borderColor: 'transparent', background: 'transparent' }}>
       <button
           type="button"
           onClick={() => setPickerVisible(true)}
