@@ -424,8 +424,8 @@ export default function LoginModal({ visible = true, onClose, onSuccess }: Login
       </button>;
   const renderCard = (icon: string, heading: string, body: string) => (
     <div
-          className="flex flex-col items-center gap-1.5 rounded-2xl border p-4"
-          style={{ borderColor: colors.border, background: colors.surfaceSunken }}>
+          className="flex flex-col items-center gap-1.5 rounded-2xl p-4"
+          style={{ borderColor: 'transparent', background: 'transparent' }}>
       <span
           className="text-[40px] leading-none">{icon}</span>
       <h3
@@ -441,8 +441,8 @@ export default function LoginModal({ visible = true, onClose, onSuccess }: Login
           className="text-sm"
           style={{ color: colors.away }}>{message}</p> : null;
   const toastColor = toastState?.kind === 'error' ? colors.away : toastState?.kind === 'warn' ? colors.draw : colors.primary;
-  const inputClass = 'w-full min-w-0 rounded-xl border px-4 py-3.5 outline-none focus:ring-2';
-  const inputStyle = { borderColor: colors.border, background: colors.surfaceSunken, color: colors.textPrimary, '--tw-ring-color': colors.primary } as React.CSSProperties;
+  const inputClass = 'w-full min-w-0 rounded-full border px-4 py-3.5 outline-none focus:ring-2';
+  const inputStyle = { borderColor: colors.border, background: 'transparent', color: colors.textPrimary, '--tw-ring-color': colors.primary } as React.CSSProperties;
   if (!visible) return null;
   return createPortal(
     <div
@@ -488,7 +488,7 @@ export default function LoginModal({ visible = true, onClose, onSuccess }: Login
           className="text-xs font-semibold tracking-wide"
           style={{ color: colors.textTertiary }}>PHONE NUMBER</label>
       <div
-          className="flex items-stretch rounded-xl border"
+          className="flex items-stretch rounded-full border"
           style={{ borderColor: colors.border, background: colors.surfaceSunken }}>
       <button
           type="button"
@@ -524,7 +524,7 @@ export default function LoginModal({ visible = true, onClose, onSuccess }: Login
           role="checkbox"
           aria-checked={acceptTerms}
           onClick={() => setAcceptTerms((value) => !value)}
-          className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded border-2"
+          className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2"
           style={{ borderColor: colors.primary, background: acceptTerms ? colors.primary : colors.surface, color: colors.textInverse, boxShadow: acceptTerms ? 'none' : `inset 0 0 0 1px ${colors.primary}20` }}>{acceptTerms ? '✓' : ''}</button>
       <p
           className="flex-1 text-xs leading-5"
@@ -580,7 +580,7 @@ export default function LoginModal({ visible = true, onClose, onSuccess }: Login
           className="flex flex-col gap-3">
             {renderCard(isNewPinUser ? '🔒' : '🔓', isNewPinUser ? 'Set Your PIN' : 'Enter Your PIN', isNewPinUser ? 'Create a 4-digit PIN to secure your account' : `Enter your 4-digit PIN for ${verifiedPhone}`)}
             <div
-          className="flex items-center rounded-xl border pr-3"
+          className="flex items-center rounded-full border pr-3"
           style={{ borderColor: colors.border, background: colors.surfaceSunken }}>
       <input
           type={pinObscure ? 'password' : 'text'}
