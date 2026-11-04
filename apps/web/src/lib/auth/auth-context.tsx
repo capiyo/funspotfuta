@@ -51,6 +51,26 @@ async function clearNotificationStorage(): Promise<void> {
   }
 }
 
+async function migrateLegacyNotificationStorage(): Promise<void> {
+  for (const key of NOTIFICATION_STORAGE_KEYS) {
+    try {
+      const legacyValue = localStorage.getItem(key);
+      if (legacyValue === null) continue;
+      const encryptedValue = await secureBrowserNotificationStorage.getItem(key);
+      if (encryptedValue === null) {
+        await secureBrowserNotificationStorage.setItem(key, legacyValue);
+      }
+    } catch (error) {
+      // Server reconciliation is authoritative if the browser cannot decrypt
+      // or migrate a legacy notification snapshot. Never retain plaintext.
+      if (import.meta.env.DEV) console.warn('[notifications] legacy snapshot migration skipped', key, error);
+    } finally {
+      try { localStorage.removeItem(key); } catch { /* browser storage may be unavailable */ }
+    }
+  }
+}
+
+
 const LEGACY_KEYS = [
   'usertoken','user','isLoggedIn','userId','username','phone','refreshToken','userBets','userProfile',
   'availableGames','notifications','notificationCount','cachedPosts','cachedFixtures','lastCarouselFetch',
@@ -150,6 +170,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           await secureBrowserSession.setUser(legacyUser);
           if (legacyRefresh) await secureBrowserSession.setRefreshToken(legacyRefresh);
         }
+        await migrateLegacyNotificationStorage();
         LEGACY_KEYS.forEach((key) => localStorage.removeItem(key));
         const restored = await readStoredState();
         if (!cancelled && boundaryVersion === authBoundaryVersion.current) {
