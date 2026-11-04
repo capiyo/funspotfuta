@@ -22,6 +22,7 @@ The following implementation changes are now on `web-port-from-master`; they hav
 - Centralize mobile FCM token registration and token-refresh handling in the authenticated notification runtime; the login overlay no longer makes a duplicate registration request, and denied permission retries now explain the device-settings step.
 - Serialize token unregistration after any in-flight registration and invalidate the local registration cache even when logout cleanup encounters a network error.
 - Bound token registration and unregistration requests so a stalled network cannot hold the logout path indefinitely.
+- Reject token registration when its originating account is no longer active; a late successful response is followed by an owner-scoped unregister so it cannot resurrect a logged-out device token.
 
 These changes reduce client-side races and duplicate badge increments. They do not resolve the backend notification-router authorization blocker below, and they do not prove real push delivery.
 
