@@ -204,7 +204,7 @@ export function PitchView({ homeTeam, awayTeam, homeFormation, awayFormation, ho
       <span className="truncate text-[10px] font-normal" style={{color:colors.away}}>{awayTeam} · {awayFormation}</span>
     </div>
     <div className="overflow-hidden rounded-xl" style={{...fanShadowStyle('card', true),background:GRASS_EVEN}}>
-      <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`${homeTeam} vs ${awayTeam} lineups`} className="lineup-pitch-svg block h-[min(calc(100dvh_-_76px),200vw)] w-auto max-w-full mx-auto min-[651px]:h-full min-[651px]:w-auto">
+      <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`${homeTeam} vs ${awayTeam} lineups`} className="lineup-pitch-svg block h-[min(calc(100dvh_-_76px),200vw)] w-auto max-w-full mx-auto min-[651px]:h-[calc(100dvh_-_72px)] min-[651px]:w-auto">
         {Array.from({length:8},(_,i)=><rect key={i} x={i*width/8} y="0" width={width/8} height={height} fill={i%2===0?GRASS_EVEN:GRASS_ODD}/>)}
         <g fill="none" stroke="rgba(255,255,255,.75)" strokeWidth="2">
           <rect x="15" y="15" width={width-30} height={height-30} rx="2"/>
