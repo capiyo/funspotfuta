@@ -638,7 +638,7 @@ function createStyles(colors: FanColors) {
             gap: FAN_SPACING.md,
             paddingHorizontal: FAN_SPACING.base,
             paddingVertical: FAN_SPACING.md,
-            backgroundColor: colors.surfaceSunken,
+            backgroundColor: 'transparent',
             borderRadius: FAN_RADIUS.md,
             marginBottom: FAN_SPACING.base,
         },
@@ -647,7 +647,7 @@ function createStyles(colors: FanColors) {
         inputsDisabled: { opacity: 0.5 },
         input: {
             borderWidth: 1,
-            borderRadius: FAN_RADIUS.md,
+            borderRadius: 999,
             paddingHorizontal: FAN_SPACING.base,
             paddingVertical: FAN_SPACING.md,
             fontSize: 13,
@@ -676,7 +676,7 @@ function createStyles(colors: FanColors) {
             padding: FAN_SPACING.md,
             borderRadius: FAN_RADIUS.sm,
             borderWidth: 0.5,
-            backgroundColor: colors.surfaceSunken,
+            backgroundColor: 'transparent',
         },
         infoBoxText: { fontSize: 9, flex: 1 },
 
