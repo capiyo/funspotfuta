@@ -310,7 +310,7 @@ export default function PostCommentsModal({
             <button type="button" onClick={() => setReplyingTo(null)} aria-label="Cancel reply" className="rounded-full p-1" style={{ color: colors.textTertiary, background: colors.surface }}><X size={12} /></button>
           </div>}
           <div className="flex items-end gap-3">
-            <span className="shrink-0 overflow-hidden rounded-full" style={{ width: 32, height: 32, borderRadius: '50%' }}><Avatar colors={colors} size="lg" userId={userId ?? undefined} label={initialsOf(username ?? 'U')} /></span>
+            <span className="shrink-0 overflow-hidden rounded-full" style={{ width: 32, height: 32, borderRadius: '50%', clipPath: 'circle(50%)' }}><Avatar colors={colors} size="lg" userId={userId ?? undefined} label={initialsOf(username ?? 'U')} /></span>
             <div className="flex min-h-[42px] flex-1 items-end rounded-3xl pl-4" style={{ background: colors.surfaceSunken }}>
               <textarea ref={inputRef} value={draft} onChange={(event) => setDraft(event.target.value)}
                 onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void handleSubmit(); } }}
@@ -344,7 +344,7 @@ function CommentBubble({ colors, comment, currentUserId, parentUsername, onReply
         <button type="button" onClick={onReply} onContextMenu={(event) => { event.preventDefault(); onReply(); }}
           className="border px-3.5 py-2.5 text-left text-[13px] leading-[18px]"
           style={{ background: isMe ? colors.primaryDim : colors.surfaceSunken, borderColor: isMe ? colors.primaryMuted : colors.border,
-            borderRadius: isMe ? '16px 16px 4px 16px' : '16px 16px 16px 4px', color: colors.textPrimary }}>
+            borderRadius: isMe ? '18px 18px 5px 18px' : '18px 18px 18px 5px', color: colors.textPrimary, boxShadow: '0 3px 10px rgba(0,0,0,.12)', overflowWrap: 'anywhere', whiteSpace: 'pre-wrap' }}>
           {comment.comment}
         </button>
         <div className="mx-1 mt-1 flex items-center gap-3 text-[8px] font-bold tracking-wider" style={{ color: colors.textTertiary }}>
@@ -352,7 +352,7 @@ function CommentBubble({ colors, comment, currentUserId, parentUsername, onReply
           <button type="button" onClick={onReply} className="text-[9px] font-semibold" style={{ color: colors.primary }}>Reply</button>
         </div>
       </div>
-      {isMe && <button type="button" onClick={onReply} onContextMenu={(event) => { event.preventDefault(); onReply(); }} aria-label="Reply to your comment" className="shrink-0"><Avatar colors={colors} size="lg" userId={comment.user_id} label={initialsOf(comment.user_name)} /></button>}
+      {isMe && <button type="button" onClick={onReply} onContextMenu={(event) => { event.preventDefault(); onReply(); }} aria-label="Reply to your comment" className="shrink-0 overflow-hidden rounded-full" style={{ width: 32, height: 32, borderRadius: '50%', clipPath: 'circle(50%)' }}><Avatar colors={colors} size="lg" userId={comment.user_id} label={initialsOf(comment.user_name)} /></button>}
     </div>
   </article>;
 }
