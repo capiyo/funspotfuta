@@ -4404,3 +4404,80 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visib
     box-shadow: none !important;
   }
 }
+
+/* Final desktop home sizing: keep Chats and Feed adjacent, then give Feed
+   enough width for genuinely large, readable post cards. */
+@media (min-width: 651px) {
+  body:has(.home-screen) .home-screen .workspace > main.home-columns,
+  .home-screen .home-columns {
+    display: grid !important;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr) !important;
+    column-gap: 8px !important;
+    gap: 8px !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .home-screen .chats-column,
+  .home-screen .feed-column {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .home-screen .feed-column > .feed-screen,
+  .home-screen .feed-column .feed-screen {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding-inline: 0 !important;
+  }
+
+  .home-screen .feed-column .feed-list-masonry {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100% !important;
+    gap: 0 !important;
+  }
+
+  .home-screen .feed-column .feed-post-column,
+  .home-screen .feed-column .feed-item,
+  .home-screen .feed-column .post-card,
+  .home-screen .feed-column .feed-list > * {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    margin-inline: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .home-screen .feed-column .post-image-frame,
+  .home-screen .feed-column .post-video-frame {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: min(62vh, 620px) !important;
+  }
+
+  .home-screen .feed-column .post-image-frame {
+    aspect-ratio: 4 / 3 !important;
+    height: auto !important;
+  }
+
+  .home-screen .feed-column .post-video-frame {
+    aspect-ratio: 16 / 9 !important;
+    height: auto !important;
+  }
+
+  .home-screen .feed-column .post-image-frame img,
+  .home-screen .feed-column .post-video-frame video {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: min(62vh, 620px) !important;
+    object-fit: cover !important;
+  }
+}
+
