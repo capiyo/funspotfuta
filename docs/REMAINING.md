@@ -16,6 +16,7 @@ The following implementation changes are now on `web-port-from-master`; they hav
 - Attach web foreground FCM listeners only while a user is authenticated; tear down listeners safely if asynchronous registration resolves after unmount.
 - Carry Firebase message IDs through web, Android and iOS foreground/background handlers and deduplicate repeated deliveries using a bounded 500-ID persisted window. Events without a stable FCM/event ID cannot be deduplicated by this client mechanism.
 - Keep fixture unread totals independent of the capped 10-item notification preview; marking a fixture read now resets its stored unread total and decrements the aggregate count by the true total.
+- Store browser notification snapshots in AES-GCM encrypted IndexedDB instead of plaintext localStorage; migrate legacy notification keys into encrypted records and remove the old plaintext copies.
 
 These changes reduce client-side races and duplicate badge increments. They do not resolve the backend notification-router authorization blocker below, and they do not prove real push delivery.
 
