@@ -34,49 +34,6 @@ function hexWithAlpha(hex: string, alpha: number): string {
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  FORMATION PILL
-// ═══════════════════════════════════════════════════════════════
-
-interface FormationPillProps {
-    teamName: string;
-    formation: string;
-    color: string;
-    alignRight?: boolean;
-}
-
-function FormationPill({
-    teamName,
-    formation,
-    color,
-    alignRight = false,
-}: FormationPillProps) {
-    const colors = useFanColors();
-    return (
-        <View style={{ alignItems: alignRight ? 'flex-end' : 'flex-start' }}>
-            <Text
-                numberOfLines={1}
-                ellipsizeMode="tail"
-                style={[fanText('tag', colors), { color, fontSize: 10, fontWeight: '400', lineHeight: 13 }]}
-            >
-                {teamName}
-            </Text>
-            <View style={{ height: 3 }} />
-            <View
-                style={[
-                    styles.formationPill,
-                    {
-                        backgroundColor: hexWithAlpha(color, 0.12),
-                        borderColor: hexWithAlpha(color, 0.3),
-                    },
-                ]}
-            >
-                <Text style={[styles.formationPillText, { color }]}>{formation}</Text>
-            </View>
-        </View>
-    );
-}
-
-// ═══════════════════════════════════════════════════════════════
 //  EMPTY STATE
 // ═══════════════════════════════════════════════════════════════
 
@@ -161,56 +118,14 @@ export function LineupsTab({
 
     return (
         <View style={{ flex: 1 }} onLayout={onLayout}>
-            {/* Formation header row with Bench button */}
-            <View style={styles.formationRow}>
-                <FormationPill
-                    teamName={fixture.homeTeam}
-                    formation={lineups.homeFormation}
-                    color={colors.primary}
-                />
-                <View style={{ flex: 1 }} />
-                {hasBench ? (
-                    <Pressable onPress={() => setShowBench((v) => !v)}>
-                        <View
-                            style={[
-                                styles.benchToggle,
-                                {
-                                    backgroundColor: showBench
-                                        ? colors.primary
-                                        : colors.background,
-                                    borderColor: showBench
-                                        ? colors.primary
-                                        : colors.borderActive,
-                                },
-                            ]}
-                        >
-                            {showBench ? (
-                                <X size={15} color="#FFFFFF" />
-                            ) : (
-                                <ArrowLeftRight size={15} color={colors.textSecondary} />
-                            )}
-                            <View style={{ width: 5 }} />
-                            <Text
-                                style={[
-                                    styles.benchToggleText,
-                                    {
-                                        color: showBench ? '#FFFFFF' : colors.textSecondary,
-                                    },
-                                ]}
-                            >
-                                Bench
-                            </Text>
-                        </View>
+            {hasBench ? (
+                <View style={styles.compactBenchRow}>
+                    <Pressable onPress={() => setShowBench((v) => !v)} style={[styles.benchToggle, { backgroundColor: showBench ? colors.primary : 'transparent', borderColor: showBench ? colors.primary : colors.borderActive }]}>
+                        {showBench ? <X size={15} color="#FFFFFF" /> : <ArrowLeftRight size={15} color={colors.textSecondary} />}
+                        <Text style={[styles.benchToggleText, { color: showBench ? '#FFFFFF' : colors.textSecondary }]}>{showBench ? 'Hide bench' : 'Show bench'}</Text>
                     </Pressable>
-                ) : null}
-                <View style={{ flex: 1 }} />
-                <FormationPill
-                    teamName={fixture.awayTeam}
-                    formation={lineups.awayFormation}
-                    color={colors.away}
-                    alignRight
-                />
-            </View>
+                </View>
+            ) : null}
 
             {/* Bench animated drawer — mirrors Flutter's SizeTransition
           (sizeFactor driven by _benchAnimation, axisAlignment -1) */}
@@ -309,24 +224,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         padding: FAN_SPACING.lg,
     },
-    formationRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingLeft: FAN_SPACING.base,
-        paddingRight: FAN_SPACING.base,
-        paddingTop: 10,
-        paddingBottom: FAN_SPACING.xs,
-    },
-    formationPill: {
-        paddingHorizontal: 8,
-        paddingVertical: 3,
-        borderRadius: 6,
-        borderWidth: 1,
-    },
-    formationPillText: {
-        fontSize: 11,
-        fontWeight: '700',
-    },
+    compactBenchRow: { flexDirection: 'row', justifyContent: 'center', paddingVertical: 4 },
     benchToggle: {
         flexDirection: 'row',
         alignItems: 'center',
