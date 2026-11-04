@@ -29,7 +29,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
   const colors = useFanColors();
   const styles = createStyles(colors);\n  const { height: screenH } = useWindowDimensions();
   const [tab, setTab] = useState<Tab>('vote');
-  const [pokeListTab, setPokeListTab] = useState<'open' | 'matched'>('open');
+  const [listTab, setListTab] = useState<'votes' | 'open' | 'matched'>('votes');
   const [market, setMarket] = useState<PossessionMarket | null>(null);
   const [selection, setSelection] = useState<PossessionSide>('home');
   const [amount, setAmount] = useState('');
@@ -141,24 +141,6 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
               </Pressable>
             </View>
 
-            <View style={styles.sectionHead}>
-              <Text style={fanText('button', colors, colors.textPrimary)}>Possession votes</Text>
-              <Text style={fanText('tag', colors, colors.textSecondary)}>{total} {total === 1 ? 'vote' : 'votes'}</Text>
-            </View>
-            <View style={styles.bar}><View style={[styles.homeBar, { flex: homePercent }]} /><View style={[styles.awayBar, { flex: 100 - homePercent }]} /></View>
-            <View style={styles.scoreLine}>
-              <Text style={fanText('tag', colors, colors.textPrimary)}>{fixture.homeTeam}  {homeVotes} · {total ? homePercent : 0}%</Text>
-              <Text style={fanText('tag', colors, colors.textPrimary)}>{fixture.awayTeam}  {awayVotes} · {total ? 100 - homePercent : 0}%</Text>
-            </View>
-            {(market?.votes ?? []).map((vote) => (
-              <View key={vote.id} style={styles.pokeRow}>
-                <Avatar colors={colors} size="md" userId={vote.userId} label={vote.username?.[0] ?? '?'} />
-                <Text style={[fanText('button', colors, colors.textPrimary), { flex: 1 }]}>{vote.username}</Text>
-                <Text style={fanText('tag', colors, vote.selection === 'home' ? colors.primary : colors.away)}>{vote.selection === 'home' ? fixture.homeTeam : fixture.awayTeam}</Text>
-              </View>
-            ))}
-            {!loading && (market?.votes.length ?? 0) === 0 && <Text style={[fanText('caption', colors, colors.textSecondary), styles.empty]}>No possession votes yet.</Text>}
-
             <View style={styles.sideRow}>{sideButton('home', fixture.homeTeam)}{sideButton('away', fixture.awayTeam)}</View>
             {tab === 'vote' ? (
               <Pressable disabled={busy || loading || market !== null && market.status !== 'open'} onPress={() => void submitVote()} style={({ pressed }) => [styles.primaryButton, (pressed || busy) && { opacity: PRESSED_OPACITY }]}>
@@ -179,26 +161,45 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
             {error && <Text accessibilityRole="alert" style={[fanText('caption', colors, colors.away), styles.message]}>{error}</Text>}
             {notice && <Text accessibilityRole="text" style={[fanText('caption', colors, colors.primary), styles.message]}>{notice}</Text>}
 
-            <View style={styles.sectionHead}>
-              <Text style={fanText('button', colors, colors.textPrimary)}>Possession pokes</Text>
-              <Pressable onPress={() => void refresh()} disabled={loading}><Text style={fanText('tag', colors, colors.primary)}>Refresh</Text></Pressable>
-            </View>
-            <View style={styles.tabs}>
-              <Pressable onPress={() => setPokeListTab('open')} style={[styles.tab, pokeListTab === 'open' && styles.tabActive]}><Text style={fanText('button', colors, pokeListTab === 'open' ? colors.primary : colors.textSecondary)}>Unmatched</Text></Pressable>
-              <Pressable onPress={() => setPokeListTab('matched')} style={[styles.tab, pokeListTab === 'matched' && styles.tabActive]}><Text style={fanText('button', colors, pokeListTab === 'matched' ? colors.primary : colors.textSecondary)}>Matched</Text></Pressable>
+            <View style={styles.listTabs}>
+              {([{ id: 'votes', label: 'Vote List', count: total }, { id: 'open', label: 'Unmatched', count: (market?.pokes ?? []).filter((poke) => poke.status === 'open').length }, { id: 'matched', label: 'Matched', count: (market?.pokes ?? []).filter((poke) => poke.status === 'matched' || poke.status === 'settled').length }] as const).map((item) => (
+                <Pressable key={item.id} accessibilityRole="tab" accessibilityState={{ selected: listTab === item.id }} onPress={() => setListTab(item.id)} style={[styles.listTab, listTab === item.id && styles.listTabActive]}>
+                  <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.listTabText, listTab === item.id && styles.listTabTextActive]}>{item.label} ({item.count})</Text>
+                </Pressable>
+              ))}
             </View>
             {loading && <ActivityIndicator color={colors.primary} style={styles.loader} />}
-            {!loading && (market?.pokes ?? []).filter((poke) => pokeListTab === 'open' ? poke.status === 'open' : poke.status === 'matched' || poke.status === 'settled').length === 0 && <Text style={[fanText('caption', colors, colors.textSecondary), styles.empty]}>{pokeListTab === 'open' ? 'No unmatched possession pokes yet.' : 'No matched possession pokes yet.'}</Text>}
-            {(market?.pokes ?? []).filter((poke) => pokeListTab === 'open' ? poke.status === 'open' : poke.status === 'matched' || poke.status === 'settled').map((poke) => (
-              <View key={poke.id} style={styles.pokeRow}>
-                <View style={styles.pokeDetails}>
-                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Avatar colors={colors} size="md" userId={poke.userId} label={poke.username?.[0] ?? '?'} /><Text style={fanText('button', colors, colors.textPrimary)}>{poke.username}</Text></View>
-                  <Text style={fanText('tag', colors, colors.textSecondary)}>{poke.selection === 'home' ? fixture.homeTeam : fixture.awayTeam} · {poke.amount} pts</Text>{pokeListTab === 'matched' && poke.finisherName && <Text style={fanText('tag', colors, colors.textSecondary)}>↔ {poke.finisherName} · {poke.finisherSelection === 'home' ? fixture.homeTeam : fixture.awayTeam} · {poke.finisherAmount ?? poke.amount} pts</Text>}
-                </View>
-                {pokeListTab === 'open' && poke.userId !== userId && <Pressable disabled={busy} onPress={() => void matchPoke(poke.id)} style={styles.matchButton}><Text style={fanText('tag', colors, colors.primary)}>Match</Text></Pressable>}
+            {!loading && listTab === 'votes' && (<>
+            <View style={styles.sectionHead}>
+              <Text style={fanText('button', colors, colors.textPrimary)}>Possession votes</Text>
+              <Text style={fanText('tag', colors, colors.textSecondary)}>{total} {total === 1 ? 'vote' : 'votes'}</Text>
+            </View>
+            <View style={styles.bar}><View style={[styles.homeBar, { flex: homePercent }]} /><View style={[styles.awayBar, { flex: 100 - homePercent }]} /></View>
+            <View style={styles.scoreLine}>
+              <Text style={fanText('tag', colors, colors.textPrimary)}>{fixture.homeTeam}  {homeVotes} · {total ? homePercent : 0}%</Text>
+              <Text style={fanText('tag', colors, colors.textPrimary)}>{fixture.awayTeam}  {awayVotes} · {total ? 100 - homePercent : 0}%</Text>
+            </View>
+            {(market?.votes ?? []).map((vote) => (
+              <View key={vote.id} style={styles.pokeRow}>
+                <Avatar colors={colors} size="md" userId={vote.userId} label={vote.username?.[0] ?? '?'} />
+                <Text style={[fanText('button', colors, colors.textPrimary), { flex: 1 }]}>{vote.username}</Text>
+                <Text style={fanText('tag', colors, vote.selection === 'home' ? colors.primary : colors.away)}>{vote.selection === 'home' ? fixture.homeTeam : fixture.awayTeam}</Text>
               </View>
             ))}
-            {market?.settlement && <Text style={[fanText('caption', colors, colors.textSecondary), styles.message]}>Settled · winner: {market.settlement.winner ?? 'No winner'}</Text>}
+            {!loading && (market?.votes.length ?? 0) === 0 && <Text style={[fanText('caption', colors, colors.textSecondary), styles.empty]}>No possession votes yet.</Text>}
+            </>)}
+            {!loading && listTab !== 'votes' && (market?.pokes ?? []).filter((poke) => listTab === 'open' ? poke.status === 'open' : poke.status === 'matched' || poke.status === 'settled').length === 0 && <Text style={[fanText('caption', colors, colors.textSecondary), styles.empty]}>{listTab === 'open' ? 'No unmatched possession pokes yet.' : 'No matched possession pokes yet.'}</Text>}
+            {listTab !== 'votes' && (market?.pokes ?? []).filter((poke) => listTab === 'open' ? poke.status === 'open' : poke.status === 'matched' || poke.status === 'settled').map((poke) => (
+              <View key={poke.id} style={styles.pokeRow}>
+                <View style={styles.pokeDetails}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Avatar colors={colors} size="md" userId={poke.userId} label={poke.username?.[0] ?? '?'} /><Text numberOfLines={1} style={fanText('button', colors, colors.textPrimary)}>{poke.username}</Text></View>
+                  <Text style={fanText('tag', colors, colors.textSecondary)} numberOfLines={2}>{poke.selection === 'home' ? fixture.homeTeam : fixture.awayTeam} · {poke.amount} pts</Text>
+                  {listTab === 'matched' && poke.finisherName && <Text style={fanText('tag', colors, colors.textSecondary)} numberOfLines={2}>↔ {poke.finisherName} · {poke.finisherSelection === 'home' ? fixture.homeTeam : fixture.awayTeam} · {poke.finisherAmount ?? poke.amount} pts</Text>}
+                </View>
+                {listTab === 'open' && poke.userId !== userId && <Pressable disabled={busy || (market !== null && market.status !== 'open')} onPress={() => void matchPoke(poke.id)} style={styles.matchButton}><Text style={fanText('tag', colors, colors.primary)}>Match</Text></Pressable>}
+              </View>
+            ))}
+            {listTab === 'matched' && market?.settlement && <Text style={[fanText('caption', colors, colors.textSecondary), styles.message]}>Settled · winner: {market.settlement.winner ?? 'No winner'}</Text>}
             <Text style={[fanText('tag', colors, colors.textTertiary), styles.disclaimer]}>Separate from match-winner votes and regular match pokes.</Text>
           </ScrollView>
         </Pressable>
@@ -210,7 +211,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
 function createStyles(colors: ReturnType<typeof useFanColors>) {
   return StyleSheet.create({
     backdrop: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.58)' },
-    sheet: { width: '100%', backgroundColor: colors.surface, borderTopLeftRadius: 16, borderTopRightRadius: 16, overflow: 'hidden' },
+    sheet: { width: screenW, alignSelf: 'stretch', backgroundColor: colors.surface, borderTopLeftRadius: 16, borderTopRightRadius: 16, overflow: 'hidden' },
     
     content: { paddingHorizontal: 12, paddingTop: 6, paddingBottom: 8 },
     handle: { width: 32, height: 4, borderRadius: 999, backgroundColor: colors.border, alignSelf: 'center', marginTop: 0, marginBottom: 7 },
@@ -229,6 +230,11 @@ function createStyles(colors: ReturnType<typeof useFanColors>) {
     tabs: { flexDirection: 'row', gap: 4, marginTop: 3, marginBottom: 6, backgroundColor: colors.surfaceSunken, borderColor: colors.border, borderWidth: StyleSheet.hairlineWidth, padding: 3, borderRadius: 10 },
     tab: { flex: 1, alignItems: 'center', justifyContent: 'center', minHeight: 34, borderRadius: 7 },
     tabActive: { backgroundColor: colors.surface, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 3, shadowOffset: { width: 0, height: 1 }, elevation: 1 },
+    listTabs: { width: '100%', flexDirection: 'row', alignSelf: 'stretch', gap: 3, marginTop: 12, marginBottom: 8, backgroundColor: colors.surfaceSunken, borderColor: colors.border, borderWidth: StyleSheet.hairlineWidth, padding: 3, borderRadius: 9 },
+    listTab: { flex: 1, minWidth: 0, minHeight: 36, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 2, borderRadius: 7 },
+    listTabActive: { backgroundColor: colors.surface, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 3, shadowOffset: { width: 0, height: 1 }, elevation: 1 },
+    listTabText: { color: colors.textSecondary, fontSize: 10, fontWeight: '600', textAlign: 'center' },
+    listTabTextActive: { color: colors.primary, fontWeight: '800' },
     sectionHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12, marginBottom: 9, gap: 10 },
     bar: { height: 9, flexDirection: 'row', borderRadius: 8, overflow: 'hidden', backgroundColor: colors.border },
     homeBar: { backgroundColor: colors.primary },
