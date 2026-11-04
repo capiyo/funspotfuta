@@ -6,6 +6,7 @@ import {
     StyleSheet,
     Pressable,
     LayoutChangeEvent,
+    useWindowDimensions,
 } from 'react-native';
 import Svg, {
     Rect,
