@@ -4333,3 +4333,14 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visib
   background: transparent !important;
   box-shadow: none !important;
 }
+
+
+/* Flatten nested rectangular cards inside dialogs; circular markers may keep color. */
+[role="dialog"] :is(div, section, article)[class*="rounded-xl"]:not([class*="rounded-full"]),
+[role="dialog"] :is(div, section, article)[class*="rounded-lg"]:not([class*="rounded-full"]),
+[aria-modal="true"] :is(div, section, article)[class*="rounded-xl"]:not([class*="rounded-full"]),
+[aria-modal="true"] :is(div, section, article)[class*="rounded-lg"]:not([class*="rounded-full"]) {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
