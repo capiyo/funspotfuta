@@ -73,7 +73,7 @@ export default function NotificationsScreen({
         // are just the persisted totals, so read those directly.
         const [counts, p] = await Promise.all([
           NotificationService.loadInitialBadgeCounts(),
-          NotificationService.getNotificationPreferences(userId),
+          NotificationService.getNotificationPreferences(userId, authToken ?? undefined),
         ]);
         if (cancelled) return;
         setSummary({
@@ -93,7 +93,7 @@ export default function NotificationsScreen({
     return () => {
       cancelled = true;
     };
-  }, [visible, userId]);
+  }, [authToken, visible, userId]);
 
   async function toggle(key: keyof NotificationPreferences) {
     if (!prefs || !userId) return;
