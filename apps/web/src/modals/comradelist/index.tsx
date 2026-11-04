@@ -266,30 +266,30 @@ export default function ComradeListModal({
             <div className="px-4 pt-2">
               <AdSenseCarousel placement="chats" label="Comrades sponsored carousel" slots={['9051548379', '3164796870', '1372263706']} />
             </div>
-            <div className="mb-3 flex items-center gap-2 rounded-xl border px-3" style={{ ...border, background: colors.surface }}>
+            <div className="mb-3 flex items-center gap-2 rounded-full px-3" style={{ background: 'transparent' }}>
               <Search size={15} style={{ color: colors.textTertiary }} />
               <input value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Search name, username or club…" aria-label="Search comrades"
                 className="min-w-0 flex-1 bg-transparent py-3 text-sm outline-none" />
               <span className="text-[10px]" style={{ color: colors.textTertiary }}>{filteredComrades.length}</span>
             </div>
-            <div className="mb-3 flex items-start gap-2 rounded-xl p-3 text-[11px]" style={{ background: colors.surfaceSunken, color: colors.textSecondary }}>
+            <div className="mb-3 flex items-start gap-2 rounded-2xl p-3 text-[11px]" style={{ background: 'transparent', color: colors.textSecondary }}>
               <Info size={15} className="mt-0.5 shrink-0" />
               <span>{remainingSlots > 0 ? `You can join ${remainingSlots} more ${remainingSlots === 1 ? 'channel' : 'channels'}.` : 'You have reached the 3-channel limit.'} {hasAdminChannels ? 'As a channel admin, you can add fans directly.' : 'You can invite fans to channels you belong to.'}</span>
             </div>
             {loading ? <div className="grid gap-3 py-8" role="status"><span className="mx-auto h-7 w-7 animate-spin rounded-full border-2 border-current border-t-transparent" /><p className="text-center text-xs" style={{ color: colors.textSecondary }}>Loading comrades…</p></div>
-              : error ? <div className="rounded-xl border p-5 text-center" style={border}><AlertCircle size={22} className="mx-auto mb-2" style={{ color: colors.away }} /><p className="text-sm">{error}</p><button type="button" onClick={() => void fetchComrades()} className="mt-3 rounded-lg px-4 py-2 text-xs font-semibold" style={{ background: colors.primary, color: colors.textInverse }}>Retry</button></div>
+              : error ? <div className="rounded-2xl p-5 text-center"><AlertCircle size={22} className="mx-auto mb-2" style={{ color: colors.away }} /><p className="text-sm">{error}</p><button type="button" onClick={() => void fetchComrades()} className="mt-3 rounded-full px-4 py-2 text-xs font-bold" style={{ color: colors.primary }}>Retry</button></div>
               : filteredComrades.length === 0 ? <div className="py-10 text-center"><Users size={28} className="mx-auto mb-2" style={{ color: colors.textTertiary }} /><p className="text-sm font-semibold">{searchQuery ? 'No matching fans' : 'No fans to show'}</p><p className="mt-1 text-xs" style={{ color: colors.textSecondary }}>Try another search.</p></div>
               : <div>{filteredComrades.map((comrade) => <ComradeCard key={comrade.id} comrade={comrade} isAdded={comradeIdSet.has(comrade.id)} isFull={isFull} hasAdminChannels={hasAdminChannels} onProfile={() => openProfile(comrade)} onAction={() => openPicker(comrade)} />)}</div>}
           </>}
 
           {screen === 'picker' && active && <>
-            <div className="mb-4 flex items-center gap-3 rounded-xl border p-3" style={{ ...border, background: colors.surface }}>
+            <div className="mb-4 flex items-center gap-3 rounded-2xl p-3" style={{ background: 'transparent' }}>
               <div className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold" style={{ background: colors.primaryDim, color: colors.primary }}>{active.nickname[0]?.toUpperCase() ?? '?'}</div>
               <div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold">{active.nickname}</p><p className="truncate text-xs" style={{ color: colors.textSecondary }}>@{active.username}</p></div>
               <span className="text-[10px]" style={{ color: colors.textTertiary }}>{selectedCount} selected</span>
             </div>
-            {channelsForPicker.length === 0 ? <div className="rounded-xl border p-5 text-center" style={border}><p className="text-sm font-semibold">No channels available</p><p className="mt-1 text-xs" style={{ color: colors.textSecondary }}>{hasAdminChannels ? 'You do not administer any channels.' : 'Join a channel before inviting fans.'}</p></div>
-              : <div className="divide-y rounded-xl border" style={border}>{channelsForPicker.map((channel) => {
+            {channelsForPicker.length === 0 ? <div className="rounded-2xl p-5 text-center"><p className="text-sm font-semibold">No channels available</p><p className="mt-1 text-xs" style={{ color: colors.textSecondary }}>{hasAdminChannels ? 'You do not administer any channels.' : 'Join a channel before inviting fans.'}</p></div>
+              : <div className="divide-y" style={{ borderColor: 'transparent' }}>{channelsForPicker.map((channel) => {
                 const alreadyIn = isUserInChannel(active.id, channel.channelId);
                 const checked = selectedChannelIds.has(channel.channelId);
                 return <button key={channel.channelId} type="button" disabled={alreadyIn || processing} onClick={() => toggleChannel(channel.channelId)}
@@ -301,8 +301,8 @@ export default function ComradeListModal({
                 </button>;
               })}</div>}
             <button type="button" disabled={!selectedCount || processing || channelsForPicker.length === 0} onClick={action}
-              className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold disabled:opacity-50"
-              style={{ background: colors.primary, color: colors.textInverse }}>
+              className="mt-4 flex w-full items-center justify-center gap-2 rounded-full px-4 py-3 text-sm font-bold disabled:opacity-50"
+              style={{ background: 'transparent', color: colors.primary }}>
               {processing ? <><span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />{hasAdminChannels ? 'Adding…' : 'Sending invites…'}</> : <>{hasAdminChannels ? 'Add to selected channels' : 'Send invitations'} ({selectedCount})</>}
             </button>
           </>}
@@ -313,7 +313,7 @@ export default function ComradeListModal({
               <h3 className="mt-3 text-lg font-bold">{viewed.nickname}</h3><p className="text-xs" style={{ color: colors.textSecondary }}>@{viewed.username}</p>
               <div className="mt-4 flex w-full gap-2"><Stat label="Bets" value={String(viewed.numberOfBets)} color={colors.primary} /><Stat label="Status" value={viewed.numberOfBets > 0 ? 'Active' : 'New fan'} color={colors.away} /></div>
             </div>
-            <div className="divide-y rounded-xl border" style={border}>
+            <div className="divide-y" style={{ borderColor: 'transparent' }}>
               <div className="flex items-center gap-3 p-3"><Trophy size={16} style={{ color: colors.primary }} /><span className="flex-1 text-xs" style={{ color: colors.textSecondary }}>Favorite club</span><strong className="text-xs">{viewed.clubFan || 'Not set'}</strong></div>
               <div className="flex items-center gap-3 p-3"><Globe2 size={16} style={{ color: colors.primary }} /><span className="flex-1 text-xs" style={{ color: colors.textSecondary }}>Country</span><strong className="text-xs">{viewed.countryFan || 'Not set'}</strong></div>
               <div className="flex items-center gap-3 p-3"><UserIcon size={16} style={{ color: colors.primary }} /><span className="flex-1 text-xs" style={{ color: colors.textSecondary }}>Phone</span><strong className="text-xs">{viewed.phone || 'Not set'}</strong></div>
