@@ -16,6 +16,12 @@ export interface PossessionPoke {
   amount: number;
   status: 'open' | 'matched' | 'settled' | 'cancelled';
   createdAt: string;
+  finisherId?: string | null;
+  finisherName?: string | null;
+  finisherSelection?: PossessionSide | null;
+  finisherAmount?: number | null;
+  totalPot?: number;
+  settledAt?: string | null;
 }
 
 export interface PossessionMarket {
