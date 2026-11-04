@@ -366,6 +366,7 @@ export const NotificationService = {
             if (unreadSummary) {
                 await writeInt(K_UNREAD_COUNT, unreadSummary.notifications ?? 0);
                 await writeInt(K_UNREAD_COMMENT_COUNT, unreadSummary.comments ?? 0);
+                if (sessionVersion !== notificationSessionVersion || activeNotificationUserId !== userId) return;
                 emitBadge({
                     type: 'notification_badge_update',
                     total_unread_notifications: unreadSummary.notifications ?? 0,
