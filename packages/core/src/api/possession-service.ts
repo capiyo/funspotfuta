@@ -131,14 +131,14 @@ export async function fetchPossessionMarket(context: PossessionContext): Promise
 }
 
 export async function fetchPossessionVotes(context: PossessionContext): Promise<PossessionVote[]> {
-  const query = new URLSearchParams({ fixture_id: context.fixtureId, channel_id: context.channelId });
+  const query = new URLSearchParams({ fixture_id: context.fixtureId, channel_id: context.channelId, user_id: context.userId });
   const result = asRecord(await request<unknown>(`/votes?${query.toString()}`, context.authToken));
   const rows = pick(result, 'votes') ?? pick(asRecord(pick(result, 'data')), 'votes');
   return Array.isArray(rows) ? rows.map(normalizeVote) : [];
 }
 
 export async function fetchPossessionPokes(context: PossessionContext): Promise<PossessionPoke[]> {
-  const query = new URLSearchParams({ fixture_id: context.fixtureId, channel_id: context.channelId });
+  const query = new URLSearchParams({ fixture_id: context.fixtureId, channel_id: context.channelId, user_id: context.userId });
   const result = asRecord(await request<unknown>(`/poking?${query.toString()}`, context.authToken));
   const rows = pick(result, 'pokes') ?? pick(asRecord(pick(result, 'data')), 'pokes');
   return Array.isArray(rows) ? rows.map(normalizePoke) : [];
