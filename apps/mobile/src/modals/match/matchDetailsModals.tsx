@@ -12,6 +12,7 @@ import {
 import { FAN_SPACING, FAN_RADIUS, webSocketService } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
+import { X } from 'lucide-react-native';
 import type { Fixture } from '../../../../../packages/core/src/types/fixture';
 
 import type { MatchStatistics, LineupsData } from '../../../../../packages/core/src/types/matchDetails';
@@ -335,14 +336,12 @@ export function MatchDetailsModal({
                         },
                     ]}
                 >
-                    {/* Handle */}
-                    <View style={styles.handleWrapper}>
-                        <View
-                            style={[
-                                styles.handle,
-                                { backgroundColor: colors.borderActive },
-                            ]}
-                        />
+                    {/* Compact top rail keeps the pitch dominant and provides an explicit close action. */}
+                    <View style={styles.topRail}>
+                        <View style={[styles.handle, { backgroundColor: colors.borderActive }]} />
+                        <Pressable onPress={onClose} accessibilityRole="button" accessibilityLabel="Close match details" style={styles.closeButton}>
+                            <X size={19} color={colors.textSecondary} />
+                        </Pressable>
                     </View>
 
                     {/* Keep match metadata out of the pitch-first lineup view. */}
@@ -531,11 +530,8 @@ const styles = StyleSheet.create({
         borderTopRightRadius: 0,
         overflow: 'hidden',
     },
-    handleWrapper: {
-        paddingTop: 6,
-        paddingBottom: 3,
-        alignItems: 'center',
-    },
+    topRail: { minHeight: 36, alignItems: 'center', justifyContent: 'center' },
+    closeButton: { position: 'absolute', right: 12, top: 2, width: 32, height: 32, alignItems: 'center', justifyContent: 'center', borderRadius: 16 },
     handle: {
         width: 40,
         height: 4,
