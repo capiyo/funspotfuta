@@ -19,6 +19,7 @@ The following implementation changes are now on `web-port-from-master`; they hav
 - Store browser notification snapshots in AES-GCM encrypted IndexedDB instead of plaintext localStorage; migrate legacy notification keys into encrypted records and remove the old plaintext copies.
 - If encrypted IndexedDB is unavailable, keep notification state in a volatile in-memory fallback; do not downgrade to plaintext persistence, and clear both stores at account boundaries.
 - Make native notification storage operations await encrypted MMKV initialization so a cold-start background FCM handler does not write into the temporary pre-initialization memory buffer.
+- Centralize mobile FCM token registration and token-refresh handling in the authenticated notification runtime; the login overlay no longer makes a duplicate registration request, and denied permission retries now explain the device-settings step.
 
 These changes reduce client-side races and duplicate badge increments. They do not resolve the backend notification-router authorization blocker below, and they do not prove real push delivery.
 
