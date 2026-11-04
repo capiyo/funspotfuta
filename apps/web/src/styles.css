@@ -4284,13 +4284,13 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visib
 
 /* Modal visual language: quiet surfaces, rounded geometry, and unboxed copy. */
 [role="dialog"], [aria-modal="true"] {
-  border-radius: 24px;
+  border-radius: 24px !important;
 }
 [role="dialog"] button:not([role="switch"]):not([data-keep-surface]),
 [aria-modal="true"] button:not([role="switch"]):not([data-keep-surface]) {
-  background: transparent;
-  box-shadow: none;
-  border-radius: 9999px;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 9999px !important;
 }
 [role="dialog"] button[aria-label],
 [aria-modal="true"] button[aria-label] {
@@ -4323,12 +4323,13 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visib
 [aria-modal="true"] h1,
 [aria-modal="true"] h2,
 [aria-modal="true"] h3 {
-  background-color: transparent;
+  background-color: transparent !important;
 }
 [role="dialog"] input,
 [role="dialog"] textarea,
 [aria-modal="true"] input,
 [aria-modal="true"] textarea {
-  border-radius: 9999px;
-  box-shadow: none;
+  border-radius: 9999px !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
