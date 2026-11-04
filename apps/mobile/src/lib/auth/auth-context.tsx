@@ -40,6 +40,7 @@ const NOTIFICATION_STORAGE_KEYS = [
   'unread_notification_count',
   'unread_comment_count',
   'pending_join_requests',
+  'processed_notification_ids',
 ] as const;
 
 async function clearNotificationStorage(): Promise<void> {
