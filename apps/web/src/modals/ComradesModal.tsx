@@ -357,7 +357,7 @@ export default function ComradesModal({ visible, onClose }: { visible: boolean; 
                     disabled={busyId === id}
                     onClick={() => void handleRemove(id)}
                     className="rounded-full border px-3 py-1 text-[11px] font-bold disabled:opacity-60"
-                    style={{ borderColor: 'rgba(239,68,68,.3)', background: 'rgba(239,68,68,.1)', color: '#f87171' }}
+                    style={{ borderColor: 'transparent', background: 'transparent', color: '#f87171' }}
                   >
                     {busyId === id ? 'Removing…' : 'Remove'}
                   </button>
