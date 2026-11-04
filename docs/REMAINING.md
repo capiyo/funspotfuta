@@ -14,6 +14,7 @@ The following implementation changes are now on `web-port-from-master`; they hav
 - Recheck the session boundary after asynchronous badge persistence and before emitting reconciled badge events.
 - Reset the active notification session after failed login attempts and on logout/account boundaries.
 - Attach web foreground FCM listeners only while a user is authenticated; tear down listeners safely if asynchronous registration resolves after unmount.
+- Stop authenticated notification listeners immediately when logout begins and ignore queued mobile foreground, notification-open, and initial-notification callbacks after unmount.
 - Carry Firebase message IDs through web, Android and iOS foreground/background handlers and deduplicate repeated deliveries using a bounded 500-ID persisted window. Events without a stable FCM/event ID cannot be deduplicated by this client mechanism.
 - Keep fixture unread totals independent of the capped 10-item notification preview; marking a fixture read now resets its stored unread total and decrements the aggregate count by the true total.
 - Store browser notification snapshots in AES-GCM encrypted IndexedDB instead of plaintext localStorage; migrate legacy notification keys into encrypted records and remove the old plaintext copies.
