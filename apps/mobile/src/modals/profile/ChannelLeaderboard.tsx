@@ -488,14 +488,14 @@ function createStyles(colors: FanColors) {
             flexDirection: 'row',
             marginHorizontal: FAN_SPACING.md,
             padding: 2,
-            borderRadius: FAN_RADIUS.md,
-            borderWidth: 0.5,
+            borderRadius: 999,
+            borderWidth: 0,
         },
         tab: {
             flex: 1,
             paddingVertical: 5,
             alignItems: 'center',
-            borderRadius: FAN_RADIUS.sm,
+            borderRadius: 999,
         },
         tabText: { fontSize: 9 },
 
@@ -508,8 +508,8 @@ function createStyles(colors: FanColors) {
             marginTop: FAN_SPACING.sm,
             paddingHorizontal: FAN_SPACING.md,
             paddingVertical: FAN_SPACING.md,
-            borderRadius: FAN_RADIUS.md,
-            borderWidth: 0.5,
+            borderRadius: 18,
+            borderWidth: 0,
         },
         channelAvatar: {
             width: 24,
@@ -545,10 +545,10 @@ function createStyles(colors: FanColors) {
         // Members
         membersList: { paddingVertical: FAN_SPACING.md },
         memberCard: {
-            backgroundColor: colors.surface,
-            borderRadius: FAN_RADIUS.md,
-            borderWidth: 0.5,
-            borderColor: hexWithAlpha(colors.border, 0.3),
+            backgroundColor: 'transparent',
+            borderRadius: 18,
+            borderWidth: 0,
+            borderColor: 'transparent',
             padding: FAN_SPACING.md,
             marginBottom: FAN_SPACING.sm,
         },
