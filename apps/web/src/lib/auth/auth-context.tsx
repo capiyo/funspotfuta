@@ -40,9 +40,9 @@ const NOTIFICATION_STORAGE_KEYS = [
 
 async function clearNotificationStorage(): Promise<void> {
   try {
-    await secureBrowserNotificationStorage.clear();
+    await NotificationService.clearLocalNotificationState();
   } catch (error) {
-    if (import.meta.env.DEV) console.warn('[notifications] encrypted storage cleanup failed', error);
+    if (import.meta.env.DEV) console.warn('[notifications] local state cleanup failed', error);
   }
   try {
     for (const key of NOTIFICATION_STORAGE_KEYS) localStorage.removeItem(key);
