@@ -125,17 +125,17 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
     width: '100vw', maxWidth: 448, height: '50dvh', maxHeight: '50dvh',
     display: 'flex', flexDirection: 'column', overflowY: 'auto',
     background: colors.surface, color: colors.textPrimary,
-    borderRadius: '16px 16px 0 0', padding: '6px 12px 8px', boxSizing: 'border-box',
+    borderRadius: '24px 24px 0 0', padding: '6px 12px 8px', boxSizing: 'border-box',
     boxShadow: '0 -12px 48px rgba(0,0,0,.25)',
   };
   const muted = { color: colors.textSecondary };
   const control = {
-    border: `1px solid ${colors.border}`, borderRadius: 8, background: colors.surfaceSunken,
+    border: `1px solid ${colors.border}`, borderRadius: 999, background: 'transparent',
     color: colors.textPrimary, padding: '11px 13px', font: 'inherit', minWidth: 0,
   } as const;
   const action = (active: boolean): CSSProperties => ({
     ...control, flex: 1, cursor: 'pointer', borderColor: active ? colors.primary : colors.border,
-    background: active ? colors.primaryDim : colors.surfaceSunken,
+    background: 'transparent',
     color: active ? colors.primary : colors.textPrimary, fontWeight: 700,
   });
 
@@ -158,7 +158,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
           <div style={{ flex: 1, minWidth: 0, textAlign: 'right', color: colors.away, fontSize: 13, fontWeight: 800 }}>{fixture.awayTeam}</div>
         </div>
 
-        <div style={{ display: 'flex', gap: 8, marginTop: 3, marginBottom: 6, padding: 3, borderRadius: 9, background: colors.surfaceSunken, border: `1px solid ${colors.border}` }}>
+        <div style={{ display: 'flex', gap: 8, marginTop: 3, marginBottom: 6, padding: 3, borderRadius: 999, background: 'transparent', border: `1px solid ${colors.border}` }}>
           <button type="button" onClick={() => { setTab('vote'); setError(null); }} style={action(tab === 'vote')}>Vote</button>
           <button type="button" onClick={() => { setTab('poke'); setError(null); }} style={action(tab === 'poke')}>Poke</button>
         </div>
@@ -186,7 +186,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
         {notice && <p role="status" style={{ color: colors.primary, fontSize: 12, margin: '12px 0 0' }}>{notice}</p>}
 
         <div style={{ marginTop: 14, minWidth: 0 }}>
-          <div role="tablist" aria-label="Possession lists" style={{ display: 'flex', width: '100%', minWidth: 0, gap: 3, marginBottom: 9, padding: 3, borderRadius: 9, background: colors.surfaceSunken, border: `1px solid ${colors.border}`, boxSizing: 'border-box' }}>
+          <div role="tablist" aria-label="Possession lists" style={{ display: 'flex', width: '100%', minWidth: 0, gap: 3, marginBottom: 9, padding: 3, borderRadius: 999, background: 'transparent', border: `1px solid ${colors.border}`, boxSizing: 'border-box' }}>
             {([{ id: 'votes', label: 'Vote List', count: totalVotes }, { id: 'open', label: 'Unmatched', count: (market?.pokes ?? []).filter((poke) => poke.status === 'open').length }, { id: 'matched', label: 'Matched', count: (market?.pokes ?? []).filter((poke) => poke.status === 'matched' || poke.status === 'settled').length }] as const).map((item) => (
               <button key={item.id} type="button" role="tab" aria-selected={listTab === item.id} onClick={() => setListTab(item.id)} style={{ ...action(listTab === item.id), minWidth: 0, minHeight: 36, padding: '7px 3px', border: 0, borderRadius: 7, fontSize: 11, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {item.label} <span style={{ opacity: .8 }}>({item.count})</span>
