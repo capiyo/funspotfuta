@@ -4110,3 +4110,118 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visib
   .home-screen .home-columns { grid-template-columns: minmax(420px, 44%) minmax(0, 1fr) !important; }
   .home-screen .feed-column > .feed-screen { width: 100%; max-width: 760px; margin-inline: auto; }
 }
+
+
+/* Desktop workspace refinement: use the space between Chats and Feed instead
+   of leaving a padded gutter, and let feed posts use the full available width. */
+@media (min-width: 1201px) {
+  .home-screen .home-columns,
+  body:has(.home-screen) .home-screen .workspace > main.home-columns {
+    grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr) !important;
+    column-gap: 12px !important;
+    gap: 12px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .home-screen .chats-column,
+  body:has(.home-screen) .home-screen .workspace > main.home-columns > .chats-column {
+    width: auto !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    min-height: 0 !important;
+  }
+
+  .home-screen .feed-column {
+    min-width: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .home-screen .feed-column > .feed-screen,
+  .home-screen .feed-column .feed-screen {
+    width: 100% !important;
+    max-width: none !important;
+    margin: 0 !important;
+    padding-inline: 0 !important;
+  }
+
+  .home-screen .feed-column .feed-list,
+  .home-screen .feed-column .feed-list > * {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+  }
+
+  .home-screen .feed-column .post-card,
+  .home-screen .feed-column .feed-item,
+  .home-screen .feed-column .feed-screen > .feed-item {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    margin-inline: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .home-screen .feed-column .post-image-frame,
+  .home-screen .feed-column .post-video-frame {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 380px !important;
+  }
+
+  .home-screen .feed-column .post-image-frame {
+    aspect-ratio: 4 / 3 !important;
+    height: auto !important;
+  }
+
+  .home-screen .feed-column .post-video-frame {
+    aspect-ratio: 16 / 9 !important;
+    height: auto !important;
+  }
+
+  .home-screen .feed-column .post-image-frame img,
+  .home-screen .feed-column .post-video-frame video {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 380px !important;
+    object-fit: cover !important;
+  }
+}
+
+@media (min-width: 651px) and (max-width: 1200px) {
+  .home-screen .home-columns,
+  body:has(.home-screen) .home-screen .workspace > main.home-columns {
+    grid-template-columns: minmax(360px, 0.95fr) minmax(0, 1.05fr) !important;
+    column-gap: 10px !important;
+    gap: 10px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .home-screen .feed-column,
+  .home-screen .feed-column > .feed-screen,
+  .home-screen .feed-column .feed-screen {
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin: 0 !important;
+  }
+
+  .home-screen .feed-column .post-card,
+  .home-screen .feed-column .feed-item,
+  .home-screen .feed-column .feed-list > * {
+    width: 100% !important;
+    max-width: none !important;
+    min-width: 0 !important;
+    margin-inline: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .home-screen .feed-column .post-image-frame,
+  .home-screen .feed-column .post-video-frame {
+    max-height: 320px !important;
+  }
+}
