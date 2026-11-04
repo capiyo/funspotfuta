@@ -76,11 +76,11 @@ export async function pinLogin(phone: string, pin: string): Promise<AuthResult> 
 
 // POST /api/auth/set-pin/:userId { pin } -> { token, user }
 // Used when a user already exists (verified by phone) but has no PIN yet.
-export async function setPin(userId: string, pin: string, firebaseIdToken: string): Promise<AuthResult> {
+export async function setPin(userId: string, pin: string, authToken: string): Promise<AuthResult> {
   try {
     const res = await fetch(`${AUTH_BASE}/set-pin/${userId}`, {
       method: 'POST',
-      headers: authHeaders(firebaseIdToken),
+      headers: authHeaders(authToken),
       body: JSON.stringify({ pin }),
     });
     const body = await res.json().catch(() => null);
