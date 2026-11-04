@@ -594,6 +594,7 @@ export const NotificationService = {
             }
 
             const fixtureData = unreadMap[fixtureId];
+            fixtureData.has_unread = true;
             const previousCount = typeof fixtureData.unread_count === 'number'
                 ? fixtureData.unread_count
                 : Array.isArray(fixtureData.notification_data)
@@ -647,7 +648,10 @@ export const NotificationService = {
             const list = Array.isArray(data?.notification_data)
                 ? data.notification_data
                 : [];
-            return list.length;
+            const unreadCount = Number(data?.unread_count);
+            return Number.isFinite(unreadCount) && unreadCount >= 0
+                ? Math.trunc(unreadCount)
+                : list.length;
         } catch {
             return 0;
         }
@@ -664,8 +668,11 @@ export const NotificationService = {
                     const list = Array.isArray(data.notification_data)
                         ? data.notification_data
                         : [];
+                    const unreadCount = Number(data.unread_count);
                     result[fixtureId] = {
-                        count: list.length,
+                        count: Number.isFinite(unreadCount) && unreadCount >= 0
+                            ? Math.trunc(unreadCount)
+                            : list.length,
                         has_unread: true,
                         types: data.types ?? [],
                         last_notification_time: data.last_notification_time,
@@ -729,22 +736,27 @@ export const NotificationService = {
             const map = JSON.parse(raw);
             if (!map[fixtureId]) return;
 
-            const count = Array.isArray(map[fixtureId].notification_data)
-                ? map[fixtureId].notification_data.length
-                : 0;
+            const fixtureData = map[fixtureId];
+            const storedCount = Number(fixtureData.unread_count);
+            const count = Number.isFinite(storedCount) && storedCount >= 0
+                ? Math.trunc(storedCount)
+                : Array.isArray(fixtureData.notification_data)
+                    ? fixtureData.notification_data.length
+                    : 0;
 
-            map[fixtureId].has_unread = false;
-            map[fixtureId].types = [];
+            fixtureData.has_unread = false;
+            fixtureData.unread_count = 0;
+            fixtureData.types = [];
+            fixtureData.notification_data = [];
             await writeString(K_UNREAD_NOTIFICATIONS, JSON.stringify(map));
 
-            for (let i = 0; i < count; i++) {
-                await this._decrementUnreadCommentCount();
-            }
-
+            const currentTotal = await readInt(K_UNREAD_COMMENT_COUNT, 0);
+            const nextTotal = Math.max(0, currentTotal - count);
+            await writeInt(K_UNREAD_COMMENT_COUNT, nextTotal);
             emitBadge({
                 type: 'comment_badge_cleared',
                 fixture_id: fixtureId,
-                total_unread_comments: await this._getUnreadCommentCount(),
+                total_unread_comments: nextTotal,
             });
             console.log(`[NotificationService] ✅ Marked fixture ${fixtureId} as read (cleared ${count})`);
         } catch (e) {
