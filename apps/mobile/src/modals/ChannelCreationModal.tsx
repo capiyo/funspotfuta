@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
   input: {
     borderWidth: 1,
     borderColor: colors.border,
-    backgroundColor: 'rgba(0,0,0,0.3)',
+    backgroundColor: 'transparent',
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 10,
@@ -85,6 +85,6 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   error: { color: '#f87171', fontSize: 11, marginBottom: 12 },
-  button: { backgroundColor: colors.green, borderRadius: 12, paddingVertical: 12, alignItems: 'center' },
+  button: { backgroundColor: 'transparent', borderRadius: 999, paddingVertical: 12, alignItems: 'center' },
   buttonText: { color: '#000', fontWeight: '700', fontSize: 14 },
 });
