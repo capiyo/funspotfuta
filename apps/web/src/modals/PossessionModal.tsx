@@ -41,7 +41,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
     setLoading(true);
     setError(null);
     try {
-      const context = { fixtureId, channelId, authToken };
+      const context = { fixtureId, channelId, userId, authToken };
       const [nextMarket, votes, pokes] = await Promise.all([
         fetchPossessionMarket(context),
         fetchPossessionVotes(context),
@@ -69,7 +69,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
   const awayVotes = market?.awayVotes ?? 0;
   const totalVotes = homeVotes + awayVotes;
   const homePercent = totalVotes ? Math.round(homeVotes / totalVotes * 100) : 50;
-  const actionContext = { fixtureId, channelId: channelId ?? '', authToken };
+  const actionContext = { fixtureId, channelId: channelId ?? '', userId, authToken };
 
   async function submitVote() {
     if (!isLoggedIn || !userId || !username || !channelId) {
