@@ -21,11 +21,40 @@ export function Avatar({ colors, size = 'md', uri, userId, label, borderColor, b
   const profileAvatar = useProfileAvatar(userId, authToken);
   const imageUri = profileAvatar ?? uri ?? getFanAvatarUri(userId ?? label ?? 'guest');
   const style: CSSProperties = {
-    width: dim, height: dim, aspectRatio: 1, borderRadius: '50%', backgroundColor: backgroundColor ?? colors.primaryMuted,
-    border: borderColor ? `1px solid ${borderColor}` : 'none', display: 'inline-flex',
-    alignItems: 'center', justifyContent: 'center', overflow: 'hidden', flex: '0 0 auto',
+    width: dim,
+    height: dim,
+    minWidth: dim,
+    minHeight: dim,
+    aspectRatio: 1,
+    borderRadius: '50%',
+    clipPath: 'circle(50%)',
+    backgroundColor: backgroundColor ?? colors.primaryMuted,
+    border: borderColor ? `1px solid ${borderColor}` : 'none',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    flex: '0 0 auto',
   };
   return <span className="fan-avatar" style={style} aria-label={label ?? 'Avatar'}>
-    {imageUri ? <img src={imageUri} alt={label ? `${label} avatar` : 'Avatar'} width={dim} height={dim} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover', display: 'block' }} /> : <span style={fanText('badge', colors, colors.primary)}>{label}</span>}
+    {imageUri ? (
+      <img
+        src={imageUri}
+        alt={label ? `${label} avatar` : 'Avatar'}
+        width={dim}
+        height={dim}
+        style={{
+          width: '100%',
+          height: '100%',
+          minWidth: 0,
+          minHeight: 0,
+          borderRadius: '50%',
+          clipPath: 'circle(50%)',
+          objectFit: 'cover',
+          display: 'block',
+          flex: '0 0 auto',
+        }}
+      />
+    ) : <span style={fanText('badge', colors, colors.primary)}>{label}</span>}
   </span>;
 }
