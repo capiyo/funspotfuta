@@ -22,12 +22,20 @@
 
 import { getToken, onMessage } from 'firebase/messaging';
 import { firebaseApp, getFirebaseMessaging } from '../firebase';
+import { secureBrowserNotificationStorage } from '../query-persistence';
 
-// Browser storage adapter matching the mobileStorage contract.
+// Keep the same async-compatible storage contract as mobile, but persist
+// private notification snapshots only in encrypted IndexedDB on the browser.
 const mobileStorage = {
-  getItem(key: string): string | null { try { return window.localStorage.getItem(key); } catch { return null; } },
-  setItem(key: string, value: string): void { try { window.localStorage.setItem(key, value); } catch { /* storage may be unavailable */ } },
-  removeItem(key: string): void { try { window.localStorage.removeItem(key); } catch { /* storage may be unavailable */ } },
+  getItem(key: string): Promise<string | null> {
+    return secureBrowserNotificationStorage.getItem(key);
+  },
+  setItem(key: string, value: string): Promise<void> {
+    return secureBrowserNotificationStorage.setItem(key, value);
+  },
+  removeItem(key: string): Promise<void> {
+    return secureBrowserNotificationStorage.removeItem(key);
+  },
 };
 
 const registeredFcmTokenKeys = new Set<string>();
