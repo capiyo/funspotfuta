@@ -1,6 +1,6 @@
 // Same palette as the original app's shared theme.
 export const colors = {
-  bg: '#0B0F1A',
+  bg: '#0e1612',
   surface: '#121A30',
   green: '#10B981',
   greenDark: '#059669',
