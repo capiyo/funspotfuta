@@ -1,6 +1,6 @@
 import { Avatar } from '@/components/ui/Avatar';
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View, useWindowDimensions } from 'react-native';
 import {
   castPossessionVote,
   createPossessionPoke,
@@ -27,7 +27,7 @@ type Props = {
 
 export function PossessionModal({ fixture, channelId, userId, username, authToken, isLoggedIn, onClose }: Props) {
   const colors = useFanColors();
-  const styles = createStyles(colors);
+  const styles = createStyles(colors);\n  const { height: screenH } = useWindowDimensions();
   const [tab, setTab] = useState<Tab>('vote');
   const [pokeListTab, setPokeListTab] = useState<'open' | 'matched'>('open');
   const [market, setMarket] = useState<PossessionMarket | null>(null);
@@ -113,18 +113,23 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
   return (
     <Modal visible transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent>
       <Pressable style={styles.backdrop} onPress={onClose}>
-        <Pressable style={styles.sheet} onPress={(event) => event.stopPropagation()}>
+        <Pressable style={[styles.sheet, { height: screenH * 0.82, maxHeight: screenH * 0.82 }]} onPress={(event) => event.stopPropagation()}>
           <View style={styles.handle} />
           <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
             <View style={styles.header}>
-              <View style={styles.headerText}>
-                <Text style={[fanText('tag', colors, colors.primary), styles.eyebrow]}>POSSESSION MARKET</Text>
-                <Text style={fanText('title', colors, colors.textPrimary)}>Who controls the game?</Text>
-                <Text style={fanText('caption', colors, colors.textSecondary)} numberOfLines={1}>{fixture.homeTeam} vs {fixture.awayTeam}</Text>
+              <View style={styles.headerIcon}><Text style={{ color: colors.primary, fontSize: 17 }}>✦</Text></View>
+              <View style={{ flex: 1, minWidth: 0 }}>
+                <Text style={styles.title}>Possession</Text>
+                <Text style={styles.muted}>{fixture.league || 'Match'}</Text>
               </View>
-              <Pressable onPress={onClose} accessibilityRole="button" accessibilityLabel="Close possession modal" hitSlop={10} style={styles.close}>
-                <Text style={fanText('body', colors, colors.textSecondary)}>×</Text>
+              <Pressable onPress={onClose} accessibilityRole="button" accessibilityLabel="Close possession modal" hitSlop={10} style={styles.closeButton}>
+                <Text style={styles.close}>×</Text>
               </Pressable>
+            </View>
+            <View style={styles.matchHeader}>
+              <View style={styles.matchSide}><Text style={[styles.matchName, { color: colors.primary }]} numberOfLines={1}>{fixture.homeTeam}</Text></View>
+              <View style={styles.matchCenter}><Text style={styles.versus}>VS</Text>{(fixture.isLive || fixture.status === 'live') && <Text style={styles.liveBadge}>LIVE</Text>}</View>
+              <View style={[styles.matchSide, { alignItems: 'flex-end' }]}><Text style={[styles.matchName, { color: colors.away }]} numberOfLines={1}>{fixture.awayTeam}</Text></View>
             </View>
 
             <View style={styles.tabs}>
@@ -205,7 +210,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
 function createStyles(colors: ReturnType<typeof useFanColors>) {
   return StyleSheet.create({
     backdrop: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.58)' },
-    sheet: { maxHeight: '82%', backgroundColor: colors.surface, borderTopLeftRadius: 16, borderTopRightRadius: 16, overflow: 'hidden' },
+    sheet: { width: '100%', backgroundColor: colors.surface, borderTopLeftRadius: 16, borderTopRightRadius: 16, overflow: 'hidden' },
     
     content: { paddingHorizontal: 12, paddingTop: 6, paddingBottom: 8 },
     handle: { width: 32, height: 4, borderRadius: 999, backgroundColor: colors.border, alignSelf: 'center', marginTop: 0, marginBottom: 7 },
@@ -216,7 +221,7 @@ function createStyles(colors: ReturnType<typeof useFanColors>) {
     tabs: { flexDirection: 'row', padding: 4, borderRadius: 14, backgroundColor: colors.background, marginTop: 18, gap: 5 },
     tab: { flex: 1, alignItems: 'center', justifyContent: 'center', minHeight: 40, borderRadius: 11 },
     tabActive: { backgroundColor: colors.primaryDim },
-    sectionHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 20, marginBottom: 9, gap: 10 },
+    sectionHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 12, marginBottom: 9, gap: 10 },
     bar: { height: 9, flexDirection: 'row', borderRadius: 8, overflow: 'hidden', backgroundColor: colors.border },
     homeBar: { backgroundColor: colors.primary },
     awayBar: { backgroundColor: colors.away },
