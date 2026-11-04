@@ -29,6 +29,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
   const colors = useFanColors();
   const styles = createStyles(colors);
   const [tab, setTab] = useState<Tab>('vote');
+  const [pokeListTab, setPokeListTab] = useState<'open' | 'matched'>('open');
   const [market, setMarket] = useState<PossessionMarket | null>(null);
   const [selection, setSelection] = useState<PossessionSide>('home');
   const [amount, setAmount] = useState('');
@@ -65,12 +66,12 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
   const homePercent = total ? Math.round(homeVotes / total * 100) : 50;
 
   async function submitVote() {
-    if (!isLoggedIn || !userId || !username || !channelId) { setError('Sign in to make a possession prediction'); return; }
+    if (!isLoggedIn || !userId || !username || !channelId) { setError('Sign in to make a possession vote'); return; }
     setBusy(true); setError(null); setNotice(null);
     try {
       const result = await castPossessionVote({ ...context, userId, username, selection });
       if (!result.success) throw new Error(result.message || 'Possession vote was not accepted');
-      setNotice(result.message || 'Possession prediction recorded');
+      setNotice(result.message || 'Possession vote recorded');
       if (result.market) setMarket(result.market); else await refresh();
     } catch (cause) { setError(cause instanceof Error ? cause.message : 'Could not submit possession prediction'); }
     finally { setBusy(false); }
@@ -128,7 +129,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
 
             <View style={styles.tabs}>
               <Pressable onPress={() => { setTab('vote'); setError(null); }} style={[styles.tab, tab === 'vote' && styles.tabActive]}>
-                <Text style={fanText('button', colors, tab === 'vote' ? colors.primary : colors.textSecondary)}>Predict</Text>
+                <Text style={fanText('button', colors, tab === 'vote' ? colors.primary : colors.textSecondary)}>Vote</Text>
               </Pressable>
               <Pressable onPress={() => { setTab('poke'); setError(null); }} style={[styles.tab, tab === 'poke' && styles.tabActive]}>
                 <Text style={fanText('button', colors, tab === 'poke' ? colors.primary : colors.textSecondary)}>Poke</Text>
@@ -136,7 +137,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
             </View>
 
             <View style={styles.sectionHead}>
-              <Text style={fanText('button', colors, colors.textPrimary)}>Possession predictions</Text>
+              <Text style={fanText('button', colors, colors.textPrimary)}>Possession votes</Text>
               <Text style={fanText('tag', colors, colors.textSecondary)}>{total} {total === 1 ? 'prediction' : 'predictions'}</Text>
             </View>
             <View style={styles.bar}><View style={[styles.homeBar, { flex: homePercent }]} /><View style={[styles.awayBar, { flex: 100 - homePercent }]} /></View>
@@ -144,11 +145,19 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
               <Text style={fanText('tag', colors, colors.textPrimary)}>{fixture.homeTeam}  {homeVotes} · {total ? homePercent : 0}%</Text>
               <Text style={fanText('tag', colors, colors.textPrimary)}>{fixture.awayTeam}  {awayVotes} · {total ? 100 - homePercent : 0}%</Text>
             </View>
+            {(market?.votes ?? []).map((vote) => (
+              <View key={vote.id} style={styles.pokeRow}>
+                <Avatar colors={colors} size="md" userId={vote.userId} label={vote.username?.[0] ?? '?'} />
+                <Text style={[fanText('button', colors, colors.textPrimary), { flex: 1 }]}>{vote.username}</Text>
+                <Text style={fanText('tag', colors, vote.selection === 'home' ? colors.primary : colors.away)}>{vote.selection === 'home' ? fixture.homeTeam : fixture.awayTeam}</Text>
+              </View>
+            ))}
+            {!loading && (market?.votes.length ?? 0) === 0 && <Text style={[fanText('caption', colors, colors.textSecondary), styles.empty]}>No possession votes yet.</Text>}
 
             <View style={styles.sideRow}>{sideButton('home', fixture.homeTeam)}{sideButton('away', fixture.awayTeam)}</View>
             {tab === 'vote' ? (
               <Pressable disabled={busy || loading || market !== null && market.status !== 'open'} onPress={() => void submitVote()} style={({ pressed }) => [styles.primaryButton, (pressed || busy) && { opacity: PRESSED_OPACITY }]}>
-                <Text style={fanText('button', colors, '#FFFFFF')}>{busy ? 'Submitting…' : 'Submit possession prediction'}</Text>
+                <Text style={fanText('button', colors, '#FFFFFF')}>{busy ? 'Submitting…' : 'Submit possession vote'}</Text>
               </Pressable>
             ) : (
               <View style={styles.pokeEntry}>
@@ -166,18 +175,22 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
             {notice && <Text accessibilityRole="text" style={[fanText('caption', colors, colors.primary), styles.message]}>{notice}</Text>}
 
             <View style={styles.sectionHead}>
-              <Text style={fanText('button', colors, colors.textPrimary)}>Open possession pokes</Text>
+              <Text style={fanText('button', colors, colors.textPrimary)}>Possession pokes</Text>
               <Pressable onPress={() => void refresh()} disabled={loading}><Text style={fanText('tag', colors, colors.primary)}>Refresh</Text></Pressable>
             </View>
+            <View style={styles.tabs}>
+              <Pressable onPress={() => setPokeListTab('open')} style={[styles.tab, pokeListTab === 'open' && styles.tabActive]}><Text style={fanText('button', colors, pokeListTab === 'open' ? colors.primary : colors.textSecondary)}>Unmatched</Text></Pressable>
+              <Pressable onPress={() => setPokeListTab('matched')} style={[styles.tab, pokeListTab === 'matched' && styles.tabActive]}><Text style={fanText('button', colors, pokeListTab === 'matched' ? colors.primary : colors.textSecondary)}>Matched</Text></Pressable>
+            </View>
             {loading && <ActivityIndicator color={colors.primary} style={styles.loader} />}
-            {!loading && (market?.pokes.length ?? 0) === 0 && <Text style={[fanText('caption', colors, colors.textSecondary), styles.empty]}>No open possession pokes yet.</Text>}
-            {(market?.pokes ?? []).filter((poke) => poke.status === 'open').map((poke) => (
+            {!loading && (market?.pokes ?? []).filter((poke) => pokeListTab === 'open' ? poke.status === 'open' : poke.status === 'matched' || poke.status === 'settled').length === 0 && <Text style={[fanText('caption', colors, colors.textSecondary), styles.empty]}>{pokeListTab === 'open' ? 'No unmatched possession pokes yet.' : 'No matched possession pokes yet.'}</Text>}
+            {(market?.pokes ?? []).filter((poke) => pokeListTab === 'open' ? poke.status === 'open' : poke.status === 'matched' || poke.status === 'settled').map((poke) => (
               <View key={poke.id} style={styles.pokeRow}>
                 <View style={styles.pokeDetails}>
                   <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}><Avatar colors={colors} size="md" userId={poke.userId} label={poke.username?.[0] ?? '?'} /><Text style={fanText('button', colors, colors.textPrimary)}>{poke.username}</Text></View>
-                  <Text style={fanText('tag', colors, colors.textSecondary)}>{poke.selection === 'home' ? fixture.homeTeam : fixture.awayTeam} · {poke.amount} pts</Text>
+                  <Text style={fanText('tag', colors, colors.textSecondary)}>{poke.selection === 'home' ? fixture.homeTeam : fixture.awayTeam} · {poke.amount} pts</Text>{pokeListTab === 'matched' && poke.finisherName && <Text style={fanText('tag', colors, colors.textSecondary)}>↔ {poke.finisherName} · {poke.finisherSelection === 'home' ? fixture.homeTeam : fixture.awayTeam} · {poke.finisherAmount ?? poke.amount} pts</Text>}
                 </View>
-                {poke.userId !== userId && <Pressable disabled={busy} onPress={() => void matchPoke(poke.id)} style={styles.matchButton}><Text style={fanText('tag', colors, colors.primary)}>Match</Text></Pressable>}
+                {pokeListTab === 'open' && poke.userId !== userId && <Pressable disabled={busy} onPress={() => void matchPoke(poke.id)} style={styles.matchButton}><Text style={fanText('tag', colors, colors.primary)}>Match</Text></Pressable>}
               </View>
             ))}
             {market?.settlement && <Text style={[fanText('caption', colors, colors.textSecondary), styles.message]}>Settled · winner: {market.settlement.winner ?? 'No winner'}</Text>}
