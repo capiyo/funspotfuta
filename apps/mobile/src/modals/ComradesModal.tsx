@@ -308,7 +308,7 @@ const styles = StyleSheet.create({
     color: 'white',
   },
   searchButton: {
-    backgroundColor: colors.green,
+    backgroundColor: 'transparent',
     borderRadius: 999,
     paddingHorizontal: 16,
     justifyContent: 'center',
@@ -335,7 +335,7 @@ const styles = StyleSheet.create({
   rowText: { color: 'white', fontSize: 13 },
   rowSubtext: { color: colors.textMuted, fontSize: 11 },
   addButton: {
-    backgroundColor: colors.green,
+    backgroundColor: 'transparent',
     borderRadius: 999,
     paddingHorizontal: 12,
     paddingVertical: 4,
