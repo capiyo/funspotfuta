@@ -1911,8 +1911,9 @@ function createStyles(colors: FanColors) {
       fontSize: 10,
     },
     activityCard: {
-      borderRadius: 14,
+      borderRadius: 18,
       borderWidth: 0,
+      backgroundColor: 'transparent',
       padding: FAN_SPACING.sm,
       marginBottom: FAN_SPACING.sm,
     },
