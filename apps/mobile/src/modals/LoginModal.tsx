@@ -407,6 +407,7 @@ export default function LoginModal({ visible, onClose, onSuccess }: LoginModalPr
       const res = await setPin(userId, value, backendToken);
       if (res.ok && res.token) {
         verifiedBackendTokenRef.current = null;
+        verifiedFirebaseTokenRef.current = null;
         const username = res.user?.username?.toString() ?? 'User';
         await performLogin(userId, username, res.token, verifiedPhone);
       } else {
@@ -458,7 +459,7 @@ export default function LoginModal({ visible, onClose, onSuccess }: LoginModalPr
 
       const existing = await getUserSafe(phone, firebaseIdToken);
       if (existing) {
-        const session = await loginWithFirebaseToken(phone, firebaseIdToken);
+        const session = await loginWithFirebaseToken(phone, existing.username?.toString() ?? 'User', firebaseIdToken);
         if (!session.ok || !session.token || !session.user) {
           throw new Error(session.message ?? 'Could not establish a Funspot session.');
         }
