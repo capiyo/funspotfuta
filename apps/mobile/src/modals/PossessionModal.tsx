@@ -192,9 +192,10 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
 function createStyles(colors: ReturnType<typeof useFanColors>) {
   return StyleSheet.create({
     backdrop: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.58)' },
-    sheet: { maxHeight: '84%', backgroundColor: colors.surface, borderTopLeftRadius: 24, borderTopRightRadius: 24, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.border, overflow: 'hidden' },
-    content: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 28 },
-    handle: { width: 42, height: 4, borderRadius: 3, backgroundColor: colors.textTertiary, opacity: 0.5, alignSelf: 'center', marginTop: 9, marginBottom: 13 },
+    sheet: { maxHeight: '82%', backgroundColor: colors.surface, borderTopLeftRadius: 16, borderTopRightRadius: 16, overflow: 'hidden' },
+    
+    content: { paddingHorizontal: 12, paddingTop: 6, paddingBottom: 8 },
+    handle: { width: 32, height: 4, borderRadius: 999, backgroundColor: colors.border, alignSelf: 'center', marginTop: 0, marginBottom: 7 },
     header: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
     headerText: { flex: 1, minWidth: 0, gap: 3 },
     eyebrow: { fontWeight: '800', letterSpacing: 1 },
