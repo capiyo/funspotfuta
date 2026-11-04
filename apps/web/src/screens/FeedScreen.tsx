@@ -122,43 +122,39 @@ export default function FeedScreen() {
       ) : (
         <>
           <div className="feed-list feed-list-masonry" data-feed-post-list>
-            {[0, 1].map((columnIndex) => (
-              <div className="feed-post-column" key={columnIndex}>
-                {posts.map((post, index) => (
-                  index % 2 === columnIndex ? (
-                    <Fragment key={post.id ?? index}>
-                    <PostCard
-                      post={post}
-                      index={index}
-                      currentUserId={userId}
-                      onLike={(item) => void handleLike(item)}
-                      onOpenComments={(item) => {
-                        if (!item.id) return;
-                        navigate(`/comments/${encodeURIComponent(item.id)}`, {
-                          state: { postUserId: item.userId, postUserName: item.userName, postCaption: item.caption },
-                        });
-                      }}
-                      onRepost={() => {}}
-                      onShare={(item) => {
-                        const url = item.id ? `${window.location.origin}/posts/${item.id}` : window.location.href;
-                        if (navigator.share) void navigator.share({ title: item.userName ?? 'Funspot post', text: item.caption ?? '', url }).catch(() => undefined);
-                        else void navigator.clipboard?.writeText(url);
-                      }}
-                      onFollow={(item) => { if (userId && item.userId && authToken) void followUser(userId, item.userId, authToken); }}
-                      requireLogin={requireLogin}
+            <div className="feed-post-column">
+              {posts.map((post, index) => (
+                <Fragment key={post.id ?? index}>
+                  <PostCard
+                    post={post}
+                    index={index}
+                    currentUserId={userId}
+                    onLike={(item) => void handleLike(item)}
+                    onOpenComments={(item) => {
+                      if (!item.id) return;
+                      navigate(`/comments/${encodeURIComponent(item.id)}`, {
+                        state: { postUserId: item.userId, postUserName: item.userName, postCaption: item.caption },
+                      });
+                    }}
+                    onRepost={() => {}}
+                    onShare={(item) => {
+                      const url = item.id ? `${window.location.origin}/posts/${item.id}` : window.location.href;
+                      if (navigator.share) void navigator.share({ title: item.userName ?? 'Funspot post', text: item.caption ?? '', url }).catch(() => undefined);
+                      else void navigator.clipboard?.writeText(url);
+                    }}
+                    onFollow={(item) => { if (userId && item.userId && authToken) void followUser(userId, item.userId, authToken); }}
+                    requireLogin={requireLogin}
+                  />
+                  {(index + 1) % 3 === 0 && (
+                    <AdSenseAd
+                      slotId={['5454601642', '9051548379', '3164796870', '1372263706', '7379268852'][Math.floor(index / 3) % 5]}
+                      placement="feed"
+                      enabled={window.matchMedia('(min-width: 651px)').matches || activeTab === 'Feed'}
                     />
-                    {(index + 1) % 3 === 0 && (
-                      <AdSenseAd
-                        slotId={['5454601642', '9051548379', '3164796870', '1372263706', '7379268852'][Math.floor(index / 3) % 5]}
-                        placement="feed"
-                        enabled={window.matchMedia('(min-width: 651px)').matches || activeTab === 'Feed'}
-                      />
-                    )}
-                    </Fragment>
-                  ) : null
-                ))}
-              </div>
-            ))}
+                  )}
+                </Fragment>
+              ))}
+            </div>
           </div>
           <div style={{ textAlign: 'center', padding: FAN_SPACING.lg }}>
             <PagingFooter colors={colors} loading={isFetchingNextPage} />
