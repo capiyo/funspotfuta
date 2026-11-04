@@ -1048,6 +1048,7 @@ export const NotificationService = {
     // ─── preferences ────────────────────────────────────────────────
     async getNotificationPreferences(
         userId: string,
+        authToken?: string,
     ): Promise<{ vote_alerts: boolean; like_alerts: boolean; comment_alerts: boolean }> {
         const defaults = {
             vote_alerts: true,
@@ -1057,6 +1058,7 @@ export const NotificationService = {
         try {
             const res = await fetch(
                 `${API_BASE_URL}/notifications/preferences/${userId}`,
+                { headers: authToken ? { Authorization: `Bearer ${authToken}` } : {} },
             );
             if (res.status === 200) {
                 const data = await res.json();
