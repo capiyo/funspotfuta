@@ -836,7 +836,7 @@ function createStyles(colors: FanColorPalette) {
     closeBtn: {
       borderRadius: 999,
       padding: FAN_SPACING.md,
-      backgroundColor: colors.inputSurface,
+      backgroundColor: 'transparent',
     },
 
     // ── Scroll view ─────────────────────────────────────
@@ -856,10 +856,10 @@ function createStyles(colors: FanColorPalette) {
     payoutCard: {
       flexDirection: 'row',
       alignItems: 'center',
-      borderRadius: FAN_RADIUS.md,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: colors.border,
-      backgroundColor: colors.surface,
+      borderRadius: 18,
+      borderWidth: 0,
+      borderColor: 'transparent',
+      backgroundColor: 'transparent',
       paddingHorizontal: FAN_SPACING.base,
       paddingVertical: FAN_SPACING.base,
       marginBottom: FAN_SPACING.base,
@@ -884,10 +884,10 @@ function createStyles(colors: FanColorPalette) {
     },
     statCard: {
       flex: 1,
-      borderRadius: FAN_RADIUS.md,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: colors.border,
-      backgroundColor: colors.surface,
+      borderRadius: 18,
+      borderWidth: 0,
+      borderColor: 'transparent',
+      backgroundColor: 'transparent',
       paddingVertical: FAN_SPACING.base,
       paddingHorizontal: FAN_SPACING.sm,
       alignItems: 'center',
@@ -904,10 +904,10 @@ function createStyles(colors: FanColorPalette) {
 
     // ── Member card ─────────────────────────────────────
     memberCard: {
-      borderRadius: FAN_RADIUS.md,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: colors.border,
-      backgroundColor: colors.surface,
+      borderRadius: 18,
+      borderWidth: 0,
+      borderColor: 'transparent',
+      backgroundColor: 'transparent',
       padding: FAN_SPACING.base,
       marginBottom: FAN_SPACING.md,
     },
@@ -979,10 +979,10 @@ function createStyles(colors: FanColorPalette) {
     confirmCard: {
       width: '100%',
       maxWidth: 380,
-      borderRadius: FAN_RADIUS.lg,
+      borderRadius: 24,
       backgroundColor: colors.surface,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: colors.border,
+      borderWidth: 0,
+      borderColor: 'transparent',
       padding: FAN_SPACING.xl,
       alignItems: 'center',
     },
