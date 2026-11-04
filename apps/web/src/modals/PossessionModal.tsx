@@ -121,10 +121,11 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
   }
 
   const panel: CSSProperties = {
-    width: 'min(460px, calc(100vw - 28px))', maxHeight: 'min(82vh, 720px)', overflowY: 'auto',
-    background: colors.surface, color: colors.textPrimary, borderRadius: 22,
-    border: `1px solid ${colors.border}`, boxShadow: '0 24px 80px rgba(0,0,0,.32)',
-    padding: 20,
+    width: '100%', maxWidth: 448, height: '50dvh', maxHeight: '50dvh',
+    display: 'flex', flexDirection: 'column', overflowY: 'auto',
+    background: colors.surface, color: colors.textPrimary,
+    borderRadius: '16px 16px 0 0', padding: '6px 12px 8px', boxSizing: 'border-box',
+    boxShadow: '0 -12px 48px rgba(0,0,0,.25)',
   };
   const muted = { color: colors.textSecondary };
   const control = {
@@ -139,8 +140,9 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
 
   return (
     <div role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose(); }}
-      style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'grid', placeItems: 'center', padding: 14, background: 'rgba(0,0,0,.58)' }}>
+      style={{ position: 'fixed', inset: 0, zIndex: 1000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center', padding: 0, background: 'rgba(0,0,0,.58)' }}>
       <section role="dialog" aria-modal="true" aria-labelledby="possession-title" style={panel}>
+        <div aria-hidden="true" style={{ width: 32, height: 4, borderRadius: 999, background: colors.border, margin: '0 auto 7px', flexShrink: 0 }} />
         <header style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ color: colors.primary, fontSize: 11, fontWeight: 800, letterSpacing: '.08em', textTransform: 'uppercase' }}>Possession market</div>
