@@ -70,8 +70,8 @@ export default function NotificationGate({ visible, onRetry, onSkip }: { visible
   return createPortal(
     <div className="pointer-events-none fixed bottom-4 right-4 z-[1000] p-4" role="presentation">
       <section ref={dialogRef} role="region" aria-label="Enable push notifications" aria-labelledby="notification-gate-title"
-        className="pointer-events-auto w-full max-w-[340px] rounded-2xl border p-5 text-center shadow-2xl"
-        style={{ borderColor: colors.border, background: colors.surface }}>
+        className="pointer-events-auto w-full max-w-[340px] rounded-3xl p-5 text-center shadow-2xl"
+        style={{ background: colors.surface }}>
         <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full" style={{ background: 'rgba(76,217,100,.12)' }}>
           {unsupported ? <BellOff size={28} color={colors.textMuted} /> : <Bell size={28} color={colors.green} />}
         </div>
@@ -81,12 +81,12 @@ export default function NotificationGate({ visible, onRetry, onSkip }: { visible
         </p>
         {message && <p role="status" className="mb-4 text-sm" style={{ color: colors.textMuted }}>{message}</p>}
         <button type="button" onClick={handlePress} disabled={requesting}
-          className="w-full rounded-xl px-4 py-3 font-semibold text-white disabled:opacity-60"
-          style={{ background: colors.green }}>
+          className="w-full rounded-full px-4 py-3 font-bold disabled:opacity-60"
+          style={{ color: colors.green }}>
           {requesting ? 'Requesting…' : unsupported ? 'Try Notifications Again' : 'Allow Notifications'}
         </button>
         <button type="button" onClick={() => void (onSkip ? onSkip() : onRetry())} disabled={requesting}
-          className="mt-3 w-full rounded-xl px-4 py-2 text-sm font-semibold disabled:opacity-60"
+          className="mt-3 w-full rounded-full px-4 py-2 text-sm font-semibold disabled:opacity-60"
           style={{ color: colors.textMuted }}>
           Continue without notifications
         </button>
