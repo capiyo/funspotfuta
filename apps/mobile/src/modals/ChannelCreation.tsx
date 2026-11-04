@@ -731,8 +731,8 @@ const styles = StyleSheet.create({
     sheet: {
         maxHeight: '92%',
         minHeight: '85%',
-        borderTopLeftRadius: 18,
-        borderTopRightRadius: 18,
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
         backgroundColor: colors.bg,
         overflow: 'hidden',
     },
@@ -770,7 +770,7 @@ const styles = StyleSheet.create({
         borderRadius: 18,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: colors.surface,
+        backgroundColor: 'transparent',
         borderWidth: 0,
     },
 
@@ -783,10 +783,10 @@ const styles = StyleSheet.create({
         marginVertical: 6,
         paddingHorizontal: 14,
         paddingVertical: 4,
-        borderRadius: 12,
-        borderWidth: 1,
-        borderColor: colors.border,
-        backgroundColor: colors.surface,
+        borderRadius: 999,
+        borderWidth: 0,
+        borderColor: 'transparent',
+        backgroundColor: 'transparent',
     },
     input: {
         flex: 1,
@@ -852,8 +852,9 @@ const styles = StyleSheet.create({
 
     // User tile
     userTile: {
-        borderRadius: 12,
+        borderRadius: 18,
         borderWidth: 0,
+        backgroundColor: 'transparent',
         padding: 12,
         marginBottom: 8,
     },
