@@ -307,6 +307,7 @@ export default function LoginModal({ visible = true, onClose, onSuccess }: Login
       const result = await setPin(userId, value, backendToken);
       if (result.ok && result.token) {
         verifiedBackendTokenRef.current = null;
+        verifiedFirebaseTokenRef.current = null;
         await performLogin(userId, result.user?.username?.toString() ?? 'User', result.token, verifiedPhone);
       } else toast(withStatus(result.message ?? 'Failed to set PIN', result.status), { error: true });
     } catch (error) {
@@ -339,7 +340,7 @@ export default function LoginModal({ visible = true, onClose, onSuccess }: Login
       verifiedFirebaseTokenRef.current = firebaseIdToken;
       const existing = await getUserSafe(phone, firebaseIdToken);
       if (existing) {
-        const session = await loginWithFirebaseToken(phone, firebaseIdToken);
+        const session = await loginWithFirebaseToken(phone, existing.username?.toString() ?? 'User', firebaseIdToken);
         if (!session.ok || !session.token || !session.user) {
           throw new Error(session.message ?? 'Could not establish a Funspot session.');
         }
