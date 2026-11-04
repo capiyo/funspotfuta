@@ -111,14 +111,14 @@ export function MatchDetailsModal({visible,fixture,userId,username,authToken,onC
 
   if(!visible||!fixture)return null;
   const home=fixture.homeScore??0,away=fixture.awayScore??0,isLive=fixture.status==='live';
-  return createPortal(<div className="fixed inset-0 z-[1000] flex items-end justify-center bg-black/50" onMouseDown={e=>{if(e.target===e.currentTarget)onClose();}}>
-    <section ref={dialogRef} role="dialog" aria-modal="true" aria-label={`${fixture.homeTeam} vs ${fixture.awayTeam} match details`} className="flex w-full max-w-2xl flex-col overflow-hidden rounded-t-[20px]" style={{height:'88vh',backgroundColor:colors.surface}}>
+  return createPortal(<div className="fixed inset-0 z-[1000] flex items-stretch justify-stretch bg-black/70" onMouseDown={e=>{if(e.target===e.currentTarget)onClose();}}>
+    <section ref={dialogRef} role="dialog" aria-modal="true" aria-label={`${fixture.homeTeam} vs ${fixture.awayTeam} match details`} className="flex h-[100dvh] w-full max-w-none flex-col overflow-hidden rounded-none" style={{backgroundColor:colors.surface}}>
       <div className="flex justify-center pb-2 pt-3"><div className="h-1 w-10 rounded-full" style={{backgroundColor:colors.borderActive}}/></div>
-      <header className="flex items-center gap-3 px-4 pb-3 pt-1">
+      {activeTab!=='lineups'&&<header className="flex items-center gap-3 px-4 pb-3 pt-1">
         <div className="min-w-0 flex-1 text-center"><p className="line-clamp-2" style={{...fanText('body',colors,colors.textPrimary),fontSize:11,fontWeight:400,lineHeight:'14px'}}>{fixture.homeTeam}</p>{isLive&&<span className="mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold text-red-500" style={{background:'rgba(255,0,0,.12)'}}>LIVE</span>}</div>
         <div className="shrink-0 rounded-full px-4 py-1.5" style={{backgroundColor:colors.background}}><span style={{...fanText('scoreHero',colors,colors.textPrimary),fontSize:18,fontWeight:400,lineHeight:'22px'}}>{home} - {away}</span></div>
         <div className="min-w-0 flex-1 text-center"><p className="line-clamp-2" style={{...fanText('body',colors,colors.textPrimary),fontSize:13,fontWeight:400,lineHeight:'17px'}}>{fixture.awayTeam}</p>{fixture.date&&<p className="mt-1" style={fanText('caption',colors,colors.textSecondary)}>{formatTime(fixture.date)}</p>}</div>
-      </header>
+      </header>}
       <div className="mx-4 flex border-b" style={{borderColor:'rgba(0,0,0,.1)'}}>
         {(['lineups','stats'] as const).filter(tab=>tab==='lineups'||hasStats).map(tab=><button key={tab} type="button" onClick={()=>setActiveTab(tab)} className="relative flex-1 py-2.5 text-[13px] font-semibold tracking-wide" style={{color:activeTab===tab?colors.primary:colors.textSecondary}}>{tab==='lineups'?'LINEUPS':'STATS'}{activeTab===tab&&<span className="absolute inset-x-0 bottom-0 h-0.5 rounded" style={{backgroundColor:colors.primary}}/>}</button>)}
       </div>
