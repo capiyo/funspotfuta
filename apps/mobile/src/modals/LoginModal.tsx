@@ -4,12 +4,10 @@
 //
 //   phone (+ accept terms) -> Firebase phone OTP
 //      codeSent / auto-verified -> otp -> signIn:
-//          existing user -> login with the Firebase ID token as session token
-//          new user      -> username -> register (username + phone)
-//      ANY Firebase failure (or non-network unexpected error) -> PIN fallback:
-//          check-user -> has PIN          -> pin-login
-//                     -> user, no PIN     -> set PIN (set-pin)
-//                     -> no user          -> set PIN -> username -> register(+pin)
+//          existing user -> exchange Firebase ID token for backend JWT
+//          new user      -> username -> Firebase-verified backend registration
+//      ANY Firebase failure -> existing backend PIN login only; creating a
+//      new account or setting a PIN requires successful phone verification
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Modal,
@@ -34,7 +32,7 @@ import {
 import { firebaseAuth, requestFcmToken } from '@/lib/firebase';
 import { NotificationService } from '@/lib/api/notification-service';
 import { useAuth } from '@/lib/auth/auth-context';
-import { checkUser, isUsernameTaken, pinLogin, setPin, registerUser } from '@funspot/core';
+import { checkUser, isUsernameTaken, pinLogin, loginWithFirebaseToken, setPin, registerUser } from '@funspot/core';
 import {
   buildE164,
   validatePhone,
@@ -174,6 +172,8 @@ export default function LoginModal({ visible, onClose, onSuccess }: LoginModalPr
 
   // Prevents double-handling when Android auto-verification races with manual confirm.
   const otpHandledRef = useRef(false);
+  const verifiedFirebaseTokenRef = useRef<string | null>(null);
+  const verifiedBackendTokenRef = useRef<string | null>(null);
 
   const filteredCountries = useMemo(() => {
     if (!countrySearch.trim()) return COUNTRIES;
@@ -244,9 +244,9 @@ export default function LoginModal({ visible, onClose, onSuccess }: LoginModalPr
   //  BACKEND HELPERS
   // ─────────────────────────────────────────
   // Port of _getUserByPhoneFull: any failure counts as "no user".
-  async function getUserSafe(e164: string) {
+  async function getUserSafe(e164: string, firebaseIdToken: string) {
     try {
-      return await checkUser(e164);
+      return await checkUser(e164, firebaseIdToken);
     } catch {
       return null;
     }
@@ -343,12 +343,12 @@ export default function LoginModal({ visible, onClose, onSuccess }: LoginModalPr
   // ─────────────────────────────────────────
   async function switchToPinFlow(e164: string) {
     setVerifiedPhone(e164);
-    const userData = await getUserSafe(e164);
-    const exists = userData != null;
-    const hasPin = userData?.has_pin === true;
-
-    setExistingUserId(exists ? (userData!.id?.toString() ?? null) : null);
-    setIsNewPinUser(!hasPin);
+    // If Firebase OTP failed, only an existing PIN can authenticate this
+    // account. Account creation and PIN setup require verified phone identity.
+    verifiedFirebaseTokenRef.current = null;
+    verifiedBackendTokenRef.current = null;
+    setExistingUserId(null);
+    setIsNewPinUser(false);
     setPinValue('');
     setPinConfirm('');
     setStep('pin');
@@ -368,10 +368,11 @@ export default function LoginModal({ visible, onClose, onSuccess }: LoginModalPr
         toast('PINs do not match', { error: true });
         return;
       }
-      if (existingUserId) {
+      if (existingUserId && verifiedBackendTokenRef.current) {
         await attachPinToExistingUser(existingUserId, value);
       } else {
-        showUsernameStep(value);
+        toast('Phone verification is required to set a PIN. Please retry OTP.', { error: true });
+        setStep('phone');
       }
       return;
     }
@@ -392,10 +393,17 @@ export default function LoginModal({ visible, onClose, onSuccess }: LoginModalPr
   }
 
   async function attachPinToExistingUser(userId: string, value: string) {
+    const backendToken = verifiedBackendTokenRef.current;
+    if (!backendToken) {
+      toast('Verify your phone before setting a PIN.', { error: true });
+      setStep('phone');
+      return;
+    }
     setLoading(true);
     try {
-      const res = await setPin(userId, value);
+      const res = await setPin(userId, value, backendToken);
       if (res.ok && res.token) {
+        verifiedBackendTokenRef.current = null;
         const username = res.user?.username?.toString() ?? 'User';
         await performLogin(userId, username, res.token, verifiedPhone);
       } else {
@@ -441,17 +449,26 @@ export default function LoginModal({ visible, onClose, onSuccess }: LoginModalPr
   // ─────────────────────────────────────────
   async function handleFirebaseUser(fUser: FirebaseAuthTypes.User) {
     try {
-      const token = await fUser.getIdToken();
+      const firebaseIdToken = await fUser.getIdToken();
       const phone = fUser.phoneNumber ?? verifiedPhone;
+      verifiedFirebaseTokenRef.current = firebaseIdToken;
 
-      const existing = await getUserSafe(phone);
+      const existing = await getUserSafe(phone, firebaseIdToken);
       if (existing) {
-        const uid = existing.id?.toString() ?? '';
-        const username = existing.username?.toString() ?? 'User';
-        if (token) {
-          await performLogin(uid, username, token, phone);
+        const session = await loginWithFirebaseToken(phone, firebaseIdToken);
+        if (!session.ok || !session.token || !session.user) {
+          throw new Error(session.message ?? 'Could not establish a Funspot session.');
+        }
+        if (existing.has_pin !== true) {
+          verifiedBackendTokenRef.current = session.token;
+          setExistingUserId(session.user.id);
+          setIsNewPinUser(true);
+          setPinValue('');
+          setPinConfirm('');
+          setStep('pin');
         } else {
-          toast('Failed to get auth token', { error: true });
+          verifiedFirebaseTokenRef.current = null;
+          await performLogin(session.user.id, session.user.username ?? 'User', session.token, phone);
         }
       } else {
         showUsernameStep(null);
@@ -503,7 +520,13 @@ export default function LoginModal({ visible, onClose, onSuccess }: LoginModalPr
         toast('Username already taken', { error: true });
         return;
       }
-      const res = await registerUser(name, verifiedPhone, pendingPin ?? undefined);
+      const firebaseIdToken = verifiedFirebaseTokenRef.current;
+      if (!firebaseIdToken) {
+        toast('Verify your phone before creating an account.', { error: true });
+        setStep('phone');
+        return;
+      }
+      const res = await registerUser(name, verifiedPhone, pendingPin ?? undefined, firebaseIdToken);
       if (res.ok && res.token && res.user) {
         await performLogin(res.user.id, name, res.token, verifiedPhone);
       } else {
