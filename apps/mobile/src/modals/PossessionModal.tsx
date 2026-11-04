@@ -73,7 +73,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
       if (!result.success) throw new Error(result.message || 'Possession vote was not accepted');
       setNotice(result.message || 'Possession vote recorded');
       if (result.market) setMarket(result.market); else await refresh();
-    } catch (cause) { setError(cause instanceof Error ? cause.message : 'Could not submit possession prediction'); }
+    } catch (cause) { setError(cause instanceof Error ? cause.message : 'Could not submit possession vote'); }
     finally { setBusy(false); }
   }
 
@@ -138,7 +138,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
 
             <View style={styles.sectionHead}>
               <Text style={fanText('button', colors, colors.textPrimary)}>Possession votes</Text>
-              <Text style={fanText('tag', colors, colors.textSecondary)}>{total} {total === 1 ? 'prediction' : 'predictions'}</Text>
+              <Text style={fanText('tag', colors, colors.textSecondary)}>{total} {total === 1 ? 'vote' : 'votes'}</Text>
             </View>
             <View style={styles.bar}><View style={[styles.homeBar, { flex: homePercent }]} /><View style={[styles.awayBar, { flex: 100 - homePercent }]} /></View>
             <View style={styles.scoreLine}>
