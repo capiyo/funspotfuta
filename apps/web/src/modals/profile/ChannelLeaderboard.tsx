@@ -439,7 +439,9 @@ function createStyles(colors: FanColors): Record<string, CSSProperties> {
         memberAvatar: {
             width: 36,
             height: 36,
-            borderRadius: FAN_RADIUS.md,
+            borderRadius: '50%',
+            overflow: 'hidden',
+            flexShrink: 0,
             alignItems: 'center',
             justifyContent: 'center',
         },
