@@ -4,7 +4,7 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { useQueryClient } from '@tanstack/react-query';
 import { firebaseAuth } from '../firebase';
 import { getExistingWebPushToken, NotificationService } from '../api/notification-service';
-import { indexedDbQueryPersister, secureBrowserSession } from '../query-persistence';
+import { indexedDbQueryPersister, secureBrowserNotificationStorage, secureBrowserSession } from '../query-persistence';
 import { getAllFixtures, getVotesByUserStrict, feedQueryOptions, comradesQueryOptions, profileQueryOptions, queryKeys } from '@funspot/core';
 
 type AuthState = {
@@ -38,11 +38,16 @@ const NOTIFICATION_STORAGE_KEYS = [
   'processed_notification_ids',
 ] as const;
 
-function clearNotificationStorage(): void {
+async function clearNotificationStorage(): Promise<void> {
+  try {
+    await secureBrowserNotificationStorage.clear();
+  } catch (error) {
+    if (import.meta.env.DEV) console.warn('[notifications] encrypted storage cleanup failed', error);
+  }
   try {
     for (const key of NOTIFICATION_STORAGE_KEYS) localStorage.removeItem(key);
   } catch {
-    // Storage may be unavailable; private query cache is still cleared below.
+    // Legacy plaintext storage may be unavailable; encrypted cleanup was attempted above.
   }
 }
 
@@ -100,8 +105,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       NotificationService.setActiveUser(null);
       setState({ ...initialState, isInitialized: true });
-      clearNotificationStorage();
       void (async () => {
+        await clearNotificationStorage();
         await queryClient.cancelQueries();
         queryClient.clear();
         const cleanup = [indexedDbQueryPersister.removeClient()];
@@ -222,7 +227,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const operationVersion = ++authBoundaryVersion.current;
       if (state.userId !== userId) {
         NotificationService.setActiveUser(null);
-        clearNotificationStorage();
+        await clearNotificationStorage();
         authChannel.current?.postMessage({ type: 'account-switch' });
         setState({ ...initialState, isInitialized: true });
         await queryClient.cancelQueries();
@@ -266,7 +271,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
     authBoundaryVersion.current += 1;
     authChannel.current?.postMessage({ type: 'logout' });
-    clearNotificationStorage();
+    await clearNotificationStorage();
     setState({ ...initialState, isInitialized: true });
     await queryClient.cancelQueries();
     queryClient.clear();
@@ -297,7 +302,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const updateUserData = useCallback(async (userId: string, username: string, phone?: string) => {
     try {
       if (state.userId !== userId) {
-        clearNotificationStorage();
+        await clearNotificationStorage();
         authBoundaryVersion.current += 1;
         authChannel.current?.postMessage({ type: 'account-switch' });
         setState({ ...initialState, isInitialized: true });
@@ -326,7 +331,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     NotificationService.setActiveUser(null);
     authBoundaryVersion.current += 1;
     authChannel.current?.postMessage({ type: 'clear-all' });
-    clearNotificationStorage();
+    await clearNotificationStorage();
     try {
       LEGACY_KEYS.forEach((key) => localStorage.removeItem(key));
       sessionStorage.clear();
