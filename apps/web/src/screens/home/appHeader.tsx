@@ -308,7 +308,7 @@ export function AppHeader(props: HeaderProps = {}) {
               style={{ color: colors.textSecondary }}
             >
               <Bell size={19} />
-              {unreadCount > 0 && <span className="absolute right-0 top-0 flex min-h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] font-bold text-white" style={{ background: colors.primary }}>{unreadCount > 99 ? '99+' : unreadCount}</span>}
+              {unreadCount > 0 && <span className="absolute right-0 top-0 flex min-h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] font-bold text-white" style={{ background: colors.primary }}>{unreadCount}</span>}
             </button>
             {loggedIn ? (
               <>
