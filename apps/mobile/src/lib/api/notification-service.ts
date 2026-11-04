@@ -27,6 +27,18 @@ const pendingFcmTokenRegistrations = new Map<string, Promise<boolean>>();
 
 const API_BASE_URL = 'https://clash-api-m5mr.onrender.com/api';
 
+const NOTIFICATION_REQUEST_TIMEOUT_MS = 10_000;
+
+async function fetchWithTimeout(url: string, init: RequestInit): Promise<Response> {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), NOTIFICATION_REQUEST_TIMEOUT_MS);
+    try {
+        return await fetch(url, { ...init, signal: controller.signal });
+    } finally {
+        clearTimeout(timeout);
+    }
+}
+
 // ─── Storage keys (exact match to the Dart source) ─────────────────
 const K_UNREAD_NOTIFICATIONS = 'unread_notifications';
 const K_UNREAD_COUNT = 'unread_notification_count';
@@ -872,7 +884,7 @@ export const NotificationService = {
 
         const registration = (async () => {
             try {
-                const response = await fetch(`${API_BASE_URL}/notifications/register-token`, {
+                const response = await fetchWithTimeout(`${API_BASE_URL}/notifications/register-token`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -910,7 +922,7 @@ export const NotificationService = {
             // otherwise its late success could resurrect a token after logout.
             const pending = pendingFcmTokenRegistrations.get(key);
             if (pending) await pending.catch(() => false);
-            await fetch(`${API_BASE_URL}/notifications/unregister-token`, {
+            await fetchWithTimeout(`${API_BASE_URL}/notifications/unregister-token`, {
                 method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
