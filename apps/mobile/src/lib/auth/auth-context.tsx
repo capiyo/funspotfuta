@@ -179,6 +179,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(async () => {
     NotificationService.setActiveUser(null);
+    // Stop foreground listeners and token refresh registration immediately;
+    // network cleanup must not keep the authenticated runtime alive.
+    setState({ ...initialState, isInitialized: true });
     try {
       if (state.userId) {
         const fcmToken = await getFcmTokenIfPermitted();
@@ -193,7 +196,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (error) {
       if (__DEV__) console.warn('[notifications] Logout token cleanup skipped', error);
     }
-    setState({ ...initialState, isInitialized: true });
     const results = await Promise.allSettled([
       clearMobileQueryCache(),
       clearSecureSession(),
