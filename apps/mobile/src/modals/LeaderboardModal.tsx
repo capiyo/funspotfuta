@@ -1408,7 +1408,7 @@ function ActivityCard({
     <View
       style={[
         styles.activityCard,
-        { backgroundColor: colors.surface, borderColor: colors.border },
+        { backgroundColor: 'transparent', borderColor: 'transparent' },
       ]}
     >
       <View style={styles.activityHeaderRow}>
@@ -1531,7 +1531,7 @@ function createStyles(colors: FanColors) {
       borderRadius: 14,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: hexWithAlpha(colors.primary, 0.14),
+      backgroundColor: 'transparent',
     },
     headerTextWrap: { flex: 1, marginLeft: FAN_SPACING.sm },
     headerTitle: {
@@ -1580,7 +1580,7 @@ function createStyles(colors: FanColors) {
       marginTop: FAN_SPACING.xs,
       marginBottom: FAN_SPACING.sm,
       padding: 3,
-      borderRadius: 16,
+      borderRadius: 999,
       backgroundColor: 'transparent',
       borderWidth: 0,
     },
@@ -1589,10 +1589,10 @@ function createStyles(colors: FanColors) {
       alignItems: 'center',
       justifyContent: 'center',
       paddingVertical: FAN_SPACING.xs,
-      borderRadius: 13,
+      borderRadius: 999,
     },
     tabButtonActive: {
-      backgroundColor: hexWithAlpha(colors.primary, 0.14),
+      backgroundColor: 'transparent',
     },
     tabButtonText: {
       fontSize: 10,
@@ -1618,7 +1618,7 @@ function createStyles(colors: FanColors) {
       gap: 4,
       paddingHorizontal: 8,
       paddingVertical: 3,
-      borderRadius: 12,
+      borderRadius: 999,
     },
     championPillText: {
       fontSize: 9,
@@ -1628,7 +1628,7 @@ function createStyles(colors: FanColors) {
     rankChip: {
       paddingHorizontal: 6,
       paddingVertical: 2,
-      borderRadius: 8,
+      borderRadius: 999,
     },
     rankChipText: {
       fontSize: 10,
@@ -1676,7 +1676,7 @@ function createStyles(colors: FanColors) {
     mePill: {
       paddingHorizontal: 5,
       paddingVertical: 1,
-      borderRadius: 6,
+      borderRadius: 999,
     },
     mePillText: {
       fontSize: 7,
