@@ -8,8 +8,8 @@
 // vivid floodlit green brand actions, soft grey-green text, gold reserved
 // for trophy/rank emphasis, and red for live/away semantic states. Web and
 // React Native consume this same palette so shared components stay aligned.
-// Dark mode intentionally uses a restrained two-level surface system: the
-// page canvas is #070d09, cards are #0e1612, and controls use #161f1a.
+// Dark mode uses one blended page/card canvas (#0e1612); controls remain
+// slightly raised at #161f1a. Brand and heading accents use floodlit green.
 
 export interface FanColorPalette {
   background: string;
@@ -54,15 +54,15 @@ export interface FanColorPalette {
 }
 
 export const FAN_COLORS_DARK: FanColorPalette = {
-  background: '#070d09',
-  backgroundTint: '#070d09',
+  background: '#0e1612',
+  backgroundTint: '#0e1612',
   surface: '#0e1612',
   surfaceElevated: '#0e1612',
   surfaceSunken: '#0a100c',
   inputSurface: '#161f1a',
   inputSurfaceDisabled: '#0e1612',
 
-  border: 'rgba(255,255,255,0.08)',
+  border: 'rgba(255,255,255,0.045)',
   borderActive: 'rgba(125,241,98,0.55)',
   borderFocus: '#7df162',
 
@@ -185,8 +185,8 @@ export const FAN_TYPOGRAPHY: Record<string, FanTextStyle> = {
   scoreHero: { fontFamily: 'condensed', fontSize: 48, fontWeight: '800', letterSpacing: -1, lineHeight: 1.0, colorKey: 'textPrimary' },
   scoreCompact: { fontFamily: 'condensed', fontSize: 32, fontWeight: '800', letterSpacing: -0.5, lineHeight: 1.0, colorKey: 'textPrimary' },
   scoreDash: { fontFamily: 'condensed', fontSize: 24, fontWeight: '600', letterSpacing: 0, lineHeight: 1.0, colorKey: 'scoreDash' },
-  headline: { fontFamily: 'condensed', fontSize: 24, fontWeight: '700', letterSpacing: 0.2, colorKey: 'textPrimary' },
-  title: { fontFamily: 'sans', fontSize: 15, fontWeight: '700', letterSpacing: 0.1, colorKey: 'textPrimary' },
+  headline: { fontFamily: 'condensed', fontSize: 24, fontWeight: '700', letterSpacing: 0.2, colorKey: 'primary' },
+  title: { fontFamily: 'sans', fontSize: 15, fontWeight: '700', letterSpacing: 0.1, colorKey: 'primary' },
   body: { fontFamily: 'sans', fontSize: 14, fontWeight: '400', letterSpacing: 0, lineHeight: 1.55, colorKey: 'textSecondary' },
   caption: { fontFamily: 'sans', fontSize: 10, fontWeight: '500', letterSpacing: 0.2, colorKey: 'textTertiary' },
   tag: { fontFamily: 'sans', fontSize: 8, fontWeight: '700', letterSpacing: 1.2, colorKey: 'textSecondary' },
