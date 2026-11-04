@@ -195,13 +195,11 @@ export function PitchView({ homeTeam, awayTeam, homeFormation, awayFormation, ho
   });
   const hasOverflow=homeOverflow.length>0||awayOverflow.length>0;
   return <div className="w-full">
-    <div className="mb-2 flex items-center justify-between gap-2">
-      <span className="truncate text-[10px] font-normal" style={{color:colors.primary}}>{homeTeam} · {homeFormation}</span>
-      {hasOverflow && <div className="flex gap-1">
-        {homeOverflow.length>0&&<button type="button" onClick={()=>setShowHomeOverflow(v=>!v)} className="rounded-full px-2 py-1 text-[10px]" style={{background:colors.background,color:colors.primary}}>{showHomeOverflow?'Hide home bench':'Home bench'} {showHomeOverflow?<ChevronUp size={12} className="inline"/>:<ChevronDown size={12} className="inline"/>}</button>}
-        {awayOverflow.length>0&&<button type="button" onClick={()=>setShowAwayOverflow(v=>!v)} className="rounded-full px-2 py-1 text-[10px]" style={{background:colors.background,color:colors.away}}>{showAwayOverflow?'Hide away bench':'Away bench'} {showAwayOverflow?<ChevronUp size={12} className="inline"/>:<ChevronDown size={12} className="inline"/>}</button>}
+    <div className="mb-1 flex min-h-7 items-center justify-center gap-2">
+      {hasOverflow && <div className="flex items-center justify-center gap-2">
+        {homeOverflow.length>0&&<button type="button" onClick={()=>setShowHomeOverflow(v=>!v)} className="rounded-full px-3 py-1.5 text-[10px] font-semibold" style={{background:colors.background,color:colors.primary}}>{showHomeOverflow?'Hide home extras':'Home extras'} {showHomeOverflow?<ChevronUp size={12} className="inline"/>:<ChevronDown size={12} className="inline"/>}</button>}
+        {awayOverflow.length>0&&<button type="button" onClick={()=>setShowAwayOverflow(v=>!v)} className="rounded-full px-3 py-1.5 text-[10px] font-semibold" style={{background:colors.background,color:colors.away}}>{showAwayOverflow?'Hide away extras':'Away extras'} {showAwayOverflow?<ChevronUp size={12} className="inline"/>:<ChevronDown size={12} className="inline"/>}</button>}
       </div>}
-      <span className="truncate text-[10px] font-normal" style={{color:colors.away}}>{awayTeam} · {awayFormation}</span>
     </div>
     <div className="overflow-hidden rounded-xl" style={{...fanShadowStyle('card', true),background:GRASS_EVEN}}>
       <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`${homeTeam} vs ${awayTeam} lineups`} className="lineup-pitch-svg block h-[min(calc(100dvh_-_76px),200vw)] w-auto max-w-full mx-auto min-[651px]:h-[calc(100dvh_-_72px)] min-[651px]:w-auto">
