@@ -174,6 +174,27 @@ async function removeEncryptedValue(storageKey: string): Promise<void> {
 }
 
 /** Browser credentials are encrypted at rest; the non-extractable key stays in IndexedDB. */
+const NOTIFICATION_STORAGE_PREFIX = 'FUNSPOT_NOTIFICATION:';
+const NOTIFICATION_STORAGE_KEYS = [
+  'unread_notifications',
+  'unread_notification_count',
+  'unread_comment_count',
+  'pending_join_requests',
+  'processed_notification_ids',
+] as const;
+
+/** Notification snapshots use the same encrypted IndexedDB boundary as browser credentials. */
+export const secureBrowserNotificationStorage = {
+  getItem: (key: string) => readEncryptedValue(`${NOTIFICATION_STORAGE_PREFIX}${key}`),
+  setItem: (key: string, value: string) => writeEncryptedValue(`${NOTIFICATION_STORAGE_PREFIX}${key}`, value),
+  removeItem: (key: string) => removeEncryptedValue(`${NOTIFICATION_STORAGE_PREFIX}${key}`),
+  clear: async () => {
+    await Promise.all(NOTIFICATION_STORAGE_KEYS.map((key) =>
+      removeEncryptedValue(`${NOTIFICATION_STORAGE_PREFIX}${key}`),
+    ));
+  },
+};
+
 export const secureBrowserSession = {
   getToken: () => readEncryptedValue(AUTH_TOKEN_KEY),
   setToken: (value: string) => writeEncryptedValue(AUTH_TOKEN_KEY, value),
