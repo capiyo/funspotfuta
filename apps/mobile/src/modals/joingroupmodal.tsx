@@ -629,7 +629,7 @@ const styles = StyleSheet.create({
         borderRadius: 22,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#1A1A3E',
+        backgroundColor: 'transparent',
     },
     headerTitle: { color: 'white', fontSize: 17, fontWeight: '700' },
     headerSubRow: {
@@ -719,7 +719,7 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: '#1A1A3E',
+        backgroundColor: 'transparent',
     },
     channelAvatarText: {
         fontSize: 14,
@@ -747,7 +747,7 @@ const styles = StyleSheet.create({
         gap: 6,
         paddingHorizontal: 12,
         paddingVertical: 6,
-        borderRadius: 16,
+        borderRadius: 999,
     },
     pendingPillText: {
         fontSize: 11,
@@ -759,7 +759,7 @@ const styles = StyleSheet.create({
         gap: 4,
         paddingHorizontal: 12,
         paddingVertical: 6,
-        borderRadius: 16,
+        borderRadius: 999,
         borderWidth: 1,
     },
     fullPillText: {
@@ -769,7 +769,7 @@ const styles = StyleSheet.create({
     joinBtn: {
         paddingHorizontal: 16,
         paddingVertical: 8,
-        borderRadius: 16,
+        borderRadius: 999,
         borderWidth: 1,
     },
     joinBtnText: {
