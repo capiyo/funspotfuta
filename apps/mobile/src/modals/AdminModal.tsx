@@ -221,7 +221,7 @@ export default function AdminModal({
             {/* Header */}
             <View style={styles.headerRow}>
               <View
-                style={[styles.headerIcon, { backgroundColor: colors.drawDim }]}
+                style={[styles.headerIcon, { backgroundColor: 'transparent' }]}
               >
                 <ShieldAlert size={ICON.md} color={colors.draw} />
               </View>
@@ -656,7 +656,7 @@ function MemberCard({
             </Text>
             {isAdmin && (
               <View
-                style={[styles.adminPill, { backgroundColor: colors.drawDim }]}
+                style={[styles.adminPill, { backgroundColor: 'transparent' }]}
               >
                 <Text
                   style={[fanText('tag', colors, colors.draw), { fontSize: 7 }]}
