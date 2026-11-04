@@ -32,6 +32,8 @@ const K_UNREAD_NOTIFICATIONS = 'unread_notifications';
 const K_UNREAD_COUNT = 'unread_notification_count';
 const K_UNREAD_COMMENT_COUNT = 'unread_comment_count';
 const K_PENDING_JOIN_REQUESTS = 'pending_join_requests';
+const K_PROCESSED_NOTIFICATION_IDS = 'processed_notification_ids';
+const pendingNotificationIds = new Set<string>();
 
 // Reconciliation is tied to the authenticated account. A response started by a
 // previous session must not overwrite badges after logout or account switching.
@@ -127,9 +129,46 @@ export const NotificationService = {
 
     // ─── pushToStream (called by the FCM handler) ───────────────────
     async pushToStream(payload: Record<string, any>): Promise<void> {
-        console.log('[NotificationService] 📨 Pushing to stream:', payload);
+        if (await this._isDuplicatePush(payload)) return;
         emitNotification(payload);
         await this._handleBadgeUpdate(payload);
+    },
+
+    async _isDuplicatePush(payload: Record<string, any>): Promise<boolean> {
+        const rawData = payload.data && typeof payload.data === 'object' ? payload.data : payload;
+        const nested = typeof rawData.data === 'string' ? (() => {
+            try {
+                const parsed: unknown = JSON.parse(rawData.data);
+                return parsed && typeof parsed === 'object' ? parsed as Record<string, unknown> : {};
+            } catch {
+                return {};
+            }
+        })() : {};
+        const data = { ...rawData, ...nested };
+        const messageId = [payload.messageId, payload.message_id, data.notification_id, data.event_id]
+            .find((value): value is string => typeof value === 'string' && value.length > 0);
+        if (!messageId) return false;
+        if (pendingNotificationIds.has(messageId)) return true;
+        pendingNotificationIds.add(messageId);
+        try {
+            const raw = await readString(K_PROCESSED_NOTIFICATION_IDS);
+            let ids: string[] = [];
+            if (raw) {
+                try {
+                    const parsed: unknown = JSON.parse(raw);
+                    if (Array.isArray(parsed)) ids = parsed.filter((value): value is string => typeof value === 'string');
+                } catch {
+                    ids = [];
+                }
+            }
+            if (ids.includes(messageId)) return true;
+            ids.push(messageId);
+            if (ids.length > 500) ids = ids.slice(-500);
+            await writeString(K_PROCESSED_NOTIFICATION_IDS, JSON.stringify(ids));
+            return false;
+        } finally {
+            pendingNotificationIds.delete(messageId);
+        }
     },
 
     // ─── _handleBadgeUpdate ─────────────────────────────────────────
