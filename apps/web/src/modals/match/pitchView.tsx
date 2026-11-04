@@ -153,7 +153,7 @@ export interface PitchViewProps {
   homeTeam: string; awayTeam: string; homeFormation: string; awayFormation: string;
   homePlayers: SimplifiedPlayer[]; awayPlayers: SimplifiedPlayer[];
 }
-const PITCH_HEIGHT_PER_WIDTH = 1.6;
+const PITCH_HEIGHT_PER_WIDTH = 2.0;
 const GRASS_EVEN = '#0D5E1A', GRASS_ODD = '#0A5218';
 
 export function PitchView({ homeTeam, awayTeam, homeFormation, awayFormation, homePlayers, awayPlayers }: PitchViewProps) {
