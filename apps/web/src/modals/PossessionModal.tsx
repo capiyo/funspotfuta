@@ -83,7 +83,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
       setNotice(result.message || 'Possession vote recorded');
       if (result.market) setMarket(result.market); else await refresh();
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : 'Could not submit possession prediction');
+      setError(cause instanceof Error ? cause.message : 'Could not submit possession vote');
     } finally { setBusy(false); }
   }
 
@@ -161,7 +161,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
         <div style={{ marginTop: 18 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'baseline' }}>
             <strong style={{ fontSize: 13 }}>Possession votes</strong>
-            <span style={{ ...muted, fontSize: 11 }}>{totalVotes} {totalVotes === 1 ? 'prediction' : 'predictions'}</span>
+            <span style={{ ...muted, fontSize: 11 }}>{totalVotes} {totalVotes === 1 ? 'vote' : 'votes'}</span>
           </div>
           <div style={{ display: 'flex', height: 9, overflow: 'hidden', borderRadius: 20, background: colors.border, marginTop: 9 }}>
             <div style={{ width: `${homePercent}%`, background: colors.primary, transition: 'width .2s' }} />
@@ -225,7 +225,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
           ))}
           {market?.settlement && <p style={{ ...muted, fontSize: 12 }}>Settled · winner: {market.settlement.winner ?? 'No winner'}</p>}
         </div>
-        <p style={{ ...muted, fontSize: 10, lineHeight: 1.45, margin: '16px 0 0' }}>Possession predictions and pokes are separate from match-winner votes and regular match pokes.</p>
+        <p style={{ ...muted, fontSize: 10, lineHeight: 1.45, margin: '16px 0 0' }}>Possession votes and pokes are separate from match-winner votes and regular match pokes.</p>
       </section>
     </div>
   );
