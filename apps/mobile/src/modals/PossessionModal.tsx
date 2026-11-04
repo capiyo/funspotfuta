@@ -145,7 +145,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
             <View style={styles.sideRow}>{sideButton('home', fixture.homeTeam)}{sideButton('away', fixture.awayTeam)}</View>
             {tab === 'vote' ? (
               <Pressable disabled={busy || loading || market !== null && market.status !== 'open'} onPress={() => void submitVote()} style={({ pressed }) => [styles.primaryButton, (pressed || busy) && { opacity: PRESSED_OPACITY }]}>
-                <Text style={fanText('button', colors, '#FFFFFF')}>{busy ? 'Submitting…' : 'Submit possession vote'}</Text>
+                <Text style={fanText('button', colors, colors.primary)}>{busy ? 'Submitting…' : 'Submit possession vote'}</Text>
               </Pressable>
             ) : (
               <View style={styles.pokeEntry}>
@@ -154,7 +154,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
                   <TextInput value={amount} onChangeText={setAmount} keyboardType="number-pad" placeholder="Points" placeholderTextColor={colors.textTertiary} style={[fanText('body', colors, colors.textPrimary), styles.amountInput]} />
                 </View>
                 <Pressable disabled={busy || loading} onPress={() => void submitPoke()} style={({ pressed }) => [styles.primaryButton, pressed && { opacity: PRESSED_OPACITY }]}>
-                  <Text style={fanText('button', colors, '#FFFFFF')}>Create poke</Text>
+                  <Text style={fanText('button', colors, colors.primary)}>Create poke</Text>
                 </Pressable>
               </View>
             )}
