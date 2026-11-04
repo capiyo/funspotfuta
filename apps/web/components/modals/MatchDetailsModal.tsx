@@ -138,7 +138,7 @@ export function MatchDetailsModal({ visible, fixture, authToken, onClose }: Matc
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 sm:items-center" onClick={onClose}>
       <div
-        className="flex h-[88vh] w-full max-w-md flex-col overflow-hidden rounded-t-fan-xl border border-fan-border bg-fan-surface sm:rounded-fan-xl"
+        className="flex h-[88vh] w-full max-w-md flex-col overflow-hidden rounded-t-3xl border-0 bg-fan-surface sm:rounded-3xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-center py-2"><span className="h-1 w-10 rounded-full bg-fan-borderActive" /></div>
@@ -148,7 +148,7 @@ export function MatchDetailsModal({ visible, fixture, authToken, onClose }: Matc
             <span className="line-clamp-2 text-center text-fan-title text-fan-textPrimary">{fixture.homeTeam}</span>
             {isLive && <span className="mt-1 rounded-fan-pill bg-fan-live px-1.5 py-px text-[8px] font-bold text-white">LIVE</span>}
           </div>
-          <div className="rounded-fan-md bg-fan-background px-3 py-1">
+          <div className="rounded-full bg-transparent px-3 py-1">
             <span className="font-condensed text-fan-scoreHero text-fan-textPrimary">{fixture.homeScore ?? 0} - {fixture.awayScore ?? 0}</span>
           </div>
           <div className="flex flex-1 flex-col items-center">
