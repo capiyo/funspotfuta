@@ -52,12 +52,12 @@ export function ChannelCreationModal({ onClose }: { onClose: () => void }) {
         <h2 id="create-channel-title" className="mb-4 text-base font-bold text-white">Create Channel</h2>
         <label htmlFor="channel-name" className="mb-1 block text-[11px]" style={{ color: colors.textMuted }}>Channel name</label>
         <input id="channel-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Sunday League Squad"
-          className="mb-3 w-full rounded-xl border px-3 py-2.5 text-white outline-none" style={{ borderColor: colors.border, background: 'transparent' }} />
+          className="mb-3 w-full rounded-full border px-4 py-2.5 text-white outline-none" style={{ borderColor: colors.border, background: 'transparent' }} />
         <label htmlFor="channel-season" className="mb-1 block text-[11px]" style={{ color: colors.textMuted }}>Season</label>
         <input id="channel-season" value={season} onChange={(e) => setSeason(e.target.value)}
           className="mb-3 w-full rounded-xl border px-3 py-2.5 text-white outline-none" style={{ borderColor: colors.border, background: 'transparent' }} />
         {error && <p role="alert" className="mb-3 text-[11px] text-red-400">{error}</p>}
-        <button type="button" disabled={submitting} onClick={() => void handleCreate()} className="w-full rounded-xl py-3 text-sm font-bold disabled:opacity-60" style={{ background: 'transparent', color: colors.green }}>
+        <button type="button" disabled={submitting} onClick={() => void handleCreate()} className="w-full rounded-full py-3 text-sm font-bold disabled:opacity-60" style={{ background: 'transparent', color: colors.green }}>
           {submitting ? 'Creating…' : 'Create Channel'}
         </button>
       </section>
