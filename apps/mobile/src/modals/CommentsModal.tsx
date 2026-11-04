@@ -599,7 +599,9 @@ export default function PostCommentsModal({
                             )}
 
                             <View style={styles.inputRow}>
-                                <Avatar colors={colors} size="lg" userId={userId ?? undefined} label={initialsOf(username ?? 'U')} />
+                                <View style={styles.inputAvatarWrap}>
+                                    <Avatar colors={colors} size="lg" userId={userId ?? undefined} label={initialsOf(username ?? 'U')} />
+                                </View>
                                 <View
                                     style={[
                                         styles.inputWrap,
@@ -855,7 +857,20 @@ function createStyles(colors: FanColors) {
             alignItems: 'flex-end',
             gap: FAN_SPACING.md,
         },
-        avatarWrap: {},
+        avatarWrap: {
+            width: 32,
+            height: 32,
+            flexShrink: 0,
+            borderRadius: 16,
+            overflow: 'hidden',
+        },
+        inputAvatarWrap: {
+            width: 32,
+            height: 32,
+            flexShrink: 0,
+            borderRadius: 16,
+            overflow: 'hidden',
+        },
         bubbleAvatar: {
             width: 36,
             height: 36,
