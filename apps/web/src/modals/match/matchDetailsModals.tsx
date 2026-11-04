@@ -112,8 +112,8 @@ export function MatchDetailsModal({visible,fixture,userId,username,authToken,onC
 
   if(!visible||!fixture)return null;
   const home=fixture.homeScore??0,away=fixture.awayScore??0,isLive=fixture.status==='live';
-  return createPortal(<div className="fixed inset-0 z-[1000] flex items-stretch justify-stretch bg-black/70" onMouseDown={e=>{if(e.target===e.currentTarget)onClose();}}>
-    <section ref={dialogRef} role="dialog" aria-modal="true" aria-label={`${fixture.homeTeam} vs ${fixture.awayTeam} match details`} className="flex h-[100dvh] w-full max-w-none flex-col overflow-hidden rounded-none" style={{backgroundColor:colors.surface}}>
+  return createPortal(<div className="fixed inset-0 z-[1000] flex items-end justify-center bg-black/70 min-[651px]:items-stretch min-[651px]:justify-stretch" onMouseDown={e=>{if(e.target===e.currentTarget)onClose();}}>
+    <section ref={dialogRef} role="dialog" aria-modal="true" aria-label={`${fixture.homeTeam} vs ${fixture.awayTeam} match details`} className="flex h-[75dvh] w-full max-w-none flex-col overflow-hidden rounded-t-[24px] min-[651px]:h-[100dvh] min-[651px]:rounded-none" style={{backgroundColor:colors.surface}}>
       <div className="relative flex min-h-9 items-center justify-center pt-1"><div className="h-1 w-10 rounded-full" style={{backgroundColor:colors.borderActive}}/><button type="button" onClick={onClose} aria-label="Close match details" className="absolute right-3 top-1 grid h-8 w-8 place-items-center rounded-full" style={{color:colors.textSecondary,background:'transparent'}}><X size={19}/></button></div>
       {activeTab!=='lineups'&&<header className="flex items-center gap-3 px-4 pb-3 pt-1">
         <div className="min-w-0 flex-1 text-center"><p className="line-clamp-2" style={{...fanText('body',colors,colors.textPrimary),fontSize:11,fontWeight:400,lineHeight:'14px'}}>{fixture.homeTeam}</p>{isLive&&<span className="mt-1 inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold text-red-500" style={{background:'rgba(255,0,0,.12)'}}>LIVE</span>}</div>
