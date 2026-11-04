@@ -21,6 +21,7 @@ The following implementation changes are now on `web-port-from-master`; they hav
 - Make native notification storage operations await encrypted MMKV initialization so a cold-start background FCM handler does not write into the temporary pre-initialization memory buffer.
 - Centralize mobile FCM token registration and token-refresh handling in the authenticated notification runtime; the login overlay no longer makes a duplicate registration request, and denied permission retries now explain the device-settings step.
 - Serialize token unregistration after any in-flight registration and invalidate the local registration cache even when logout cleanup encounters a network error.
+- Bound token registration and unregistration requests so a stalled network cannot hold the logout path indefinitely.
 
 These changes reduce client-side races and duplicate badge increments. They do not resolve the backend notification-router authorization blocker below, and they do not prove real push delivery.
 
