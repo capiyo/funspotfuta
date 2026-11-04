@@ -1,9 +1,6 @@
-// Ported from the backend calls inside funspot/lib/modals/login_modal.dart.
-// The Flutter app also supports Firebase Phone-Auth OTP as a fallback path
-// for brand-new numbers (see lib/services/firebase_auth_service.dart) — that
-// requires the project's live Firebase reCAPTCHA/SMS setup and is flagged as
-// a follow-up in the README rather than faked here. The PIN login/registration
-// path below is backend-only and fully wired against the real API.
+// Shared authentication calls for both web and native. Firebase Phone Auth
+// proves phone ownership; the backend verifies that ID token and exchanges it
+// for a Funspot JWT. PIN login and subsequent API requests use that backend JWT.
 
 import { AUTH_BASE, authHeaders } from './config';
 
