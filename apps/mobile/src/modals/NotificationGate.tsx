@@ -76,9 +76,9 @@ const styles = StyleSheet.create({
     card: {
         width: '100%',
         maxWidth: 340,
-        borderRadius: 16,
-        borderWidth: 1,
-        borderColor: colors.border,
+        borderRadius: 24,
+        borderWidth: 0,
+        borderColor: 'transparent',
         backgroundColor: colors.surface,
         padding: 20,
         alignItems: 'center',
@@ -109,11 +109,11 @@ const styles = StyleSheet.create({
     },
     button: {
         width: '100%',
-        backgroundColor: colors.green,
-        borderRadius: 12,
+        backgroundColor: 'transparent',
+        borderRadius: 999,
         paddingVertical: 14,
         alignItems: 'center',
     },
     buttonDisabled: { opacity: 0.6 },
-    buttonText: { color: '#fff', fontWeight: '600', fontSize: 14 },
+    buttonText: { color: colors.green, fontWeight: '700', fontSize: 14 },
 });
