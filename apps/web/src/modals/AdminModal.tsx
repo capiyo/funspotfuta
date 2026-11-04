@@ -435,8 +435,8 @@ export default function AdminModal({
               style={[
                 styles.confirmWarning,
                 {
-                  borderColor: colors.awayDim,
-                  backgroundColor: colors.awayDim,
+                  borderColor: 'transparent',
+                  backgroundColor: 'transparent',
                 },
               ]}
             >
@@ -971,7 +971,7 @@ function createStyles(colors: FanColorPalette, isDesktop: boolean) {
     adminPill: {
       paddingHorizontal: 5,
       paddingVertical: 1,
-      borderRadius: FAN_RADIUS.sm,
+      borderRadius: FAN_RADIUS.pill,
     },
     removeIconBtn: {
       display: 'flex',
@@ -1004,7 +1004,7 @@ function createStyles(colors: FanColorPalette, isDesktop: boolean) {
       alignItems: 'center',
       paddingHorizontal: FAN_SPACING.md,
       paddingVertical: 3,
-      borderRadius: FAN_RADIUS.md,
+      borderRadius: FAN_RADIUS.pill,
     },
     accuracyTrack: {
       flex: 1,
