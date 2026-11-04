@@ -660,7 +660,7 @@ export default function ChatsScreen() {
           userId={userId ?? ''}
           username={username ?? ''}
           authToken={authToken}
-          isLoggedIn={!!isLoggedIn && !!userId && userId !== 'guest' && !!authToken}
+          isLoggedIn={!!isLoggedIn && !!userId && userId !== 'guest'}
           hasUserVoted={!!myVote}
           userVoteSelection={myVote?.selection}
           channelId={activeChannelId ?? ''}
