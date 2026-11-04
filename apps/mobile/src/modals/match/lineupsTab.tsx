@@ -201,7 +201,7 @@ export function LineupsTab({
                     awayFormation={lineups.awayFormation}
                     homePlayers={lineups.homeStartingXI}
                     awayPlayers={lineups.awayStartingXI}
-                    maxHeight={Math.max(240, availableHeight - (showBench ? 240 : 76))}
+                    maxHeight={Math.max(240, availableHeight - (showBench ? 220 : 44))}
                 />
             </ScrollView>
         </View>
