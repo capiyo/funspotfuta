@@ -724,11 +724,11 @@ function CommentBubble({
                             styles.bubble,
                             isMe
                                 ? {
-                                    backgroundColor: colors.primaryDim,
+                                    backgroundColor: 'transparent',
                                     borderColor: colors.primaryMuted,
                                 }
                                 : {
-                                    backgroundColor: colors.surfaceSunken,
+                                    backgroundColor: 'transparent',
                                     borderColor: colors.border,
                                 },
                             isMe
@@ -779,7 +779,7 @@ function createStyles(colors: FanColors) {
         },
         sheet: {
             height: '88%',
-            backgroundColor: colors.surface,
+            backgroundColor: 'transparent',
             borderTopLeftRadius: 20,
             borderTopRightRadius: 20,
             borderWidth: 1,
@@ -929,7 +929,7 @@ function createStyles(colors: FanColors) {
             marginBottom: FAN_SPACING.md,
             paddingHorizontal: FAN_SPACING.md,
             paddingVertical: FAN_SPACING.md,
-            borderRadius: FAN_RADIUS.md,
+            borderRadius: 999,
         },
         errorText: { fontSize: 11, flex: 1 },
 
@@ -960,7 +960,7 @@ function createStyles(colors: FanColors) {
         replyClose: {
             width: 20,
             height: 20,
-            borderRadius: 10,
+            borderRadius: 999,
             alignItems: 'center',
             justifyContent: 'center',
         },
