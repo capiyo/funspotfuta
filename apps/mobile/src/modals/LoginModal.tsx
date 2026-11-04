@@ -929,8 +929,8 @@ function makeStyles(colors: ReturnType<typeof useFanColors>) {
     input: {
       borderWidth: 1,
       borderColor: colors.border,
-      backgroundColor: colors.surfaceSunken,
-      borderRadius: 12,
+      backgroundColor: 'transparent',
+      borderRadius: 999,
       paddingHorizontal: 16,
       paddingVertical: 14,
       color: colors.textPrimary,
@@ -940,8 +940,8 @@ function makeStyles(colors: ReturnType<typeof useFanColors>) {
       alignItems: 'center',
       borderWidth: 1,
       borderColor: colors.border,
-      backgroundColor: colors.surfaceSunken,
-      borderRadius: 12,
+      backgroundColor: 'transparent',
+      borderRadius: 999,
     },
     dialCodeButton: { paddingHorizontal: 12, paddingVertical: 14 },
     divider: {
@@ -961,8 +961,8 @@ function makeStyles(colors: ReturnType<typeof useFanColors>) {
       alignItems: 'center',
       borderWidth: 1,
       borderColor: colors.border,
-      backgroundColor: colors.surfaceSunken,
-      borderRadius: 12,
+      backgroundColor: 'transparent',
+      borderRadius: 999,
       paddingRight: 14,
     },
     pinField: {
@@ -975,8 +975,8 @@ function makeStyles(colors: ReturnType<typeof useFanColors>) {
     checkbox: {
       width: 20,
       height: 20,
-      borderRadius: 5,
-      borderWidth: 2,
+      borderRadius: 999,
+      borderWidth: 1,
       borderColor: colors.primary,
       alignItems: 'center',
       justifyContent: 'center',
