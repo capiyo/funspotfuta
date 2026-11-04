@@ -494,6 +494,8 @@ interface PitchLabelProps {
 
 function PitchLabel({ label, color }: PitchLabelProps) {
     const colors = useFanColors();
+    const { width: screenWidth } = useWindowDimensions();
+    const pitchWidth = Math.max(1, Math.min(screenWidth - 28, maxHeight * PITCH_ASPECT_RATIO));
     return (
         <View style={[styles.pitchLabel, { backgroundColor: 'rgba(0,0,0,0.45)' }]}>
             <Text
@@ -865,6 +867,7 @@ export interface PitchViewProps {
     awayFormation: string;
     homePlayers: SimplifiedPlayer[];
     awayPlayers: SimplifiedPlayer[];
+    maxHeight: number;
 }
 
 const PITCH_ASPECT_RATIO = 0.5;
@@ -876,6 +879,7 @@ export function PitchView({
     awayFormation,
     homePlayers,
     awayPlayers,
+    maxHeight,
 }: PitchViewProps) {
     const colors = useFanColors();
     const [showHomeOverflow, setShowHomeOverflow] = useState(false);
@@ -971,7 +975,7 @@ export function PitchView({
             ) : null}
 
             <View
-                style={[styles.pitchContainer, { aspectRatio: PITCH_ASPECT_RATIO }]}
+                style={[styles.pitchContainer, { width: pitchWidth, aspectRatio: PITCH_ASPECT_RATIO, alignSelf: 'center' }]}
                 onLayout={onPitchLayout}
             >
                 <View style={styles.pitchClip}>
