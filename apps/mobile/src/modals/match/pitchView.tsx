@@ -944,7 +944,7 @@ export function PitchView({
                 <View style={styles.overflowButtonRow}>
                     {homeOverflow.length > 0 ? (
                         <OverflowButton
-                            label={homeTeam}
+                            label="Home extras"
                             count={homeOverflow.length}
                             color={colors.primary}
                             expanded={showHomeOverflow}
@@ -956,7 +956,7 @@ export function PitchView({
                     ) : null}
                     {awayOverflow.length > 0 ? (
                         <OverflowButton
-                            label={awayTeam}
+                            label="Away extras"
                             count={awayOverflow.length}
                             color={colors.away}
                             expanded={showAwayOverflow}
