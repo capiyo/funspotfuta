@@ -97,7 +97,7 @@ export function LoginModalProvider({ children }: { children: ReactNode }) {
 
     // ── Post-login: the global NotificationRuntime owns token registration
     // and token-refresh handling, avoiding a second independent registration.
-    async function handleSuccess() {
+    function handleSuccess() {
         setOpen(false);
         setGated(false);
 
