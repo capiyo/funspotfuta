@@ -27,7 +27,8 @@ type Props = {
 
 export function PossessionModal({ fixture, channelId, userId, username, authToken, isLoggedIn, onClose }: Props) {
   const colors = useFanColors();
-  const styles = createStyles(colors);\n  const { height: screenH } = useWindowDimensions();
+  const styles = createStyles(colors);
+  const { height: screenH } = useWindowDimensions();
   const [tab, setTab] = useState<Tab>('vote');
   const [listTab, setListTab] = useState<'votes' | 'open' | 'matched'>('votes');
   const [market, setMarket] = useState<PossessionMarket | null>(null);
