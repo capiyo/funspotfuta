@@ -923,6 +923,7 @@ export const NotificationService = {
     }): Promise<boolean> {
         const { userId, fcmToken, platform, authToken } = args;
         const key = `${userId}:${fcmToken}`;
+        if (activeNotificationUserId !== userId) return false;
         if (registeredFcmTokenKeys.has(key)) return true;
         const pending = pendingFcmTokenRegistrations.get(key);
         if (pending) return pending;
@@ -941,8 +942,23 @@ export const NotificationService = {
                 const result: unknown = await response.json();
                 const success = Boolean(result && typeof result === 'object'
                     && (result as { success?: unknown }).success === true);
-                if (success) registeredFcmTokenKeys.add(key);
-                return success;
+                if (success && activeNotificationUserId === userId) {
+                    registeredFcmTokenKeys.add(key);
+                    return true;
+                }
+                if (success) {
+                    // A request may finish after logout/account switching. Remove
+                    // the old owner's row without touching a new account's token.
+                    await fetchWithTimeout(`${API_BASE_URL}/notifications/unregister-token`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+                        },
+                        body: JSON.stringify({ user_id: userId, fcm_token: fcmToken }),
+                    }).catch(() => undefined);
+                }
+                return false;
             } catch (error) {
                 console.warn('[NotificationService] Token registration failed', error);
                 return false;
