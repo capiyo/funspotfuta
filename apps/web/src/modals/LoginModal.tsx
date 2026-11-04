@@ -14,6 +14,7 @@ import {
   checkUser,
   isUsernameTaken,
   pinLogin,
+  loginWithFirebaseToken,
   setPin,
   registerUser,
 } from '@funspot/core';
@@ -116,6 +117,8 @@ export default function LoginModal({ visible = true, onClose, onSuccess }: Login
   const recaptchaContainerRef = useRef<HTMLDivElement>(null);
   const recaptchaVerifier = useRef<RecaptchaVerifier | null>(null);
   const otpHandledRef = useRef(false);
+  const verifiedFirebaseTokenRef = useRef<string | null>(null);
+  const verifiedBackendTokenRef = useRef<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [step, setStep] = useState<Step>('phone');
   const [loading, setLoading] = useState(false);
@@ -198,9 +201,9 @@ export default function LoginModal({ visible = true, onClose, onSuccess }: Login
       toastRawError('could not open link', error);
     }
   }
-  async function getUserSafe(e164: string) {
+  async function getUserSafe(e164: string, firebaseIdToken: string) {
     try {
-      return await checkUser(e164);
+      return await checkUser(e164, firebaseIdToken);
     } catch {
       return null;
     }
@@ -255,11 +258,16 @@ export default function LoginModal({ visible = true, onClose, onSuccess }: Login
   }
   async function switchToPinFlow(e164: string) {
     setVerifiedPhone(e164);
-  const userData = await getUserSafe(e164);
-  const exists = userData != null;
-    setExistingUserId(exists ? (userData!.id?.toString() ?? null) : null);
-    setIsNewPinUser(userData?.has_pin !== true);
-    setPinValue(''); setPinConfirm(''); setStep('pin'); setLoading(false);
+    // Firebase verification failed: allow an existing PIN only. Creating a
+    // PIN or registering a new account requires a successfully verified OTP.
+    verifiedFirebaseTokenRef.current = null;
+    verifiedBackendTokenRef.current = null;
+    setExistingUserId(null);
+    setIsNewPinUser(false);
+    setPinValue('');
+    setPinConfirm('');
+    setStep('pin');
+    setLoading(false);
   }
   async function handleSubmitPin() {
     const validationError = validatePin(pin.trim());
@@ -269,9 +277,12 @@ export default function LoginModal({ visible = true, onClose, onSuccess }: Login
   if (isNewPinUser) {
       if (pinConfirm.trim() !== value) { toast('PINs do not match', { error: true });
   return; }
-      if (existingUserId) await attachPinToExistingUser(existingUserId, value);
-  else showUsernameStep(value);
-  return;
+      if (existingUserId && verifiedBackendTokenRef.current) await attachPinToExistingUser(existingUserId, value);
+      else {
+        toast('Phone verification is required to set a PIN. Please retry OTP.', { error: true });
+        setStep('phone');
+      }
+      return;
     }
     setLoading(true);
   try {
@@ -282,13 +293,24 @@ export default function LoginModal({ visible = true, onClose, onSuccess }: Login
     finally { setLoading(false); }
   }
   async function attachPinToExistingUser(userId: string, value: string) {
+    const backendToken = verifiedBackendTokenRef.current;
+    if (!backendToken) {
+      toast('Verify your phone before setting a PIN.', { error: true });
+      setStep('phone');
+      return;
+    }
     setLoading(true);
-  try {
-      const result = await setPin(userId, value);
-  if (result.ok && result.token) await performLogin(userId, result.user?.username?.toString() ?? 'User', result.token, verifiedPhone);
-  else toast(withStatus(result.message ?? 'Failed to set PIN', result.status), { error: true });
-    } catch (error) { toastRawError('set-pin request failed', error); }
-    finally { setLoading(false); }
+    try {
+      const result = await setPin(userId, value, backendToken);
+      if (result.ok && result.token) {
+        verifiedBackendTokenRef.current = null;
+        await performLogin(userId, result.user?.username?.toString() ?? 'User', result.token, verifiedPhone);
+      } else toast(withStatus(result.message ?? 'Failed to set PIN', result.status), { error: true });
+    } catch (error) {
+      toastRawError('set-pin request failed', error);
+    } finally {
+      setLoading(false);
+    }
   }
   async function handleVerifyOtp() {
     const code = otp.trim();
@@ -309,17 +331,35 @@ export default function LoginModal({ visible = true, onClose, onSuccess }: Login
   }
   async function handleFirebaseUser(firebaseUser: FirebaseUser) {
     try {
-      const token = await firebaseUser.getIdToken();
-  const phone = firebaseUser.phoneNumber ?? verifiedPhone;
-  const existing = await getUserSafe(phone);
-  if (existing) {
-        const userId = existing.id?.toString() ?? '';
-  const username = existing.username?.toString() ?? 'User';
-  if (token) await performLogin(userId, username, token, phone);
-  else toast('Failed to get auth token', { error: true });
-      } else showUsernameStep(null);
-    } catch (error) { otpHandledRef.current = false; toastRawError('signIn failed', error); }
-    finally { setLoading(false); }
+      const firebaseIdToken = await firebaseUser.getIdToken();
+      const phone = firebaseUser.phoneNumber ?? verifiedPhone;
+      verifiedFirebaseTokenRef.current = firebaseIdToken;
+      const existing = await getUserSafe(phone, firebaseIdToken);
+      if (existing) {
+        const session = await loginWithFirebaseToken(phone, firebaseIdToken);
+        if (!session.ok || !session.token || !session.user) {
+          throw new Error(session.message ?? 'Could not establish a Funspot session.');
+        }
+        if (existing.has_pin !== true) {
+          verifiedBackendTokenRef.current = session.token;
+          setExistingUserId(session.user.id);
+          setIsNewPinUser(true);
+          setPinValue('');
+          setPinConfirm('');
+          setStep('pin');
+        } else {
+          verifiedFirebaseTokenRef.current = null;
+          await performLogin(session.user.id, session.user.username ?? 'User', session.token, phone);
+        }
+      } else {
+        showUsernameStep(null);
+      }
+    } catch (error) {
+      otpHandledRef.current = false;
+      toastRawError('signIn failed', error);
+    } finally {
+      setLoading(false);
+    }
   }
   useEffect(() => {
     if (step !== 'otp' || !firebaseAuth) return;
@@ -344,7 +384,13 @@ export default function LoginModal({ visible = true, onClose, onSuccess }: Login
   try {
       if (await isUsernameTaken(name)) { toast('Username already taken', { error: true });
   return; }
-      const result = await registerUser(name, verifiedPhone, pendingPin ?? undefined);
+      const firebaseIdToken = verifiedFirebaseTokenRef.current;
+      if (!firebaseIdToken) {
+        toast('Verify your phone before creating an account.', { error: true });
+        setStep('phone');
+        return;
+      }
+      const result = await registerUser(name, verifiedPhone, pendingPin ?? undefined, firebaseIdToken);
   if (result.ok && result.token && result.user) await performLogin(result.user.id, name, result.token, verifiedPhone);
   else toast(withStatus(result.message ?? 'Registration failed', result.status), { error: true });
     } catch (error) { toastRawError('register request failed', error); }
