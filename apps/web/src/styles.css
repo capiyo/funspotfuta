@@ -4326,10 +4326,16 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visib
   background-color: transparent !important;
 }
 [role="dialog"] input,
-[role="dialog"] textarea,
 [aria-modal="true"] input,
-[aria-modal="true"] textarea {
+[role="dialog"] select,
+[aria-modal="true"] select {
   border-radius: 9999px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+[role="dialog"] textarea,
+[aria-modal="true"] textarea {
+  border-radius: 18px !important;
   background: transparent !important;
   box-shadow: none !important;
 }
