@@ -2440,7 +2440,7 @@ function createStyles(colors: FanColorPalette) {
             position: 'absolute',
             top: 3,
             bottom: 3,
-            borderRadius: FAN_RADIUS.md - 3,
+            borderRadius: FAN_RADIUS.pill,
             opacity: 0.9,
         },
         tabButton: {
