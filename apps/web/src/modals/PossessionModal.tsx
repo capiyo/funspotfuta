@@ -26,6 +26,7 @@ type Props = {
 export function PossessionModal({ fixture, channelId, userId, username, authToken, isLoggedIn, onClose }: Props) {
   const colors = useFanColors();
   const [tab, setTab] = useState<Tab>('vote');
+  const [pokeListTab, setPokeListTab] = useState<'open' | 'matched'>('open');
   const [market, setMarket] = useState<PossessionMarket | null>(null);
   const [selection, setSelection] = useState<PossessionSide>('home');
   const [amount, setAmount] = useState('');
@@ -72,14 +73,14 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
 
   async function submitVote() {
     if (!isLoggedIn || !userId || !username || !channelId) {
-      setError('Sign in to make a possession prediction');
+      setError('Sign in to make a possession vote');
       return;
     }
     setBusy(true); setError(null); setNotice(null);
     try {
       const result = await castPossessionVote({ ...actionContext, userId, username, selection });
       if (!result.success) throw new Error(result.message || 'Possession vote was not accepted');
-      setNotice(result.message || 'Possession prediction recorded');
+      setNotice(result.message || 'Possession vote recorded');
       if (result.market) setMarket(result.market); else await refresh();
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Could not submit possession prediction');
@@ -153,13 +154,13 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
         </header>
 
         <div style={{ display: 'flex', gap: 8, marginTop: 18, padding: 4, borderRadius: 14, background: colors.background }}>
-          <button type="button" onClick={() => { setTab('vote'); setError(null); }} style={action(tab === 'vote')}>Predict</button>
+          <button type="button" onClick={() => { setTab('vote'); setError(null); }} style={action(tab === 'vote')}>Vote</button>
           <button type="button" onClick={() => { setTab('poke'); setError(null); }} style={action(tab === 'poke')}>Poke</button>
         </div>
 
         <div style={{ marginTop: 18 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'baseline' }}>
-            <strong style={{ fontSize: 13 }}>Possession predictions</strong>
+            <strong style={{ fontSize: 13 }}>Possession votes</strong>
             <span style={{ ...muted, fontSize: 11 }}>{totalVotes} {totalVotes === 1 ? 'prediction' : 'predictions'}</span>
           </div>
           <div style={{ display: 'flex', height: 9, overflow: 'hidden', borderRadius: 20, background: colors.border, marginTop: 9 }}>
@@ -169,6 +170,16 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 7, fontSize: 12 }}>
             <span>{fixture.homeTeam} <b>{homeVotes}</b> · {totalVotes ? homePercent : 0}%</span>
             <span>{fixture.awayTeam} <b>{awayVotes}</b> · {totalVotes ? 100 - homePercent : 0}%</span>
+          </div>
+          <div style={{ marginTop: 10 }}>
+            {(market?.votes ?? []).map((vote) => (
+              <div key={vote.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 0', borderBottom: `1px solid ${colors.border}` }}>
+                <Avatar colors={colors} size="sm" userId={vote.userId} label={vote.username?.[0] ?? '?'} />
+                <span style={{ flex: 1, minWidth: 0, fontSize: 12, fontWeight: 650 }}>{vote.username}</span>
+                <span style={{ color: vote.selection === 'home' ? colors.primary : colors.away, fontSize: 11, fontWeight: 700 }}>{vote.selection === 'home' ? fixture.homeTeam : fixture.awayTeam}</span>
+              </div>
+            ))}
+            {!loading && (market?.votes.length ?? 0) === 0 && <p style={{ ...muted, fontSize: 11 }}>No possession votes yet.</p>}
           </div>
         </div>
 
@@ -180,7 +191,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
         {tab === 'vote' ? (
           <button type="button" disabled={busy || loading || market !== null && market.status !== 'open'} onClick={() => void submitVote()}
             style={{ ...action(true), width: '100%', marginTop: 12, padding: 13, opacity: busy ? .6 : 1 }}>
-            {busy ? 'Submitting…' : 'Submit possession prediction'}
+            {busy ? 'Submitting…' : 'Submit possession vote'}
           </button>
         ) : (
           <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
@@ -195,19 +206,21 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
         {notice && <p role="status" style={{ color: colors.primary, fontSize: 12, margin: '12px 0 0' }}>{notice}</p>}
 
         <div style={{ marginTop: 20 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <strong style={{ fontSize: 13 }}>Open possession pokes</strong>
-            <button type="button" onClick={() => void refresh()} disabled={loading} style={{ background: 'transparent', border: 0, color: colors.primary, fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>Refresh</button>
+          <div style={{ display: 'flex', gap: 7, marginBottom: 8 }}>
+            <button type="button" onClick={() => setPokeListTab('open')} style={action(pokeListTab === 'open')}>Unmatched ({(market?.pokes ?? []).filter((poke) => poke.status === 'open').length})</button>
+            <button type="button" onClick={() => setPokeListTab('matched')} style={action(pokeListTab === 'matched')}>Matched ({(market?.pokes ?? []).filter((poke) => poke.status === 'matched' || poke.status === 'settled').length})</button>
+            <button type="button" onClick={() => void refresh()} disabled={loading} style={{ ...control, padding: '7px 10px', color: colors.primary }}>↻</button>
           </div>
+          <strong style={{ fontSize: 13 }}>{pokeListTab === 'open' ? 'Unmatched possession pokes' : 'Matched possession pokes'}</strong>
           {loading && <p style={{ ...muted, fontSize: 12 }}>Loading possession market…</p>}
-          {!loading && (market?.pokes.length ?? 0) === 0 && <p style={{ ...muted, fontSize: 12 }}>No open possession pokes yet.</p>}
-          {(market?.pokes ?? []).filter((poke) => poke.status === 'open').map((poke) => (
+          {!loading && (market?.pokes ?? []).filter((poke) => pokeListTab === 'open' ? poke.status === 'open' : poke.status === 'matched' || poke.status === 'settled').length === 0 && <p style={{ ...muted, fontSize: 12 }}>{pokeListTab === 'open' ? 'No unmatched possession pokes yet.' : 'No matched possession pokes yet.'}</p>}
+          {(market?.pokes ?? []).filter((poke) => pokeListTab === 'open' ? poke.status === 'open' : poke.status === 'matched' || poke.status === 'settled').map((poke) => (
             <div key={poke.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: `1px solid ${colors.border}` }}>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Avatar colors={colors} size="md" userId={poke.userId} label={poke.username?.[0] ?? '?'} /><div style={{ fontSize: 12, fontWeight: 700 }}>{poke.username}</div></div>
-                <div style={{ ...muted, fontSize: 11 }}>{poke.selection === 'home' ? fixture.homeTeam : fixture.awayTeam} · {poke.amount} pts</div>
+                <div style={{ ...muted, fontSize: 11 }}>{poke.selection === 'home' ? fixture.homeTeam : fixture.awayTeam} · {poke.amount} pts</div>{pokeListTab === 'matched' && poke.finisherName && <div style={{ ...muted, fontSize: 11, marginTop: 4 }}>↔ {poke.finisherName} · {poke.finisherSelection === 'home' ? fixture.homeTeam : fixture.awayTeam} · {poke.finisherAmount ?? poke.amount} pts</div>}
               </div>
-              {poke.userId !== userId && <button type="button" disabled={busy || (market !== null && market.status !== 'open')} onClick={() => void matchPoke(poke.id)} style={{ ...control, padding: '7px 11px', color: colors.primary, fontWeight: 700, cursor: 'pointer' }}>Match</button>}
+              {pokeListTab === 'open' && poke.userId !== userId && <button type="button" disabled={busy || (market !== null && market.status !== 'open')} onClick={() => void matchPoke(poke.id)} style={{ ...control, padding: '7px 11px', color: colors.primary, fontWeight: 700, cursor: 'pointer' }}>Match</button>}
             </div>
           ))}
           {market?.settlement && <p style={{ ...muted, fontSize: 12 }}>Settled · winner: {market.settlement.winner ?? 'No winner'}</p>}
