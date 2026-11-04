@@ -891,6 +891,11 @@ function createStyles(colors: FanColors) {
             paddingHorizontal: 14,
             paddingVertical: 10,
             borderWidth: 1,
+            shadowColor: '#000000',
+            shadowOpacity: 0.12,
+            shadowRadius: 5,
+            shadowOffset: { width: 0, height: 2 },
+            elevation: 2,
         },
         bubbleMe: {
             borderTopLeftRadius: 16,
