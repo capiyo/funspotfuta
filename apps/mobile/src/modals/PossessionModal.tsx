@@ -43,7 +43,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
     if (!fixtureId || !channelId) return;
     setLoading(true); setError(null);
     try {
-      const context = { fixtureId, channelId, authToken };
+      const context = { fixtureId, channelId, userId, authToken };
       const [nextMarket, votes, pokes] = await Promise.all([
         fetchPossessionMarket(context),
         fetchPossessionVotes(context),
@@ -59,7 +59,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
   useEffect(() => { void refresh(); }, [refresh]);
 
   if (!fixture) return null;
-  const context = { fixtureId, channelId: channelId ?? '', authToken };
+  const context = { fixtureId, channelId: channelId ?? '', userId, authToken };
   const homeVotes = market?.homeVotes ?? 0;
   const awayVotes = market?.awayVotes ?? 0;
   const total = homeVotes + awayVotes;
