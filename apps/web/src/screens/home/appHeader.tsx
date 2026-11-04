@@ -374,7 +374,13 @@ export function AppHeader(props: HeaderProps = {}) {
             <button type="button"
               onClick={() => props.onRefresh ? props.onRefresh() : void queryClient.invalidateQueries({ queryKey: ['channels'] })}
               aria-label="Refresh" className="mobile-home-icon-button" style={{ color: colors.textSecondary }}><RefreshCw size={17} /></button>
-            <button ref={mobileMenuButtonRef} type="button" onClick={() => openMenu(mobileMenuButtonRef.current)}
+            <button ref={mobileMenuButtonRef} type="button" onClick={() => {
+              if (suppressAvatarClick.current) {
+                suppressAvatarClick.current = false;
+                return;
+              }
+              openMenu(mobileMenuButtonRef.current);
+            }}
               onPointerDown={loggedIn ? beginAvatarHold : undefined} onPointerUp={cancelAvatarHold} onPointerLeave={cancelAvatarHold} onPointerCancel={cancelAvatarHold}
               onContextMenu={(event) => { if (loggedIn) event.preventDefault(); }}
               aria-label="Open menu; long-press profile image to change it" aria-haspopup="menu" aria-expanded={menuOpen}
