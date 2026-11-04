@@ -74,6 +74,7 @@ function createStyles(
         circle: {
             width: dim,
             height: dim,
+            aspectRatio: 1,
             borderRadius: dim / 2,
             backgroundColor: backgroundColor ?? colors.primaryMuted,
             borderWidth: borderColor ? 1 : 0,
@@ -85,7 +86,9 @@ function createStyles(
         image: {
             width: dim,
             height: dim,
+            aspectRatio: 1,
             borderRadius: dim / 2,
+            overflow: 'hidden',
         },
     });
 }
