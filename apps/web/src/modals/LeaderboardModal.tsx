@@ -59,7 +59,6 @@ import {
 } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useFanColors } from '@/theme/use-fan-colors';
-import AdSenseCarousel from '@/components/AdSenseCarousel';
 import { fanText } from '@/theme/use-fan-typography';
 import { PRESSED_OPACITY } from '@/theme/layout';
 import {
@@ -338,7 +337,7 @@ export default function LeaderboardScreen({
                         })
                       }
                     />
-                    {index === 4 && <AdSenseCarousel placement="leaderboard" label="Leaderboard advertisements" enabled={visible} slots={['3164796870', '1372263706', '7379268852']} />}
+                    
                     </Fragment>
                   ))}
                 </>

@@ -8,6 +8,9 @@ import RootNavigator from '@/navigation/RootNavigator';
 import NotificationGate from '@/modals/NotificationGate';
 import { listenForForegroundMessages, NotificationService, requestWebPushToken, type ForegroundNotice } from '@/lib/api/notification-service';
 
+declare global {
+  interface Window { FunspotNotificationUrl?: { normalize: (input: unknown) => string } }
+}
 function AppRoutes() {
   const { isInitialized, isLoggedIn, userId, authToken } = useAuth();
   const queryClient = useQueryClient();
@@ -83,8 +86,8 @@ function AppRoutes() {
     <RootNavigator />
     <NotificationGate visible={notificationGateVisible} onRetry={continueWithoutNotifications} onSkip={continueWithoutNotifications} />
     {notice && <button className="toast" onClick={() => {
-      const target = notice.data?.url;
-      if (target) window.location.assign(target);
+      const target = window.FunspotNotificationUrl?.normalize(notice.data?.url) ?? '/app/';
+      window.location.assign(target);
       setNotice(null);
     }} aria-label="Open notification"><strong>{notice.title}</strong>{notice.body && <span>{notice.body}</span>}</button>}
   </>;

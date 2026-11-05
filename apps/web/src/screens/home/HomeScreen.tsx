@@ -76,7 +76,7 @@ function HomeScreenContent() {
         username={username}
         isLoggedIn={isLoggedIn}
         onSelectChannel={setActiveChannelId}
-        onLogout={() => { void logout(); navigate('/'); }}
+        onLogout={() => { void logout().catch(() => undefined).finally(() => window.location.assign('/')); }}
         onLogin={() => navigate('/login')}
         onRefresh={() => { void reloadChannels(); }}
         onEnableNotifications={async () => {

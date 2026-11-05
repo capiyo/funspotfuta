@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit",
     "verify:card-parity": "node scripts/verify-card-parity.mjs",
     "predev": "node scripts/generate-firebase-config.mjs development",
-    "prebuild": "node scripts/generate-firebase-config.mjs production"
+    "prebuild": "node scripts/generate-firebase-config.mjs production",
+    "test:notification-normalizer": "node --test tests/notification-url-normalizer.test.mjs"
   },
   "dependencies": {
     "@funspot/core": "*",

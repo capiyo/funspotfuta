@@ -1,24 +1,44 @@
-# Netlify configuration for the Vite React web app in this npm-workspaces monorepo.
 [build]
   base = "."
   command = "npm run build:web"
   publish = "apps/web/dist"
-
 [build.environment]
   NODE_VERSION = "20"
-
+[[redirects]]
+  from = "https://funspot.co.ke/*"
+  to = "https://www.funspot.co.ke/:splat"
+  status = 301
+  force = true
+[[redirects]]
+  from = "/messages/*"
+  to = "/app/messages/:splat"
+  status = 301
+  force = true
+[[redirects]]
+  from = "/comments/*"
+  to = "/app/comments/:splat"
+  status = 301
+  force = true
+[[redirects]]
+  from = "/login"
+  to = "/app/login"
+  status = 301
+  force = true
 [[redirects]]
   from = "/app"
   to = "/app/"
   status = 301
   force = true
-
 [[redirects]]
   from = "/app/*"
   to = "/app/index.html"
   status = 200
   force = false
-
+[[redirects]]
+  from = "/*"
+  to = "/404.html"
+  status = 404
+  force = false
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"

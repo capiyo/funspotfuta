@@ -10,7 +10,6 @@ import { followUser } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { LIST_BOTTOM_INSET } from '@/theme/layout';
 import { PostCard } from '@/components/PostCard';
-import { AdSenseAd } from '@/components/AdSenseAd';
 import { EmptyState, PagingFooter, SkeletonRows } from '@/components/ui/ListsStates';
 import { useHomeList, useHome } from './home/home-context';
 import './feed-layout.css';
@@ -140,21 +139,16 @@ export default function FeedScreen() {
                       }}
                       onRepost={() => {}}
                       onShare={(item) => {
-                        const url = item.id ? `${window.location.origin}/posts/${item.id}` : window.location.href;
+                        const url = item.id
+                          ? `https://www.funspot.co.ke/app/comments/${encodeURIComponent(item.id)}`
+                          : 'https://www.funspot.co.ke/app/';
                         if (navigator.share) void navigator.share({ title: item.userName ?? 'Funspot post', text: item.caption ?? '', url }).catch(() => undefined);
                         else void navigator.clipboard?.writeText(url);
                       }}
                       onFollow={(item) => { if (userId && item.userId && authToken) void followUser(userId, item.userId, authToken); }}
                       requireLogin={requireLogin}
                     />
-                    {(index + 1) % 3 === 0 && (
-                      <AdSenseAd
-                        slotId={['5454601642', '9051548379', '3164796870', '1372263706', '7379268852'][Math.floor(index / 3) % 5]}
-                        placement="feed"
-                        enabled={window.matchMedia('(min-width: 651px)').matches || activeTab === 'Feed'}
-                      />
-                    )}
-                    </Fragment>
+</Fragment>
                   ) : null
                 ))}
               </div>

@@ -8,8 +8,8 @@ import App from './App';
 import { indexedDbQueryPersister } from './lib/query-persistence';
 import './styles.css';
 
-// The SPA includes authenticated screens, private messaging and user-generated content.
-// Do not inject or remove crawler-only homepage copy; the same app shell serves every visitor.
+// This entry mounts the authenticated React application under /app/.
+// The public homepage is a separate static document at the site root.
 
 const DAY = 24 * 60 * 60 * 1000;
 const queryClient = new QueryClient({
@@ -41,7 +41,7 @@ createRoot(document.getElementById('root')!).render(
         ...PERSIST_OPTIONS,
       }}
     >
-      <BrowserRouter>
+      <BrowserRouter basename="/app">
         <App />
       </BrowserRouter>
     </PersistQueryClientProvider>

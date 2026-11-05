@@ -37,7 +37,8 @@ type LoginModalProps = {
   onClose?: () => void;
   onSuccess?: (userId: string, username: string) => void;
 };
-  const TERMS_URL = 'https://clash-privacy.netlify.app/';
+  const TERMS_URL = 'https://www.funspot.co.ke/terms.html';
+const PRIVACY_URL = 'https://www.funspot.co.ke/privacy.html';
   const COUNTRIES: Country[] = [
   { name: 'Kenya', iso2: 'KE', dial: '+254' },
   { name: 'United States', iso2: 'US', dial: '+1' },
@@ -534,7 +535,7 @@ export default function LoginModal({ visible = true, onClose, onSuccess }: Login
           rel="noreferrer"
           className="underline"
           style={{ color: colors.primary }}>Terms</a> and <a
-          href={TERMS_URL}
+          href={PRIVACY_URL}
           target="_blank"
           rel="noreferrer"
           className="underline"

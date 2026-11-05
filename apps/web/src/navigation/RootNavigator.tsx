@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
-import { Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Link, Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useLoginModal } from '@/modals/Login-modal-context';
 import HomeScreen from '@/screens/home/HomeScreen';
@@ -30,10 +30,11 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
   const { isInitialized, isLoggedIn } = useAuth();
   const { requireLogin } = useLoginModal();
   const location = useLocation();
-
+  const navigate = useNavigate();
+  const destination = `${location.pathname}${location.search}${location.hash}`;
   useEffect(() => {
-    if (isInitialized && !isLoggedIn) requireLogin();
-  }, [isInitialized, isLoggedIn, requireLogin, location.pathname]);
+    if (isInitialized && !isLoggedIn) requireLogin(() => navigate(destination, { replace: true }));
+  }, [isInitialized, isLoggedIn, requireLogin, navigate, destination]);
 
   if (!isInitialized) {
     return <div className="loading-screen" role="status" aria-label="Loading">
@@ -53,6 +54,14 @@ function LoginRoute() {
   return <Navigate to="/" replace />;
 }
 
+function NotFoundRoute() {
+  return <main className="flex min-h-screen flex-col items-center justify-center gap-3 px-6 text-center">
+    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-500">Funspot</p>
+    <h1 className="text-2xl font-bold">Page not found</h1>
+    <p className="max-w-md text-sm opacity-70">That application page does not exist or may have moved.</p>
+    <Link className="rounded-full bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-black" to="/">Return to Funspot</Link>
+  </main>;
+}
 function ResponsiveMessageRoute() {
   const mobile = useMobileWebLayout();
   const navigate = useNavigate();
@@ -121,7 +130,7 @@ export default function RootNavigator() {
       <Route path="/messages/:channelId?" element={<ResponsiveMessageRoute />} />
       <Route path="/comments/:postId" element={<ResponsiveCommentsRoute />} />
       <Route path="/login" element={<LoginRoute />} />
-      <Route path="*" element={<Navigate to="/" replace />} />
+      <Route path="*" element={<NotFoundRoute />} />
     </Routes>
   );
 }

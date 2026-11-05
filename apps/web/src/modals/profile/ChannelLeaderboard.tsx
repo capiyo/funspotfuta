@@ -22,7 +22,6 @@ import {
 } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { Avatar } from '@/components/ui/Avatar';
-import AdSenseCarousel from '@/components/AdSenseCarousel';
 
 type FanColors = ReturnType<typeof useFanColors>;
 
@@ -338,7 +337,7 @@ export function ChannelLeaderboard({
                     </div>
                   </div>
                   <div style={rn({ display: 'flex', flexDirection: 'column', gap: 6, minWidth: 0 })}>
-                    {members.map((member, index) => <Fragment key={member.userId || index}><MemberCard colors={colors} styles={styles} member={member} rank={index + 1} maxPoints={panelMaxPoints} isYou={member.userId === currentUserId} onViewProfile={() => onViewMember(member)} />{index === 4 && <AdSenseCarousel placement="leaderboard" label="Sponsored members list" slots={['7379268852']} />}</Fragment>)}
+                    {members.map((member, index) => <Fragment key={member.userId || index}><MemberCard colors={colors} styles={styles} member={member} rank={index + 1} maxPoints={panelMaxPoints} isYou={member.userId === currentUserId} onViewProfile={() => onViewMember(member)} /></Fragment>)}
                   </div>
                 </section>;
               })}
