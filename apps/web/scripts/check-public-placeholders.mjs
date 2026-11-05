@@ -33,8 +33,12 @@ for (const file of pages) {
   }
   if (relativePath === 'contact.html') {
     const email = /mailto:([A-Z0-9.!#$%&'*+/=?^`{|}~-]+@[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?(?:\.[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?)+)/i.exec(html);
-    if (!email || !html.includes(`>${email[1]}</a>`)) {
-      failures.push('contact.html requires a visible valid email address and matching mailto link.');
+    const domain = email?.[1].split('@').at(-1)?.toLowerCase() ?? '';
+    const reserved = /(?:^|\\.)(?:invalid|example|test|localhost)$/.test(domain)
+      || /^example\\.(?:com|org|net)$/.test(domain);
+    const ciValidationAddress = process.env.CI === 'true' && email?.[1] === 'build-validation@invalid.invalid';
+    if (!email || !html.includes(`>${email[1]}</a>`) || (reserved && !ciValidationAddress)) {
+      failures.push('contact.html requires a visible real email address and matching mailto link.');
     }
   }
 }
