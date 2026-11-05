@@ -25,6 +25,8 @@ jobs:
         run: cd apps/mobile && npx expo export --platform ios --output-dir /tmp/funspot-mobile-ios-export
       - run: npm run lint:web
       - run: npm run build:web
+        env:
+          FUNSPOT_CONTACT_EMAIL: build-validation@invalid.invalid
       - name: Install Playwright and Chromium
         run: |
           npm install --no-save --no-audit --no-fund playwright
