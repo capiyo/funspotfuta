@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && node scripts/generate-crawl-files.mjs",
+    "build": "vite build && node scripts/generate-crawl-files.mjs && node scripts/check-public-placeholders.mjs",
     "start": "vite preview",
     "lint": "eslint src --ext .ts,.tsx",
     "typecheck": "tsc --noEmit",

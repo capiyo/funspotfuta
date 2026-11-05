@@ -1,5 +1,4 @@
 # Netlify configuration for the Vite React web app in this npm-workspaces monorepo.
-# Keep the repository root as the base so @funspot/core and the root lockfile resolve.
 [build]
   base = "."
   command = "npm run build:web"
@@ -8,11 +7,15 @@
 [build.environment]
   NODE_VERSION = "20"
 
-# Netlify serves existing static files from the publish directory before this
-# non-forced SPA fallback. Keep force=false so public/*.html pages are not shadowed.
 [[redirects]]
-  from = "/*"
-  to = "/index.html"
+  from = "/app"
+  to = "/app/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/app/*"
+  to = "/app/index.html"
   status = 200
   force = false
 
