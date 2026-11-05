@@ -7,6 +7,7 @@ const origin = 'https://www.funspot.co.ke';
 const pages = ['about.html', 'how-it-works.html', 'contact.html', 'terms.html', 'privacy.html'];
 const homepageSource = await readFile(path.join(webDir, 'index.html'), 'utf8');
 await mkdir(distDir, { recursive: true });
+await cp(path.join(webDir, 'public'), distDir, { recursive: true, force: true });
 await writeFile(path.join(distDir, 'index.html'), homepageSource, 'utf8');
 const email = process.env.FUNSPOT_CONTACT_EMAIL?.trim() ?? '';
 const validEmail = /^[A-Z0-9.!#$%&'*+/=?^`{|}~-]+@[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?(?:\.[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?)+$/i;
