@@ -45,7 +45,8 @@ import { fanText } from '@/theme/use-fan-typography';
 type Step = 'phone' | 'otp' | 'pin' | 'username';
 type ToastKind = 'success' | 'warn' | 'error';
 
-const TERMS_URL = 'https://clash-privacy.netlify.app/';
+const TERMS_URL = 'https://www.funspot.co.ke/terms.html';
+const PRIVACY_URL = 'https://www.funspot.co.ke/privacy.html';
 
 // ============================================================================
 //  COUNTRY DATA
@@ -670,7 +671,7 @@ export default function LoginModal({ visible, onClose, onSuccess }: LoginModalPr
                         Terms
                       </Text>{' '}
                       and{' '}
-                      <Text style={{ color: colors.primary }} onPress={() => openLink(TERMS_URL)}>
+                      <Text style={{ color: colors.primary }} onPress={() => openLink(PRIVACY_URL)}>
                         Privacy Policy
                       </Text>
                     </Text>

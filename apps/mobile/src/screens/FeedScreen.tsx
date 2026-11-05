@@ -204,7 +204,12 @@ export default function FeedScreen() {
               onLike={(item) => void handleLike(item)}
               onOpenComments={(item) => { if (item.id) setSelectedCommentPost(item); }}
               onRepost={() => {}}
-              onShare={(post) => { void Share.share({ message: (post.caption ?? '') + '\n' + (post.id ? 'https://funspotfuta.com/posts/' + post.id : '') }); }}
+              onShare={(post) => {
+                const shareUrl = post.id
+                  ? `https://www.funspot.co.ke/app/comments/${encodeURIComponent(post.id)}`
+                  : 'https://www.funspot.co.ke/app/';
+                void Share.share({ message: [post.caption ?? '', shareUrl].filter(Boolean).join('\n') });
+              }}
               onFollow={(post) => { if (userId && post.userId && authToken) void followUser(userId, post.userId, authToken); }}
               requireLogin={requireLogin}
             />
