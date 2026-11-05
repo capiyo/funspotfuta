@@ -12,8 +12,8 @@ await writeFile(path.join(distDir, 'index.html'), homepageSource, 'utf8');
 const email = process.env.FUNSPOT_CONTACT_EMAIL?.trim() ?? '';
 const validEmail = /^[A-Z0-9.!#$%&'*+/=?^`{|}~-]+@[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?(?:\.[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?)+$/i;
 const emailDomain = email.split('@').at(-1)?.toLowerCase() ?? '';
-const reservedDomain = /(?:^|\\.)(?:invalid|example|test|localhost)$/.test(emailDomain)
-  || /^example\\.(?:com|org|net)$/.test(emailDomain);
+const reservedDomain = /(?:^|\.)(?:invalid|example|test|localhost)$/.test(emailDomain)
+  || /^example\.(?:com|org|net)$/.test(emailDomain);
 const ciValidationAddress = process.env.CI === 'true' && email === 'build-validation@invalid.invalid';
 if (!validEmail.test(email) || (reservedDomain && !ciValidationAddress)) {
   throw new Error('[crawl-files] Set FUNSPOT_CONTACT_EMAIL to a real, non-placeholder contact email before building public pages.');
