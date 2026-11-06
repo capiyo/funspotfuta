@@ -829,7 +829,7 @@ function createStyles(colors: FanColorPalette, isDesktop: boolean) {
         ? 'calc(100dvh - 48px)'
         : 'calc(92dvh - env(safe-area-inset-top, 0px))',
       minHeight: 0,
-      borderRadius: isDesktop ? FAN_RADIUS.xl : 0,
+      borderRadius: FAN_RADIUS.xl,
       borderTopLeftRadius: FAN_RADIUS.xl,
       borderTopRightRadius: FAN_RADIUS.xl,
       backgroundColor: colors.background,
