@@ -186,7 +186,7 @@ export function AppHeader(props: HeaderProps = {}) {
     if (!file || !userId || avatarUploading) return;
     setAvatarUploading(true);
     try {
-      const result = await uploadProfileAvatar(userId, file, authToken ?? undefined);
+      const result = await uploadProfileAvatar(userId, username ?? '', file);
       queryClient.setQueryData(queryKeys.profile(userId), (current: unknown) => {
         if (!current || typeof current !== 'object') return current;
         return { ...(current as Record<string, unknown>), avatarUrl: result.avatarUrl };
@@ -197,7 +197,7 @@ export function AppHeader(props: HeaderProps = {}) {
     } finally {
       setAvatarUploading(false);
     }
-  }, [userId, authToken, avatarUploading, queryClient]);
+  }, [userId, username, avatarUploading, queryClient]);
   const hasJoinedChannels = joinedChannels.length > 0;
   const publicChannels = publicChannelsQuery.data ?? [];
   const availableChannels = allChannels.length > 0 ? allChannels : publicChannels.length > 0 ? publicChannels : joinedChannels;
