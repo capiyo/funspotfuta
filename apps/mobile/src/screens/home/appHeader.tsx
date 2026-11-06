@@ -129,7 +129,7 @@ export function AppHeader({ onAddChannel }: { onAddChannel?: () => void }) {
             if (picked.canceled || !picked.assets[0]) return;
             setAvatarUploading(true);
             const asset = picked.assets[0];
-            const result = await uploadProfileAvatar(userId, username ?? '', {
+            const result = await uploadProfileAvatar(userId, username?.trim() || userId, {
                 uri: asset.uri,
                 name: asset.fileName ?? `avatar-${userId}.jpg`,
                 type: asset.mimeType ?? 'image/jpeg',
