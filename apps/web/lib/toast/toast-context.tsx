@@ -1,5 +1,3 @@
-'use client';
-
 // Ported from funspot/lib/services/toast_helper.dart — same 4 variants,
 // same colors (green/red/blue/orange), same default durations
 // (short = 2s, long = 3.5s, matching Fluttertoast's LENGTH_SHORT/LONG).

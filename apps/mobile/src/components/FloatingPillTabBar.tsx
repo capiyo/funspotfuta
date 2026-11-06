@@ -5,24 +5,24 @@
 // colored pill background behind its icon+label, inactive tabs are
 // bare icon+label.
 //
-// TWO TABS: Chats and Feed. Logs (HistoryScreen) has been folded out.
-// Arena has been renamed to Chats since the screen is now channel-first.
+// THREE TABS: Arena, Feed, Logs. Arena keeps the existing fixture/chat flow.
 //
 // LAYOUT FIX (unchanged from prior version): HomeScreen doesn't use
 // Tab.Navigator, so this takes plain `active`/`onChange` props.
 
 import { View, Text, Pressable, StyleSheet } from 'react-native';
-import { MessageCircle, Newspaper } from 'lucide-react-native';
+import { Trophy, Newspaper, History } from 'lucide-react-native';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
 import { FAN_SPACING, FAN_RADIUS, FanColorPalette } from '@funspot/core';
 
-export type TabName = 'Chats' | 'Feed';
-const TABS: TabName[] = ['Chats', 'Feed'];
+export type TabName = 'Arena' | 'Feed' | 'Logs';
+const TABS: TabName[] = ['Arena', 'Feed', 'Logs'];
 
-const ICONS: Record<TabName, typeof MessageCircle> = {
-  Chats: MessageCircle,
+const ICONS: Record<TabName, typeof Trophy> = {
+  Arena: Trophy,
   Feed: Newspaper,
+  Logs: History,
 };
 
 export function FloatingPillTabBar({

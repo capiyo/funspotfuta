@@ -1,5 +1,3 @@
-'use client';
-
 // Ported from funspot/lib/services/auth_service.dart.
 // Same storage keys (localStorage instead of SharedPreferences — see
 // data-layer mapping in the migration plan), same method names/behavior:

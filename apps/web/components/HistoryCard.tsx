@@ -1,5 +1,3 @@
-'use client';
-
 // HistoryCard — visual parity with the Flutter HistoryPage card
 // (Screenshot 2 / "Logs"). Presentation only: data loading, mutations,
 // websocket wiring, auth, etc. all live in the parent / service layer.

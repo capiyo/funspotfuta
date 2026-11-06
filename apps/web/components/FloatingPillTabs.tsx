@@ -1,4 +1,3 @@
-'use client';
 // Web equivalent of RN's floating pill tab bar, for narrow viewports.
 export function FloatingPillTabs({
   active,

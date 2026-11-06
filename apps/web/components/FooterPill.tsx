@@ -1,5 +1,3 @@
-'use client';
-
 // Shared footer action pill — used by PostCard (like/comment/repost/share)
 // and MatchCard (voters/likes/comments). One primitive, so a fix or a
 // polish pass here shows up everywhere consistently.

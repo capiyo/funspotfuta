@@ -1,114 +1,91 @@
-# Funspot — Monorepo (Web + iOS/Android)
+# FunspotFuta — React Web + React Native Monorepo
 
-A single codebase for the [capiyo/funspot](https://github.com/capiyo/funspot)
-Flutter app's real, live backend (`https://clash-api-m5mr.onrender.com/api`),
-split into a shared domain layer plus one app per platform:
+A TypeScript monorepo containing the FunspotFuta React web application, React Native mobile app, and shared API/domain logic.
+
+## Repository structure
 
 ```
-funspot-monorepo/
-├── packages/
-│   └── core/            @funspot/core — shared types + API client functions
+funspotfuta/
 ├── apps/
-│   ├── web/              Next.js 14 (App Router) — funspot-web
-│   └── mobile/            Expo / React Native — funspot-mobile (iOS + Android)
-└── package.json          npm workspaces root
+│   ├── web/                 # React + Vite + TypeScript
+│   └── mobile/              # Expo / React Native
+├── packages/
+│   └── core/                # Shared types, API services, domain logic
+├── package.json             # Workspace scripts
+└── turbo.json               # Turborepo task configuration
 ```
 
-## Why this split
+## Web application
 
-`packages/core` contains everything that is **pure TypeScript with no
-platform dependency** — data models (`Fixture`, `Bet`, `ChatMessage`, `Post`,
-etc.) and API client functions that just call `fetch` against the real
-backend. That's the majority of the ported logic, and it is byte-for-byte
-identical whether it runs in a browser or on a phone, so it lives once and
-both apps import it as `@funspot/core`.
+The web app is a standard React single-page application built with Vite and React Router. It is not a Next.js application and does not use Next.js `page.tsx` or `layout.tsx` conventions.
 
-What's **not** in core — because it genuinely differs by platform — stays
-local to each app:
+- Route-level screens: `apps/web/src/screens/`
+- Modals and overlays: `apps/web/src/modals/`
+- Reusable UI: `apps/web/components/`
+- Browser-specific services and helpers: `apps/web/lib/`
 
-| Concern | apps/web | apps/mobile |
-|---|---|---|
-| Persistent session storage | `localStorage` | `AsyncStorage` |
-| Toast notifications | DOM overlay | `Animated`/`View` overlay |
-| Image upload for chat/posts | `File`/`Blob` | `{ uri, name, type }` (expo-image-picker) |
-| Routing | Next.js App Router | React Navigation (stack + bottom tabs) |
-| UI primitives | HTML + Tailwind | React Native `View`/`Text`/`StyleSheet` |
+The completed mobile app is the behavioral reference for web parity. Web should preserve the same user-facing features and flow, using browser-native implementations where mobile APIs cannot run in a browser.
 
-Each app has its own `auth-context.tsx`, `toast-context.tsx`,
-`media-service.ts`, and `posts-create.ts` for exactly this reason — same
-method names and behavior as their sibling, different implementation
-underneath.
+## Shared core and API contracts
 
-## packages/core
+`packages/core` contains platform-independent API services, shared data types, match/fixture models, channel and chat models, and other domain services. Keep backend endpoints, authentication flow, and API shapes stable during parity work. Reuse shared services rather than duplicating domain logic.
 
-See `packages/core/src/index.ts` for the full export list. Ported from:
+## Getting started
 
-- `lib/models/fixture_models.dart`, `chat_message.dart`, `post_models.dart`,
-  and the smaller model files → `src/types/*.ts`
-- `lib/services/auth_service.dart`'s backend calls, `database_service.dart`,
-  `comrade_service.dart` (full), `bet_service.dart` (full), the sub-fixture
-  voting + posts/follow sections of `api_services.dart`,
-  `payment_service.dart`, `web_soecket.dart`, the REST half of
-  `notification_service.dart`, and the admin-only endpoints from
-  `admin_dashboard.dart` → `src/api/*.ts`
+Install dependencies from the repository root:
 
-Every function hits the **real production API** — there is no mock data.
-Full per-file mapping tables are in each app's own README (they were written
-before the monorepo split and are still accurate for the ported logic
-itself, just not the current file paths).
+```bash
+npm install
+```
 
-## apps/web (Next.js)
+Run the web app:
 
 ```bash
 cd apps/web
 npm run dev
 ```
 
-14 routes: `/login`, `/home`, `/fixture/[matchId]`, `/chat`, `/trending`,
-`/profile`, `/feed`, `/comrades`, `/leaderboard`, `/history`,
-`/notifications`, `/admin/[channelId]`, plus the root redirect.
-
-## apps/mobile (Expo — iOS + Android)
+Run the mobile app:
 
 ```bash
 cd apps/mobile
-npm run start   # then press i for iOS simulator, a for Android emulator
+npm run start
 ```
 
-Same 12 screens as the web app's routes, using React Navigation: a login
-gate, a 5-tab bottom nav (Home, Trending, +Create, Chat, Profile — matching
-`bottom_navigation.dart`'s original layout/colors exactly), and stack
-screens for Fixture Detail, Feed, Comrades, Leaderboard, History,
-Notifications, and Admin.
+## Typechecking and build
 
-**This app was written and typechecked in a sandbox without Xcode or the
-Android SDK** — `tsc --noEmit` passes cleanly, but it has not been run on an
-actual simulator/device. Running `npm run ios` / `npm run android` for the
-first time locally is the real test; expect the normal first-run friction
-of a fresh Expo project (pod install on iOS, SDK/emulator setup on Android).
+From the repository root:
 
-## Root workspace notes
+```bash
+npm run typecheck
+```
 
-- `package.json`'s `overrides` pins `react`, `react-dom`, and `@types/react`
-  to the versions React Native 0.74 requires exactly (`18.2.0` /
-  `~18.2.79`). Without this, npm installs two copies of React (one for
-  Next.js's looser `^18.3.1` range, one for RN's exact pin), and Next's
-  production build fails with a `useContext` null error from the
-  duplicate-React problem. If you bump Next.js or RN independently in the
-  future and hit that error again, this is why — realign the override.
-- `apps/mobile/metro.config.js` points Metro (RN's bundler) at the
-  workspace root so it can see `packages/core` and the hoisted
-  `node_modules` — standard requirement for any Expo app in a monorepo.
-- `apps/web/next.config.mjs` sets `transpilePackages: ['@funspot/core']`
-  since core ships TypeScript source directly rather than a build step.
+For the web workspace:
 
-## What's not ported (same reasons as before the monorepo split)
+```bash
+cd apps/web
+npm run typecheck
+npm run build
+```
 
-- Firebase Phone-Auth OTP (needs live Firebase reCAPTCHA/SMS config)
-- FCM/Web Push notification *delivery* (the data half — unread counts,
-  preferences — is ported; actual push delivery isn't)
-- Local SQLite caching / offline queue (solved mobile connectivity
-  problems that don't apply the same way to a browser tab or a freshly
-  re-fetching RN screen)
-- Video in chat, admin dashboard's own payments UI (reuses the wallet's
-  `payment-service.ts` instead of duplicating it)
+## Web parity requirements
+
+The web implementation has been reviewed against the current mobile app. The current pass adds browser Firebase Phone Auth (OTP + PIN fallback), FCM token registration/foreground feedback, persisted query-cache restoration, persisted feed pagination, and persisted fixture queries.
+
+Remaining integration work must be validated against the deployed environment:
+
+- **Phone verification / OTP:** the real Firebase Phone Auth and reCAPTCHA flow is implemented. Verify SMS delivery, authorized domains, and error/fallback behavior on the deployed HTTPS origin.
+- **Push notifications:** browser token registration, background service-worker notifications, and foreground toast feedback are wired. Verify permissions, Firebase configuration, token registration and delivery against the live backend.
+- **Offline behavior:** browser query persistence is enabled for data accessed through TanStack Query. Review other direct-fetch screens for cache coverage and add retry/synchronization only where the mobile behavior requires it.
+- **Profile parity:** the web profile has account details, editable fan details, wallet top-up/withdrawal, and read-only member profiles reachable from leaderboard activity.
+- **Messaging parity:** web chat intentionally opens as a responsive modal; typing indicators, read receipts, copy/reply actions, image viewing, and send-failure feedback are wired without changing the backend contract. Video upload/playback is not ported by the current mobile reference either.
+
+Do not report Firebase, push delivery, or authenticated end-to-end flows as verified until tested against the actual deployed browser origin and backend. Mock/filler fan data remains development-only.
+
+## Architecture decisions
+
+- **React-only web:** use React Router and Vite; do not add Next.js route files or dependencies.
+- **Mobile as behavior reference:** match its screens, state transitions, error handling, and user-visible outcomes.
+- **Shared domain logic:** keep reusable API and domain logic in `packages/core`.
+- **Browser-native adapters:** use browser APIs for web-only runtime needs while preserving the intended feature behavior.
+- **Stable contracts:** do not change backend endpoints, authentication flow, or API shapes as a shortcut to parity.

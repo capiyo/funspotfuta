@@ -1,5 +1,3 @@
-'use client';
-
 // Arena match card.
 //
 // Behaviors:
@@ -157,6 +155,7 @@ export function MatchCard({
   likesCount = 0,
   liked = false,
   onOpen,
+  onOpenDetails,
   onWatchClick,
   onChatClick,
   onOpenVoteModal,
@@ -172,6 +171,7 @@ export function MatchCard({
   likesCount?: number;
   liked?: boolean;
   onOpen?: (fixture: Fixture) => void;
+  onOpenDetails?: (fixture: Fixture) => void;
   onWatchClick?: () => void;
   onChatClick?: () => void;
   onOpenVoteModal?: (fixture: Fixture) => void;
@@ -272,13 +272,21 @@ export function MatchCard({
       </div>
 
       {/* Caption */}
-      <p className="mt-fan-sm pl-[40px] text-fan-body italic leading-snug text-fan-textTertiary">
+      <button
+        type="button"
+        onClick={(event) => {
+          stop(event);
+          onOpenDetails?.(fixture);
+        }}
+        aria-label={`Open match details: ${fixture.homeTeam} vs ${fixture.awayTeam}`}
+        className="mt-fan-sm w-full pl-[40px] text-left text-fan-body italic leading-snug text-fan-textTertiary"
+      >
         {isLive && liveCommentary
           ? liveCommentary.text
           : latestComment
             ? latestComment.comment
             : hintFor(fixture)}
-      </p>
+      </button>
 
       {/* Scoreboard */}
       <div className="mt-fan-sm flex items-center justify-center gap-fan-md">
