@@ -206,7 +206,7 @@ export default function FeedScreen() {
               onRepost={() => {}}
               onShare={(post) => {
                 const shareUrl = post.id
-                  ? `https://www.funspot.co.ke/app/comments/${encodeURIComponent(post.id)}`
+                  ? `https://www.funspot.co.ke/comments/${encodeURIComponent(post.id)}`
                   : 'https://www.funspot.co.ke/app/';
                 void Share.share({ message: [post.caption ?? '', shareUrl].filter(Boolean).join('\n') });
               }}
