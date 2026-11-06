@@ -719,8 +719,8 @@ function createStyles(colors: any) {
         backdrop: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' },
         sheet: {
             backgroundColor: colors.background,
-            borderTopLeftRadius: 18,
-            borderTopRightRadius: 18,
+            borderTopLeftRadius: 24,
+            borderTopRightRadius: 24,
             height: '78%',
             overflow: 'hidden',
         },
