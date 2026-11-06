@@ -384,7 +384,7 @@ function Chip({
             onPress={onPress}
             style={({ pressed }) => [
                 styles.filterChip,
-                active && { backgroundColor: 'transparent', borderColor: colors.primary }
+                active && { backgroundColor: 'transparent', borderColor: colors.primary },
                 pressed && { opacity: PRESSED_OPACITY },
             ]}
         >
