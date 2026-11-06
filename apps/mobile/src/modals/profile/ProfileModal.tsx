@@ -243,16 +243,12 @@ export default function ProfileModal({
     setAvatarUploading(true);
     try {
       const asset = picked.assets[0];
-      const imageResponse = await fetch(asset.uri);
-      const imageBlob = await imageResponse.blob();
-      const uploadBlob = imageBlob.type.startsWith('image/')
-        ? imageBlob
-        : new Blob([imageBlob], { type: asset.mimeType ?? 'image/jpeg' });
-      const result = await uploadProfileAvatar(
-        userId,
-        uploadBlob,
-        authToken ?? undefined,
-      );
+      const result = await uploadProfileAvatar(userId, username ?? '', {
+        uri: asset.uri,
+        name: asset.fileName ?? `${userId}-avatar`,
+        type: asset.mimeType ?? 'image/jpeg',
+        size: asset.fileSize,
+      });
       setProfile((current) => current ? { ...current, avatarUrl: result.avatarUrl } : current);
       queryClient.setQueryData(queryKeys.profile(userId), (current: unknown) => current && typeof current === 'object' ? { ...(current as Record<string, unknown>), avatarUrl: result.avatarUrl } : current);
       toast.showSuccess('Profile image updated');
