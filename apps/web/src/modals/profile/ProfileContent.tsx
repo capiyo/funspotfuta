@@ -464,6 +464,7 @@ export default function ProfileContent({
         if (!current || typeof current !== 'object') return current;
         return { ...(current as Record<string, unknown>), avatarUrl: result.avatarUrl };
       });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.profile(userId) });
       toast.showSuccess('Profile image updated');
     } catch (error) {
       toast.showError(error instanceof Error ? error.message : 'Could not update profile image');
