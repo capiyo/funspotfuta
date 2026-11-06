@@ -49,9 +49,16 @@ export async function uploadProfileAvatar(
   const form = new FormData();
   form.append('userId', userId);
   form.append('userName', userName);
-  // React Native's FormData implementation requires a { uri, name, type }
-  // file descriptor; browsers receive the original Blob unchanged.
-  form.append('image', file as Blob);
+
+  // Match createPost's cross-platform multipart contract: React Native keeps
+  // the native { uri, name, type } descriptor, while browsers send the Blob.
+  // Deliberately do not attach Authorization/Bearer headers; post uploads use
+  // this same userId/userName multipart identity flow.
+  if (isNativeFile) {
+    form.append('image', file as unknown as Blob);
+  } else {
+    form.append('image', file);
+  }
 
   const response = await fetch(`${API_BASE}/profile/profile/${encodeURIComponent(userId)}/avatar`, {
     method: 'POST',
