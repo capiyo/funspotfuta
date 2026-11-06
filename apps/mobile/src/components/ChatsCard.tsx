@@ -161,9 +161,19 @@ export function MatchCard({
       EMPTY_VOTE_PROMPTS[Math.floor(Math.random() * EMPTY_VOTE_PROMPTS.length)],
   );
 
-  const isLive = !!fixture.isLive || fixture.status === 'live';
+  const fixtureStatus = fixture.status.toLowerCase();
   const isCompleted =
-    fixture.status === 'completed' || fixture.status === 'finished';
+    fixtureStatus === 'completed' || fixtureStatus === 'finished';
+  const isLive =
+    fixtureStatus === 'live' ||
+    (!['upcoming', 'soon', 'completed', 'finished'].includes(fixtureStatus) &&
+      !!fixture.isLive);
+  const fixtureStatusLabel =
+    fixtureStatus === 'soon'
+      ? 'SOON'
+      : isCompleted
+        ? 'FT'
+        : kickoffLabel(fixture.date);
   const voters = fixture.voters ?? [];
   const hasVoted = voters.some((v) => v.userId === userId);
 
@@ -290,7 +300,7 @@ export function MatchCard({
             <LiveBadge colors={colors} />
           ) : (
             <Text style={fanText('tag', colors, colors.textTertiary)}>
-              {kickoffLabel(fixture.date)}
+              {fixtureStatusLabel}
             </Text>
           )}
         </View>
