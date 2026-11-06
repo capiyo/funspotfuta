@@ -374,11 +374,21 @@ export function MatchCard({
       EMPTY_VOTE_PROMPTS[Math.floor(Math.random() * EMPTY_VOTE_PROMPTS.length)],
   );
 
-  const isLive = !!liveFixture.isLive || liveFixture.status?.toLowerCase() === 'live';
+  const fixtureStatus = (liveFixture.status ?? '').toLowerCase();
+  const isLive =
+    fixtureStatus === 'live' ||
+    (!['upcoming', 'soon', 'completed', 'finished'].includes(fixtureStatus) &&
+      !!liveFixture.isLive);
   const matchMinute = getFormattedMinuteDisplay(liveFixture);
-  const isHalfTime = liveFixture.status?.toLowerCase() === 'half_time';
+  const isHalfTime = fixtureStatus === 'half_time';
   const isCompleted =
-    liveFixture.status === 'completed' || liveFixture.status === 'finished';
+    fixtureStatus === 'completed' || fixtureStatus === 'finished';
+  const fixtureStatusLabel =
+    fixtureStatus === 'soon'
+      ? 'SOON'
+      : isCompleted
+        ? 'FT'
+        : kickoffLabel(fixture.date);
   const voters = fixture.voters ?? [];
   const hasVoted = voters.some((v) => v.userId === userId);
 
@@ -565,7 +575,7 @@ export function MatchCard({
             ) : isHalfTime && matchMinute ? (
               <Text style={[fanText('tag', colors, colors.textSecondary), styles.matchMinute]}>{matchMinute}</Text>
             ) : (
-              <Text style={fanText('tag', colors, colors.textTertiary)}>{kickoffLabel(fixture.date)}</Text>
+              <Text style={fanText('tag', colors, colors.textTertiary)}>{fixtureStatusLabel}</Text>
             )}
           </View>
         </View>
