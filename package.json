@@ -23,7 +23,8 @@
     "typecheck:mobile": "cd apps/mobile && npx tsc --noEmit",
     "test:core": "vitest run packages/core/src/queries/queryKeys.test.ts",
     "sync:team-crests": "node scripts/sync-team-crests.mjs",
-    "test:web:notification-normalizer": "cd apps/web && npm run test:notification-normalizer"
+    "test:web:notification-normalizer": "cd apps/web && npm run test:notification-normalizer",
+    "test:web:contact-email": "cd apps/web && npm run test:contact-email"
   },
   "devDependencies": {
     "turbo": "^2.10.13",

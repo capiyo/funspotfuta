@@ -1,11 +1,9 @@
 name: Public crawlability validation
-
 on:
   push:
-    branches: [web-port-from-master, seo-public-home-app-subpath]
+    branches: [web-port-from-master, seo-public-home-app-subpath, seo-app-at-root]
   pull_request:
     branches: [master]
-
 jobs:
   validate-public-pages:
     runs-on: ubuntu-latest
@@ -18,15 +16,15 @@ jobs:
       - run: npm install --no-audit --no-fund
       - run: npm run typecheck:web
       - run: npm run test:web:notification-normalizer
+      - run: npm run test:web:contact-email
       - run: npm run lint:web
       - run: npm run build:web
         env:
-          FUNSPOT_CONTACT_EMAIL: build-validation@invalid.invalid
+          FUNSPOT_CONTACT_EMAIL: ci-check@funspot.co.ke
       - name: Verify generated crawl files and public output tree
         run: |
           test -s apps/web/dist/index.html
           test -s apps/web/dist/404.html
-          test -s apps/web/dist/app/index.html
           test -s apps/web/dist/robots.txt
           test -s apps/web/dist/sitemap.xml
           for page in about how-it-works contact terms privacy; do
@@ -38,14 +36,13 @@ jobs:
           grep -Eiq '<meta[^>]+name="description"' apps/web/dist/index.html
           grep -Fq 'google-adsense-account' apps/web/dist/index.html
           ! grep -Fq 'pagead/js/adsbygoogle.js' apps/web/dist/index.html
-          ! grep -Eiq '/app/assets/|type="module"' apps/web/dist/index.html
-          grep -Fq 'build-validation@invalid.invalid' apps/web/dist/contact.html
+          grep -Fq 'ci-check@funspot.co.ke' apps/web/dist/contact.html
           grep -Fq 'https://www.funspot.co.ke/sitemap.xml' apps/web/dist/robots.txt
           grep -Fq 'https://www.funspot.co.ke/' apps/web/dist/sitemap.xml
           ! grep -Eiq '/app/|/messages/|/comments/|/login' apps/web/dist/sitemap.xml
-          grep -Fq 'Disallow: /app/' apps/web/dist/robots.txt
+          grep -Fq 'Allow: /' apps/web/dist/robots.txt
           grep -Fq 'Disallow: /messages/' apps/web/dist/robots.txt
           grep -Fq 'Disallow: /comments/' apps/web/dist/robots.txt
           grep -Fq 'Disallow: /login' apps/web/dist/robots.txt
           echo '--- dist file tree ---'
-          find apps/web/dist -maxdepth 3 -type f | sort
+          find apps/web/dist -maxdepth 2 -type f | sort

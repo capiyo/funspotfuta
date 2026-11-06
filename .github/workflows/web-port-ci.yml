@@ -1,7 +1,7 @@
 name: Web port validation
 on:
   push:
-    branches: [web-port-from-master, seo-public-home-app-subpath]
+    branches: [web-port-from-master, seo-public-home-app-subpath, seo-app-at-root]
   pull_request:
     branches: [master]
 jobs:
@@ -16,6 +16,7 @@ jobs:
       - run: npm install --no-audit --no-fund
       - run: npm run test:core
       - run: npm run test:web:notification-normalizer
+      - run: npm run test:web:contact-email
       - run: npm run typecheck:core
       - run: npm run typecheck:web
       - run: npm run typecheck:mobile
@@ -26,7 +27,7 @@ jobs:
       - run: npm run lint:web
       - run: npm run build:web
         env:
-          FUNSPOT_CONTACT_EMAIL: build-validation@invalid.invalid
+          FUNSPOT_CONTACT_EMAIL: ci-check@funspot.co.ke
       - name: Install Playwright and Chromium
         run: |
           npm install --no-save --no-audit --no-fund playwright

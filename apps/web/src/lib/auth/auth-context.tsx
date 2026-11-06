@@ -30,15 +30,6 @@ const initialState: AuthState = {
   isInitialized: false, isLoggedIn: false, userId: null, username: null, phone: null, authToken: null, refreshToken: null,
 };
 const AuthContext = createContext<AuthContextValue | null>(null);
-const SESSION_HINT_KEY = 'funspot:session-active';
-function setSessionHint(active: boolean): void {
-  try {
-    if (active) localStorage.setItem(SESSION_HINT_KEY, '1');
-    else localStorage.removeItem(SESSION_HINT_KEY);
-  } catch {
-    // This hint is a homepage optimization, never an authentication source.
-  }
-}
 const NOTIFICATION_STORAGE_KEYS = [
   'unread_notifications',
   'unread_notification_count',
@@ -126,14 +117,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const version = authBoundaryVersion.current;
         void readStoredState().then((restored) => {
           if (version === authBoundaryVersion.current) {
-            setSessionHint(restored.isLoggedIn);
+            
             NotificationService.setActiveUser(restored.userId);
             setState(restored);
           }
         });
         return;
       }
-      setSessionHint(false);
+      
       NotificationService.setActiveUser(null);
       setState({ ...initialState, isInitialized: true });
       void (async () => {
@@ -185,14 +176,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         LEGACY_KEYS.forEach((key) => localStorage.removeItem(key));
         const restored = await readStoredState();
         if (!cancelled && boundaryVersion === authBoundaryVersion.current) {
-          setSessionHint(restored.isLoggedIn);
+          
           NotificationService.setActiveUser(restored.userId);
           setState(restored);
         }
       } catch (error) {
         if (import.meta.env.DEV) console.warn('[auth] encrypted browser session restore failed', error);
         if (!cancelled && boundaryVersion === authBoundaryVersion.current) {
-          setSessionHint(false);
+          
           setState({ ...initialState, isInitialized: true });
         }
       }
@@ -255,13 +246,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (opts.refreshToken) await secureBrowserSession.setRefreshToken(opts.refreshToken);
       else await secureBrowserSession.clearRefreshToken();
       if (operationVersion !== authBoundaryVersion.current) return false;
-      setSessionHint(true);
+      
       LEGACY_KEYS.forEach((key) => localStorage.removeItem(key));
       setState({ isInitialized: true, isLoggedIn: true, userId, username, phone: opts.phone ?? null, authToken, refreshToken: opts.refreshToken ?? null });
       authChannel.current?.postMessage({ type: 'session-updated' });
       return true;
     } catch {
-      setSessionHint(false);
+      
       await secureBrowserSession.clear().catch(() => undefined);
       NotificationService.setActiveUser(null);
       setState({ ...initialState, isInitialized: true });
@@ -270,7 +261,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [queryClient, state.userId]);
 
   const logout = useCallback(async () => {
-    setSessionHint(false);
+    
     NotificationService.setActiveUser(null);
     authBoundaryVersion.current += 1;
     authChannel.current?.postMessage({ type: 'logout' });
@@ -346,7 +337,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const hasValidSession = useCallback(() => Boolean(state.isLoggedIn && state.authToken && state.userId), [state.isLoggedIn, state.authToken, state.userId]);
   const clearAllAppData = useCallback(async () => {
-    setSessionHint(false);
+    
     NotificationService.setActiveUser(null);
     authBoundaryVersion.current += 1;
     authChannel.current?.postMessage({ type: 'clear-all' });

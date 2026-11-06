@@ -225,12 +225,11 @@ export default function ChatsScreen() {
     .map(({ fixture }) => fixture), [fixtures]);
 
   const openChat = useCallback((fixture?: Fixture, channelId?: string) => {
-    if (!isLoggedIn) return requireLogin(() => openChat(fixture, channelId));
     const cid = channelId ?? homeChannelId;
     if (!cid) return;
     const fixtureId = fixture ? fixture.matchId?.trim() || fixture.id?.trim() : undefined;
     navigate(`/messages/${encodeURIComponent(cid)}${fixtureId ? `?fixtureId=${encodeURIComponent(fixtureId)}` : ''}`);
-  }, [navigate, homeChannelId, isLoggedIn, requireLogin]);
+  }, [navigate, homeChannelId]);
 
   async function handleLike(_fixture: Fixture) {
     if (!userId) return;

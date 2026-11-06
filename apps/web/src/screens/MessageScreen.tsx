@@ -50,6 +50,7 @@ import {
 } from '../../../../packages/core/src/api/vote-actions';
 import { useChannelChat, type Voter } from '@/lib/api/use-channel-chat';
 import { useAuth } from '@/lib/auth/auth-context';
+import { useLoginModal } from '@/modals/Login-modal-context';
 import { NotificationService } from '@/lib/api/notification-service';
 import { useToast } from '@/lib/toast/toast-context';
 import { useFanColors } from '@/theme/use-fan-colors';
@@ -118,6 +119,7 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
   const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const auth = useAuth();
+  const { requireLogin } = useLoginModal();
   const userId = props.userId !== undefined ? props.userId : auth.userId;
   const username = props.username !== undefined ? props.username : auth.username;
   const authToken = props.authToken !== undefined ? props.authToken : auth.authToken;
@@ -370,7 +372,7 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
   async function handleSend() {
     if (!draft.trim() || voteGateActive) return;
     if (!isLoggedIn || !userId || !username || !authToken) {
-      toast.showInfo('Log in to chat');
+      requireLogin();
       return;
     }
     const text = draft.trim();
@@ -661,7 +663,8 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       value={draft}
       onChange={handleComposerChange}
       onKeyDown={(event) => { if (event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); void handleSend(); } }}
-      disabled={!isLoggedIn || uploadingImage}
+      disabled={uploadingImage}
+      onFocus={(event) => { if (!isLoggedIn) { event.currentTarget.blur(); requireLogin(); } }}
       rows={1}
       placeholder={!isLoggedIn ? 'Log in to chat' : uploadingImage ? 'Uploading…' : isLive ? '🔴 Live - join the conversation!' : isCompleted ? '📊 Game finished - discuss the match!' : 'Type a message…'}
       aria-label="Type a message"

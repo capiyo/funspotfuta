@@ -8,8 +8,7 @@ import App from './App';
 import { indexedDbQueryPersister } from './lib/query-persistence';
 import './styles.css';
 
-// This entry mounts the authenticated React application under /app/.
-// The public homepage is a separate static document at the site root.
+// The real application mounts at the site root; React replaces the static #root copy.
 
 const DAY = 24 * 60 * 60 * 1000;
 const queryClient = new QueryClient({
@@ -41,7 +40,7 @@ createRoot(document.getElementById('root')!).render(
         ...PERSIST_OPTIONS,
       }}
     >
-      <BrowserRouter basename="/app">
+      <BrowserRouter>
         <App />
       </BrowserRouter>
     </PersistQueryClientProvider>

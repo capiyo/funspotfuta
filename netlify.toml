@@ -10,28 +10,23 @@
   status = 301
   force = true
 [[redirects]]
+  from = "/messages"
+  to = "/index.html"
+  status = 200
+  force = false
+[[redirects]]
   from = "/messages/*"
-  to = "/app/messages/:splat"
-  status = 301
-  force = true
+  to = "/index.html"
+  status = 200
+  force = false
 [[redirects]]
   from = "/comments/*"
-  to = "/app/comments/:splat"
-  status = 301
-  force = true
+  to = "/index.html"
+  status = 200
+  force = false
 [[redirects]]
   from = "/login"
-  to = "/app/login"
-  status = 301
-  force = true
-[[redirects]]
-  from = "/app"
-  to = "/app/"
-  status = 301
-  force = true
-[[redirects]]
-  from = "/app/*"
-  to = "/app/index.html"
+  to = "/index.html"
   status = 200
   force = false
 [[redirects]]

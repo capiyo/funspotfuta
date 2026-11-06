@@ -12,7 +12,8 @@
     "verify:card-parity": "node scripts/verify-card-parity.mjs",
     "predev": "node scripts/generate-firebase-config.mjs development",
     "prebuild": "node scripts/generate-firebase-config.mjs production",
-    "test:notification-normalizer": "node --test tests/notification-url-normalizer.test.mjs"
+    "test:notification-normalizer": "node --test tests/notification-url-normalizer.test.mjs",
+    "test:contact-email": "node --test tests/contact-email.test.mjs"
   },
   "dependencies": {
     "@funspot/core": "*",

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Link, Navigate, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useLoginModal } from '@/modals/Login-modal-context';
@@ -24,25 +24,6 @@ function useMobileWebLayout(): boolean {
     return () => query.removeEventListener('change', update);
   }, []);
   return mobile;
-}
-
-function ProtectedRoute({ children }: { children: ReactNode }) {
-  const { isInitialized, isLoggedIn } = useAuth();
-  const { requireLogin } = useLoginModal();
-  const location = useLocation();
-  const navigate = useNavigate();
-  const destination = `${location.pathname}${location.search}${location.hash}`;
-  useEffect(() => {
-    if (isInitialized && !isLoggedIn) requireLogin(() => navigate(destination, { replace: true }));
-  }, [isInitialized, isLoggedIn, requireLogin, navigate, destination]);
-
-  if (!isInitialized) {
-    return <div className="loading-screen" role="status" aria-label="Loading">
-      <span className="spinner" />
-    </div>;
-  }
-  if (!isLoggedIn) return <Navigate to="/" replace state={{ from: location.pathname }} />;
-  return children;
 }
 
 function LoginRoute() {
@@ -81,17 +62,15 @@ function ResponsiveMessageRoute() {
     return () => document.removeEventListener('keydown', onKeyDown);
   }, [mobile, close]);
 
-  return <ProtectedRoute>
-    {mobile ? <MessageScreen /> : <>
-      <HomeScreen />
-      <div className="desktop-message-overlay" role="presentation"
-        onMouseDown={(event) => { if (event.target === event.currentTarget) close(); }}>
-        <div className="desktop-message-dialog" role="dialog" aria-modal="true" aria-label="Messaging">
-          <MessageScreen />
-        </div>
+  return mobile ? <MessageScreen /> : <>
+    <HomeScreen />
+    <div className="desktop-message-overlay" role="presentation"
+      onMouseDown={(event) => { if (event.target === event.currentTarget) close(); }}>
+      <div className="desktop-message-dialog" role="dialog" aria-modal="true" aria-label="Messaging">
+        <MessageScreen />
       </div>
-    </>}
-  </ProtectedRoute>;
+    </div>
+  </>;
 }
 
 function ResponsiveCommentsRoute() {

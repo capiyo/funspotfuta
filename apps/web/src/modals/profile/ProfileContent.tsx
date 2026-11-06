@@ -478,8 +478,7 @@ export default function ProfileContent({
     setLoggingOut(true);
     try {
       await logout();
-      onClose();
-      toast.showSuccess('Logged out');
+      window.location.assign('/');
     } catch {
       toast.showError('Logout failed');
     } finally {
