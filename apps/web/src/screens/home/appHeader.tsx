@@ -186,7 +186,7 @@ export function AppHeader(props: HeaderProps = {}) {
     if (!file || !userId || avatarUploading) return;
     setAvatarUploading(true);
     try {
-      const result = await uploadProfileAvatar(userId, username ?? '', file);
+      const result = await uploadProfileAvatar(userId, username?.trim() || userId, file);
       queryClient.setQueryData(queryKeys.profile(userId), (current: unknown) => {
         if (!current || typeof current !== 'object') return current;
         return { ...(current as Record<string, unknown>), avatarUrl: result.avatarUrl };
