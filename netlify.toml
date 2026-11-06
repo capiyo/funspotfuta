@@ -12,7 +12,7 @@
   status = 301
   force = true
 
-# The root homepage is rendered by the Netlify SSR function on every request.
+# The root homepage is routed through the function, which serves the same app shell to every request.
 [[redirects]]
   from = "/"
   to = "/.netlify/functions/ssr?path=/"
