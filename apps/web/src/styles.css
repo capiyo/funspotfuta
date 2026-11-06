@@ -4504,3 +4504,53 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visib
     max-width: 74px !important;
   }
 }
+
+/* Desktop home: use the available width instead of leaving unused gutters
+   between narrow fixture cards and the Feed column. */
+@media (min-width: 651px) {
+  .home-screen .home-columns {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+    column-gap: 12px !important;
+    gap: 12px !important;
+    padding-inline: 12px !important;
+    box-sizing: border-box !important;
+  }
+
+  .home-screen .chats-column .match-card,
+  .home-screen .chats-column .chats-fixture-row {
+    width: 100% !important;
+    max-width: none !important;
+    margin-inline: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .home-screen .chats-column > *,
+  .home-screen .feed-column > * {
+    min-width: 0;
+  }
+
+  .home-screen .chats-column {
+    border-right: 0 !important;
+  }
+}
+
+/* The possession sheet remains a compact bottom sheet on phones, but becomes
+   a centered, wide dialog on desktop instead of occupying the full viewport. */
+@media (min-width: 651px) {
+  .possession-modal-overlay {
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 24px !important;
+  }
+
+  .possession-modal-panel {
+    width: min(78vw, 960px) !important;
+    max-width: min(78vw, 960px) !important;
+    height: min(78vh, 760px) !important;
+    max-height: 82vh !important;
+    min-height: 420px !important;
+    border-radius: 24px !important;
+    padding: 20px !important;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, .38) !important;
+  }
+}
