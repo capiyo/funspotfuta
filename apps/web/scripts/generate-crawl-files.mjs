@@ -105,8 +105,8 @@ for (const page of pages) {
   const html = await readFile(path.join(distDir, page), 'utf8');
   const canonical = `${origin}/${page}`;
   for (const [label, ok] of [
-    ['h1', /<h1\\b[^>]*>[\\s\\S]*?<\\/h1>/i.test(html)],
-    ['paragraph', /<p\\b[^>]*>[\\s\\S]*?<\\/p>/i.test(html)],
+    ['h1', /<h1\b[^>]*>[\s\S]*?<\/h1>/i.test(html)],
+    ['paragraph', /<p\b[^>]*>[\s\S]*?<\/p>/i.test(html)],
     ['canonical', html.includes(`<link rel="canonical" href="${canonical}"`)],
     ['og:url', html.includes(`<meta property="og:url" content="${canonical}"`)],
     ['structured data', html.includes(`"url":"${canonical}"`)],
@@ -121,7 +121,7 @@ const rules = [
   'User-agent: AdsBot-Google', 'Allow: /', 'Disallow: /messages', 'Disallow: /login', 'Disallow: /comments/', '',
   'User-agent: *', 'Allow: /', 'Allow: /ads.txt', 'Disallow: /messages', 'Disallow: /login', 'Disallow: /comments/', '',
   `Sitemap: ${origin}/sitemap.xml`, '',
-].join('\\n');
+].join('\n');
 await writeFile(path.join(distDir, 'robots.txt'), rules, 'utf8');
 const urls = ['/', ...pages.map((page) => `/${page}`)]
   .map((route) => `  <url><loc>${new URL(route, origin).href}</loc></url>`);
@@ -129,7 +129,7 @@ await writeFile(path.join(distDir, 'sitemap.xml'), [
   '<?xml version="1.0" encoding="UTF-8"?>',
   '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
   ...urls, '</urlset>', '',
-].join('\\n'), 'utf8');
+].join('\n'), 'utf8');
 
 console.info(`[ssr] Rendered the real public homepage on the server (${wordCount} words).`);
 console.info('[ssr] Generated the Netlify request-time SSR function and static fallback.');
