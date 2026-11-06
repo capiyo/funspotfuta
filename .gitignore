@@ -69,5 +69,3 @@ coverage/
 # === Misc ===
 *.pem
 .cache/
-# Generated during the production SSR build; Netlify bundles it for deployment.
-netlify/functions/ssr.mjs
