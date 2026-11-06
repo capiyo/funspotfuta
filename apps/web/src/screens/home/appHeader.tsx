@@ -390,7 +390,7 @@ export function AppHeader(props: HeaderProps = {}) {
               onContextMenu={(event) => { if (loggedIn) event.preventDefault(); }}
               aria-label="Open menu; long-press profile image to change it" aria-haspopup="menu" aria-expanded={menuOpen}
               className="mobile-home-menu-button" style={{ color: colors.textSecondary, background: loggedIn ? colors.primaryMuted : 'transparent', borderRadius: loggedIn ? "50%" : undefined, overflow: loggedIn ? "hidden" : undefined, padding: loggedIn ? 0 : undefined }}>
-              {loggedIn ? <img src={avatarUri} alt="" style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover", display: "block" }} /> : <Menu size={20} />}
+              {loggedIn && avatarUri ? <img src={avatarUri} alt="" style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover", display: "block" }} /> : <Menu size={20} />}
             </button>
             {!loggedIn && <button type="button" onClick={() => requireLogin()}
               className="mobile-home-join" style={{ color: colors.primary, fontFamily: 'SairaCondensed_600SemiBold, sans-serif' }}>Join</button>}
