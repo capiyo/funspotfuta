@@ -19,7 +19,7 @@ step() {
   echo "SUCCESS: $label"
 }
 
-echo "FUNSPOT SSR PRODUCTION DEPLOYMENT"
+echo "FUNSPOT PRODUCTION DEPLOYMENT"
 echo "Started: $(date)"
 cd "$REPO"
 
@@ -45,35 +45,34 @@ step "Web typecheck" npm run typecheck:web
 step "Web lint" npm run lint:web
 
 export FUNSPOT_CONTACT_EMAIL="$CONTACT_EMAIL"
-step "Build client, React SSR bundle and crawl files" npm run build:web
+step "Build the single application shell and crawl files" npm run build:web
 
 if [[ ! -s "$REPO/apps/web/dist/index.html" ]]; then
   echo "ERROR: Production index.html was not generated."
   exit 1
 fi
-if [[ ! -s "$REPO/apps/web/dist/server/entry-server.js" ]]; then
-  echo "ERROR: React SSR server bundle is missing."
+if grep -Eq 'public-home|PublicHomeContent' "$REPO/apps/web/dist/index.html"; then
+  echo "ERROR: Separate public homepage content remains in index.html."
   exit 1
 fi
 if [[ ! -s "$REPO/netlify/functions/ssr.mjs" ]]; then
-  echo "ERROR: Netlify SSR function was not generated."
+  echo "ERROR: Netlify application-shell function was not generated."
   exit 1
 fi
-if ! grep -Fq "react-ssr" "$REPO/netlify/functions/ssr.mjs"; then
-  echo "ERROR: Generated Netlify function is missing its SSR response marker."
+if ! grep -Fq "same-app-shell" "$REPO/netlify/functions/ssr.mjs"; then
+  echo "ERROR: Netlify function is not configured to serve the same app shell."
   exit 1
 fi
 
 echo
-echo "SSR BUILD VERIFIED"
+echo "SINGLE APP SHELL BUILD VERIFIED"
 echo "Client: apps/web/dist"
-echo "Server: apps/web/dist/server/entry-server.js"
 echo "Function: netlify/functions/ssr.mjs"
 
-step "Deploy static assets and Netlify SSR function to production"   netlify deploy --no-build --dir="apps/web/dist" --functions="netlify/functions" --prod
+step "Deploy static assets and Netlify function to production" netlify deploy --no-build --dir="apps/web/dist" --functions="netlify/functions" --prod
 
 echo
 echo "================================================"
-echo "FUNSPOT SSR DEPLOYMENT COMPLETED"
+echo "FUNSPOT PRODUCTION DEPLOYMENT COMPLETED"
 echo "Finished: $(date)"
 echo "================================================"
