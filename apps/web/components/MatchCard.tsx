@@ -31,10 +31,11 @@ import { FooterPill } from './FooterPill';
 function formatDate(fixture: Fixture): string {
   const status = fixture.status.toLowerCase();
 
-  // LIVE is a source-confirmed match state, never a kickoff-time estimate.
-  if (status === 'live' || fixture.isLive) return 'LIVE';
+  // Explicit backend states take precedence over stale legacy isLive flags.
+  if (status === 'live') return 'LIVE';
   if (status === 'soon') return 'SOON';
   if (status === 'completed' || status === 'finished') return 'FT';
+  if (!['upcoming', ''].includes(status) && fixture.isLive) return 'LIVE';
 
   const dateString =
     fixture.dateIso ||
