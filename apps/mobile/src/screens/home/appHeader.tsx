@@ -129,12 +129,12 @@ export function AppHeader({ onAddChannel }: { onAddChannel?: () => void }) {
             if (picked.canceled || !picked.assets[0]) return;
             setAvatarUploading(true);
             const asset = picked.assets[0];
-            const imageResponse = await fetch(asset.uri);
-            const imageBlob = await imageResponse.blob();
-            const uploadBlob = imageBlob.type.startsWith('image/')
-                ? imageBlob
-                : new Blob([imageBlob], { type: asset.mimeType ?? 'image/jpeg' });
-            const result = await uploadProfileAvatar(userId, uploadBlob, authToken ?? undefined);
+            const result = await uploadProfileAvatar(userId, username ?? '', {
+                uri: asset.uri,
+                name: asset.fileName ?? `avatar-${userId}.jpg`,
+                type: asset.mimeType ?? 'image/jpeg',
+                size: asset.fileSize,
+            });
             queryClient.setQueryData(queryKeys.profile(userId), (current: unknown) => {
                 if (!current || typeof current !== 'object') return current;
                 return { ...(current as Record<string, unknown>), avatarUrl: result.avatarUrl };
