@@ -268,7 +268,7 @@ export default function PostCommentsModal({
           ? 'comments-page-sheet flex w-full flex-col overflow-hidden'
           : 'flex w-full flex-col overflow-hidden border sm:max-w-2xl'}
         style={presentation === 'page'
-          ? { maxHeight: '100dvh', height: '100dvh', borderRadius: 0, background: colors.surface, borderColor: colors.border, color: colors.textPrimary }
+          ? { maxHeight: '100dvh', height: '100dvh', borderRadius: 0, borderTopLeftRadius: 24, borderTopRightRadius: 24, background: colors.surface, borderColor: colors.border, color: colors.textPrimary }
           : { maxHeight: '88vh', height: '88vh', borderTopLeftRadius: FAN_RADIUS.xl, borderTopRightRadius: FAN_RADIUS.xl, background: colors.surface, borderColor: colors.border, color: colors.textPrimary }}>
         <div className={presentation === 'page' ? 'comments-page-handle hidden' : 'flex justify-center py-3'}><div className="h-1 w-9 rounded-full" style={{ background: colors.border }} /></div>
         <header className="flex items-center gap-3 border-b px-5 pb-3" style={{ borderColor: colors.border }}>
