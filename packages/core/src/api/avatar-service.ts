@@ -16,8 +16,8 @@ function avatarUrlFromResponse(value: unknown): string {
 }
 
 /** Uploads the selected profile image and returns the canonical, persisted URL. */
-export async function uploadProfileAvatar(userId: string, file: Blob, authToken?: string): Promise<AvatarUploadResult> {
-  if (!userId.trim()) throw new Error('A signed-in user is required to change the profile image');
+export async function uploadProfileAvatar(userId: string, userName: string, file: Blob): Promise<AvatarUploadResult> {
+  if (!userId.trim() || !userName.trim()) throw new Error('A signed-in user is required to change the profile image');
   if (file.size <= 0 || file.size > 8 * 1024 * 1024) throw new Error('Choose an image smaller than 8 MB');
   const supportedTypes = new Set(['image/jpeg', 'image/png', 'image/webp']);
   if (!supportedTypes.has(file.type.toLowerCase())) {
@@ -25,10 +25,11 @@ export async function uploadProfileAvatar(userId: string, file: Blob, authToken?
   }
 
   const form = new FormData();
+  form.append('userId', userId);
+  form.append('userName', userName);
   form.append('image', file);
   const response = await fetch(`${API_BASE}/profile/profile/${encodeURIComponent(userId)}/avatar`, {
     method: 'POST',
-    headers: authToken ? { Authorization: `Bearer ${authToken}` } : undefined,
     body: form,
   });
   if (!response.ok) {
