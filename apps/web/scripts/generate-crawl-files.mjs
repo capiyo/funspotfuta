@@ -68,17 +68,16 @@ const functionSource = `import { renderPublicHome } from "../../apps/web/dist/se
 const template = ${JSON.stringify(shell)};
 const marker = ${JSON.stringify(marker)};
 const appRoutes = [
-  /^\\/messages\\/?$/,
-  /^\\/messages\\/.+/,
-  /^\\/comments\\/[^/]+\\/?$/,
-  /^\\/login\\/?$/,
 ];
 
 export default async function handler(request) {
   const requestUrl = new URL(request.url);
   const requestedPath = requestUrl.searchParams.get("path") || requestUrl.pathname;
   const isHome = requestedPath === "/";
-  const isAppRoute = appRoutes.some((route) => route.test(requestedPath));
+  const isMessageRoute = requestedPath === "/messages" || requestedPath.startsWith("/messages/");
+  const commentPath = requestedPath.startsWith("/comments/") ? requestedPath.slice("/comments/".length) : "";
+  const isCommentRoute = commentPath.length > 0 && !commentPath.includes("/");
+  const isAppRoute = isMessageRoute || isCommentRoute || requestedPath === "/login";
   if (!isHome && !isAppRoute) {
     return new Response("Not Found", {
       status: 404,
@@ -86,9 +85,10 @@ export default async function handler(request) {
     });
   }
 
-  const html = template.replace(marker, isHome
-    ? `<div id="public-home">${renderPublicHome()}</div>`
-    : '<div id="public-home"></div>');
+  const publicMarkup = isHome
+    ? '<div id="public-home">' + renderPublicHome() + '</div>'
+    : '<div id="public-home"></div>';
+  const html = template.replace(marker, publicMarkup);
   return new Response(html, {
     status: 200,
     headers: {
