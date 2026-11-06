@@ -458,7 +458,7 @@ export default function ProfileContent({
     }
     setAvatarUploading(true);
     try {
-      const result = await uploadProfileAvatar(userId, file, authToken ?? undefined);
+      const result = await uploadProfileAvatar(userId, username, file);
       setProfile((current) => current ? { ...current, avatarUrl: result.avatarUrl } : current);
       queryClient.setQueryData(queryKeys.profile(userId), (current: unknown) => {
         if (!current || typeof current !== 'object') return current;
