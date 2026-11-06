@@ -21,7 +21,7 @@ jobs:
       - run: npm run build:web
         env:
           FUNSPOT_CONTACT_EMAIL: ci-check@funspot.co.ke
-      - name: Execute the SSR function for visitors and Googlebot
+      - name: Verify visitors and crawlers receive the same app shell
         run: |
           node --input-type=module <<'NODE'
           import handler from './netlify/functions/ssr.mjs';
@@ -41,19 +41,22 @@ jobs:
           ]);
 
           if (humanResponse.status !== 200 || crawlerResponse.status !== 200) {
-            throw new Error('SSR homepage did not return HTTP 200 for both request types.');
-          }
-          if (!humanHtml.includes('Football is better together.') ||
-              !crawlerHtml.includes('Football is better together.')) {
-            throw new Error('SSR homepage content is missing from a response.');
+            throw new Error('Homepage app shell did not return HTTP 200 for both request types.');
           }
           if (humanHtml !== crawlerHtml) {
             throw new Error('Visitor and crawler HTML differ; user-agent cloaking is forbidden.');
           }
-          if (humanResponse.headers.get('x-funspot-render') !== 'react-ssr') {
-            throw new Error('SSR response marker is missing.');
+          if (humanResponse.headers.get('x-funspot-render') !== 'same-app-shell') {
+            throw new Error('Same-app-shell response marker is missing.');
           }
-          console.log('SSR passed: visitors and Googlebot receive identical server-rendered HTML.');
+          if (!humanHtml.includes('<div id="root"></div>') ||
+              !humanHtml.includes('/src/main.tsx')) {
+            throw new Error('Homepage response does not contain the real application mount point.');
+          }
+          if (/public-home|PublicHomeContent|crawler-only|Googlebot/i.test(humanHtml)) {
+            throw new Error('Separate or crawler-specific homepage content remains.');
+          }
+          console.log('Passed: visitors and Googlebot receive the same Funspot application shell.');
           NODE
       - name: Verify generated crawl files and public output tree
         run: |
@@ -66,11 +69,9 @@ jobs:
             grep -Eiq '<h1[^>]*>.*</h1>' "apps/web/dist/$page.html"
             grep -Fq "https://www.funspot.co.ke/$page.html" "apps/web/dist/$page.html"
           done
-          test -s apps/web/dist/server/entry-server.js
           test -s netlify/functions/ssr.mjs
-          grep -Fq 'react-ssr' netlify/functions/ssr.mjs
-          grep -Fq 'Football is better together.' apps/web/dist/index.html
-          ! grep -Fq '<!--public-home-ssr-->' apps/web/dist/index.html
+          grep -Fq 'same-app-shell' netlify/functions/ssr.mjs
+          ! grep -Eiq 'public-home|PublicHomeContent' apps/web/dist/index.html
           grep -Eiq '<title>.*</title>' apps/web/dist/index.html
           grep -Eiq '<meta[^>]+name="description"' apps/web/dist/index.html
           grep -Fq 'google-adsense-account' apps/web/dist/index.html
