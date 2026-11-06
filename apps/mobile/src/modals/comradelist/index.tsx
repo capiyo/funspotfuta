@@ -982,8 +982,8 @@ function createStyles(colors: FanColors) {
         sheet: {
             height: '75%',
             backgroundColor: colors.background,
-            borderTopLeftRadius: FAN_RADIUS.xl,
-            borderTopRightRadius: FAN_RADIUS.xl,
+            borderTopLeftRadius: 24,
+            borderTopRightRadius: 24,
             overflow: 'hidden',
         },
         handleWrap: {
