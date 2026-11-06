@@ -4560,3 +4560,31 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visib
   border-top-right-radius: 24px !important;
   overflow: hidden;
 }
+
+
+/* Consistent modal-sheet geometry.
+   Apply the top radius to the actual visible sheet roots (including custom
+   web portals that do not expose role=dialog), not only to dialog semantics. */
+.action-modal-viewport .action-modal-sheet,
+.poke-modal-panel,
+.leaderboard-modal-sheet,
+.weekly-leaderboard-sheet,
+.possession-modal-panel,
+[role="dialog"],
+[aria-modal="true"] {
+  border-top-left-radius: 28px !important;
+  border-top-right-radius: 28px !important;
+  clip-path: inset(0 round 28px 28px 0 0);
+}
+@media (min-width: 651px) {
+  .action-modal-viewport .action-modal-sheet,
+  .poke-modal-panel,
+  .leaderboard-modal-sheet,
+  .weekly-leaderboard-sheet,
+  .possession-modal-panel,
+  [role="dialog"],
+  [aria-modal="true"] {
+    border-radius: 28px !important;
+    clip-path: inset(0 round 28px);
+  }
+}
