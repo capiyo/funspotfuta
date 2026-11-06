@@ -1503,8 +1503,8 @@ function createStyles(colors: FanColors) {
     },
     sheet: {
       maxHeight: '85%',
-      borderTopLeftRadius: 28,
-      borderTopRightRadius: 28,
+      borderTopLeftRadius: 24,
+      borderTopRightRadius: 24,
       backgroundColor: 'transparent',
       overflow: 'hidden',
     },
