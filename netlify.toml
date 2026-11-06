@@ -2,38 +2,60 @@
   base = "."
   command = "npm run build:web"
   publish = "apps/web/dist"
+
 [build.environment]
   NODE_VERSION = "20"
+
 [[redirects]]
   from = "https://funspot.co.ke/*"
   to = "https://www.funspot.co.ke/:splat"
   status = 301
   force = true
+
+# The root homepage is rendered by the Netlify SSR function on every request.
+[[redirects]]
+  from = "/"
+  to = "/.netlify/functions/ssr?path=/"
+  status = 200
+  force = true
+
+# Client application routes use the same HTML shell, without public-home content.
 [[redirects]]
   from = "/messages"
-  to = "/index.html"
+  to = "/.netlify/functions/ssr?path=/messages"
   status = 200
-  force = false
+  force = true
+
 [[redirects]]
   from = "/messages/*"
-  to = "/index.html"
+  to = "/.netlify/functions/ssr?path=/messages/:splat"
   status = 200
-  force = false
+  force = true
+
 [[redirects]]
   from = "/comments/*"
-  to = "/index.html"
+  to = "/.netlify/functions/ssr?path=/comments/:splat"
   status = 200
-  force = false
+  force = true
+
 [[redirects]]
   from = "/login"
-  to = "/index.html"
+  to = "/.netlify/functions/ssr?path=/login"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/ssr?path=/:splat"
   status = 200
   force = false
+
 [[redirects]]
   from = "/*"
   to = "/404.html"
   status = 404
   force = false
+
 [functions]
   directory = "netlify/functions"
   node_bundler = "esbuild"
