@@ -4583,3 +4583,15 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visib
 @media (max-width: 430px) {
   .public-home-how ol { grid-template-columns: 1fr; }
 }
+
+
+/* Shared modal surface contract: every web modal has a rounded top edge on
+   phones, tablets and desktop. This targets the dialog surface, not its
+   backdrop, and keeps the existing dimensions and scroll behavior intact. */
+[role="dialog"],
+[aria-modal="true"],
+.possession-modal-panel {
+  border-top-left-radius: 24px !important;
+  border-top-right-radius: 24px !important;
+  overflow: hidden;
+}
