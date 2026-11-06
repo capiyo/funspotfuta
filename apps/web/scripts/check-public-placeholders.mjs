@@ -30,9 +30,9 @@ if (!pages.includes(contactPath)) throw new Error('[public-check] contact.html i
 
 const html = await readFile(indexPath, 'utf8');
 const publicStart = html.indexOf('<div id="public-home">');
-const publicEnd = html.indexOf('</section>', publicStart);
+const publicEnd = html.indexOf('</body>', publicStart);
 const publicHome = publicStart >= 0 && publicEnd > publicStart
-  ? html.slice(publicStart, publicEnd + '</section>'.length)
+  ? html.slice(publicStart, publicEnd)
   : '';
 if (!publicHome) throw new Error('[public-check] Server-rendered #public-home content is missing.');
 const words = publicHome.replace(/<[^>]+>/g, ' ').match(/[\p{L}\p{N}][\p{L}\p{N}'’-]*/gu)?.length ?? 0;
