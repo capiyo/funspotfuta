@@ -1,11 +1,10 @@
 import React from 'react';
-import { createRoot, hydrateRoot } from 'react-dom/client';
+import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient } from '@tanstack/react-query';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { PERSIST_OPTIONS } from '@funspot/core';
 import App from './App';
-import PublicHomeContent from './components/PublicHomeContent';
 import { indexedDbQueryPersister } from './lib/query-persistence';
 import './styles.css';
 
@@ -26,14 +25,6 @@ const queryClient = new QueryClient({
     mutations: { networkMode: 'offlineFirst' },
   },
 });
-
-const publicHome = document.getElementById('public-home');
-if (publicHome?.hasChildNodes()) {
-  hydrateRoot(
-    publicHome,
-    <React.StrictMode><PublicHomeContent /></React.StrictMode>,
-  );
-}
 
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
