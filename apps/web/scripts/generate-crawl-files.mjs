@@ -67,9 +67,6 @@ const functionSource = `import { renderPublicHome } from "../../apps/web/dist/se
 
 const template = ${JSON.stringify(shell)};
 const marker = ${JSON.stringify(marker)};
-const appRoutes = [
-];
-
 export default async function handler(request) {
   const requestUrl = new URL(request.url);
   const requestedPath = requestUrl.searchParams.get("path") || requestUrl.pathname;
@@ -119,10 +116,10 @@ for (const page of pages) {
 }
 
 const rules = [
-  'User-agent: Mediapartners-Google', 'Allow: /', 'Disallow: /messages/', 'Disallow: /login', 'Disallow: /comments/', '',
-  'User-agent: Google-Display-Ads-Bot', 'Allow: /', 'Disallow: /messages/', 'Disallow: /login', 'Disallow: /comments/', '',
-  'User-agent: AdsBot-Google', 'Allow: /', 'Disallow: /messages/', 'Disallow: /login', 'Disallow: /comments/', '',
-  'User-agent: *', 'Allow: /', 'Allow: /ads.txt', 'Disallow: /messages/', 'Disallow: /login', 'Disallow: /comments/', '',
+  'User-agent: Mediapartners-Google', 'Allow: /', 'Disallow: /messages', 'Disallow: /login', 'Disallow: /comments/', '',
+  'User-agent: Google-Display-Ads-Bot', 'Allow: /', 'Disallow: /messages', 'Disallow: /login', 'Disallow: /comments/', '',
+  'User-agent: AdsBot-Google', 'Allow: /', 'Disallow: /messages', 'Disallow: /login', 'Disallow: /comments/', '',
+  'User-agent: *', 'Allow: /', 'Allow: /ads.txt', 'Disallow: /messages', 'Disallow: /login', 'Disallow: /comments/', '',
   `Sitemap: ${origin}/sitemap.xml`, '',
 ].join('\\n');
 await writeFile(path.join(distDir, 'robots.txt'), rules, 'utf8');
