@@ -4481,3 +4481,19 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visib
     object-fit: cover !important;
   }
 }
+
+/* Narrow desktop cards must reserve a real team-name column instead of allowing
+   the flexible comment field to collapse the fixture labels to zero width. */
+@media (min-width: 651px) and (max-width: 900px) {
+  .match-card .match-card-footer-top .match-card-teams {
+    flex: 0 0 48% !important;
+    width: 48% !important;
+    min-width: 0 !important;
+    max-width: 48% !important;
+  }
+  .match-card .match-card-footer-top .match-card-team-name {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    max-width: 74px !important;
+  }
+}
