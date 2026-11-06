@@ -1,14 +1,13 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
+import { createRoot, hydrateRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient } from '@tanstack/react-query';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { PERSIST_OPTIONS } from '@funspot/core';
 import App from './App';
+import PublicHomeContent from './components/PublicHomeContent';
 import { indexedDbQueryPersister } from './lib/query-persistence';
 import './styles.css';
-
-// The real application mounts at the site root; React replaces the static #root copy.
 
 const DAY = 24 * 60 * 60 * 1000;
 const queryClient = new QueryClient({
@@ -24,11 +23,17 @@ const queryClient = new QueryClient({
       networkMode: 'offlineFirst',
       placeholderData: (previousData: unknown) => previousData,
     },
-    mutations: {
-      networkMode: 'offlineFirst',
-    },
+    mutations: { networkMode: 'offlineFirst' },
   },
 });
+
+const publicHome = document.getElementById('public-home');
+if (publicHome?.hasChildNodes()) {
+  hydrateRoot(
+    publicHome,
+    <React.StrictMode><PublicHomeContent /></React.StrictMode>,
+  );
+}
 
 createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
@@ -40,9 +45,7 @@ createRoot(document.getElementById('root')!).render(
         ...PERSIST_OPTIONS,
       }}
     >
-      <BrowserRouter>
-        <App />
-      </BrowserRouter>
+      <BrowserRouter><App /></BrowserRouter>
     </PersistQueryClientProvider>
   </React.StrictMode>,
 );
