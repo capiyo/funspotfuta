@@ -5,8 +5,8 @@
 // header can't shift layout or scroll position. Each tab pads its scrollable
 // content by useHomeList().topInset.
 //
-// TWO TABS: Chats and Feed. Logs (HistoryScreen) is no longer a tab — its
-// content will fold into Feed later, or live behind a pushed screen.
+// THREE TABS: Arena, Feed, Logs. Arena reuses the existing fixture/chat flow;
+// Logs is the core-backed history screen, matching web /home's three columns.
 //
 // activeTab lives in home-context (not here) so the screens can gate their
 // queries on it. This component tracks only `visited` — which tabs have been
@@ -24,10 +24,12 @@ import { HomeProvider, useHome } from './home-context';
 import { HeaderInsetContext } from './header-inset';
 import ChatsScreen from '@/screens/ChatsScreen';
 import FeedScreen from '@/screens/FeedScreen';
+import HistoryScreen from '@/screens/HistoryScreen';
 
 const TABS: { name: TabName; Screen: ComponentType }[] = [
-    { name: 'Chats', Screen: ChatsScreen },
+    { name: 'Arena', Screen: ChatsScreen },
     { name: 'Feed', Screen: FeedScreen },
+    { name: 'Logs', Screen: HistoryScreen },
 ];
 
 const TAB_BAR_HIDE_OFFSET = 24;

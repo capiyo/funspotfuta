@@ -1,5 +1,3 @@
-'use client';
-
 // Web port of _SmartPostImage / _VideoPostWidget from posts_page.dart.
 //
 // NOTE: this intentionally diverges from the Dart original in one way.
