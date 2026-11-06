@@ -21,6 +21,40 @@ jobs:
       - run: npm run build:web
         env:
           FUNSPOT_CONTACT_EMAIL: ci-check@funspot.co.ke
+      - name: Execute the SSR function for visitors and Googlebot
+        run: |
+          node --input-type=module <<'NODE'
+          import handler from './netlify/functions/ssr.mjs';
+
+          const makeRequest = (userAgent) => new Request(
+            'https://www.funspot.co.ke/.netlify/functions/ssr?path=%2F',
+            { headers: { 'user-agent': userAgent } },
+          );
+
+          const [humanResponse, crawlerResponse] = await Promise.all([
+            handler(makeRequest('Mozilla/5.0 FunspotVisitor')),
+            handler(makeRequest('Googlebot')),
+          ]);
+          const [humanHtml, crawlerHtml] = await Promise.all([
+            humanResponse.text(),
+            crawlerResponse.text(),
+          ]);
+
+          if (humanResponse.status !== 200 || crawlerResponse.status !== 200) {
+            throw new Error('SSR homepage did not return HTTP 200 for both request types.');
+          }
+          if (!humanHtml.includes('Football is better together.') ||
+              !crawlerHtml.includes('Football is better together.')) {
+            throw new Error('SSR homepage content is missing from a response.');
+          }
+          if (humanHtml !== crawlerHtml) {
+            throw new Error('Visitor and crawler HTML differ; user-agent cloaking is forbidden.');
+          }
+          if (humanResponse.headers.get('x-funspot-render') !== 'react-ssr') {
+            throw new Error('SSR response marker is missing.');
+          }
+          console.log('SSR passed: visitors and Googlebot receive identical server-rendered HTML.');
+          NODE
       - name: Verify generated crawl files and public output tree
         run: |
           test -s apps/web/dist/index.html
