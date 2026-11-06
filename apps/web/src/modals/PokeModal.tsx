@@ -31,7 +31,7 @@ const backdropStyle: CSSProperties = {
 const panelStyle = (colors: FanColorPalette): CSSProperties => ({
   width: '100%', maxWidth: 448, height: '50dvh', maxHeight: '50dvh', display: 'flex', flexDirection: 'column', overflow: 'hidden',
   background: colors.surface, color: colors.textPrimary,
-  borderRadius: '16px 16px 0 0', padding: '6px 12px 8px', boxSizing: 'border-box',
+  borderRadius: '28px 28px 0 0', padding: '6px 12px 8px', boxSizing: 'border-box',
   boxShadow: '0 -12px 48px rgba(0,0,0,.25)',
   '--surface': colors.surface, '--text': colors.textPrimary, '--primary': colors.primary,
   '--primary-dim': colors.primaryDim, '--muted': colors.textTertiary,
