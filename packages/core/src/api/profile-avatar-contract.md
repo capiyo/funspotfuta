@@ -6,17 +6,16 @@ The web and React Native clients share one account-level profile image. The sele
 
 `POST /api/profile/profile/{user_id}/avatar`
 
-- Authenticated with the existing bearer token.
-- Multipart form field: `image`.
+- Uses the same unauthenticated multipart request pattern as post-image submission; no Bearer header is sent.
+- Required multipart fields: `userId`, `userName`, and `image`.
+- The submitted `userId` must match the path ID and an existing account must be present.
 - Accept JPEG, PNG, and WebP images up to 8 MiB.
-- Validate image bytes and ownership server-side; normalize to a square thumbnail and store it in durable object storage/CDN.
-- Return JSON with `avatar_url` as an absolute HTTPS URL. Example: `{"avatar_url":"https://cdn.example.com/profile/{user_id}.webp"}`.
-- Persist `avatar_url` on the canonical profile and return it from both profile GET routes used by the app.
-- Upsert the authenticated user's profile if it does not exist yet; when one exists, update only its avatar field and preserve every other profile field.
-- Replacing an image should clean up the previous owned object when safe.
+- Validate image bytes server-side and store through the existing Firebase Storage service.
+- Return JSON with `avatar_url` as an absolute HTTPS URL.
+- Upsert the user's profile if it does not exist yet; when one exists, update only its avatar field and preserve every other profile field.
+
+**Security note:** matching a client-supplied user ID to the path and checking that the account exists does not prove that the caller owns that account. This endpoint follows the requested post-upload flow and does not provide cryptographic user authentication.
 
 ## Read
 
 Both existing profile response shapes (object or one-element array) include optional `avatar_url`. User-list endpoints should also include `avatar_url` when practical; clients can resolve it through the cached profile read when it is omitted. Clients use the same account-level value for votes, pokes, sub-fixtures, possession, feed comments, Feed, Comrades, Messaging, Leaderboards, and Admin Dashboard. If absent, clients use the deterministic default avatar.
-
-The upload endpoint must enforce authenticated ownership and file-content validation; do not trust a client-supplied URL or filename.
