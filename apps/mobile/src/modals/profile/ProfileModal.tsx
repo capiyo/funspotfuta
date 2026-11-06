@@ -245,9 +245,9 @@ export default function ProfileModal({
       const asset = picked.assets[0];
       const result = await uploadProfileAvatar(userId, username ?? '', {
         uri: asset.uri,
-        name: asset.fileName ?? `${userId}-avatar`,
+        name: asset.fileName ?? `${userId}-avatar.jpg`,
         type: asset.mimeType ?? 'image/jpeg',
-        size: asset.fileSize,
+        ...(typeof asset.fileSize === 'number' ? { size: asset.fileSize } : {}),
       });
       setProfile((current) => current ? { ...current, avatarUrl: result.avatarUrl } : current);
       queryClient.setQueryData(queryKeys.profile(userId), (current: unknown) => current && typeof current === 'object' ? { ...(current as Record<string, unknown>), avatarUrl: result.avatarUrl } : current);
