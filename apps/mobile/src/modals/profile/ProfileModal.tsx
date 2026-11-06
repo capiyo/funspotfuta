@@ -1004,8 +1004,8 @@ function createStyles(colors: FanColors) {
     },
     sheet: {
       maxHeight: '88%',
-      borderTopLeftRadius: FAN_RADIUS.xl,
-      borderTopRightRadius: FAN_RADIUS.xl,
+      borderTopLeftRadius: 24,
+      borderTopRightRadius: 24,
       backgroundColor: colors.background,
       overflow: 'hidden',
     },
