@@ -24,7 +24,7 @@
 //      profiles (see header).
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
+import { useIsRestoring, useQueryClient } from '@tanstack/react-query';
 import type { ChangeEvent, CSSProperties, ReactNode } from 'react';
 const dismissKeyboard = () => { if (document.activeElement instanceof HTMLElement) document.activeElement.blur(); };
 import {
@@ -114,6 +114,7 @@ export default function ProfileContent({
   const { isInitialized, isLoggedIn, userId, username, phone, authToken, logout } = useAuth();
   const toast = useToast();
   const queryClient = useQueryClient();
+  const isRestoringQueries = useIsRestoring();
 
   // ── Which profile is being viewed ───────────────────────────
   // When non-null, we're viewing another user's profile (member
@@ -969,9 +970,11 @@ export default function ProfileContent({
                   cursor: isCurrentUser ? 'pointer' : 'default',
                 }) }}
               >
-                {profile?.avatarUrl
-                  ? <img src={profile.avatarUrl} alt="Profile" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
-                  : <img src={getFanAvatarUri(targetUserId)} alt="Default profile" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />}
+                {(profileQuery.data?.avatarUrl ?? profile?.avatarUrl)
+                  ? <img src={profileQuery.data?.avatarUrl ?? profile?.avatarUrl ?? ''} alt="Profile" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                  : (!isRestoringQueries && !profileQuery.isPending)
+                    ? <img src={getFanAvatarUri(targetUserId)} alt="Default profile" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                    : null}
                 {isCurrentUser && <span aria-hidden="true" style={{ position: 'absolute', right: -2, bottom: -2, width: 16, height: 16, borderRadius: 8, display: 'grid', placeItems: 'center', background: colors.primary, border: `2px solid ${colors.background}` }}><Camera size={9} color={colors.textInverse} /></span>}
                 {avatarUploading && <span className="profile-avatar-uploading">…</span>}
               </div>
