@@ -2,9 +2,9 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { CSSProperties, RefObject, KeyboardEvent as ReactKeyboardEvent, MouseEvent as ReactMouseEvent, PointerEvent as ReactPointerEvent, ChangeEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { useQueryClient } from '@tanstack/react-query';
+import { useIsRestoring, useQueryClient } from '@tanstack/react-query';
 import { Bell, ChevronDown, Menu, Plus, RefreshCw } from 'lucide-react';
-import { useProfileAvatar, type Channel } from '@funspot/core';
+import { useCachedProfile, type Channel } from '@funspot/core';
 import { getProfile } from '@funspot/core/src/api/profile-service';
 import { FAN_RADIUS } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
@@ -165,8 +165,13 @@ export function AppHeader(props: HeaderProps = {}) {
 
   const points = activeChannel?.members?.find((member) => member.userId === userId)?.seasonPoints ?? 0;
   const comradesList = queryClient.getQueryData<string[]>(['comrades']) ?? [];
-  const profileAvatar = useProfileAvatar(userId ?? undefined, authToken);
-  const avatarUri = profileAvatar ?? getFanAvatarUri(userId);
+  const isRestoringQueries = useIsRestoring();
+  const profileQuery = useCachedProfile(userId ?? undefined, authToken);
+  const profileAvatar = profileQuery.data?.avatarUrl ?? null;
+  // Never flash the generated mock while IndexedDB is restoring the saved
+  // profile. If no cached avatar exists, wait for the profile request before
+  // deciding whether this account needs the default image.
+  const avatarUri = profileAvatar ?? (!isRestoringQueries && !profileQuery.isPending ? getFanAvatarUri(userId) : null);
   const cancelAvatarHold = useCallback(() => {
     if (avatarHoldTimer.current) clearTimeout(avatarHoldTimer.current);
     avatarHoldTimer.current = null;
@@ -335,7 +340,7 @@ export function AppHeader(props: HeaderProps = {}) {
                   aria-label={`Account menu for ${currentUsername ?? 'profile'}`}
                   className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full"
                   style={{ background: colors.primaryMuted, borderRadius: "50%", padding: 0, overflow: "hidden" }}
-                ><img src={avatarUri} alt="" className="h-full w-full object-cover" style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover", display: "block" }} /></button>
+                >{avatarUri && <img src={avatarUri} alt="" className="h-full w-full object-cover" style={{ width: "100%", height: "100%", borderRadius: "50%", objectFit: "cover", display: "block" }} />}</button>
                 <input ref={avatarInputRef} type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={handleAvatarFile} />
                 <button type="button" className="hidden max-w-28 items-center gap-1 truncate text-xs sm:flex" style={{ color: colors.textSecondary }} onClick={() => openMenu(avatarRef.current)}>
                   {currentUsername ?? 'Profile'} <ChevronDown size={13} />
