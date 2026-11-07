@@ -2,7 +2,7 @@
 // Web port of RN src/modals/match/lineupsTab.tsx.
 
 import { useState } from 'react';
-import { AlertCircle, CircleDot, X, ArrowLeftRight } from 'lucide-react';
+import { AlertCircle, CircleDot } from 'lucide-react';
 import type { Fixture } from '@funspot/core';
 import type { LineupsData } from '@funspot/core/src/types/matchDetails';
 import { useFanColors, hexWithAlpha } from '@/lib/theme/use-fan-colors';
@@ -31,20 +31,6 @@ export function LineupsTab({ fixture, lineups, loading, error }: { fixture: Fixt
 
   return (
     <div className="flex h-full min-h-0 flex-col">
-      {hasBench && (
-        <div className="flex justify-center px-3 pt-2">
-          <button
-            type="button"
-            onClick={() => setShowBench((v) => !v)}
-            className="inline-flex items-center gap-1.5 rounded-fan-pill border px-3 py-1.5"
-            style={{ background: showBench ? c.primary : c.background, borderColor: showBench ? c.primary : c.borderActive }}
-          >
-            {showBench ? <X size={15} color="#fff" /> : <ArrowLeftRight size={15} color={c.textSecondary} />}
-            <span className="text-fan-button" style={{ color: showBench ? '#fff' : c.textSecondary }}>{showBench ? 'Hide bench' : 'Bench'}</span>
-          </button>
-        </div>
-      )}
-
       {/* Bench drawer — height/opacity transition mirrors the RN/Flutter SizeTransition */}
       <div
         className="grid transition-all duration-[280ms] ease-in-out"
@@ -65,7 +51,7 @@ export function LineupsTab({ fixture, lineups, loading, error }: { fixture: Fixt
         </div>
       </div>
 
-      <div className="flex min-h-0 flex-1 items-center justify-center p-3">
+      <div className="flex min-h-0 flex-1 items-center justify-center p-0">
         <PitchView
           homeTeam={fixture.homeTeam}
           awayTeam={fixture.awayTeam}
