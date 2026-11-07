@@ -1375,36 +1375,22 @@ function MessageBubble({
     const minuteLabel = message.username.match(/•\\s*(.+)$/)?.[1] ?? 'LIVE';
     const eventLabel = (message.commentaryType ?? 'update').replace(/[_-]+/g, ' ').toUpperCase();
     return (
-      <View style={{ marginBottom: FAN_SPACING.sm, paddingHorizontal: FAN_SPACING.md, alignItems: 'center' }}>
-        <View style={{
-          width: '100%',
-          maxWidth: 520,
-          borderRadius: 18,
-          paddingHorizontal: FAN_SPACING.md,
-          paddingVertical: FAN_SPACING.md,
-          backgroundColor: colors.draw + '12',
-          borderWidth: 1,
-          borderColor: colors.draw + '45',
-        }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: FAN_SPACING.sm, marginBottom: FAN_SPACING.sm }}>
-            <View style={{ width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.draw + '25' }}>
-              <Text style={{ fontSize: 14 }}>⚽</Text>
+      <View style={{ marginBottom: FAN_SPACING.sm, paddingHorizontal: FAN_SPACING.md, flexDirection: 'row', alignItems: 'flex-end', gap: FAN_SPACING.sm }}>
+        <View style={{ width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.draw + '25' }}>
+          <Text style={{ fontSize: 14 }}>⚽</Text>
+        </View>
+        <View style={{ position: 'relative', maxWidth: '84%', borderRadius: 18, borderBottomLeftRadius: 4, paddingHorizontal: FAN_SPACING.md, paddingVertical: FAN_SPACING.sm, backgroundColor: colors.draw + '20', borderWidth: 1, borderColor: colors.draw + '50' }}>
+          <View style={{ position: 'absolute', left: -6, bottom: 9, width: 11, height: 11, transform: [{ rotate: '45deg' }], backgroundColor: colors.draw + '20', borderLeftWidth: 1, borderBottomWidth: 1, borderColor: colors.draw + '50' }} />
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: FAN_SPACING.xs }}>
+            <Text style={[fanText('microLabel', colors, colors.draw), { fontWeight: '900', letterSpacing: 0.8 }]}>COMMENTARY</Text>
+            <View style={{ borderRadius: 12, paddingHorizontal: 6, paddingVertical: 2, backgroundColor: colors.draw + '25' }}>
+              <Text style={[fanText('microLabel', colors, colors.draw), { fontWeight: '800' }]}>{eventLabel}</Text>
             </View>
-            <Text style={[fanText('microLabel', colors, colors.draw), { fontWeight: '900', letterSpacing: 1 }]}>LIVE COMMENTARY</Text>
             <View style={{ flex: 1 }} />
-            <View style={{ borderRadius: 20, paddingHorizontal: 9, paddingVertical: 4, backgroundColor: colors.draw + '25' }}>
-              <Text style={[fanText('tag', colors, colors.draw), { fontWeight: '800' }]}>{minuteLabel}</Text>
-            </View>
+            <Text style={[fanText('tag', colors, colors.draw), { fontWeight: '900' }]}>{minuteLabel}</Text>
           </View>
-          <View style={{ alignSelf: 'flex-start', borderRadius: 20, paddingHorizontal: 8, paddingVertical: 3, marginBottom: FAN_SPACING.xs, backgroundColor: colors.draw + '25' }}>
-            <Text style={[fanText('microLabel', colors, colors.draw), { fontWeight: '800', letterSpacing: 0.5 }]}>{eventLabel}</Text>
-          </View>
-          <Text style={[fanText('body', colors, colors.textPrimary), { fontWeight: '700', lineHeight: 21 }]}>
-            {message.text}
-          </Text>
-          <Text style={[fanText('tag', colors, colors.textTertiary), { textAlign: 'right', marginTop: FAN_SPACING.sm }]}>
-            {timeAgo(message.timestamp)}
-          </Text>
+          <Text style={[fanText('body', colors, colors.textPrimary), { fontWeight: '600', lineHeight: 21 }]}>{message.text}</Text>
+          <Text style={[fanText('tag', colors, colors.textTertiary), { textAlign: 'right', marginTop: 5 }]}>{timeAgo(message.timestamp)}</Text>
         </View>
       </View>
     );
