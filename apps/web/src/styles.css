@@ -4590,6 +4590,20 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visib
 }
 
 
+/* Modal chrome: round the top edge consistently without changing the
+   existing bottom corners or sheet geometry on any viewport. */
+:where(
+  [role="dialog"],
+  [aria-modal="true"],
+  [class*="modal"],
+  [class*="Modal"],
+  [class*="sheet"],
+  [class*="Sheet"]
+) {
+  border-top-left-radius: 24px;
+  border-top-right-radius: 24px;
+}
+
 /* Modal typography follows the ChatCard typeface: DM Sans for all readable
    UI text. Scores/headline treatments can still opt into Saira Condensed
    through the shared FAN_TYPOGRAPHY roles. Keep form controls consistent. */
