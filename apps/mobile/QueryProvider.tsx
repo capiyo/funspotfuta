@@ -24,7 +24,7 @@ import {
     PERSIST_OPTIONS,
     deserializePersistedClient,
     getAllFixtures,
-    getPosts,
+    feedQueryOptions,
 } from '@funspot/core';
 import { mobileCache, mobileStorage, mobileStorageReady } from '@funspot/storage';
 
@@ -65,21 +65,17 @@ function hydrateFromSynchronousAppCache(): void {
 
 
 // Keep in sync with FeedScreen's PAGE_SIZE and query shape.
-const FEED_PAGE_SIZE = 10;
 const BACKGROUND_REFRESH_MS = 5 * 60 * 1000;
 
 function prefetchStartupData() {
     // Refresh the persisted snapshots, not just mounted screens. These queries
     // are cache-first at startup, then quietly refreshed while the app is active.
-    void queryClient.prefetchQuery({ queryKey: ['fixtures'], queryFn: getAllFixtures, staleTime: 0 });
-    void queryClient.prefetchInfiniteQuery({
-        queryKey: ['feed'],
-        queryFn: ({ pageParam }) => getPosts({ page: pageParam, limit: FEED_PAGE_SIZE }),
-        staleTime: 0,
-        initialPageParam: 1,
-        getNextPageParam: (lastPage: { posts: unknown[] }, allPages: unknown[]) =>
-            lastPage.posts.length === FEED_PAGE_SIZE ? allPages.length + 1 : undefined,
+    void queryClient.prefetchQuery({
+        queryKey: ['fixtures'],
+        queryFn: getAllFixtures,
+        staleTime: 60_000,
     });
+    void queryClient.prefetchInfiniteQuery(feedQueryOptions());
 }
 
 function onAppStateChange(status: AppStateStatus) {
