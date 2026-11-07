@@ -5,6 +5,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useFanColors, hexWithAlpha } from '@/lib/theme/use-fan-colors';
+import { playerHeadshotKey, resolvePlayerHeadshots } from '@funspot/core';
 import {
   calculatePositions, shortName, NEUTRAL_GAP_FRACTION,
   type PitchPosition, type SimplifiedPlayer,
@@ -61,15 +62,23 @@ function PitchSvg({ width: w, height: h, homeColor, awayColor }: { width: number
   );
 }
 
-function PlayerDot({ player, position, color, isHome }: { player: SimplifiedPlayer; position: PitchPosition; color: string; isHome: boolean }) {
-  const dot = (
+function PlayerAvatar({ photoUrl, number, color, size }: { photoUrl?: string | null; number: number; color: string; size: number }) {
+  const [failed, setFailed] = useState(false);
+  useEffect(() => setFailed(false), [photoUrl]);
+  return (
     <span
-      className="flex items-center justify-center rounded-full border-2 border-white text-[11px] font-bold text-white shadow-md"
-      style={{ width: DOT_SIZE, height: DOT_SIZE, background: color }}
+      className="flex shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-white text-[11px] font-bold text-white shadow-md"
+      style={{ width: size, height: size, background: color }}
     >
-      {player.number}
+      {photoUrl && !failed
+        ? <img src={photoUrl} alt="" loading="lazy" decoding="async" referrerPolicy="no-referrer" onError={() => setFailed(true)} className="h-full w-full rounded-full object-cover" />
+        : number}
     </span>
   );
+}
+
+function PlayerDot({ player, position, color, isHome, photoUrl }: { player: SimplifiedPlayer; position: PitchPosition; color: string; isHome: boolean; photoUrl?: string }) {
+  const dot = <PlayerAvatar photoUrl={photoUrl ?? player.photoUrl ?? player.imageUrl} number={player.number} color={color} size={DOT_SIZE} />;
   const label = (
     <span className="flex max-w-[84px] items-center gap-1 rounded-fan-sm bg-black/75 px-1.5 py-px">
       <span className="truncate text-fan-tag text-white">{shortName(player.name)}</span>
@@ -90,18 +99,21 @@ function PlayerDot({ player, position, color, isHome }: { player: SimplifiedPlay
   );
 }
 
-export function BenchColumn({ players, color }: { players: SimplifiedPlayer[]; color: string }) {
+export function BenchColumn({ players, color, teamName = '', headshots = {} }: { players: SimplifiedPlayer[]; color: string; teamName?: string; headshots?: Record<string, string> }) {
   if (players.length === 0) return <p className="text-center text-fan-caption text-fan-textTertiary">No data</p>;
   return (
     <div className="space-y-1">
-      {players.slice(0, 9).map((p, idx) => (
-        <div key={`${p.number}-${p.name}-${idx}`} className="flex items-center gap-1.5 rounded-fan-sm px-1.5 py-1" style={{ background: hexWithAlpha(color, 0.06) }}>
-          <span className="flex h-5 min-w-[20px] items-center justify-center rounded-fan-sm px-1 text-[10px] font-bold" style={{ background: hexWithAlpha(color, 0.18), color }}>{p.number}</span>
-          <span className="min-w-0 flex-1 truncate text-fan-caption text-fan-textPrimary">{shortName(p.name)}</span>
-          <span className="text-fan-tag text-fan-textTertiary">{p.position.toUpperCase()}</span>
-          {p.captain && <span className="text-[9px] font-extrabold" style={{ color }}>C</span>}
-        </div>
-      ))}
+      {players.slice(0, 9).map((p, idx) => {
+        const photoUrl = p.photoUrl ?? p.imageUrl ?? headshots[playerHeadshotKey(p, teamName)];
+        return (
+          <div key={`${p.number}-${p.name}-${idx}`} className="flex items-center gap-1.5 rounded-fan-sm px-1.5 py-1" style={{ background: hexWithAlpha(color, 0.06) }}>
+            <PlayerAvatar photoUrl={photoUrl} number={p.number} color={color} size={22} />
+            <span className="min-w-0 flex-1 truncate text-fan-caption text-fan-textPrimary">{shortName(p.name)}</span>
+            <span className="text-fan-tag text-fan-textTertiary">{p.position.toUpperCase()}</span>
+            {p.captain && <span className="text-[9px] font-extrabold" style={{ color }}>C</span>}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -133,6 +145,7 @@ export function PitchView({
   const [showHome, setShowHome] = useState(false);
   const [showAway, setShowAway] = useState(false);
   const [size, setSize] = useState({ width: 0, height: 0 });
+  const [headshots, setHeadshots] = useState<Record<string, string>>({});
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -145,6 +158,19 @@ export function PitchView({
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    setHeadshots({});
+    const batch = [
+      ...homePlayers.map((player) => ({ player, teamName: homeTeam })),
+      ...awayPlayers.map((player) => ({ player, teamName: awayTeam })),
+    ];
+    void resolvePlayerHeadshots(batch).then((result) => {
+      if (!cancelled) setHeadshots(result);
+    });
+    return () => { cancelled = true; };
+  }, [homePlayers, awayPlayers, homeTeam, awayTeam]);
 
   const cappedHome = useMemo(() => homePlayers.slice(0, 11), [homePlayers]);
   const cappedAway = useMemo(() => awayPlayers.slice(0, 11), [awayPlayers]);
@@ -175,9 +201,9 @@ export function PitchView({
         <div className="mb-2 rounded-fan-md border p-2" style={{ background: c.background, borderColor: c.borderActive }}>
           <p className="mb-2 text-fan-tag tracking-[0.8px] text-fan-textTertiary">EXTRA PLAYERS</p>
           <div className="flex gap-2">
-            {sh && <div className="flex-1"><BenchColumn players={homeOverflow} color={c.primary} /></div>}
+            {sh && <div className="flex-1"><BenchColumn players={homeOverflow} color={c.primary} teamName={homeTeam} headshots={headshots} /></div>}
             {sh && sa && <span className="w-px self-stretch" style={{ background: c.borderActive }} />}
-            {sa && <div className="flex-1"><BenchColumn players={awayOverflow} color={c.away} /></div>}
+            {sa && <div className="flex-1"><BenchColumn players={awayOverflow} color={c.away} teamName={awayTeam} headshots={headshots} /></div>}
           </div>
         </div>
       )}
@@ -187,8 +213,8 @@ export function PitchView({
             <PitchSvg width={size.width} height={size.height} homeColor={c.primary} awayColor={c.away} />
             {label(homeTeam, c.primary, { bottom: size.height * 0.03 })}
             {label(awayTeam, c.away, { top: size.height * 0.03 })}
-            {cappedHome.map((p, i) => i < homePos.length && <PlayerDot key={`h-${i}-${p.number}`} player={p} position={homePos[i]} color={c.primary} isHome />)}
-            {cappedAway.map((p, i) => i < awayPos.length && <PlayerDot key={`a-${i}-${p.number}`} player={p} position={awayPos[i]} color={c.away} isHome={false} />)}
+            {cappedHome.map((p, i) => i < homePos.length && <PlayerDot key={`h-${i}-${p.number}`} player={p} position={homePos[i]} color={c.primary} isHome photoUrl={headshots[playerHeadshotKey(p, homeTeam)]} />)}
+            {cappedAway.map((p, i) => i < awayPos.length && <PlayerDot key={`a-${i}-${p.number}`} player={p} position={awayPos[i]} color={c.away} isHome={false} photoUrl={headshots[playerHeadshotKey(p, awayTeam)]} />)}
           </>
         )}
       </div>
