@@ -123,6 +123,8 @@ export interface SimplifiedPlayer {
     captain: boolean;
     /** Stable ID from the lineup provider, when supplied. */
     providerId?: string | null;
+    /** 365Scores image cache version for this athlete portrait. */
+    imageVersion?: string | null;
     /** Existing provider headshot URL, when supplied with the lineup. */
     photoUrl?: string | null;
     /** Team identity supplied by the lineup payload, when available. */
@@ -171,6 +173,8 @@ export function parseSimplifiedPlayer(json: any): SimplifiedPlayer {
     const rawProviderId = json?.athleteId ?? json?.athlete_id ?? json?.player_id ??
         json?.playerId ?? json?.player?.id ?? json?.athlete?.id ?? json?.id ?? null;
     const providerId = rawProviderId == null ? null : String(rawProviderId).trim() || null;
+    const rawImageVersion = json?.imageVersion ?? json?.image_version ?? json?.player?.imageVersion ?? json?.player?.image_version ?? json?.athlete?.imageVersion ?? json?.athlete?.image_version ?? null;
+    const imageVersion = rawImageVersion == null ? null : String(rawImageVersion).trim().replace(/^v/i, '') || null;
     const photoCandidate = json?.photoUrl ?? json?.photo_url ?? json?.headshotUrl ?? json?.headshot_url ?? json?.imageUrl ?? json?.image_url ?? json?.player?.photoUrl ?? json?.player?.photo_url ?? json?.player?.headshotUrl ?? json?.player?.imageUrl ?? json?.player?.photo ?? json?.player?.image ?? json?.athlete?.photoUrl ?? json?.athlete?.photo_url ?? json?.athlete?.imageUrl ?? json?.athlete?.photo ?? json?.athlete?.image ?? json?.photo ?? json?.image ?? json?.picture ?? null;
     const photoUrl = typeof photoCandidate === 'string' && photoCandidate.startsWith('https://') ? photoCandidate : null;
     const rawRating = json?.rating ?? json?.ranking ?? json?.playerRating ?? null;
@@ -178,7 +182,7 @@ export function parseSimplifiedPlayer(json: any): SimplifiedPlayer {
     const teamCandidate = json?.teamName ?? json?.team_name ?? json?.team?.name ?? null;
     const teamName = typeof teamCandidate === 'string' ? teamCandidate : null;
 
-    return { name, number, position, captain, providerId, photoUrl, teamName, rating, imageUrl: photoUrl };
+    return { name, number, position, captain, providerId, imageVersion, photoUrl, teamName, rating, imageUrl: photoUrl };
 }
 
 // ═══════════════════════════════════════════════════════════════
