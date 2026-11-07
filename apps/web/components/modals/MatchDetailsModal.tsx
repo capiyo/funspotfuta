@@ -141,7 +141,7 @@ export function MatchDetailsModal({ visible, fixture, authToken, onClose }: Matc
         className="flex h-[88vh] w-full max-w-md flex-col overflow-hidden rounded-t-3xl border-0 bg-fan-surface sm:rounded-3xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex justify-center py-2"><span className="h-1 w-10 rounded-full bg-fan-borderActive" /></div>
+        {activeTab !== 'lineups' && <div className="flex justify-center py-2"><span className="h-1 w-10 rounded-full bg-fan-borderActive" /></div>}
 
         {activeTab !== 'lineups' && (
           <div className="flex items-start gap-2 px-3 pb-3">
