@@ -424,25 +424,13 @@ export function MatchDetailsModal({
                                     style={[
                                         styles.tabLabel,
                                         {
-                                            color:
-                                                activeTab === 'lineups'
-                                                    ? colors.primary
-                                                    : colors.textSecondary,
+                                            color: colors.textSecondary,
                                         },
                                     ]}
                                 >
                                     LINEUPS
                                 </Text>
-                                {activeTab === 'lineups' ? (
-                                    <View
-                                        style={[
-                                            styles.tabIndicator,
-                                            { backgroundColor: colors.primary },
-                                        ]}
-                                    />
-                                ) : (
-                                    <View style={styles.tabIndicatorEmpty} />
-                                )}
+                                <View style={styles.tabIndicatorEmpty} />
                             </Pressable>
                             <Pressable
                                 style={[styles.tab, !hasStats && { display: 'none' }]}
@@ -452,25 +440,18 @@ export function MatchDetailsModal({
                                     style={[
                                         styles.tabLabel,
                                         {
-                                            color:
-                                                activeTab === 'stats'
-                                                    ? colors.primary
-                                                    : colors.textSecondary,
+                                            color: colors.primary,
                                         },
                                     ]}
                                 >
                                     STATS
                                 </Text>
-                                {activeTab === 'stats' ? (
-                                    <View
-                                        style={[
-                                            styles.tabIndicator,
-                                            { backgroundColor: colors.primary },
-                                        ]}
-                                    />
-                                ) : (
-                                    <View style={styles.tabIndicatorEmpty} />
-                                )}
+                                <View
+                                    style={[
+                                        styles.tabIndicator,
+                                        { backgroundColor: colors.primary },
+                                    ]}
+                                />
                             </Pressable>
                     </View> : null}
 
