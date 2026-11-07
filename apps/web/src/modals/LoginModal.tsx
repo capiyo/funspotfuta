@@ -454,7 +454,7 @@ export default function LoginModal({ visible = true, onClose, onSuccess }: Login
           role="dialog"
           aria-modal="true"
           aria-labelledby="login-modal-title"
-          className="relative w-full max-w-lg overflow-hidden rounded-t-3xl px-5 pb-7 pt-3 shadow-2xl sm:rounded-3xl"
+          className="relative w-full max-w-lg overflow-hidden mb-2 rounded-3xl px-5 pb-7 pt-3 shadow-2xl"
           style={{ maxHeight: 'min(90dvh, 850px)', background: colors.background }}
           onMouseDown={(event) => event.stopPropagation()}>
       <div
@@ -681,7 +681,7 @@ export default function LoginModal({ visible = true, onClose, onSuccess }: Login
           role="dialog"
           aria-modal="true"
           aria-label="Choose country"
-          className="flex w-full max-w-lg flex-col gap-3 rounded-t-3xl px-6 pb-6 pt-3 sm:rounded-3xl"
+          className="flex w-full max-w-lg flex-col gap-3 mb-2 rounded-3xl px-6 pb-6 pt-3"
           style={{ maxHeight: '80dvh', background: colors.background }}
           onMouseDown={(event) => event.stopPropagation()}>
       <div
