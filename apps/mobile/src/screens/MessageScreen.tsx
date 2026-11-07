@@ -109,6 +109,7 @@ import {
 import { useAuth } from '@/lib/auth/auth-context';
 import { NotificationService } from '@/lib/api/notification-service';
 import { Avatar } from '@/components/ui/Avatar';
+import { SmartMedia } from '@/components/SmartMedia';
 import { useToast } from '@/lib/toast/toast-context';
 import { useFanColors } from '@/theme/use-fan-colors';
 import AdCarousel from '@/components/AdCarousel';
@@ -1467,27 +1468,13 @@ function MessageBubble({
             </View>
           )}
 
-          {hasImage && (
-            <Pressable onPress={() => onImagePress(message.imageUrl as string)}>
-              <Image
-                source={{ uri: message.imageUrl as string }}
-                style={bubbleStyles.image}
-                resizeMode="cover"
-              />
-            </Pressable>
-          )}
-
-          {hasVideo && (
-            <View
-              style={[
-                bubbleStyles.mediaPlaceholder,
-                { backgroundColor: colors.surfaceSunken },
-              ]}
-            >
-              <Text style={fanText('tag', colors, colors.textTertiary)}>
-                🎥 Video
-              </Text>
-            </View>
+          {(hasImage || hasVideo) && (
+            <SmartMedia
+              imageUrl={hasImage ? message.imageUrl : null}
+              videoUrl={hasVideo ? message.videoUrl : null}
+              videoThumbnailUrl={message.videoThumbnailUrl}
+              onPress={hasImage ? () => onImagePress(message.imageUrl as string) : undefined}
+            />
           )}
 
           {!!message.text && (
