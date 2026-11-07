@@ -617,12 +617,7 @@ function ChannelSwipeCarousel({ channels: slideChannels, renderSlide }: {
   renderSlide: (channel: SwipeChannel | undefined) => ReactNode;
 }) {
   const trackRef = useRef<HTMLDivElement>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
   const count = Math.max(1, slideChannels.length);
-  const onScroll = useCallback(() => {
-    const track = trackRef.current;
-    if (track) setActiveIndex(Math.min(count - 1, Math.round(track.scrollLeft / Math.max(1, track.clientWidth))));
-  }, [count]);
   return <div style={{ minWidth: 0 }}>
     {count > 1 && <nav className="desktop-chat-channel-controls" aria-label="Choose channel for this fixture">
       {slideChannels.map((channel, index) => <button
@@ -636,14 +631,11 @@ function ChannelSwipeCarousel({ channels: slideChannels, renderSlide }: {
         }}
       >{channel.name}</button>)}
     </nav>}
-    <div ref={trackRef} onScroll={onScroll} className="no-scrollbar"
+    <div ref={trackRef} className="no-scrollbar"
       aria-label="Channel cards" style={{ display: 'flex', overflowX: 'auto', scrollSnapType: 'x mandatory', overscrollBehaviorX: 'contain', touchAction: 'pan-x pan-y', scrollbarWidth: 'none' }}>
       {(slideChannels.length ? slideChannels : [undefined]).map((channel, index) => <div key={channel?.channelId ?? 'default'} style={{ flex: '0 0 100%', minWidth: 0, scrollSnapAlign: 'start' }}>
         {renderSlide(channel)}
       </div>)}
     </div>
-    {count > 1 && <div aria-label={`Channel ${activeIndex + 1} of ${count}`} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 6, padding: '8px 0 10px' }}>
-      {slideChannels.map((channel, index) => <span key={channel.channelId} aria-label={channel.name} style={{ display: 'block', width: index === activeIndex ? 7 : 5, height: index === activeIndex ? 7 : 5, borderRadius: '50%', background: index === activeIndex ? 'currentColor' : 'currentColor', opacity: index === activeIndex ? 0.85 : 0.3 }} />)}
-    </div>}
   </div>;
 }
