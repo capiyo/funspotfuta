@@ -43,7 +43,7 @@ const renderedNotFound = ssrRenderer.renderNotFound();
 if (!renderedHome.includes('<h1') || !renderedHome.includes('Football is better') || renderedHome.includes('<div id="root"></div>')) {
   throw new Error('[crawl-files] React SSR did not produce meaningful homepage HTML.');
 }
-if (!renderedNotFound.includes("This page isn't here.")) {
+if (!renderedNotFound.includes("This page isn't here.") && !renderedNotFound.includes("This page isn&#x27;t here.")) {
   throw new Error('[crawl-files] React SSR did not produce the custom 404 content.');
 }
 for (const page of pages) {
