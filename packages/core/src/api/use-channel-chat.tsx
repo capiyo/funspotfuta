@@ -896,7 +896,7 @@ export function useChannelChat({
     // mid-upload loses the image.)
     const sendImage = useCallback(
         async (
-            asset: { uri: string; name?: string; type?: string },
+            asset: { uri: string; name?: string; type?: string; file?: Blob },
             caption?: string,
         ) => {
             if (!channelId || !userId || !username || !asset?.uri) return;
@@ -923,24 +923,37 @@ export function useChannelChat({
             setUploadingImage(true);
             try {
                 const form = new FormData();
-                form.append('file', {
-                    uri: asset.uri,
-                    name: asset.name ?? `image-${Date.now()}.jpg`,
-                    type: asset.type ?? 'image/jpeg',
-                } as any);
-                if (fixtureId) form.append('fixture_id', fixtureId);
+                const fileName = asset.name ?? `chat_image_${Date.now()}.jpg`;
+                if (asset.file) {
+                    // Browser File/Blob upload. A React Native { uri } descriptor
+                    // is not a valid browser FormData file and becomes "[object Object]".
+                    form.append('file', asset.file, fileName);
+                } else {
+                    // React Native FormData's native file descriptor convention.
+                    form.append('file', {
+                        uri: asset.uri,
+                        name: fileName,
+                        type: asset.type ?? 'image/jpeg',
+                    } as unknown as Blob);
+                }
+                form.append('userId', userId);
                 if (caption) form.append('caption', caption);
 
-                const res = await fetch(`${API_BASE_URL}/upload/chat/image`, {
+                // Match Flutter ApiService.uploadChatImage: /channels/media/upload,
+                // multipart field "file" + "userId", response url/secure_url.
+                const res = await fetch(`${API_BASE_URL}/channels/media/upload`, {
                     method: 'POST',
                     headers: authToken
                         ? { Authorization: `Bearer ${authToken}` }
                         : undefined,
                     body: form,
                 });
-                if (!res.ok) throw new Error(`Upload failed (${res.status})`);
+                if (!res.ok) {
+                    const detail = await res.text().catch(() => '');
+                    throw new Error(`Upload failed (${res.status})${detail ? `: ${detail.slice(0, 240)}` : ''}`);
+                }
                 const data = await res.json();
-                const imageUrl: string | undefined = data?.url ?? data?.image_url;
+                const imageUrl: string | undefined = data?.url ?? data?.secure_url ?? data?.image_url;
                 if (!imageUrl) throw new Error('No image URL in response');
 
                 replaceById(tempId, { imageUrl });
