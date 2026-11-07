@@ -1,13 +1,11 @@
 // QueryProvider.tsx
 //
 // - Client + persister are created ONCE at module scope.
-// - <PersistQueryClientProvider> restores the MMKV cache and holds queries
-//   until restore finishes (no fetch-before-restore race).
-// - onSuccess/onError => onReady(): hold your splash on this ONLY, never on
-//   the network (MMKV restore takes milliseconds).
-// - After restore, the main queries are prefetched in parallel so new users
-//   (empty cache) don't wait for a tab to be opened. prefetchQuery skips the
-//   network when fresh cached data exists.
+// - Encrypted MMKV is hydrated synchronously before screens mount.
+// - Persistence subscribes only after hydration; there is no second async
+//   provider restore that can delay the first screen.
+// - The feed is prefetched in the background; fixtures are owned by the
+//   canonical useFixtures query so a partial response cannot overwrite cache.
 // - On background/inactive the cache is flushed to disk, but never before the
 //   restore has finished (that could overwrite the snapshot with an empty one).
 
@@ -27,7 +25,7 @@ import {
 } from '@funspot/core';
 import { mobileCache, mobileStorage, mobileStorageReady } from '@funspot/storage';
 
-const { queryClient, persister, persistOptions, resumePersistence } = createAppQueryClient(mobileStorage);
+const { queryClient, persister, resumePersistence } = createAppQueryClient(mobileStorage);
 
 /**
  * Clear both live query state and its durable snapshot before changing the
