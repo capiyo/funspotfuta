@@ -262,16 +262,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await SecureStore.setItemAsync(SECURE_KEYS.token, newToken, SECURE_STORE_OPTIONS);
       if (newRefreshToken) await SecureStore.setItemAsync(SECURE_KEYS.refresh, newRefreshToken, SECURE_STORE_OPTIONS);
-      setState((current) => {
-        const next = { ...current, authToken: newToken, refreshToken: newRefreshToken ?? current.refreshToken };
-        writeSessionSnapshot(next);
-        return next;
-      });
+      const nextState = { ...state, authToken: newToken, refreshToken: newRefreshToken ?? state.refreshToken };
+      writeSessionSnapshot(nextState);
+      setState(nextState);
       return true;
     } catch {
       return false;
     }
-  }, [state.isLoggedIn]);
+  }, [state]);
 
   const updateUserData = useCallback(async (userId: string, username: string, phone?: string) => {
     try {
@@ -287,15 +285,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await SecureStore.setItemAsync(SECURE_KEYS.user, JSON.stringify(next), SECURE_STORE_OPTIONS);
       }
       NotificationService.setActiveUser(userId);
-      setState((current) => {
-        const next = { ...current, userId, username, phone: phone ?? current.phone };
-        writeSessionSnapshot(next);
-        return next;
-      });
+      const nextState = { ...state, userId, username, phone: phone ?? state.phone };
+      writeSessionSnapshot(nextState);
+      setState(nextState);
     } catch (error) {
       if (__DEV__) console.warn('[auth] secure user update failed', error);
     }
-  }, [state.userId]);
+  }, [state]);
 
   const hasValidSession = useCallback(
     () => Boolean(state.isLoggedIn && state.authToken && state.userId),
