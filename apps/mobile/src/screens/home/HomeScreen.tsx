@@ -125,22 +125,18 @@ function HomeInner({ initialTab }: { initialTab?: TabName }) {
                     <AppHeader onAddChannel={() => setShowCreateChannel(true)} />
                 </Animated.View>
 
-                <Animated.View
+                <View
                     pointerEvents="box-none"
                     style={[
                         StyleSheet.absoluteFillObject,
                         {
                             zIndex: 30,
-                            opacity: anim,
-                        transform: [{ translateY: anim.interpolate({
-                            inputRange: [0, 1],
-                            outputRange: [TAB_BAR_HIDE_OFFSET, 0],
-                        }) }],
+                            elevation: 30,
                         },
                     ]}
                 >
                     <FloatingPillTabBar active={activeTab} onChange={changeTab} />
-                </Animated.View>
+                </View>
 
                 <CreateChannelModal
                     visible={showCreateChannel}
