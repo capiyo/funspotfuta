@@ -46,8 +46,8 @@ if (!ssrBundle.trim() || !ssrBundle.includes('renderHome') || !ssrBundle.include
 
 const functionDir = path.join(repoDir, 'netlify', 'functions');
 await mkdir(functionDir, { recursive: true });
-const functionSource = String.raw\`import { renderHome, renderNotFound } from "../../apps/web/dist-ssr/entry-server.js";
-const template = \${JSON.stringify(shell)};
+const functionSource = String.raw`import { renderHome, renderNotFound } from "../../apps/web/dist-ssr/entry-server.js";
+const template = __SHELL__;
 function withRoot(mode, content = "") {
   const marker = '<div id="root"></div>';
   if (!template.includes(marker)) throw new Error("SSR HTML template is missing #root");
@@ -77,10 +77,10 @@ export default async function handler(request) {
 
   if (requestedPath === "/app" || requestedPath.startsWith("/app/")) {
     const appPath = requestedPath.slice("/app".length) || "/";
-    const normalizedAppPath = appPath.length > 1 ? appPath.replace(/\\/+$/, "") : "/";
+    const normalizedAppPath = appPath.length > 1 ? appPath.replace(/\/+$/, "") : "/";
     const validAppRoute = normalizedAppPath === "/" || normalizedAppPath === "/login"
-      || /^\\/messages(?:\\/[^/]+)?$/.test(normalizedAppPath)
-      || /^\\/comments\\/[^/]+$/.test(normalizedAppPath);
+      || /^\/messages(?:\/[^/]+)?$/.test(normalizedAppPath)
+      || /^\/comments\/[^/]+$/.test(normalizedAppPath);
 
     if (validAppRoute) {
       return new Response(appHtml, {
@@ -107,7 +107,7 @@ export default async function handler(request) {
     },
   });
 }
-\`;
+`.replace('__SHELL__', JSON.stringify(shell));
 await writeFile(path.join(functionDir, 'ssr.mjs'), functionSource, 'utf8');
 
 for (const page of pages) {
