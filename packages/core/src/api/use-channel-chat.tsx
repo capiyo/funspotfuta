@@ -358,52 +358,70 @@ export function useChannelChat({
         };
     }, [channelId, fixtureId, authHeaders, queryClient, messagesQueryKey, messageCacheIdentity]);
 
-    // ── Commentary bootstrap (REST) ─────────────────────────────
+    // ── Commentary bootstrap + live REST fallback ─────────────────
+    // WebSocket events remain the low-latency path. Polling the fixture's
+    // commentary endpoint keeps the open conversation current when a socket
+    // event is missed, delayed, or the connection silently drops.
     useEffect(() => {
         if (!channelId || !fixtureId) return;
         let cancelled = false;
+        let requestInFlight = false;
 
-        const status = fixtureStatus ?? matchStatus;
-        const isHistory = status === 'completed' || status === 'finished';
+        const refreshCommentary = async () => {
+            if (cancelled || requestInFlight) return;
+            const status = (fixtureStatus ?? matchStatus).toLowerCase();
+            const isHistory = status === 'completed' || status === 'finished';
+            const url = isHistory
+                ? `${API_BASE_URL}/games/history/${fixtureId}`
+                : `${API_BASE_URL}/games/${fixtureId}/commentary/latest?limit=100&_=${Date.now()}`;
 
-        const url = isHistory
-            ? `${API_BASE_URL}/games/history/${fixtureId}`
-            : `${API_BASE_URL}/games/${fixtureId}/commentary/latest?limit=100`;
+            requestInFlight = true;
+            try {
+                const response = await fetch(url, {
+                    headers: authHeaders({ 'Cache-Control': 'no-cache' }),
+                });
+                if (!response.ok) return;
+                const data: unknown = await response.json();
+                if (cancelled || !data || typeof data !== 'object') return;
+                const payload = data as Record<string, unknown>;
+                const nested = payload.data && typeof payload.data === 'object'
+                    ? payload.data as Record<string, unknown>
+                    : null;
+                const raw = (isHistory ? nested?.commentary : payload.commentary)
+                    ?? nested?.commentary;
+                if (!Array.isArray(raw)) return;
 
-        fetch(url, { headers: authHeaders() })
-            .then((r) => (r.ok ? r.json() : null))
-            .then((data) => {
-                if (cancelled || !data) return;
-
-                const raw: any[] = isHistory
-                    ? (data?.data?.commentary ?? [])
-                    : (data?.commentary ?? []);
-                if (!Array.isArray(raw) || raw.length === 0) return;
-
-                for (const entry of raw) {
-                    if (!entry || typeof entry !== 'object') continue;
+                for (const value of raw) {
+                    if (!value || typeof value !== 'object') continue;
+                    const entry = value as Record<string, unknown>;
+                    const text = String(entry.text ?? '').trim();
+                    if (!text) continue;
                     insertSorted(
                         chatMessageCommentary({
-                            minute: entry.minute ?? 0,
-                            text: entry.text ?? '',
-                            type: entry.type ?? 'update',
+                            minute: Number(entry.minute ?? 0) || 0,
+                            text,
+                            type: String(entry.type ?? 'update'),
                             createdAt: parseCommentaryTimestamp(
-                                entry.createdAt ?? entry.created_at,
+                                entry.createdAt ?? entry.created_at ?? entry.timestamp,
                             ),
                             seq: nextSeq(),
                         }),
                     );
                 }
-            })
-            .catch(() => {
-                /* silent — commentary is best-effort */
-            });
+            } catch {
+                // Keep the last known commentary visible during transient outages.
+            } finally {
+                requestInFlight = false;
+            }
+        };
 
+        void refreshCommentary();
+        const interval = setInterval(() => { void refreshCommentary(); }, 12_000);
         return () => {
             cancelled = true;
+            clearInterval(interval);
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [channelId, fixtureId]);
+    }, [channelId, fixtureId, fixtureStatus, matchStatus, authHeaders, insertSorted]);
 
     // ── Vote counts + voters ────────────────────────────────────
     const fetchVoteCounts = useCallback(async () => {
