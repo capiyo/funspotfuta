@@ -30,7 +30,7 @@ function HomeInner({ initialTab }: { initialTab?: TabName }) {
     const colors = useFanColors();
     const queryClient = useQueryClient();
     const styles = useMemo(() => createStyles(colors), [colors]);
-    const { headerVisible, activeTab, setActiveTab } = useHome();
+    const { headerVisible, isScrolling, activeTab, setActiveTab } = useHome();
     useEffect(() => { if (initialTab) setActiveTab(initialTab); }, [initialTab, setActiveTab]);
 
     const [showCreateChannel, setShowCreateChannel] = useState(false);
@@ -38,6 +38,7 @@ function HomeInner({ initialTab }: { initialTab?: TabName }) {
     const [headerHeight, setHeaderHeight] = useState(0);
     const anim = useRef(new Animated.Value(1)).current;
     const tabOpacity = useRef(new Animated.Value(1)).current;
+    const tabVisibility = useRef(new Animated.Value(1)).current;
     const previousTab = useRef(activeTab);
 
     // Start the feed request during cold start, alongside the initial Chats
@@ -57,6 +58,15 @@ function HomeInner({ initialTab }: { initialTab?: TabName }) {
             useNativeDriver: true,
         }).start();
     }, [headerVisible, anim]);
+
+    useEffect(() => {
+        Animated.timing(tabVisibility, {
+            toValue: isScrolling ? 0 : 1,
+            duration: isScrolling ? 140 : 180,
+            easing: isScrolling ? Easing.in(Easing.quad) : Easing.out(Easing.cubic),
+            useNativeDriver: true,
+        }).start();
+    }, [isScrolling, tabVisibility]);
 
     useEffect(() => {
         if (previousTab.current === activeTab) return;
@@ -126,14 +136,14 @@ function HomeInner({ initialTab }: { initialTab?: TabName }) {
                 </Animated.View>
 
                 <Animated.View
-                    pointerEvents={headerVisible ? 'box-none' : 'none'}
+                    pointerEvents={isScrolling ? 'none' : 'box-none'}
                     style={[
                         StyleSheet.absoluteFillObject,
                         {
                             zIndex: 30,
                             elevation: 30,
-                            opacity: anim,
-                            transform: [{ translateY: anim.interpolate({
+                            opacity: tabVisibility,
+                            transform: [{ translateY: tabVisibility.interpolate({
                                 inputRange: [0, 1],
                                 outputRange: [TAB_BAR_HIDE_OFFSET, 0],
                             }) }],
