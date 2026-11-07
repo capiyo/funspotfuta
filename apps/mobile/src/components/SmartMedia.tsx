@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Pressable, Text } from 'react-native';
 import { Video, ResizeMode, type AVPlaybackStatus } from 'expo-av';
 import { Play } from 'lucide-react-native';
 import { useFanColors } from '@/theme/use-fan-colors';
@@ -24,6 +24,7 @@ export function SmartMedia({
 }) {
     const colors = useFanColors();
     const [videoFailed, setVideoFailed] = useState(false);
+    const [videoAttempt, setVideoAttempt] = useState(0);
     const [videoReady, setVideoReady] = useState(false);
     const [playing, setPlaying] = useState(false);
     const [measuredVideoRatio, setMeasuredVideoRatio] = useState<number | null>(null);
@@ -38,6 +39,7 @@ export function SmartMedia({
             <View style={[styles.videoFrame, { aspectRatio: videoRatio }]}>
                 {!videoFailed ? (
                     <Video
+                        key={videoAttempt}
                         source={{ uri: videoUrl }}
                         style={styles.video}
                         posterSource={videoThumbnailUrl ? { uri: videoThumbnailUrl } : undefined}
@@ -71,6 +73,19 @@ export function SmartMedia({
                                 accessibilityLabel="Video thumbnail"
                             />
                         ) : null}
+                        <Pressable
+                            onPress={() => {
+                                setVideoFailed(false);
+                                setVideoReady(false);
+                                setVideoAttempt((current) => current + 1);
+                            }}
+                            accessibilityRole="button"
+                            accessibilityLabel="Retry loading video"
+                            style={[styles.retryVideo, { backgroundColor: colors.surface }]}
+                        >
+                            <Play size={16} color={colors.textPrimary} fill={colors.textPrimary} />
+                            <Text style={{ color: colors.textPrimary, fontSize: 11, fontWeight: '700' }}>Retry video</Text>
+                        </Pressable>
                     </View>
                 )}
                 {!videoReady && !videoFailed && !playing && (
@@ -115,6 +130,17 @@ const styles = StyleSheet.create({
         height: '100%',
         alignItems: 'center',
         justifyContent: 'center',
+    },
+    retryVideo: {
+        position: 'absolute',
+        bottom: 8,
+        alignSelf: 'center',
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+        borderRadius: 18,
+        paddingHorizontal: 12,
+        paddingVertical: 7,
     },
     playBadge: {
         position: 'absolute',
