@@ -66,7 +66,7 @@ const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'https://clash-api-m5mr.o
 const UPLOADING = 'uploading...';
 const TYPING_THROTTLE_MS = 1500;
 
-interface WebImageAsset { uri: string; name?: string; type?: string; width?: number; height?: number; }
+interface WebImageAsset { uri: string; name?: string; type?: string; width?: number; height?: number; file?: File; }
 type RouteParams = { channelId?: string };
 
 function formatMinute(timeElapsed: number): string {
@@ -428,7 +428,7 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       return;
     }
     const uri = URL.createObjectURL(file);
-    setPendingImage({ uri, name: file.name || `image-${Date.now()}.jpg`, type: file.type || 'image/jpeg', width: undefined, height: undefined });
+    setPendingImage({ uri, name: file.name || `image-${Date.now()}.jpg`, type: file.type || 'image/jpeg', width: undefined, height: undefined, file });
     setCaption('');
     input.value = '';
   }
