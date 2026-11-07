@@ -34,6 +34,7 @@ export const PostImage = memo(function PostImage({
 }) {
     const [boxW, setBoxW] = useState(0);
     const [failedUri, setFailedUri] = useState<string | null>(null);
+    const [attempt, setAttempt] = useState(0);
     const [loaded, setLoaded] = useState<Size | null>(null);
     const failed = failedUri === uri;
     const natural: Size | null =
@@ -57,7 +58,17 @@ export const PostImage = memo(function PostImage({
             style={[styles.frame, frameBase, failed ? styles.failedFrame : null]}
         >
             {failed ? (
-                <ImageOff size={ICON.md} color={colors.textTertiary} />
+                <Pressable
+                    onPress={() => {
+                        setFailedUri(null);
+                        setAttempt((current) => current + 1);
+                    }}
+                    accessibilityRole="button"
+                    accessibilityLabel="Retry loading image"
+                    style={styles.retry}
+                >
+                    <ImageOff size={ICON.md} color={colors.textTertiary} />
+                </Pressable>
             ) : (
                 <>
                     {natural && boxW && natural.w / natural.h < FRAME_RATIO && (
@@ -72,6 +83,7 @@ export const PostImage = memo(function PostImage({
                         />
                     )}
                     <Image
+                        key={attempt}
                         source={{ uri }}
                         style={StyleSheet.absoluteFill}
                         contentFit="contain"
@@ -116,6 +128,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     failedFrame: { backgroundColor: '#20252b' },
+    retry: { ...StyleSheet.absoluteFillObject, alignItems: 'center', justifyContent: 'center' },
     blurBackdrop: { opacity: 0.35 },
     overlay: {
         ...StyleSheet.absoluteFillObject,
