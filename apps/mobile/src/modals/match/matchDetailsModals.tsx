@@ -335,13 +335,18 @@ export function MatchDetailsModal({
                         },
                     ]}
                 >
-                    {/* Compact top rail keeps the pitch dominant and provides an explicit close action. */}
-                    <View style={styles.topRail}>
-                        <View style={[styles.handle, { backgroundColor: colors.borderActive }]} />
-                        <Pressable onPress={onClose} accessibilityRole="button" accessibilityLabel="Close match details" style={styles.closeButton}>
+                    {activeTab !== 'lineups' ? (
+                        <View style={styles.topRail}>
+                            <View style={[styles.handle, { backgroundColor: colors.borderActive }]} />
+                            <Pressable onPress={onClose} accessibilityRole="button" accessibilityLabel="Close match details" style={styles.closeButton}>
+                                <X size={19} color={colors.textSecondary} />
+                            </Pressable>
+                        </View>
+                    ) : (
+                        <Pressable onPress={onClose} accessibilityRole="button" accessibilityLabel="Close match details" style={[styles.closeButton, { position: 'absolute', top: 8, right: 10, zIndex: 10 }]}>
                             <X size={19} color={colors.textSecondary} />
                         </Pressable>
-                    </View>
+                    )}
 
                     {/* Keep match metadata out of the pitch-first lineup view. */}
                     {activeTab !== 'lineups' ? <View style={styles.header}>
@@ -410,7 +415,7 @@ export function MatchDetailsModal({
                     </View> : null}
 
                     {/* Conditional tab bar */}
-                    <View style={styles.tabBar}>
+                    {hasStats ? <View style={styles.tabBar}>
                             <Pressable
                                 style={styles.tab}
                                 onPress={() => setActiveTab('lineups')}
@@ -467,7 +472,7 @@ export function MatchDetailsModal({
                                     <View style={styles.tabIndicatorEmpty} />
                                 )}
                             </Pressable>
-                    </View>
+                    </View> : null}
 
                     {/* Content */}
                     <View
