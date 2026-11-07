@@ -9,9 +9,9 @@ export interface PlayerHeadshotCacheStore {
   setItem(key: string, value: string): Promise<void>;
 }
 
-const CDN = 'https://imagecache.365scores.com/image/upload/f_png,w_160,h_160,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/Athletes/';
+const CDN = 'https://imagecache.365scores.com/image/upload/f_png,w_160,h_160,c_limit,q_auto:eco,dpr_2,d_Athletes:default.png,r_max,c_thumb,g_face,z_0.65/';
 const memoryCache = new Map<string, string>();
-const CACHE_PREFIX = 'funspot:player-headshot:365:v1:';
+const CACHE_PREFIX = 'funspot:player-headshot:365:v2:';
 const TTL = 30 * 24 * 60 * 60 * 1000;
 
 function normalize(value: string): string {
@@ -22,7 +22,10 @@ function normalize(value: string): string {
 function athleteUrl(player: SimplifiedPlayer): string | null {
   if (typeof player.photoUrl === 'string' && player.photoUrl.startsWith('https://imagecache.365scores.com/')) return player.photoUrl;
   const id = Number(player.providerId);
-  return Number.isSafeInteger(id) && id > 0 ? CDN + id : null;
+  if (!Number.isSafeInteger(id) || id <= 0) return null;
+  const rawVersion = player.imageVersion?.trim();
+  const version = rawVersion && /^\\d+$/.test(rawVersion) ? `v${rawVersion}/` : '';
+  return `${CDN}${version}Athletes/${id}`;
 }
 
 function browserCache(): PlayerHeadshotCacheStore | undefined {
@@ -70,5 +73,8 @@ export async function resolvePlayerHeadshots(
 }
 
 export function playerHeadshotKey(player: SimplifiedPlayer, teamName: string): string {
-  return `${normalize(teamName)}:${normalize(player.name)}:${player.number}`;
+  const athleteId = player.providerId?.trim();
+  return athleteId
+    ? `athlete:${athleteId}:${player.imageVersion ?? 'unversioned'}`
+    : `${normalize(teamName)}:${normalize(player.name)}:${player.number}`;
 }
