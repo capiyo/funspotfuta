@@ -104,6 +104,7 @@ type HomeCtx = {
     setActiveTab: (tab: TabName) => void;
 
     headerVisible: boolean;
+    isScrolling: boolean;
     /** Legacy entry point; prefer spreading `scrollProps` onto the list. */
     reportScroll: (offsetY: number) => void;
     scrollProps: HomeScrollProps;
@@ -134,6 +135,7 @@ const Ctx = createContext<HomeCtx>({
     activeTab: 'Chats',
     setActiveTab: () => { },
     headerVisible: true,
+    isScrolling: false,
     reportScroll: () => { },
     scrollProps: noopScrollProps,
     resetHeaderOnTabChange: () => { },
@@ -257,6 +259,7 @@ export function HomeProvider({ children }: { children: ReactNode }) {
 
     // ── header/chip-row visibility, driven by USER scrolling ─────
     const [headerVisible, setHeaderVisible] = useState(true);
+    const [isScrolling, setIsScrolling] = useState(false);
     const lastScrollY = useRef(0);
     const dragging = useRef(false);
     const momentum = useRef(false);
@@ -296,6 +299,7 @@ export function HomeProvider({ children }: { children: ReactNode }) {
         dragging.current = false;
         momentum.current = false;
         setHeaderVisible(true);
+        setIsScrolling(false);
     }, []);
 
     // ── active tab (persisted) ───────────────────────────────────
@@ -316,17 +320,21 @@ export function HomeProvider({ children }: { children: ReactNode }) {
             onScrollBeginDrag: (e) => {
                 gestureAware.current = true;
                 dragging.current = true;
+                setIsScrolling(true);
                 lastScrollY.current = Math.max(0, e.nativeEvent.contentOffset.y);
             },
             onScrollEndDrag: () => {
                 dragging.current = false;
+                setIsScrolling(false);
                 if (lastDirection.current === 'up') setHeaderVisible(true);
             },
             onMomentumScrollBegin: () => {
                 momentum.current = true;
+                setIsScrolling(true);
             },
             onMomentumScrollEnd: () => {
                 momentum.current = false;
+                setIsScrolling(false);
                 if (lastDirection.current === 'up') setHeaderVisible(true);
             },
             scrollEventThrottle: 16,
@@ -353,6 +361,7 @@ export function HomeProvider({ children }: { children: ReactNode }) {
             activeTab,
             setActiveTab,
             headerVisible,
+            isScrolling,
             reportScroll,
             scrollProps,
             resetHeaderOnTabChange,
@@ -372,6 +381,7 @@ export function HomeProvider({ children }: { children: ReactNode }) {
             activeTab,
             setActiveTab,
             headerVisible,
+            isScrolling,
             reportScroll,
             scrollProps,
             resetHeaderOnTabChange,
