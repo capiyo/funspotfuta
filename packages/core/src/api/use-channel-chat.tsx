@@ -1042,7 +1042,7 @@ function commentaryIdentity(entry: Record<string, unknown>): string {
             ? (dateValue as Record<string, unknown>).$numberLong
             : dateValue;
         if (typeof nestedValue === 'string' || typeof nestedValue === 'number') {
-            const parsed = new Date(typeof nestedValue === 'string' && /^\\d+$/.test(nestedValue)
+            const parsed = new Date(typeof nestedValue === 'string' && /^\d+$/.test(nestedValue)
                 ? Number(nestedValue)
                 : nestedValue).getTime();
             if (Number.isFinite(parsed)) timestampIdentity = String(parsed);
