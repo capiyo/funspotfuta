@@ -16,14 +16,13 @@ import { AppState, type AppStateStatus } from 'react-native';
 import NetInfo from '@react-native-community/netinfo';
 import { focusManager, onlineManager, hydrate } from '@tanstack/react-query';
 import {
-    PersistQueryClientProvider,
     persistQueryClientSave,
+    persistQueryClientSubscribe,
 } from '@tanstack/react-query-persist-client';
 import {
     createAppQueryClient,
     PERSIST_OPTIONS,
     deserializePersistedClient,
-    getAllFixtures,
     feedQueryOptions,
 } from '@funspot/core';
 import { mobileCache, mobileStorage, mobileStorageReady } from '@funspot/storage';
@@ -70,11 +69,6 @@ const BACKGROUND_REFRESH_MS = 5 * 60 * 1000;
 function prefetchStartupData() {
     // Refresh the persisted snapshots, not just mounted screens. These queries
     // are cache-first at startup, then quietly refreshed while the app is active.
-    void queryClient.prefetchQuery({
-        queryKey: ['fixtures'],
-        queryFn: getAllFixtures,
-        staleTime: 60_000,
-    });
     void queryClient.prefetchInfiniteQuery(feedQueryOptions());
 }
 
@@ -90,17 +84,35 @@ export function QueryProvider({
     onReady?: () => void;
 }) {
     const restored = useRef(false);
+    const persistenceUnsubscribe = useRef<(() => void) | null>(null);
     const [storageReady, setStorageReady] = useState(false);
 
     useEffect(() => {
         let active = true;
         void mobileStorageReady.then(() => {
             if (!active) return;
+            // Restore from synchronous encrypted MMKV before mounting screens.
+            // Subscribe directly instead of mounting PersistQueryClientProvider,
+            // which would perform a second async restore and hold the whole app
+            // behind it even though the same snapshot is already hydrated.
             hydrateFromSynchronousAppCache();
+            persistenceUnsubscribe.current = persistQueryClientSubscribe({
+                queryClient,
+                persister,
+                ...PERSIST_OPTIONS,
+            });
+            restored.current = true;
+            prefetchStartupData();
+            onReady?.();
             setStorageReady(true);
         });
-        return () => { active = false; };
-    }, []);
+        return () => {
+            active = false;
+            restored.current = false;
+            persistenceUnsubscribe.current?.();
+            persistenceUnsubscribe.current = null;
+        };
+    }, [onReady]);
 
     useEffect(() => {
         onlineManager.setEventListener((setOnline) => NetInfo.addEventListener((state) => {
@@ -151,23 +163,5 @@ export function QueryProvider({
 
     if (!storageReady) return null;
 
-    return (
-        <PersistQueryClientProvider
-            client={queryClient}
-            persistOptions={persistOptions}
-            onSuccess={() => {
-                restored.current = true;
-                prefetchStartupData();
-                onReady?.();
-            }}
-            onError={() => {
-                // Restore failed (corrupt snapshot etc.): carry on with an empty cache.
-                restored.current = true;
-                prefetchStartupData();
-                onReady?.();
-            }}
-        >
-            {children}
-        </PersistQueryClientProvider>
-    );
+    return <>{children}</>;
 }
