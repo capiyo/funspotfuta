@@ -1,42 +1,20 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
-import { BrowserRouter } from 'react-router-dom';
-import { QueryClient } from '@tanstack/react-query';
-import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
-import { PERSIST_OPTIONS } from '@funspot/core';
-import App from './App';
-import { indexedDbQueryPersister } from './lib/query-persistence';
+import { hydrateRoot } from 'react-dom/client';
+import PublicHome, { NotFoundPage } from './screens/PublicHome';
 import './styles.css';
 
-const DAY = 24 * 60 * 60 * 1000;
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: 3,
-      retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 8000),
-      refetchOnMount: true,
-      refetchOnWindowFocus: true,
-      refetchOnReconnect: true,
-      staleTime: 5 * 60 * 1000,
-      gcTime: DAY,
-      networkMode: 'offlineFirst',
-      placeholderData: (previousData: unknown) => previousData,
-    },
-    mutations: { networkMode: 'offlineFirst' },
-  },
-});
+const root = document.getElementById('root');
 
-createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <PersistQueryClientProvider
-      client={queryClient}
-      persistOptions={{
-        persister: indexedDbQueryPersister,
-        maxAge: DAY,
-        ...PERSIST_OPTIONS,
-      }}
-    >
-      <BrowserRouter><App /></BrowserRouter>
-    </PersistQueryClientProvider>
-  </React.StrictMode>,
-);
+if (!root) {
+  throw new Error('Funspot root element is missing.');
+}
+
+const renderMode = root.dataset.renderMode;
+
+if (renderMode === 'public') {
+  hydrateRoot(root, <React.StrictMode><PublicHome /></React.StrictMode>);
+} else if (renderMode === 'not-found') {
+  hydrateRoot(root, <React.StrictMode><NotFoundPage /></React.StrictMode>);
+} else if (renderMode === 'app' || import.meta.env.DEV) {
+  void import('./bootstrap-app').then(({ mountApp }) => mountApp(root));
+}

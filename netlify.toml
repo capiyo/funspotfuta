@@ -12,48 +12,51 @@
   status = 301
   force = true
 
-# The root homepage is routed through the function, which serves the same app shell to every request.
+# Keep the interactive application under /app so the root can be server-rendered.
+[[redirects]]
+  from = "/app"
+  to = "/app/"
+  status = 301
+  force = true
+
+# Preserve legacy deep links while moving the client application under /app.
+[[redirects]]
+  from = "/messages"
+  to = "/app/messages"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/messages/*"
+  to = "/app/messages/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/comments/*"
+  to = "/app/comments/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/login"
+  to = "/app/login"
+  status = 301
+  force = true
+
+# The public homepage is rendered by React on the server.
 [[redirects]]
   from = "/"
   to = "/.netlify/functions/ssr?path=/"
   status = 200
   force = true
 
-# Client application routes use the same HTML shell, without public-home content.
-[[redirects]]
-  from = "/messages"
-  to = "/.netlify/functions/ssr?path=/messages"
-  status = 200
-  force = true
-
-[[redirects]]
-  from = "/messages/*"
-  to = "/.netlify/functions/ssr?path=/messages/:splat"
-  status = 200
-  force = true
-
-[[redirects]]
-  from = "/comments/*"
-  to = "/.netlify/functions/ssr?path=/comments/:splat"
-  status = 200
-  force = true
-
-[[redirects]]
-  from = "/login"
-  to = "/.netlify/functions/ssr?path=/login"
-  status = 200
-  force = true
-
+# Existing public documents and assets are served normally; all other routes
+# are resolved by the SSR function, which returns a real 404 when appropriate.
 [[redirects]]
   from = "/*"
   to = "/.netlify/functions/ssr?path=/:splat"
   status = 200
-  force = false
-
-[[redirects]]
-  from = "/*"
-  to = "/404.html"
-  status = 404
   force = false
 
 [functions]
