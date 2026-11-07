@@ -999,6 +999,8 @@ function MessageBubble({ colors, message, isMe, onLongPress, onImagePress, onRet
   const failed = isFailed(message);
   const hasImage = !!message.imageUrl && !uploading;
   const hasVideo = !!message.videoUrl && !uploading && !message.imageUrl;
+  const [mediaFailed, setMediaFailed] = useState(false);
+  const [mediaAttempt, setMediaAttempt] = useState(0);
   const bubbleBackground = failed ? dimColor(colors.away) : commentary ? dimColor(colors.draw) : mine ? colors.primaryDim : colors.surface;
   if (commentary) {
     const minuteLabel = message.username.match(/•\\s*(.+)$/)?.[1] ?? 'LIVE';
@@ -1062,22 +1064,33 @@ function MessageBubble({ colors, message, isMe, onLongPress, onImagePress, onRet
       className="h-5 w-5 animate-spin rounded-full border-2 border-current border-r-transparent"
       style={{ color: colors.primary }}/>
 </div>}
-          {hasImage && <button
+          {hasImage && !mediaFailed && <button
       type="button"
       onClick={() => onImagePress(message.imageUrl as string)}
-      className="block">
+      className="mb-2 block max-w-full">
 <img
+      key={mediaAttempt}
       src={message.imageUrl as string}
       alt="Message attachment"
-      className="mb-2 max-h-64 w-full rounded-xl object-cover"/>
+      loading="lazy"
+      decoding="async"
+      onError={() => setMediaFailed(true)}
+      className="max-h-64 max-w-full rounded-xl object-contain"/>
 </button>}
-          {hasVideo && <div
-      className="flex h-36 w-56 items-center justify-center rounded-xl"
-      style={{ background: colors.surfaceSunken }}>
-<span
-      className="text-xs"
-      style={{ color: colors.textTertiary }}>🎥 Video</span>
-</div>}
+          {hasVideo && !mediaFailed && <video
+      key={mediaAttempt}
+      src={message.videoUrl as string}
+      poster={message.videoThumbnailUrl ?? undefined}
+      controls
+      playsInline
+      preload="metadata"
+      onError={() => setMediaFailed(true)}
+      className="mb-2 max-h-80 max-w-full rounded-xl bg-transparent"/>}
+          {(mediaFailed || ((hasImage || hasVideo) && mediaFailed)) && <button
+      type="button"
+      onClick={() => { setMediaFailed(false); setMediaAttempt((attempt) => attempt + 1); }}
+      className="mb-2 rounded-full px-3 py-2 text-xs"
+      style={{ background: colors.surfaceSunken, color: colors.textSecondary }}>Media failed to load · Retry</button>}
           {!!message.text && <p
       className={`whitespace-pre-wrap break-words text-[14px] leading-[20px] ${commentary ? 'italic' : ''}`}>{message.text.split(/(@[A-Za-z0-9_.-]+)/g).map((part, index) => part.startsWith('@') ? <span key={index} style={{ color: colors.primary, fontWeight: 700 }}>{part}</span> : part)}</p>}
           <div
