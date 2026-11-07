@@ -1,30 +1,16 @@
-// lib/auth/login-modal-context.tsx
-//
-// Global login gate — mirrors main.dart's _onAuthStateChanged flow:
-//   - logged out (and auth has finished initializing) -> check notification
-//     permission -> if missing, block with a gate (caller must grant) ->
-//     then auto-open LoginModal
-//   - any screen can also call `requireLogin(after?)` on-demand:
-//       - already logged in -> runs `after` immediately, returns true
-//       - not logged in -> opens LoginModal, remembers `after`, returns false
-//   - after a successful login, the remembered action re-runs; the
-//     authenticated NotificationRuntime owns FCM token registration and
-//     token-refresh handling centrally
-//
-// LoginModal is mounted once, here, so it can render over any screen.
+// Global, user-initiated login modal. The app remains usable as a guest;
+// screens open this modal only when the user taps a login button or requests
+// an action that requires authentication.
 import {
     createContext,
     useCallback,
     useContext,
-    useEffect,
     useRef,
     useState,
     ReactNode,
 } from 'react';
 import LoginModal from '@/modals/LoginModal';
-import NotificationGate from '@/modals/NotificationGate';
 import { useAuth } from '@/lib/auth/auth-context';
-import { hasNotificationPermission, requestNotificationPermission } from '@/lib/firebase';
 
 type LoginModalCtx = {
     requireLogin: (after?: () => void) => boolean;
@@ -35,13 +21,11 @@ const Ctx = createContext<LoginModalCtx>({
 });
 
 export function LoginModalProvider({ children }: { children: ReactNode }) {
-    const { isLoggedIn, isInitialized } = useAuth();
+    const { isLoggedIn } = useAuth();
     const [open, setOpen] = useState(false);
-    const [gated, setGated] = useState(false); // true while waiting on notification permission
     const pending = useRef<(() => void) | undefined>(undefined);
-    const autoPromptedRef = useRef(false); // avoid re-triggering the gate every render
 
-    // ── On-demand gate (called by screens) ─────────────────────
+    // Called only from an explicit user action.
     const requireLogin = useCallback(
         (after?: () => void): boolean => {
             if (isLoggedIn) {
@@ -55,55 +39,11 @@ export function LoginModalProvider({ children }: { children: ReactNode }) {
         [isLoggedIn],
     );
 
-    // ── Auto-open on logout, gated behind notification permission ──
-    // Mirrors _onAuthStateChanged -> _showLoginModalAsOverlay in main.dart.
-    useEffect(() => {
-        if (!isInitialized) return; // wait for AsyncStorage hydration
-        if (isLoggedIn) {
-            autoPromptedRef.current = false;
-            setGated(false);
-            return;
-        }
-        if (open || autoPromptedRef.current) return;
-
-        autoPromptedRef.current = true;
-
-        (async () => {
-            // Check the OS permission state first; requesting an already
-            // granted permission on every cold launch is unnecessary.
-            const alreadyGranted = await hasNotificationPermission();
-            if (alreadyGranted) {
-                setGated(false);
-                setOpen(true);
-                return;
-            }
-            const granted = await requestNotificationPermission();
-            if (granted) {
-                setOpen(true);
-            } else {
-                setGated(true);
-            }
-        })();
-    }, [isLoggedIn, isInitialized, open]);
-
-    async function handleRetryPermission() {
-        const granted = await requestNotificationPermission();
-        if (!granted) {
-            throw new Error('Notifications are still disabled. Enable them in your device settings, then try again.');
-        }
-        setGated(false);
-        setOpen(true);
-    }
-
-    // ── Post-login: the global NotificationRuntime owns token registration
-    // and token-refresh handling, avoiding a second independent registration.
     function handleSuccess() {
         setOpen(false);
-        setGated(false);
-
         const fn = pending.current;
         pending.current = undefined;
-        // defer so state settles before the action runs
+        // Defer until the authenticated state has settled.
         if (fn) setTimeout(fn, 0);
     }
 
@@ -116,7 +56,6 @@ export function LoginModalProvider({ children }: { children: ReactNode }) {
         <Ctx.Provider value={{ requireLogin }}>
             {children}
             <LoginModal visible={open} onClose={handleClose} onSuccess={handleSuccess} />
-            <NotificationGate visible={gated} onRetry={handleRetryPermission} />
         </Ctx.Provider>
     );
 }
