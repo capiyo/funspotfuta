@@ -118,15 +118,6 @@ export function LineupsTab({
 
     return (
         <View style={{ flex: 1 }} onLayout={onLayout}>
-            {hasBench ? (
-                <View style={styles.compactBenchRow}>
-                    <Pressable onPress={() => setShowBench((v) => !v)} style={[styles.benchToggle, { backgroundColor: showBench ? colors.primary : 'transparent', borderColor: showBench ? colors.primary : colors.borderActive }]}>
-                        {showBench ? <X size={15} color="#FFFFFF" /> : <ArrowLeftRight size={15} color={colors.textSecondary} />}
-                        <Text style={[styles.benchToggleText, { color: showBench ? '#FFFFFF' : colors.textSecondary }]}>{showBench ? 'Hide bench' : 'Show bench'}</Text>
-                    </Pressable>
-                </View>
-            ) : null}
-
             {/* Bench animated drawer — mirrors Flutter's SizeTransition
           (sizeFactor driven by _benchAnimation, axisAlignment -1) */}
             <Animated.View
@@ -267,7 +258,7 @@ const styles = StyleSheet.create({
         justifyContent: 'flex-start',
         paddingLeft: FAN_SPACING.base,
         paddingRight: FAN_SPACING.base,
-        paddingTop: FAN_SPACING.sm,
+        paddingTop: 0,
         paddingBottom: FAN_SPACING.base,
     },
 });
