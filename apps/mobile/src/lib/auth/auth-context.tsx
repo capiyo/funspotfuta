@@ -208,11 +208,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isLoggedIn: true, isInitialized: true, userId, username,
         phone: opts?.phone ?? null, authToken, refreshToken: opts?.refreshToken ?? null,
       };
-      writeSessionSnapshot(nextState);
       if (state.userId !== userId) {
+        writeSessionSnapshot({ ...initialState, isInitialized: true });
         setState({ ...initialState, isInitialized: true });
         await Promise.all([clearMobileQueryCache(), clearNotificationStorage()]);
       }
+      writeSessionSnapshot(nextState);
       await AsyncStorage.multiRemove(LOGOUT_KEYS);
       setState(nextState);
       return true;
