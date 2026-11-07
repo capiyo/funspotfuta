@@ -4588,3 +4588,19 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visib
     clip-path: inset(0 round 28px);
   }
 }
+
+
+/* Modal typography follows the ChatCard typeface: DM Sans for all readable
+   UI text. Scores/headline treatments can still opt into Saira Condensed
+   through the shared FAN_TYPOGRAPHY roles. Keep form controls consistent. */
+:where([role="dialog"], .action-modal-sheet, .leaderboard-modal-sheet) {
+  font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  font-synthesis: none;
+}
+:where([role="dialog"], .action-modal-sheet, .leaderboard-modal-sheet) * {
+  font-family: inherit;
+}
+:where([role="dialog"], .action-modal-sheet, .leaderboard-modal-sheet)
+  :is(button, input, select, textarea) {
+  font: inherit;
+}
