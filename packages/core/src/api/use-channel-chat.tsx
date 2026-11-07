@@ -404,6 +404,7 @@ export function useChannelChat({
                             createdAt: parseCommentaryTimestamp(
                                 entry.createdAt ?? entry.created_at ?? entry.timestamp,
                             ),
+                            identity: commentaryIdentity(entry),
                             seq: nextSeq(),
                         }),
                     );
@@ -609,7 +610,8 @@ export function useChannelChat({
                     minute: data.minute ?? 0,
                     text: data.text ?? '',
                     type: data.type ?? 'update',
-                    createdAt: parseCommentaryTimestamp(data.createdAt ?? data.created_at),
+                    createdAt: parseCommentaryTimestamp(data.createdAt ?? data.created_at ?? data.timestamp),
+                    identity: commentaryIdentity(data),
                     seq: nextSeq(),
                 }),
             );
@@ -628,7 +630,8 @@ export function useChannelChat({
                         minute: raw.minute ?? 0,
                         text: raw.text ?? '',
                         type: raw.type ?? 'update',
-                        createdAt: parseCommentaryTimestamp(raw.createdAt ?? raw.created_at),
+                        createdAt: parseCommentaryTimestamp(raw.createdAt ?? raw.created_at ?? raw.timestamp),
+                        identity: commentaryIdentity(raw),
                         seq: nextSeq(),
                     }),
                 );
@@ -1023,6 +1026,38 @@ export function useChannelChat({
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────
+
+function commentaryIdentity(entry: Record<string, unknown>): string {
+    const explicitId = entry.id ?? entry._id ?? entry.commentaryId ?? entry.commentary_id ?? entry.eventId ?? entry.event_id;
+    if (explicitId != null && String(explicitId).trim()) return `server:${String(explicitId)}`;
+
+    const rawTimestamp = entry.createdAt ?? entry.created_at ?? entry.timestamp;
+    let timestampIdentity = '';
+    if (typeof rawTimestamp === 'string' || typeof rawTimestamp === 'number') {
+        const parsed = new Date(rawTimestamp).getTime();
+        if (Number.isFinite(parsed)) timestampIdentity = String(parsed);
+    } else if (rawTimestamp && typeof rawTimestamp === 'object') {
+        const dateValue = (rawTimestamp as Record<string, unknown>).$date;
+        const nestedValue = dateValue && typeof dateValue === 'object'
+            ? (dateValue as Record<string, unknown>).$numberLong
+            : dateValue;
+        if (typeof nestedValue === 'string' || typeof nestedValue === 'number') {
+            const parsed = new Date(typeof nestedValue === 'string' && /^\\d+$/.test(nestedValue)
+                ? Number(nestedValue)
+                : nestedValue).getTime();
+            if (Number.isFinite(parsed)) timestampIdentity = String(parsed);
+        }
+    }
+
+    const minute = String(entry.minute ?? 0);
+    const type = String(entry.type ?? 'update');
+    const text = String(entry.text ?? '').trim();
+    // A missing timestamp must not become Date.now(): that would assign a
+    // different ID to the same event on every poll or screen mount.
+    return timestampIdentity
+        ? `time:${timestampIdentity}:${minute}:${type}:${text}`
+        : `event:${minute}:${type}:${text}`;
+}
 
 function parseCommentaryTimestamp(raw: any): Date {
     if (raw == null) return new Date();
