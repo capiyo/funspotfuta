@@ -143,23 +143,25 @@ export function MatchDetailsModal({ visible, fixture, authToken, onClose }: Matc
       >
         <div className="flex justify-center py-2"><span className="h-1 w-10 rounded-full bg-fan-borderActive" /></div>
 
-        <div className="flex items-start gap-2 px-3 pb-3">
-          <div className="flex flex-1 flex-col items-center">
-            <span className="line-clamp-2 text-center text-fan-title text-fan-textPrimary">{fixture.homeTeam}</span>
-            {isLive && <span className="mt-1 rounded-fan-pill bg-fan-live px-1.5 py-px text-[8px] font-bold text-white">LIVE</span>}
+        {activeTab !== 'lineups' && (
+          <div className="flex items-start gap-2 px-3 pb-3">
+            <div className="flex flex-1 flex-col items-center">
+              <span className="line-clamp-2 text-center text-fan-title text-fan-textPrimary">{fixture.homeTeam}</span>
+              {isLive && <span className="mt-1 rounded-fan-pill bg-fan-live px-1.5 py-px text-[8px] font-bold text-white">LIVE</span>}
+            </div>
+            <div className="rounded-full bg-transparent px-3 py-1">
+              <span className="font-condensed text-fan-scoreHero text-fan-textPrimary">{fixture.homeScore ?? 0} - {fixture.awayScore ?? 0}</span>
+            </div>
+            <div className="flex flex-1 flex-col items-center">
+              <span className="line-clamp-2 text-center text-fan-title text-fan-textPrimary">{fixture.awayTeam}</span>
+              {fixture.date && <span className="mt-1 text-fan-caption text-fan-textSecondary">{formatTime(fixture.date)}</span>}
+            </div>
           </div>
-          <div className="rounded-full bg-transparent px-3 py-1">
-            <span className="font-condensed text-fan-scoreHero text-fan-textPrimary">{fixture.homeScore ?? 0} - {fixture.awayScore ?? 0}</span>
-          </div>
-          <div className="flex flex-1 flex-col items-center">
-            <span className="line-clamp-2 text-center text-fan-title text-fan-textPrimary">{fixture.awayTeam}</span>
-            {fixture.date && <span className="mt-1 text-fan-caption text-fan-textSecondary">{formatTime(fixture.date)}</span>}
-          </div>
-        </div>
+        )}
 
         {hasStats && <div className="flex border-b border-fan-border">{tab('lineups', 'LINEUPS')}{tab('stats', 'STATS')}</div>}
 
-        <div className="flex-1 overflow-y-auto">
+        <div className="min-h-0 flex-1 overflow-hidden">
           {activeTab === 'lineups' || !hasStats ? (
             <LineupsTab fixture={fixture} lineups={lineups} loading={loadingLineups} error={lineupsError} />
           ) : statistics ? (
