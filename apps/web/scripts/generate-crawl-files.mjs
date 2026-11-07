@@ -8,7 +8,7 @@ const repoDir = path.resolve(webDir, '../..');
 const distDir = path.join(webDir, 'dist');
 const ssrEntry = path.join(webDir, 'dist-ssr', 'entry-server.js');
 const origin = 'https://www.funspot.co.ke';
-const pages = ['about.html', 'how-it-works.html', 'contact.html', 'terms.html', 'privacy.html'];
+const pages = ['/about.html', '/how-it-works.html', '/contact.html', '/terms.html', '/privacy.html'];
 
 await mkdir(distDir, { recursive: true });
 await cp(path.join(webDir, 'public'), distDir, { recursive: true, force: true });
@@ -17,14 +17,6 @@ const email = process.env.FUNSPOT_CONTACT_EMAIL?.trim() ?? '';
 if (!isValidContactEmail(email)) {
   throw new Error('[crawl-files] Set FUNSPOT_CONTACT_EMAIL to a valid contact email before building public pages.');
 }
-
-const contactPath = path.join(distDir, 'contact.html');
-let contact = await readFile(contactPath, 'utf8');
-if (!contact.includes('{{FUNSPOT_CONTACT_EMAIL}}')) {
-  throw new Error('[crawl-files] Contact email template token is missing.');
-}
-contact = contact.replaceAll('{{FUNSPOT_CONTACT_EMAIL}}', email);
-await writeFile(contactPath, contact, 'utf8');
 
 const shell = await readFile(path.join(distDir, 'index.html'), 'utf8');
 if (!shell.includes('<div id="root"></div>')) {
@@ -40,8 +32,9 @@ if (shell.includes('pagead/js/adsbygoogle.js')) {
 }
 
 const ssrBundle = await readFile(ssrEntry, 'utf8');
-if (!ssrBundle.trim() || !ssrBundle.includes('renderHome') || !ssrBundle.includes('renderNotFound')) {
-  throw new Error('[crawl-files] The production React SSR bundle is missing its render entry points.');
+if (!ssrBundle.trim() || !ssrBundle.includes('renderHome') || !ssrBundle.includes('renderNotFound') ||
+    !ssrBundle.includes('renderPublicDocument') || !ssrBundle.includes('getPublicDocumentMetadata')) {
+  throw new Error('[crawl-files] The production React SSR bundle is missing a required render entry point.');
 }
 
 const ssrRenderer = await import(pathToFileURL(ssrEntry).href);
@@ -50,19 +43,52 @@ const renderedNotFound = ssrRenderer.renderNotFound();
 if (!renderedHome.includes('<h1') || !renderedHome.includes('Football is better') || renderedHome.includes('<div id="root"></div>')) {
   throw new Error('[crawl-files] React SSR did not produce meaningful homepage HTML.');
 }
-if (!renderedNotFound.includes('This page isn\'t here.')) {
+if (!renderedNotFound.includes("This page isn't here.")) {
   throw new Error('[crawl-files] React SSR did not produce the custom 404 content.');
+}
+for (const page of pages) {
+  const meta = ssrRenderer.getPublicDocumentMetadata(page);
+  const markup = ssrRenderer.renderPublicDocument(page, email);
+  if (!meta || !markup.includes('<h1') || !markup.includes(meta.title.split('|')[0].trim())) {
+    throw new Error('[crawl-files] React SSR did not render public document ' + page + '.');
+  }
+  if (page === '/contact.html' && !markup.includes(email)) {
+    throw new Error('[crawl-files] Contact page did not render the configured contact email.');
+  }
 }
 
 const functionDir = path.join(repoDir, 'netlify', 'functions');
 await mkdir(functionDir, { recursive: true });
-const functionSource = String.raw`import { renderHome, renderNotFound } from "../../apps/web/dist-ssr/entry-server.js";
+const functionSource = String.raw`import { renderHome, renderNotFound, renderPublicDocument, getPublicDocumentMetadata } from "../../apps/web/dist-ssr/entry-server.js";
 const template = __SHELL__;
-function withRoot(mode, content = "") {
+const contactEmail = __CONTACT_EMAIL__;
+const adsScript = '<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4829747375056254" crossorigin="anonymous"></script>';
+
+function withRoot(mode, content = "", attributes = "") {
   const marker = '<div id="root"></div>';
   if (!template.includes(marker)) throw new Error("SSR HTML template is missing #root");
-  return template.replace(marker, '<div id="root" data-render-mode="' + mode + '">' + content + '</div>');
+  return template.replace(marker, '<div id="root" data-render-mode="' + mode + '"' + attributes + '>' + content + '</div>');
 }
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (character) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  })[character]);
+}
+
+function withMetadata(html, metadata) {
+  const jsonLd = '<script type="application/ld+json">' + JSON.stringify(metadata.structuredData) + '</script>';
+  return html
+    .replace(/<title>[\\s\\S]*?<\\/title>/i, '<title>' + escapeHtml(metadata.title) + '</title>')
+    .replace(/<meta name="description" content="[^"]*">/i, '<meta name="description" content="' + escapeHtml(metadata.description) + '">')
+    .replace(/<link rel="canonical" href="[^"]*">/i, '<link rel="canonical" href="' + escapeHtml(metadata.canonical) + '">')
+    .replace(/<meta property="og:url" content="[^"]*">/i, '<meta property="og:url" content="' + escapeHtml(metadata.canonical) + '">')
+    .replace(/<meta property="og:title" content="[^"]*">/i, '<meta property="og:title" content="' + escapeHtml(metadata.title) + '">')
+    .replace(/<meta property="og:description" content="[^"]*">/i, '<meta property="og:description" content="' + escapeHtml(metadata.description) + '">')
+    .replace(/<script type="application\\/ld\\+json">[\\s\\S]*?<\\/script>/i, jsonLd)
+    .replace('</head>', adsScript + '</head>');
+}
+
 const appHtml = withRoot("app");
 
 export default async function handler(request) {
@@ -81,16 +107,32 @@ export default async function handler(request) {
     });
   }
 
+  const publicMetadata = getPublicDocumentMetadata(requestedPath);
+  if (publicMetadata) {
+    const pageMarkup = renderPublicDocument(requestedPath, contactEmail);
+    const attributes = ' data-page-path="' + escapeHtml(requestedPath) + '" data-contact-email="' + escapeHtml(contactEmail) + '"';
+    const html = withMetadata(withRoot("public-document", pageMarkup, attributes), publicMetadata);
+    return new Response(html, {
+      status: 200,
+      headers: {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "public, max-age=0, s-maxage=300, stale-while-revalidate=86400",
+        "x-content-type-options": "nosniff",
+        "x-funspot-render": "react-ssr",
+      },
+    });
+  }
+
   if (requestedPath === "/app") {
     return new Response(null, { status: 301, headers: { location: "/app/" } });
   }
 
-  if (requestedPath === "/app" || requestedPath.startsWith("/app/")) {
+  if (requestedPath.startsWith("/app/")) {
     const appPath = requestedPath.slice("/app".length) || "/";
-    const normalizedAppPath = appPath.length > 1 ? appPath.replace(/\/+$/, "") : "/";
+    const normalizedAppPath = appPath.length > 1 ? appPath.replace(/\\/+$/, "") : "/";
     const validAppRoute = normalizedAppPath === "/" || normalizedAppPath === "/login"
-      || /^\/messages(?:\/[^/]+)?$/.test(normalizedAppPath)
-      || /^\/comments\/[^/]+$/.test(normalizedAppPath);
+      || /^\\/messages(?:\\/[^/]+)?$/.test(normalizedAppPath)
+      || /^\\/comments\\/[^/]+$/.test(normalizedAppPath);
 
     if (validAppRoute) {
       return new Response(appHtml, {
@@ -117,22 +159,8 @@ export default async function handler(request) {
     },
   });
 }
-`.replace('__SHELL__', JSON.stringify(shell));
+`.replace('__SHELL__', JSON.stringify(shell)).replace('__CONTACT_EMAIL__', JSON.stringify(email));
 await writeFile(path.join(functionDir, 'ssr.mjs'), functionSource, 'utf8');
-
-for (const page of pages) {
-  const html = await readFile(path.join(distDir, page), 'utf8');
-  const canonical = origin + '/' + page;
-  for (const [label, ok] of [
-    ['h1', /<h1\b[^>]*>[\s\S]*?<\/h1>/i.test(html)],
-    ['paragraph', /<p\b[^>]*>[\s\S]*?<\/p>/i.test(html)],
-    ['canonical', html.includes('<link rel="canonical" href="' + canonical + '"')],
-    ['og:url', html.includes('<meta property="og:url" content="' + canonical + '"')],
-    ['structured data', html.includes('"url":"' + canonical + '"')],
-  ]) {
-    if (!ok) throw new Error('[crawl-files] ' + page + ' missing ' + label + '.');
-  }
-}
 
 const rules = [
   'User-agent: Mediapartners-Google', 'Allow: /', 'Disallow: /app/', '',
@@ -142,7 +170,7 @@ const rules = [
   'Sitemap: ' + origin + '/sitemap.xml', '',
 ].join('\n');
 await writeFile(path.join(distDir, 'robots.txt'), rules, 'utf8');
-const urls = ['/', ...pages.map((page) => '/' + page)]
+const urls = ['/', ...pages]
   .map((route) => '  <url><loc>' + new URL(route, origin).href + '</loc></url>');
 await writeFile(path.join(distDir, 'sitemap.xml'), [
   '<?xml version="1.0" encoding="UTF-8"?>',
@@ -150,4 +178,4 @@ await writeFile(path.join(distDir, 'sitemap.xml'), [
   ...urls, '</urlset>', '',
 ].join('\n'), 'utf8');
 
-console.info('[crawl-files] Verified the production React SSR entry, public pages, metadata, robots.txt and sitemap.');
+console.info('[crawl-files] Verified React SSR for the homepage, public documents and 404; generated robots.txt and sitemap.');
