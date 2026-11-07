@@ -2,7 +2,7 @@ import * as SecureStore from 'expo-secure-store';
 import { getFcmTokenIfPermitted } from '@/lib/firebase';
 import { NotificationService } from '@/lib/api/notification-service';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { mobileStorage, mobileStorageReady } from '@funspot/storage';
+import { mobileCache, mobileStorage, mobileStorageReady } from '@funspot/storage';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { clearMobileQueryCache } from '../../../QueryProvider';
 
@@ -31,6 +31,7 @@ const initialState: AuthState = {
 };
 const AuthContext = createContext<AuthContextValue | null>(null);
 const SECURE_KEYS = { token: 'auth.usertoken', user: 'auth.user', refresh: 'auth.refreshToken' } as const;
+const SESSION_SNAPSHOT_KEY = 'auth.session.snapshot.v1';
 const SECURE_STORE_OPTIONS = {
   keychainAccessible: SecureStore.AFTER_FIRST_UNLOCK_THIS_DEVICE_ONLY,
 } as const;
@@ -55,6 +56,42 @@ const LOGOUT_KEYS = [
 ];
 
 type StoredUser = { id?: unknown; userId?: unknown; _id?: unknown; username?: unknown; name?: unknown; phone?: unknown };
+
+function writeSessionSnapshot(state: AuthState): void {
+  if (!state.isLoggedIn || !state.authToken || !state.userId) {
+    mobileCache.removeItem(SESSION_SNAPSHOT_KEY);
+    return;
+  }
+  mobileCache.setItem(SESSION_SNAPSHOT_KEY, JSON.stringify({
+    token: state.authToken,
+    refreshToken: state.refreshToken,
+    user: {
+      id: state.userId,
+      username: state.username ?? '',
+      ...(state.phone ? { phone: state.phone } : {}),
+    },
+  }));
+}
+
+function readSessionSnapshot(): AuthState | null {
+  try {
+    const raw = mobileCache.getItem(SESSION_SNAPSHOT_KEY);
+    if (!raw) return null;
+    const snapshot: unknown = JSON.parse(raw);
+    if (!snapshot || typeof snapshot !== 'object') return null;
+    const value = snapshot as { token?: unknown; refreshToken?: unknown; user?: unknown };
+    if (typeof value.token !== 'string' || !value.user || typeof value.user !== 'object') return null;
+    const restored = parseSession(
+      value.token,
+      JSON.stringify(value.user),
+      typeof value.refreshToken === 'string' ? value.refreshToken : null,
+    );
+    return restored.isLoggedIn ? restored : null;
+  } catch {
+    mobileCache.removeItem(SESSION_SNAPSHOT_KEY);
+    return null;
+  }
+}
 
 function parseSession(token: string | null, rawUser: string | null, refreshToken: string | null): AuthState {
   if (!token || !rawUser) return { ...initialState, isInitialized: true };
@@ -88,6 +125,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Wait until the storage layer has migrated any legacy MMKV session
         // into Keychain/Keystore; otherwise both reads could race at startup.
         await mobileStorageReady;
+        const cachedSession = readSessionSnapshot();
+        if (cachedSession && !cancelled) {
+          setState(cachedSession);
+          NotificationService.setActiveUser(cachedSession.userId);
+        }
         let [token, user, refresh] = await Promise.all([
           SecureStore.getItemAsync(SECURE_KEYS.token),
           SecureStore.getItemAsync(SECURE_KEYS.user),
@@ -136,12 +178,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (token && user) await AsyncStorage.multiRemove(LOGOUT_KEYS);
         if (!cancelled) {
           const restored = parseSession(token, user, refresh);
+          writeSessionSnapshot(restored);
           NotificationService.setActiveUser(restored.userId);
           setState(restored);
         }
       } catch (error) {
         if (__DEV__) console.warn('[auth] secure session restore failed', error);
-        if (!cancelled) setState({ ...initialState, isInitialized: true });
+        if (!cancelled) {
+          writeSessionSnapshot({ ...initialState, isInitialized: true });
+          setState({ ...initialState, isInitialized: true });
+        }
       }
     })();
     return () => { cancelled = true; };
@@ -163,14 +209,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await Promise.all([clearMobileQueryCache(), clearNotificationStorage()]);
       }
       await AsyncStorage.multiRemove(LOGOUT_KEYS);
-      setState({
+      const nextState: AuthState = {
         isLoggedIn: true, isInitialized: true, userId, username,
         phone: opts?.phone ?? null, authToken, refreshToken: opts?.refreshToken ?? null,
-      });
+      };
+      writeSessionSnapshot(nextState);
+      setState(nextState);
       return true;
     } catch (error) {
       if (__DEV__) console.warn('[auth] secure session write failed', error);
       await clearSecureSession().catch(() => undefined);
+      writeSessionSnapshot({ ...initialState, isInitialized: true });
       NotificationService.setActiveUser(null);
       setState({ ...initialState, isInitialized: true });
       return false;
@@ -179,6 +228,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(async () => {
     NotificationService.setActiveUser(null);
+    writeSessionSnapshot({ ...initialState, isInitialized: true });
     // Stop foreground listeners and token refresh registration immediately;
     // network cleanup must not keep the authenticated runtime alive.
     setState({ ...initialState, isInitialized: true });
@@ -212,7 +262,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await SecureStore.setItemAsync(SECURE_KEYS.token, newToken, SECURE_STORE_OPTIONS);
       if (newRefreshToken) await SecureStore.setItemAsync(SECURE_KEYS.refresh, newRefreshToken, SECURE_STORE_OPTIONS);
-      setState((current) => ({ ...current, authToken: newToken, refreshToken: newRefreshToken ?? current.refreshToken }));
+      setState((current) => {
+        const next = { ...current, authToken: newToken, refreshToken: newRefreshToken ?? current.refreshToken };
+        writeSessionSnapshot(next);
+        return next;
+      });
       return true;
     } catch {
       return false;
@@ -233,7 +287,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await SecureStore.setItemAsync(SECURE_KEYS.user, JSON.stringify(next), SECURE_STORE_OPTIONS);
       }
       NotificationService.setActiveUser(userId);
-      setState((current) => ({ ...current, userId, username, phone: phone ?? current.phone }));
+      setState((current) => {
+        const next = { ...current, userId, username, phone: phone ?? current.phone };
+        writeSessionSnapshot(next);
+        return next;
+      });
     } catch (error) {
       if (__DEV__) console.warn('[auth] secure user update failed', error);
     }
@@ -246,6 +304,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const clearAllAppData = useCallback(async () => {
     NotificationService.setActiveUser(null);
+    writeSessionSnapshot({ ...initialState, isInitialized: true });
     setState({ ...initialState, isInitialized: true });
     const results = await Promise.allSettled([
       clearMobileQueryCache(),
