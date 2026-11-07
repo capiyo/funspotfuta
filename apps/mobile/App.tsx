@@ -34,7 +34,8 @@ import { LoginModalProvider } from './src/modals/Login-modal-context';
 import { ToastProvider } from '@/lib/toast/toast-context';
 import { QueryProvider } from './QueryProvider';
 import RootNavigator, { type RootStackParamList } from '@/navigation/RootNavigator';
-import { useFanColors, useIsDark } from '@/theme/use-fan-colors';
+import { useFanColors } from '@/theme/use-fan-colors';
+import { FAN_COLORS_DARK } from '@funspot/core';
 import { NotificationService } from '@/lib/api/notification-service';
 import { useToast } from '@/lib/toast/toast-context';
 import { useQueryClient } from '@tanstack/react-query';
@@ -141,7 +142,7 @@ function NotificationRuntime() {
 
 export default function App() {
   const colors = useFanColors();
-  const dark = useIsDark();
+  const dark = colors.background === FAN_COLORS_DARK.background;
   // Font files are bundled locally; load them without making the cached app
   // wait to mount its navigation tree. Text can use fallback fonts briefly.
   useFonts({
