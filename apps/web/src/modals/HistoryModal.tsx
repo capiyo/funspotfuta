@@ -404,7 +404,6 @@ function createStyles(colors: ReturnType<typeof useFanColors>) {
     sheet: {
       maxHeight: '88%',
       marginBottom: 8,
-      marginBottom: 8,
       borderRadius: FAN_RADIUS.xl,
       backgroundColor: colors.background,
       overflow: 'hidden',
