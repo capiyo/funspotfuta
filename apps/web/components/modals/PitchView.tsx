@@ -181,7 +181,7 @@ export function PitchView({
           </div>
         </div>
       )}
-      <div ref={ref} className="relative w-full overflow-hidden rounded-fan-lg" style={{ aspectRatio: String(PITCH_ASPECT_RATIO) }}>
+      <div ref={ref} className="relative max-w-full overflow-hidden rounded-fan-lg" style={{ width: `min(100%, calc((88vh - 110px) * ${PITCH_ASPECT_RATIO}))`, maxHeight: "calc(88vh - 110px)", aspectRatio: String(PITCH_ASPECT_RATIO), flex: "0 1 auto" }}>
         {size.width > 0 && size.height > 0 && (
           <>
             <PitchSvg width={size.width} height={size.height} homeColor={c.primary} awayColor={c.away} />
