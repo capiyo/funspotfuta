@@ -4593,7 +4593,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visib
 /* Modal typography follows the ChatCard typeface: DM Sans for all readable
    UI text. Scores/headline treatments can still opt into Saira Condensed
    through the shared FAN_TYPOGRAPHY roles. Keep form controls consistent. */
-:where([role="dialog"], .action-modal-sheet, .leaderboard-modal-sheet, .weekly-leaderboard-sheet, .profile-modal-shell) {
+:where([role="dialog"], [class*="modal"], [class*="Modal"], .action-modal-sheet, .leaderboard-modal-sheet, .weekly-leaderboard-sheet, .profile-modal-shell) {
   font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
   font-synthesis: none;
 }
