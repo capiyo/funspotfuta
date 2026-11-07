@@ -1,21 +1,15 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import LoginModal from '@/modals/LoginModal';
-import NotificationGate from '@/modals/NotificationGate';
 import { useAuth } from '@/lib/auth/auth-context';
 
 type LoginModalCtx = { requireLogin: (after?: () => void) => boolean };
 const Ctx = createContext<LoginModalCtx>({ requireLogin: () => false });
 
-/**
- * Global browser equivalent of the mobile login gate.
- * Auth must be initialized before the notification gate appears; the login
- * modal and notification gate are mounted here so any screen can request login.
- */
+/** The login modal is opened only by an explicit user action. */
 export function LoginModalProvider({ children }: { children: ReactNode }) {
-  const { isInitialized, isLoggedIn } = useAuth();
+  const { isLoggedIn } = useAuth();
   const [open, setOpen] = useState(false);
-  const [gated, setGated] = useState(false);
   const pending = useRef<(() => void) | undefined>(undefined);
   const wasLoggedIn = useRef(isLoggedIn);
 
@@ -25,34 +19,23 @@ export function LoginModalProvider({ children }: { children: ReactNode }) {
       return true;
     }
     pending.current = after;
-    setOpen(false);
-    setGated(true);
+    setOpen(true);
     return false;
   }, [isLoggedIn]);
 
   useEffect(() => {
-    // Keep the public Home/feed usable for guests. The notification gate is
-    // shown only after a user explicitly requests a login-gated action.
-    if (!isInitialized || !isLoggedIn) return;
-    setGated(false);
-    setOpen(false);
-  }, [isInitialized, isLoggedIn]);
+    if (isLoggedIn) setOpen(false);
+  }, [isLoggedIn]);
 
   useEffect(() => {
     if (isLoggedIn && !wasLoggedIn.current) {
       setOpen(false);
-      setGated(false);
       const action = pending.current;
       pending.current = undefined;
       if (action) queueMicrotask(action);
     }
     wasLoggedIn.current = isLoggedIn;
   }, [isLoggedIn]);
-
-  const handleGateContinue = useCallback(async () => {
-    setGated(false);
-    setOpen(true);
-  }, []);
 
   const handleClose = useCallback(() => {
     setOpen(false);
@@ -68,7 +51,6 @@ export function LoginModalProvider({ children }: { children: ReactNode }) {
           <div className="login-modal-content"><LoginModal /></div>
         </div>
       )}
-      <NotificationGate visible={gated} onRetry={handleGateContinue} />
     </Ctx.Provider>
   );
 }
