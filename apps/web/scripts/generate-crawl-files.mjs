@@ -1,6 +1,6 @@
 import { cp, mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { isValidContactEmail } from './contact-email.mjs';
 
 const webDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -42,6 +42,16 @@ if (shell.includes('pagead/js/adsbygoogle.js')) {
 const ssrBundle = await readFile(ssrEntry, 'utf8');
 if (!ssrBundle.trim() || !ssrBundle.includes('renderHome') || !ssrBundle.includes('renderNotFound')) {
   throw new Error('[crawl-files] The production React SSR bundle is missing its render entry points.');
+}
+
+const ssrRenderer = await import(pathToFileURL(ssrEntry).href);
+const renderedHome = ssrRenderer.renderHome();
+const renderedNotFound = ssrRenderer.renderNotFound();
+if (!renderedHome.includes('<h1') || !renderedHome.includes('Football is better') || renderedHome.includes('<div id="root"></div>')) {
+  throw new Error('[crawl-files] React SSR did not produce meaningful homepage HTML.');
+}
+if (!renderedNotFound.includes('This page isn\'t here.')) {
+  throw new Error('[crawl-files] React SSR did not produce the custom 404 content.');
 }
 
 const functionDir = path.join(repoDir, 'netlify', 'functions');
