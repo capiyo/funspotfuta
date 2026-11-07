@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { AlertCircle, CircleDot } from 'lucide-react-native';
 
-import { FAN_SPACING, FAN_RADIUS } from '@funspot/core';
+import { FAN_SPACING } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
 import type { Fixture } from '../../../../../packages/core/src/types/fixture';
@@ -77,7 +77,6 @@ export function LineupsTab({
     const [availableHeight, setAvailableHeight] = useState(0);
     const onLayout = (event: LayoutChangeEvent) => setAvailableHeight(event.nativeEvent.layout.height);
 
- [showBench, benchAnim]);
 
     if (loading) {
         return (
@@ -95,11 +94,6 @@ export function LineupsTab({
         return <EmptyState icon="soccer" message="No lineup available" />;
     }
 
-    // Animate both scaleY and opacity so the drawer reads as a
-    // SizeTransition rather than a flat grow. RN has no `transformOrigin`
-    // style prop on older versions, so we pair scaleY with a top-anchored
-    // layout (the drawer sits directly below the header row) instead.
-    const benchScaleY = benchAnim;
 
     return (
         <View style={{ flex: 1 }} onLayout={onLayout}>
