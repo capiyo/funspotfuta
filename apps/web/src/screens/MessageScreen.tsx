@@ -1003,25 +1003,20 @@ function MessageBubble({ colors, message, isMe, onLongPress, onImagePress, onRet
   if (commentary) {
     const minuteLabel = message.username.match(/•\\s*(.+)$/)?.[1] ?? 'LIVE';
     const eventLabel = (message.commentaryType ?? 'update').replace(/[_-]+/g, ' ').toUpperCase();
-    return <article className="mb-2 flex w-full justify-center px-3" aria-label={`Live match update, ${minuteLabel}`}>
-      <div className="w-full max-w-[min(94%,680px)] rounded-2xl px-3.5 py-3 shadow-sm"
-        style={{ background: dimColor(colors.draw, .12), border: `1px solid ${dimColor(colors.draw, .34)}` }}>
-        <div className="mb-2 flex items-center gap-2">
-          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm"
-            style={{ background: dimColor(colors.draw, .22), color: colors.draw }}>⚽</span>
-          <span className="text-[10px] font-extrabold tracking-[.12em]"
-            style={{ color: colors.draw }}>LIVE COMMENTARY</span>
-          <span className="ml-auto rounded-full px-2 py-1 text-[10px] font-bold tabular-nums"
-            style={{ background: dimColor(colors.draw, .2), color: colors.draw }}>{minuteLabel}</span>
+    return <article className="mb-2 flex w-full items-end gap-2 px-3" aria-label={`Live match update, ${minuteLabel}`}>
+      <span className="mb-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm"
+        style={{ background: dimColor(colors.draw, .2), color: colors.draw }}>⚽</span>
+      <div className="relative max-w-[min(82%,560px)] rounded-2xl rounded-bl-sm px-3.5 py-2.5 shadow-sm"
+        style={{ background: dimColor(colors.draw, .15), border: `1px solid ${dimColor(colors.draw, .3)}`, color: colors.textPrimary }}>
+        <span aria-hidden="true" className="absolute -bottom-px -left-[6px] h-3 w-3 rotate-45 rounded-bl-[2px]"
+          style={{ background: dimColor(colors.draw, .15), borderLeft: `1px solid ${dimColor(colors.draw, .3)}`, borderBottom: `1px solid ${dimColor(colors.draw, .3)}` }} />
+        <div className="mb-1.5 flex items-center gap-2">
+          <span className="text-[9px] font-extrabold tracking-[.1em]" style={{ color: colors.draw }}>COMMENTARY</span>
+          <span className="rounded-full px-1.5 py-0.5 text-[9px] font-bold" style={{ background: dimColor(colors.draw, .2), color: colors.draw }}>{eventLabel}</span>
+          <span className="ml-auto text-[10px] font-extrabold tabular-nums" style={{ color: colors.draw }}>{minuteLabel}</span>
         </div>
-        <div className="mb-1.5">
-          <span className="rounded-full px-2 py-0.5 text-[9px] font-bold tracking-wide"
-            style={{ background: dimColor(colors.draw, .2), color: colors.draw }}>{eventLabel}</span>
-        </div>
-        <p className="whitespace-pre-wrap break-words text-[14px] font-semibold leading-[21px]"
-          style={{ color: colors.textPrimary }}>{message.text}</p>
-        <time className="mt-2 block text-right text-[10px] font-medium"
-          style={{ color: colors.textTertiary }}>{timeAgo(message.timestamp)}</time>
+        <p className="whitespace-pre-wrap break-words text-[14px] leading-[20px]">{message.text}</p>
+        <time className="mt-1.5 block text-right text-[10px]" style={{ color: colors.textTertiary }}>{timeAgo(message.timestamp)}</time>
       </div>
     </article>;
   }
