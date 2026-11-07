@@ -774,30 +774,30 @@ function ChannelSwipeCarousel({ channels: slideChannels, renderSlide }: {
       }}
       style={{ minWidth: 0, width: '100%' }}
     >
-      <FlatList
-        horizontal
-        pagingEnabled
-        style={{ width: '100%', flexGrow: 0 }}
-        data={slideChannels.length ? slideChannels : [undefined]}
-        keyExtractor={(channel, index) => channel?.channelId ?? `no-channel-${index}`}
-        renderItem={({ item }) => (
-          <View style={{ width: pageWidth > 0 ? pageWidth : '100%', minWidth: 0 }}>
-            {renderSlide(item)}
-          </View>
-        )}
-        showsHorizontalScrollIndicator={false}
-        onMomentumScrollEnd={(event) => {
-          if (pageWidth > 0) setActiveIndex(Math.min(count - 1, Math.round(event.nativeEvent.contentOffset.x / pageWidth)));
-        }}
-        getItemLayout={pageWidth > 0
-          ? (_, index) => ({
-              length: pageWidth,
-              offset: pageWidth * index,
-              index,
-            })
-          : undefined}
-        scrollEnabled={count > 1}
-      />
+      {pageWidth > 0 && (
+        <FlatList
+          horizontal
+          pagingEnabled
+          style={{ width: pageWidth, flexGrow: 0 }}
+          data={slideChannels.length ? slideChannels : [undefined]}
+          keyExtractor={(channel, index) => channel?.channelId ?? `no-channel-${index}`}
+          renderItem={({ item }) => (
+            <View style={{ width: pageWidth, minWidth: 0 }}>
+              {renderSlide(item)}
+            </View>
+          )}
+          showsHorizontalScrollIndicator={false}
+          onMomentumScrollEnd={(event) => {
+            setActiveIndex(Math.min(count - 1, Math.round(event.nativeEvent.contentOffset.x / pageWidth)));
+          }}
+          getItemLayout={(_, index) => ({
+            length: pageWidth,
+            offset: pageWidth * index,
+            index,
+          })}
+          scrollEnabled={count > 1}
+        />
+      )}
       {count > 1 && (
         <View accessibilityLabel={`Channel ${activeIndex + 1} of ${count}`} style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 6, paddingVertical: 8 }}>
           {slideChannels.map((channel, index) => (
