@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Bell, BellOff } from 'lucide-react';
-import { colors } from '@/theme';
 import { useAuth } from '@/lib/auth/auth-context';
 import { NotificationService, requestWebPushToken } from '@/lib/api/notification-service';
 
@@ -67,22 +66,29 @@ export default function NotificationGate({ visible, onRetry, onSkip }: { visible
   }
 
   if (!visible) return null;
+
+  const pageColors = {
+    surface: '#161f1a',
+    accent: '#7df162',
+    text: '#edf4ee',
+    muted: '#89968d',
+  };
   return createPortal(
     <div className="pointer-events-none fixed bottom-4 right-4 z-[1000] p-4" role="presentation">
       <section ref={dialogRef} role="region" aria-label="Enable push notifications" aria-labelledby="notification-gate-title"
         className="pointer-events-auto w-full max-w-[340px] rounded-3xl p-5 text-center shadow-2xl"
-        style={{ background: colors.surface }}>
-        <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full" style={{ background: 'rgba(76,217,100,.12)' }}>
-          {unsupported ? <BellOff size={28} color={colors.textMuted} /> : <Bell size={28} color={colors.green} />}
+        style={{ background: pageColors.surface, color: pageColors.text }}>
+        <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full" style={{ background: 'rgba(125,241,98,.12)' }}>
+          {unsupported ? <BellOff size={28} color={pageColors.muted} /> : <Bell size={28} color={pageColors.accent} />}
         </div>
-        <h2 id="notification-gate-title" className="mb-2 text-base font-bold text-white">Notifications Required</h2>
-        <p className="mb-4 text-center text-[13px] leading-[18px]" style={{ color: colors.textMuted }}>
+        <h2 id="notification-gate-title" className="mb-2 text-base font-bold">Notifications Required</h2>
+        <p className="mb-4 text-center text-[13px] leading-[18px]" style={{ color: pageColors.muted }}>
           Funspot needs notification permission before you can log in, so you never miss votes, comments, or comrade activity.
         </p>
         {message && <p role="status" className="mb-4 text-sm" style={{ color: colors.textMuted }}>{message}</p>}
         <button type="button" onClick={handlePress} disabled={requesting}
           className="w-full rounded-full px-4 py-3 font-bold disabled:opacity-60"
-          style={{ color: colors.green }}>
+          style={{ color: pageColors.accent }}>
           {requesting ? 'Requesting…' : unsupported ? 'Try Notifications Again' : 'Allow Notifications'}
         </button>
         <button type="button" onClick={() => void (onSkip ? onSkip() : onRetry())} disabled={requesting}
