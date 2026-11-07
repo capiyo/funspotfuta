@@ -8,15 +8,6 @@ import type { LineupsData } from '@funspot/core/src/types/matchDetails';
 import { useFanColors, hexWithAlpha } from '@/lib/theme/use-fan-colors';
 import { BenchColumn, PitchView } from './PitchView';
 
-function FormationPill({ teamName, formation, color, alignRight = false }: { teamName: string; formation: string; color: string; alignRight?: boolean }) {
-  return (
-    <div className={`flex min-w-0 flex-col ${alignRight ? 'items-end' : 'items-start'}`}>
-      <span className="max-w-[120px] truncate text-fan-tag" style={{ color }}>{teamName}</span>
-      <span className="mt-[3px] rounded-fan-pill border px-2 py-px text-[11px] font-bold" style={{ background: hexWithAlpha(color, 0.12), borderColor: hexWithAlpha(color, 0.3), color }}>{formation}</span>
-    </div>
-  );
-}
-
 function EmptyState({ icon, message }: { icon: 'error' | 'soccer'; message: string }) {
   const c = useFanColors();
   const Icon = icon === 'error' ? AlertCircle : CircleDot;
@@ -39,10 +30,9 @@ export function LineupsTab({ fixture, lineups, loading, error }: { fixture: Fixt
   const hasBench = lineups.homeBench.length > 0 || lineups.awayBench.length > 0;
 
   return (
-    <div className="flex flex-col">
-      <div className="flex items-center justify-between px-3 py-2">
-        <FormationPill teamName={fixture.homeTeam} formation={lineups.homeFormation} color={c.primary} />
-        {hasBench && (
+    <div className="flex h-full min-h-0 flex-col">
+      {hasBench && (
+        <div className="flex justify-center px-3 pt-2">
           <button
             type="button"
             onClick={() => setShowBench((v) => !v)}
@@ -50,11 +40,10 @@ export function LineupsTab({ fixture, lineups, loading, error }: { fixture: Fixt
             style={{ background: showBench ? c.primary : c.background, borderColor: showBench ? c.primary : c.borderActive }}
           >
             {showBench ? <X size={15} color="#fff" /> : <ArrowLeftRight size={15} color={c.textSecondary} />}
-            <span className="text-fan-button" style={{ color: showBench ? '#fff' : c.textSecondary }}>Bench</span>
+            <span className="text-fan-button" style={{ color: showBench ? '#fff' : c.textSecondary }}>{showBench ? 'Hide bench' : 'Bench'}</span>
           </button>
-        )}
-        <FormationPill teamName={fixture.awayTeam} formation={lineups.awayFormation} color={c.away} alignRight />
-      </div>
+        </div>
+      )}
 
       {/* Bench drawer — height/opacity transition mirrors the RN/Flutter SizeTransition */}
       <div
@@ -76,7 +65,7 @@ export function LineupsTab({ fixture, lineups, loading, error }: { fixture: Fixt
         </div>
       </div>
 
-      <div className="p-3">
+      <div className="flex min-h-0 flex-1 items-center justify-center p-3">
         <PitchView
           homeTeam={fixture.homeTeam}
           awayTeam={fixture.awayTeam}
