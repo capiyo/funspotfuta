@@ -763,7 +763,6 @@ function ChannelSwipeCarousel({ channels: slideChannels, renderSlide }: {
   channels: SwipeChannel[];
   renderSlide: (channel: SwipeChannel | undefined) => ReactNode;
 }) {
-  const [activeIndex, setActiveIndex] = useState(0);
   const [pageWidth, setPageWidth] = useState(0);
   const count = Math.max(1, slideChannels.length);
   return (
@@ -787,9 +786,6 @@ function ChannelSwipeCarousel({ channels: slideChannels, renderSlide }: {
             </View>
           )}
           showsHorizontalScrollIndicator={false}
-          onMomentumScrollEnd={(event) => {
-            setActiveIndex(Math.min(count - 1, Math.round(event.nativeEvent.contentOffset.x / pageWidth)));
-          }}
           getItemLayout={(_, index) => ({
             length: pageWidth,
             offset: pageWidth * index,
@@ -797,13 +793,6 @@ function ChannelSwipeCarousel({ channels: slideChannels, renderSlide }: {
           })}
           scrollEnabled={count > 1}
         />
-      )}
-      {count > 1 && (
-        <View accessibilityLabel={`Channel ${activeIndex + 1} of ${count}`} style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 6, paddingVertical: 8 }}>
-          {slideChannels.map((channel, index) => (
-            <View key={channel.channelId} accessibilityLabel={channel.name} style={{ width: index === activeIndex ? 7 : 5, height: index === activeIndex ? 7 : 5, borderRadius: 4, backgroundColor: '#4B9B68', opacity: index === activeIndex ? 1 : 0.35 }} />
-          ))}
-        </View>
       )}
     </View>
   );
