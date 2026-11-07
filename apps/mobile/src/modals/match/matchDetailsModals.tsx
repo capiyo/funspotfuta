@@ -331,7 +331,6 @@ export function MatchDetailsModal({
                         {
                             height: modalHeight,
                             width: '100%',
-                            borderRadius: 0,
                             backgroundColor: colors.surface,
                         },
                     ]}
