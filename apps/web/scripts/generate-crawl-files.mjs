@@ -148,7 +148,11 @@ export default async function handler(request) {
     }
   }
 
-  return new Response(withRoot("not-found", renderNotFound()), {
+  const notFoundHtml = withRoot("not-found", renderNotFound())
+    .replace(/<title>[\\s\\S]*?<\\/title>/i, '<title>Page not found | Funspot</title>')
+    .replace(/<meta name="robots" content="[^"]*">/i, '<meta name="robots" content="noindex,follow">')
+    .replace(/<link rel="canonical" href="[^"]*">/i, '');
+  return new Response(notFoundHtml, {
     status: 404,
     headers: {
       "content-type": "text/html; charset=utf-8",
@@ -159,7 +163,7 @@ export default async function handler(request) {
     },
   });
 }
-`.replace('__SHELL__', JSON.stringify(shell)).replace('__CONTACT_EMAIL__', JSON.stringify(email));
+`.replace('__SHELL__', () => JSON.stringify(shell)).replace('__CONTACT_EMAIL__', () => JSON.stringify(email));
 await writeFile(path.join(functionDir, 'ssr.mjs'), functionSource, 'utf8');
 
 const rules = [
