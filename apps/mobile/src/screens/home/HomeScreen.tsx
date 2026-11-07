@@ -126,14 +126,18 @@ function HomeInner({ initialTab }: { initialTab?: TabName }) {
                 </Animated.View>
 
                 <Animated.View
-                    pointerEvents={headerVisible ? 'auto' : 'none'}
-                    style={{
-                        opacity: anim,
+                    pointerEvents="box-none"
+                    style={[
+                        StyleSheet.absoluteFillObject,
+                        {
+                            zIndex: 30,
+                            opacity: anim,
                         transform: [{ translateY: anim.interpolate({
                             inputRange: [0, 1],
                             outputRange: [TAB_BAR_HIDE_OFFSET, 0],
                         }) }],
-                    }}
+                        },
+                    ]}
                 >
                     <FloatingPillTabBar active={activeTab} onChange={changeTab} />
                 </Animated.View>
