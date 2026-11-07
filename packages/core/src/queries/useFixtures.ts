@@ -125,7 +125,7 @@ export function useFixtures(userId?: string, enabled = true, authToken?: string 
     staleTime: 60 * 1000,
     gcTime: 7 * 24 * 60 * 60 * 1000,
     refetchInterval: 2 * 60 * 1000,
-    refetchOnMount: 'always',
+    refetchOnMount: true,
     refetchOnWindowFocus: true,
   });
 
