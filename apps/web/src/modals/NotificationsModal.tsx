@@ -81,12 +81,12 @@ export default function NotificationsModal({ visible, onClose }: { visible: bool
 
   if (!visible) return null;
   const panel: React.CSSProperties = {
-    maxHeight: '80vh', borderTopLeftRadius: FAN_RADIUS.xl, borderTopRightRadius: FAN_RADIUS.xl,
+    maxHeight: '80vh', marginBottom: 8, borderRadius: FAN_RADIUS.xl,
     background: colors.background, overflow: 'hidden', color: colors.textPrimary,
   };
   return createPortal(
     <div className="fixed inset-0 z-[900] flex items-end justify-center bg-black/50" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <section ref={dialogRef} role="dialog" aria-modal="true" aria-label="Notifications" className="w-full max-w-xl overflow-hidden" style={panel}>
+      <section ref={dialogRef} role="dialog" aria-modal="true" aria-label="Notifications" className="mb-2 w-[calc(100%-16px)] max-w-xl overflow-hidden rounded-3xl" style={panel}>
         <div className="flex justify-center pb-2 pt-4"><div className="h-[3px] w-8 rounded-full" style={{ background: colors.border }} /></div>
         <header className="flex items-center justify-between px-5 py-3">
           <h2 className="text-[15px] font-bold">Notifications</h2>
