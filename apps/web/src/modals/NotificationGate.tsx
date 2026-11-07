@@ -85,7 +85,7 @@ export default function NotificationGate({ visible, onRetry, onSkip }: { visible
         <p className="mb-4 text-center text-[13px] leading-[18px]" style={{ color: pageColors.muted }}>
           Funspot needs notification permission before you can log in, so you never miss votes, comments, or comrade activity.
         </p>
-        {message && <p role="status" className="mb-4 text-sm" style={{ color: colors.textMuted }}>{message}</p>}
+        {message && <p role="status" className="mb-4 text-sm" style={{ color: pageColors.muted }}>{message}</p>}
         <button type="button" onClick={handlePress} disabled={requesting}
           className="w-full rounded-full px-4 py-3 font-bold disabled:opacity-60"
           style={{ color: pageColors.accent }}>
@@ -93,7 +93,7 @@ export default function NotificationGate({ visible, onRetry, onSkip }: { visible
         </button>
         <button type="button" onClick={() => void (onSkip ? onSkip() : onRetry())} disabled={requesting}
           className="mt-3 w-full rounded-full px-4 py-2 text-sm font-semibold disabled:opacity-60"
-          style={{ color: colors.textMuted }}>
+          style={{ color: pageColors.muted }}>
           Continue without notifications
         </button>
       </section>
