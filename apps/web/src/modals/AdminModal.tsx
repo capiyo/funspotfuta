@@ -468,11 +468,11 @@ export default function AdminModal({
                 onPress={confirmRemove}
                 style={({ pressed }) => [
                   styles.confirmBtn,
-                  { backgroundColor: colors.away },
+                  { backgroundColor: colors.awayDim, borderWidth: 1, borderColor: colors.awayDim },
                   pressed && { opacity: PRESSED_OPACITY },
                 ]}
               >
-                <Text style={fanText('body', colors, colors.background)}>
+                <Text style={fanText('body', colors, colors.away)}>
                   Remove
                 </Text>
               </Pressable>
