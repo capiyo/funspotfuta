@@ -204,16 +204,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await SecureStore.setItemAsync(SECURE_KEYS.user, user, SECURE_STORE_OPTIONS);
       if (opts?.refreshToken) await SecureStore.setItemAsync(SECURE_KEYS.refresh, opts.refreshToken, SECURE_STORE_OPTIONS);
       else await SecureStore.deleteItemAsync(SECURE_KEYS.refresh);
-      if (state.userId !== userId) {
-        setState({ ...initialState, isInitialized: true });
-        await Promise.all([clearMobileQueryCache(), clearNotificationStorage()]);
-      }
-      await AsyncStorage.multiRemove(LOGOUT_KEYS);
       const nextState: AuthState = {
         isLoggedIn: true, isInitialized: true, userId, username,
         phone: opts?.phone ?? null, authToken, refreshToken: opts?.refreshToken ?? null,
       };
       writeSessionSnapshot(nextState);
+      if (state.userId !== userId) {
+        setState({ ...initialState, isInitialized: true });
+        await Promise.all([clearMobileQueryCache(), clearNotificationStorage()]);
+      }
+      await AsyncStorage.multiRemove(LOGOUT_KEYS);
       setState(nextState);
       return true;
     } catch (error) {
@@ -275,6 +275,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       if (state.userId !== userId) {
         NotificationService.setActiveUser(null);
+        writeSessionSnapshot({ ...initialState, isInitialized: true });
         await Promise.all([clearMobileQueryCache(), clearNotificationStorage()]);
       }
       const raw = await SecureStore.getItemAsync(SECURE_KEYS.user);
