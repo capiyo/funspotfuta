@@ -1,24 +1,21 @@
 // components/MatchDetailsModal/LineupsTab.tsx
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import {
     View,
     Text,
     LayoutChangeEvent,
     StyleSheet,
-    Pressable,
     ActivityIndicator,
-    Animated,
     ScrollView,
-    Easing,
 } from 'react-native';
-import { AlertCircle, CircleDot, X, ArrowLeftRight } from 'lucide-react-native';
+import { AlertCircle, CircleDot } from 'lucide-react-native';
 
 import { FAN_SPACING, FAN_RADIUS } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
 import type { Fixture } from '../../../../../packages/core/src/types/fixture';
 import type { LineupsData } from '../../../../../packages/core/src/types/matchDetails';
-import { BenchColumn, PitchView } from './pitchView';
+import { PitchView } from './pitchView';
 
 // ═══════════════════════════════════════════════════════════════
 //  HELPERS
@@ -77,19 +74,10 @@ export function LineupsTab({
     error,
 }: LineupsTabProps) {
     const colors = useFanColors();
-    const [showBench, setShowBench] = useState(false);
     const [availableHeight, setAvailableHeight] = useState(0);
     const onLayout = (event: LayoutChangeEvent) => setAvailableHeight(event.nativeEvent.layout.height);
-    const benchAnim = useRef(new Animated.Value(0)).current;
 
-    useEffect(() => {
-        Animated.timing(benchAnim, {
-            toValue: showBench ? 1 : 0,
-            duration: 280,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: false,
-        }).start();
-    }, [showBench, benchAnim]);
+ [showBench, benchAnim]);
 
     if (loading) {
         return (
@@ -107,9 +95,6 @@ export function LineupsTab({
         return <EmptyState icon="soccer" message="No lineup available" />;
     }
 
-    const hasBench =
-        lineups.homeBench.length > 0 || lineups.awayBench.length > 0;
-
     // Animate both scaleY and opacity so the drawer reads as a
     // SizeTransition rather than a flat grow. RN has no `transformOrigin`
     // style prop on older versions, so we pair scaleY with a top-anchored
@@ -118,66 +103,6 @@ export function LineupsTab({
 
     return (
         <View style={{ flex: 1 }} onLayout={onLayout}>
-            {/* Bench animated drawer — mirrors Flutter's SizeTransition
-          (sizeFactor driven by _benchAnimation, axisAlignment -1) */}
-            <Animated.View
-                style={{
-                    transform: [{ scaleY: benchScaleY }],
-                    opacity: benchAnim,
-                }}
-            >
-                <View
-                    style={[
-                        styles.benchDrawer,
-                        {
-                            backgroundColor: colors.background,
-                            borderBottomColor: hexWithAlpha(colors.primary, 0.25),
-                        },
-                    ]}
-                >
-                    <View style={styles.benchHeader}>
-                        <View
-                            style={[
-                                styles.benchHeaderBar,
-                                { backgroundColor: colors.primary },
-                            ]}
-                        />
-                        <View style={{ width: 7 }} />
-                        <Text
-                            style={[
-                                fanText('tag', colors),
-                                { color: colors.primary, letterSpacing: 1.0 },
-                            ]}
-                        >
-                            BENCH
-                        </Text>
-                    </View>
-                    <View style={{ height: 10 }} />
-                    <View style={styles.benchColumns}>
-                        <View style={{ flex: 1 }}>
-                            <BenchColumn
-                                players={lineups.homeBench}
-                                color={colors.primary}
-                            />
-                        </View>
-                        <View
-                            style={{
-                                width: 0.5,
-                                height: 160,
-                                backgroundColor: colors.borderActive,
-                                marginHorizontal: 10,
-                            }}
-                        />
-                        <View style={{ flex: 1 }}>
-                            <BenchColumn
-                                players={lineups.awayBench}
-                                color={colors.away}
-                            />
-                        </View>
-                    </View>
-                </View>
-            </Animated.View>
-
             {/* Pitch */}
             <ScrollView
                 style={styles.pitchScroller}
@@ -192,7 +117,7 @@ export function LineupsTab({
                     awayFormation={lineups.awayFormation}
                     homePlayers={lineups.homeStartingXI}
                     awayPlayers={lineups.awayStartingXI}
-                    maxHeight={Math.max(1, availableHeight - (showBench ? 220 : hasBench ? 44 : 0))}
+                    maxHeight={Math.max(1, availableHeight)}
                 />
             </ScrollView>
         </View>
@@ -214,39 +139,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         padding: FAN_SPACING.lg,
-    },
-    compactBenchRow: { flexDirection: 'row', justifyContent: 'center', paddingVertical: 4 },
-    benchToggle: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 14,
-        paddingVertical: 7,
-        borderRadius: FAN_RADIUS.pill,
-        borderWidth: 1.2,
-    },
-    benchToggleText: {
-        fontSize: 12,
-        fontWeight: '600',
-    },
-    benchDrawer: {
-        borderBottomWidth: 0.8,
-        paddingLeft: 14,
-        paddingRight: 14,
-        paddingTop: 10,
-        paddingBottom: 12,
-    },
-    benchHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    benchHeaderBar: {
-        width: 3,
-        height: 13,
-        borderRadius: 2,
-    },
-    benchColumns: {
-        flexDirection: 'row',
-        alignItems: 'flex-start',
     },
     pitchScroller: {
         flex: 1,
