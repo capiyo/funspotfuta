@@ -4593,14 +4593,34 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visib
 /* Modal typography follows the ChatCard typeface: DM Sans for all readable
    UI text. Scores/headline treatments can still opt into Saira Condensed
    through the shared FAN_TYPOGRAPHY roles. Keep form controls consistent. */
-:where([role="dialog"], [class*="modal"], [class*="Modal"], .action-modal-sheet, .leaderboard-modal-sheet, .weekly-leaderboard-sheet, .profile-modal-shell) {
+:where(
+  [role="dialog"],
+  [aria-modal="true"],
+  [class*="modal"],
+  [class*="Modal"],
+  [class*="sheet"],
+  [class*="Sheet"]
+) {
   font-family: "DM Sans", ui-sans-serif, system-ui, sans-serif;
   font-synthesis: none;
 }
-:where([role="dialog"], .action-modal-sheet, .leaderboard-modal-sheet) * {
+:where(
+  [role="dialog"],
+  [aria-modal="true"],
+  [class*="modal"],
+  [class*="Modal"],
+  [class*="sheet"],
+  [class*="Sheet"]
+) * {
   font-family: inherit;
 }
-:where([role="dialog"], .action-modal-sheet, .leaderboard-modal-sheet)
-  :is(button, input, select, textarea) {
-  font: inherit;
+:where(
+  [role="dialog"],
+  [aria-modal="true"],
+  [class*="modal"],
+  [class*="Modal"],
+  [class*="sheet"],
+  [class*="Sheet"]
+) :is(button, input, select, textarea) {
+  font-family: inherit;
 }
