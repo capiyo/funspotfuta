@@ -403,8 +403,8 @@ function createStyles(colors: ReturnType<typeof useFanColors>) {
     },
     sheet: {
       maxHeight: '88%',
-      borderTopLeftRadius: FAN_RADIUS.xl,
-      borderTopRightRadius: FAN_RADIUS.xl,
+      marginBottom: 8,
+      borderRadius: FAN_RADIUS.xl,
       backgroundColor: colors.background,
       overflow: 'hidden',
     },
