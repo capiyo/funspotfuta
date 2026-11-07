@@ -122,10 +122,10 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
   }
 
   const panel: CSSProperties = {
-    width: '100vw', maxWidth: '100vw', height: '50dvh', maxHeight: '50dvh',
+    width: 'calc(100vw - 16px)', maxWidth: '100%', height: '75dvh', maxHeight: '75dvh', marginBottom: 8,
     display: 'flex', flexDirection: 'column', overflowY: 'auto',
     background: colors.surface, color: colors.textPrimary,
-    borderRadius: '24px 24px 0 0', padding: '6px 12px 8px', boxSizing: 'border-box',
+    borderRadius: 28, padding: '6px 12px calc(8px + env(safe-area-inset-bottom, 0px))', boxSizing: 'border-box',
     boxShadow: '0 -12px 48px rgba(0,0,0,.25)',
   };
   const muted = { color: colors.textSecondary };
@@ -188,7 +188,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
         <div style={{ marginTop: 14, minWidth: 0 }}>
           <div role="tablist" aria-label="Possession lists" style={{ display: 'flex', width: '100%', minWidth: 0, gap: 3, marginBottom: 9, padding: 3, borderRadius: 999, background: 'transparent', border: `1px solid ${colors.border}`, boxSizing: 'border-box' }}>
             {([{ id: 'votes', label: 'Vote List', count: totalVotes }, { id: 'open', label: 'Unmatched', count: (market?.pokes ?? []).filter((poke) => poke.status === 'open').length }, { id: 'matched', label: 'Matched', count: (market?.pokes ?? []).filter((poke) => poke.status === 'matched' || poke.status === 'settled').length }] as const).map((item) => (
-              <button key={item.id} type="button" role="tab" aria-selected={listTab === item.id} onClick={() => setListTab(item.id)} style={{ ...action(listTab === item.id), minWidth: 0, minHeight: 36, padding: '7px 3px', border: 0, borderRadius: 7, fontSize: 11, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <button key={item.id} type="button" role="tab" aria-selected={listTab === item.id} onClick={() => setListTab(item.id)} style={{ ...action(listTab === item.id), minWidth: 0, minHeight: 36, padding: '7px 3px', border: 0, borderRadius: 999, fontSize: 11, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {item.label} <span style={{ opacity: .8 }}>({item.count})</span>
               </button>
             ))}
