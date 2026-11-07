@@ -229,7 +229,7 @@ export default function ComradesModal({ visible, onClose }: { visible: boolean; 
         role="dialog"
         aria-modal="true"
         aria-label="Comrades"
-        className="w-full max-w-xl overflow-hidden rounded-t-[18px]"
+        className="mb-2 w-[calc(100%-16px)] max-w-xl overflow-hidden rounded-3xl"
         style={{ maxHeight: '85vh', background: colors.bg }}
       >
         <div className="flex justify-center pb-1 pt-2">
