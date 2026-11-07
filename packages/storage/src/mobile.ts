@@ -36,47 +36,46 @@ async function initializeEncryptedCache(): Promise<boolean> {
     }
 
     const { MMKV } = require('react-native-mmkv') as typeof import('react-native-mmkv');
-    // Migrate the previous auth namespace into Keychain/Keystore before
-    // erasing the old unencrypted MMKV file.
-    try {
-      const legacy = new MMKV({ id: 'app-cache' });
-      // Preserve the previous query snapshot while moving it into encrypted
-      // MMKV. Query cache buster validation decides whether it is reusable.
-      const legacyQuerySnapshot = legacy.getString('FUNSPOT_QUERY_CACHE');
-      const [secureToken, secureUser] = await Promise.all([
-        SecureStore.getItemAsync('auth.usertoken'),
-        SecureStore.getItemAsync('auth.user'),
-      ]);
-      const legacyToken = legacy.getString('auth:usertoken');
-      const legacyUser = legacy.getString('auth:user');
-      if ((!secureToken || !secureUser) && legacyToken && legacyUser) {
-        let migratedUser = legacyUser;
-        const legacyPhone = legacy.getString('auth:phone');
-        try {
-          const parsed: unknown = JSON.parse(legacyUser);
-          if (parsed && typeof parsed === 'object' && legacyPhone) {
-            migratedUser = JSON.stringify({ ...(parsed as Record<string, unknown>), phone: legacyPhone });
+    // Open the encrypted store first. Once the one-time migration marker is
+    // present, normal launches avoid reopening and clearing the legacy plaintext
+    // MMKV database (an unnecessary synchronous disk operation on every boot).
+    mmkv = new MMKV({ id: 'app-cache-v2', encryptionKey });
+    const migrationMarker = 'storage.migration.encrypted-cache-v2';
+    if (mmkv.getBoolean(migrationMarker) !== true) {
+      try {
+        const legacy = new MMKV({ id: 'app-cache' });
+        const legacyQuerySnapshot = legacy.getString('FUNSPOT_QUERY_CACHE');
+        const [secureToken, secureUser] = await Promise.all([
+          SecureStore.getItemAsync('auth.usertoken'),
+          SecureStore.getItemAsync('auth.user'),
+        ]);
+        const legacyToken = legacy.getString('auth:usertoken');
+        const legacyUser = legacy.getString('auth:user');
+        if ((!secureToken || !secureUser) && legacyToken && legacyUser) {
+          let migratedUser = legacyUser;
+          const legacyPhone = legacy.getString('auth:phone');
+          try {
+            const parsed: unknown = JSON.parse(legacyUser);
+            if (parsed && typeof parsed === 'object' && legacyPhone) {
+              migratedUser = JSON.stringify({ ...(parsed as Record<string, unknown>), phone: legacyPhone });
+            }
+          } catch {
+            // Preserve the original serialized user; AuthProvider validates it.
           }
-        } catch {
-          // Preserve the original serialized user; AuthProvider validates it.
+          await SecureStore.setItemAsync('auth.usertoken', legacyToken, SECURE_SESSION_OPTIONS);
+          await SecureStore.setItemAsync('auth.user', migratedUser, SECURE_SESSION_OPTIONS);
+          const legacyRefresh = legacy.getString('auth:refreshToken');
+          if (legacyRefresh) await SecureStore.setItemAsync('auth.refreshToken', legacyRefresh, SECURE_SESSION_OPTIONS);
         }
-        await SecureStore.setItemAsync('auth.usertoken', legacyToken, SECURE_SESSION_OPTIONS);
-        await SecureStore.setItemAsync('auth.user', migratedUser, SECURE_SESSION_OPTIONS);
-        const legacyRefresh = legacy.getString('auth:refreshToken');
-        if (legacyRefresh) await SecureStore.setItemAsync('auth.refreshToken', legacyRefresh, SECURE_SESSION_OPTIONS);
+        if (legacyQuerySnapshot) mmkv.set('FUNSPOT_QUERY_CACHE', legacyQuerySnapshot);
+        // Mark migration only after the encrypted destination is seeded.
+        // If any step fails, keep the legacy store and retry next launch.
+        legacy.clearAll();
+        mmkv.set(migrationMarker, true);
+      } catch {
+        throw new Error('Unable to migrate legacy native session securely');
       }
-      // Open and seed the encrypted destination before deleting the plaintext
-      // source. If native encryption initialization fails, retain legacy data
-      // rather than destroying the only available cache.
-      mmkv = new MMKV({ id: 'app-cache-v2', encryptionKey });
-      if (legacyQuerySnapshot) mmkv.set('FUNSPOT_QUERY_CACHE', legacyQuerySnapshot);
-      legacy.clearAll();
-    } catch {
-      // A missing legacy store is expected on fresh installs. SecureStore
-      // failures are handled by the outer guard, which keeps the cache volatile.
-      throw new Error('Unable to migrate legacy native session securely');
     }
-    if (!mmkv) mmkv = new MMKV({ id: 'app-cache-v2', encryptionKey });
     for (const [key, value] of fallback) mmkv.set(key, value);
     fallback.clear();
     return true;
