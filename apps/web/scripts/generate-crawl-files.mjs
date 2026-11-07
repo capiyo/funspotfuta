@@ -149,7 +149,7 @@ export default async function handler(request) {
   }
 
   const notFoundHtml = withRoot("not-found", renderNotFound())
-    .replace(/<title>[\\s\\S]*?<\\/title>/i, '<title>Page not found | Funspot</title>')
+    .replace(/<title>[\s\S]*?<\/title>/i, '<title>Page not found | Funspot</title>')
     .replace(/<meta name="robots" content="[^"]*">/i, '<meta name="robots" content="noindex,follow">')
     .replace(/<link rel="canonical" href="[^"]*">/i, '');
   return new Response(notFoundHtml, {
