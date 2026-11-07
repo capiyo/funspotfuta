@@ -4592,7 +4592,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visib
 
 /* Modal chrome: round the top edge consistently without changing the
    existing bottom corners or sheet geometry on any viewport. */
-:where(
+:is(
   [role="dialog"],
   [aria-modal="true"],
   [class*="modal"],
