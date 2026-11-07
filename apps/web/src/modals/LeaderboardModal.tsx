@@ -422,8 +422,8 @@ function ChampionCard({
       style={({ pressed }) => [
         styles.championCard,
         {
-          backgroundColor: hexWithAlpha(accent, 0.06),
-          borderColor: hexWithAlpha(accent, 0.25),
+          backgroundColor: colors.surface,
+          borderColor: colors.border,
         },
         pressed && { opacity: PRESSED_OPACITY },
       ]}
@@ -432,7 +432,7 @@ function ChampionCard({
         <View
           style={[
             styles.championPill,
-            { backgroundColor: hexWithAlpha(accent, 0.15) },
+            { backgroundColor: 'transparent' }
           ]}
         >
           <Trophy size={11} color={accent} />
@@ -443,7 +443,7 @@ function ChampionCard({
         <View
           style={[
             styles.rankChip,
-            { backgroundColor: hexWithAlpha(accent, 0.1) },
+            { backgroundColor: 'transparent' }
           ]}
         >
           <Text style={[styles.rankChipText, { color: accent }]}>
@@ -463,7 +463,7 @@ function ChampionCard({
               <View
                 style={[
                   styles.mePill,
-                  { backgroundColor: hexWithAlpha(colors.primary, 0.15) },
+                  { backgroundColor: 'transparent' }
                 ]}
               >
                 <Text style={[styles.mePillText, { color: colors.primary }]}>
@@ -567,12 +567,8 @@ function MemberCard({
       style={({ pressed }) => [
         styles.memberCard,
         {
-          borderColor: isCurrentUser
-            ? hexWithAlpha(colors.primary, 0.5)
-            : colors.border,
-          backgroundColor: isCurrentUser
-            ? hexWithAlpha(colors.primary, 0.06)
-            : colors.surface,
+          borderColor: colors.border,
+          backgroundColor: colors.surface,
         },
         pressed && { opacity: PRESSED_OPACITY },
       ]}
@@ -608,7 +604,7 @@ function MemberCard({
           <View
             style={[
               styles.rankChip,
-              { backgroundColor: hexWithAlpha(colors.textTertiary, 0.1) },
+              { backgroundColor: 'transparent' }
             ]}
           >
             <Text style={[styles.rankChipText, { color: colors.textTertiary }]}>
@@ -1538,7 +1534,7 @@ function createStyles(colors: FanColors) {
       borderRadius: 999,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: hexWithAlpha(colors.primary, 0.14),
+      backgroundColor: 'transparent',
     },
     headerTextWrap: { flex: 1, marginLeft: FAN_SPACING.sm },
     headerTitle: {
@@ -1602,7 +1598,7 @@ function createStyles(colors: FanColors) {
       borderRadius: 13,
     },
     tabButtonActive: {
-      backgroundColor: hexWithAlpha(colors.primary, 0.14),
+      backgroundColor: 'transparent',
     },
     tabButtonText: {
       fontSize: 10,
