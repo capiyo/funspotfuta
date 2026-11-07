@@ -86,7 +86,7 @@ function AppRoutes() {
     <RootNavigator />
     <NotificationGate visible={notificationGateVisible} onRetry={continueWithoutNotifications} onSkip={continueWithoutNotifications} />
     {notice && <button className="toast" onClick={() => {
-      const target = window.FunspotNotificationUrl?.normalize(notice.data?.url) ?? '/';
+      const target = window.FunspotNotificationUrl?.normalize(notice.data?.url) ?? '/app/';
       window.location.assign(target);
       setNotice(null);
     }} aria-label="Open notification"><strong>{notice.title}</strong>{notice.body && <span>{notice.body}</span>}</button>}

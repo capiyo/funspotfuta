@@ -19,7 +19,7 @@ try {
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const normalize = self.FunspotNotificationUrl?.normalize;
-  const target = normalize ? normalize(event.notification.data?.url) : '/';
+  const target = normalize ? normalize(event.notification.data?.url) : '/app/';
   event.waitUntil((async () => {
     const clients = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
     for (const client of clients) {
