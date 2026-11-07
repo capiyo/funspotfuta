@@ -415,7 +415,7 @@ export function MatchDetailsModal({
                     </View> : null}
 
                     {/* Conditional tab bar */}
-                    {hasStats ? <View style={styles.tabBar}>
+                    {hasStats && activeTab !== 'lineups' ? <View style={styles.tabBar}>
                             <Pressable
                                 style={styles.tab}
                                 onPress={() => setActiveTab('lineups')}
