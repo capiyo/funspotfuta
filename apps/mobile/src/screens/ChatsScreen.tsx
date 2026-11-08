@@ -663,7 +663,11 @@ export default function ChatsScreen() {
             homeTeam: modalFixture.homeTeam,
             awayTeam: modalFixture.awayTeam,
             league: modalFixture.league,
-            isLive: liveModalFixture?.isLive ?? modalFixture.isLive,
+            status: liveModalFixture?.status ?? modalFixture.status,
+            isLive: resolveFixtureIsLive(
+              liveModalFixture?.status ?? modalFixture.status,
+              liveModalFixture?.isLive ?? modalFixture.isLive,
+            ),
           }}
           userId={userId ?? ''}
           username={username ?? ''}
