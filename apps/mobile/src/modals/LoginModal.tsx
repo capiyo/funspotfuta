@@ -885,7 +885,7 @@ function makeStyles(colors: ReturnType<typeof useFanColors>) {
       justifyContent: 'space-between',
       alignItems: 'center',
       paddingVertical: 12,
-      borderBottomWidth: 0,
+      borderBottomWidth:0,
       borderBottomColor: colors.border,
     },
     grabber: {
@@ -928,7 +928,7 @@ function makeStyles(colors: ReturnType<typeof useFanColors>) {
     cardIcon: { fontSize: 40 },
     cardTitle: { textAlign: 'center', fontSize: 17 },
     input: {
-      borderWidth: 0,
+      borderWidth:0,
       borderColor: colors.border,
       backgroundColor: 'transparent',
       borderRadius: 999,
@@ -939,7 +939,7 @@ function makeStyles(colors: ReturnType<typeof useFanColors>) {
     phoneRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      borderWidth: 0,
+      borderWidth:0,
       borderColor: colors.border,
       backgroundColor: 'transparent',
       borderRadius: 999,
@@ -960,7 +960,7 @@ function makeStyles(colors: ReturnType<typeof useFanColors>) {
     pinRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      borderWidth: 0,
+      borderWidth:0,
       borderColor: colors.border,
       backgroundColor: 'transparent',
       borderRadius: 999,
@@ -977,7 +977,7 @@ function makeStyles(colors: ReturnType<typeof useFanColors>) {
       width: 20,
       height: 20,
       borderRadius: 999,
-      borderWidth: 0,
+      borderWidth:0,
       borderColor: colors.primary,
       alignItems: 'center',
       justifyContent: 'center',
