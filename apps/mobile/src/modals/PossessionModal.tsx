@@ -8,6 +8,7 @@ import {
   fetchPossessionPokes,
   fetchPossessionVotes,
   matchPossessionPoke,
+  resolveFixtureIsLive,
 } from '@funspot/core';
 import type { Fixture, PossessionMarket, PossessionSide } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
@@ -27,6 +28,7 @@ type Props = {
 
 export function PossessionModal({ fixture, channelId, userId, username, authToken, isLoggedIn, onClose }: Props) {
   const colors = useFanColors();
+  const fixtureIsLive = resolveFixtureIsLive(fixture?.status, fixture?.isLive);
   const styles = createStyles(colors);
   const { height: screenH } = useWindowDimensions();
   const [tab, setTab] = useState<Tab>('vote');
@@ -129,7 +131,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
             </View>
             <View style={styles.matchHeader}>
               <View style={styles.matchSide}><Text style={[styles.matchName, { color: colors.primary }]} numberOfLines={1}>{fixture.homeTeam}</Text></View>
-              <View style={styles.matchCenter}><Text style={styles.versus}>VS</Text>{(fixture.isLive || fixture.status === 'live') && <Text style={styles.liveBadge}>LIVE</Text>}</View>
+              <View style={styles.matchCenter}><Text style={styles.versus}>VS</Text>{fixtureIsLive && <Text style={styles.liveBadge}>LIVE</Text>}</View>
               <View style={[styles.matchSide, { alignItems: 'flex-end' }]}><Text style={[styles.matchName, { color: colors.away }]} numberOfLines={1}>{fixture.awayTeam}</Text></View>
             </View>
 
