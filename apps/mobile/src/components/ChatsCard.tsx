@@ -278,7 +278,7 @@ export function MatchCard({
     refresh = () => {
       // Keep the last-known list for live fixtures; don't request a list that
       // may be empty after the fixture has moved into play.
-      if (liveFixture.isLive || liveFixture.status?.toLowerCase() === 'live') return;
+      if (resolveFixtureIsLive(liveFixture.status, liveFixture.isLive)) return;
       void getOpenPokes(fixtureId, authToken || undefined, channelId)
         .then((items) => {
           if (!active) return;
