@@ -803,7 +803,7 @@ function createStyles(colors: FanColors) {
             alignItems: 'center',
             paddingHorizontal: FAN_SPACING.lg,
             paddingBottom: FAN_SPACING.md,
-            borderBottomWidth: 0,
+            borderBottomWidth:0,
             borderBottomColor: colors.border,
         },
         headerIcon: {
@@ -877,7 +877,7 @@ function createStyles(colors: FanColors) {
             borderRadius: 18,
             alignItems: 'center',
             justifyContent: 'center',
-            borderWidth: 0,
+            borderWidth:0,
         },
         bubbleAvatarText: { fontSize: 14, fontWeight: '600' },
         bubbleContent: { flexShrink: 1, maxWidth: '78%' },
@@ -890,7 +890,7 @@ function createStyles(colors: FanColors) {
         bubble: {
             paddingHorizontal: 14,
             paddingVertical: 10,
-            borderWidth: 0,
+            borderWidth:0,
             shadowColor: '#000000',
             shadowOpacity: 0,
             shadowRadius: 0,
@@ -938,7 +938,7 @@ function createStyles(colors: FanColors) {
             paddingHorizontal: FAN_SPACING.base,
             paddingTop: FAN_SPACING.md,
             paddingBottom: FAN_SPACING.md,
-            borderTopWidth: 0,
+            borderTopWidth:0,
             backgroundColor: 'transparent',
         },
         replyIndicator: {
