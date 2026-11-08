@@ -24,7 +24,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FAN_SPACING, FAN_RADIUS, playerHeadshotKey, resolvePlayerHeadshots } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
-import { fanShadowStyle } from '../../theme/use-fan-shadow';
 import type { SimplifiedPlayer } from '../../../../../packages/core/src/types/matchDetails';
 import { PositionRank, shortName } from '../../../../../packages/core/src/types/matchDetails';
 
@@ -699,16 +698,7 @@ function OverflowPanel({
                         <BenchColumn players={homePlayers} color={colors.primary} />
                     </View>
                 ) : null}
-                {showHome && showAway ? (
-                    <View
-                        style={{
-                            width: 0.5,
-                            height: maxLen * 32,
-                            backgroundColor: colors.borderActive,
-                            marginHorizontal: 8,
-                        }}
-                    />
-                ) : null}
+                {showHome && showAway ? <View style={{ width: 8 }} /> : null}
                 {showAway ? (
                     <View style={{ flex: 1 }}>
                         <BenchColumn players={awayPlayers} color={colors.away} />
@@ -956,26 +946,6 @@ export function PitchView({
                                 homeColor={colors.primary}
                                 awayColor={colors.away}
                             />
-
-                            {/* Team labels, sitting inside each team's own zone */}
-                            <View
-                                style={[
-                                    styles.pitchLabelWrapper,
-                                    { bottom: height * 0.03, left: 0, right: 0 },
-                                ]}
-                                pointerEvents="none"
-                            >
-                                <PitchLabel label={homeTeam} color={colors.primary} />
-                            </View>
-                            <View
-                                style={[
-                                    styles.pitchLabelWrapper,
-                                    { top: height * 0.03, left: 0, right: 0 },
-                                ]}
-                                pointerEvents="none"
-                            >
-                                <PitchLabel label={awayTeam} color={colors.away} />
-                            </View>
 
                             {/* Player dots */}
                             {cappedHome.map((p, i) =>
