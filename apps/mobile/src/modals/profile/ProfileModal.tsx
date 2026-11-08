@@ -516,7 +516,7 @@ export default function ProfileModal({
               styles.actionChip,
               {
                 backgroundColor: 'transparent',
-                borderWidth: 0.5,
+                borderWidth: 0,
                 borderColor: colors.border,
               },
             ]}
@@ -614,7 +614,7 @@ export default function ProfileModal({
                 styles.actionBtn,
                 {
                   backgroundColor: 'transparent',
-                  borderWidth: 0.5,
+                  borderWidth: 0,
                   borderColor: colors.border,
                 },
               ]}
@@ -795,7 +795,7 @@ export default function ProfileModal({
               styles.actionBtn,
               {
                 backgroundColor: 'transparent',
-                borderWidth: 0.5,
+                borderWidth: 0,
                 borderColor: colors.border,
               },
             ]}
@@ -887,7 +887,7 @@ export default function ProfileModal({
                   style={{ width: 36, height: 36, aspectRatio: 1, borderRadius: 18 }}
                   resizeMode="cover"
                 />
-                {isCurrentUser && <View pointerEvents="none" style={{ position: 'absolute', right: -2, bottom: -2, width: 16, height: 16, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.primary, borderWidth: 2, borderColor: colors.background }}><Camera size={9} color={colors.textInverse} /></View>}
+                {isCurrentUser && <View pointerEvents="none" style={{ position: 'absolute', right: -2, bottom: -2, width: 16, height: 16, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.primary, borderWidth: 0, borderColor: colors.background }}><Camera size={9} color={colors.textInverse} /></View>}
                 {avatarUploading && <ActivityIndicator size="small" color={colors.primary} style={{ position: 'absolute' }} />}
               </Pressable>
               <View style={{ flex: 1, marginLeft: FAN_SPACING.md }}>
@@ -1043,7 +1043,7 @@ function createStyles(colors: FanColors) {
       borderRadius: 18,
       alignItems: 'center',
       justifyContent: 'center',
-      borderWidth: 1,
+      borderWidth: 0,
     },
     headerAvatarText: { fontSize: 14, fontWeight: '700' },
     headerTitle: { fontSize: 14, fontWeight: '700' },
@@ -1075,7 +1075,7 @@ function createStyles(colors: FanColors) {
       gap: FAN_SPACING.md,
       padding: FAN_SPACING.base,
       borderRadius: FAN_RADIUS.lg,
-      borderWidth: 1,
+      borderWidth: 0,
       marginBottom: FAN_SPACING.md,
     },
     balanceIcon: {
@@ -1162,13 +1162,13 @@ function createStyles(colors: FanColors) {
       paddingHorizontal: FAN_SPACING.md,
       paddingVertical: FAN_SPACING.sm,
       borderRadius: 999,
-      borderWidth: 0,
+      borderWidth:0,
     },
     fieldInput: { flex: 1, fontSize: 12, paddingVertical: 4 },
 
     // Leaderboard section
     leaderboardSection: {
-      borderTopWidth: 0.5,
+      borderTopWidth: 0,
       borderTopColor: colors.border,
       paddingHorizontal: FAN_SPACING.md,
       paddingVertical: FAN_SPACING.md,
