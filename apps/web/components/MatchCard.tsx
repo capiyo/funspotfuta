@@ -36,7 +36,7 @@ function formatDate(fixture: Fixture): string {
   if (status === 'live') return 'LIVE';
   if (status === 'soon') return 'SOON';
   if (status === 'completed' || status === 'finished') return 'FT';
-  if (!['upcoming', ''].includes(status) && fixture.isLive) return 'LIVE';
+  if (resolveFixtureIsLive(status, fixture.isLive)) return 'LIVE';
 
   const date = new Date(fixture.date);
   if (Number.isNaN(date.getTime())) return 'TBD';
