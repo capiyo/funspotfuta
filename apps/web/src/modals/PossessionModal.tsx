@@ -8,6 +8,7 @@ import {
   fetchPossessionPokes,
   fetchPossessionVotes,
   matchPossessionPoke,
+  resolveFixtureIsLive,
 } from '@funspot/core';
 import type { Fixture, PossessionMarket, PossessionSide } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
@@ -25,6 +26,7 @@ type Props = {
 
 export function PossessionModal({ fixture, channelId, userId, username, authToken, isLoggedIn, onClose }: Props) {
   const colors = useFanColors();
+  const fixtureIsLive = resolveFixtureIsLive(fixture?.status, fixture?.isLive);
   const [tab, setTab] = useState<Tab>('vote');
   const [listTab, setListTab] = useState<'votes' | 'open' | 'matched'>('votes');
   const [market, setMarket] = useState<PossessionMarket | null>(null);
@@ -154,7 +156,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
         </header>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 0 8px', marginBottom: 6, borderBottom: `1px solid ${colors.border}` }}>
           <div style={{ flex: 1, minWidth: 0, color: colors.primary, fontSize: 13, fontWeight: 800 }}>{fixture.homeTeam}</div>
-          <div style={{ display: 'grid', justifyItems: 'center', gap: 4, color: colors.textTertiary, fontSize: 10, fontWeight: 800 }}>VS{(fixture.isLive || fixture.status === 'live') && <span style={{ color: colors.textInverse, background: colors.away, borderRadius: 99, padding: '2px 6px', fontSize: 8 }}>LIVE</span>}</div>
+          <div style={{ display: 'grid', justifyItems: 'center', gap: 4, color: colors.textTertiary, fontSize: 10, fontWeight: 800 }}>VS{fixtureIsLive && <span style={{ color: colors.textInverse, background: colors.away, borderRadius: 99, padding: '2px 6px', fontSize: 8 }}>LIVE</span>}</div>
           <div style={{ flex: 1, minWidth: 0, textAlign: 'right', color: colors.away, fontSize: 13, fontWeight: 800 }}>{fixture.awayTeam}</div>
         </div>
 
