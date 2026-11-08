@@ -459,6 +459,7 @@ export default function ChatsScreen() {
           aria-label="Fixtures"
         >
           {loadError && <ErrorBanner colors={colors} message={loadError} />}
+          <QuickGuidePostcard colors={colors} />
           <div aria-live="polite">
             {chatFixtures.length === 0 ? (
               isError ? (
@@ -606,6 +607,68 @@ export default function ChatsScreen() {
           username={username ?? ''} authToken={authToken}
           onClose={() => setMatchDetailsFixture(null)}
         />
+      )}
+    </section>
+  );
+}
+
+
+function QuickGuidePostcard({ colors }: { colors: FanColorPalette }) {
+  const [expanded, setExpanded] = useState(false);
+  return (
+    <section
+      aria-label="Quick guide"
+      style={{
+        margin: '0 12px 8px',
+        padding: 10,
+        borderRadius: 16,
+        background: colors.surface,
+        color: colors.textPrimary,
+      }}
+    >
+      <button
+        type="button"
+        aria-expanded={expanded}
+        onClick={() => setExpanded((value) => !value)}
+        style={{
+          display: 'flex',
+          width: '100%',
+          alignItems: 'center',
+          gap: 9,
+          padding: 0,
+          border: 0,
+          background: 'transparent',
+          color: 'inherit',
+          textAlign: 'left',
+          cursor: 'pointer',
+        }}
+      >
+        <span style={{
+          display: 'grid', placeItems: 'center', flex: '0 0 28px',
+          width: 28, height: 28, borderRadius: '50%',
+          background: colors.primaryDim, color: colors.primary,
+          fontSize: 13, fontWeight: 800,
+        }}>?</span>
+        <span style={{ display: 'flex', flex: 1, minWidth: 0, flexDirection: 'column', gap: 1 }}>
+          <strong style={{ fontSize: 11, lineHeight: 1.2 }}>Quick guide</strong>
+          <span style={{ color: colors.textTertiary, fontSize: 10, lineHeight: 1.3 }}>Vote · chat · poke</span>
+        </span>
+        <span aria-hidden="true" style={{ color: colors.textTertiary, fontSize: 17, lineHeight: 1 }}>
+          {expanded ? '−' : '+'}
+        </span>
+      </button>
+      {expanded && (
+        <div style={{ display: 'grid', gap: 5, marginTop: 9, paddingLeft: 37 }}>
+          <p style={{ margin: 0, color: colors.textSecondary, fontSize: 11, lineHeight: 1.4 }}>
+            <strong style={{ color: colors.primary }}>Vote:</strong> pick Home or Away before kickoff.
+          </p>
+          <p style={{ margin: 0, color: colors.textSecondary, fontSize: 11, lineHeight: 1.4 }}>
+            <strong style={{ color: colors.primary }}>Chat:</strong> open a match to talk with its fans.
+          </p>
+          <p style={{ margin: 0, color: colors.textSecondary, fontSize: 11, lineHeight: 1.4 }}>
+            <strong style={{ color: colors.primary }}>Poke:</strong> challenge a comrade's pick with points.
+          </p>
+        </div>
       )}
     </section>
   );
