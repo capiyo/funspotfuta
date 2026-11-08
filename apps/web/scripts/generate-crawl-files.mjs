@@ -167,10 +167,10 @@ export default async function handler(request) {
 await writeFile(path.join(functionDir, 'ssr.mjs'), functionSource, 'utf8');
 
 const rules = [
-  'User-agent: Mediapartners-Google', 'Allow: /', 'Disallow: /app/', '',
-  'User-agent: Google-Display-Ads-Bot', 'Allow: /', 'Disallow: /app/', '',
-  'User-agent: AdsBot-Google', 'Allow: /', 'Disallow: /app/', '',
-  'User-agent: *', 'Allow: /', 'Allow: /ads.txt', 'Disallow: /app/', '',
+  'User-agent: Mediapartners-Google', 'Allow: /', 'Disallow: /app/', 'Disallow: /messages', 'Disallow: /comments', 'Disallow: /login', '',
+  'User-agent: Google-Display-Ads-Bot', 'Allow: /', 'Disallow: /app/', 'Disallow: /messages', 'Disallow: /comments', 'Disallow: /login', '',
+  'User-agent: AdsBot-Google', 'Allow: /', 'Disallow: /app/', 'Disallow: /messages', 'Disallow: /comments', 'Disallow: /login', '',
+  'User-agent: *', 'Allow: /', 'Allow: /ads.txt', 'Disallow: /app/', 'Disallow: /messages', 'Disallow: /comments', 'Disallow: /login', '',
   'Sitemap: ' + origin + '/sitemap.xml', '',
 ].join('\n');
 await writeFile(path.join(distDir, 'robots.txt'), rules, 'utf8');
