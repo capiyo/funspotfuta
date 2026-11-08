@@ -452,7 +452,7 @@ function ChampionCard({
       </View>
 
       <View style={styles.championIdentity}>
-        <Avatar colors={colors} size="xl" userId={row.id} uri={row.avatarUrl} label={initials(row.nickname || row.username)} borderColor={hexWithAlpha(accent, 0.35)} />
+        <Avatar colors={colors} size="xl" userId={row.id} uri={row.avatarUrl} label={initials(row.nickname || row.username)} />
         <View style={{ flex: 1 }}>
           <View style={styles.nameRow}>
             <Text style={styles.championName} numberOfLines={1}>
@@ -1033,7 +1033,7 @@ function VotersTab({
           const vc = voteColor(item.selection);
           return (
             <View style={styles.voterRow}>
-              <Avatar colors={colors} size="md" userId={item.userId} label={initials(item.username)} borderColor={vc} />
+              <Avatar colors={colors} size="md" userId={item.userId} label={initials(item.username)} />
               <View style={styles.voterTextWrap}>
                 <View style={styles.nameRow}>
                   <Text
@@ -1643,7 +1643,7 @@ function createStyles(colors: FanColors) {
       width: 44,
       height: 44,
       borderRadius: 22,
-      borderWidth: 1.5,
+      borderWidth: 0,
       alignItems: 'center',
       justifyContent: 'center',
       marginRight: FAN_SPACING.sm,
