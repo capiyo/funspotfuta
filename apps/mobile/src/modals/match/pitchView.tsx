@@ -665,8 +665,6 @@ function OverflowPanel({
     const colors = useFanColors();
     if (!showHome && !showAway) return null;
 
-    const maxLen = Math.max(homePlayers.length, awayPlayers.length);
-
     return (
         <View
             style={[
