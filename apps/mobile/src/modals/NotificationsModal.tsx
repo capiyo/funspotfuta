@@ -287,7 +287,7 @@ function createStyles(colors: FanColors) {
       paddingVertical: 14,
     },
     prefRowBorder: {
-      borderTopWidth: 0,
+      borderTopWidth:0,
       borderTopColor: colors.border,
     },
     prefLabel: {
