@@ -637,7 +637,6 @@ function MemberCard({
           userId={String(member.userId ?? member.user_id ?? member.id ?? member._id ?? '') || undefined}
           label={(member.username?.[0] ?? '?').toUpperCase()}
           backgroundColor={accentDim}
-          borderColor={accent}
         />
         <View style={{ flex: 1, marginLeft: FAN_SPACING.md }}>
           <View style={styles.memberNameRow}>
