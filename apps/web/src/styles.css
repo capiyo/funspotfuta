@@ -4716,3 +4716,15 @@ body:has(.home-screen) .profile-modal-shell {
     border-radius: 28px 28px 0 0 !important;
   }
 }
+
+
+/* The two portal sheets excluded from the general fixed-surface reset get the same clean treatment. */
+body:has(.home-screen) .action-modal-sheet,
+body:has(.home-screen) .action-modal-sheet *,
+body:has(.home-screen) .leaderboard-modal-sheet,
+body:has(.home-screen) .leaderboard-modal-sheet * {
+  border-width: 0 !important;
+  border-style: none !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+}
