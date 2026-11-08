@@ -550,7 +550,7 @@ const styles = StyleSheet.create({
     tabBar: {
         flexDirection: 'row',
         marginHorizontal: 16,
-        borderBottomWidth: 1,
+        borderBottomWidth: 0,
         borderBottomColor: 'rgba(0,0,0,0.1)', // Flutter dividerColor: transparent; we add a subtle bottom border for the RN tab look.
     },
     tab: {
