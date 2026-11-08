@@ -759,7 +759,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: withAlpha(MEMBER_ACCENT, 0.12),
-        borderWidth: 0,
+        borderWidth:0,
         borderColor: withAlpha(MEMBER_ACCENT, 0.3),
     },
     headerTitle: { color: colors.textPrimary, fontSize: 18, fontWeight: '700' },
@@ -815,7 +815,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 4,
         borderRadius: 999,
-        borderWidth: 0,
+        borderWidth:0,
         borderColor: colors.border,
         backgroundColor: 'transparent',
     },
@@ -955,7 +955,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingTop: 12,
         paddingBottom: 20,
-        borderTopWidth: 0,
+        borderTopWidth:0,
         borderTopColor: colors.border,
     },
     actionBtn: {
@@ -966,7 +966,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     cancelBtn: {
-        borderWidth: 0,
+        borderWidth:0,
         borderColor: colors.border,
     },
     cancelBtnText: {
