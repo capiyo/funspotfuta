@@ -36,28 +36,23 @@ export function LineupsTab({fixture,lineups,loading,error}:LineupsTabProps) {
   const hasBench=lineups.homeBench.length>0||lineups.awayBench.length>0;
   return <div className="flex min-h-0 flex-1 flex-col">
     {hasBench && <div className="flex justify-center py-1">
-      <button type="button" onClick={()=>setShowBench(v=>!v)} className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold transition-colors" style={{backgroundColor:showBench?colors.primary:'transparent',color:showBench?'#fff':colors.textSecondary,border:showBench?'1px solid transparent':`1px solid ${colors.borderActive}`}}>
+      <button type="button" onClick={()=>setShowBench(v=>!v)} className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold transition-colors" style={{backgroundColor:showBench?colors.primary:'transparent',color:showBench?'#fff':colors.textSecondary,border:0}}>
         {showBench?<X size={15}/>:<ArrowLeftRight size={15}/>}<span>{showBench?'Hide bench':'Show bench'}</span>
       </button>
     </div>}
     <div className={`grid transition-[grid-template-rows,opacity] duration-300 ${showBench?'grid-rows-[1fr] opacity-100':'grid-rows-[0fr] opacity-0'}`}>
       <div className="overflow-hidden">
-        <div className="border-b px-3.5 pb-3 pt-2" style={{backgroundColor:colors.background,borderBottomColor:hexWithAlpha(colors.primary,.25)}}>
+        <div className="px-3.5 pb-3 pt-2">
           <div className="flex items-center gap-2"><span className="h-[13px] w-[3px] rounded" style={{backgroundColor:colors.primary}}/><span className="text-[10px] font-bold tracking-widest" style={{color:colors.primary}}>BENCH</span></div>
           <div className="mt-2.5 grid grid-cols-2 gap-3">
             <BenchColumn players={lineups.homeBench} color={colors.primary}/>
-            <div className="w-px justify-self-center" style={{backgroundColor:colors.borderActive}}/>
+            
             <BenchColumn players={lineups.awayBench} color={colors.away}/>
           </div>
         </div>
       </div>
     </div>
-    <div className="min-h-0 flex-1 overflow-y-auto px-4 py-2">
-      <div className="mb-2 flex items-center justify-between gap-3 px-1" aria-label="Team formations">
-        <span className="rounded-full px-2.5 py-1 text-[10px] font-semibold tabular-nums" style={{backgroundColor:hexWithAlpha(colors.primary,.1),color:colors.primary}}>{lineups.homeFormation}</span>
-        <span className="text-[9px] font-semibold tracking-wider" style={{color:colors.textTertiary}}>FORMATION</span>
-        <span className="rounded-full px-2.5 py-1 text-[10px] font-semibold tabular-nums" style={{backgroundColor:hexWithAlpha(colors.away,.1),color:colors.away}}>{lineups.awayFormation}</span>
-      </div>
+    <div className="min-h-0 flex-1 overflow-y-auto px-2 py-1">
       <PitchView homeTeam={fixture.homeTeam} awayTeam={fixture.awayTeam} homeFormation={lineups.homeFormation} awayFormation={lineups.awayFormation} homePlayers={lineups.homeStartingXI} awayPlayers={lineups.awayStartingXI}/>
     </div>
   </div>;
