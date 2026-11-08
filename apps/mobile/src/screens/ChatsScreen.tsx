@@ -1,4 +1,3 @@
-import { resolveFixtureIsLive } from '@funspot/core';
 // screens/ChatsScreen.tsx
 //
 // Presentation, plus vote / pledge handlers aligned with the Flutter flow
