@@ -756,9 +756,7 @@ body:has(.home-screen) .home-screen .feed-item,
 body:has(.home-screen) .home-screen .post-card,
 body:has(.home-screen) .home-screen .chats-fixture-list,
 body:has(.home-screen) .home-screen .chats-fixture-row,
-body:has(.home-screen) .home-screen .chats-list-footer,
-body:has(.home-screen) .home-screen .post-image-frame,
-body:has(.home-screen) .home-screen .post-video-frame {
+body:has(.home-screen) .home-screen .chats-list-footer {
   background: var(--home-page-bg) !important;
   background-color: var(--home-page-bg) !important;
   background-image: none !important;
@@ -766,6 +764,15 @@ body:has(.home-screen) .home-screen .post-video-frame {
   box-shadow: none !important;
   outline: 0 !important;
   border-radius: 0 !important;
+}
+body:has(.home-screen) .home-screen .post-image-frame,
+body:has(.home-screen) .home-screen .post-video-frame {
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+  border-radius: 8px !important;
+  overflow: hidden;
 }
 body:has(.home-screen) .home-screen,
 body:has(.home-screen) .home-screen *,
