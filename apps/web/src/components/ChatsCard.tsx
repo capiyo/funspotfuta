@@ -43,6 +43,7 @@ import {
   queryKeys,
   hasScores,
   getFormattedMinuteDisplay,
+  resolveFixtureIsLive,
   useFixtureLiveUpdates,
   winner as fixtureWinner,
   outcomeColor,
@@ -362,10 +363,7 @@ export function MatchCard({
   );
 
   const fixtureStatus = (liveFixture.status ?? '').toLowerCase();
-  const isLive =
-    fixtureStatus === 'live' ||
-    (!['upcoming', 'soon', 'completed', 'finished'].includes(fixtureStatus) &&
-      !!liveFixture.isLive);
+  const isLive = resolveFixtureIsLive(fixtureStatus, liveFixture.isLive);
   const matchMinute = getFormattedMinuteDisplay(liveFixture);
   const isHalfTime = fixtureStatus === 'half_time';
   const isCompleted =
