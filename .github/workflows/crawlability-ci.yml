@@ -46,17 +46,18 @@ jobs:
           if (humanHtml !== crawlerHtml) {
             throw new Error('Visitor and crawler HTML differ; user-agent cloaking is forbidden.');
           }
-          if (humanResponse.headers.get('x-funspot-render') !== 'same-app-shell') {
-            throw new Error('Same-app-shell response marker is missing.');
+          if (humanResponse.headers.get('x-funspot-render') !== 'react-ssr') {
+            throw new Error('React SSR response marker is missing.');
           }
-          if (!humanHtml.includes('<div id="root"></div>') ||
-              !humanHtml.includes('/src/main.tsx')) {
-            throw new Error('Homepage response does not contain the real application mount point.');
+          if (!humanHtml.includes('<div id="root" data-render-mode="public">') ||
+              !humanHtml.includes('<h1') ||
+              !humanHtml.includes('Football is better')) {
+            throw new Error('Homepage response does not contain the rendered public homepage.');
           }
-          if (/public-home|PublicHomeContent|crawler-only|Googlebot/i.test(humanHtml)) {
-            throw new Error('Separate or crawler-specific homepage content remains.');
+          if (/crawler-only|Googlebot/i.test(humanHtml)) {
+            throw new Error('Crawler-specific homepage content remains.');
           }
-          console.log('Passed: visitors and Googlebot receive the same Funspot application shell.');
+          console.log('Passed: visitors and Googlebot receive identical rendered Funspot homepage HTML.');
           NODE
       - name: Verify generated crawl files and public output tree
         run: |
