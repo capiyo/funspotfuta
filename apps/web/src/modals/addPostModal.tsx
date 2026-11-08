@@ -689,7 +689,7 @@ function VideoPreview({
 }) {
     return (
         <div
-            className="relative mb-4 overflow-hidden rounded-xl border"
+            className="relative mb-4 overflow-hidden rounded-lg"
             style={{ borderColor: colors.borderActive }}
         >
             <div className="relative h-[180px] bg-black">
@@ -702,12 +702,12 @@ function VideoPreview({
                     playsInline
                 />
 
-                <span className="absolute left-3 top-3 flex items-center gap-1 rounded-lg bg-red-500 px-2.5 py-1.5 text-[11px] font-bold tracking-wide text-white">
+                <span className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-red-500 px-2.5 py-1.5 text-[11px] font-bold tracking-wide text-white">
                     <VideoIcon size={12} />
                     VIDEO
                 </span>
 
-                <span className="absolute bottom-3 right-3 rounded-md bg-black/75 px-2 py-1 text-[10px] font-medium text-white">
+                <span className="absolute bottom-3 right-3 rounded-full bg-black/75 px-2 py-1 text-[10px] font-medium text-white">
                     {fileSizeLabel}
                 </span>
 
@@ -739,7 +739,7 @@ function ImagePreview({
 }) {
     return (
         <div
-            className="relative mb-4 overflow-hidden rounded-xl border"
+            className="relative mb-4 overflow-hidden rounded-lg"
             style={{ borderColor: colors.borderActive }}
         >
             <div className="relative h-[180px] bg-black">
@@ -749,12 +749,12 @@ function ImagePreview({
                     className="h-full w-full object-cover"
                 />
 
-                <span className="absolute left-3 top-3 flex items-center gap-1 rounded-lg bg-blue-500 px-2.5 py-1.5 text-[11px] font-bold tracking-wide text-white">
+                <span className="absolute left-3 top-3 flex items-center gap-1 rounded-full bg-blue-500 px-2.5 py-1.5 text-[11px] font-bold tracking-wide text-white">
                     <ImageIcon size={12} />
                     IMAGE
                 </span>
 
-                <span className="absolute bottom-3 right-3 rounded-md bg-black/75 px-2 py-1 text-[10px] font-medium text-white">
+                <span className="absolute bottom-3 right-3 rounded-full bg-black/75 px-2 py-1 text-[10px] font-medium text-white">
                     {fileSizeLabel}
                 </span>
 
