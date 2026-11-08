@@ -103,6 +103,7 @@ export interface FixtureLite {
     homeTeam: string;
     awayTeam: string;
     league: string;
+    status?: string;
     isLive?: boolean;
 }
 
