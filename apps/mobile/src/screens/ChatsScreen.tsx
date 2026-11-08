@@ -39,6 +39,7 @@ import { useLoginModal } from '../modals/Login-modal-context';
 import {
   useFixtures,
   queryKeys,
+  resolveFixtureIsLive,
   Fixture,
   FanColorPalette,
   Voter,
