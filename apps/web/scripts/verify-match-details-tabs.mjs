@@ -1,7 +1,7 @@
 import { chromium } from 'playwright';
 import assert from 'node:assert/strict';
 
-const baseURL = process.env.VERIFY_BASE_URL || 'http://127.0.0.1:4173';
+const baseURL = process.env.VERIFY_BASE_URL || 'http://127.0.0.1:5173/app/';
 const fixture = {
   id: 'match-details-tabs-fixture',
   match_id: 'match-details-tabs-fixture',
