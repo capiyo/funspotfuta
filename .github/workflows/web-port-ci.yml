@@ -42,10 +42,10 @@ jobs:
       - name: Verify ChatsCard at desktop and mobile widths
         run: |
           cd apps/web
-          npm run start -- --host 127.0.0.1 > /tmp/funspot-web-preview.log 2>&1 &
-          for attempt in $(seq 1 30); do curl --fail --silent http://127.0.0.1:4173/ > /dev/null && break; sleep 1; done
+          npm run dev -- --host 127.0.0.1 --port 5173 > /tmp/funspot-web-dev.log 2>&1 &
+          for attempt in $(seq 1 30); do curl --fail --silent http://127.0.0.1:5173/app/ > /dev/null && break; sleep 1; done
           cd ../..
-          node apps/web/scripts/verify-chats-card.mjs
+          VERIFY_BASE_URL=http://127.0.0.1:5173/app/ node apps/web/scripts/verify-chats-card.mjs
       - name: Verify Match Details lineup and stats tabs
         run: node apps/web/scripts/verify-match-details-tabs.mjs
       - name: Verify Home shell and Feed styling
