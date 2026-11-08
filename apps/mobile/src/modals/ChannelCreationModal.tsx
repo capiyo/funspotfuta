@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
   title: { color: 'white', fontSize: 16, fontWeight: '700', marginBottom: 16 },
   label: { color: colors.textMuted, fontSize: 11, marginBottom: 4 },
   input: {
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: colors.border,
     backgroundColor: 'transparent',
     borderRadius: 999,
