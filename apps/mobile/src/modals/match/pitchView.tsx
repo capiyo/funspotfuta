@@ -827,7 +827,7 @@ export interface PitchViewProps {
     maxHeight: number;
 }
 
-const PITCH_ASPECT_RATIO = 0.5;
+const PITCH_ASPECT_RATIO = 1 / 1.55;
 
 export function PitchView({
     homeTeam,
