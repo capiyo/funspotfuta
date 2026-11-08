@@ -1,3 +1,4 @@
+import { resolveFixtureIsLive } from '@funspot/core';
 // screens/ChatsScreen.tsx
 //
 // Presentation, plus vote / pledge handlers aligned with the Flutter flow
@@ -153,10 +154,11 @@ function commentsOf(f: Fixture): LatestComment[] {
 }
 
 function isLiveFixture(f: Fixture) {
-  return !!f.isLive || f.status === 'live';
+  return resolveFixtureIsLive(f.status, f.isLive);
 }
 function isUpcomingFixture(f: Fixture) {
-  return f.status === 'upcoming' || f.status === 'soon';
+  const status = (f.status ?? '').toLowerCase();
+  return status === 'upcoming' || status === 'soon';
 }
 function statusRank(f: Fixture) {
   if (isLiveFixture(f)) return 0;
