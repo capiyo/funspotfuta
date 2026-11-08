@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
         width: '100%',
         maxWidth: 340,
         borderRadius: 24,
-        borderWidth: 0,
+        borderWidth:0,
         borderColor: 'transparent',
         backgroundColor: colors.surface,
         padding: 20,
