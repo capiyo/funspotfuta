@@ -27,7 +27,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
-import { View, FlatList, RefreshControl, StyleSheet } from 'react-native';
+import { View, Text, Pressable, FlatList, RefreshControl, StyleSheet } from 'react-native';
 import type { NativeScrollEvent, NativeSyntheticEvent } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -586,7 +586,12 @@ export default function ChatsScreen() {
               colors={[colors.primary]}
             />
           }
-          ListHeaderComponent={loadError ? <ErrorBanner colors={colors} message={loadError} /> : null}
+          ListHeaderComponent={
+            <View>
+              {loadError && <ErrorBanner colors={colors} message={loadError} />}
+              <QuickGuidePostcard colors={colors} />
+            </View>
+          }
           ListEmptyComponent={
             isError ? (
               <EmptyState
@@ -746,6 +751,54 @@ export default function ChatsScreen() {
           authToken={authToken}
           onClose={() => setMatchDetailsFixture(null)}
         />
+      )}
+    </View>
+  );
+}
+
+
+function QuickGuidePostcard({ colors }: { colors: FanColorPalette }) {
+  const [expanded, setExpanded] = useState(false);
+  return (
+    <View style={{
+      marginHorizontal: 12,
+      marginBottom: 8,
+      padding: 10,
+      borderRadius: 16,
+      backgroundColor: colors.surface,
+    }}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Quick guide: vote, chat, and poke"
+        accessibilityState={{ expanded }}
+        onPress={() => setExpanded((value) => !value)}
+        style={{ flexDirection: 'row', alignItems: 'center', gap: 9 }}
+      >
+        <View style={{
+          width: 28, height: 28, borderRadius: 14,
+          alignItems: 'center', justifyContent: 'center',
+          backgroundColor: colors.primaryDim,
+        }}>
+          <Text style={{ color: colors.primary, fontSize: 13, fontWeight: '800' }}>?</Text>
+        </View>
+        <View style={{ flex: 1, minWidth: 0, gap: 1 }}>
+          <Text style={{ color: colors.textPrimary, fontSize: 11, fontWeight: '800' }}>Quick guide</Text>
+          <Text style={{ color: colors.textTertiary, fontSize: 10 }}>Vote · chat · poke</Text>
+        </View>
+        <Text style={{ color: colors.textTertiary, fontSize: 17 }}>{expanded ? '−' : '+'}</Text>
+      </Pressable>
+      {expanded && (
+        <View style={{ gap: 5, marginTop: 9, paddingLeft: 37 }}>
+          <Text style={{ color: colors.textSecondary, fontSize: 11, lineHeight: 16 }}>
+            <Text style={{ color: colors.primary, fontWeight: '800' }}>Vote:</Text> pick Home or Away before kickoff.
+          </Text>
+          <Text style={{ color: colors.textSecondary, fontSize: 11, lineHeight: 16 }}>
+            <Text style={{ color: colors.primary, fontWeight: '800' }}>Chat:</Text> open a match to talk with its fans.
+          </Text>
+          <Text style={{ color: colors.textSecondary, fontSize: 11, lineHeight: 16 }}>
+            <Text style={{ color: colors.primary, fontWeight: '800' }}>Poke:</Text> challenge a comrade's pick with points.
+          </Text>
+        </View>
       )}
     </View>
   );
