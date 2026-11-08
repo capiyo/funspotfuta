@@ -840,7 +840,7 @@ export function PitchView({
 }: PitchViewProps) {
     const colors = useFanColors();
     const { width: screenWidth } = useWindowDimensions();
-    const pitchWidth = Math.max(1, Math.min(screenWidth - 28, maxHeight * PITCH_ASPECT_RATIO));
+    const pitchWidth = Math.max(1, Math.min(screenWidth - 16, maxHeight * PITCH_ASPECT_RATIO));
     const [showHomeOverflow, setShowHomeOverflow] = useState(false);
     const [showAwayOverflow, setShowAwayOverflow] = useState(false);
     const [headshots, setHeadshots] = useState<Record<string, string>>({});
