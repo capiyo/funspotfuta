@@ -142,9 +142,9 @@ const styles = StyleSheet.create({
         flexGrow: 1,
         alignItems: 'stretch',
         justifyContent: 'flex-start',
-        paddingLeft: FAN_SPACING.base,
-        paddingRight: FAN_SPACING.base,
+        paddingLeft: FAN_SPACING.sm,
+        paddingRight: FAN_SPACING.sm,
         paddingTop: 0,
-        paddingBottom: FAN_SPACING.base,
+        paddingBottom: FAN_SPACING.sm,
     },
 });
