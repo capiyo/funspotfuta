@@ -572,8 +572,7 @@ function TabBar({
                         width: `${widthPct}%` as any,
                         left: `${active * widthPct}%` as any,
                         backgroundColor: 'transparent',
-                        shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 3,
-                        shadowOffset: { width: 0, height: 1 }, elevation: 1,
+                        
                     },
                 ]}
             />
@@ -2520,7 +2519,7 @@ function createStyles(colors: FanColorPalette, screenW = 0) {
 
         // Card primitive
         card: {
-            borderRadius: FAN_RADIUS.lg,
+            borderRadius: FAN_RADIUS.xl,
             backgroundColor: 'transparent',
             borderWidth: 0,
             borderColor: colors.border,
@@ -2632,8 +2631,8 @@ function createStyles(colors: FanColorPalette, screenW = 0) {
         // Sub-fixture card
         subExpanded: {
             marginTop: FAN_SPACING.sm,
-            borderTopWidth: StyleSheet.hairlineWidth,
-            borderTopColor: colors.border,
+            borderTopWidth: 0,
+            borderTopColor: 'transparent',
             paddingTop: FAN_SPACING.sm,
         },
 
@@ -2668,9 +2667,9 @@ function createStyles(colors: FanColorPalette, screenW = 0) {
             letterSpacing: 0.4,
             paddingHorizontal: 6,
             paddingVertical: 2,
-            borderRadius: 6,
+            borderRadius: FAN_RADIUS.pill,
             overflow: 'hidden',
-            backgroundColor: colors.background,
+            backgroundColor: 'transparent',
         },
         progressTrack: {
             height: 3,
@@ -2729,9 +2728,9 @@ function createStyles(colors: FanColorPalette, screenW = 0) {
             paddingHorizontal: FAN_SPACING.lg,
             paddingTop: FAN_SPACING.sm,
             paddingBottom: FAN_SPACING.lg,
-            borderTopWidth: StyleSheet.hairlineWidth,
-            borderTopColor: colors.border,
-            backgroundColor: colors.background,
+            borderTopWidth: 0,
+            borderTopColor: 'transparent',
+            backgroundColor: 'transparent',
         },
         shareBtn: {
             flexDirection: 'row',
@@ -2773,8 +2772,8 @@ function createStyles(colors: FanColorPalette, screenW = 0) {
         dialogSummary: {
             paddingHorizontal: FAN_SPACING.md,
             paddingVertical: FAN_SPACING.sm,
-            borderRadius: FAN_RADIUS.md,
-            backgroundColor: colors.background,
+            borderRadius: FAN_RADIUS.pill,
+            backgroundColor: 'transparent',
             borderWidth: 0,
             borderColor: colors.border,
             marginBottom: FAN_SPACING.md,
