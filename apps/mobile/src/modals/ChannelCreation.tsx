@@ -759,7 +759,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: withAlpha(MEMBER_ACCENT, 0.12),
-        borderWidth: 1,
+        borderWidth: 0,
         borderColor: withAlpha(MEMBER_ACCENT, 0.3),
     },
     headerTitle: { color: colors.textPrimary, fontSize: 18, fontWeight: '700' },
@@ -771,7 +771,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: 'transparent',
-        borderWidth: 0,
+        borderWidth:0,
     },
 
     // Input
@@ -784,7 +784,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 14,
         paddingVertical: 4,
         borderRadius: 999,
-        borderWidth: 0,
+        borderWidth:0,
         borderColor: 'transparent',
         backgroundColor: 'transparent',
     },
@@ -815,7 +815,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 4,
         borderRadius: 999,
-        borderWidth: 1,
+        borderWidth: 0,
         borderColor: colors.border,
         backgroundColor: 'transparent',
     },
@@ -853,7 +853,7 @@ const styles = StyleSheet.create({
     // User tile
     userTile: {
         borderRadius: 18,
-        borderWidth: 0,
+        borderWidth:0,
         backgroundColor: 'transparent',
         padding: 12,
         marginBottom: 8,
@@ -870,7 +870,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: withAlpha(MEMBER_ACCENT, 0.1),
-        borderWidth: 0,
+        borderWidth:0,
     },
     avatarText: { fontSize: 16, fontWeight: '700' },
     userName: { color: colors.textPrimary, fontSize: 13, fontWeight: '600' },
@@ -881,7 +881,7 @@ const styles = StyleSheet.create({
         borderRadius: 14,
         alignItems: 'center',
         justifyContent: 'center',
-        borderWidth: 0,
+        borderWidth:0,
     },
 
     // Stat grid
@@ -937,7 +937,7 @@ const styles = StyleSheet.create({
         paddingVertical: 4,
         borderRadius: 999,
         backgroundColor: withAlpha(MEMBER_ACCENT, 0.1),
-        borderWidth: 0,
+        borderWidth:0,
         maxWidth: 180,
     },
     chipText: { color: colors.textPrimary, fontSize: 11 },
@@ -955,7 +955,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingTop: 12,
         paddingBottom: 20,
-        borderTopWidth: 1,
+        borderTopWidth: 0,
         borderTopColor: colors.border,
     },
     actionBtn: {
@@ -966,7 +966,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     cancelBtn: {
-        borderWidth: 1,
+        borderWidth: 0,
         borderColor: colors.border,
     },
     cancelBtnText: {
