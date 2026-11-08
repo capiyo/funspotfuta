@@ -56,7 +56,7 @@ let staticNotFound = shell.replace(
   '<div id="root" data-render-mode="not-found">' + renderedNotFound + '</div>',
 );
 staticNotFound = staticNotFound
-  .replace(/<title>[\\s\\S]*?<\\/title>/i, '<title>Page not found | Funspot</title>')
+  .replace(/<title>[\s\S]*?<\/title>/i, '<title>Page not found | Funspot</title>')
   .replace(/<link rel="canonical" href="[^"]*">/i, '')
   .replace(/<meta name="robots" content="[^"]*">/i, '<meta name="robots" content="noindex,follow">');
 if (!/<meta name="robots"/i.test(staticNotFound)) {
