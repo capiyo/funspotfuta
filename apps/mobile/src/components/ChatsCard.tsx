@@ -558,7 +558,7 @@ export function MatchCard({
             )}
             {unreadCount > 0 && (
               <View accessibilityRole="text" accessibilityLabel={`${unreadCount} unread messages`} style={{ width: 21, height: 21, borderRadius: 11, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ color: colors.textInverse, fontSize: 10, fontWeight: '800', fontVariant: ['tabular-nums'] }}>{unreadCount > 99 ? '99+' : unreadCount}</Text>
+                <Text style={{ color: colors.textInverse, fontSize: 10, fontWeight: '800', fontVariant: ['tabular-nums'] }}>{unreadCount}</Text>
               </View>
             )}
             {isLive ? (
