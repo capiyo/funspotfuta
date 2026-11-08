@@ -488,26 +488,6 @@ function PitchSvg({ width, height, homeColor, awayColor }: PitchSvgProps) {
 //  PITCH LABEL
 // ═══════════════════════════════════════════════════════════════
 
-interface PitchLabelProps {
-    label: string;
-    color: string;
-}
-
-function PitchLabel({ label, color }: PitchLabelProps) {
-    const colors = useFanColors();
-    return (
-        <View style={[styles.pitchLabel, { backgroundColor: 'rgba(0,0,0,0.45)' }]}>
-            <Text
-                numberOfLines={1}
-                ellipsizeMode="tail"
-                style={[fanText('tag', colors), { color, letterSpacing: 0.4 }]}
-            >
-                {label}
-            </Text>
-        </View>
-    );
-}
-
 // ═══════════════════════════════════════════════════════════════
 //  PLAYER DOT
 // ═══════════════════════════════════════════════════════════════
@@ -533,13 +513,11 @@ function PlayerDot({ player, position, color, isHome, photoUrl }: PlayerDotProps
                 styles.playerDot,
                 {
                     backgroundColor: color,
-                    borderColor: '#FFFFFF',
                 },
-                fanShadowStyle('card', false),
             ]}
         >
             {photoUrl ? (
-                <ExpoImage source={{ uri: photoUrl }} contentFit="cover" cachePolicy="memory-disk" style={{ width: DOT_SIZE - 5, height: DOT_SIZE - 5, borderRadius: (DOT_SIZE - 5) / 2 }} />
+                <ExpoImage source={{ uri: photoUrl }} contentFit="cover" cachePolicy="memory-disk" style={{ width: DOT_SIZE, height: DOT_SIZE, borderRadius: DOT_SIZE / 2 }} />
             ) : (
                 <Text style={styles.playerDotText}>{player.number}</Text>
             )}
@@ -548,11 +526,11 @@ function PlayerDot({ player, position, color, isHome, photoUrl }: PlayerDotProps
 
     const label = (
         <View
-            style={[styles.playerLabel, { backgroundColor: 'rgba(0,0,0,0.75)' }]}
+            style={styles.playerLabel}
         >
             <Text
                 numberOfLines={1}
-                style={[fanText('tag', colors), { color: '#FFFFFF' }]}
+                style={[fanText('tag', colors), { color: '#FFFFFF', textShadowColor: 'rgba(0,0,0,0.9)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 2 }]}
             >
                 {shortName(player.name)}
             </Text>
@@ -623,10 +601,8 @@ function OverflowButton({
                 style={[
                     styles.overflowButton,
                     {
-                        backgroundColor: expanded
-                            ? hexWithAlpha(color, 0.15)
-                            : colors.background,
-                        borderColor: expanded ? color : colors.borderActive,
+                        backgroundColor: expanded ? hexWithAlpha(color, 0.15) : 'transparent',
+                        borderColor: 'transparent',
                     },
                 ]}
             >
@@ -696,8 +672,8 @@ function OverflowPanel({
             style={[
                 styles.overflowPanel,
                 {
-                    backgroundColor: colors.background,
-                    borderColor: colors.borderActive,
+                    backgroundColor: 'transparent',
+                    borderColor: 'transparent',
                 },
             ]}
         >
@@ -787,10 +763,7 @@ export function BenchColumn({ players, color }: BenchColumnProps) {
             {players.slice(0, 9).map((p, idx) => (
                 <View
                     key={`${p.number}-${p.name}-${idx}`}
-                    style={[
-                        styles.benchRow,
-                        { backgroundColor: hexWithAlpha(color, 0.06) },
-                    ]}
+                    style={styles.benchRow}
                 >
                     {(() => {
                         const photoUrl = p.photoUrl ?? p.imageUrl ??
@@ -822,9 +795,6 @@ export function BenchColumn({ players, color }: BenchColumnProps) {
                         ]}
                     >
                         {shortName(p.name)}
-                    </Text>
-                    <Text style={[fanText('tag', colors), { color: colors.textTertiary }]}>
-                        {p.position.toUpperCase()}
                     </Text>
                     {p.captain ? (
                         <>
@@ -1058,7 +1028,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 6,
         borderRadius: FAN_RADIUS.pill,
-        borderWidth: 1.2,
+        borderWidth: 0,
     },
     overflowBadge: {
         width: 18,
@@ -1074,8 +1044,8 @@ const styles = StyleSheet.create({
     overflowPanel: {
         marginTop: FAN_SPACING.sm,
         marginBottom: FAN_SPACING.xs,
-        borderRadius: 10,
-        borderWidth: 0.8,
+        borderRadius: FAN_RADIUS.xl,
+        borderWidth: 0,
         paddingHorizontal: 10,
         paddingTop: 10,
         paddingBottom: 12,
@@ -1099,12 +1069,12 @@ const styles = StyleSheet.create({
         marginBottom: 5,
         paddingHorizontal: 7,
         paddingVertical: 5,
-        borderRadius: 6,
+        borderRadius: FAN_RADIUS.pill,
     },
     benchNumber: {
         width: 22,
         height: 22,
-        borderRadius: 4,
+        borderRadius: 11,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -1121,17 +1091,8 @@ const styles = StyleSheet.create({
     },
     pitchClip: {
         flex: 1,
-        borderRadius: 14,
+        borderRadius: 8,
         overflow: 'hidden',
-    },
-    pitchLabelWrapper: {
-        position: 'absolute',
-        alignItems: 'center',
-    },
-    pitchLabel: {
-        paddingHorizontal: 8,
-        paddingVertical: 3,
-        borderRadius: 6,
     },
     playerDotWrapper: {
         position: 'absolute',
@@ -1143,7 +1104,7 @@ const styles = StyleSheet.create({
         width: DOT_SIZE,
         height: DOT_SIZE,
         borderRadius: DOT_SIZE / 2,
-        borderWidth: 2.5,
+        borderWidth: 0,
         overflow: 'hidden',
         alignItems: 'center',
         justifyContent: 'center',
@@ -1156,9 +1117,10 @@ const styles = StyleSheet.create({
     playerLabel: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 4,
-        paddingVertical: 1,
-        borderRadius: 4,
+        paddingHorizontal: 0,
+        paddingVertical: 0,
+        borderRadius: FAN_RADIUS.pill,
+        backgroundColor: 'transparent',
     },
     playerCaptain: {
         fontSize: 8,
