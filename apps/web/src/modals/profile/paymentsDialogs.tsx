@@ -630,11 +630,11 @@ function createStyles(colors: FanColors): Record<string, CSSProperties> {
         },
         dialog: {
             width: '100%',
-            maxWidth: 360,
+            maxWidth: 420,
             backgroundColor: colors.surface,
-            borderRadius: FAN_RADIUS.lg,
-            borderWidth: 1,
-            borderColor: colors.border,
+            borderRadius: FAN_RADIUS.xl,
+            borderWidth: 0,
+            borderColor: 'transparent',
             padding: FAN_SPACING.lg,
         },
         dialogHeader: {
@@ -659,8 +659,9 @@ function createStyles(colors: FanColors): Record<string, CSSProperties> {
 
         inputsDisabled: { opacity: 0.5 },
         input: {
-            borderWidth: 1,
+            borderWidth: 0,
             borderRadius: FAN_RADIUS.pill,
+            backgroundColor: 'transparent',
             paddingInline: FAN_SPACING.base,
             paddingBlock: FAN_SPACING.md,
             fontSize: 13,
@@ -714,7 +715,7 @@ function createStyles(colors: FanColors): Record<string, CSSProperties> {
             borderRadius: FAN_RADIUS.pill,
             alignItems: 'center',
             justifyContent: 'center',
-            borderWidth: 1,
+            borderWidth: 0,
             borderColor: 'transparent',
         },
         dialogBtnText: { fontSize: 13, fontWeight: '600' },
