@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '../queries/queryKeys';
 import { webSocketService } from './websocket-service';
+import { isFinishedStatus, isLiveStatus, resolveFixtureIsLive } from './fixture-live-status';
 
 export interface FixtureLiveSeed {
   status?: string | null;
@@ -62,14 +63,6 @@ export interface FixtureLiveState {
   timeElapsed: number | null;
 }
 
-function isLiveStatus(status: string): boolean {
-  return ['live', 'in_play', 'in-play', 'injury_time', 'half_time', 'halftime'].includes(status.toLowerCase());
-}
-
-function isFinishedStatus(status: string): boolean {
-  return ['full_time', 'full-time', 'finished', 'completed', 'ended'].includes(status.toLowerCase());
-}
-
 function payloadMatchesFixture(
   payload: Record<string, unknown>,
   channelId: string,
@@ -107,7 +100,7 @@ export function useFixtureLiveUpdates(params: {
       connected: false,
       commentary: queryClient.getQueryData<CachedLiveCommentary>(commentaryKey)?.events.slice(-1)[0] ?? null,
       status,
-      isLive: seed?.isLive ?? isLiveStatus(status),
+      isLive: resolveFixtureIsLive(status, seed?.isLive),
       homeScore: seed?.homeScore ?? null,
       awayScore: seed?.awayScore ?? null,
       timeElapsed: seed?.timeElapsed ?? null,
@@ -120,7 +113,7 @@ export function useFixtureLiveUpdates(params: {
       connected: webSocketService.getIsConnected(),
       commentary: queryClient.getQueryData<CachedLiveCommentary>(commentaryKey)?.events.slice(-1)[0] ?? null,
       status,
-      isLive: seed?.isLive ?? isLiveStatus(status),
+      isLive: resolveFixtureIsLive(status, seed?.isLive),
       homeScore: seed?.homeScore ?? null,
       awayScore: seed?.awayScore ?? null,
       timeElapsed: seed?.timeElapsed ?? null,
@@ -193,8 +186,10 @@ export function useFixtureLiveUpdates(params: {
 
     const onMatchStatus = (payload: Record<string, unknown>) => {
       if (!payloadMatchesFixture(payload, channelId, fixtureId)) return;
-      const status = String(payload.status ?? 'live');
-      applyStatus(status);
+      const rawStatus = payload.status;
+      if (rawStatus != null && String(rawStatus).trim()) {
+        applyStatus(String(rawStatus));
+      }
       const home = payload.home_score ?? payload.homeScore;
       const away = payload.away_score ?? payload.awayScore;
       const elapsed = payload.timeElapsed ?? payload.time_elapsed ?? payload.minute;
