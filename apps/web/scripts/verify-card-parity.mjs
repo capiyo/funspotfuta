@@ -20,7 +20,7 @@ const fixtures = pairs.map(([home_team, away_team], i) => ({
   id: 'card-parity-' + i, match_id: 'card-parity-' + i, home_team, away_team,
   league: ['Premier League', 'UEFA Champions League', 'La Liga'][i % 3],
   date: new Date(Date.now() + (i + 1) * 3600000).toISOString(),
-  status: 'upcoming', is_live: false, home_score: null, away_score: null,
+  status: i === 0 ? 'soon' : 'upcoming', is_live: i === 0, home_score: null, away_score: null,
   votes: i + 1, voters: [], available_for_voting: true,
 }));
 const channels = ['Premier League', 'World Cup', 'Local Derbies', 'Arsenal Fans'].map((name, i) => ({
@@ -240,6 +240,7 @@ async function inspect(width, state) {
         return { width: r.width, height: r.height, radius: getComputedStyle(n).borderRadius };
       });
       return {
+        statusLabel: el.querySelector('.match-card-date')?.textContent?.trim() ?? '',
         channelX: channel.x, leagueX: league.x,
         previewBottom: preview.bottom, promptTop: promptLine.top,
         previewText, promptText,
@@ -249,6 +250,10 @@ async function inspect(width, state) {
         teamRect: tr.toJSON(), actionsRect: ar.toJSON(), names, logos,
       };
     }, state !== 'guest');
+    if (i === 0) {
+      assert(metrics.statusLabel === 'SOON',
+        'A fixture marked SOON must not be shown as LIVE even when its stale is_live flag is true: ' + metrics.statusLabel);
+    }
     assert(Math.abs(metrics.channelX - metrics.leagueX) <= 1, 'League line is not aligned with channel image or league label at ' + width + 'px');
     assert(metrics.promptTop >= metrics.previewBottom - .5, 'Random line is above comment preview at ' + width + 'px');
     assert(metrics.promptText === metrics.previewText, 'Random line color differs from comment at ' + width + 'px');
