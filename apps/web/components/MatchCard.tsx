@@ -20,6 +20,7 @@
 import { useState } from 'react';
 import {
   Fixture,
+  resolveFixtureIsLive,
   scoreDisplay,
   hasScores,
   winnerOutcome,
