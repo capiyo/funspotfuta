@@ -658,7 +658,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: 'transparent',
-        borderWidth: 0,
+        borderWidth:0,
         borderColor: 'transparent',
     },
 
@@ -672,7 +672,7 @@ const styles = StyleSheet.create({
         gap: 10,
         padding: 12,
         borderRadius: 999,
-        borderWidth: 0,
+        borderWidth:0,
     },
     infoText: {
         flex: 1,
@@ -760,7 +760,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 12,
         paddingVertical: 6,
         borderRadius: 999,
-        borderWidth: 1,
+        borderWidth: 0,
     },
     fullPillText: {
         fontSize: 10,
@@ -770,7 +770,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 8,
         borderRadius: 999,
-        borderWidth: 1,
+        borderWidth: 0,
     },
     joinBtnText: {
         fontSize: 11,
