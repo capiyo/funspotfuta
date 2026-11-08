@@ -111,7 +111,7 @@ export function MatchDetailsModal({visible,fixture,userId,username,authToken,onC
   },[visible,fixture.matchId]);
 
   if(!visible||!fixture)return null;
-  const home=fixture.homeScore??0,away=fixture.awayScore??0,isLive=fixture.status==='live';
+  const home=fixture.homeScore??0,away=fixture.awayScore??0,isLive=resolveFixtureIsLive(fixture.status, fixture.isLive);
   return createPortal(<div className="fixed inset-0 z-[1000] flex items-end justify-center bg-black/70 min-[651px]:items-center min-[651px]:justify-center" onMouseDown={e=>{if(e.target===e.currentTarget)onClose();}}>
     <section ref={dialogRef} role="dialog" aria-modal="true" aria-label={`${fixture.homeTeam} vs ${fixture.awayTeam} match details`} className="flex h-[75dvh] w-full max-w-none flex-col overflow-hidden rounded-t-[24px] min-[651px]:h-[min(88dvh,900px)] min-[651px]:w-[min(1100px,85vw)] min-[651px]:max-w-[1100px] min-[651px]:rounded-[24px]" style={{backgroundColor:colors.surface}}>
       <div className="relative flex min-h-9 items-center justify-center pt-1"><div className="h-1 w-10 rounded-full" style={{backgroundColor:colors.borderActive}}/><button type="button" onClick={onClose} aria-label="Close match details" className="absolute right-3 top-1 grid h-8 w-8 place-items-center rounded-full" style={{color:colors.textSecondary,background:'transparent'}}><X size={19}/></button></div>
