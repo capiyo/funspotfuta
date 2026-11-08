@@ -78,8 +78,12 @@ function AppRoutes() {
       document.removeEventListener('visibilitychange', handleVisibility);
     };
   }, [authToken, isLoggedIn, queryClient, userId]);
+  // The setup gate is only useful while the browser still has an undecided
+  // permission request. A granted permission must never trigger another gate;
+  // denied or unsupported environments should remain usable without a prompt.
   const notificationGateVisible = isLoggedIn && !notificationGateDismissed
-    && (typeof Notification === 'undefined' || Notification.permission !== 'granted');
+    && typeof Notification !== 'undefined'
+    && Notification.permission === 'default';
   const continueWithoutNotifications = async () => setNotificationGateDismissed(true);
   if (!isInitialized) return <div className="loading-screen" role="status" aria-label="Loading"><span className="spinner" /></div>;
   return <>
