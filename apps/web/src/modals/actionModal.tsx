@@ -39,7 +39,7 @@ import {
     useWindowDimensions,
 } from '@/lib/native-web-compat';
 
-import { FAN_SPACING, FAN_RADIUS, type FanColorPalette } from '@funspot/core';
+import { FAN_SPACING, FAN_RADIUS, resolveFixtureIsLive, type FanColorPalette } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
 import { useToast } from '@/lib/toast/toast-context';
@@ -1033,7 +1033,7 @@ export function SwipeableVotePledgeModal(props: Props) {
         };
     }, []);
 
-    const isLive = fixture.isLive === true;
+    const isLive = resolveFixtureIsLive(fixture.status, fixture.isLive);
     const showPledges = showPledgesTab && !isLive;
     const showSubFixtures = showSubFixturesTab && !isLive;
     const showBets = showBetsTab && !isLive;
