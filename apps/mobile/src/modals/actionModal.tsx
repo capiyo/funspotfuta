@@ -300,7 +300,7 @@ function OutcomePill({
                 {
                     backgroundColor: 'transparent',
                     borderColor: selected ? accent : colors.border,
-                    borderWidth: selected ? 1.2 : StyleSheet.hairlineWidth,
+                    borderWidth: 0,
                 },
                 pressed && !locked && { opacity: PRESSED_OPACITY },
             ]}
@@ -459,7 +459,7 @@ function PersonTile({
             ]}
         >
             <View style={styles.personRow}>
-                <Avatar colors={colors} size="lg" userId={userId} label={initial} borderColor={accent} backgroundColor={dimOf(accent, colors)} />
+                <Avatar colors={colors} size="lg" userId={userId} label={initial} backgroundColor={dimOf(accent, colors)} />
                 <View style={{ flex: 1, minWidth: 0 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: FAN_SPACING.xs }}>
                         <Text
@@ -868,7 +868,7 @@ function FundsDialog({
                             width: 16,
                             height: 16,
                             borderRadius: 4,
-                            borderWidth: 1,
+                            borderWidth: 0,
                             borderColor: useSaved ? colors.primary : colors.border,
                             backgroundColor: useSaved ? colors.primary : 'transparent',
                             alignItems: 'center',
@@ -2685,7 +2685,7 @@ function createStyles(colors: FanColorPalette) {
             paddingHorizontal: FAN_SPACING.lg,
             paddingTop: FAN_SPACING.sm,
             paddingBottom: FAN_SPACING.lg,
-            borderTopWidth: StyleSheet.hairlineWidth,
+            borderTopWidth: 0,
             borderTopColor: colors.border,
             backgroundColor: 'transparent',
         },
