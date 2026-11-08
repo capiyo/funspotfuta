@@ -79,6 +79,8 @@ try {
   await openDetails.click();
   let dialog = page.getByRole('dialog');
   await dialog.waitFor({ state: 'visible', timeout: 15000 });
+  const dialogRadius = await dialog.evaluate((element) => getComputedStyle(element).borderRadius);
+  assert(parseFloat(dialogRadius) >= 20, 'Match details modal corners are not rounded: ' + dialogRadius);
   await dialog.getByRole('button', { name: 'LINEUPS' }).waitFor({ state: 'visible' });
   assert.equal(await dialog.getByRole('button', { name: 'STATS' }).count(), 0,
     'Stats tab must stay hidden until usable statistics exist');
