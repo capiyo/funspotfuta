@@ -4728,3 +4728,13 @@ body:has(.home-screen) .leaderboard-modal-sheet * {
   box-shadow: none !important;
   outline: 0 !important;
 }
+
+
+/* Modal descendants stay borderless and shadow-free; media keeps its own 8px clip. */
+body:has(.home-screen) [role="dialog"],
+body:has(.home-screen) [role="dialog"] * {
+  border-width: 0 !important;
+  border-style: none !important;
+  box-shadow: none !important;
+  outline: 0 !important;
+}
