@@ -46,6 +46,23 @@ if (!renderedHome.includes('<h1') || !renderedHome.includes('Football is better'
 if (!renderedNotFound.includes("This page isn't here.") && !renderedNotFound.includes("This page isn&#x27;t here.")) {
   throw new Error('[crawl-files] React SSR did not produce the custom 404 content.');
 }
+
+const notFoundMarker = '<div id="root"></div>';
+if (!shell.includes(notFoundMarker)) {
+  throw new Error('[crawl-files] Cannot generate the static 404 page without the React root marker.');
+}
+let staticNotFound = shell.replace(
+  notFoundMarker,
+  '<div id="root" data-render-mode="not-found">' + renderedNotFound + '</div>',
+);
+staticNotFound = staticNotFound
+  .replace(/<title>[\\s\\S]*?<\\/title>/i, '<title>Page not found | Funspot</title>')
+  .replace(/<link rel="canonical" href="[^"]*">/i, '')
+  .replace(/<meta name="robots" content="[^"]*">/i, '<meta name="robots" content="noindex,follow">');
+if (!/<meta name="robots"/i.test(staticNotFound)) {
+  staticNotFound = staticNotFound.replace('</head>', '<meta name="robots" content="noindex,follow"></head>');
+}
+await writeFile(path.join(distDir, '404.html'), staticNotFound, 'utf8');
 for (const page of pages) {
   const meta = ssrRenderer.getPublicDocumentMetadata(page);
   const markup = ssrRenderer.renderPublicDocument(page, email);
