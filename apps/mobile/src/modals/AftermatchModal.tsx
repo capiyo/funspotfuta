@@ -598,7 +598,7 @@ function SubFixtureCard({
                 })}
             </View>
             {market.pledges.length > 0 && (
-                <View style={{ marginTop: 8, borderTopWidth: 0, borderTopColor: colors.border + '30', paddingTop: 8 }}>
+                <View style={{ marginTop: 8, borderTopWidth:0, borderTopColor: colors.border + '30', paddingTop: 8 }}>
                     {market.pledges.map((p, i) => {
                         const isMe = p.userId === userId;
                         const won = market.result === p.selection;
@@ -782,7 +782,7 @@ function createStyles(colors: any) {
         statChip: {
             flexDirection: 'row', alignItems: 'center',
             borderRadius: 999, paddingHorizontal: 8, paddingVertical: 2,
-            borderWidth: 0,
+            borderWidth:0,
         },
         statChip_neutral: { backgroundColor: 'transparent', borderColor: colors.border + '30' },
         statChip_primary: { backgroundColor: 'transparent', borderColor: colors.primary + '30' },
@@ -813,7 +813,7 @@ function createStyles(colors: any) {
         tileMe: { backgroundColor: 'transparent', borderColor: colors.primary + '40' },
         avatar: {
             width: 24, height: 24, borderRadius: 12,
-            borderWidth: 0,
+            borderWidth:0,
             alignItems: 'center', justifyContent: 'center',
             backgroundColor: 'transparent',
         },
@@ -847,7 +847,7 @@ function createStyles(colors: any) {
         },
         betSideWinner: {
             backgroundColor: 'transparent',
-            borderWidth: 0, borderColor: colors.primary + '40',
+            borderWidth:0, borderColor: colors.primary + '40',
         },
         betSideLabel: { fontSize: 9, fontWeight: '700' },
         betSidePick: { fontSize: 11, fontWeight: '700', marginTop: 2 },
@@ -860,7 +860,7 @@ function createStyles(colors: any) {
         potText: { fontSize: 9, fontWeight: '700', color: colors.primary },
         betResult: {
             marginTop: 8, paddingTop: 8,
-            borderTopWidth: 0, borderTopColor: colors.border + '30',
+            borderTopWidth:0, borderTopColor: colors.border + '30',
             flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4,
         },
         betResultText: { fontSize: 10, fontWeight: '600' },
@@ -878,7 +878,7 @@ function createStyles(colors: any) {
         },
         outcomeChipWin: {
             backgroundColor: 'transparent',
-            borderWidth: 0, borderColor: colors.primary + '40',
+            borderWidth:0, borderColor: colors.primary + '40',
         },
         outcomeText: { fontSize: 10, color: colors.textSecondary },
         subPledgeRow: {
@@ -901,7 +901,7 @@ function createStyles(colors: any) {
         retryText: { fontSize: 11, fontWeight: '600', color: '#fff' },
 
         // Share
-        shareWrap: { padding: 12, borderTopWidth: 0, borderTopColor: colors.border + '20' },
+        shareWrap: { padding: 12, borderTopWidth:0, borderTopColor: colors.border + '20' },
         shareBtn: {
             flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6,
             borderWidth:0, borderColor: 'transparent',
