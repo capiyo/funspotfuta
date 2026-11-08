@@ -64,7 +64,8 @@ jobs:
           set -euxo pipefail
           test -s apps/web/dist/index.html
           test -s apps/web/dist/404.html
-          grep -Fq "This page isn't here." apps/web/dist/404.html
+          grep -Fq 'data-render-mode="not-found"' apps/web/dist/404.html
+          grep -Fq 'noindex,follow' apps/web/dist/404.html
           test -s apps/web/dist/robots.txt
           test -s apps/web/dist/sitemap.xml
           for page in about how-it-works contact terms privacy; do
