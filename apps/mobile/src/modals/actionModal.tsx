@@ -522,8 +522,7 @@ function TabBar({
                         width: `${widthPct}%` as any,
                         left: `${active * widthPct}%` as any,
                         backgroundColor: 'transparent',
-                        shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 3,
-                        shadowOffset: { width: 0, height: 1 }, elevation: 1,
+                        
                     },
                 ]}
             />
@@ -2476,7 +2475,7 @@ function createStyles(colors: FanColorPalette) {
 
         // Card primitive
         card: {
-            borderRadius: FAN_RADIUS.lg,
+            borderRadius: FAN_RADIUS.xl,
             backgroundColor: 'transparent',
             borderWidth: 0,
             borderColor: colors.border,
@@ -2588,8 +2587,8 @@ function createStyles(colors: FanColorPalette) {
         // Sub-fixture card
         subExpanded: {
             marginTop: FAN_SPACING.sm,
-            borderTopWidth: StyleSheet.hairlineWidth,
-            borderTopColor: colors.border,
+            borderTopWidth: 0,
+            borderTopColor: 'transparent',
             paddingTop: FAN_SPACING.sm,
         },
 
