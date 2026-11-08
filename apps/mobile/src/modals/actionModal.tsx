@@ -2350,7 +2350,7 @@ function createStyles(colors: FanColorPalette) {
             left: FAN_SPACING.lg,
             right: FAN_SPACING.lg,
             zIndex: 30,
-            elevation: 12,
+            elevation: 0,
             flexDirection: 'row',
             alignItems: 'center',
             gap: FAN_SPACING.sm,
