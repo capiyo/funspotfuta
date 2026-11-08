@@ -186,7 +186,7 @@ export default function ComradesScreen({
                 <Text style={styles.sectionLabel}>Add profiles to channel</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                   {channels.map((channel) => (
-                    <Pressable key={channel.channelId} onPress={() => setSelectedChannelId(channel.channelId)} style={{ marginRight: 8, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 18, backgroundColor: selectedChannelId === channel.channelId ? colors.surface : colors.surface, borderWidth:0, borderColor: selectedChannelId === channel.channelId ? colors.green : colors.border }}>
+                    <Pressable key={channel.channelId} onPress={() => setSelectedChannelId(channel.channelId)} style={{ marginRight: 8, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 18, backgroundColor: selectedChannelId === channel.channelId ? colors.primaryDim : 'transparent', borderWidth:0, borderColor: 'transparent' }}>
                       <Text style={{ color: selectedChannelId === channel.channelId ? colors.green : colors.textPrimary, fontSize: 11 }}>{channel.name}{channel.isAdmin ? ' · Admin' : ''}</Text>
                     </Pressable>
                   ))}
