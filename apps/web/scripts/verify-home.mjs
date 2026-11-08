@@ -207,10 +207,13 @@ try {
     }
     await page.waitForSelector('.home-screen .feed-column .post-card', { timeout: 45000 });
     await page.locator('.home-screen .feed-column button[aria-label="Comments"]').first().click();
-    await page.waitForURL(url => /^\/comments\//.test(url.pathname), { timeout: 10000 });
+    await page.waitForURL(url => /^\/app\/comments\//.test(url.pathname), { timeout: 10000 });
     await page.waitForSelector('[role="dialog"][aria-label="Comments"]', { timeout: 15000 });
     const commentsModal = await page.evaluate(() => ({
       dialog: document.querySelector('[role="dialog"][aria-label="Comments"]')?.getBoundingClientRect().toJSON(),
+      radius: document.querySelector('[role="dialog"][aria-label="Comments"]')
+        ? getComputedStyle(document.querySelector('[role="dialog"][aria-label="Comments"]')).borderRadius
+        : '0px',
       homeMounted: !!document.querySelector('.home-screen'),
       close: !!document.querySelector('button[aria-label="Close comments"]'),
       ariaModal: document.querySelector('[role="dialog"][aria-label="Comments"]')?.getAttribute('aria-modal'),
@@ -219,8 +222,10 @@ try {
       `Comments is not presented as a modal at ${width}px: ${JSON.stringify(commentsModal)}`);
     assert(commentsModal.homeMounted && commentsModal.close && commentsModal.ariaModal === 'true',
       `Comments modal should overlay Home and provide an accessible close action at ${width}px: ${JSON.stringify(commentsModal)}`);
+    assert(parseFloat(commentsModal.radius) >= 20,
+      `Comments modal corners are not rounded at ${width}px: ${JSON.stringify(commentsModal)}`);
     await page.getByRole('button', { name: 'Close comments' }).evaluate(element => element.click());
-    await page.waitForURL(url => url.pathname === '/', { timeout: 10000 });
+    await page.waitForURL(url => url.pathname === '/app/', { timeout: 10000 });
   }
 
   assert(errors.length === 0, `Browser errors: ${errors.join('; ')}`);
