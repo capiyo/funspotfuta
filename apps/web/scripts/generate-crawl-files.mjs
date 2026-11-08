@@ -72,6 +72,7 @@ for (const page of pages) {
   if (page === '/contact.html' && !markup.includes(email)) {
     throw new Error('[crawl-files] Contact page did not render the configured contact email.');
   }
+  await writeFile(path.join(distDir, page.replace(/^\\/+/, '')), markup, 'utf8');
 }
 
 const functionDir = path.join(repoDir, 'netlify', 'functions');
