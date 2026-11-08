@@ -48,13 +48,13 @@ function withRoot(mode, content = '', attributes = '') {
 function withMetadata(html, metadata) {
   const jsonLd = '<script type="application/ld+json">' + JSON.stringify(metadata.structuredData) + '</script>';
   return html
-    .replace(/<title>[\\s\\S]*?<\\/title>/i, '<title>' + escapeHtml(metadata.title) + '</title>')
+    .replace(/<title>[\s\S]*?<\/title>/i, '<title>' + escapeHtml(metadata.title) + '</title>')
     .replace(/<meta name="description" content="[^"]*">/i, '<meta name="description" content="' + escapeHtml(metadata.description) + '">')
     .replace(/<link rel="canonical" href="[^"]*">/i, '<link rel="canonical" href="' + escapeHtml(metadata.canonical) + '">')
     .replace(/<meta property="og:url" content="[^"]*">/i, '<meta property="og:url" content="' + escapeHtml(metadata.canonical) + '">')
     .replace(/<meta property="og:title" content="[^"]*">/i, '<meta property="og:title" content="' + escapeHtml(metadata.title) + '">')
     .replace(/<meta property="og:description" content="[^"]*">/i, '<meta property="og:description" content="' + escapeHtml(metadata.description) + '">')
-    .replace(/<script type="application\\/ld\\+json">[\\s\\S]*?<\\/script>/i, jsonLd)
+    .replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/i, jsonLd)
     .replace('</head>', adsScript + '</head>');
 }
 
