@@ -186,7 +186,7 @@ export default function ComradesScreen({
                 <Text style={styles.sectionLabel}>Add profiles to channel</Text>
                 <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                   {channels.map((channel) => (
-                    <Pressable key={channel.channelId} onPress={() => setSelectedChannelId(channel.channelId)} style={{ marginRight: 8, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 18, backgroundColor: selectedChannelId === channel.channelId ? colors.surface : colors.surface, borderWidth: 1, borderColor: selectedChannelId === channel.channelId ? colors.green : colors.border }}>
+                    <Pressable key={channel.channelId} onPress={() => setSelectedChannelId(channel.channelId)} style={{ marginRight: 8, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 18, backgroundColor: selectedChannelId === channel.channelId ? colors.surface : colors.surface, borderWidth: 0, borderColor: selectedChannelId === channel.channelId ? colors.green : colors.border }}>
                       <Text style={{ color: selectedChannelId === channel.channelId ? colors.green : colors.textPrimary, fontSize: 11 }}>{channel.name}{channel.isAdmin ? ' · Admin' : ''}</Text>
                     </Pressable>
                   ))}
@@ -299,7 +299,7 @@ const styles = StyleSheet.create({
   stats: { color: colors.textMuted, fontSize: 11, marginBottom: 16 },
   searchRow: { flexDirection: 'row', gap: 8, marginBottom: 16 },
   input: {
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: colors.border,
     backgroundColor: 'transparent',
     borderRadius: 999,
@@ -326,7 +326,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     borderRadius: 999,
-    borderWidth: 0,
+    borderWidth:0,
     backgroundColor: 'transparent',
     paddingHorizontal: 12,
     paddingVertical: 10,
@@ -343,7 +343,7 @@ const styles = StyleSheet.create({
   addButtonText: { color: '#000', fontWeight: '700', fontSize: 11 },
   removeButton: {
     borderRadius: 999,
-    borderWidth: 1,
+    borderWidth: 0,
     borderColor: 'rgba(239,68,68,0.3)',
     backgroundColor: 'transparent',
     paddingHorizontal: 12,
