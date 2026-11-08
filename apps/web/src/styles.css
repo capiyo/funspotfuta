@@ -954,7 +954,7 @@ body:has(.home-screen) .home-screen .mobile-home-notification-count {
 .home-screen .mobile-native-menu-items > button { width: 100%; min-height: 42px; padding: 10px 0; background: transparent; text-align: left; font-size: 13px; font-weight: 600; }
 
 
-/* Home surface is flat: media is the sole corner-radius exception. */
+/* Keep the Home workspace visually flat while preserving authored media, avatar, control and modal geometry. */
 body:has(.home-screen) .home-screen,
 body:has(.home-screen) .home-screen *,
 body:has(.home-screen) .mobile-profile-drawer,
