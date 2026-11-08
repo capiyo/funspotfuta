@@ -179,7 +179,7 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
     if (poke.userId === userId || submitting) return;
     if (!channelId) { setError('Choose a channel before matching a poke.'); return; }
     if (balance === null || balance < poke.amount) { setError('You do not have enough points to match this poke.'); return; }
-    if fixtureIsLive { setError('Pokes are closed once a match goes live.'); return; }
+    if (fixtureIsLive) { setError('Pokes are closed once a match goes live.'); return; }
     setError('');
     setMessage('');
     setSubmitting(true);
@@ -218,7 +218,7 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
 
   async function submitPoke() {
     if (!channelId) { setError('Choose a channel before creating or matching a poke.'); return; }
-    if fixtureIsLive { setError('Pokes are closed once a match goes live.'); return; }
+    if (fixtureIsLive) { setError('Pokes are closed once a match goes live.'); return; }
     setError('');
     setMessage('');
     const amount = Number(stake);
