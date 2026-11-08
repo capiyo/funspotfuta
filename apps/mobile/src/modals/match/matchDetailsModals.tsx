@@ -9,7 +9,7 @@ import {
     useWindowDimensions,
 } from 'react-native';
 
-import { webSocketService } from '@funspot/core';
+import { resolveFixtureIsLive, webSocketService } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
 import { X } from 'lucide-react-native';
@@ -308,7 +308,7 @@ export function MatchDetailsModal({
 
     const home = fixture.homeScore ?? 0;
     const away = fixture.awayScore ?? 0;
-    const isLive = fixture.status === 'live';
+    const isLive = resolveFixtureIsLive(fixture.status, fixture.isLive);
     const modalHeight = windowHeight * 0.75;
 
     return (
