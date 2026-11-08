@@ -445,7 +445,7 @@ export default function AdminModal({
                 onPress={() => setConfirmTarget(null)}
                 style={({ pressed }) => [
                   styles.confirmBtn,
-                  { borderWidth: 0, borderColor: colors.border },
+                  { borderWidth:0, borderColor: colors.border },
                   pressed && { opacity: PRESSED_OPACITY },
                 ]}
               >
@@ -457,7 +457,7 @@ export default function AdminModal({
                 onPress={confirmRemove}
                 style={({ pressed }) => [
                   styles.confirmBtn,
-                  { backgroundColor: colors.awayDim, borderWidth: 0, borderColor: colors.awayDim },
+                  { backgroundColor: colors.awayDim, borderWidth:0, borderColor: colors.awayDim },
                   pressed && { opacity: PRESSED_OPACITY },
                 ]}
               >
@@ -868,7 +868,7 @@ function createStyles(colors: FanColorPalette) {
       flexDirection: 'row',
       alignItems: 'center',
       borderRadius: FAN_RADIUS.md,
-      borderWidth: 0,
+      borderWidth:0,
       borderColor: 'transparent',
       backgroundColor: 'transparent',
       paddingHorizontal: FAN_SPACING.base,
@@ -1000,7 +1000,7 @@ function createStyles(colors: FanColorPalette) {
       gap: FAN_SPACING.md,
       padding: FAN_SPACING.md,
       borderRadius: FAN_RADIUS.md,
-      borderWidth: 0,
+      borderWidth:0,
       marginBottom: FAN_SPACING.lg,
     },
     confirmActions: {
