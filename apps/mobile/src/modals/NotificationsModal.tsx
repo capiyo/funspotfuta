@@ -256,7 +256,7 @@ function createStyles(colors: FanColors) {
     statCard: {
       flex: 1,
       borderRadius: FAN_RADIUS.lg,
-      borderWidth: 0,
+      borderWidth:0,
       borderColor: 'transparent',
       backgroundColor: 'transparent',
       padding: FAN_SPACING.base,
@@ -274,7 +274,7 @@ function createStyles(colors: FanColors) {
     },
     prefList: {
       borderRadius: FAN_RADIUS.lg,
-      borderWidth: 0,
+      borderWidth:0,
       borderColor: 'transparent',
       backgroundColor: 'transparent',
       overflow: 'hidden',
@@ -287,7 +287,7 @@ function createStyles(colors: FanColors) {
       paddingVertical: 14,
     },
     prefRowBorder: {
-      borderTopWidth: 1,
+      borderTopWidth: 0,
       borderTopColor: colors.border,
     },
     prefLabel: {
