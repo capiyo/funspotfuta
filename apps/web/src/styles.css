@@ -4655,3 +4655,64 @@ body:has(.home-screen) .home-menu-item {
 body:has(.home-screen) .home-screen .profile-channel-tabbar [role="tab"] {
   border-radius: 999px !important;
 }
+
+
+/* Payment dialogs use a centered desktop panel and a rounded mobile sheet. */
+.payment-modal-root {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.44);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+}
+
+.payment-modal-dialog {
+  width: min(100%, 420px);
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  border: 0;
+  border-radius: 28px;
+  outline: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.payment-modal-dialog > div {
+  width: 100% !important;
+  max-width: 420px !important;
+  border: 0 !important;
+  border-radius: 28px !important;
+  box-shadow: none !important;
+}
+
+@media (max-width: 650px) {
+  .payment-modal-root {
+    align-items: flex-end;
+    padding: 8px;
+  }
+
+  .payment-modal-dialog {
+    width: 100%;
+    max-width: 480px;
+    max-height: calc(100dvh - 16px);
+    border-radius: 28px;
+  }
+}
+
+/* Profile sheets follow the same soft modal geometry. */
+body:has(.home-screen) .profile-modal-shell {
+  border: 0 !important;
+  border-radius: 24px !important;
+  box-shadow: none !important;
+}
+
+@media (max-width: 650px) {
+  body:has(.home-screen) .profile-modal-shell {
+    border-radius: 28px 28px 0 0 !important;
+  }
+}
