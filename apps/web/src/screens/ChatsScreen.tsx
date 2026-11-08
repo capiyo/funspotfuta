@@ -8,7 +8,7 @@ import type { ReactNode, UIEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import type { Channel, Fixture, FanColorPalette, Voter } from '@funspot/core';
-import { useFixtures, queryKeys } from '@funspot/core';
+import { useFixtures, queryKeys, resolveFixtureIsLive } from '@funspot/core';
 import { useAllChannels } from '@/hooks/useAllChannels';
 import { sendChannelMessage } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
@@ -86,10 +86,11 @@ function commentsOf(fixture: Fixture): LatestComment[] {
   return real.length ? real : mockCommentsFor(fixture.matchId || fixture.id || 'fixture');
 }
 function isLiveFixture(fixture: Fixture) {
-  return !!fixture.isLive || fixture.status === 'live';
+  return resolveFixtureIsLive(fixture.status, fixture.isLive);
 }
 function isUpcomingFixture(fixture: Fixture) {
-  return fixture.status === 'upcoming' || fixture.status === 'soon';
+  const status = (fixture.status ?? '').toLowerCase();
+  return status === 'upcoming' || status === 'soon';
 }
 function statusRank(fixture: Fixture) {
   if (isLiveFixture(fixture)) return 0;
