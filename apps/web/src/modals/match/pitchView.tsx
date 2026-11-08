@@ -181,7 +181,6 @@ export function PitchView({ homeTeam, awayTeam, homeFormation, awayFormation, ho
         <image href={photo} x="-13" y="-13" width="26" height="26" preserveAspectRatio="xMidYMid slice" clipPath={`url(#${clipId})`}/>
         
       </> : <>
-        <circle r="16" fill={hexWithAlpha(color,.2)}/>
         <circle r="13" fill={color}/>
         <text textAnchor="middle" dominantBaseline="central" fontSize="11" fontWeight="400" fill="#fff">{player.number}</text>
       </>}
