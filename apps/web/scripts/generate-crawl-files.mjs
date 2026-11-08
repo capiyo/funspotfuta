@@ -31,6 +31,33 @@ if (shell.includes('pagead/js/adsbygoogle.js')) {
   throw new Error('[crawl-files] AdSense must not load in the homepage or app shell.');
 }
 
+const adsScript = '<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4829747375056254" crossorigin="anonymous"></script>';
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (character) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  })[character]);
+}
+
+function withRoot(mode, content = '', attributes = '') {
+  const marker = '<div id="root"></div>';
+  if (!shell.includes(marker)) throw new Error('[crawl-files] HTML template is missing #root.');
+  return shell.replace(marker, '<div id="root" data-render-mode="' + mode + '"' + attributes + '>' + content + '</div>');
+}
+
+function withMetadata(html, metadata) {
+  const jsonLd = '<script type="application/ld+json">' + JSON.stringify(metadata.structuredData) + '</script>';
+  return html
+    .replace(/<title>[\\s\\S]*?<\\/title>/i, '<title>' + escapeHtml(metadata.title) + '</title>')
+    .replace(/<meta name="description" content="[^"]*">/i, '<meta name="description" content="' + escapeHtml(metadata.description) + '">')
+    .replace(/<link rel="canonical" href="[^"]*">/i, '<link rel="canonical" href="' + escapeHtml(metadata.canonical) + '">')
+    .replace(/<meta property="og:url" content="[^"]*">/i, '<meta property="og:url" content="' + escapeHtml(metadata.canonical) + '">')
+    .replace(/<meta property="og:title" content="[^"]*">/i, '<meta property="og:title" content="' + escapeHtml(metadata.title) + '">')
+    .replace(/<meta property="og:description" content="[^"]*">/i, '<meta property="og:description" content="' + escapeHtml(metadata.description) + '">')
+    .replace(/<script type="application\\/ld\\+json">[\\s\\S]*?<\\/script>/i, jsonLd)
+    .replace('</head>', adsScript + '</head>');
+}
+
 const ssrBundle = await readFile(ssrEntry, 'utf8');
 if (!ssrBundle.trim() || !ssrBundle.includes('renderHome') || !ssrBundle.includes('renderNotFound') ||
     !ssrBundle.includes('renderPublicDocument') || !ssrBundle.includes('getPublicDocumentMetadata')) {
@@ -72,7 +99,12 @@ for (const page of pages) {
   if (page === '/contact.html' && !markup.includes(email)) {
     throw new Error('[crawl-files] Contact page did not render the configured contact email.');
   }
-  await writeFile(path.join(distDir, page.slice(1)), markup, 'utf8');
+  const attributes = ' data-page-path="' + escapeHtml(page) + '" data-contact-email="' + escapeHtml(email) + '"';
+  const documentHtml = withMetadata(withRoot('public-document', markup, attributes), meta);
+  if (!documentHtml.includes('<link rel="canonical" href="' + meta.canonical + '">')) {
+    throw new Error('[crawl-files] Canonical metadata is missing from public document ' + page + '.');
+  }
+  await writeFile(path.join(distDir, page.slice(1)), documentHtml, 'utf8');
 }
 
 const functionDir = path.join(repoDir, 'netlify', 'functions');
