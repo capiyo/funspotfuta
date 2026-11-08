@@ -2,7 +2,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { TeamCrest } from '@/components/TeamCrest';
 import { useQueryClient } from '@tanstack/react-query';
-import { createPoke, getOpenPokes, getUserPokes, getUserPoints, matchPoke, mergeOpenPokes, type Poke } from '@funspot/core';
+import { createPoke, getOpenPokes, getUserPokes, getUserPoints, matchPoke, mergeOpenPokes, resolveFixtureIsLive, type Poke } from '@funspot/core';
 import type { CSSProperties, TouchEvent as ReactTouchEvent } from 'react';
 import type { Channel, Fixture, FanColorPalette } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
@@ -77,6 +77,7 @@ function writeCachedChannelMemberPoints(
 
 export function PokeModal({ fixture, userId, username, authToken, channelId, onClose }: Props) {
   const colors = useFanColors();
+  const fixtureIsLive = resolveFixtureIsLive(fixture.status, fixture.isLive);
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<'open' | 'matched' | 'subfixtures'>('open');
   const [openPokes, setOpenPokes] = useState<Poke[]>([]);
@@ -178,7 +179,7 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
     if (poke.userId === userId || submitting) return;
     if (!channelId) { setError('Choose a channel before matching a poke.'); return; }
     if (balance === null || balance < poke.amount) { setError('You do not have enough points to match this poke.'); return; }
-    if (fixture.isLive || fixture.status === 'live') { setError('Pokes are closed once a match goes live.'); return; }
+    if fixtureIsLive { setError('Pokes are closed once a match goes live.'); return; }
     setError('');
     setMessage('');
     setSubmitting(true);
@@ -217,7 +218,7 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
 
   async function submitPoke() {
     if (!channelId) { setError('Choose a channel before creating or matching a poke.'); return; }
-    if (fixture.isLive || fixture.status === 'live') { setError('Pokes are closed once a match goes live.'); return; }
+    if fixtureIsLive { setError('Pokes are closed once a match goes live.'); return; }
     setError('');
     setMessage('');
     const amount = Number(stake);
@@ -288,7 +289,7 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
         </header>
         <div style={{ display: 'flex', alignItems: 'stretch', gap: 8, padding: '8px 0 12px', marginBottom: 10, borderBottom: '1px solid var(--border)' }}>
           <button type="button" onClick={() => { setMarketId('main_fixture'); setSelection('home_team'); setTab('subfixtures'); setError(''); setMessage(''); }} aria-label={`Poke on ${fixture.homeTeam}`} aria-pressed={tab === 'subfixtures' && marketId === 'main_fixture' && selection === 'home_team'} style={{ flex: 1, minWidth: 0, minHeight: 46, borderRadius: 999, padding: '8px 10px', border: tab === 'subfixtures' && marketId === 'main_fixture' && selection === 'home_team' ? '1px solid var(--primary)' : '1px solid transparent', background: 'transparent', color: 'var(--primary)', fontSize: 12, fontWeight: 800, overflowWrap: 'anywhere', cursor: 'pointer' }}><TeamCrest name={fixture.homeTeam} fixture={fixture as unknown as Record<string,unknown>} side="home" size={22}/>{fixture.homeTeam}</button>
-          <div style={{ flex: '0 0 auto', display: 'grid', alignContent: 'center', justifyItems: 'center', gap: 4, color: 'var(--muted)', fontSize: 10, fontWeight: 800 }}>VS{(fixture.isLive || fixture.status === 'live') && <span style={{ color: 'var(--text-inverse)', background: 'var(--away)', borderRadius: 99, padding: '2px 6px', fontSize: 8 }}>LIVE</span>}</div>
+          <div style={{ flex: '0 0 auto', display: 'grid', alignContent: 'center', justifyItems: 'center', gap: 4, color: 'var(--muted)', fontSize: 10, fontWeight: 800 }}>VS{fixtureIsLive && <span style={{ color: 'var(--text-inverse)', background: 'var(--away)', borderRadius: 99, padding: '2px 6px', fontSize: 8 }}>LIVE</span>}</div>
           <button type="button" onClick={() => { setMarketId('main_fixture'); setSelection('away_team'); setTab('subfixtures'); setError(''); setMessage(''); }} aria-label={`Poke on ${fixture.awayTeam}`} aria-pressed={tab === 'subfixtures' && marketId === 'main_fixture' && selection === 'away_team'} style={{ flex: 1, minWidth: 0, minHeight: 46, borderRadius: 999, padding: '8px 10px', border: tab === 'subfixtures' && marketId === 'main_fixture' && selection === 'away_team' ? '1px solid var(--primary)' : '1px solid transparent', background: 'transparent', color: 'var(--away)', fontSize: 12, fontWeight: 800, textAlign: 'right', overflowWrap: 'anywhere', cursor: 'pointer' }}><TeamCrest name={fixture.awayTeam} fixture={fixture as unknown as Record<string,unknown>} side="away" size={22}/>{fixture.awayTeam}</button>
         </div>
 
@@ -310,7 +311,7 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
           {openPokes.length === 0 ? <p style={{ margin: 0, color: 'var(--muted, #a7abb3)', fontSize: 12 }}>No open pokes for this fixture yet.</p> : openPokes.map((poke) => (
             <div key={poke.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 0', borderBottom: '1px solid var(--border)' }}>
               <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'center', gap: 8 }}><Avatar colors={colors} size="md" userId={poke.userId} label={poke.userName?.[0] ?? '?'} /><div style={{ minWidth: 0 }}><div style={{ display: 'flex', alignItems: 'center', gap: 5, minWidth: 0 }}><span aria-label="Poke mark" title="Poke" style={{ color: 'var(--primary)', fontSize: 9, fontWeight: 800, flexShrink: 0 }}>✊ POKE</span><strong>{poke.userName}</strong></div><div style={{ color: 'var(--muted, #a7abb3)', fontSize: 12 }}>{poke.selection === 'home' ? fixture.homeTeam : fixture.awayTeam} · {poke.amount} pts</div></div></div>
-              <button type="button" disabled={poke.userId === userId || submitting || fixture.isLive || fixture.status === 'live'} onClick={() => void matchExistingPoke(poke)} style={{ ...buttonStyle, minHeight: 34, padding: '6px 10px', background: 'transparent', color: 'var(--primary)', border: '1px solid transparent', opacity: poke.userId === userId || submitting || fixture.isLive || fixture.status === 'live' ? .5 : 1 }}>Match</button>
+              <button type="button" disabled={poke.userId === userId || submitting || fixtureIsLive} onClick={() => void matchExistingPoke(poke)} style={{ ...buttonStyle, minHeight: 34, padding: '6px 10px', background: 'transparent', color: 'var(--primary)', border: '1px solid transparent', opacity: poke.userId === userId || submitting || fixtureIsLive ? .5 : 1 }}>Match</button>
             </div>
           ))}
         </section>}
@@ -370,8 +371,8 @@ export function PokeModal({ fixture, userId, username, authToken, channelId, onC
         {message && <p role="status" style={{ color: 'var(--primary, #36c875)', fontWeight: 700 }}>{message}</p>}
         <footer style={{ display: 'flex', gap: 8, marginTop: 18 }}>
           <button type="button" onClick={onClose} disabled={submitting} style={{ ...buttonStyle, flex: 1, color: 'inherit', background: 'transparent', border: '1px solid var(--border, #454950)' }}>Cancel</button>
-          <button type="button" onClick={() => void submitPoke()} disabled={loading || submitting || balance === null || fixture.isLive || fixture.status === 'live' || (selectedMarket !== undefined && options.length === 0)}
-            style={{ ...buttonStyle, flex: 1, color: 'var(--text-inverse)', background: 'var(--primary)', opacity: loading || submitting || fixture.isLive || fixture.status === 'live' ? .65 : 1 }}>
+          <button type="button" onClick={() => void submitPoke()} disabled={loading || submitting || balance === null || fixtureIsLive || (selectedMarket !== undefined && options.length === 0)}
+            style={{ ...buttonStyle, flex: 1, color: 'var(--text-inverse)', background: 'var(--primary)', opacity: loading || submitting || fixtureIsLive ? .65 : 1 }}>
             {submitting ? 'Poking…' : 'Poke'}
           </button>
         </footer>
