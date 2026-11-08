@@ -304,7 +304,7 @@ export default function AddPostModal({
                         <View
                             style={[
                                 styles.captionWrap,
-                                hasCaption && { borderColor: colors.primary, borderWidth: 1.5 },
+                                hasCaption && { borderColor: colors.primary, borderWidth: 0,
                             ]}
                         >
                             <TextInput
@@ -491,7 +491,7 @@ export default function AddPostModal({
                                 style={[
                                     styles.actionBtn,
                                     styles.postBtn,
-                                    !canPost && { backgroundColor: 'transparent', borderWidth: 0, borderColor: 'transparent' },
+                                    !canPost && { backgroundColor: 'transparent', borderWidth:0, borderColor: 'transparent' },
                                 ]}
                             >
                                 {posting ? (
@@ -552,7 +552,7 @@ function MediaAction({
                 style={[
                     styles.mediaActionCircle,
                     { backgroundColor: bgColor, borderColor: ringColor },
-                    active && { borderWidth: 2 },
+                    active && { borderWidth: 0,
                 ]}
             >
                 <Icon size={22} color={active ? accent : colors.textSecondary} />
@@ -588,7 +588,7 @@ function createStyles(colors: FanColors) {
             backgroundColor: colors.surface,
             borderTopLeftRadius: 24,
             borderTopRightRadius: 24,
-            borderWidth: 1,
+            borderWidth: 0,
             borderColor: colors.border,
             overflow: 'hidden',
         },
@@ -645,7 +645,7 @@ function createStyles(colors: FanColors) {
             alignItems: 'center',
             justifyContent: 'center',
             backgroundColor: 'transparent',
-            borderWidth: 0,
+            borderWidth:0,
             borderColor: 'transparent',
         },
 
@@ -660,7 +660,7 @@ function createStyles(colors: FanColors) {
         captionWrap: {
             backgroundColor: 'transparent',
             borderRadius: 24,
-            borderWidth: 0,
+            borderWidth:0,
             borderColor: 'transparent',
             marginTop: FAN_SPACING.xs,
             marginBottom: FAN_SPACING.base,
@@ -690,7 +690,7 @@ function createStyles(colors: FanColors) {
             justifyContent: 'space-evenly',
             backgroundColor: 'transparent',
             borderRadius: 24,
-            borderWidth: 0,
+            borderWidth:0,
             borderColor: 'transparent',
             paddingVertical: FAN_SPACING.base,
             marginBottom: FAN_SPACING.base,
@@ -705,7 +705,7 @@ function createStyles(colors: FanColors) {
             borderRadius: 26,
             alignItems: 'center',
             justifyContent: 'center',
-            borderWidth: 1.5,
+            borderWidth: 0,
         },
         mediaActionLabel: {
             fontSize: 10,
@@ -715,7 +715,7 @@ function createStyles(colors: FanColors) {
         // Preview
         previewCard: {
             borderRadius: FAN_RADIUS.lg,
-            borderWidth: 1,
+            borderWidth: 0,
             borderColor: colors.borderActive,
             overflow: 'hidden',
             marginBottom: FAN_SPACING.base,
@@ -797,7 +797,7 @@ function createStyles(colors: FanColors) {
             paddingVertical: 8,
             borderRadius: 999,
             backgroundColor: 'transparent',
-            borderWidth: 0,
+            borderWidth:0,
             borderColor: 'transparent',
         },
         typeBadgeText: {
@@ -812,7 +812,7 @@ function createStyles(colors: FanColors) {
             paddingHorizontal: FAN_SPACING.lg,
             paddingTop: FAN_SPACING.sm,
             paddingBottom: FAN_SPACING.lg,
-            borderTopWidth: 1,
+            borderTopWidth: 0,
             borderTopColor: colors.border,
             backgroundColor: 'transparent',
         },
@@ -854,7 +854,7 @@ function createStyles(colors: FanColors) {
         clearBtn: {
             flex: 1,
             backgroundColor: 'transparent',
-            borderWidth: 0,
+            borderWidth:0,
             borderColor: 'transparent',
         },
         clearBtnText: {
