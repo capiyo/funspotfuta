@@ -4638,3 +4638,98 @@ button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visib
 ) :is(button, input, select, textarea) {
   font-family: inherit;
 }
+
+
+/* Home modal repair: page-wide resets must never flatten dialog geometry. */
+body:has(.home-screen) :is(
+  [role="dialog"],
+  [aria-modal="true"],
+  .action-modal-sheet,
+  .poke-modal-panel,
+  .leaderboard-modal-sheet,
+  .weekly-leaderboard-sheet,
+  .possession-modal-panel,
+  .profile-modal-shell,
+  .mobile-profile-drawer,
+  .notification-modal-panel
+) {
+  border-radius: 28px !important;
+  overflow: hidden !important;
+  box-shadow: 0 18px 56px rgba(0, 0, 0, .28) !important;
+}
+
+body:has(.home-screen) :is(
+  [role="dialog"],
+  [aria-modal="true"],
+  .action-modal-sheet,
+  .poke-modal-panel,
+  .leaderboard-modal-sheet,
+  .weekly-leaderboard-sheet,
+  .possession-modal-panel,
+  .profile-modal-shell,
+  .mobile-profile-drawer
+) * {
+  border-width: 0 !important;
+  border-style: none !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  border-radius: 12px !important;
+}
+
+body:has(.home-screen) :is(
+  [role="dialog"],
+  [aria-modal="true"],
+  .action-modal-sheet,
+  .poke-modal-panel,
+  .leaderboard-modal-sheet,
+  .weekly-leaderboard-sheet,
+  .possession-modal-panel,
+  .profile-modal-shell,
+  .mobile-profile-drawer
+) :is(button, input, select, textarea, [role="tab"], [role="switch"]) {
+  border-radius: 999px !important;
+  border-width: 0 !important;
+  box-shadow: none !important;
+}
+
+body:has(.home-screen) :is(
+  [role="dialog"],
+  [aria-modal="true"],
+  .action-modal-sheet,
+  .poke-modal-panel,
+  .leaderboard-modal-sheet,
+  .weekly-leaderboard-sheet,
+  .possession-modal-panel,
+  .profile-modal-shell,
+  .mobile-profile-drawer
+) :is(.rounded-full, [class*="rounded-full"]) {
+  border-radius: 999px !important;
+}
+
+body:has(.home-screen) :is(
+  [role="dialog"],
+  [aria-modal="true"],
+  .action-modal-sheet,
+  .poke-modal-panel,
+  .leaderboard-modal-sheet,
+  .weekly-leaderboard-sheet,
+  .possession-modal-panel,
+  .profile-modal-shell,
+  .mobile-profile-drawer
+) :is(.home-avatar, .profile-avatar, .mini-avatar, .mock-profile-avatar, .fan-avatar, .avatar, img[data-avatar="true"]) {
+  border-radius: 50% !important;
+}
+
+body:has(.home-screen) :is(
+  [role="dialog"],
+  [aria-modal="true"],
+  .action-modal-sheet,
+  .poke-modal-panel,
+  .leaderboard-modal-sheet,
+  .weekly-leaderboard-sheet,
+  .possession-modal-panel,
+  .profile-modal-shell,
+  .mobile-profile-drawer
+) :is(img:not([data-avatar="true"]), video) {
+  border-radius: 8px !important;
+}
