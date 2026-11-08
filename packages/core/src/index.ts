@@ -44,6 +44,7 @@ export * from './api/notification-service';
 export * from './api/admin-service';
 export * from './api/posts-service';
 export * from './api/websocket-service';
+export * from './api/fixture-live-status';
 export * from './api/use-fixture-live-updates';
 export { sendChannelMessage } from './api/send-channel-messages';
 export { useChannelChat } from './api/use-channel-chat';
