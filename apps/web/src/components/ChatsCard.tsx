@@ -670,7 +670,7 @@ export function MatchCard({
 
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, flexShrink: 0 }}>
               {latestMessageTimeLabel && <span aria-label={`Last message sent at ${latestMessageTimeLabel}`} title="Last message sent" style={{ ...styles.date, color: colors.textSecondary, fontVariantNumeric: 'tabular-nums' }}>{latestMessageTimeLabel}</span>}
-              {unreadCount > 0 && <span aria-label={`${unreadCount} unread messages`} title={`${unreadCount} unread messages`} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 21, height: 21, minWidth: 21, borderRadius: '50%', background: colors.primary, color: colors.textInverse, fontSize: 10, fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>{unreadCount > 99 ? '99+' : unreadCount}</span>}
+              {unreadCount > 0 && <span aria-label={`${unreadCount} unread messages`} title={`${unreadCount} unread messages`} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: 21, height: 21, minWidth: 21, borderRadius: '50%', background: colors.primary, color: colors.textInverse, fontSize: 10, fontWeight: 800, fontVariantNumeric: 'tabular-nums' }}>{unreadCount}</span>}
               {isLive ? (
                 <>
                   <LiveBadge colors={colors} />
