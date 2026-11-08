@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
-import { fanShadowStyle } from '@/theme/use-fan-shadow';
 import { playerHeadshotKey, resolvePlayerHeadshots } from '@funspot/core';
 import type { SimplifiedPlayer } from '../../../../../packages/core/src/types/matchDetails';
 import { PositionRank, shortName } from '../../../../../packages/core/src/types/matchDetails';
@@ -182,26 +181,26 @@ export function PitchView({ homeTeam, awayTeam, homeFormation, awayFormation, ho
       {photo ? <>
         <defs><clipPath id={clipId}><circle cx="0" cy="0" r="13"/></clipPath></defs>
         <image href={photo} x="-13" y="-13" width="26" height="26" preserveAspectRatio="xMidYMid slice" clipPath={`url(#${clipId})`}/>
-        <circle r="13" fill="none" stroke={color} strokeWidth="2"/>
+        
       </> : <>
-        <circle r="16" fill={hexWithAlpha(color,.2)} stroke={color} strokeWidth="2"/>
+        <circle r="16" fill={hexWithAlpha(color,.2)}/>
         <circle r="13" fill={color}/>
         <text textAnchor="middle" dominantBaseline="central" fontSize="11" fontWeight="400" fill="#fff">{player.number}</text>
       </>}
-      <rect x="-37" y="18" width="74" height="15" rx="4" fill="rgba(0,0,0,.78)"/>
-      <text x="0" y="29" textAnchor="middle" fontSize="9" fontWeight="400" fill="#fff">{shortName(player.name).slice(0,12)}{player.captain?' ©':''}</text>
-      {player.rating != null && <g><rect x="18" y="-18" width="19" height="11" rx="3" fill="#111827"/><text x="27.5" y="-10" textAnchor="middle" fontSize="7" fontWeight="700" fill="#F8D66D">{player.rating.toFixed(1)}</text></g>}
+      
+      <text x="0" y="29" textAnchor="middle" fontSize="9" fontWeight="400" fill="#fff" stroke="rgba(0,0,0,.72)" strokeWidth="2.5" paintOrder="stroke">{shortName(player.name).slice(0,12)}{player.captain?' ©':''}</text>
+      {player.rating != null && }
     </g>;
   });
   const hasOverflow=homeOverflow.length>0||awayOverflow.length>0;
   return <div className="w-full">
-    <div className="mb-1 flex min-h-7 items-center justify-center gap-2">
-      {hasOverflow && <div className="flex items-center justify-center gap-2">
-        {homeOverflow.length>0&&<button type="button" onClick={()=>setShowHomeOverflow(v=>!v)} className="rounded-full px-3 py-1.5 text-[10px] font-semibold" style={{background:colors.background,color:colors.primary}}>{showHomeOverflow?'Hide home extras':'Home extras'} {showHomeOverflow?<ChevronUp size={12} className="inline"/>:<ChevronDown size={12} className="inline"/>}</button>}
-        {awayOverflow.length>0&&<button type="button" onClick={()=>setShowAwayOverflow(v=>!v)} className="rounded-full px-3 py-1.5 text-[10px] font-semibold" style={{background:colors.background,color:colors.away}}>{showAwayOverflow?'Hide away extras':'Away extras'} {showAwayOverflow?<ChevronUp size={12} className="inline"/>:<ChevronDown size={12} className="inline"/>}</button>}
-      </div>}
-    </div>
-    <div className="overflow-hidden rounded-xl" style={{...fanShadowStyle('card', true),background:GRASS_EVEN}}>
+    {hasOverflow && <div className="mb-1 flex min-h-7 items-center justify-center gap-2">
+      <div className="flex items-center justify-center gap-2">
+        {homeOverflow.length>0&&<button type="button" onClick={()=>setShowHomeOverflow(v=>!v)} className="rounded-full px-3 py-1.5 text-[10px] font-semibold" style={{background:showHomeOverflow?hexWithAlpha(colors.primary,.15):'transparent',color:colors.primary}}>{showHomeOverflow?'Hide home extras':'Home extras'} {showHomeOverflow?<ChevronUp size={12} className="inline"/>:<ChevronDown size={12} className="inline"/>}</button>}
+        {awayOverflow.length>0&&<button type="button" onClick={()=>setShowAwayOverflow(v=>!v)} className="rounded-full px-3 py-1.5 text-[10px] font-semibold" style={{background:showAwayOverflow?hexWithAlpha(colors.away,.15):'transparent',color:colors.away}}>{showAwayOverflow?'Hide away extras':'Away extras'} {showAwayOverflow?<ChevronUp size={12} className="inline"/>:<ChevronDown size={12} className="inline"/>}</button>}
+      </div>
+    </div>}
+    <div className="overflow-hidden rounded-lg" style={{background:GRASS_EVEN}}>
       <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`${homeTeam} vs ${awayTeam} lineups`} className="lineup-pitch-svg block h-[min(calc(100dvh_-_76px),200vw)] w-auto max-w-full mx-auto min-[651px]:h-[calc(100dvh_-_72px)] min-[651px]:w-auto">
         {Array.from({length:8},(_,i)=><rect key={i} x={i*width/8} y="0" width={width/8} height={height} fill={i%2===0?GRASS_EVEN:GRASS_ODD}/>)}
         <g fill="none" stroke="rgba(255,255,255,.75)" strokeWidth="2">
