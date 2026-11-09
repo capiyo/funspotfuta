@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import type { Fixture } from '@funspot/core';
 import { editorialArticles, editorialBySlug } from '../content/editorial';
 import { CONTACT_EMAIL } from '../config/contact-email.mjs';
 
@@ -219,13 +220,31 @@ function InsightsHub() {
   </PageShell>;
 }
 
-function EditorialArticlePage({ slug }: { slug: string }) {
+function EditorialArticlePage({ slug, liveFixture }: { slug: string; liveFixture?: Fixture | null }) {
   const article = editorialBySlug[slug];
   if (!article) return null;
   return <PageShell>
     <p className="mt-8 text-xs font-bold uppercase tracking-widest text-emerald-700">Funspot Insights · Published {article.published}</p>
     <h1 className="mt-3 text-3xl font-bold tracking-tight text-slate-950">{article.title}</h1>
     <p className="mt-5 text-lg leading-8 text-slate-600">{article.description}</p>
+    {slug === 'match-preview-template' && (
+      <section className="mt-8 rounded-2xl border border-slate-200 p-5" aria-label="Live fixture data for the match preview">
+        <h2 className="text-xl font-semibold text-slate-950">Current live fixture data</h2>
+        {liveFixture ? (
+          <>
+            <p className="mt-3 font-semibold">{liveFixture.homeTeam} vs {liveFixture.awayTeam}</p>
+            <p className="mt-2 text-sm text-slate-600">{liveFixture.league}</p>
+            <p className="mt-2 text-sm text-slate-600">Status: {liveFixture.status}</p>
+            {liveFixture.homeScore != null && liveFixture.awayScore != null && (
+              <p className="mt-2 text-lg font-bold text-slate-950">{liveFixture.homeScore} – {liveFixture.awayScore}</p>
+            )}
+            <p className="mt-2 text-xs text-slate-500">Fixture fields are supplied by the live match data service and may update during play.</p>
+          </>
+        ) : (
+          <p className="mt-3 leading-7 text-slate-600">No live fixture is currently available from the match data service. This preview remains a neutral template; no teams, scores, times or match events have been invented.</p>
+        )}
+      </section>
+    )}
     <div className="mt-8 space-y-8">
       {article.sections.map((section) => <section key={section.heading}>
         <h2 className="text-xl font-semibold text-slate-950">{section.heading}</h2>
@@ -240,7 +259,7 @@ function EditorialArticlePage({ slug }: { slug: string }) {
   </PageShell>;
 }
 
-export default function PublicDocument({ path, contactEmail = CONTACT_EMAIL }: { path: string; contactEmail?: string }) {
+export default function PublicDocument({ path, contactEmail = CONTACT_EMAIL, liveFixture = null }: { path: string; contactEmail?: string; liveFixture?: Fixture | null }) {
   const route = normalizePath(path);
   if (route === '/about') return <AboutPage />;
   if (route === '/contact') return <ContactPage email={contactEmail} />;
@@ -248,6 +267,6 @@ export default function PublicDocument({ path, contactEmail = CONTACT_EMAIL }: {
   if (route === '/terms') return <TermsPage email={contactEmail} />;
   if (route === '/ads-disclosure') return <AdsDisclosurePage />;
   if (route === '/insights') return <InsightsHub />;
-  if (route.startsWith('/insights/')) return <EditorialArticlePage slug={route.slice('/insights/'.length)} />;
+  if (route.startsWith('/insights/')) return <EditorialArticlePage slug={route.slice('/insights/'.length)} liveFixture={liveFixture} />;
   return <PageShell><h1 className="mt-8 text-3xl font-bold text-slate-950">Page not found</h1></PageShell>;
 }
