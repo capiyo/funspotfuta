@@ -36,6 +36,7 @@ import { ActionButton } from './ui/ActionButton';
 import { MiniAvatar } from './ui/miniAvatar';
 import { SmartMedia } from './SmartMedia';
 import { Chip } from './ui/Chip';
+import { CONTACT_EMAIL } from '@/config/contact-email.mjs';
 
 export function PostCard({
   post,
@@ -245,7 +246,7 @@ export function PostCard({
               onPress={() => requireLogin ? requireLogin(() => onShare?.(post)) : onShare?.(post)}
             />
             <a
-              href={`mailto:contact@funspot.co.ke?subject=${encodeURIComponent('Report a Funspot post')}&body=${encodeURIComponent(`Please review post ${post.id ?? '(unknown)'} by ${userName}.\n\nReason for report:\n\nI confirm this report is made in good faith.`)}`}
+              href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent('Report a Funspot post')}&body=${encodeURIComponent(`Please review post ${post.id ?? '(unknown)'} by ${userName}.\n\nReason for report:\n\nI confirm this report is made in good faith.`)}`}
               aria-label={`Report post by ${userName}`}
               title="Report this post"
               onClick={(event) => event.stopPropagation()}
