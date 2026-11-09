@@ -461,15 +461,18 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       toast.showError('Video too large. Maximum size is 50MB');
       return;
     }
+    const uri = URL.createObjectURL(file);
     try {
       await sendVideo({
-        uri: URL.createObjectURL(file),
+        uri,
         file,
         name: file.name || `chat-video-${Date.now()}.mp4`,
         type: file.type || 'video/mp4',
       });
     } catch (error) {
       toast.showError(error instanceof Error ? error.message : 'Failed to send video');
+    } finally {
+      URL.revokeObjectURL(uri);
     }
   }
 
