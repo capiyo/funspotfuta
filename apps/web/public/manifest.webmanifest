@@ -1,10 +1,10 @@
 {
-  "id": "/app/",
+  "id": "/",
   "name": "Funspot — Football community",
   "short_name": "Funspot",
   "description": "Follow football fixtures, join match conversations and compare community predictions.",
-  "start_url": "/app/",
-  "scope": "/app/",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#101713",
   "theme_color": "#101713",

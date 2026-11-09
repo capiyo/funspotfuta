@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 
-const baseURL = process.env.HOME_VERIFY_URL ?? 'http://127.0.0.1:4173/app/';
+const baseURL = process.env.HOME_VERIFY_URL ?? 'http://127.0.0.1:4173/';
 const output = path.resolve('docs/verify');
 fs.mkdirSync(output, { recursive: true });
 
@@ -227,7 +227,7 @@ try {
     assert(parseFloat(commentsModal.radius) >= 20,
       `Comments modal corners are not rounded at ${width}px: ${JSON.stringify(commentsModal)}`);
     await page.getByRole('button', { name: 'Close comments' }).evaluate(element => element.click());
-    await page.waitForURL(url => url.pathname === '/app/', { timeout: 10000 });
+    await page.waitForURL(url => url.pathname === '/', { timeout: 10000 });
   }
 
   assert(errors.length === 0, `Browser errors: ${errors.join('; ')}`);

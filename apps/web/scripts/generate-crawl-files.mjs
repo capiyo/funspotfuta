@@ -167,10 +167,10 @@ export default async function handler(request) {
     });
   }
 
-  const normalizedPath = requestedPath.length > 1 ? requestedPath.replace(/\\/+$/, "") : "/";
+  const normalizedPath = requestedPath.length > 1 ? requestedPath.replace(/\/+$/, "") : "/";
   const isAppRoute = normalizedPath === "/" || normalizedPath === "/login"
-    || /^\\/messages(?:\\/[^/]+)?$/.test(normalizedPath)
-    || /^\\/comments\\/[^/]+$/.test(normalizedPath);
+    || /^\/messages(?:\/[^/]+)?$/.test(normalizedPath)
+    || /^\/comments\/[^/]+$/.test(normalizedPath);
   if (isAppRoute) {
     return new Response(withRoot("app", renderApp(normalizedPath)), {
       status: 200,
