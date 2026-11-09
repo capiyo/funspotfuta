@@ -13,9 +13,7 @@ type CommentsRouteState = {
 };
 
 function useMobileWebLayout(): boolean {
-  const [mobile, setMobile] = useState(() =>
-    typeof window !== 'undefined' && window.matchMedia('(max-width: 650px)').matches,
-  );
+  const [mobile, setMobile] = useState(false);
   useEffect(() => {
     const query = window.matchMedia('(max-width: 650px)');
     const update = () => setMobile(query.matches);
