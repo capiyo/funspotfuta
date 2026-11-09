@@ -14,7 +14,6 @@ import {
 const GRASS_EVEN = '#0D5E1A';
 const GRASS_ODD = '#0A5218';
 const DOT_SIZE = 34;
-const LABEL_BLOCK_HEIGHT = 21;
 const PITCH_ASPECT_RATIO = 0.68;
 
 function PitchSvg({ width: w, height: h, homeColor, awayColor }: { width: number; height: number; homeColor: string; awayColor: string }) {
@@ -86,15 +85,8 @@ function PlayerDot({ player, position, color, isHome, photoUrl }: { player: Simp
     </span>
   );
   return (
-    <div
-      className="absolute flex flex-col items-center gap-[3px]"
-      style={{
-        left: position.x - DOT_SIZE / 2,
-        top: isHome ? position.y - DOT_SIZE / 2 : position.y - DOT_SIZE / 2 - LABEL_BLOCK_HEIGHT,
-        width: DOT_SIZE,
-      }}
-    >
-      {isHome ? <>{dot}{label}</> : <>{label}{dot}</>}
+    <div className="absolute" style={{ left: position.x - DOT_SIZE / 2, top: position.y - DOT_SIZE / 2, width: DOT_SIZE, height: DOT_SIZE }}>
+      {dot}
     </div>
   );
 }
@@ -183,12 +175,6 @@ export function PitchView({
 
   const sh = showHome && homeOverflow.length > 0;
   const sa = showAway && awayOverflow.length > 0;
-  const label = (text: string, color: string, pos: React.CSSProperties) => (
-    <div className="pointer-events-none absolute left-0 right-0 flex justify-center" style={pos}>
-      <span className="max-w-[60%] truncate rounded-fan-pill bg-black/45 px-2.5 py-0.5 text-fan-tag" style={{ color, letterSpacing: 0.4 }}>{text}</span>
-    </div>
-  );
-
   return (
     <div>
       {hasOverflow && (
@@ -207,12 +193,10 @@ export function PitchView({
           </div>
         </div>
       )}
-      <div ref={ref} className="relative max-w-full overflow-hidden rounded-fan-lg" style={{ width: "min(100%, calc((88vh - 20px) * 0.5))", maxHeight: "calc(88vh - 20px)", aspectRatio: String(PITCH_ASPECT_RATIO), flex: "0 1 auto" }}>
+      <div ref={ref} className="relative max-w-full shrink-0 overflow-hidden rounded-fan-lg" style={{ width: "min(100%, calc((88vh - 20px) * 0.68))", maxHeight: "calc(88vh - 20px)", aspectRatio: String(PITCH_ASPECT_RATIO), flex: "0 1 auto" }}>
         {size.width > 0 && size.height > 0 && (
           <>
             <PitchSvg width={size.width} height={size.height} homeColor={c.primary} awayColor={c.away} />
-            {label(homeTeam, c.primary, { bottom: size.height * 0.03 })}
-            {label(awayTeam, c.away, { top: size.height * 0.03 })}
             {cappedHome.map((p, i) => i < homePos.length && <PlayerDot key={`h-${i}-${p.number}`} player={p} position={homePos[i]} color={c.primary} isHome photoUrl={headshots[playerHeadshotKey(p, homeTeam)]} />)}
             {cappedAway.map((p, i) => i < awayPos.length && <PlayerDot key={`a-${i}-${p.number}`} player={p} position={awayPos[i]} color={c.away} isHome={false} photoUrl={headshots[playerHeadshotKey(p, awayTeam)]} />)}
           </>
