@@ -12,6 +12,16 @@ export function NotFoundPage() {
         <a href="/" className="mt-8 inline-flex rounded-full bg-emerald-400 px-6 py-3 text-sm font-bold text-[#102017] transition hover:bg-emerald-300">
           Return to Funspot
         </a>
+        <footer className="mt-12 border-t border-white/[0.08] pt-6 text-xs text-[#91a197]">
+          <nav aria-label="Public pages" className="flex flex-wrap justify-center gap-x-5 gap-y-3">
+            <a href="/about">About</a>
+            <a href="/contact">Contact</a>
+            <a href="/privacy">Privacy Policy</a>
+            <a href="/terms">Terms of Service</a>
+            <a href="/ads-disclosure">Cookie and Ads Disclosure</a>
+            <a href="/insights">Insights</a>
+          </nav>
+        </footer>
       </div>
     </main>
   );
@@ -91,11 +101,12 @@ export default function PublicHome() {
         <footer className="flex flex-col gap-4 border-t border-white/[0.08] py-7 text-xs text-[#91a197] sm:flex-row sm:items-center sm:justify-between">
           <p>© Funspot. A community for football fans.</p>
           <nav aria-label="Public pages" className="flex flex-wrap gap-x-5 gap-y-2">
-            <a className="hover:text-white" href="/about.html">About</a>
-            <a className="hover:text-white" href="/how-it-works.html">How it works</a>
-            <a className="hover:text-white" href="/contact.html">Contact</a>
-            <a className="hover:text-white" href="/terms.html">Terms</a>
-            <a className="hover:text-white" href="/privacy.html">Privacy</a>
+            <a className="hover:text-white" href="/about">About</a>
+            <a className="hover:text-white" href="/contact">Contact</a>
+            <a className="hover:text-white" href="/privacy">Privacy Policy</a>
+            <a className="hover:text-white" href="/terms">Terms of Service</a>
+            <a className="hover:text-white" href="/ads-disclosure">Cookie and Ads Disclosure</a>
+            <a className="hover:text-white" href="/insights">Insights</a>
           </nav>
         </footer>
       </div>
