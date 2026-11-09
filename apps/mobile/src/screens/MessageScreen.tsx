@@ -1404,8 +1404,7 @@ function MessageBubble({
         <View style={{ width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.draw + '25' }}>
           <Text style={{ fontSize: 14 }}>⚽</Text>
         </View>
-        <View style={{ position: 'relative', maxWidth: '84%', borderRadius: 18, borderBottomLeftRadius: 4, paddingHorizontal: FAN_SPACING.md, paddingVertical: FAN_SPACING.sm, backgroundColor: colors.draw + '20', borderWidth: 1, borderColor: colors.draw + '50' }}>
-          <View style={{ position: 'absolute', left: -6, bottom: 9, width: 11, height: 11, transform: [{ rotate: '45deg' }], backgroundColor: colors.draw + '20', borderLeftWidth: 1, borderBottomWidth: 1, borderColor: colors.draw + '50' }} />
+        <View style={{ position: 'relative', maxWidth: '84%', borderRadius: 18, paddingHorizontal: FAN_SPACING.md, paddingVertical: FAN_SPACING.sm, backgroundColor: colors.draw + '20', borderWidth: 1, borderColor: colors.draw + '50' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: FAN_SPACING.xs }}>
             <Text style={[fanText('microLabel', colors, colors.draw), { fontWeight: '900', letterSpacing: 0.8 }]}>COMMENTARY</Text>
             <View style={{ borderRadius: 12, paddingHorizontal: 6, paddingVertical: 2, backgroundColor: colors.draw + '25' }}>
