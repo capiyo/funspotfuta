@@ -340,7 +340,39 @@ const generatedFunction = functionSource
   .replace('__CONTACT_EMAIL__', () => JSON.stringify(CONTACT_EMAIL));
 const functionDir = path.join(repoDir, 'netlify', 'functions');
 await mkdir(functionDir, { recursive: true });
-await writeFile(path.join(functionDir, 'ssr.mjs'), generatedFunction, 'utf8');
+const functionPath = path.join(functionDir, 'ssr.mjs');
+await writeFile(functionPath, generatedFunction, 'utf8');
 
-console.info('[crawl-files] Wrote the Netlify React SSR function.');
+const { default: ssrHandler } = await import(pathToFileURL(functionPath).href);
+const httpResults = [];
+for (const route of ['/', ...publicRoutes]) {
+  const requestUrl = new URL('/.netlify/functions/ssr', origin);
+  requestUrl.searchParams.set('path', route);
+  if (route === '/') requestUrl.searchParams.set('ssr-smoke', '1');
+  const response = await ssrHandler(new Request(requestUrl));
+  const html = await response.text();
+  if (response.status !== 200) {
+    throw new Error('[crawl-files] SSR route ' + route + ' returned HTTP ' + response.status + '.');
+  }
+  const h1Count = (html.match(/<h1\\b/gi) ?? []).length;
+  if (h1Count !== 1) throw new Error('[crawl-files] HTTP SSR route ' + route + ' has ' + h1Count + ' H1 elements.');
+  assertNoForbidden(html, 'HTTP SSR ' + route);
+  assertFooter(html, 'HTTP SSR ' + route);
+  const expectedCanonical = route === '/' ? origin + '/' : ssrRenderer.getPublicDocumentMetadata(route)?.canonical;
+  if (!expectedCanonical || !html.includes('<link rel="canonical" href="' + expectedCanonical + '">')) {
+    throw new Error('[crawl-files] HTTP SSR route ' + route + ' is missing its www canonical.');
+  }
+  const words = wordCount(html);
+  if ((route === '/insights' && words < 300) || (route.startsWith('/insights/') && words < 900)) {
+    throw new Error('[crawl-files] HTTP SSR editorial route ' + route + ' has only ' + words + ' words.');
+  }
+  httpResults.push({ page: route, http: response.status, h1: h1Count, words, canonical: expectedCanonical });
+}
+for (const route of requiredFooterPaths) {
+  if (!httpResults.some((row) => row.page === route && row.http === 200)) {
+    throw new Error('[crawl-files] Footer destination ' + route + ' did not resolve to HTTP 200.');
+  }
+}
+console.table(httpResults);
+console.info('[crawl-files] Wrote the Netlify React SSR function and fetched every public route through it successfully.');
 process.exit(0);
