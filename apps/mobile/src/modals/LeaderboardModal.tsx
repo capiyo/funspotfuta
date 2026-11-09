@@ -635,10 +635,17 @@ function MemberCard({
                   />
                 );
               })}
-              <Text style={[styles.statMuted, { color: colors.textTertiary }]}>
-                ({row.totalPoints})
-              </Text>
-            </View>
+</View>
+          }
+        />
+        <StatRow
+          colors={colors}
+          styles={styles}
+          label="Points"
+          trailing={
+            <Text style={[styles.statValue, { color: colors.primary }]}>
+              {row.totalPoints.toLocaleString()}
+            </Text>
           }
         />
         <StatRow
