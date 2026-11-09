@@ -125,9 +125,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
                 <Text style={styles.title}>Possession</Text>
                 <Text style={styles.muted}>{fixture.league || 'Match'}</Text>
               </View>
-              <Pressable onPress={onClose} accessibilityRole="button" accessibilityLabel="Close possession modal" hitSlop={10} style={styles.closeButton}>
-                <Text style={styles.close}>×</Text>
-              </Pressable>
+              
             </View>
             <View style={styles.matchHeader}>
               <View style={styles.matchSide}><Text style={[styles.matchName, { color: colors.primary }]} numberOfLines={1}>{fixture.homeTeam}</Text></View>
