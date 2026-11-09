@@ -14,6 +14,7 @@ import { sendChannelMessage } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useLoginModal } from '@/modals/Login-modal-context';
 import { MatchCard, type LatestComment, type ChannelHeaderData } from '@/components/ChatsCard';
+import EditorialHomeBlock from '@/components/EditorialHomeBlock';
 import { channelHeaderOf } from '@/modals/channelHeader';
 import { EmptyState, ErrorBanner, SkeletonRows } from '@/components/ui/ListsStates';
 import { SwipeableVotePledgeModal } from '@/modals/actionModal';
@@ -427,6 +428,7 @@ export default function ChatsScreen() {
           aria-label="Fixtures"
         >
           {loadError && <ErrorBanner colors={colors} message={loadError} />}
+          <EditorialHomeBlock />
           <QuickGuidePostcard colors={colors} />
           <div aria-live="polite">
             {chatFixtures.length === 0 ? (
