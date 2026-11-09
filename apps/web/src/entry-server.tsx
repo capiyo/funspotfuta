@@ -18,9 +18,10 @@ function encodeQueryState(value: unknown): unknown {
 
 export type ServerRenderedApp = { markup: string; queryState: string };
 
-export async function renderApp(location = '/'): Promise<ServerRenderedApp> {
+export async function renderApp(location = '/', prefetchPublicData = true): Promise<ServerRenderedApp> {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  const prefetch = Promise.allSettled([
+  if (prefetchPublicData) {
+    const prefetch = Promise.allSettled([
     queryClient.prefetchQuery({
       queryKey: queryKeys.fixtures(),
       queryFn: ({ signal }) => getAllFixtures(signal),
@@ -37,18 +38,19 @@ export async function renderApp(location = '/'): Promise<ServerRenderedApp> {
       staleTime: 5 * 60_000,
     }),
     queryClient.prefetchInfiniteQuery(feedQueryOptions(10)),
-  ]);
+    ]);
 
-  let deadline: ReturnType<typeof setTimeout> | undefined;
-  await Promise.race([
-    prefetch,
-    new Promise<void>((resolve) => {
-      deadline = setTimeout(() => {
-        void queryClient.cancelQueries().finally(resolve);
-      }, 2200);
-    }),
-  ]);
-  if (deadline) clearTimeout(deadline);
+    let deadline: ReturnType<typeof setTimeout> | undefined;
+    await Promise.race([
+      prefetch,
+      new Promise<void>((resolve) => {
+        deadline = setTimeout(() => {
+          void queryClient.cancelQueries().finally(resolve);
+        }, 2200);
+      }),
+    ]);
+    if (deadline) clearTimeout(deadline);
+  }
 
   const markup = renderToString(
     <QueryClientProvider client={queryClient}>
