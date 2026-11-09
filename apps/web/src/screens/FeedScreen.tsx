@@ -3,7 +3,7 @@ import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'rea
 import type { CSSProperties } from 'react';
 import { useQueryClient, type InfiniteData } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { isLikedBy, toggleLikePost, queryKeys, useFeed, type FeedPage, type Post, FAN_SPACING } from '@funspot/core';
+import { isLikedBy, toggleLikePost, queryKeys, useFeed, type FeedPage, type Post, FAN_SPACING, bestImageUrl, displayCaption } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useLoginModal } from '@/modals/Login-modal-context';
 import { followUser } from '@funspot/core';
@@ -25,6 +25,8 @@ export default function FeedScreen() {
   const { activeTab } = useHome();
   const { scrollProps, topInset } = useHomeList();
   const [refreshing, setRefreshing] = useState(false);
+  const [clientReady, setClientReady] = useState(false);
+  useEffect(() => { setClientReady(true); }, []);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -33,6 +35,10 @@ export default function FeedScreen() {
   } = useFeed();
 
   const posts = useMemo(() => data?.pages.flatMap((page) => page.posts) ?? [], [data]);
+  const visiblePosts = useMemo(() => clientReady ? posts : posts.filter((post) => {
+    const hasMedia = Boolean(post.videoUrl || bestImageUrl(post));
+    return !hasMedia || displayCaption(post).trim().length >= 20;
+  }), [clientReady, posts]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -91,7 +97,7 @@ export default function FeedScreen() {
     if (node.scrollHeight - node.scrollTop - node.clientHeight < 240) void fetchNextPage();
   }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
 
-  const showLoading = posts.length === 0 && (isPending || isFetching);
+  const showLoading = visiblePosts.length === 0 && (isPending || isFetching);
 
   return (
     <div
@@ -105,7 +111,7 @@ export default function FeedScreen() {
     >
       {showLoading ? (
         <SkeletonRows colors={colors} />
-      ) : posts.length === 0 ? (
+      ) : visiblePosts.length === 0 ? (
         <div role="status" style={{ padding: FAN_SPACING.lg }}>
           <EmptyState
             colors={colors}
@@ -123,7 +129,7 @@ export default function FeedScreen() {
           <div className="feed-list feed-list-masonry" data-feed-post-list>
             {[0, 1].map((columnIndex) => (
               <div className="feed-post-column" key={columnIndex}>
-                {posts.map((post, index) => (
+                {visiblePosts.map((post, index) => (
                   index % 2 === columnIndex ? (
                     <Fragment key={post.id ?? index}>
                     <PostCard
