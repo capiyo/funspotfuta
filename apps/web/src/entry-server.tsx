@@ -2,7 +2,7 @@ import React from 'react';
 import { renderToString } from 'react-dom/server';
 import { StaticRouter } from 'react-router-dom/server';
 import { QueryClient, QueryClientProvider, dehydrate } from '@tanstack/react-query';
-import { feedQueryOptions, getAllChannels, getAllFixtures, queryKeys } from '@funspot/core';
+import { getAllFixtures, queryKeys } from '@funspot/core';
 import App from './App';
 import PublicDocument, { getPublicDocumentMetadata, getPublicDocumentRoutes } from './screens/PublicDocument';
 import { NotFoundPage } from './screens/PublicHome';
@@ -21,20 +21,15 @@ export type ServerRenderedApp = { markup: string; queryState: string };
 export async function renderApp(location = '/', prefetchPublicData = true): Promise<ServerRenderedApp> {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   if (prefetchPublicData) {
+    // Public SSR includes only the real fixture feed. Channel members and
+    // user-generated feed posts remain client-loaded so seeded/demo accounts
+    // and private user content can never become crawlable homepage HTML.
     const prefetch = Promise.allSettled([
-    queryClient.prefetchQuery({
-      queryKey: queryKeys.fixtures(),
-      queryFn: ({ signal }) => getAllFixtures(signal),
-      staleTime: 60_000,
-    }),
-    queryClient.fetchQuery({
-      queryKey: queryKeys.channels(),
-      queryFn: ({ signal }) => getAllChannels(undefined, signal),
-      staleTime: 5 * 60_000,
-    }).then((channels) => {
-      queryClient.setQueryData(['channels', 'browsable'], channels);
-    }),
-    queryClient.prefetchInfiniteQuery(feedQueryOptions(10)),
+      queryClient.prefetchQuery({
+        queryKey: queryKeys.fixtures(),
+        queryFn: ({ signal }) => getAllFixtures(signal),
+        staleTime: 60_000,
+      }),
     ]);
 
     let deadline: ReturnType<typeof setTimeout> | undefined;
