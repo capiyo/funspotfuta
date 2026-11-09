@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 
-const baseURL = process.env.VERIFY_BASE_URL || 'http://127.0.0.1:4173/app/';
+const baseURL = process.env.VERIFY_BASE_URL || 'http://127.0.0.1:4173/';
 const output = path.resolve('docs/verify');
 fs.mkdirSync(output, { recursive: true });
 const pairs = [
