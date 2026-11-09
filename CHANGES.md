@@ -12,13 +12,13 @@ Branch: `seo-app-at-root`
 ## Implemented
 
 - Removed generated fixture-comment fallback; known stock comment strings are rejected. Known demo accounts `guest_john` and `mary_ochieng` are filtered from channel, season and weekly leaderboard data.
-- Public SSR now prefetches fixture data only; channel members and user-generated feed posts are not included in crawlable homepage HTML.
+- Public SSR now prefetches fixture data only and sanitizes demo voters and known stock comments before serializing query state; channel members and user-generated feed posts are not included in crawlable homepage HTML.
 - Added a 166-word homepage editorial introduction, links to the first three guides, and a public footer on homepage loading and loaded states.
 - Added canonical SSR pages at `/about`, `/contact`, `/privacy`, `/terms`, `/ads-disclosure`, `/insights` and six evergreen articles with Article JSON-LD and cross-links.
 - Added a live-fixture preview data panel that uses an actual live fixture when the feed provides one, otherwise states that no live fixture is available, and serializes the same limited fixture snapshot into hydration to avoid a server/client content mismatch.
 - Centralized the public email in `apps/web/src/config/contact-email.mjs`. Post reports use a visible mailto action; moderation instructions are included in the public contact and terms pages.
 - Feed media-only posts are withheld during SSR unless they contain at least 20 alphanumeric text characters; they become available after hydration. Video playback is now user-initiated rather than automatic.
-- Crawl generation now writes clean route HTML, robots.txt and a sitemap with lastmod values. Its verifier fetches each generated public route through the generated SSR handler and checks HTTP 200, editorial length, one H1, www canonical metadata, footer links and forbidden placeholder strings; it also verifies the unchanged ads.txt record.
+- Crawl generation now writes clean route HTML, robots.txt and a sitemap with lastmod values. Its verifier fetches each generated public route through the generated SSR handler and checks HTTP 200, editorial length, one H1, www canonical metadata, footer links and forbidden placeholder strings; it also checks noindex headers on login, messages, comments, profile/feed routes and 404, plus the unchanged ads.txt record.
 - Private app routes receive `noindex,follow`; the homepage, policies and editorial pages remain indexable.
 
 ## Verification status
