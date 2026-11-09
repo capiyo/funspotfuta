@@ -140,8 +140,8 @@ export default function FeedScreen() {
                       onRepost={() => {}}
                       onShare={(item) => {
                         const url = item.id
-                          ? `https://www.funspot.co.ke/app/comments/${encodeURIComponent(item.id)}`
-                          : 'https://www.funspot.co.ke/app/';
+                          ? `https://www.funspot.co.ke/comments/${encodeURIComponent(item.id)}`
+                          : 'https://www.funspot.co.ke/';
                         if (navigator.share) void navigator.share({ title: item.userName ?? 'Funspot post', text: item.caption ?? '', url }).catch(() => undefined);
                         else void navigator.clipboard?.writeText(url);
                       }}

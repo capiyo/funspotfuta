@@ -1,6 +1,7 @@
 import React from 'react';
 import { hydrateRoot } from 'react-dom/client';
 import PublicDocument from './screens/PublicDocument';
+import { NotFoundPage } from './screens/PublicHome';
 import './styles.css';
 
 const root = document.getElementById('root');
