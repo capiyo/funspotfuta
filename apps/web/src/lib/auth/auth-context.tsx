@@ -206,7 +206,7 @@ export function AuthProvider({ children, initialAuthState }: { children: React.R
     let cancelled = false;
     void (async () => {
       try {
-        await queryClient.prefetchQuery({ queryKey: queryKeys.fixtures(), queryFn: getAllFixtures });
+        await queryClient.prefetchQuery({ queryKey: queryKeys.fixtures(), queryFn: ({ signal }) => getAllFixtures(signal) });
         if (cancelled) return;
         await queryClient.prefetchInfiniteQuery(feedQueryOptions(10));
         if (cancelled) return;
