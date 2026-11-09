@@ -18,7 +18,7 @@
 
 import { useState } from 'react';
 import type { CSSProperties } from 'react';
-import { Heart, MessageCircle, Repeat2, Share2 } from 'lucide-react';
+import { Flag, Heart, MessageCircle, Repeat2, Share2 } from 'lucide-react';
 import {
   type Post,
   displayCaption,
@@ -244,6 +244,15 @@ export function PostCard({
               colors={colors}
               onPress={() => requireLogin ? requireLogin(() => onShare?.(post)) : onShare?.(post)}
             />
+            <a
+              href={`mailto:contact@funspot.co.ke?subject=${encodeURIComponent('Report a Funspot post')}&body=${encodeURIComponent(`Please review post ${post.id ?? '(unknown)'} by ${userName}.\n\nReason for report:\n\nI confirm this report is made in good faith.`)}`}
+              aria-label={`Report post by ${userName}`}
+              title="Report this post"
+              onClick={(event) => event.stopPropagation()}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 5, minHeight: 32, padding: '0 4px', color: colors.textTertiary, fontSize: 11, textDecoration: 'none' }}
+            >
+              <Flag size={14} aria-hidden="true" /> Report
+            </a>
           </div>
 
           <div style={styles.rightCell}>
