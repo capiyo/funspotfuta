@@ -55,6 +55,7 @@ import {
   comradeWithStatsFromChannelMember,
   getUserChannels,
   getChannelLeaderboard,
+  isDemoMemberName,
   getUserComrades,
 } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
@@ -187,7 +188,7 @@ export default function LeaderboardScreen({
       ]);
       if (cancelled) return;
       const comradesList = new Set(comrades.map((c) => c.comrade_id));
-      const list: any[] = board?.leaderboard ?? [];
+      const list: any[] = (board?.leaderboard ?? []).filter((item) => !isDemoMemberName(item.username));
       setRows(
         list
           .map((item) => comradeWithStatsFromChannelMember(item, comradesList))
