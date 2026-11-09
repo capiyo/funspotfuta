@@ -83,7 +83,7 @@ node --input-type=module <<'NODE'
 import handler from './netlify/functions/ssr.mjs';
 
 const response = await handler(new Request(
-  'https://www.funspot.co.ke/.netlify/functions/ssr?path=%2F',
+  'https://www.funspot.co.ke/.netlify/functions/ssr?path=%2F&ssr-smoke=1',
 ));
 const html = await response.text();
 if (response.status !== 200 || response.headers.get('x-funspot-render') !== 'react-ssr') {
@@ -93,6 +93,8 @@ for (const marker of ['home-screen', 'home-columns', 'id="funspot-query-state"']
   if (!html.includes(marker)) throw new Error('SSR response is missing required application markup: ' + marker);
 }
 console.log('PASS: the real app workspace and dehydrated public query state are server-rendered.');
+// End this one-shot smoke process explicitly; imported SDKs may retain idle handles.
+process.exit(0);
 NODE
 
 step "Deploy static assets and Netlify function to production" npx netlify-cli deploy --site ae14de5d-ae44-460f-86c7-5bbde4f0efa2 --no-build --dir="$REPO/apps/web/dist" --functions="$REPO/netlify/functions" --prod
