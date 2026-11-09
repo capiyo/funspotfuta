@@ -495,15 +495,13 @@ interface PlayerDotProps {
     player: SimplifiedPlayer;
     position: PitchPosition;
     color: string;
-    isHome: boolean;
     photoUrl?: string;
 }
 
 const DOT_SIZE = 30;
 // Approximate height of the [gap + name chip] block below/above the dot.
 
-function PlayerDot({ player, position, color, isHome, photoUrl }: PlayerDotProps) {
-    const colors = useFanColors();
+function PlayerDot({ player, position, color, photoUrl }: PlayerDotProps) {
 
     const dot = (
         <View
@@ -922,7 +920,6 @@ export function PitchView({
                                         player={p}
                                         position={homePositions[i]}
                                         color={colors.primary}
-                                        isHome
                                         photoUrl={headshots[playerHeadshotKey(p, homeTeam)]}
                                     />
                                 ) : null,
@@ -934,7 +931,6 @@ export function PitchView({
                                         player={p}
                                         position={awayPositions[i]}
                                         color={colors.away}
-                                        isHome={false}
                                         photoUrl={headshots[playerHeadshotKey(p, awayTeam)]}
                                     />
                                 ) : null,
