@@ -58,10 +58,12 @@ const PLACEHOLDER_COMMENT_TEXT = new Set([
 ]);
 
 function commentsOf(fixture: Fixture): LatestComment[] {
-  const raw = ((fixture as any).comments ?? (fixture as any).latestComments ?? []) as any[];
-  return raw.map((comment) => ({
-    username: comment.username ?? comment.userName ?? 'Fan',
-    comment: comment.comment ?? comment.text ?? '',
+  const candidate = (fixture as Fixture & { comments?: unknown; latestComments?: unknown }).comments
+    ?? (fixture as Fixture & { latestComments?: unknown }).latestComments;
+  const raw = Array.isArray(candidate) ? candidate : [];
+  return raw.map((comment: Record<string, unknown>) => ({
+    username: String(comment.username ?? comment.userName ?? 'Fan'),
+    comment: String(comment.comment ?? comment.text ?? ''),
   })).filter((comment) => {
     const text = comment.comment.trim();
     return text.length > 0 && !PLACEHOLDER_COMMENT_TEXT.has(text);
