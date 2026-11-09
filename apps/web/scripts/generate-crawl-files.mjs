@@ -146,7 +146,8 @@ const results = [];
 for (const route of publicRoutes) {
   const metadata = ssrRenderer.getPublicDocumentMetadata(route);
   if (!metadata) throw new Error('[crawl-files] Missing metadata for ' + route + '.');
-  const markup = await ssrRenderer.renderPublicDocument(route, CONTACT_EMAIL);
+  const renderedPage = await ssrRenderer.renderPublicDocument(route, CONTACT_EMAIL);
+  const markup = renderedPage.markup;
   const h1Count = (markup.match(/<h1\b/gi) ?? []).length;
   if (h1Count !== 1) throw new Error('[crawl-files] Expected exactly one H1 on ' + route + ', found ' + h1Count + '.');
   assertNoForbidden(markup, route);
@@ -158,7 +159,7 @@ for (const route of publicRoutes) {
   if (route === '/contact' && !markup.includes(CONTACT_EMAIL)) {
     throw new Error('[crawl-files] Contact page did not render CONTACT_EMAIL.');
   }
-  const attributes = ' data-page-path="' + escapeHtml(route) + '" data-contact-email="' + escapeHtml(CONTACT_EMAIL) + '"';
+  const attributes = ' data-page-path="' + escapeHtml(route) + '" data-contact-email="' + escapeHtml(CONTACT_EMAIL) + '" data-live-fixture="' + escapeHtml(JSON.stringify(renderedPage.liveFixture)) + '"';
   const html = withMetadata(withRoot('public-document', markup, attributes), metadata);
   if (!html.includes('<link rel="canonical" href="' + metadata.canonical + '">')) {
     throw new Error('[crawl-files] Canonical metadata is missing from ' + route + '.');
@@ -286,9 +287,9 @@ export default async function handler(request) {
   const normalizedPath = requestedPath.length > 1 ? requestedPath.replace(/\/+$/, "") : "/";
   const publicMetadata = getPublicDocumentMetadata(normalizedPath);
   if (publicMetadata) {
-    const pageMarkup = await renderPublicDocument(normalizedPath, contactEmail);
-    const attributes = ' data-page-path="' + escapeHtml(normalizedPath) + '" data-contact-email="' + escapeHtml(contactEmail) + '"';
-    const html = withMetadata(withRoot("public-document", pageMarkup, attributes), publicMetadata);
+    const renderedPage = await renderPublicDocument(normalizedPath, contactEmail);
+    const attributes = ' data-page-path="' + escapeHtml(normalizedPath) + '" data-contact-email="' + escapeHtml(contactEmail) + '" data-live-fixture="' + escapeHtml(JSON.stringify(renderedPage.liveFixture)) + '"';
+    const html = withMetadata(withRoot("public-document", renderedPage.markup, attributes), publicMetadata);
     return new Response(html, {
       status: 200,
       headers: {
