@@ -379,6 +379,35 @@ for (const route of requiredFooterPaths) {
     throw new Error('[crawl-files] Footer destination ' + route + ' did not resolve to HTTP 200.');
   }
 }
+
+const privateResults = [];
+for (const route of ['/login', '/messages/sample-channel', '/comments/sample-post', '/profile/sample-user', '/feed']) {
+  const requestUrl = new URL('/.netlify/functions/ssr', origin);
+  requestUrl.searchParams.set('path', route);
+  requestUrl.searchParams.set('ssr-smoke', '1');
+  const response = await ssrHandler(new Request(requestUrl));
+  const html = await response.text();
+  if (response.status !== 200) throw new Error('[crawl-files] Private route ' + route + ' returned HTTP ' + response.status + '.');
+  if (!html.includes('<meta name="robots" content="noindex,follow">') ||
+      response.headers.get('x-robots-tag') !== 'noindex, follow') {
+    throw new Error('[crawl-files] Private route ' + route + ' is missing noindex,follow.');
+  }
+  assertFooter(html, 'private SSR ' + route);
+  assertNoForbidden(html, 'private SSR ' + route);
+  privateResults.push({ page: route, http: response.status, robots: 'noindex,follow', footer: 'PASS' });
+}
+const notFoundRequest = new URL('/.netlify/functions/ssr', origin);
+notFoundRequest.searchParams.set('path', '/not-a-real-funspot-page');
+const notFoundResponse = await ssrHandler(new Request(notFoundRequest));
+const notFoundHtml = await notFoundResponse.text();
+if (notFoundResponse.status !== 404 ||
+    !notFoundHtml.includes('<meta name="robots" content="noindex,follow">') ||
+    notFoundResponse.headers.get('x-robots-tag') !== 'noindex, follow') {
+  throw new Error('[crawl-files] The 404 route must return HTTP 404 and noindex,follow.');
+}
+assertFooter(notFoundHtml, '/404 HTTP SSR');
+privateResults.push({ page: '/404', http: notFoundResponse.status, robots: 'noindex,follow', footer: 'PASS' });
 console.table(httpResults);
+console.table(privateResults);
 console.info('[crawl-files] Wrote the Netlify React SSR function and fetched every public route through it successfully.');
 process.exit(0);
