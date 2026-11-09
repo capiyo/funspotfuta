@@ -2,7 +2,7 @@ import { Avatar } from '@/components/ui/Avatar';
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, View } from '@/lib/native-web-compat';
 import { Trophy, X } from 'lucide-react';
-import { getChannelWeeklyLeaderboardData, type WeeklyChannelLeader, type WeeklyLeaderboardMe } from '@funspot/core';
+import { getChannelWeeklyLeaderboardData, isDemoMemberName, type WeeklyChannelLeader, type WeeklyLeaderboardMe } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useFanColors } from '@/theme/use-fan-colors';
 
@@ -27,7 +27,7 @@ export function WeeklyLeaderboardModal({ visible, onClose, channelId, channelNam
     setLoading(true);
     void getChannelWeeklyLeaderboardData(channelId, authToken, userId).then((result) => {
       if (!cancelled) {
-        setRows(result?.leaderboard ?? []);
+        setRows((result?.leaderboard ?? []).filter((row) => !isDemoMemberName(row.username)));
         setWeekStartsAt(result?.week_starts_at ?? null);
         setWeekEndsAt(result?.week_ends_at ?? null);
         setMe(result?.me ?? null);
