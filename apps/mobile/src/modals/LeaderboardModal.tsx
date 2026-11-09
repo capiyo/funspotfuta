@@ -34,9 +34,7 @@ import {
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import AdCarousel from '@/components/AdCarousel';
-import {
-  X,
-  Trophy,
+import {Trophy,
   Star,
   Flame,
   Target,
@@ -239,10 +237,7 @@ export default function LeaderboardScreen({
               </Text>
               <Text style={styles.headerSub}>{rows.length} members</Text>
             </View>
-            <Pressable onPress={onClose} hitSlop={8} style={styles.closeBtn}>
-              <X size={14} color={colors.textSecondary} />
-            </Pressable>
-          </View>
+</View>
 
           {/* Channel picker — only shown when the parent didn't lock us
               to a channel via the `channelId` prop. */}
@@ -1321,10 +1316,7 @@ function ActivityHistorySheet({
                 {params.clubFan ? ` · ${params.clubFan}` : ''}
               </Text>
             </View>
-            <Pressable onPress={onClose} hitSlop={8} style={styles.closeBtn}>
-              <X size={14} color={colors.textSecondary} />
-            </Pressable>
-          </View>
+</View>
 
           {/* Filter tabs */}
           <ScrollView
