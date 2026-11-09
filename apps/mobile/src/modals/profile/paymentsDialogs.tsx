@@ -705,7 +705,7 @@ function createStyles(colors: FanColors) {
             borderColor: 'transparent',
         },
         dialogBtnText: { fontSize: 13, fontWeight: '600' },
-        dialogBtnPrimary: { borderWidth: 0,
+        dialogBtnPrimary: { borderWidth: 0 },
         dialogBtnPrimaryText: {
             color: '#FFFFFF',
             fontSize: 13,
