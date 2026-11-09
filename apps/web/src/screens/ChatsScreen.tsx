@@ -44,14 +44,28 @@ type ActionResult = { success: boolean; message?: string; newBalance?: number };
 const FIXTURES_KEY = queryKeys.fixtures();
 const NO_FIXTURES: Fixture[] = [];
 const NO_CHANNELS: Channel[] = [];
-
+const PLACEHOLDER_COMMENT_TEXT = new Set([
+  'This is going to be a banger',
+  'My gut says an upset today',
+  'Defense has to show up this time',
+  "Can't wait for kickoff",
+  'That midfield battle decides it',
+  'Home crowd advantage all day',
+  'Not confident about this one honestly',
+  'Easy three points incoming',
+  'Injuries could really hurt them here',
+  'Give me a 2-1 all day',
+]);
 
 function commentsOf(fixture: Fixture): LatestComment[] {
   const raw = ((fixture as any).comments ?? (fixture as any).latestComments ?? []) as any[];
   return raw.map((comment) => ({
     username: comment.username ?? comment.userName ?? 'Fan',
     comment: comment.comment ?? comment.text ?? '',
-  })).filter((comment) => comment.comment.trim().length > 0);
+  })).filter((comment) => {
+    const text = comment.comment.trim();
+    return text.length > 0 && !PLACEHOLDER_COMMENT_TEXT.has(text);
+  });
 }
 function isLiveFixture(fixture: Fixture) {
   return resolveFixtureIsLive(fixture.status, fixture.isLive);
