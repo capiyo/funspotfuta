@@ -62,6 +62,19 @@ export default function NotificationsModal({ visible, onClose }: { visible: bool
     return () => { cancelled = true; };
   }, [authToken, visible, userId]);
 
+  useEffect(() => {
+    if (!visible) return;
+    const unsubscribe = NotificationService.onNotification(() => {
+      void NotificationService.loadInitialBadgeCounts().then((counts) => {
+        setSummary({
+          notifications: counts.unread_notifications,
+          comments: counts.unread_comments,
+        });
+      });
+    });
+    return unsubscribe;
+  }, [visible]);
+
   async function toggle(key: keyof NotificationPreferences) {
     if (!prefs || !userId || saving) return;
     const previous = prefs;
