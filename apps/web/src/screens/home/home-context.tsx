@@ -104,10 +104,15 @@ export function HomeProvider({ children }: { children: ReactNode }) {
   });
   const allChannels = needsBrowsing ? browsableQuery.data ?? NO_CHANNELS : NO_CHANNELS;
 
-  const [activeChannelId, setActiveChannelIdState] = useState<string | undefined>(readStoredActiveChannelId);
+  const [activeChannelId, setActiveChannelIdState] = useState<string | undefined>(undefined);
   const setActiveChannelId = useCallback((id: string) => {
     setActiveChannelIdState(id);
     writeStoredActiveChannelId(id);
+  }, []);
+
+  useEffect(() => {
+    setActiveChannelIdState(readStoredActiveChannelId());
+    setActiveTabState(readStoredActiveTab());
   }, []);
 
   useEffect(() => {
@@ -186,7 +191,7 @@ export function HomeProvider({ children }: { children: ReactNode }) {
     setHeaderVisible(true);
   }, []);
 
-  const [activeTab, setActiveTabState] = useState<TabName>(readStoredActiveTab);
+  const [activeTab, setActiveTabState] = useState<TabName>('Chats');
   const setActiveTab = useCallback((tab: TabName) => {
     setActiveTabState((previous) => {
       if (previous === tab) return previous;

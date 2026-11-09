@@ -18,29 +18,29 @@ function load() {
   return context.FunspotNotificationUrl.normalize;
 }
 
-test('notification URLs are same-origin and normalized into the /app scope', () => {
+test('notification URLs normalize to the canonical root application scope', () => {
   assert.match(app, /window\.FunspotNotificationUrl\?\.normalize\(notice\.data\?\.url\)/);
   assert.match(sw, /importScripts\('\/notification-url-normalizer\.js'\)/);
   assert.match(sw, /const normalize = self\.FunspotNotificationUrl\?\.normalize/);
   const normalize = load();
   for (const [input, expected] of [
-    ['/','/app/'],
-    ['/app','/app/'],
-    ['/app/','/app/'],
-    ['/login','/app/login'],
-    ['/messages','/app/messages'],
-    ['/messages/channel?fixtureId=f1#last','/app/messages/channel'],
-    ['https://www.funspot.co.ke/comments/post-1?x=1','/app/comments/post-1'],
-    ['/app/login','/app/login'],
-    ['/app/messages/channel','/app/messages/channel'],
-    ['/app/comments/post-1','/app/comments/post-1'],
-    ['/messages/a/b','/app/'],
-    ['/comments/','/app/'],
-    ['/other','/app/'],
-    ['https://evil.example/messages/x','/app/'],
-    ['javascript:alert(1)','/app/'],
-    ['', '/app/'],
-    [null, '/app/'],
+    ['/','/'],
+    ['/app','/'],
+    ['/app/','/'],
+    ['/login','/login'],
+    ['/messages','/messages'],
+    ['/messages/channel?fixtureId=f1#last','/messages/channel'],
+    ['https://www.funspot.co.ke/comments/post-1?x=1','/comments/post-1'],
+    ['/app/login','/login'],
+    ['/app/messages/channel','/messages/channel'],
+    ['/app/comments/post-1','/comments/post-1'],
+    ['/messages/a/b','/'],
+    ['/comments/','/'],
+    ['/other','/'],
+    ['https://evil.example/messages/x','/'],
+    ['javascript:alert(1)','/'],
+    ['', '/'],
+    [null, '/'],
   ]) {
     assert.equal(normalize(input), expected, String(input));
   }

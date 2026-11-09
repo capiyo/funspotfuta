@@ -11,7 +11,7 @@ export function useFanColors(): FanColorPalette {
 }
 
 export function useIsDark(): boolean {
-  const [isDark, setIsDark] = useState(readDarkPreference);
+  const [isDark, setIsDark] = useState(true);
 
   useEffect(() => {
     if (typeof window === 'undefined' || !window.matchMedia) return;
