@@ -94,6 +94,15 @@ export interface LiveCommentaryEntry {
   timestamp?: string;
 }
 
+function stableHash(value: string): number {
+  let hash = 2166136261;
+  for (let index = 0; index < value.length; index += 1) {
+    hash ^= value.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
 function kickoffLabel(dateString: string): string {
   const date = new Date(dateString);
   if (Number.isNaN(date.getTime())) return 'TBD';
@@ -347,8 +356,9 @@ export function MatchCard({
 
   const [failedUri, setFailedUri] = useState<string | null>(null);
 
-  // Random pick, fixed for this card's lifetime.
-  const [seed] = useState(() => Math.random());
+  // Stable per-fixture picks keep server HTML and browser hydration identical.
+  const fixtureSeed = String(fixture.matchId || fixture.id || 'fixture');
+  const [seed] = useState(() => stableHash(fixtureSeed) / 0x100000000);
   const pool = comments?.length
     ? comments
     : latestComment
@@ -356,11 +366,8 @@ export function MatchCard({
       : [];
   const preview = pool.length ? pool[Math.floor(seed * pool.length)] : null;
 
-  const [emptyPrompt] = useState(
-    () =>
-      EMPTY_VOTE_PROMPTS[
-        Math.floor(Math.random() * EMPTY_VOTE_PROMPTS.length)
-      ],
+  const [emptyPrompt] = useState(() =>
+    EMPTY_VOTE_PROMPTS[stableHash(`${fixtureSeed}:empty-prompt`) % EMPTY_VOTE_PROMPTS.length],
   );
 
   const fixtureStatus = (liveFixture.status ?? '').toLowerCase();
