@@ -146,7 +146,10 @@ export default function NotificationsModal({ visible, onClose }: { visible: bool
                   key={item.fixtureId}
                   type="button"
                   onClick={() => {
-                    void NotificationService.clearUnreadForFixture(item.fixtureId);
+                    void NotificationService.clearUnreadForFixture(item.fixtureId).then(async () => {
+                      const counts = await NotificationService.loadInitialBadgeCounts();
+                      setSummary({ notifications: counts.unread_notifications, comments: counts.unread_comments });
+                    });
                     setActivity((current) => current.filter((row) => row.fixtureId !== item.fixtureId));
                   }}
                   className="flex w-full items-center gap-3 rounded-2xl px-2 py-3 text-left transition-colors"
