@@ -2,7 +2,7 @@ import React from 'react';
 import { renderToString } from 'react-dom/server';
 import { StaticRouter } from 'react-router-dom/server';
 import { QueryClient, QueryClientProvider, dehydrate } from '@tanstack/react-query';
-import { getAllFixtures, queryKeys } from '@funspot/core';
+import { getAllFixtures, queryKeys, resolveFixtureIsLive, type Fixture } from '@funspot/core';
 import App from './App';
 import PublicDocument, { getPublicDocumentMetadata, getPublicDocumentRoutes } from './screens/PublicDocument';
 import { NotFoundPage } from './screens/PublicHome';
@@ -62,8 +62,27 @@ export function renderNotFound(): string {
   return renderToString(<NotFoundPage />);
 }
 
-export function renderPublicDocument(path: string, contactEmail: string): string {
-  return renderToString(<PublicDocument path={path} contactEmail={contactEmail} />);
+export async function renderPublicDocument(path: string, contactEmail: string): Promise<string> {
+  let liveFixture: Fixture | null = null;
+  if (path.replace(/\\/+$/, '') === '/insights/match-preview-template') {
+    const controller = new AbortController();
+    let deadline: ReturnType<typeof setTimeout> | undefined;
+    try {
+      const fixtures = await Promise.race([
+        getAllFixtures(controller.signal),
+        new Promise<Fixture[] | null>((resolve) => {
+          deadline = setTimeout(() => resolve(null), 1600);
+        }),
+      ]);
+      liveFixture = fixtures?.find((fixture) => resolveFixtureIsLive(fixture.status, fixture.isLive)) ?? null;
+    } catch {
+      liveFixture = null;
+    } finally {
+      if (deadline) clearTimeout(deadline);
+      controller.abort();
+    }
+  }
+  return renderToString(<PublicDocument path={path} contactEmail={contactEmail} liveFixture={liveFixture} />);
 }
 
 export { getPublicDocumentMetadata, getPublicDocumentRoutes };
