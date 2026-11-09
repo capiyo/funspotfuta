@@ -54,9 +54,7 @@ export function WeeklyLeaderboardModal({ visible, onClose, channelId, channelNam
               <Text style={styles.title} numberOfLines={1}>WEEKLY LEADERBOARD</Text>
               <Text style={styles.subtitle} numberOfLines={1}>{channelName} · {period}</Text>
             </View>
-            <Pressable accessibilityRole="button" accessibilityLabel="Close weekly leaderboard" onPress={onClose} hitSlop={10}>
-              <X size={20} color={colors.textSecondary} />
-            </Pressable>
+            
           </View>
           <Text style={styles.caption}>Points won since Tuesday at 04:00 EAT</Text>
           {loading ? <View style={styles.center}><ActivityIndicator color={colors.primary} /></View> : rows.length === 0 && !me ? (
