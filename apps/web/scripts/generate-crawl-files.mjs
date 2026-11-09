@@ -296,7 +296,7 @@ export default async function handler(request) {
       status: 200,
       headers: {
         "content-type": "text/html; charset=utf-8",
-        "cache-control": "public, max-age=0, s-maxage=300, stale-while-revalidate=86400",
+        "cache-control": normalizedPath === "/insights/match-preview-template" ? "public, max-age=0, s-maxage=30, stale-while-revalidate=60" : "public, max-age=0, s-maxage=300, stale-while-revalidate=86400",
         "x-content-type-options": "nosniff",
         "x-funspot-render": "react-ssr",
       },
