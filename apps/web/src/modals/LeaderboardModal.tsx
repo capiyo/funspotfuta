@@ -188,7 +188,7 @@ export default function LeaderboardScreen({
       ]);
       if (cancelled) return;
       const comradesList = new Set(comrades.map((c) => c.comrade_id));
-      const list: any[] = (board?.leaderboard ?? []).filter((item) => !isDemoMemberName(item.username));
+      const list: any[] = (board?.leaderboard ?? []).filter((item) => !isDemoMemberName(item.username ?? item.user_name ?? item.userName));
       setRows(
         list
           .map((item) => comradeWithStatsFromChannelMember(item, comradesList))
