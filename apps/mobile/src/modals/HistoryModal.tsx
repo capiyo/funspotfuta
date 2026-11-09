@@ -201,16 +201,7 @@ export default function HistoryModal({
                     : 'Completed matches'}
                 </Text>
               </View>
-              <Pressable
-                onPress={onClose}
-                hitSlop={8}
-                style={({ pressed }) => [
-                  styles.closeBtn,
-                  pressed && { opacity: PRESSED_OPACITY },
-                ]}
-              >
-                <X size={14} color={colors.textTertiary} />
-              </Pressable>
+              
             </View>
 
             {/* List */}
