@@ -93,6 +93,7 @@ if (!renderedHome.markup.includes('funspot-editorial-heading') ||
 if (!renderedNotFound.includes("This page isn't here.") && !renderedNotFound.includes("This page isn&#x27;t here.")) {
   throw new Error('[crawl-files] React SSR did not produce the custom 404 content.');
 }
+assertFooter(renderedNotFound, '/404');
 
 const notFoundMarker = '<div id="root"></div>';
 let staticNotFound = shell.replace(
