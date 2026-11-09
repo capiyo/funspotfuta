@@ -39,6 +39,16 @@ function NotFoundRoute() {
     <h1 className="text-2xl font-bold">Page not found</h1>
     <p className="max-w-md text-sm opacity-70">That application page does not exist or may have moved.</p>
     <Link className="rounded-full bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-black" to="/">Return to Funspot</Link>
+    <footer className="mt-10 border-t border-white/10 pt-5 text-xs opacity-70">
+      <nav aria-label="Public pages" className="flex flex-wrap justify-center gap-x-4 gap-y-2">
+        <a href="/about">About</a>
+        <a href="/contact">Contact</a>
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/terms">Terms of Service</a>
+        <a href="/ads-disclosure">Cookie and Ads Disclosure</a>
+        <a href="/insights">Insights</a>
+      </nav>
+    </footer>
   </main>;
 }
 function ResponsiveMessageRoute() {
