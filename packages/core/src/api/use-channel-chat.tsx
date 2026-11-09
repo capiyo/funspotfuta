@@ -972,6 +972,73 @@ export function useChannelChat({
         [channelId, fixtureId, userId, username, authToken, deliver, insertSorted, replaceById],
     );
 
+    // ── Send video (optimistic placeholder → upload → deliver) ──
+    const sendVideo = useCallback(
+        async (
+            asset: { uri: string; name?: string; type?: string; file?: Blob },
+            caption?: string,
+        ) => {
+            if (!channelId || !userId || !username || !asset?.uri) return;
+            const tempId = `temp_${Date.now()}_${userId}`;
+            insertSorted({
+                ...chatMessageFromJson({
+                    messageId: tempId,
+                    userId,
+                    username,
+                    text: caption ?? '',
+                    message: caption ?? '',
+                    sent_at: new Date().toISOString(),
+                    videoUrl: UPLOADING,
+                    isVideo: true,
+                }),
+                id: tempId,
+                tempId,
+                isPending: true,
+                status: 'pending',
+                seq: nextSeq(),
+            });
+            setUploadingImage(true);
+            try {
+                const form = new FormData();
+                const fileName = asset.name ?? `chat_video_${Date.now()}.mp4`;
+                if (asset.file) form.append('file', asset.file, fileName);
+                else form.append('file', {
+                    uri: asset.uri,
+                    name: fileName,
+                    type: asset.type ?? 'video/mp4',
+                } as unknown as Blob);
+                form.append('userId', userId);
+                if (caption) form.append('caption', caption);
+                const res = await fetch(`${API_BASE_URL}/channels/media/upload`, {
+                    method: 'POST',
+                    headers: authToken ? { Authorization: `Bearer ${authToken}` } : undefined,
+                    body: form,
+                });
+                if (!res.ok) {
+                    const detail = await res.text().catch(() => '');
+                    throw new Error(`Video upload failed (${res.status})${detail ? `: ${detail.slice(0, 240)}` : ''}`);
+                }
+                const data = await res.json();
+                const videoUrl: string | undefined = data?.video_url ?? data?.url ?? data?.secure_url;
+                if (!videoUrl) throw new Error('No video URL in upload response');
+                const videoThumbnailUrl: string | undefined = data?.thumbnail_url ?? data?.video_thumbnail_url;
+                replaceById(tempId, { videoUrl, videoThumbnailUrl: videoThumbnailUrl ?? null });
+                const ok = await deliver(tempId, caption ?? '', {
+                    videoUrl,
+                    videoThumbnailUrl,
+                    isVideo: true,
+                });
+                if (!ok) throw new Error('Not connected to chat server');
+            } catch (error) {
+                replaceById(tempId, { status: 'failed', isPending: false });
+                throw error;
+            } finally {
+                setUploadingImage(false);
+            }
+        },
+        [channelId, userId, username, authToken, deliver, insertSorted, replaceById],
+    );
+
     // ── Outgoing typing indicator ───────────────────────────────
     const sendTyping = useCallback(() => {
         if (!channelId || !username) return;
@@ -1014,6 +1081,7 @@ export function useChannelChat({
         typingUsers,
         send,
         sendImage,
+        sendVideo,
         sendTyping,
         markRead,
 
