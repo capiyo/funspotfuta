@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { Play } from 'lucide-react';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { PostImage } from './ui/postImages';
@@ -21,29 +21,6 @@ export function SmartMedia({ imageUrl, videoUrl, videoThumbnailUrl, width, heigh
   const [videoAttempt, setVideoAttempt] = useState(0);
   const [videoRatio, setVideoRatio] = useState(width && height && width > 0 && height > 0 ? width / height : 4 / 3);
   const [showControls, setShowControls] = useState(false);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video || !videoUrl || typeof IntersectionObserver === 'undefined') return;
-    const observer = new IntersectionObserver(([entry]) => {
-      const visible = entry.isIntersecting && entry.intersectionRatio >= 0.6;
-      if (!visible) {
-        video.pause();
-        if (currentlyPlayingVideo === video) currentlyPlayingVideo = null;
-        setPaused(true);
-        return;
-      }
-      if (currentlyPlayingVideo && currentlyPlayingVideo !== video) currentlyPlayingVideo.pause();
-      currentlyPlayingVideo = video;
-      void video.play().then(() => setPaused(false)).catch(() => setPaused(true));
-    }, { threshold: [0, 0.6, 1] });
-    observer.observe(video);
-    return () => {
-      observer.disconnect();
-      video.pause();
-      if (currentlyPlayingVideo === video) currentlyPlayingVideo = null;
-    };
-  }, [videoUrl, videoFailed, videoAttempt]);
 
   if (videoUrl) {
     const ratio = videoRatio;
