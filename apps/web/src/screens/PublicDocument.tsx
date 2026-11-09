@@ -1,5 +1,9 @@
 import type { ReactNode } from 'react';
 import type { Fixture } from '@funspot/core';
+
+export type PublicMatchPreviewFixture = Pick<Fixture,
+  'homeTeam' | 'awayTeam' | 'league' | 'status' | 'homeScore' | 'awayScore' | 'date' | 'time' | 'isLive'
+>;
 import { editorialArticles, editorialBySlug } from '../content/editorial';
 import { CONTACT_EMAIL } from '../config/contact-email.mjs';
 
@@ -220,7 +224,7 @@ function InsightsHub() {
   </PageShell>;
 }
 
-function EditorialArticlePage({ slug, liveFixture }: { slug: string; liveFixture?: Fixture | null }) {
+function EditorialArticlePage({ slug, liveFixture }: { slug: string; liveFixture?: PublicMatchPreviewFixture | null }) {
   const article = editorialBySlug[slug];
   if (!article) return null;
   return <PageShell>
@@ -259,7 +263,7 @@ function EditorialArticlePage({ slug, liveFixture }: { slug: string; liveFixture
   </PageShell>;
 }
 
-export default function PublicDocument({ path, contactEmail = CONTACT_EMAIL, liveFixture = null }: { path: string; contactEmail?: string; liveFixture?: Fixture | null }) {
+export default function PublicDocument({ path, contactEmail = CONTACT_EMAIL, liveFixture = null }: { path: string; contactEmail?: string; liveFixture?: PublicMatchPreviewFixture | null }) {
   const route = normalizePath(path);
   if (route === '/about') return <AboutPage />;
   if (route === '/contact') return <ContactPage email={contactEmail} />;
