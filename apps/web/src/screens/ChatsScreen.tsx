@@ -418,7 +418,9 @@ export default function ChatsScreen() {
       {isPending || ((data?.length ?? 0) === 0 && isFetching) ? (
         <div className="no-scrollbar" style={{ paddingTop: topInset, minHeight: 0, overflowY: 'auto' }} aria-busy="true">
           {loadError && <ErrorBanner colors={colors} message={loadError} />}
+          <EditorialHomeBlock />
           <SkeletonRows colors={colors} />
+          <HomePublicFooter />
         </div>
       ) : (
         <div
@@ -487,7 +489,8 @@ export default function ChatsScreen() {
               aria-label="Refresh fixtures" aria-busy={refreshing} className="secondary-button">
               {refreshing ? 'Refreshing…' : 'Refresh'}
             </button>
-          </div>}
+            <HomePublicFooter />
+        </div>}
         </div>
       )}
 
@@ -584,6 +587,23 @@ export default function ChatsScreen() {
         />
       )}
     </section>
+  );
+}
+
+
+function HomePublicFooter() {
+  return (
+    <footer className="mx-3 mt-6 border-t border-white/10 px-1 py-5 text-xs text-[var(--home-text-tertiary)]">
+      <nav aria-label="Public pages" className="flex flex-wrap gap-x-4 gap-y-2">
+        <a href="/about">About</a>
+        <a href="/contact">Contact</a>
+        <a href="/privacy">Privacy Policy</a>
+        <a href="/terms">Terms of Service</a>
+        <a href="/ads-disclosure">Cookie and Ads Disclosure</a>
+        <a href="/insights">Insights</a>
+      </nav>
+      <p className="mt-3">© Funspot. An independent football fan community based in Nairobi, Kenya.</p>
+    </footer>
   );
 }
 
