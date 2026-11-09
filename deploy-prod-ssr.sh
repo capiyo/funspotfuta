@@ -69,7 +69,7 @@ echo "SINGLE APP SHELL BUILD VERIFIED"
 echo "Client: apps/web/dist"
 echo "Function: netlify/functions/ssr.mjs"
 
-step "Deploy static assets and Netlify function to production" netlify deploy --no-build --dir="$REPO/apps/web/dist" --functions="$REPO/netlify/functions" --prod
+step "Deploy static assets and Netlify function to production" netlify deploy --site ae14de5d-ae44-460f-86c7-5bbde4f0efa2 --no-build --dir="$REPO/apps/web/dist" --functions="$REPO/netlify/functions" --prod
 
 echo
 echo "================================================"
