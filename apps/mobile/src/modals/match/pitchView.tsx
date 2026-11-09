@@ -4,7 +4,6 @@ import {
     View,
     Text,
     StyleSheet,
-    Pressable,
     LayoutChangeEvent,
     useWindowDimensions,
 } from 'react-native';
@@ -17,7 +16,6 @@ import Svg, {
     LinearGradient as SvgLinearGradient,
     Stop,
 } from 'react-native-svg';
-import { ChevronDown, ChevronUp } from 'lucide-react-native';
 import { Image as ExpoImage } from 'expo-image';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -499,7 +497,6 @@ interface PlayerDotProps {
 }
 
 const DOT_SIZE = 30;
-// Approximate height of the [gap + name chip] block below/above the dot.
 
 function PlayerDot({ player, position, color, photoUrl }: PlayerDotProps) {
 
