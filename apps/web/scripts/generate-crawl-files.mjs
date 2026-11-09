@@ -77,7 +77,7 @@ for (const symbol of ['renderApp', 'renderNotFound', 'renderPublicDocument', 'ge
 
 const ssrRenderer = await import(pathToFileURL(ssrEntry).href);
 const publicRoutes = ssrRenderer.getPublicDocumentRoutes();
-const renderedHome = await ssrRenderer.renderApp('/', false);
+const renderedHome = await ssrRenderer.renderApp('/', true);
 const renderedNotFound = ssrRenderer.renderNotFound();
 
 const homepageH1Count = (renderedHome.markup.match(/<h1\b/gi) ?? []).length;
@@ -237,6 +237,7 @@ if (!robots.includes('User-agent: Mediapartners-Google') || !robots.includes('Si
   throw new Error('[crawl-files] robots.txt is missing the AdSense crawler or sitemap declaration.');
 }
 assertNoForbidden(renderedHome.markup, '/');
+assertNoForbidden(renderedHome.queryState, '/ query state');
 assertFooter(renderedHome.markup, '/');
 
 console.table([
@@ -354,7 +355,6 @@ const httpResults = [];
 for (const route of ['/', ...publicRoutes]) {
   const requestUrl = new URL('/.netlify/functions/ssr', origin);
   requestUrl.searchParams.set('path', route);
-  if (route === '/') requestUrl.searchParams.set('ssr-smoke', '1');
   const response = await ssrHandler(new Request(requestUrl));
   const html = await response.text();
   if (response.status !== 200) {
