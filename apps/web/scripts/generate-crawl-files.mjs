@@ -354,7 +354,7 @@ for (const route of ['/', ...publicRoutes]) {
   if (response.status !== 200) {
     throw new Error('[crawl-files] SSR route ' + route + ' returned HTTP ' + response.status + '.');
   }
-  const h1Count = (html.match(/<h1\\b/gi) ?? []).length;
+  const h1Count = (html.match(/<h1\b/gi) ?? []).length;
   if (h1Count !== 1) throw new Error('[crawl-files] HTTP SSR route ' + route + ' has ' + h1Count + ' H1 elements.');
   assertNoForbidden(html, 'HTTP SSR ' + route);
   assertFooter(html, 'HTTP SSR ' + route);
