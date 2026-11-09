@@ -36,8 +36,10 @@ export default function FeedScreen() {
 
   const posts = useMemo(() => data?.pages.flatMap((page) => page.posts) ?? [], [data]);
   const visiblePosts = useMemo(() => clientReady ? posts : posts.filter((post) => {
-    const hasMedia = Boolean(post.videoUrl || bestImageUrl(post));
-    return !hasMedia || displayCaption(post).trim().length >= 20;
+    const mediaType = (post.postType ?? '').toLowerCase();
+    const hasMedia = Boolean(post.videoUrl || bestImageUrl(post) || mediaType.includes('image') || mediaType.includes('video'));
+    const realTextLength = displayCaption(post).replace(/[^A-Za-z0-9]/g, '').length;
+    return !hasMedia || realTextLength >= 20;
   }), [clientReady, posts]);
 
   const onRefresh = useCallback(async () => {
