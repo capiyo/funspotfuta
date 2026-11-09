@@ -87,6 +87,12 @@ function asDateTime(value: any): Date | null {
 // CHANNEL MEMBER
 // ============================================================================
 
+const DEMO_MEMBER_USERNAMES = new Set(['guest_john', 'mary_ochieng']);
+
+export function isDemoMemberName(username: unknown): boolean {
+    return typeof username === 'string' && DEMO_MEMBER_USERNAMES.has(username.trim().toLowerCase());
+}
+
 export interface ChannelMember {
     userId: string;
     username: string;
@@ -191,7 +197,7 @@ export function channelFromJson(json: Record<string, any>): Channel {
     try {
         const membersData: any[] = Array.isArray(json.members) ? json.members : [];
         const members: ChannelMember[] = membersData
-            .filter((m) => m && typeof m === 'object')
+            .filter((m) => m && typeof m === 'object' && !isDemoMemberName(m.username ?? m.user_name))
             .map((m) => channelMemberFromJson(m));
 
         const isApproved = asBool(json.isApproved ?? json.is_approved ?? json.approved, false);
