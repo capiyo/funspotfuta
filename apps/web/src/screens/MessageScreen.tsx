@@ -256,7 +256,7 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
   });
   const {
     messages, connected, loadingHistory, uploadingImage, typingUsers, send,
-    sendImage, sendTyping, markRead, matchStatus, homeScore, awayScore,
+    sendImage, sendVideo, sendTyping, markRead, matchStatus, homeScore, awayScore,
     timeElapsed, isLive, homeVotes, awayVotes, userVoteSelection, voters,
     recordUserVote, refetchVoteCounts,
   } = chat;
@@ -444,6 +444,32 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       URL.revokeObjectURL(asset.uri);
     } catch (error) {
       toast.showError(error instanceof Error ? error.message : 'Failed to send image');
+    }
+  }
+
+  async function handleVideoPick(event: ChangeEvent<HTMLInputElement>) {
+    setShowAttachMenu(false);
+    const input = event.currentTarget;
+    const file = input.files?.[0];
+    if (!file) return;
+    input.value = '';
+    if (!file.type.startsWith('video/')) {
+      toast.showError('Choose a video file');
+      return;
+    }
+    if (file.size > 50 * 1024 * 1024) {
+      toast.showError('Video too large. Maximum size is 50MB');
+      return;
+    }
+    try {
+      await sendVideo({
+        uri: URL.createObjectURL(file),
+        file,
+        name: file.name || `chat-video-${Date.now()}.mp4`,
+        type: file.type || 'video/mp4',
+      });
+    } catch (error) {
+      toast.showError(error instanceof Error ? error.message : 'Failed to send video');
     }
   }
 
@@ -692,11 +718,16 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       className="sr-only"
       onChange={(event) => void handleImagePick(event)}/>
 </label>
-          <button
-      type="button"
-      onClick={() => { setShowAttachMenu(false); toast.showInfo('Video coming soon'); }}
-      className="flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold"
-      style={{ background: dimColor(colors.draw), color: colors.draw }}>🎥 Video</button>
+          <label
+      className="flex cursor-pointer items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold"
+      style={{ background: dimColor(colors.draw), color: colors.draw }}>
+🎥 Video<input
+      type="file"
+      accept="video/*"
+      className="sr-only"
+      disabled={uploadingImage}
+      onChange={(event) => void handleVideoPick(event)}/>
+</label>
         </div>}
       </footer>
     </>}
