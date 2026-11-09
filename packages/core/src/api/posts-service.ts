@@ -28,7 +28,7 @@ export interface GetPostsResult {
 
 // GET /api/posts?page=&limit=&userId=
 // GET /api/posts?page=&limit=&userId=
-export async function getPosts(opts?: { page?: number; limit?: number; userId?: string }): Promise<GetPostsResult> {
+export async function getPosts(opts?: { page?: number; limit?: number; userId?: string; signal?: AbortSignal }): Promise<GetPostsResult> {
   const params = new URLSearchParams({
     page: String(opts?.page ?? 1),
     limit: String(opts?.limit ?? 20),
@@ -42,6 +42,7 @@ export async function getPosts(opts?: { page?: number; limit?: number; userId?: 
       'Cache-Control': 'no-cache',
       Accept: 'application/json',
     },
+    signal: opts?.signal,
   });
 
   if (!res.ok) throw new Error(`Error fetching posts: ${res.status}`);

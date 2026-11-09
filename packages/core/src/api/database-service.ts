@@ -13,8 +13,11 @@ import { Fixture, fixtureFromJson } from '../types/fixture';
 const REQUEST_TIMEOUT_MS = 8000;
 
 /** GET + JSON with a timeout. Throws on network error, timeout or non-2xx. */
-async function fetchJson(url: string, ms: number = REQUEST_TIMEOUT_MS): Promise<any> {
+async function fetchJson(url: string, ms: number = REQUEST_TIMEOUT_MS, externalSignal?: AbortSignal): Promise<any> {
   const ctrl = new AbortController();
+  const forwardAbort = () => ctrl.abort(externalSignal?.reason);
+  if (externalSignal?.aborted) forwardAbort();
+  else externalSignal?.addEventListener('abort', forwardAbort, { once: true });
   const timer = setTimeout(() => ctrl.abort(), ms);
   try {
     const res = await fetch(url, {
@@ -25,6 +28,7 @@ async function fetchJson(url: string, ms: number = REQUEST_TIMEOUT_MS): Promise<
     return await res.json();
   } finally {
     clearTimeout(timer);
+    externalSignal?.removeEventListener('abort', forwardAbort);
   }
 }
 
@@ -47,8 +51,8 @@ function asArray(json: unknown): unknown[] {
 
 // ── Fixtures (queryFn: throws on failure) ──────────────────────
 
-export async function getAllFixtures(): Promise<Fixture[]> {
-  const json = await fetchJson(`${API_BASE}/games`);
+export async function getAllFixtures(signal?: AbortSignal): Promise<Fixture[]> {
+  const json = await fetchJson(`${API_BASE}/games`, REQUEST_TIMEOUT_MS, signal);
   return asArray(json).map(fixtureFromJson);
 }
 

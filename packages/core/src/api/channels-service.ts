@@ -323,16 +323,18 @@ export async function getUserChannels(userId: string, authToken?: string): Promi
 // GET /api/channels/all — matches _fetchAllChannelsForBrowsing in
 // home_page.dart. authToken is optional (works logged-out too); filtering
 // out already-joined channels is left to the caller.
-export async function getAllChannels(authToken?: string): Promise<Channel[]> {
+export async function getAllChannels(authToken?: string, signal?: AbortSignal): Promise<Channel[]> {
     try {
         const res = await fetch(`${API_BASE_URL}/channels/all`, {
             headers: { 'Content-Type': 'application/json', ...authHeaders(authToken) },
+            signal,
         });
         if (!res.ok) return [];
         const data = await res.json();
         const list = data.channels ?? [];
         return list.map(channelFromJson);
     } catch (e) {
+        if (signal?.aborted) throw e;
         console.error('getAllChannels failed:', e);
         return [];
     }

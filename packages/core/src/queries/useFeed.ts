@@ -11,8 +11,8 @@ export interface FeedPage {
 export function feedQueryOptions(pageSize = 10) {
   return infiniteQueryOptions({
     queryKey: queryKeys.feed(),
-    queryFn: async ({ pageParam }) => {
-      const response = await getPosts({ page: pageParam, limit: pageSize });
+    queryFn: async ({ pageParam, signal }) => {
+      const response = await getPosts({ page: pageParam, limit: pageSize, signal });
       return { posts: response.posts };
     },
     initialPageParam: 1,
