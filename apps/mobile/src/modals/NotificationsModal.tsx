@@ -17,7 +17,7 @@ import {
   StyleSheet,
   Modal,
 } from 'react-native';
-import { FAN_SPACING, FAN_RADIUS } from '@funspot/core';
+import { FAN_SPACING, FAN_RADIUS, getAllFixtures, type Fixture } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useToast } from '@/lib/toast/toast-context';
 import { useFanColors } from '@/theme/use-fan-colors';
@@ -55,6 +55,7 @@ export default function NotificationsScreen({
   const toast = useToast();
 
   const [summary, setSummary] = useState<UnreadSummary | null>(null);
+  const [activity, setActivity] = useState<Array<{ fixtureId: string; title: string; preview: string; count: number; time: number }>>([]);
   const [prefs, setPrefs] = useState<NotificationPreferences | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -70,10 +71,24 @@ export default function NotificationsScreen({
         // NotificationService (the Dart source keeps it private and only
         // calls it from reconcileFromServer). The two counts the UI wants
         // are just the persisted totals, so read those directly.
-        const [counts, p] = await Promise.all([
+        const [counts, p, unread, fixtures] = await Promise.all([
           NotificationService.loadInitialBadgeCounts(),
           NotificationService.getNotificationPreferences(userId, authToken ?? undefined),
+          NotificationService.getAllUnreadFixturesWithDetails(),
+          getAllFixtures().catch((): Fixture[] => []),
         ]);
+        const rows = Object.entries(unread).map(([fixtureId, details]) => {
+          const fixture = fixtures.find((item) => String(item.matchId ?? item.id) === fixtureId);
+          const latest = details.latest_notification ?? {};
+          return {
+            fixtureId,
+            title: fixture ? `${fixture.homeTeam} vs ${fixture.awayTeam}` : 'Match conversation',
+            preview: String(latest.message ?? latest.text ?? latest.type ?? 'New match activity').replace(/[._-]+/g, ' '),
+            count: Number(details.notification_count ?? details.count ?? 0),
+            time: Number(details.last_notification_time ?? 0),
+          };
+        }).sort((a, b) => b.time - a.time);
+        setActivity(rows);
         if (cancelled) return;
         setSummary({
           notifications: counts.unread_notifications,
@@ -97,10 +112,21 @@ export default function NotificationsScreen({
   useEffect(() => {
     if (!visible) return;
     const unsubscribe = NotificationService.onNotification(() => {
-      void NotificationService.loadInitialBadgeCounts().then((counts) => {
+      void Promise.all([
+        NotificationService.loadInitialBadgeCounts(),
+        NotificationService.getAllUnreadFixturesWithDetails(),
+      ]).then(([counts, unread]) => {
         setSummary({
           notifications: counts.unread_notifications,
           comments: counts.unread_comments,
+        });
+        setActivity((current) => {
+          const byId = new Map(current.map((item) => [item.fixtureId, item]));
+          return Object.entries(unread).map(([fixtureId, details]) => ({
+            ...(byId.get(fixtureId) ?? { fixtureId, title: 'Match conversation', preview: 'New match activity' }),
+            count: Number(details.notification_count ?? details.count ?? 0),
+            time: Number(details.last_notification_time ?? 0),
+          })).sort((a, b) => b.time - a.time);
         });
       });
     });
@@ -173,6 +199,33 @@ export default function NotificationsScreen({
                     <Text style={styles.statNumber}>{summary.comments}</Text>
                     <Text style={styles.statLabel}>Unread comments</Text>
                   </View>
+                </View>
+              )}
+
+              {activity.length > 0 && (
+                <View style={{ marginBottom: FAN_SPACING.lg, gap: FAN_SPACING.sm }}>
+                  <Text style={{ color: colors.textPrimary, fontSize: 13, fontWeight: '800' }}>Recent activity</Text>
+                  {activity.map((item) => (
+                    <Pressable
+                      key={item.fixtureId}
+                      onPress={() => {
+                        void NotificationService.clearUnreadForFixture(item.fixtureId);
+                        setActivity((current) => current.filter((row) => row.fixtureId !== item.fixtureId));
+                      }}
+                      style={{ flexDirection: 'row', alignItems: 'center', gap: FAN_SPACING.md, paddingVertical: FAN_SPACING.sm }}
+                    >
+                      <View style={{ width: 42, height: 42, borderRadius: 21, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.primary + '1A' }}>
+                        <Text style={{ fontSize: 18 }}>⚽</Text>
+                      </View>
+                      <View style={{ flex: 1, minWidth: 0 }}>
+                        <Text numberOfLines={1} style={{ color: colors.textPrimary, fontSize: 13, fontWeight: '700' }}>{item.title}</Text>
+                        <Text numberOfLines={1} style={{ color: colors.textTertiary, fontSize: 11, marginTop: 3 }}>{item.preview}</Text>
+                      </View>
+                      {item.count > 0 && <View style={{ minWidth: 22, height: 22, borderRadius: 11, paddingHorizontal: 6, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.primary }}>
+                        <Text style={{ color: colors.textInverse, fontSize: 10, fontWeight: '800' }}>{item.count > 99 ? '99+' : item.count}</Text>
+                      </View>}
+                    </Pressable>
+                  ))}
                 </View>
               )}
 
