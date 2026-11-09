@@ -95,7 +95,7 @@ for (const marker of ['home-screen', 'home-columns', 'id="funspot-query-state"']
 console.log('PASS: the real app workspace and dehydrated public query state are server-rendered.');
 NODE
 
-step "Deploy static assets and Netlify function to production" netlify deploy --site ae14de5d-ae44-460f-86c7-5bbde4f0efa2 --no-build --dir="$REPO/apps/web/dist" --functions="$REPO/netlify/functions" --prod
+step "Deploy static assets and Netlify function to production" npx netlify-cli deploy --site ae14de5d-ae44-460f-86c7-5bbde4f0efa2 --no-build --dir="$REPO/apps/web/dist" --functions="$REPO/netlify/functions" --prod
 
 step "Verify production SSR homepage" bash -lc 'headers="$(mktemp)" && body="$(mktemp)" && curl -fsSL -A "Googlebot" -D "$headers" https://www.funspot.co.ke/ -o "$body" && grep -Fq "home-screen" "$body" && grep -Fq "home-columns" "$body" && grep -qi "^x-funspot-render: react-ssr" "$headers" && rm -f "$headers" "$body"'
 
