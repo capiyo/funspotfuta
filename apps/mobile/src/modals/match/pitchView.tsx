@@ -501,7 +501,6 @@ interface PlayerDotProps {
 
 const DOT_SIZE = 30;
 // Approximate height of the [gap + name chip] block below/above the dot.
-const LABEL_BLOCK_HEIGHT = 18;
 
 function PlayerDot({ player, position, color, isHome, photoUrl }: PlayerDotProps) {
     const colors = useFanColors();
@@ -523,25 +522,7 @@ function PlayerDot({ player, position, color, isHome, photoUrl }: PlayerDotProps
         </View>
     );
 
-    const label = (
-        <View
-            style={styles.playerLabel}
-        >
-            <Text
-                numberOfLines={1}
-                style={[fanText('tag', colors), { color: '#FFFFFF', textShadowColor: 'rgba(0,0,0,0.9)', textShadowOffset: { width: 0, height: 1 }, textShadowRadius: 2 }]}
-            >
-                {shortName(player.name)}
-            </Text>
-            {player.captain ? (
-                <Text style={[styles.playerCaptain, { color }]}>C</Text>
-            ) : null}
-        </View>
-    );
-
-    const topOffset = isHome
-        ? position.y - DOT_SIZE / 2
-        : position.y - DOT_SIZE / 2 - LABEL_BLOCK_HEIGHT;
+    const topOffset = position.y - DOT_SIZE / 2;
 
     return (
         <View
@@ -553,21 +534,7 @@ function PlayerDot({ player, position, color, isHome, photoUrl }: PlayerDotProps
                 },
             ]}
         >
-            <View style={styles.playerDotColumn}>
-                {isHome ? (
-                    <>
-                        {dot}
-                        <View style={{ height: 3 }} />
-                        {label}
-                    </>
-                ) : (
-                    <>
-                        {label}
-                        <View style={{ height: 3 }} />
-                        {dot}
-                    </>
-                )}
-            </View>
+            {dot}
         </View>
     );
 }
