@@ -1039,11 +1039,9 @@ function MessageBubble({ colors, message, isMe, onLongPress, onImagePress, onRet
     return <article className="mb-2 flex w-full items-end gap-2 px-3" aria-label={`Live match update, ${minuteLabel}`}>
       <span className="mb-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm"
         style={{ background: dimColor(colors.draw, .2), color: colors.draw }}>⚽</span>
-      <div className="relative max-w-[min(82%,560px)] rounded-2xl rounded-bl-sm px-3.5 py-2.5 shadow-sm"
+      <div className="relative max-w-[min(82%,560px)] rounded-2xl px-3.5 py-2.5 shadow-sm"
         style={{ background: dimColor(colors.draw, .15), border: `1px solid ${dimColor(colors.draw, .3)}`, color: colors.textPrimary }}>
-        <span aria-hidden="true" className="absolute -bottom-px -left-[6px] h-3 w-3 rotate-45 rounded-bl-[2px]"
-          style={{ background: dimColor(colors.draw, .15), borderLeft: `1px solid ${dimColor(colors.draw, .3)}`, borderBottom: `1px solid ${dimColor(colors.draw, .3)}` }} />
-        <div className="mb-1.5 flex items-center gap-2">
+          <div className="mb-1.5 flex items-center gap-2">
           <span className="text-[9px] font-extrabold tracking-[.1em]" style={{ color: colors.draw }}>COMMENTARY</span>
           <span className="rounded-full px-1.5 py-0.5 text-[9px] font-bold" style={{ background: dimColor(colors.draw, .2), color: colors.draw }}>{eventLabel}</span>
           <span className="ml-auto text-[10px] font-extrabold tabular-nums" style={{ color: colors.draw }}>{minuteLabel}</span>
