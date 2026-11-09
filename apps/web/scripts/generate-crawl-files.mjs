@@ -139,8 +139,6 @@ function withMetadata(html, metadata) {
     .replace('</head>', adsScript + '</head>');
 }
 
-const appHtml = withRoot("app");
-
 export default async function handler(request) {
   const requestUrl = new URL(request.url);
   const requestedPath = requestUrl.searchParams.get("path") || requestUrl.pathname;

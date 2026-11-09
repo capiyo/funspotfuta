@@ -59,8 +59,8 @@ if [[ ! -s "$REPO/netlify/functions/ssr.mjs" ]]; then
   echo "ERROR: Netlify application-shell function was not generated."
   exit 1
 fi
-if ! grep -Fq "same-app-shell" "$REPO/netlify/functions/ssr.mjs"; then
-  echo "ERROR: Netlify function is not configured to serve the same app shell."
+if ! grep -Fq "renderApp" "$REPO/netlify/functions/ssr.mjs" || ! grep -Fq "home-screen" "$REPO/apps/web/dist-ssr/entry-server.js"; then
+  echo "ERROR: Netlify function is not configured to server-render the real Funspot application."
   exit 1
 fi
 

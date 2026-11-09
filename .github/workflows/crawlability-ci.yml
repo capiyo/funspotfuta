@@ -41,7 +41,7 @@ jobs:
           ]);
 
           if (humanResponse.status !== 200 || crawlerResponse.status !== 200) {
-            throw new Error('Rendered homepage did not return HTTP 200 for both request types.');
+            throw new Error('Rendered application did not return HTTP 200 for both request types.');
           }
           if (humanHtml !== crawlerHtml) {
             throw new Error('Visitor and crawler HTML differ; user-agent cloaking is forbidden.');
@@ -49,15 +49,15 @@ jobs:
           if (humanResponse.headers.get('x-funspot-render') !== 'react-ssr') {
             throw new Error('React SSR response marker is missing.');
           }
-          if (!humanHtml.includes('<div id="root" data-render-mode="public">') ||
-              !humanHtml.includes('<h1') ||
-              !humanHtml.includes('Football is better')) {
-            throw new Error('Homepage response does not contain the rendered public homepage.');
+          if (!humanHtml.includes('<div id="root" data-render-mode="app">') ||
+              !humanHtml.includes('home-screen') ||
+              !humanHtml.includes('home-columns')) {
+            throw new Error('Homepage response does not contain the rendered Funspot application.');
           }
           if (/crawler-only|Googlebot/i.test(humanHtml)) {
             throw new Error('Crawler-specific homepage content remains.');
           }
-          console.log('Passed: visitors and Googlebot receive identical rendered Funspot homepage HTML.');
+          console.log('Passed: visitors and Googlebot receive identical rendered Funspot application HTML.');
           NODE
       - name: Verify generated crawl files and public output tree
         run: |
