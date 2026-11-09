@@ -39,11 +39,6 @@ function escapeHtml(value) {
   })[character]);
 }
 
-function withQueryState(html, serializedState) {
-  const script = '<script id="funspot-query-state" type="application/json">' + serializedState + '</script>';
-  return html.replace('</body>', script + '</body>');
-}
-
 function withRoot(mode, content = '', attributes = '') {
   const marker = '<div id="root"></div>';
   if (!shell.includes(marker)) throw new Error('[crawl-files] HTML template is missing #root.');
@@ -118,6 +113,11 @@ const functionSource = String.raw`import { renderApp, renderNotFound, renderPubl
 const template = __SHELL__;
 const contactEmail = __CONTACT_EMAIL__;
 const adsScript = '<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4829747375056254" crossorigin="anonymous"></script>';
+
+function withQueryState(html, serializedState) {
+  const script = '<script id="funspot-query-state" type="application/json">' + serializedState + '</script>';
+  return html.replace('</body>', script + '</body>');
+}
 
 function withRoot(mode, content = "", attributes = "") {
   const marker = '<div id="root"></div>';
