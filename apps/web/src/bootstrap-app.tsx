@@ -1,7 +1,7 @@
 import React from 'react';
 import { createRoot, hydrateRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
-import { QueryClient } from '@tanstack/react-query';
+import { hydrate, QueryClient } from '@tanstack/react-query';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { PERSIST_OPTIONS } from '@funspot/core';
 import App from './App';
@@ -63,6 +63,18 @@ export function hydrateApp(root: HTMLElement): void {
       mutations: { networkMode: 'offlineFirst' },
     },
   });
+
+  const queryStateElement = document.getElementById('funspot-query-state');
+  if (queryStateElement?.textContent) {
+    const queryState = JSON.parse(queryStateElement.textContent, (_key, value: unknown) => {
+      if (value && typeof value === 'object' && '__funspotSerializedDate' in value) {
+        return new Date(String((value as { __funspotSerializedDate: string }).__funspotSerializedDate));
+      }
+      return value;
+    });
+    hydrate(queryClient, queryState);
+    queryStateElement.remove();
+  }
 
   hydrateRoot(
     root,

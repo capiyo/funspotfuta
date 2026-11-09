@@ -39,6 +39,11 @@ function escapeHtml(value) {
   })[character]);
 }
 
+function withQueryState(html, serializedState) {
+  const script = '<script id="funspot-query-state" type="application/json">' + serializedState + '</script>';
+  return html.replace('</body>', script + '</body>');
+}
+
 function withRoot(mode, content = '', attributes = '') {
   const marker = '<div id="root"></div>';
   if (!shell.includes(marker)) throw new Error('[crawl-files] HTML template is missing #root.');
@@ -175,7 +180,9 @@ export default async function handler(request) {
     const query = new URLSearchParams(requestUrl.searchParams);
     query.delete("path");
     const location = normalizedPath + (query.size ? "?" + query.toString() : "");
-    return new Response(withRoot("app", renderApp(location)), {
+    const rendered = await renderApp(location);
+    const html = withQueryState(withRoot("app", rendered.markup), rendered.queryState);
+    return new Response(html, {
       status: 200,
       headers: {
         "content-type": "text/html; charset=utf-8",
