@@ -517,6 +517,34 @@ export default function MessageScreen() {
     }
   }
 
+  async function handleVideoPick() {
+    setShowAttachMenu(false);
+    try {
+      const res = await launchImageLibrary({
+        mediaType: 'video',
+        selectionLimit: 1,
+        videoQuality: 'high',
+      });
+      if (res.didCancel || !res.assets?.length) return;
+      const asset = res.assets[0];
+      if (!asset.uri) {
+        toast.showError('Could not read video');
+        return;
+      }
+      if (asset.fileSize && asset.fileSize > 50 * 1024 * 1024) {
+        toast.showError('Video too large. Maximum size is 50MB');
+        return;
+      }
+      await sendVideo({
+        uri: asset.uri,
+        name: asset.fileName ?? `chat-video-${Date.now()}.mp4`,
+        type: asset.type ?? 'video/mp4',
+      });
+    } catch (error) {
+      toast.showError(error instanceof Error ? error.message : 'Failed to send video');
+    }
+  }
+
   // Vote modal while the match is open; aftermatch review once it is finished.
   function openVoteOrReview() {
     if (isCompleted) setReviewModalOpen(true);
@@ -784,19 +812,15 @@ export default function MessageScreen() {
                   </Text>
                 </Pressable>
                 <Pressable
-                  onPress={() => {
-                    setShowAttachMenu(false);
-                    toast.showInfo('Video coming soon');
-                  }}
+                  onPress={() => void handleVideoPick()}
+                  disabled={uploadingImage}
                   style={[
                     styles.attachChip,
-                    { backgroundColor: colors.draw + '1A' },
+                    { backgroundColor: colors.draw + '1A', opacity: uploadingImage ? 0.5 : 1 },
                   ]}
                 >
                   <Text>🎥</Text>
-                  <Text style={fanText('tag', colors, colors.draw)}>
-                    Video
-                  </Text>
+                  <Text style={fanText('tag', colors, colors.draw)}>Video</Text>
                 </Pressable>
               </View>
             )}
