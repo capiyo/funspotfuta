@@ -477,9 +477,7 @@ export default function PostCommentsModal({
                                     {comments.length === 1 ? 'response' : 'responses'}
                                 </Text>
                             </View>
-                            <Pressable onPress={onClose} hitSlop={8} style={styles.closeBtn}>
-                                <X size={18} color={colors.textSecondary} />
-                            </Pressable>
+                            
                         </View>
 
                         {/* Body */}
