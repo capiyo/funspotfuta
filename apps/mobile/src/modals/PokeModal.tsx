@@ -174,7 +174,7 @@ export function PokeModal({ visible, fixture, userId, username, authToken, chann
         <View style={styles.header}>
           <View style={styles.headerIcon}><Text style={{ color: colors.primary, fontSize: 17 }}>✦</Text></View>
           <View style={{ flex: 1, minWidth: 0 }}><Text style={styles.title}>Poke</Text><Text style={styles.muted}>{fixture.league || 'Match'}</Text></View>
-          <Pressable onPress={onClose} disabled={submitting} accessibilityRole="button" accessibilityLabel="Close poke modal" style={styles.closeButton}><Text style={styles.close}>×</Text></Pressable>
+          
         </View>
         <View style={styles.matchHeader}>
           <View style={styles.matchSide}><Text style={[styles.matchName, { color: colors.primary }]}>{fixture.homeTeam}</Text></View>
