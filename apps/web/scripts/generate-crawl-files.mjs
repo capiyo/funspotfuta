@@ -80,8 +80,8 @@ const publicRoutes = ssrRenderer.getPublicDocumentRoutes();
 const renderedHome = await ssrRenderer.renderApp('/', false);
 const renderedNotFound = ssrRenderer.renderNotFound();
 
-const homepageH1Count = (renderedHome.markup.match(/<h1\\b/gi) ?? []).length;
-const editorialBlock = renderedHome.markup.match(/<section aria-labelledby="funspot-editorial-heading"[\\s\\S]*?<\\/section>/i)?.[0] ?? '';
+const homepageH1Count = (renderedHome.markup.match(/<h1\b/gi) ?? []).length;
+const editorialBlock = renderedHome.markup.match(/<section aria-labelledby="funspot-editorial-heading"[\s\S]*?<\/section>/i)?.[0] ?? '';
 const editorialWords = wordCount(editorialBlock);
 if (!renderedHome.markup.includes('funspot-editorial-heading') ||
     !renderedHome.markup.includes('Football makes more sense when you know the story behind the fixture.') ||
