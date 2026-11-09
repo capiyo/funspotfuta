@@ -27,15 +27,12 @@ export async function renderApp(location = '/', prefetchPublicData = true): Prom
       queryFn: ({ signal }) => getAllFixtures(signal),
       staleTime: 60_000,
     }),
-    queryClient.prefetchQuery({
+    queryClient.fetchQuery({
       queryKey: queryKeys.channels(),
       queryFn: ({ signal }) => getAllChannels(undefined, signal),
       staleTime: 5 * 60_000,
-    }),
-    queryClient.prefetchQuery({
-      queryKey: ['channels', 'browsable'],
-      queryFn: ({ signal }) => getAllChannels(undefined, signal),
-      staleTime: 5 * 60_000,
+    }).then((channels) => {
+      queryClient.setQueryData(['channels', 'browsable'], channels);
     }),
     queryClient.prefetchInfiniteQuery(feedQueryOptions(10)),
     ]);

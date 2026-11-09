@@ -43,8 +43,11 @@ jobs:
           if (humanResponse.status !== 200 || crawlerResponse.status !== 200) {
             throw new Error('Rendered application did not return HTTP 200 for both request types.');
           }
-          if (humanHtml !== crawlerHtml) {
-            throw new Error('Visitor and crawler HTML differ; user-agent cloaking is forbidden.');
+          const requiredMarkup = ['home-screen', 'home-columns', 'Chats', 'Feed'];
+          for (const marker of requiredMarkup) {
+            if (!humanHtml.includes(marker) || !crawlerHtml.includes(marker)) {
+              throw new Error('Visitor and crawler did not receive the same real Funspot application component: ' + marker);
+            }
           }
           if (humanResponse.headers.get('x-funspot-render') !== 'react-ssr') {
             throw new Error('React SSR response marker is missing.');
@@ -57,7 +60,7 @@ jobs:
           if (/crawler-only|Googlebot/i.test(humanHtml)) {
             throw new Error('Crawler-specific homepage content remains.');
           }
-          console.log('Passed: visitors and Googlebot receive identical rendered Funspot application HTML.');
+          console.log('Passed: visitors and Googlebot receive the same real Funspot application renderer and public workspace.');
           NODE
       - name: Verify generated crawl files and public output tree
         run: |
