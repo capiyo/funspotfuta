@@ -92,9 +92,7 @@ export function AftermatchReviewModal({
                                 {fixture.homeTeam} vs {fixture.awayTeam}
                             </Text>
                         </View>
-                        <Pressable onPress={onClose} style={styles.closeBtn}>
-                            <Text style={styles.closeBtnText}>✕</Text>
-                        </Pressable>
+                        
                     </View>
 
                     {isLoading ? (
