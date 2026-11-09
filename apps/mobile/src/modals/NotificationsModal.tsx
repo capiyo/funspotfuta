@@ -209,7 +209,10 @@ export default function NotificationsScreen({
                     <Pressable
                       key={item.fixtureId}
                       onPress={() => {
-                        void NotificationService.clearUnreadForFixture(item.fixtureId);
+                        void NotificationService.clearUnreadForFixture(item.fixtureId).then(async () => {
+                          const counts = await NotificationService.loadInitialBadgeCounts();
+                          setSummary({ notifications: counts.unread_notifications, comments: counts.unread_comments });
+                        });
                         setActivity((current) => current.filter((row) => row.fixtureId !== item.fixtureId));
                       }}
                       style={{ flexDirection: 'row', alignItems: 'center', gap: FAN_SPACING.md, paddingVertical: FAN_SPACING.sm }}
