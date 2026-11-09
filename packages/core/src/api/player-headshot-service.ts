@@ -24,7 +24,7 @@ function athleteUrl(player: SimplifiedPlayer): string | null {
   const id = Number(player.providerId);
   if (!Number.isSafeInteger(id) || id <= 0) return null;
   const rawVersion = player.imageVersion?.trim();
-  const version = rawVersion && /^\\d+$/.test(rawVersion) ? `v${rawVersion}/` : '';
+  const version = rawVersion && /^\d+$/.test(rawVersion) ? `v${rawVersion}/` : '';
   return `${CDN}${version}Athletes/${id}`;
 }
 
