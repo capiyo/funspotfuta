@@ -30,7 +30,22 @@ function LoginRoute() {
   useEffect(() => {
     if (isInitialized && !isLoggedIn) requireLogin();
   }, [isInitialized, isLoggedIn, requireLogin]);
-  return <Navigate to="/" replace />;
+  return <>
+    <Navigate to="/" replace />
+    <main className="flex min-h-screen flex-col items-center justify-center gap-5 px-6 text-center">
+      <p className="text-sm opacity-70">Redirecting to Funspot…</p>
+      <footer className="border-t border-white/10 pt-5 text-xs opacity-70">
+        <nav aria-label="Public pages" className="flex flex-wrap justify-center gap-x-4 gap-y-2">
+          <a href="/about">About</a>
+          <a href="/contact">Contact</a>
+          <a href="/privacy">Privacy Policy</a>
+          <a href="/terms">Terms of Service</a>
+          <a href="/ads-disclosure">Cookie and Ads Disclosure</a>
+          <a href="/insights">Insights</a>
+        </nav>
+      </footer>
+    </main>
+  </>;
 }
 
 function NotFoundRoute() {
