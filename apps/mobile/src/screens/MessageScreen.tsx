@@ -28,8 +28,8 @@
 //   - The modal's payment / phone / sub-fixture props are bound to the user id
 //     and token here (modalApi), because the shims need both.
 //
-// Still not ported: video upload/playback, comrade cards, archive modal on
-// username tap, delete message. The sponsored carousel is now shared with the leaderboard.
+// Still not ported: comrade cards, archive modal on username tap, and message deletion.
+// Image and video media use the shared channel-chat upload pipeline.
 
 import { TeamCrest } from '@/components/TeamCrest';
 import {
