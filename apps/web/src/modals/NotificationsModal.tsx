@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
-import { FAN_SPACING, FAN_RADIUS } from '@funspot/core';
+import { FAN_SPACING, FAN_RADIUS, getAllFixtures, type Fixture } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useToast } from '@/lib/toast/toast-context';
 import { useFanColors } from '@/theme/use-fan-colors';
@@ -20,6 +20,7 @@ export default function NotificationsModal({ visible, onClose }: { visible: bool
   const toast = useToast();
   const dialogRef = useRef<HTMLDivElement>(null);
   const [summary, setSummary] = useState<UnreadSummary | null>(null);
+  const [activity, setActivity] = useState<Array<{ fixtureId: string; title: string; preview: string; count: number; time: number }>>([]);
   const [prefs, setPrefs] = useState<NotificationPreferences | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -46,10 +47,24 @@ export default function NotificationsModal({ visible, onClose }: { visible: bool
     (async () => {
       setLoading(true);
       try {
-        const [counts, p] = await Promise.all([
+        const [counts, p, unread, fixtures] = await Promise.all([
           NotificationService.loadInitialBadgeCounts(),
           NotificationService.getNotificationPreferences(userId, authToken ?? undefined),
+          NotificationService.getAllUnreadFixturesWithDetails(),
+          getAllFixtures().catch((): Fixture[] => []),
         ]);
+        const rows = Object.entries(unread).map(([fixtureId, details]) => {
+          const fixture = fixtures.find((item) => String(item.matchId ?? item.id) === fixtureId);
+          const latest = details.latest_notification ?? {};
+          return {
+            fixtureId,
+            title: fixture ? `${fixture.homeTeam} vs ${fixture.awayTeam}` : 'Match conversation',
+            preview: String(latest.message ?? latest.text ?? latest.type ?? 'New match activity').replace(/[._-]+/g, ' '),
+            count: Number(details.notification_count ?? details.count ?? 0),
+            time: Number(details.last_notification_time ?? 0),
+          };
+        }).sort((a, b) => b.time - a.time);
+        setActivity(rows);
         if (cancelled) return;
         setSummary({ notifications: counts.unread_notifications, comments: counts.unread_comments });
         setPrefs(p);
@@ -65,10 +80,21 @@ export default function NotificationsModal({ visible, onClose }: { visible: bool
   useEffect(() => {
     if (!visible) return;
     const unsubscribe = NotificationService.onNotification(() => {
-      void NotificationService.loadInitialBadgeCounts().then((counts) => {
+      void Promise.all([
+        NotificationService.loadInitialBadgeCounts(),
+        NotificationService.getAllUnreadFixturesWithDetails(),
+      ]).then(([counts, unread]) => {
         setSummary({
           notifications: counts.unread_notifications,
           comments: counts.unread_comments,
+        });
+        setActivity((current) => {
+          const byId = new Map(current.map((item) => [item.fixtureId, item]));
+          return Object.entries(unread).map(([fixtureId, details]) => ({
+            ...(byId.get(fixtureId) ?? { fixtureId, title: 'Match conversation', preview: 'New match activity' }),
+            count: Number(details.notification_count ?? details.count ?? 0),
+            time: Number(details.last_notification_time ?? 0),
+          })).sort((a, b) => b.time - a.time);
         });
       });
     });
@@ -113,6 +139,28 @@ export default function NotificationsModal({ visible, onClose }: { visible: bool
                   <strong className="text-xl font-extrabold">{item.value}</strong><span className="text-[10px]" style={{ color: colors.textTertiary }}>{item.label}</span>
                 </div>)}
             </div>}
+            {activity.length > 0 && <section className="mb-5">
+              <h3 className="mb-2 text-[13px] font-extrabold">Recent activity</h3>
+              <div className="space-y-1">
+                {activity.map((item) => <button
+                  key={item.fixtureId}
+                  type="button"
+                  onClick={() => {
+                    void NotificationService.clearUnreadForFixture(item.fixtureId);
+                    setActivity((current) => current.filter((row) => row.fixtureId !== item.fixtureId));
+                  }}
+                  className="flex w-full items-center gap-3 rounded-2xl px-2 py-3 text-left transition-colors"
+                  style={{ background: 'transparent' }}
+                >
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-lg" style={{ background: colors.primaryDim }}>⚽</span>
+                  <span className="min-w-0 flex-1">
+                    <strong className="block truncate text-[13px]">{item.title}</strong>
+                    <span className="mt-1 block truncate text-[11px]" style={{ color: colors.textTertiary }}>{item.preview}</span>
+                  </span>
+                  {item.count > 0 && <span className="flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-extrabold" style={{ background: colors.primary, color: colors.textInverse }}>{item.count > 99 ? '99+' : item.count}</span>}
+                </button>)}
+              </div>
+            </section>}
             {prefs && <div className="overflow-hidden rounded-2xl">
               {(Object.keys(LABELS) as (keyof NotificationPreferences)[]).map((key, i) =>
                 <div key={key} className="flex items-center justify-between px-4 py-3.5" style={{ borderTop: i ? `1px solid ${colors.border}` : undefined }}>
