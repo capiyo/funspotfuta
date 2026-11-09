@@ -59,16 +59,16 @@ function withMetadata(html, metadata) {
 }
 
 const ssrBundle = await readFile(ssrEntry, 'utf8');
-if (!ssrBundle.trim() || !ssrBundle.includes('renderHome') || !ssrBundle.includes('renderNotFound') ||
+if (!ssrBundle.trim() || !ssrBundle.includes('renderApp') || !ssrBundle.includes('renderNotFound') ||
     !ssrBundle.includes('renderPublicDocument') || !ssrBundle.includes('getPublicDocumentMetadata')) {
   throw new Error('[crawl-files] The production React SSR bundle is missing a required render entry point.');
 }
 
 const ssrRenderer = await import(pathToFileURL(ssrEntry).href);
-const renderedHome = ssrRenderer.renderHome();
+const renderedHome = ssrRenderer.renderApp('/');
 const renderedNotFound = ssrRenderer.renderNotFound();
-if (!renderedHome.includes('<h1') || !renderedHome.includes('Football is better') || renderedHome.includes('<div id="root"></div>')) {
-  throw new Error('[crawl-files] React SSR did not produce meaningful homepage HTML.');
+if (!renderedHome.includes('home-screen') || !renderedHome.includes('home-columns') || renderedHome.includes('Football is better together') || renderedHome.includes('<div id="root"></div>')) {
+  throw new Error('[crawl-files] React SSR did not render the real Funspot application workspace.');
 }
 if (!renderedNotFound.includes("This page isn't here.") && !renderedNotFound.includes("This page isn&#x27;t here.")) {
   throw new Error('[crawl-files] React SSR did not produce the custom 404 content.');
@@ -109,7 +109,7 @@ for (const page of pages) {
 
 const functionDir = path.join(repoDir, 'netlify', 'functions');
 await mkdir(functionDir, { recursive: true });
-const functionSource = String.raw`import { renderHome, renderNotFound, renderPublicDocument, getPublicDocumentMetadata } from "../../apps/web/dist-ssr/entry-server.js";
+const functionSource = String.raw`import { renderApp, renderNotFound, renderPublicDocument, getPublicDocumentMetadata } from "../../apps/web/dist-ssr/entry-server.js";
 const template = __SHELL__;
 const contactEmail = __CONTACT_EMAIL__;
 const adsScript = '<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4829747375056254" crossorigin="anonymous"></script>';
@@ -145,16 +145,12 @@ export default async function handler(request) {
   const requestUrl = new URL(request.url);
   const requestedPath = requestUrl.searchParams.get("path") || requestUrl.pathname;
 
-  if (requestedPath === "/") {
-    return new Response(withRoot("public", renderHome()), {
-      status: 200,
-      headers: {
-        "content-type": "text/html; charset=utf-8",
-        "cache-control": "public, max-age=0, s-maxage=300, stale-while-revalidate=86400",
-        "x-content-type-options": "nosniff",
-        "x-funspot-render": "react-ssr",
-      },
-    });
+  if (requestedPath === "/app" || requestedPath === "/app/") {
+    return new Response(null, { status: 301, headers: { location: "/" } });
+  }
+  if (requestedPath.startsWith("/app/")) {
+    const destination = requestedPath.slice("/app".length) || "/";
+    return new Response(null, { status: 301, headers: { location: destination + requestUrl.search } });
   }
 
   const publicMetadata = getPublicDocumentMetadata(requestedPath);
@@ -173,29 +169,20 @@ export default async function handler(request) {
     });
   }
 
-  if (requestedPath === "/app") {
-    return new Response(null, { status: 301, headers: { location: "/app/" } });
-  }
-
-  if (requestedPath.startsWith("/app/")) {
-    const appPath = requestedPath.slice("/app".length) || "/";
-    const normalizedAppPath = appPath.length > 1 ? appPath.replace(/\/+$/, "") : "/";
-    const validAppRoute = normalizedAppPath === "/" || normalizedAppPath === "/login"
-      || /^\/messages(?:\/[^/]+)?$/.test(normalizedAppPath)
-      || /^\/comments\/[^/]+$/.test(normalizedAppPath);
-
-    if (validAppRoute) {
-      return new Response(appHtml, {
-        status: 200,
-        headers: {
-          "content-type": "text/html; charset=utf-8",
-          "cache-control": "no-cache",
-          "x-robots-tag": "noindex, nofollow",
-          "x-content-type-options": "nosniff",
-          "x-funspot-render": "react-client-app",
-        },
-      });
-    }
+  const normalizedPath = requestedPath.length > 1 ? requestedPath.replace(/\\/+$/, "") : "/";
+  const isAppRoute = normalizedPath === "/" || normalizedPath === "/login"
+    || /^\\/messages(?:\\/[^/]+)?$/.test(normalizedPath)
+    || /^\\/comments\\/[^/]+$/.test(normalizedPath);
+  if (isAppRoute) {
+    return new Response(withRoot("app", renderApp(normalizedPath)), {
+      status: 200,
+      headers: {
+        "content-type": "text/html; charset=utf-8",
+        "cache-control": "no-store",
+        "x-content-type-options": "nosniff",
+        "x-funspot-render": "react-ssr",
+      },
+    });
   }
 
   const notFoundHtml = withRoot("not-found", renderNotFound())
@@ -232,4 +219,4 @@ await writeFile(path.join(distDir, 'sitemap.xml'), [
   ...urls, '</urlset>', '',
 ].join('\n'), 'utf8');
 
-console.info('[crawl-files] Verified React SSR for the homepage, public documents and 404; generated robots.txt and sitemap.');
+console.info('[crawl-files] Verified React SSR for the real Funspot application, public documents and 404; generated robots.txt and sitemap.');

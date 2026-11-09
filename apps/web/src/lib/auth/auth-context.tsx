@@ -96,9 +96,11 @@ async function readStoredState(): Promise<AuthState> {
   }
 }
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export type AuthBootstrapState = Partial<AuthState>;
+
+export function AuthProvider({ children, initialAuthState }: { children: React.ReactNode; initialAuthState?: AuthBootstrapState }) {
   const queryClient = useQueryClient();
-  const [state, setState] = useState<AuthState>(initialState);
+  const [state, setState] = useState<AuthState>(() => ({ ...initialState, ...initialAuthState }));
   const authChannel = useRef<BroadcastChannel | null>(null);
   const authBoundaryVersion = useRef(0);
 

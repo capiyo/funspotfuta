@@ -1,10 +1,20 @@
 import React from 'react';
 import { renderToString } from 'react-dom/server';
-import PublicHome, { NotFoundPage } from './screens/PublicHome';
+import { StaticRouter } from 'react-router-dom/server';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import App from './App';
 import PublicDocument, { getPublicDocumentMetadata } from './screens/PublicDocument';
+import { NotFoundPage } from './screens/PublicHome';
 
-export function renderHome(): string {
-  return renderToString(<PublicHome />);
+export function renderApp(location = '/'): string {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+  return renderToString(
+    <QueryClientProvider client={queryClient}>
+      <StaticRouter location={location}>
+        <App initialAuthState={{ isInitialized: true }} />
+      </StaticRouter>
+    </QueryClientProvider>,
+  );
 }
 
 export function renderNotFound(): string {

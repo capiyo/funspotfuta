@@ -12,47 +12,24 @@
   status = 301
   force = true
 
-# Keep the interactive application under /app so the root can be server-rendered.
 [[redirects]]
   from = "/app"
-  to = "/app/"
-  status = 301
-  force = true
-
-# Preserve legacy deep links while moving the client application under /app.
-[[redirects]]
-  from = "/messages"
-  to = "/app/messages"
+  to = "/"
   status = 301
   force = true
 
 [[redirects]]
-  from = "/messages/*"
-  to = "/app/messages/:splat"
+  from = "/app/*"
+  to = "/:splat"
   status = 301
   force = true
 
-[[redirects]]
-  from = "/comments/*"
-  to = "/app/comments/:splat"
-  status = 301
-  force = true
-
-[[redirects]]
-  from = "/login"
-  to = "/app/login"
-  status = 301
-  force = true
-
-# The public homepage is rendered by React on the server.
 [[redirects]]
   from = "/"
   to = "/.netlify/functions/ssr?path=/"
   status = 200
   force = true
 
-# Existing public documents and assets are served normally; all other routes
-# are resolved by the SSR function, which returns a real 404 when appropriate.
 [[redirects]]
   from = "/*"
   to = "/.netlify/functions/ssr?path=/:splat"

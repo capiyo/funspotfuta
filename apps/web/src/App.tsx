@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { queryKeys } from '@funspot/core';
-import { AuthProvider, useAuth } from '@/lib/auth/auth-context';
+import { AuthProvider, useAuth, type AuthBootstrapState } from '@/lib/auth/auth-context';
 import { LoginModalProvider } from '@/modals/Login-modal-context';
 import { ToastProvider } from '@/lib/toast/toast-context';
 import RootNavigator from '@/navigation/RootNavigator';
@@ -97,6 +97,6 @@ function AppRoutes() {
   </>;
 }
 
-export default function App() {
-  return <AuthProvider><ToastProvider><LoginModalProvider><AppRoutes /></LoginModalProvider></ToastProvider></AuthProvider>;
+export default function App({ initialAuthState }: { initialAuthState?: AuthBootstrapState } = {}) {
+  return <AuthProvider initialAuthState={initialAuthState}><ToastProvider><LoginModalProvider><AppRoutes /></LoginModalProvider></ToastProvider></AuthProvider>;
 }
