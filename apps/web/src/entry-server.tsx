@@ -41,8 +41,8 @@ function sanitizePublicFixture(fixture: Fixture): Fixture {
   return {
     ...fixture,
     voters: (fixture.voters ?? []).filter((voter) => !isDemoMemberName(voter.userName)),
-    ...(extended.comments ? { comments: extended.comments.filter(keepComment) } : {}),
-    ...(extended.latestComments ? { latestComments: extended.latestComments.filter(keepComment) } : {}),
+    ...(Array.isArray(extended.comments) ? { comments: extended.comments.filter(keepComment) } : {}),
+    ...(Array.isArray(extended.latestComments) ? { latestComments: extended.latestComments.filter(keepComment) } : {}),
   };
 }
 
