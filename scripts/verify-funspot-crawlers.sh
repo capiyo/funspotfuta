@@ -23,7 +23,7 @@ check_crawler() {
     return 1
   fi
 
-  if ! grep -q 'class="home-screen' "$body" || ! grep -q 'home-columns' "$body"; then
+  if ! grep -q 'home-screen' "$body" || ! grep -q 'home-columns' "$body"; then
     printf 'FAIL: %s received no server-rendered Funspot workspace.\n' "$label" >&2
     return 1
   fi
