@@ -49,6 +49,13 @@ function normalizePath(path: string): string {
   return aliases[clean] ?? clean;
 }
 
+export function getPublicDocumentRoutes(): string[] {
+  return [
+    ...Object.keys(pageMetadata),
+    ...editorialArticles.map((article) => '/insights/' + article.slug),
+  ];
+}
+
 export function getPublicDocumentMetadata(path: string): PublicDocumentMetadata | null {
   const route = normalizePath(path);
   const articleSlug = route.startsWith('/insights/') ? route.slice('/insights/'.length) : '';
