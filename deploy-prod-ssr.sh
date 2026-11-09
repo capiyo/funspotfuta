@@ -2,7 +2,7 @@
 set -Eeuo pipefail
 
 BRANCH="seo-app-at-root"
-REPO="/d/Funspot/frontend/funspotfuta"
+REPO="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 LOG="$REPO/deploy-ssr.log"
 CONTACT_EMAIL="${FUNSPOT_CONTACT_EMAIL:-}"
 
