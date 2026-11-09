@@ -17,7 +17,6 @@ import {
   StyleSheet,
   Modal,
 } from 'react-native';
-import { X } from 'lucide-react-native';
 import { FAN_SPACING, FAN_RADIUS } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useToast } from '@/lib/toast/toast-context';
@@ -137,10 +136,7 @@ export default function NotificationsScreen({
 
           <View style={styles.headerRow}>
             <Text style={styles.headerTitle}>Notifications</Text>
-            <Pressable onPress={onClose} hitSlop={8} style={styles.closeBtn}>
-              <X size={14} color={colors.textSecondary} />
-            </Pressable>
-          </View>
+</View>
 
           {loading ? (
             <ActivityIndicator
