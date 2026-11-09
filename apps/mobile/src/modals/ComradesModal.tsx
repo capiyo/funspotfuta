@@ -151,9 +151,7 @@ export default function ComradesScreen({
 
           <View style={styles.headerRow}>
             <Text style={styles.headerTitle}>Comrades</Text>
-            <Pressable onPress={onClose} hitSlop={8} style={styles.closeBtn}>
-              <X size={14} color={colors.textMuted} />
-            </Pressable>
+            
           </View>
 
           <ScrollView
