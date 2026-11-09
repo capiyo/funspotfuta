@@ -3,7 +3,6 @@
 // onLayout -> ResizeObserver; absolute-positioned player dots over the SVG.
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useFanColors, hexWithAlpha } from '@/lib/theme/use-fan-colors';
 import { playerHeadshotKey, resolvePlayerHeadshots } from '@funspot/core';
 import {
@@ -105,23 +104,6 @@ export function BenchColumn({ players, color, teamName = '', headshots = {} }: {
   );
 }
 
-function OverflowButton({ label, count, color, expanded, onTap }: { label: string; count: number; color: string; expanded: boolean; onTap: () => void }) {
-  const c = useFanColors();
-  const shortLabel = label.length > 12 ? `${label.substring(0, 11)}…` : label;
-  return (
-    <button
-      type="button"
-      onClick={onTap}
-      className="inline-flex items-center gap-1 rounded-fan-pill border px-2 py-1"
-      style={{ background: expanded ? hexWithAlpha(color, 0.15) : c.background, borderColor: expanded ? color : c.borderActive }}
-    >
-      <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full px-1 text-[10px] font-bold" style={{ background: expanded ? hexWithAlpha(color, 0.9) : hexWithAlpha(color, 0.15), color: expanded ? '#fff' : color }}>{count}</span>
-      <span className="text-fan-tag" style={{ color: expanded ? color : c.textSecondary }}>{shortLabel}</span>
-      {expanded ? <ChevronUp size={14} color={color} /> : <ChevronDown size={14} color={c.textTertiary} />}
-    </button>
-  );
-}
-
 export function PitchView({
   homeTeam, awayTeam, homeFormation, awayFormation, homePlayers, awayPlayers,
 }: {
@@ -129,8 +111,6 @@ export function PitchView({
   homePlayers: SimplifiedPlayer[]; awayPlayers: SimplifiedPlayer[];
 }) {
   const c = useFanColors();
-  const [showHome, setShowHome] = useState(false);
-  const [showAway, setShowAway] = useState(false);
   const [size, setSize] = useState({ width: 0, height: 0 });
   const [headshots, setHeadshots] = useState<Record<string, string>>({});
   const ref = useRef<HTMLDivElement>(null);
@@ -161,33 +141,12 @@ export function PitchView({
 
   const cappedHome = useMemo(() => homePlayers.slice(0, 11), [homePlayers]);
   const cappedAway = useMemo(() => awayPlayers.slice(0, 11), [awayPlayers]);
-  const homeOverflow = homePlayers.slice(11);
-  const awayOverflow = awayPlayers.slice(11);
-  const hasOverflow = homeOverflow.length > 0 || awayOverflow.length > 0;
 
   const homePos = useMemo(() => (size.width > 0 ? calculatePositions(cappedHome, homeFormation, { isHome: true, ...size }) : []), [cappedHome, homeFormation, size]);
   const awayPos = useMemo(() => (size.width > 0 ? calculatePositions(cappedAway, awayFormation, { isHome: false, ...size }) : []), [cappedAway, awayFormation, size]);
 
-  const sh = showHome && homeOverflow.length > 0;
-  const sa = showAway && awayOverflow.length > 0;
   return (
     <div>
-      {hasOverflow && (
-        <div className="mb-2 flex items-center justify-between">
-          {homeOverflow.length > 0 && <OverflowButton label={homeTeam} count={homeOverflow.length} color={c.primary} expanded={showHome} onTap={() => setShowHome((v) => !v)} />}
-          {awayOverflow.length > 0 && <OverflowButton label={awayTeam} count={awayOverflow.length} color={c.away} expanded={showAway} onTap={() => setShowAway((v) => !v)} />}
-        </div>
-      )}
-      {(sh || sa) && (
-        <div className="mb-2 rounded-fan-md border p-2" style={{ background: c.background, borderColor: c.borderActive }}>
-          <p className="mb-2 text-fan-tag tracking-[0.8px] text-fan-textTertiary">EXTRA PLAYERS</p>
-          <div className="flex gap-2">
-            {sh && <div className="flex-1"><BenchColumn players={homeOverflow} color={c.primary} teamName={homeTeam} headshots={headshots} /></div>}
-            {sh && sa && <span className="w-px self-stretch" style={{ background: c.borderActive }} />}
-            {sa && <div className="flex-1"><BenchColumn players={awayOverflow} color={c.away} teamName={awayTeam} headshots={headshots} /></div>}
-          </div>
-        </div>
-      )}
       <div ref={ref} className="relative max-w-full shrink-0 overflow-hidden rounded-fan-lg" style={{ width: "min(100%, calc((88vh - 20px) * 0.68))", maxHeight: "calc(88vh - 20px)", aspectRatio: String(PITCH_ASPECT_RATIO), flex: "0 1 auto" }}>
         {size.width > 0 && size.height > 0 && (
           <>
