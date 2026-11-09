@@ -31,6 +31,12 @@
   force = true
 
 [[redirects]]
+  from = "/insights/match-preview-template"
+  to = "/.netlify/functions/ssr?path=/insights/match-preview-template"
+  status = 200
+  force = true
+
+[[redirects]]
   from = "/*"
   to = "/.netlify/functions/ssr?path=/:splat"
   status = 200
