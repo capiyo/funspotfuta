@@ -301,7 +301,7 @@ export default async function handler(request) {
   }
 
   const isPrivateRoute = normalizedPath === "/login"
-    || /^\/(messages|comments|profile|profiles|users|feed)(?:\/|$)/.test(normalizedPath);
+    || /^\/(messages|comments|profile|profiles|users|feed|posts|post)(?:\/|$)/.test(normalizedPath);
   const isAppRoute = normalizedPath === "/"
     || normalizedPath === "/login"
     || /^\/(messages|comments)(?:\/|$)/.test(normalizedPath);
