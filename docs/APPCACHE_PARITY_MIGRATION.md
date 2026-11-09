@@ -82,6 +82,7 @@ Only allowlisted, successful query responses are eligible for persistence. Crede
 - [ ] Voters/comrade voters: merge partial server results with cached entries and wire all consumers.
 - [ ] Chat/messages: wire all consumers and mutations; cap persisted messages at 50 per fixture.
 - [x] Core channel-chat hook restores cached messages before network refresh, merges fetched history with cached entries, persists a 50-message snapshot per fixture/channel/user, and revives Date timestamps after JSON persistence.
+- [x] Chat message snapshots include image and video attachment URLs, thumbnails, media flags, captions, reply metadata and timestamps in the same encrypted `chatMessages` AppCache entry; media is not stored in a separate unbounded cache.
 - [x] Web MessageScreen now uses the shared core chat hook instead of its duplicate hook implementation.
 - [ ] Channels/channel fixtures: move web-specific channel query functions into shared core hooks and wire mobile/web consumers.
 - [ ] Counts/latest comments: wire vote, comment, like, pledge, bet and unread counts to all cards and modals.
