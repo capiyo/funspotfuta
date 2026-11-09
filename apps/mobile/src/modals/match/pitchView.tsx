@@ -500,6 +500,7 @@ const DOT_SIZE = 30;
 
 function PlayerDot({ player, position, color, photoUrl }: PlayerDotProps) {
 
+    const resolvedPhotoUrl = photoUrl ?? player.photoUrl ?? player.imageUrl ?? undefined;
     const dot = (
         <View
             style={[
@@ -509,8 +510,8 @@ function PlayerDot({ player, position, color, photoUrl }: PlayerDotProps) {
                 },
             ]}
         >
-            {photoUrl ? (
-                <ExpoImage source={{ uri: photoUrl }} contentFit="cover" cachePolicy="memory-disk" style={{ width: DOT_SIZE, height: DOT_SIZE, borderRadius: DOT_SIZE / 2 }} />
+            {resolvedPhotoUrl ? (
+                <ExpoImage source={{ uri: resolvedPhotoUrl }} contentFit="cover" cachePolicy="memory-disk" style={{ width: DOT_SIZE, height: DOT_SIZE, borderRadius: DOT_SIZE / 2 }} />
             ) : (
                 <Text style={styles.playerDotText}>{player.number}</Text>
             )}
