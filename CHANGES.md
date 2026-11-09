@@ -23,7 +23,7 @@ Branch: `seo-app-at-root`
 
 ## Verification status
 
-- Source checks: article text is above 900 words for all six articles; homepage intro is 166 words; the six required placeholder strings are absent from the current homepage/comment fallback source.
+- Source checks: article text is above 900 words for all six articles; homepage intro is 166 words; the six required placeholder strings are blocked from rendering, and all known stock lines are filtered from fixture comments.
 - Build, local HTTP fetches, production HTTP checks and deployment were **not run** in this GitHub-only environment. The build-time crawl verifier has been added but still needs to execute in the project's Windows/Git Bash environment.
 
 ## Owner must do
