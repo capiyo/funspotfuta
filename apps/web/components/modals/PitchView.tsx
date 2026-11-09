@@ -76,14 +76,9 @@ function PlayerAvatar({ photoUrl, number, color, size }: { photoUrl?: string | n
   );
 }
 
-function PlayerDot({ player, position, color, isHome, photoUrl }: { player: SimplifiedPlayer; position: PitchPosition; color: string; isHome: boolean; photoUrl?: string }) {
+function PlayerDot({ player, position, color, photoUrl }: { player: SimplifiedPlayer; position: PitchPosition; color: string; photoUrl?: string }) {
   const dot = <PlayerAvatar photoUrl={photoUrl ?? player.photoUrl ?? player.imageUrl} number={player.number} color={color} size={DOT_SIZE} />;
-  const label = (
-    <span className="flex max-w-[84px] items-center gap-1 rounded-fan-sm bg-black/75 px-1.5 py-px">
-      <span className="truncate text-fan-tag text-white">{shortName(player.name)}</span>
-      {player.captain && <span className="text-[8px] font-extrabold" style={{ color }}>C</span>}
-    </span>
-  );
+
   return (
     <div className="absolute" style={{ left: position.x - DOT_SIZE / 2, top: position.y - DOT_SIZE / 2, width: DOT_SIZE, height: DOT_SIZE }}>
       {dot}
@@ -197,8 +192,8 @@ export function PitchView({
         {size.width > 0 && size.height > 0 && (
           <>
             <PitchSvg width={size.width} height={size.height} homeColor={c.primary} awayColor={c.away} />
-            {cappedHome.map((p, i) => i < homePos.length && <PlayerDot key={`h-${i}-${p.number}`} player={p} position={homePos[i]} color={c.primary} isHome photoUrl={headshots[playerHeadshotKey(p, homeTeam)]} />)}
-            {cappedAway.map((p, i) => i < awayPos.length && <PlayerDot key={`a-${i}-${p.number}`} player={p} position={awayPos[i]} color={c.away} isHome={false} photoUrl={headshots[playerHeadshotKey(p, awayTeam)]} />)}
+            {cappedHome.map((p, i) => i < homePos.length && <PlayerDot key={`h-${i}-${p.number}`} player={p} position={homePos[i]} color={c.primary} photoUrl={headshots[playerHeadshotKey(p, homeTeam)]} />)}
+            {cappedAway.map((p, i) => i < awayPos.length && <PlayerDot key={`a-${i}-${p.number}`} player={p} position={awayPos[i]} color={c.away} photoUrl={headshots[playerHeadshotKey(p, awayTeam)]} />)}
           </>
         )}
       </div>
