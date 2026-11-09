@@ -239,6 +239,7 @@ function EditorialArticlePage({ slug, liveFixture }: { slug: string; liveFixture
             <p className="mt-3 font-semibold">{liveFixture.homeTeam} vs {liveFixture.awayTeam}</p>
             <p className="mt-2 text-sm text-slate-600">{liveFixture.league}</p>
             <p className="mt-2 text-sm text-slate-600">Status: {liveFixture.status}</p>
+            {(liveFixture.date || liveFixture.time) && <p className="mt-2 text-sm text-slate-600">{[liveFixture.date, liveFixture.time].filter(Boolean).join(' · ')}</p>}
             {liveFixture.homeScore != null && liveFixture.awayScore != null && (
               <p className="mt-2 text-lg font-bold text-slate-950">{liveFixture.homeScore} – {liveFixture.awayScore}</p>
             )}
