@@ -847,9 +847,7 @@ export default function MessageScreen() {
               <Text style={fanText('body', colors, colors.textPrimary)}>
                 Add a caption
               </Text>
-              <Pressable onPress={() => setPendingImage(null)} hitSlop={8}>
-                <X size={16} color={colors.textTertiary} />
-              </Pressable>
+
             </View>
             {pendingImage && (
               <Image
@@ -1319,9 +1317,7 @@ function VotersPanel({
         <Text style={fanText('body', colors, colors.textPrimary)}>
           Votes ({voters.length})
         </Text>
-        <Pressable onPress={onClose} hitSlop={8}>
-          <X size={14} color={colors.textTertiary} />
-        </Pressable>
+
       </View>
       {voters.length === 0 ? (
         <Text style={fanText('caption', colors, colors.textTertiary)}>
