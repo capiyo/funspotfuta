@@ -70,9 +70,9 @@ if (!ssrBundle.trim() || !ssrBundle.includes('renderApp') || !ssrBundle.includes
 }
 
 const ssrRenderer = await import(pathToFileURL(ssrEntry).href);
-const renderedHome = ssrRenderer.renderApp('/');
+const renderedHome = await ssrRenderer.renderApp('/');
 const renderedNotFound = ssrRenderer.renderNotFound();
-if (!renderedHome.includes('home-screen') || !renderedHome.includes('home-columns') || renderedHome.includes('Football is better together') || renderedHome.includes('<div id="root"></div>')) {
+if (!renderedHome.markup.includes('home-screen') || !renderedHome.markup.includes('home-columns') || renderedHome.markup.includes('Football is better together') || renderedHome.markup.includes('<div id="root"></div>')) {
   throw new Error('[crawl-files] React SSR did not render the real Funspot application workspace.');
 }
 if (!renderedNotFound.includes("This page isn't here.") && !renderedNotFound.includes("This page isn&#x27;t here.")) {
