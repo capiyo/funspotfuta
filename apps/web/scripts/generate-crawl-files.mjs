@@ -80,11 +80,15 @@ const publicRoutes = ssrRenderer.getPublicDocumentRoutes();
 const renderedHome = await ssrRenderer.renderApp('/', false);
 const renderedNotFound = ssrRenderer.renderNotFound();
 
+const homepageH1Count = (renderedHome.markup.match(/<h1\\b/gi) ?? []).length;
+const editorialBlock = renderedHome.markup.match(/<section aria-labelledby="funspot-editorial-heading"[\\s\\S]*?<\\/section>/i)?.[0] ?? '';
+const editorialWords = wordCount(editorialBlock);
 if (!renderedHome.markup.includes('funspot-editorial-heading') ||
     !renderedHome.markup.includes('Football makes more sense when you know the story behind the fixture.') ||
     !renderedHome.markup.includes('Cookie and Ads Disclosure') ||
-    !renderedHome.markup.includes('href="/insights"')) {
-  throw new Error('[crawl-files] Homepage SSR is missing its editorial introduction or public footer.');
+    !renderedHome.markup.includes('href="/insights"') ||
+    homepageH1Count !== 1 || editorialWords < 150 || editorialWords > 250) {
+  throw new Error('[crawl-files] Homepage SSR must contain one H1, a 150–250 word editorial introduction and the public footer (found ' + editorialWords + ' editorial words).');
 }
 if (!renderedNotFound.includes("This page isn't here.") && !renderedNotFound.includes("This page isn&#x27;t here.")) {
   throw new Error('[crawl-files] React SSR did not produce the custom 404 content.');
@@ -194,6 +198,14 @@ const robots = [
   '',
 ].join('\n');
 await writeFile(path.join(distDir, 'robots.txt'), robots, 'utf8');
+
+for (const route of requiredFooterPaths) {
+  try {
+    await readFile(outputPath(route), 'utf8');
+  } catch {
+    throw new Error('[crawl-files] Footer target ' + route + ' was not generated and cannot resolve to a static 200 page.');
+  }
+}
 
 const lastmod = new Date().toISOString().slice(0, 10);
 const sitemapRoutes = ['/', ...publicRoutes];
