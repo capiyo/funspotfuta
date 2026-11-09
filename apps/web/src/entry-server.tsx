@@ -2,7 +2,7 @@ import React from 'react';
 import { renderToString } from 'react-dom/server';
 import { StaticRouter } from 'react-router-dom/server';
 import { QueryClient, QueryClientProvider, dehydrate } from '@tanstack/react-query';
-import { getAllFixtures, queryKeys, resolveFixtureIsLive, type Fixture } from '@funspot/core';
+import { getAllFixtures, queryKeys, resolveFixtureIsLive, isDemoMemberName, type Fixture } from '@funspot/core';
 import App from './App';
 import PublicDocument, { getPublicDocumentMetadata, getPublicDocumentRoutes, type PublicMatchPreviewFixture } from './screens/PublicDocument';
 import { NotFoundPage } from './screens/PublicHome';
@@ -16,6 +16,36 @@ function encodeQueryState(value: unknown): unknown {
   return value;
 }
 
+const PLACEHOLDER_COMMENT_TEXT = new Set([
+  'This is going to be a banger',
+  'My gut says an upset today',
+  'Defense has to show up this time',
+  "Can't wait for kickoff",
+  'That midfield battle decides it',
+  'Home crowd advantage all day',
+  'Not confident about this one honestly',
+  'Easy three points incoming',
+  'Injuries could really hurt them here',
+  'Give me a 2-1 all day',
+]);
+
+type FixtureComment = { username?: string; userName?: string; comment?: string; text?: string };
+type FixtureWithComments = Fixture & { comments?: FixtureComment[]; latestComments?: FixtureComment[] };
+
+function sanitizePublicFixture(fixture: Fixture): Fixture {
+  const extended = fixture as FixtureWithComments;
+  const keepComment = (comment: FixtureComment) => {
+    const text = (comment.comment ?? comment.text ?? '').trim();
+    return text.length > 0 && !PLACEHOLDER_COMMENT_TEXT.has(text);
+  };
+  return {
+    ...fixture,
+    voters: (fixture.voters ?? []).filter((voter) => !isDemoMemberName(voter.userName)),
+    ...(extended.comments ? { comments: extended.comments.filter(keepComment) } : {}),
+    ...(extended.latestComments ? { latestComments: extended.latestComments.filter(keepComment) } : {}),
+  };
+}
+
 export type ServerRenderedApp = { markup: string; queryState: string };
 
 export async function renderApp(location = '/', prefetchPublicData = true): Promise<ServerRenderedApp> {
@@ -27,7 +57,7 @@ export async function renderApp(location = '/', prefetchPublicData = true): Prom
     const prefetch = Promise.allSettled([
       queryClient.prefetchQuery({
         queryKey: queryKeys.fixtures(),
-        queryFn: ({ signal }) => getAllFixtures(signal),
+        queryFn: async ({ signal }) => (await getAllFixtures(signal)).map(sanitizePublicFixture),
         staleTime: 60_000,
       }),
     ]);
