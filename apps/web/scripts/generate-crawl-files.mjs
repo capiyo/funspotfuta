@@ -142,7 +142,7 @@ const results = [];
 for (const route of publicRoutes) {
   const metadata = ssrRenderer.getPublicDocumentMetadata(route);
   if (!metadata) throw new Error('[crawl-files] Missing metadata for ' + route + '.');
-  const markup = ssrRenderer.renderPublicDocument(route, CONTACT_EMAIL);
+  const markup = await ssrRenderer.renderPublicDocument(route, CONTACT_EMAIL);
   const h1Count = (markup.match(/<h1\b/gi) ?? []).length;
   if (h1Count !== 1) throw new Error('[crawl-files] Expected exactly one H1 on ' + route + ', found ' + h1Count + '.');
   assertNoForbidden(markup, route);
@@ -270,7 +270,7 @@ export default async function handler(request) {
   const normalizedPath = requestedPath.length > 1 ? requestedPath.replace(/\/+$/, "") : "/";
   const publicMetadata = getPublicDocumentMetadata(normalizedPath);
   if (publicMetadata) {
-    const pageMarkup = renderPublicDocument(normalizedPath, contactEmail);
+    const pageMarkup = await renderPublicDocument(normalizedPath, contactEmail);
     const attributes = ' data-page-path="' + escapeHtml(normalizedPath) + '" data-contact-email="' + escapeHtml(contactEmail) + '"';
     const html = withMetadata(withRoot("public-document", pageMarkup, attributes), publicMetadata);
     return new Response(html, {
