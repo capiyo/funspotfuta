@@ -226,8 +226,6 @@ console.table([
   ...results.map((row) => ({ page: row.route, status: 'PASS', words: row.words, h1: row.h1Count, canonical: row.canonical })),
 ]);
 console.info('[crawl-files] Generated ' + results.length + ' SSR public pages, robots.txt and sitemap.xml; verified placeholder removal, article length, H1, canonical and footer links.');
-process.exit(0);
-
 const functionSource = String.raw`import { renderApp, renderNotFound, renderPublicDocument, getPublicDocumentMetadata } from "../../apps/web/dist-ssr/entry-server.js";
 const template = __SHELL__;
 const contactEmail = __CONTACT_EMAIL__;
@@ -333,3 +331,4 @@ await mkdir(functionDir, { recursive: true });
 await writeFile(path.join(functionDir, 'ssr.mjs'), generatedFunction, 'utf8');
 
 console.info('[crawl-files] Wrote the Netlify React SSR function.');
+process.exit(0);
