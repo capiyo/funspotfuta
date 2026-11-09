@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { editorialArticles, editorialBySlug } from '../content/editorial';
 import { CONTACT_EMAIL } from '../config/contact-email.mjs';
 
@@ -105,7 +106,7 @@ function PublicFooter() {
   );
 }
 
-function PageShell({ children }: { children: React.ReactNode }) {
+function PageShell({ children }: { children: ReactNode }) {
   return (
     <main className="min-h-screen bg-white px-6 py-12 text-slate-800">
       <article className="mx-auto max-w-3xl">
