@@ -7,7 +7,7 @@
 //   - live vote state + voters list
 //   - typing indicator (incoming + outgoing `sendTyping`)
 //   - optimistic send; tempId replaced when the server echoes it back
-//   - optimistic image upload ('uploading...' placeholder → real URL → WS send)
+//   - optimistic image/video uploads ('uploading...' placeholder → media URL → WS send)
 //   - markRead
 //   - leaveChannelFixtureRoom on unmount
 //
