@@ -335,18 +335,9 @@ export function MatchDetailsModal({
                         },
                     ]}
                 >
-                    {activeTab !== 'lineups' ? (
-                        <View style={styles.topRail}>
-                            <View style={[styles.handle, { backgroundColor: colors.borderActive }]} />
-                            <Pressable onPress={onClose} accessibilityRole="button" accessibilityLabel="Close match details" style={styles.closeButton}>
-                                <X size={19} color={colors.textSecondary} />
-                            </Pressable>
-                        </View>
-                    ) : (
-                        <Pressable onPress={onClose} accessibilityRole="button" accessibilityLabel="Close match details" style={[styles.closeButton, { position: 'absolute', top: 8, right: 10, zIndex: 10 }]}>
-                            <X size={19} color={colors.textSecondary} />
-                        </Pressable>
-                    )}
+                    <View style={styles.topRail}>
+                        <View style={[styles.handle, { backgroundColor: colors.borderActive }]} />
+                    </View>
 
                     {/* Keep match metadata out of the pitch-first lineup view. */}
                     {activeTab !== 'lineups' ? <View style={styles.header}>
