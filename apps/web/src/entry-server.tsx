@@ -4,7 +4,7 @@ import { StaticRouter } from 'react-router-dom/server';
 import { QueryClient, QueryClientProvider, dehydrate } from '@tanstack/react-query';
 import { feedQueryOptions, getAllChannels, getAllFixtures, queryKeys } from '@funspot/core';
 import App from './App';
-import PublicDocument, { getPublicDocumentMetadata } from './screens/PublicDocument';
+import PublicDocument, { getPublicDocumentMetadata, getPublicDocumentRoutes } from './screens/PublicDocument';
 import { NotFoundPage } from './screens/PublicHome';
 
 function encodeQueryState(value: unknown): unknown {
@@ -71,4 +71,4 @@ export function renderPublicDocument(path: string, contactEmail: string): string
   return renderToString(<PublicDocument path={path} contactEmail={contactEmail} />);
 }
 
-export { getPublicDocumentMetadata };
+export { getPublicDocumentMetadata, getPublicDocumentRoutes };
