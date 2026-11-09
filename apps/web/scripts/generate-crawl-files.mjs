@@ -40,7 +40,7 @@ if (shell.includes('pagead/js/adsbygoogle.js')) {
 
 const adsTxt = await readFile(path.join(distDir, 'ads.txt'), 'utf8');
 const expectedAdsTxt = 'google.com, pub-4829747375056254, DIRECT, f08c47fec0942fa0\n';
-if (adsTxt.replace(/\\r\\n/g, '\\n') !== expectedAdsTxt) {
+if (adsTxt.replace(/\r\n/g, '\n') !== expectedAdsTxt) {
   throw new Error('[crawl-files] ads.txt changed unexpectedly; preserve the publisher record byte-for-byte.');
 }
 
