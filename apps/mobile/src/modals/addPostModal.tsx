@@ -288,9 +288,7 @@ export default function AddPostModal({
                                 {username ? `@${username}` : 'Share your moment'}
                             </Text>
                         </View>
-                        <Pressable onPress={onClose} hitSlop={8} style={styles.closeBtn}>
-                            <X size={18} color={colors.textPrimary} />
-                        </Pressable>
+                        
                     </View>
 
                     <ScrollView
