@@ -197,7 +197,7 @@ export function channelFromJson(json: Record<string, any>): Channel {
     try {
         const membersData: any[] = Array.isArray(json.members) ? json.members : [];
         const members: ChannelMember[] = membersData
-            .filter((m) => m && typeof m === 'object' && !isDemoMemberName(m.username ?? m.user_name))
+            .filter((m) => m && typeof m === 'object' && !isDemoMemberName(m.username ?? m.user_name ?? m.userName))
             .map((m) => channelMemberFromJson(m));
 
         const isApproved = asBool(json.isApproved ?? json.is_approved ?? json.approved, false);
