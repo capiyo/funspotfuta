@@ -908,9 +908,7 @@ export default function ProfileModal({
                     : 'Member'}
                 </Text>
               </View>
-              <Pressable onPress={onClose} hitSlop={8} style={styles.closeBtn}>
-                <X size={14} color={colors.textSecondary} />
-              </Pressable>
+
             </View>
 
             {/* Scrollable body */}
