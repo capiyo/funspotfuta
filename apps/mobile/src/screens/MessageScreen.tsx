@@ -323,6 +323,7 @@ export default function MessageScreen() {
     typingUsers,
     send,
     sendImage,
+    sendVideo,
     markRead,
     matchStatus,
     homeScore,
