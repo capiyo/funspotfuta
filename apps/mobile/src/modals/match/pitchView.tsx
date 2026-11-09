@@ -538,143 +538,6 @@ function PlayerDot({ player, position, color, photoUrl }: PlayerDotProps) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-//  OVERFLOW BUTTON
-// ═══════════════════════════════════════════════════════════════
-
-interface OverflowButtonProps {
-    label: string;
-    count: number;
-    color: string;
-    expanded: boolean;
-    onTap: () => void;
-}
-
-function OverflowButton({
-    label,
-    count,
-    color,
-    expanded,
-    onTap,
-}: OverflowButtonProps) {
-    const colors = useFanColors();
-    const shortLabel = label.length > 12 ? `${label.substring(0, 11)}…` : label;
-
-    return (
-        <Pressable onPress={onTap}>
-            <View
-                style={[
-                    styles.overflowButton,
-                    {
-                        backgroundColor: expanded ? hexWithAlpha(color, 0.15) : 'transparent',
-                        borderColor: 'transparent',
-                    },
-                ]}
-            >
-                <View
-                    style={[
-                        styles.overflowBadge,
-                        {
-                            backgroundColor: expanded
-                                ? hexWithAlpha(color, 0.9)
-                                : hexWithAlpha(color, 0.15),
-                        },
-                    ]}
-                >
-                    <Text
-                        style={[
-                            styles.overflowBadgeText,
-                            { color: expanded ? '#FFFFFF' : color },
-                        ]}
-                    >
-                        {count}
-                    </Text>
-                </View>
-                <View style={{ width: 5 }} />
-                <Text
-                    style={[
-                        fanText('tag', colors),
-                        { color: expanded ? color : colors.textSecondary },
-                    ]}
-                >
-                    {shortLabel}
-                </Text>
-                <View style={{ width: 4 }} />
-                {expanded ? (
-                    <ChevronUp size={14} color={color} />
-                ) : (
-                    <ChevronDown size={14} color={colors.textTertiary} />
-                )}
-            </View>
-        </Pressable>
-    );
-}
-
-// ═══════════════════════════════════════════════════════════════
-//  OVERFLOW PANEL
-// ═══════════════════════════════════════════════════════════════
-
-interface OverflowPanelProps {
-    homePlayers: SimplifiedPlayer[];
-    awayPlayers: SimplifiedPlayer[];
-    showHome: boolean;
-    showAway: boolean;
-}
-
-function OverflowPanel({
-    homePlayers,
-    awayPlayers,
-    showHome,
-    showAway,
-}: OverflowPanelProps) {
-    const colors = useFanColors();
-    if (!showHome && !showAway) return null;
-
-    return (
-        <View
-            style={[
-                styles.overflowPanel,
-                {
-                    backgroundColor: 'transparent',
-                    borderColor: 'transparent',
-                },
-            ]}
-        >
-            <View style={styles.overflowHeader}>
-                <View
-                    style={[
-                        styles.overflowHeaderBar,
-                        { backgroundColor: colors.textTertiary },
-                    ]}
-                />
-                <View style={{ width: 6 }} />
-                <Text
-                    style={[
-                        fanText('tag', colors),
-                        { color: colors.textTertiary, letterSpacing: 0.8 },
-                    ]}
-                >
-                    EXTRA PLAYERS
-                </Text>
-            </View>
-            <View style={{ height: 8 }} />
-            <View style={styles.overflowRow}>
-                {showHome ? (
-                    <View style={{ flex: 1 }}>
-                        <BenchColumn players={homePlayers} color={colors.primary} />
-                    </View>
-                ) : null}
-                {showHome && showAway ? <View style={{ width: 8 }} /> : null}
-                {showAway ? (
-                    <View style={{ flex: 1 }}>
-                        <BenchColumn players={awayPlayers} color={colors.away} />
-                    </View>
-                ) : null}
-            </View>
-        </View>
-    );
-}
-
-// ═══════════════════════════════════════════════════════════════
 //  BENCH COLUMN  (exported — reused by LineupsTab)
 // ═══════════════════════════════════════════════════════════════
 
@@ -806,8 +669,6 @@ export function PitchView({
     const colors = useFanColors();
     const { width: screenWidth } = useWindowDimensions();
     const pitchWidth = Math.max(1, Math.min(screenWidth - 16, maxHeight * PITCH_ASPECT_RATIO));
-    const [showHomeOverflow, setShowHomeOverflow] = useState(false);
-    const [showAwayOverflow, setShowAwayOverflow] = useState(false);
     const [headshots, setHeadshots] = useState<Record<string, string>>({});
 
     useEffect(() => {
@@ -824,9 +685,6 @@ export function PitchView({
 
     const cappedHome = useMemo(() => homePlayers.slice(0, 11), [homePlayers]);
     const cappedAway = useMemo(() => awayPlayers.slice(0, 11), [awayPlayers]);
-    const homeOverflow = homePlayers.slice(11);
-    const awayOverflow = awayPlayers.slice(11);
-    const hasOverflow = homeOverflow.length > 0 || awayOverflow.length > 0;
 
     const homePositions = useMemo(
         () =>
@@ -863,41 +721,6 @@ export function PitchView({
 
     return (
         <View>
-            {hasOverflow ? (
-                <View style={styles.overflowButtonRow}>
-                    {homeOverflow.length > 0 ? (
-                        <OverflowButton
-                            label="Home extras"
-                            count={homeOverflow.length}
-                            color={colors.primary}
-                            expanded={showHomeOverflow}
-                            onTap={() => setShowHomeOverflow((v) => !v)}
-                        />
-                    ) : null}
-                    {homeOverflow.length > 0 && awayOverflow.length > 0 ? (
-                        <View style={{ flex: 1 }} />
-                    ) : null}
-                    {awayOverflow.length > 0 ? (
-                        <OverflowButton
-                            label="Away extras"
-                            count={awayOverflow.length}
-                            color={colors.away}
-                            expanded={showAwayOverflow}
-                            onTap={() => setShowAwayOverflow((v) => !v)}
-                        />
-                    ) : null}
-                </View>
-            ) : null}
-
-            {hasOverflow ? (
-                <OverflowPanel
-                    homePlayers={homeOverflow}
-                    awayPlayers={awayOverflow}
-                    showHome={showHomeOverflow && homeOverflow.length > 0}
-                    showAway={showAwayOverflow && awayOverflow.length > 0}
-                />
-            ) : null}
-
             <View
                 style={[styles.pitchContainer, { width: pitchWidth, aspectRatio: PITCH_ASPECT_RATIO, alignSelf: 'center' }]}
                 onLayout={onPitchLayout}
