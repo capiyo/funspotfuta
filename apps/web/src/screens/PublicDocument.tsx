@@ -51,7 +51,7 @@ const aliases: Record<string, string> = {
 };
 
 function normalizePath(path: string): string {
-  const clean = path.split('?')[0].replace(/\\/+$/, '') || '/';
+  const clean = path.split('?')[0].replace(/\/+$/, '') || '/';
   return aliases[clean] ?? clean;
 }
 
