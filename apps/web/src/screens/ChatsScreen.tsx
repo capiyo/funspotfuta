@@ -45,45 +45,12 @@ const NO_FIXTURES: Fixture[] = [];
 const NO_CHANNELS: Channel[] = [];
 
 
-const MOCK_COMMENTORS = ['Kevo', 'Aisha', 'Brian', 'Faith', 'Otieno', 'Wanjiru', 'Denis', 'Nadia', 'Mutiso', 'Cheryl'];
-const MOCK_COMMENTS = [
-  'This is going to be a banger', 'My gut says an upset today',
-  'Defense has to show up this time', "Can't wait for kickoff",
-  'That midfield battle decides it', 'Home crowd advantage all day',
-  'Not confident about this one honestly', 'Easy three points incoming',
-  'Injuries could really hurt them here', 'Give me a 2-1 all day',
-];
-
-function hashSeed(seed: string): number {
-  let h = 0;
-  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
-  return h || 1;
-}
-function seededPick<T>(pool: T[], seed: string, n: number): T[] {
-  let h = hashSeed(seed);
-  const used = new Set<number>();
-  const picks: T[] = [];
-  while (picks.length < n && used.size < pool.length) {
-    h = (h * 1103515245 + 12345) >>> 0;
-    let idx = h % pool.length;
-    while (used.has(idx)) idx = (idx + 1) % pool.length;
-    used.add(idx);
-    picks.push(pool[idx]);
-  }
-  return picks;
-}
-function mockCommentsFor(fixtureId: string): LatestComment[] {
-  const names = seededPick(MOCK_COMMENTORS, fixtureId, 2);
-  const lines = seededPick(MOCK_COMMENTS, fixtureId + '#lines', 2);
-  return names.map((username, i) => ({ username, comment: lines[i] }));
-}
 function commentsOf(fixture: Fixture): LatestComment[] {
   const raw = ((fixture as any).comments ?? (fixture as any).latestComments ?? []) as any[];
-  const real = raw.map((comment) => ({
+  return raw.map((comment) => ({
     username: comment.username ?? comment.userName ?? 'Fan',
     comment: comment.comment ?? comment.text ?? '',
-  })).filter((comment) => comment.comment);
-  return real.length ? real : mockCommentsFor(fixture.matchId || fixture.id || 'fixture');
+  })).filter((comment) => comment.comment.trim().length > 0);
 }
 function isLiveFixture(fixture: Fixture) {
   return resolveFixtureIsLive(fixture.status, fixture.isLive);
