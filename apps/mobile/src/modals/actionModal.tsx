@@ -1530,14 +1530,7 @@ export function SwipeableVotePledgeModal(props: Props) {
                                     {fixture.league || 'Match'}
                                 </Text>
                             </View>
-                            <Pressable
-                                onPress={onClose}
-                                style={({ pressed }) => [styles.closeBtn, pressed && { opacity: PRESSED_OPACITY }]}
-                                accessibilityRole="button"
-                                accessibilityLabel="Close"
-                            >
-                                <Text style={styles.closeBtnText}>✕</Text>
-                            </Pressable>
+                            
                         </View>
 
                         {/* Match header — the ONLY place both team names appear together */}
