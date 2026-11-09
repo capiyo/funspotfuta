@@ -100,7 +100,8 @@ function kickoffLabel(dateString: string): string {
   const mins = Math.round((date.getTime() - Date.now()) / 60000);
   if (mins > 0 && mins < 60) return `in ${mins}m`;
   if (mins >= 60 && mins < 24 * 60) return `in ${Math.round(mins / 60)}h`;
-  return date.toLocaleString(undefined, {
+  return date.toLocaleString('en-KE', {
+    timeZone: 'Africa/Nairobi',
     month: 'short',
     day: 'numeric',
     hour: '2-digit',
@@ -341,7 +342,7 @@ export function MatchCard({
     return () => { active = false; clearInterval(interval); };
   }, [channelId, fixture.matchId, fixture.id, userId, authToken, channel?.unreadCount]);
   const latestMessageTimeLabel = latestMessageAt
-    ? new Date(latestMessageAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    ? new Date(latestMessageAt).toLocaleTimeString('en-KE', { timeZone: 'Africa/Nairobi', hour: '2-digit', minute: '2-digit' })
     : null;
 
   const [failedUri, setFailedUri] = useState<string | null>(null);
