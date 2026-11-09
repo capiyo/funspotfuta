@@ -259,7 +259,7 @@ function createStyles(colors: FanColorPalette) {
     projectionTotal: { paddingTop: 7, borderTopWidth:0, borderTopColor: colors.border },
     tabs: { flexDirection: 'row', gap: 4, marginBottom: 6, backgroundColor: 'transparent', borderColor: 'transparent', borderWidth:0, padding: 3, borderRadius: 999 },
     tab: { flex: 1, paddingVertical: 6, paddingHorizontal: 2, borderRadius: 999, alignItems: 'center' },
-    tabActive: { backgroundColor: 'transparent', shadowOpacity: 0, elevation: 0,
+    tabActive: { backgroundColor: 'transparent', shadowOpacity: 0, elevation: 0 },
     tabText: { color: colors.textTertiary, fontSize: 10, fontWeight: '500', textAlign: 'center' },
     tabTextActive: { color: colors.textPrimary, fontWeight: '700' },
     listSection: { marginBottom: 14 },
