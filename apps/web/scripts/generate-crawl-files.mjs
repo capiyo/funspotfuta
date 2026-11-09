@@ -180,7 +180,7 @@ export default async function handler(request) {
     const query = new URLSearchParams(requestUrl.searchParams);
     query.delete("path");
     const location = normalizedPath + (query.size ? "?" + query.toString() : "");
-    const rendered = await renderApp(location);
+    const rendered = await renderApp(location, requestUrl.searchParams.get("ssr-smoke") !== "1");
     const html = withQueryState(withRoot("app", rendered.markup), rendered.queryState);
     return new Response(html, {
       status: 200,
@@ -228,3 +228,5 @@ await writeFile(path.join(distDir, 'sitemap.xml'), [
 ].join('\n'), 'utf8');
 
 console.info('[crawl-files] Verified React SSR for the real Funspot application, public documents and 404; generated robots.txt and sitemap.');
+// The SSR bundle can retain SDK handles after rendering; this is a completed one-shot build task.
+process.exit(0);
