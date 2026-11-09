@@ -172,7 +172,10 @@ export default async function handler(request) {
     || /^\/messages(?:\/[^/]+)?$/.test(normalizedPath)
     || /^\/comments\/[^/]+$/.test(normalizedPath);
   if (isAppRoute) {
-    return new Response(withRoot("app", renderApp(normalizedPath)), {
+    const query = new URLSearchParams(requestUrl.searchParams);
+    query.delete("path");
+    const location = normalizedPath + (query.size ? "?" + query.toString() : "");
+    return new Response(withRoot("app", renderApp(location)), {
       status: 200,
       headers: {
         "content-type": "text/html; charset=utf-8",

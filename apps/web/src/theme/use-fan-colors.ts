@@ -2,10 +2,6 @@
 import { useEffect, useState } from 'react';
 import { fanColors, type FanColorPalette } from '@funspot/core';
 
-function readDarkPreference(): boolean {
-  return typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches;
-}
-
 export function useFanColors(): FanColorPalette {
   return fanColors(useIsDark());
 }
