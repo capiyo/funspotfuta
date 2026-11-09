@@ -304,7 +304,7 @@ export default function AddPostModal({
                         <View
                             style={[
                                 styles.captionWrap,
-                                hasCaption && { borderColor: colors.primary, borderWidth: 0,
+                                hasCaption && { borderColor: colors.primary, borderWidth: 0 },
                             ]}
                         >
                             <TextInput
@@ -552,7 +552,7 @@ function MediaAction({
                 style={[
                     styles.mediaActionCircle,
                     { backgroundColor: bgColor, borderColor: ringColor },
-                    active && { borderWidth: 0,
+                    active && { borderWidth: 0 },
                 ]}
             >
                 <Icon size={22} color={active ? accent : colors.textSecondary} />
