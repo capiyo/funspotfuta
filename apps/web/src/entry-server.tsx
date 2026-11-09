@@ -64,7 +64,7 @@ export function renderNotFound(): string {
 
 export async function renderPublicDocument(path: string, contactEmail: string): Promise<{ markup: string; liveFixture: PublicMatchPreviewFixture | null }> {
   let liveFixture: PublicMatchPreviewFixture | null = null;
-  if (path.replace(/\\/+$/, '') === '/insights/match-preview-template') {
+  if (path === '/insights/match-preview-template') {
     const controller = new AbortController();
     let deadline: ReturnType<typeof setTimeout> | undefined;
     try {
