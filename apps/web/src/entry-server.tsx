@@ -32,18 +32,41 @@ const PLACEHOLDER_COMMENT_TEXT = new Set([
 type FixtureComment = { username?: string; userName?: string; user_name?: string; comment?: string; text?: string };
 type FixtureWithComments = Fixture & { comments?: FixtureComment[]; latestComments?: FixtureComment[] };
 
+/**
+ * Fixture API responses have accumulated several generations of nested public
+ * preview fields. Strip demo identities recursively instead of relying on a
+ * short allow-list of today's voter/comment properties. This keeps new nested
+ * preview fields from accidentally publishing seeded accounts during SSR.
+ */
+function sanitizePublicValue(value: unknown): unknown {
+  if (typeof value === 'string') return isDemoMemberName(value) ? undefined : value;
+  if (value instanceof Date || value === null || typeof value !== 'object') return value;
+  if (Array.isArray(value)) {
+    return value.map(sanitizePublicValue).filter((item) => item !== undefined);
+  }
+
+  const record = value as Record<string, unknown>;
+  const username = record.username ?? record.userName ?? record.user_name;
+  if (isDemoMemberName(username)) return undefined;
+
+  const sanitized: Record<string, unknown> = {};
+  for (const [key, item] of Object.entries(record)) {
+    const next = sanitizePublicValue(item);
+    if (next !== undefined) sanitized[key] = next;
+  }
+  return sanitized;
+}
+
 function sanitizePublicFixture(fixture: Fixture): Fixture {
-  const extended = fixture as FixtureWithComments;
+  const sanitized = sanitizePublicValue(fixture) as Fixture;
+  const extended = sanitized as FixtureWithComments;
   const keepComment = (comment: FixtureComment) => {
     const text = (comment.comment ?? comment.text ?? '').trim();
-    const username = comment.username ?? comment.userName ?? comment.user_name ?? '';
-    return text.length > 0
-      && !PLACEHOLDER_COMMENT_TEXT.has(text)
-      && !isDemoMemberName(username);
+    return text.length > 0 && !PLACEHOLDER_COMMENT_TEXT.has(text);
   };
   return {
-    ...fixture,
-    voters: (fixture.voters ?? []).filter((voter) => !isDemoMemberName(voter.userName)),
+    ...sanitized,
+    voters: (sanitized.voters ?? []).filter((voter) => !isDemoMemberName(voter.userName)),
     ...(Array.isArray(extended.comments) ? { comments: extended.comments.filter(keepComment) } : {}),
     ...(Array.isArray(extended.latestComments) ? { latestComments: extended.latestComments.filter(keepComment) } : {}),
   };
