@@ -69,6 +69,7 @@ function HomeScreenContent() {
         '--home-border': colors.border,
       } as CSSProperties}
     >
+      <h1 className="sr-only">Funspot — football fixtures and fan community</h1>
       <AppHeader
         channels={channels}
         activeChannelId={activeChannelId ?? null}
