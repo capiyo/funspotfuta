@@ -183,7 +183,7 @@ export function PitchView({ homeTeam, awayTeam, homeFormation, awayFormation, ho
       </>}
     </g>;
   });
-  return <div className="w-full">
+  return <div className="h-full min-h-0 w-full overflow-hidden">
     <div className="h-full min-h-0 w-full overflow-hidden rounded-lg" style={{background:GRASS_EVEN}}>
       <svg viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`${homeTeam} vs ${awayTeam} lineups`} className="lineup-pitch-svg block h-full w-full max-h-full max-w-full" preserveAspectRatio="xMidYMid meet">
         {Array.from({length:8},(_,i)=><rect key={i} x={i*width/8} y="0" width={width/8} height={height} fill={i%2===0?GRASS_EVEN:GRASS_ODD}/>)}
