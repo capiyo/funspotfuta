@@ -1,10 +1,4 @@
 import type { ReactNode } from 'react';
-import type { Fixture } from '@funspot/core';
-
-export type PublicMatchPreviewFixture = Pick<Fixture,
-  'homeTeam' | 'awayTeam' | 'league' | 'status' | 'homeScore' | 'awayScore' | 'date' | 'time' | 'isLive'
->;
-import { editorialArticles, editorialBySlug } from '../content/editorial';
 import { CONTACT_EMAIL } from '../config/contact-email.mjs';
 
 export type PublicDocumentMetadata = {
@@ -36,10 +30,6 @@ const pageMetadata: Record<string, { title: string; description: string }> = {
     title: 'Cookie and Ads Disclosure | Funspot',
     description: 'Learn how Funspot uses cookies, Google AdSense, DoubleClick and third-party advertising vendors, and how to manage ad preferences.',
   },
-  '/insights': {
-    title: 'Football Insights and Guides | Funspot',
-    description: 'Explore practical football explainers for Kenyan fans, fixture analysis, prediction guides, Champions League format and community etiquette.',
-  },
 };
 
 const aliases: Record<string, string> = {
@@ -47,7 +37,6 @@ const aliases: Record<string, string> = {
   '/contact.html': '/contact',
   '/privacy.html': '/privacy',
   '/terms.html': '/terms',
-  '/how-it-works.html': '/insights',
 };
 
 function normalizePath(path: string): string {
@@ -56,36 +45,18 @@ function normalizePath(path: string): string {
 }
 
 export function getPublicDocumentRoutes(): string[] {
-  return [
-    ...Object.keys(pageMetadata),
-    ...editorialArticles.map((article) => '/insights/' + article.slug),
-  ];
+  return Object.keys(pageMetadata);
 }
 
 export function getPublicDocumentMetadata(path: string): PublicDocumentMetadata | null {
   const route = normalizePath(path);
-  const articleSlug = route.startsWith('/insights/') ? route.slice('/insights/'.length) : '';
-  const article = articleSlug ? editorialBySlug[articleSlug] : undefined;
-  const page = article
-    ? { title: article.title + ' | Funspot Insights', description: article.description }
-    : pageMetadata[route];
+  const page = pageMetadata[route];
   if (!page) return null;
   const canonical = ORIGIN + route;
-  const isArticle = Boolean(article);
   return {
     ...page,
     canonical,
-    structuredData: isArticle ? {
-      '@context': 'https://schema.org',
-      '@type': 'Article',
-      headline: page.title,
-      description: page.description,
-      datePublished: article!.published,
-      dateModified: article!.published,
-      author: { '@type': 'Organization', name: 'Funspot Editorial' },
-      publisher: { '@type': 'Organization', name: 'Funspot', url: ORIGIN + '/' },
-      mainEntityOfPage: canonical,
-    } : {
+    structuredData: {
       '@context': 'https://schema.org',
       '@type': 'WebPage',
       name: page.title,
@@ -104,7 +75,6 @@ function PublicFooter() {
         <a href="/privacy">Privacy Policy</a>
         <a href="/terms">Terms of Service</a>
         <a href="/ads-disclosure">Cookie and Ads Disclosure</a>
-        <a href="/insights">Insights</a>
       </nav>
       <p className="mt-5">© Funspot. An independent football fan community based in Nairobi, Kenya.</p>
     </footer>
@@ -133,7 +103,7 @@ function AboutPage() {
     <p className="mt-3 leading-8">A prediction is a member’s selection about a football outcome. The app records prediction activity and displays service-provided points and leaderboard information. Points are in-app participation units; they are not money, deposits, withdrawable funds or a promise of a cash prize. Pokes are also based on in-app points. Funspot does not provide real-money betting through these community prediction features. Football results are uncertain, and no prediction is guaranteed.</p>
     <h2 className="mt-8 text-xl font-semibold text-slate-950">Independent project and editorial approach</h2>
     <p className="mt-3 leading-8">Funspot is an independently developed product, not an official website of a football club, league, broadcaster or governing body. Club and competition names are used to identify the subject of discussion. Editorial guides are intended to explain football concepts in accessible language, distinguish facts from opinion and avoid invented statistics or quotations. Fixture data may be supplied by third-party data services and can change when schedules or match statuses are updated.</p>
-    <p className="mt-6 leading-8">Read the <a className="text-emerald-700 underline" href="/insights">football insights</a>, review the <a className="text-emerald-700 underline" href="/privacy">Privacy Policy</a>, or <a className="text-emerald-700 underline" href="/contact">contact Funspot</a>.</p>
+    <p className="mt-6 leading-8">Review the <a className="text-emerald-700 underline" href="/privacy">Privacy Policy</a> or <a className="text-emerald-700 underline" href="/contact">contact Funspot</a>.</p>
   </PageShell>;
 }
 
@@ -210,68 +180,12 @@ function AdsDisclosurePage() {
   </PageShell>;
 }
 
-function InsightsHub() {
-  return <PageShell>
-    <h1 className="mt-8 text-3xl font-bold tracking-tight text-slate-950">Football Insights</h1>
-    <p className="mt-5 leading-8">Football is easier to enjoy when the competition, schedule and context make sense. Funspot Insights is an independent collection of practical explainers for supporters who want to understand more than a final score. The guides cover league structures, fixture lists, home and away context, points and predictions, European competition formats, match-preview methods and the etiquette that makes a fan community welcoming. They are written to be useful to new supporters as well as people who already follow football closely.</p>
-    <p className="mt-3 leading-8">Our editorial approach is deliberately careful. A result is not a guarantee about the next match; a short run of form is not a complete performance model; and an unavailable statistic should not be replaced with a guess. Where a guide describes Funspot product behaviour, it distinguishes frontend fields from rules controlled by the backend. Where broadcasting or schedules can change, readers are directed to current official or licensed sources rather than being given a stale promise.</p>
-    <h2 className="mt-8 text-xl font-semibold text-slate-950">Browse the guides</h2>
-    <ul className="mt-4 list-disc space-y-3 pl-6 leading-7">
-      {editorialArticles.map((article) => <li key={article.slug}><a className="font-semibold text-emerald-700 underline" href={'/insights/' + article.slug}>{article.title}</a><span className="block text-slate-600">{article.description}</span></li>)}
-    </ul>
-    <h2 className="mt-8 text-xl font-semibold text-slate-950">Use the guides with matchday context</h2>
-    <p className="mt-3 leading-8">An explainer can help you understand a competition or interpret a table, but the current fixture, confirmed team news and official regulations remain the best sources for a specific match or rule. Check dates and time zones close to kick-off, and treat a prediction as an opinion rather than a promise. You can bring those questions into Funspot’s fixture conversations and compare your reasoning with other supporters.</p>
-  </PageShell>;
-}
-
-function EditorialArticlePage({ slug, liveFixture }: { slug: string; liveFixture?: PublicMatchPreviewFixture | null }) {
-  const article = editorialBySlug[slug];
-  if (!article) return null;
-  return <PageShell>
-    <p className="mt-8 text-xs font-bold uppercase tracking-widest text-emerald-700">Funspot Insights · Published {article.published}</p>
-    <h1 className="mt-3 text-3xl font-bold tracking-tight text-slate-950">{article.title}</h1>
-    <p className="mt-5 text-lg leading-8 text-slate-600">{article.description}</p>
-    {slug === 'match-preview-template' && (
-      <section className="mt-8 rounded-2xl border border-slate-200 p-5" aria-label="Live fixture data for the match preview">
-        <h2 className="text-xl font-semibold text-slate-950">Current live fixture data</h2>
-        {liveFixture ? (
-          <>
-            <p className="mt-3 font-semibold">{liveFixture.homeTeam} vs {liveFixture.awayTeam}</p>
-            <p className="mt-2 text-sm text-slate-600">{liveFixture.league}</p>
-            <p className="mt-2 text-sm text-slate-600">Status: {liveFixture.status}</p>
-            {(liveFixture.date || liveFixture.time) && <p className="mt-2 text-sm text-slate-600">{[liveFixture.date, liveFixture.time].filter(Boolean).join(' · ')}</p>}
-            {liveFixture.homeScore != null && liveFixture.awayScore != null && (
-              <p className="mt-2 text-lg font-bold text-slate-950">{liveFixture.homeScore} – {liveFixture.awayScore}</p>
-            )}
-            <p className="mt-2 text-xs text-slate-500">Fixture fields are supplied by the live match data service and may update during play.</p>
-          </>
-        ) : (
-          <p className="mt-3 leading-7 text-slate-600">No live fixture is currently available from the match data service. This preview remains a neutral template; no teams, scores, times or match events have been invented.</p>
-        )}
-      </section>
-    )}
-    <div className="mt-8 space-y-8">
-      {article.sections.map((section) => <section key={section.heading}>
-        <h2 className="text-xl font-semibold text-slate-950">{section.heading}</h2>
-        {section.paragraphs.map((paragraph, index) => <p key={index} className="mt-3 leading-8">{paragraph}</p>)}
-      </section>)}
-    </div>
-    <h2 className="mt-10 text-xl font-semibold text-slate-950">More football insights</h2>
-    <ul className="mt-3 list-disc space-y-2 pl-6">
-      {editorialArticles.filter((item) => item.slug !== slug).slice(0, 3).map((item) => <li key={item.slug}><a className="text-emerald-700 underline" href={'/insights/' + item.slug}>{item.title}</a></li>)}
-      <li><a className="text-emerald-700 underline" href="/insights">All insights</a></li>
-    </ul>
-  </PageShell>;
-}
-
-export default function PublicDocument({ path, contactEmail = CONTACT_EMAIL, liveFixture = null }: { path: string; contactEmail?: string; liveFixture?: PublicMatchPreviewFixture | null }) {
+export default function PublicDocument({ path, contactEmail = CONTACT_EMAIL }: { path: string; contactEmail?: string }) {
   const route = normalizePath(path);
   if (route === '/about') return <AboutPage />;
   if (route === '/contact') return <ContactPage email={contactEmail} />;
   if (route === '/privacy') return <PrivacyPage email={contactEmail} />;
   if (route === '/terms') return <TermsPage email={contactEmail} />;
   if (route === '/ads-disclosure') return <AdsDisclosurePage />;
-  if (route === '/insights') return <InsightsHub />;
-  if (route.startsWith('/insights/')) return <EditorialArticlePage slug={route.slice('/insights/'.length)} liveFixture={liveFixture} />;
   return <PageShell><h1 className="mt-8 text-3xl font-bold text-slate-950">Page not found</h1></PageShell>;
 }
