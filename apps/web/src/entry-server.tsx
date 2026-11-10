@@ -38,8 +38,18 @@ type FixtureWithComments = Fixture & { comments?: FixtureComment[]; latestCommen
  * short allow-list of today's voter/comment properties. This keeps new nested
  * preview fields from accidentally publishing seeded accounts during SSR.
  */
+function sanitizePublicText(value: string): string {
+  // Handles can appear as @mentions inside otherwise legitimate comment text,
+  // not only as a standalone username property. Remove those references before
+  // any public fixture value is dehydrated or rendered.
+  return value.replace(
+    /(^|[^A-Za-z0-9_])@?(guest_john|mary_ochieng)(?=$|[^A-Za-z0-9_])/gi,
+    '$1Fan',
+  );
+}
+
 function sanitizePublicValue(value: unknown): unknown {
-  if (typeof value === 'string') return isDemoMemberName(value) ? undefined : value;
+  if (typeof value === 'string') return isDemoMemberName(value) ? undefined : sanitizePublicText(value);
   if (value instanceof Date || value === null || typeof value !== 'object') return value;
   if (Array.isArray(value)) {
     return value.map(sanitizePublicValue).filter((item) => item !== undefined);
@@ -100,14 +110,17 @@ export async function renderApp(location = '/', prefetchPublicData = true): Prom
     if (deadline) clearTimeout(deadline);
   }
 
-  const markup = renderToString(
+  const renderedMarkup = renderToString(
     <QueryClientProvider client={queryClient}>
       <StaticRouter location={location}>
         <App initialAuthState={{ isInitialized: true }} />
       </StaticRouter>
     </QueryClientProvider>,
   );
-  const queryState = JSON.stringify(encodeQueryState(dehydrate(queryClient)))
+  // Last-line public-output guard: a future component or API field must not
+  // reintroduce seeded demo handles into crawler-visible HTML.
+  const markup = sanitizePublicText(renderedMarkup);
+  const queryState = sanitizePublicText(JSON.stringify(encodeQueryState(dehydrate(queryClient))))
     .replaceAll('<', '\\u003c')
     .replaceAll('>', '\\u003e')
     .replaceAll('&', '\\u0026');
