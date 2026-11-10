@@ -31,9 +31,21 @@
   force = true
 
 [[redirects]]
-  from = "/insights/match-preview-template"
-  to = "/.netlify/functions/ssr?path=/insights/match-preview-template"
-  status = 200
+  from = "/insights"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/insights/*"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/how-it-works.html"
+  to = "/"
+  status = 301
   force = true
 
 [[redirects]]
