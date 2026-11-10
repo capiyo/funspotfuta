@@ -128,6 +128,16 @@ function HomeScreenContent() {
           </section>
         </main>
       </div>
+
+      <footer className="flex-none border-t border-white/[0.08] px-3 py-2 text-[10px] leading-5 text-[#91a197]">
+        <nav aria-label="Public pages" className="flex flex-wrap justify-center gap-x-4 gap-y-1">
+          <a href="/about">About</a>
+          <a href="/contact">Contact</a>
+          <a href="/privacy">Privacy Policy</a>
+          <a href="/terms">Terms of Service</a>
+          <a href="/ads-disclosure">Cookie and Ads Disclosure</a>
+        </nav>
+      </footer>
     </div>
   );
 }
