@@ -2,9 +2,9 @@ import React from 'react';
 import { renderToString } from 'react-dom/server';
 import { StaticRouter } from 'react-router-dom/server';
 import { QueryClient, QueryClientProvider, dehydrate } from '@tanstack/react-query';
-import { getAllFixtures, queryKeys, resolveFixtureIsLive, isDemoMemberName, type Fixture } from '@funspot/core';
+import { getAllFixtures, queryKeys, isDemoMemberName, type Fixture } from '@funspot/core';
 import App from './App';
-import PublicDocument, { getPublicDocumentMetadata, getPublicDocumentRoutes, type PublicMatchPreviewFixture } from './screens/PublicDocument';
+import PublicDocument, { getPublicDocumentMetadata, getPublicDocumentRoutes } from './screens/PublicDocument';
 import { NotFoundPage } from './screens/PublicHome';
 
 function encodeQueryState(value: unknown): unknown {
@@ -131,40 +131,10 @@ export function renderNotFound(): string {
   return renderToString(<NotFoundPage />);
 }
 
-export async function renderPublicDocument(path: string, contactEmail: string): Promise<{ markup: string; liveFixture: PublicMatchPreviewFixture | null }> {
-  let liveFixture: PublicMatchPreviewFixture | null = null;
-  if (path === '/insights/match-preview-template') {
-    const controller = new AbortController();
-    let deadline: ReturnType<typeof setTimeout> | undefined;
-    try {
-      const fixtures = await Promise.race([
-        getAllFixtures(controller.signal),
-        new Promise<Fixture[] | null>((resolve) => {
-          deadline = setTimeout(() => resolve(null), 1600);
-        }),
-      ]);
-      const fixture = fixtures?.find((candidate) => resolveFixtureIsLive(candidate.status, candidate.isLive));
-      liveFixture = fixture ? {
-        homeTeam: fixture.homeTeam,
-        awayTeam: fixture.awayTeam,
-        league: fixture.league,
-        status: fixture.status,
-        homeScore: fixture.homeScore,
-        awayScore: fixture.awayScore,
-        date: fixture.date,
-        time: fixture.time,
-        isLive: fixture.isLive,
-      } : null;
-    } catch {
-      liveFixture = null;
-    } finally {
-      if (deadline) clearTimeout(deadline);
-      controller.abort();
-    }
-  }
+export async function renderPublicDocument(path: string, contactEmail: string): Promise<{ markup: string; liveFixture: null }> {
   return {
-    markup: renderToString(<PublicDocument path={path} contactEmail={contactEmail} liveFixture={liveFixture} />),
-    liveFixture,
+    markup: renderToString(<PublicDocument path={path} contactEmail={contactEmail} />),
+    liveFixture: null,
   };
 }
 
