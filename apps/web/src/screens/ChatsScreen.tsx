@@ -444,7 +444,6 @@ export default function ChatsScreen() {
           aria-label="Fixtures"
         >
           {loadError && <ErrorBanner colors={colors} message={loadError} />}
-          <EditorialHomeBlock />
           <QuickGuidePostcard colors={colors} />
           <div aria-live="polite">
             {chatFixtures.length === 0 ? (
