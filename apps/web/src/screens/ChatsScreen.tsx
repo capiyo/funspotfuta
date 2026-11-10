@@ -14,7 +14,6 @@ import { sendChannelMessage } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useLoginModal } from '@/modals/Login-modal-context';
 import { MatchCard, type LatestComment, type ChannelHeaderData } from '@/components/ChatsCard';
-import EditorialHomeBlock from '@/components/EditorialHomeBlock';
 import { channelHeaderOf } from '@/modals/channelHeader';
 import { EmptyState, ErrorBanner, SkeletonRows } from '@/components/ui/ListsStates';
 import { SwipeableVotePledgeModal } from '@/modals/actionModal';
@@ -434,7 +433,6 @@ export default function ChatsScreen() {
       {isPending || ((data?.length ?? 0) === 0 && isFetching) ? (
         <div className="no-scrollbar" style={{ paddingTop: topInset, minHeight: 0, overflowY: 'auto' }} aria-busy="true">
           {loadError && <ErrorBanner colors={colors} message={loadError} />}
-          <EditorialHomeBlock />
           <SkeletonRows colors={colors} />
           <HomePublicFooter />
         </div>
