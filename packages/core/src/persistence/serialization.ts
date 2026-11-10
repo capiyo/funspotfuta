@@ -47,7 +47,7 @@ export function compactPersistedClient(client: PersistedClient): PersistedClient
     const queryDomain = String(query.queryKey[0] ?? '');
     // Fixture lists may be restored offline, but their live score and clock
     // must always be rehydrated from the fixture WebSocket snapshot.
-    const stripLiveFixtureFields = queryDomain === 'fixtures' || queryDomain === 'channelFixtures';
+    const stripLiveFixtureFields = queryDomain === 'fixtures' || queryDomain === 'channelFixtures' || queryDomain === 'liveEvents';
     const boundedQuery = {
       ...query,
       state: {
@@ -89,7 +89,7 @@ export function compactPersistedClient(client: PersistedClient): PersistedClient
               query.state.data,
               String(query.queryKey[0] ?? ''),
               0,
-              String(query.queryKey[0] ?? '') === 'fixtures' || String(query.queryKey[0] ?? '') === 'channelFixtures',
+              String(query.queryKey[0] ?? '') === 'fixtures' || String(query.queryKey[0] ?? '') === 'channelFixtures' || String(query.queryKey[0] ?? '') === 'liveEvents',
             ),
           },
         })),
