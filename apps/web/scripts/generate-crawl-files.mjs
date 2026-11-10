@@ -8,7 +8,7 @@ const repoDir = path.resolve(webDir, '../..');
 const distDir = path.join(webDir, 'dist');
 const ssrEntry = path.join(webDir, 'dist-ssr', 'entry-server.js');
 const origin = 'https://www.funspot.co.ke';
-const requiredFooterPaths = ['/about', '/contact', '/privacy', '/terms', '/ads-disclosure', '/insights'];
+const requiredFooterPaths = ['/about', '/contact', '/privacy', '/terms', '/ads-disclosure'];
 const forbidden = [
   'guest_john',
   'mary_ochieng',
@@ -81,14 +81,8 @@ const renderedHome = await ssrRenderer.renderApp('/', true);
 const renderedNotFound = ssrRenderer.renderNotFound();
 
 const homepageH1Count = (renderedHome.markup.match(/<h1\b/gi) ?? []).length;
-const editorialBlock = renderedHome.markup.match(/<section aria-labelledby="funspot-editorial-heading"[\s\S]*?<\/section>/i)?.[0] ?? '';
-const editorialWords = wordCount(editorialBlock);
-if (!renderedHome.markup.includes('funspot-editorial-heading') ||
-    !renderedHome.markup.includes('Football makes more sense when you know the story behind the fixture.') ||
-    !renderedHome.markup.includes('Cookie and Ads Disclosure') ||
-    !renderedHome.markup.includes('href="/insights"') ||
-    homepageH1Count !== 1 || editorialWords < 150 || editorialWords > 250) {
-  throw new Error('[crawl-files] Homepage SSR must contain one H1, a 150–250 word editorial introduction and the public footer (found ' + editorialWords + ' editorial words).');
+if (!renderedHome.markup.includes('Cookie and Ads Disclosure') || homepageH1Count !== 1) {
+  throw new Error('[crawl-files] Homepage SSR must contain one H1 and the public footer.');
 }
 if (!renderedNotFound.includes("This page isn't here.") && !renderedNotFound.includes("This page isn&#x27;t here.")) {
   throw new Error('[crawl-files] React SSR did not produce the custom 404 content.');
@@ -154,9 +148,6 @@ for (const route of publicRoutes) {
   assertNoForbidden(markup, route);
   assertFooter(markup, route);
   const words = wordCount(markup);
-  if ((route === '/insights' && words < 300) || (route.startsWith('/insights/') && words < 900)) {
-    throw new Error('[crawl-files] Editorial page ' + route + ' has only ' + words + ' words.');
-  }
   if (route === '/contact' && !markup.includes(CONTACT_EMAIL)) {
     throw new Error('[crawl-files] Contact page did not render CONTACT_EMAIL.');
   }
@@ -296,7 +287,7 @@ export default async function handler(request) {
       status: 200,
       headers: {
         "content-type": "text/html; charset=utf-8",
-        "cache-control": normalizedPath === "/insights/match-preview-template" ? "public, max-age=0, s-maxage=30, stale-while-revalidate=60" : "public, max-age=0, s-maxage=300, stale-while-revalidate=86400",
+        "cache-control": "public, max-age=0, s-maxage=300, stale-while-revalidate=86400",
         "x-content-type-options": "nosniff",
         "x-funspot-render": "react-ssr",
       },
@@ -369,9 +360,6 @@ for (const route of ['/', ...publicRoutes]) {
     throw new Error('[crawl-files] HTTP SSR route ' + route + ' is missing its www canonical.');
   }
   const words = wordCount(html);
-  if ((route === '/insights' && words < 300) || (route.startsWith('/insights/') && words < 900)) {
-    throw new Error('[crawl-files] HTTP SSR editorial route ' + route + ' has only ' + words + ' words.');
-  }
   httpResults.push({ page: route, http: response.status, h1: h1Count, words, canonical: expectedCanonical });
 }
 for (const route of requiredFooterPaths) {
