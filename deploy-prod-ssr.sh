@@ -53,7 +53,7 @@ while IFS= read -r status_line; do
   [[ -z "$status_line" ]] && continue
   changed_path="${status_line:3}"
   case "$changed_path" in
-    package-lock.json|apps/web/dist-ssr/*|netlify/functions/ssr.mjs|deploy-ssr.log)
+    package-lock.json|apps/web/dist-ssr/*|netlify/functions/ssr.mjs|deploy-ssr.log|FETCH_HEAD)
       echo "Keeping expected local deployment artifact/change: $changed_path"
       ;;
     *)
