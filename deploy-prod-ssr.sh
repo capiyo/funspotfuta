@@ -21,6 +21,15 @@ step() {
 
 echo "FUNSPOT PRODUCTION DEPLOYMENT"
 echo "Started: $(date)"
+
+for command in git node npm npx bash; do
+  if ! command -v "$command" >/dev/null 2>&1; then
+    echo "ERROR: Required command is missing: $command"
+    exit 1
+  fi
+done
+node -e 'if (Number(process.versions.node.split(".")[0]) < 20) { console.error("ERROR: Node.js 20 or newer is required."); process.exit(1); }'
+
 if [[ -z "$CONTACT_EMAIL" ]]; then
   read -r -p "Public Funspot contact email: " CONTACT_EMAIL
 fi
@@ -28,10 +37,19 @@ if [[ -z "$CONTACT_EMAIL" ]]; then
   echo "ERROR: A public contact email is required for the crawlable pages."
   exit 1
 fi
+if [[ ! "$CONTACT_EMAIL" =~ ^[^[:space:]@]+@[^[:space:]@]+\.[^[:space:]@]+$ ]]; then
+  echo "ERROR: FUNSPOT_CONTACT_EMAIL must be a valid public email address."
+  exit 1
+fi
 cd "$REPO"
 
 if [[ ! -d .git ]]; then
   echo "ERROR: Repository not found at $REPO"
+  exit 1
+fi
+if [[ -n "$(git status --porcelain)" ]]; then
+  echo "ERROR: Working tree is not clean. Commit or stash local changes before deployment."
+  git status --short
   exit 1
 fi
 
@@ -45,7 +63,7 @@ if [[ "$(git branch --show-current)" != "$BRANCH" ]]; then
 fi
 step "Pull latest production changes" git pull --ff-only origin "$BRANCH"
 
-step "Install dependencies" npm install --no-audit --no-fund
+step "Install locked dependencies" npm ci --no-audit --no-fund
 step "Core tests" npm run test:core
 step "Core typecheck" npm run typecheck:core
 step "Mobile typecheck" npm run typecheck:mobile
@@ -97,9 +115,9 @@ console.log('PASS: the real app workspace and dehydrated public query state are 
 process.exit(0);
 NODE
 
-step "Deploy static assets and Netlify function to production" npx netlify-cli deploy --site ae14de5d-ae44-460f-86c7-5bbde4f0efa2 --no-build --dir="$REPO/apps/web/dist" --functions="$REPO/netlify/functions" --prod
+step "Deploy static assets and Netlify function to production" bash "$REPO/scripts/deploy-funspot-production.sh"
 
-step "Verify production SSR homepage" bash -lc 'headers="$(mktemp)" && body="$(mktemp)" && curl -fsSL -A "Googlebot" -D "$headers" https://www.funspot.co.ke/ -o "$body" && grep -Fq "home-screen" "$body" && grep -Fq "home-columns" "$body" && grep -qi "^x-funspot-render: react-ssr" "$headers" && rm -f "$headers" "$body"'
+step "Verify Googlebot, AdSense crawler, robots.txt and sitemap" bash "$REPO/scripts/verify-funspot-crawlers.sh"
 
 echo
 echo "================================================"
