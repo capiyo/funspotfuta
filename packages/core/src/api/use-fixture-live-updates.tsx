@@ -101,9 +101,9 @@ export function useFixtureLiveUpdates(params: {
       commentary: queryClient.getQueryData<CachedLiveCommentary>(commentaryKey)?.events.slice(-1)[0] ?? null,
       status,
       isLive: resolveFixtureIsLive(status, seed?.isLive),
-      homeScore: seed?.homeScore ?? null,
-      awayScore: seed?.awayScore ?? null,
-      timeElapsed: seed?.timeElapsed ?? null,
+      homeScore: null,
+      awayScore: null,
+      timeElapsed: null,
     };
   });
 
@@ -114,9 +114,9 @@ export function useFixtureLiveUpdates(params: {
       commentary: queryClient.getQueryData<CachedLiveCommentary>(commentaryKey)?.events.slice(-1)[0] ?? null,
       status,
       isLive: resolveFixtureIsLive(status, seed?.isLive),
-      homeScore: seed?.homeScore ?? null,
-      awayScore: seed?.awayScore ?? null,
-      timeElapsed: seed?.timeElapsed ?? null,
+      homeScore: null,
+      awayScore: null,
+      timeElapsed: null,
     });
     // Seed only resets when the room identity changes; incoming socket events
     // should not be overwritten by unrelated fixture object refreshes.
@@ -222,9 +222,13 @@ export function useFixtureLiveUpdates(params: {
     const onMinuteUpdate = (payload: Record<string, unknown>) => {
       if (!payloadMatchesFixture(payload, channelId, fixtureId)) return;
       const elapsed = payload.minute ?? payload.timeElapsed ?? payload.time_elapsed;
+      const home = payload.home_score ?? payload.homeScore;
+      const away = payload.away_score ?? payload.awayScore;
       const status = payload.status == null ? null : String(payload.status);
       setState((previous) => ({
         ...previous,
+        ...(typeof home === 'number' ? { homeScore: home } : {}),
+        ...(typeof away === 'number' ? { awayScore: away } : {}),
         ...(typeof elapsed === 'number' ? { timeElapsed: elapsed } : {}),
       }));
       if (status) applyStatus(status);
@@ -234,10 +238,18 @@ export function useFixtureLiveUpdates(params: {
     webSocketService.on('connected', onConnected);
     webSocketService.on('commentary.new', onCommentaryNew);
     webSocketService.on('commentary.bulk', onCommentaryBulk);
+    // Match the event names emitted by receive_live_update() and the
+    // score-update handler in the Rust backend. Legacy aliases remain
+    // supported for older poller builds.
+    webSocketService.on('status_change', onMatchStatus);
+    webSocketService.on('live_update', onMatchStatus);
+    webSocketService.on('score', onMatchStatus);
+    webSocketService.on('score_update', onMatchStatus);
     webSocketService.on('match.status', onMatchStatus);
     webSocketService.on('match.goal', onMatchGoal);
     webSocketService.on('match.ended', onMatchEnded);
     webSocketService.on('minute.update', onMinuteUpdate);
+    webSocketService.on('minute.response', onMinuteUpdate);
 
     void webSocketService.connect({
       userId,
@@ -262,10 +274,15 @@ export function useFixtureLiveUpdates(params: {
       webSocketService.off('connected', onConnected);
       webSocketService.off('commentary.new', onCommentaryNew);
       webSocketService.off('commentary.bulk', onCommentaryBulk);
+      webSocketService.off('status_change', onMatchStatus);
+      webSocketService.off('live_update', onMatchStatus);
+      webSocketService.off('score', onMatchStatus);
+      webSocketService.off('score_update', onMatchStatus);
       webSocketService.off('match.status', onMatchStatus);
       webSocketService.off('match.goal', onMatchGoal);
       webSocketService.off('match.ended', onMatchEnded);
       webSocketService.off('minute.update', onMinuteUpdate);
+      webSocketService.off('minute.response', onMinuteUpdate);
     };
   }, [channelId, fixtureId, userId, username, authToken, commentaryKey, queryClient]);
 
