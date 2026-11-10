@@ -21,6 +21,7 @@ step() {
 
 echo "FUNSPOT PRODUCTION DEPLOYMENT"
 echo "Started: $(date)"
+echo "Public Funspot contact email: $CONTACT_EMAIL"
 
 for command in git node npm npx bash; do
   if ! command -v "$command" >/dev/null 2>&1; then
@@ -44,9 +45,26 @@ if [[ ! -d .git ]]; then
   echo "ERROR: Repository not found at $REPO"
   exit 1
 fi
-if [[ -n "$(git status --porcelain)" ]]; then
-  echo "ERROR: Working tree is not clean. Commit or stash local changes before deployment."
-  git status --short
+# Build outputs are expected to appear in the working tree before deployment.
+# Preserve the user's package lock and allow the generated SSR artifacts, while
+# refusing to deploy unrelated uncommitted source changes.
+unexpected_changes=()
+while IFS= read -r status_line; do
+  [[ -z "$status_line" ]] && continue
+  changed_path="${status_line:3}"
+  case "$changed_path" in
+    package-lock.json|apps/web/dist-ssr/*|netlify/functions/ssr.mjs|deploy-ssr.log)
+      echo "Keeping expected local deployment artifact/change: $changed_path"
+      ;;
+    *)
+      unexpected_changes+=("$status_line")
+      ;;
+  esac
+done < <(git status --porcelain --untracked-files=all)
+
+if (( ${#unexpected_changes[@]} > 0 )); then
+  echo "ERROR: Uncommitted source changes found; deployment will not overwrite them:"
+  printf '  %s\n' "${unexpected_changes[@]}"
   exit 1
 fi
 
