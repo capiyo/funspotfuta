@@ -155,9 +155,11 @@ const GRASS_EVEN = '#0D5E1A', GRASS_ODD = '#0A5218';
 export function PitchView({ homeTeam, awayTeam, homeFormation, awayFormation, homePlayers, awayPlayers }: PitchViewProps) {
   const colors = useFanColors();
   const [headshots,setHeadshots] = useState<Record<string,string>>({});
+  const [failedHeadshots,setFailedHeadshots] = useState<Record<string,string>>({});
   useEffect(() => {
     let cancelled = false;
     setHeadshots({});
+    setFailedHeadshots({});
     const batch = [...homePlayers.map((player) => ({ player, teamName: homeTeam })), ...awayPlayers.map((player) => ({ player, teamName: awayTeam }))];
     void resolvePlayerHeadshots(batch).then((result) => { if (!cancelled) setHeadshots(result); });
     return () => { cancelled = true; };
@@ -170,13 +172,14 @@ export function PitchView({ homeTeam, awayTeam, homeFormation, awayFormation, ho
     const point=positions[index]; if(!point) return null;
     const x=point.x;
     const y=point.y;
-    const photo = player.imageUrl || headshots[playerHeadshotKey(player, isHome ? homeTeam : awayTeam)];
+    const playerKey = playerHeadshotKey(player, isHome ? homeTeam : awayTeam);
+    const photo = player.imageUrl || headshots[playerKey];
+    const photoFailed = Boolean(photo && failedHeadshots[playerKey] === photo);
     const clipId = `player-headshot-${isHome ? "home" : "away"}-${index}`;
     return <g key={`${isHome?'h':'a'}-${player.number}-${player.name}-${index}`} transform={`translate(${x} ${y})`}>
-      {photo ? <>
+      {photo && !photoFailed ? <>
         <defs><clipPath id={clipId}><circle cx="0" cy="0" r="18"/></clipPath></defs>
-        <image href={photo} x="-18" y="-18" width="36" height="36" preserveAspectRatio="xMidYMid slice" clipPath={`url(#${clipId})`}/>
-        
+        <image href={photo} x="-18" y="-18" width="36" height="36" preserveAspectRatio="xMidYMid slice" clipPath={`url(#${clipId})`} onError={() => setFailedHeadshots(current => ({ ...current, [playerKey]: photo }))}/>
       </> : <>
         <circle r="18" fill={color}/>
         <text textAnchor="middle" dominantBaseline="central" fontSize="14" fontWeight="600" fill="#fff">{player.number}</text>
