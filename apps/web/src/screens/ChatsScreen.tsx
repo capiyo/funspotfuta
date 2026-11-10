@@ -502,8 +502,8 @@ export default function ChatsScreen() {
               aria-label="Refresh fixtures" aria-busy={refreshing} className="secondary-button">
               {refreshing ? 'Refreshing…' : 'Refresh'}
             </button>
-            <HomePublicFooter />
-        </div>}
+          </div>}
+          <HomePublicFooter />
         </div>
       )}
 
@@ -613,7 +613,6 @@ function HomePublicFooter() {
         <a href="/privacy">Privacy Policy</a>
         <a href="/terms">Terms of Service</a>
         <a href="/ads-disclosure">Cookie and Ads Disclosure</a>
-        <a href="/insights">Insights</a>
       </nav>
       <p className="mt-3">© Funspot. An independent football fan community based in Nairobi, Kenya.</p>
     </footer>
