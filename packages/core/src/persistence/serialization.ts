@@ -12,7 +12,9 @@ const CACHE_PRIORITY: Record<string, number> = {
   aftermatch: 66, liveCommentary: 65, notifications: 60, notificationSummary: 58, unreadCounts: 56,
 };
 
-function boundPayload(value: unknown, key = '', depth = 0): unknown {
+const VOLATILE_FIXTURE_FIELDS = new Set(['homeScore', 'awayScore', 'timeElapsed', 'home_score', 'away_score', 'time_elapsed']);
+
+function boundPayload(value: unknown, key = '', depth = 0, stripLiveFixtureFields = false): unknown {
   if (depth > 12) return null;
   if (Array.isArray(value)) {
     const limit = /^(messages|chatMessages|comments|postComments|historyComments|latestComments|notifications|replies)$/i.test(key)
@@ -22,14 +24,16 @@ function boundPayload(value: unknown, key = '', depth = 0): unknown {
         : /^pages$/i.test(key)
           ? 5
           : 250;
-    return value.slice(-limit).map((item) => boundPayload(item, '', depth + 1));
+    return value.slice(-limit).map((item) => boundPayload(item, '', depth + 1, stripLiveFixtureFields));
   }
   if (!value || typeof value !== 'object' || value instanceof Date) return value;
   return Object.fromEntries(
-    Object.entries(value as Record<string, unknown>).map(([childKey, child]) => [
-      childKey,
-      boundPayload(child, childKey, depth + 1),
-    ]),
+    Object.entries(value as Record<string, unknown>)
+      .filter(([childKey]) => !stripLiveFixtureFields || !VOLATILE_FIXTURE_FIELDS.has(childKey))
+      .map(([childKey, child]) => [
+        childKey,
+        boundPayload(child, childKey, depth + 1, stripLiveFixtureFields),
+      ]),
   );
 }
 
@@ -40,9 +44,16 @@ function boundPayload(value: unknown, key = '', depth = 0): unknown {
  */
 export function compactPersistedClient(client: PersistedClient): PersistedClient {
   const ranked = client.clientState.queries.map((query, index) => {
+    const queryDomain = String(query.queryKey[0] ?? '');
+    // Fixture lists may be restored offline, but their live score and clock
+    // must always be rehydrated from the fixture WebSocket snapshot.
+    const stripLiveFixtureFields = queryDomain === 'fixtures' || queryDomain === 'channelFixtures';
     const boundedQuery = {
       ...query,
-      state: { ...query.state, data: boundPayload(query.state.data, String(query.queryKey[0] ?? '')) },
+      state: {
+        ...query.state,
+        data: boundPayload(query.state.data, queryDomain, 0, stripLiveFixtureFields),
+      },
     };
     return {
       query: boundedQuery,
@@ -72,7 +83,15 @@ export function compactPersistedClient(client: PersistedClient): PersistedClient
         .filter(({ index }) => retained.has(index))
         .map(({ query }) => ({
           ...query,
-          state: { ...query.state, data: boundPayload(query.state.data, String(query.queryKey[0] ?? '')) },
+          state: {
+            ...query.state,
+            data: boundPayload(
+              query.state.data,
+              String(query.queryKey[0] ?? ''),
+              0,
+              String(query.queryKey[0] ?? '') === 'fixtures' || String(query.queryKey[0] ?? '') === 'channelFixtures',
+            ),
+          },
         })),
     },
   };
