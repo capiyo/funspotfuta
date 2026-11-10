@@ -19,7 +19,6 @@ export function NotFoundPage() {
             <a href="/privacy">Privacy Policy</a>
             <a href="/terms">Terms of Service</a>
             <a href="/ads-disclosure">Cookie and Ads Disclosure</a>
-            <a href="/insights">Insights</a>
           </nav>
         </footer>
       </div>
@@ -106,7 +105,6 @@ export default function PublicHome() {
             <a className="hover:text-white" href="/privacy">Privacy Policy</a>
             <a className="hover:text-white" href="/terms">Terms of Service</a>
             <a className="hover:text-white" href="/ads-disclosure">Cookie and Ads Disclosure</a>
-            <a className="hover:text-white" href="/insights">Insights</a>
           </nav>
         </footer>
       </div>
