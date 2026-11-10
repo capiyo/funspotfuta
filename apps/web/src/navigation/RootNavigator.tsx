@@ -41,7 +41,6 @@ function LoginRoute() {
           <a href="/privacy">Privacy Policy</a>
           <a href="/terms">Terms of Service</a>
           <a href="/ads-disclosure">Cookie and Ads Disclosure</a>
-          <a href="/insights">Insights</a>
         </nav>
       </footer>
     </main>
@@ -61,7 +60,6 @@ function NotFoundRoute() {
         <a href="/privacy">Privacy Policy</a>
         <a href="/terms">Terms of Service</a>
         <a href="/ads-disclosure">Cookie and Ads Disclosure</a>
-        <a href="/insights">Insights</a>
       </nav>
     </footer>
   </main>;
