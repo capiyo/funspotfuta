@@ -194,7 +194,7 @@ describe('open poke cache reconciliation', () => {
       ...PERSIST_OPTIONS,
     });
     expect(restarted.getQueryData(key)).toBeUndefined();
-    expect(PERSIST_OPTIONS.buster).toBe('v10');
+    expect(PERSIST_OPTIONS.buster).toBe('v11');
     restarted.clear();
   });
 
