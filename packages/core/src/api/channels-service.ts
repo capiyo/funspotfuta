@@ -90,7 +90,12 @@ function asDateTime(value: any): Date | null {
 const DEMO_MEMBER_USERNAMES = new Set(['guest_john', 'mary_ochieng']);
 
 export function isDemoMemberName(username: unknown): boolean {
-    return typeof username === 'string' && DEMO_MEMBER_USERNAMES.has(username.trim().toLowerCase());
+    if (typeof username !== 'string') return false;
+    // Public API generations have emitted handles both with and without the
+    // leading @. Normalize that presentation detail before checking the demo
+    // account deny-list so SSR sanitization catches either representation.
+    const normalized = username.trim().toLowerCase().replace(/^@+/, '');
+    return DEMO_MEMBER_USERNAMES.has(normalized);
 }
 
 export interface ChannelMember {
