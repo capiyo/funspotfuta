@@ -4,7 +4,7 @@ set -Eeuo pipefail
 BRANCH="seo-app-at-root"
 REPO="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 LOG="$REPO/deploy-ssr.log"
-CONTACT_EMAIL="${FUNSPOT_CONTACT_EMAIL:-}"
+CONTACT_EMAIL="${FUNSPOT_CONTACT_EMAIL:-engineercapi@gmail.com}"
 
 exec > >(tee -a "$LOG") 2>&1
 
@@ -30,9 +30,6 @@ for command in git node npm npx bash; do
 done
 node -e 'if (Number(process.versions.node.split(".")[0]) < 20) { console.error("ERROR: Node.js 20 or newer is required."); process.exit(1); }'
 
-if [[ -z "$CONTACT_EMAIL" ]]; then
-  read -r -p "Public Funspot contact email: " CONTACT_EMAIL
-fi
 if [[ -z "$CONTACT_EMAIL" ]]; then
   echo "ERROR: A public contact email is required for the crawlable pages."
   exit 1
