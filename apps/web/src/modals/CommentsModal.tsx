@@ -255,7 +255,9 @@ export default function PostCommentsModal({
     } finally { setSubmitting(false); }
   }
 
-  if (!visible) return null;
+  // Portals require a browser document. During SSR the modal is not visible
+  // to the visitor yet, so omit it until the client can attach it to the body.
+  if (!visible || typeof document === 'undefined') return null;
   return createPortal(
     <div
       className={presentation === 'page'
