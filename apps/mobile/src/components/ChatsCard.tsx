@@ -475,17 +475,7 @@ export function MatchCard({
       : 'Vote to comment';
 
   return (
-    <FeedItem colors={colors}>
-      {/* Layer 1 — invisible full-card tap target → Chat */}
-      <Pressable
-        onPress={handleChat}
-        style={StyleSheet.absoluteFill}
-        android_ripple={{ color: colors.border, borderless: false }}
-        accessibilityRole="button"
-        accessibilityLabel={`Open chat for ${fixtureLabel}`}
-      />
-
-      {/* Layer 2 — content */}
+    <FeedItem colors={colors} onPress={handleChat}>
       <View pointerEvents="box-none">
         {/* Meta: league or channel on the left, date / live on the right */}
         <View style={styles.metaRow}>
