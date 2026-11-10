@@ -29,14 +29,17 @@ const PLACEHOLDER_COMMENT_TEXT = new Set([
   'Give me a 2-1 all day',
 ]);
 
-type FixtureComment = { username?: string; userName?: string; comment?: string; text?: string };
+type FixtureComment = { username?: string; userName?: string; user_name?: string; comment?: string; text?: string };
 type FixtureWithComments = Fixture & { comments?: FixtureComment[]; latestComments?: FixtureComment[] };
 
 function sanitizePublicFixture(fixture: Fixture): Fixture {
   const extended = fixture as FixtureWithComments;
   const keepComment = (comment: FixtureComment) => {
     const text = (comment.comment ?? comment.text ?? '').trim();
-    return text.length > 0 && !PLACEHOLDER_COMMENT_TEXT.has(text);
+    const username = comment.username ?? comment.userName ?? comment.user_name ?? '';
+    return text.length > 0
+      && !PLACEHOLDER_COMMENT_TEXT.has(text)
+      && !isDemoMemberName(username);
   };
   return {
     ...fixture,
