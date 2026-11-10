@@ -52,7 +52,7 @@ export function LineupsTab({fixture,lineups,loading,error}:LineupsTabProps) {
         </div>
       </div>
     </div>
-    <div className="min-h-0 flex-1 overflow-y-auto px-2 py-1">
+    <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden p-0">
       <PitchView homeTeam={fixture.homeTeam} awayTeam={fixture.awayTeam} homeFormation={lineups.homeFormation} awayFormation={lineups.awayFormation} homePlayers={lineups.homeStartingXI} awayPlayers={lineups.awayStartingXI}/>
     </div>
   </div>;
