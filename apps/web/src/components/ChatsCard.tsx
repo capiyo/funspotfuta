@@ -200,9 +200,11 @@ export function MatchCard({
     ...fixture,
     status: live.status,
     isLive: live.isLive,
-    homeScore: live.homeScore ?? fixture.homeScore,
-    awayScore: live.awayScore ?? fixture.awayScore,
-    timeElapsed: live.timeElapsed ?? fixture.timeElapsed,
+    // Live scores and clock are socket-owned state. Never fall back to
+    // fixture data, which may have been restored from the persisted query cache.
+    homeScore: live.homeScore,
+    awayScore: live.awayScore,
+    timeElapsed: live.timeElapsed,
   };
   const displayedLiveCommentary = live.commentary ?? liveCommentary;
   useEffect(() => {
