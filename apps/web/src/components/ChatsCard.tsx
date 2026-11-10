@@ -629,17 +629,26 @@ export function MatchCard({
 
   return (
     <FeedItem colors={colors}>
-      <div className="match-card" style={{ ...styles.card, lineHeight: 1.25, '--match-primary': colors.primary, '--match-primary-dim': colors.primaryDim } as CSSProperties}>
-        {/* Layer 1 — invisible full-card tap target -> Chat */}
-        <button
-          type="button"
-          onClick={handleChat}
-          aria-label={`Open chat for ${fixtureLabel}`}
-          className="match-card-open"
-          style={styles.openTarget}
-        />
-
-        {/* Layer 2 — content */}
+      <div
+        className="match-card"
+        style={{ ...styles.card, lineHeight: 1.25, '--match-primary': colors.primary, '--match-primary-dim': colors.primaryDim } as CSSProperties}
+        role="group"
+        tabIndex={0}
+        aria-label={`Match card: ${fixtureLabel}. Activate the card background to open chat.`}
+        onClick={(event) => {
+          const target = event.target;
+          if (target instanceof Element && target.closest('button, input, textarea, select, a, [role="button"], [contenteditable="true"]')) return;
+          handleChat();
+        }}
+        onKeyDown={(event) => {
+          if (event.target !== event.currentTarget) return;
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            handleChat();
+          }
+        }}
+      >
+        {/* Card background and non-action content open the fixture chat. */}
         <div className="match-card-content" style={styles.content}>
           {/* Meta: league or channel on the left, date / live on the right */}
           <div className="match-card-meta" style={styles.metaRow}>
