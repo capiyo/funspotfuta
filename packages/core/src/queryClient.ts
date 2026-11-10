@@ -100,7 +100,7 @@ const PERSISTED_KEYS = new Set([
  * replace a previously successful persisted result.
  */
 export const PERSIST_OPTIONS = {
-  buster: 'v10',
+  buster: 'v11',
   dehydrateOptions: {
     shouldDehydrateQuery: (query: {
       queryKey: readonly unknown[];
