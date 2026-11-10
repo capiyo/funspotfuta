@@ -94,7 +94,7 @@ export default function ChatsScreen() {
   const { userId, authToken, username, isLoggedIn } = useAuth();
   const { requireLogin } = useLoginModal();
   const { activeChannelId: homeChannelId, activeTab, channels } = useHome();
-  const { scrollProps, topInset } = useHomeList();
+  const { scrollProps: { onScroll: onHomeScroll }, topInset } = useHomeList();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
@@ -147,7 +147,7 @@ export default function ChatsScreen() {
   const lastTopRefreshAt = useRef(0);
   const scrolledAwayFromTop = useRef(false);
   const handleFixtureScroll = useCallback((event: UIEvent<HTMLElement>) => {
-    scrollProps.onScroll(event);
+    onHomeScroll(event);
     const offset = event.currentTarget.scrollTop;
     if (offset > 80) {
       scrolledAwayFromTop.current = true;
@@ -160,7 +160,7 @@ export default function ChatsScreen() {
     lastTopRefreshAt.current = now;
     void refetch();
     void queryClient.invalidateQueries({ queryKey: ['openPokes'] });
-  }, [scrollProps.onScroll, refetch, queryClient]);
+  }, [onHomeScroll, refetch, queryClient]);
   const [modalFixture, setModalFixture] = useState<Fixture | null>(null);
   const [pokeModalFixture, setPokeModalFixture] = useState<Fixture | null>(null);
   const [pokeModalChannelId, setPokeModalChannelId] = useState<string | undefined>();
