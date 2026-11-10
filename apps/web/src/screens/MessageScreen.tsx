@@ -366,7 +366,12 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
   useEffect(() => () => { void markReadRef.current?.(); }, []);
 
   const sendWithReply = useCallback(async (text: string, reply: ReplyData | null) => {
-    await send(text, { ...(reply ? { replyTo: reply } : {}), mentionedUserIds: getMentionedUserIds(text) });
+    const tokens = text.match(/@[A-Za-z0-9_.-]+/g) ?? [];
+    const mentionedUserIds = [...new Set(tokens.flatMap((token) => {
+      const member = channelMembers.find((candidate) => candidate.username.toLowerCase() === token.slice(1).toLowerCase());
+      return member && member.userId !== userId ? [member.userId] : [];
+    }))];
+    await send(text, { ...(reply ? { replyTo: reply } : {}), mentionedUserIds });
   }, [send, channelMembers, userId]);
 
   async function handleSend() {
