@@ -225,9 +225,11 @@ export function MatchCard({
     ...fixture,
     status: live.status,
     isLive: live.isLive,
-    homeScore: live.homeScore ?? fixture.homeScore,
-    awayScore: live.awayScore ?? fixture.awayScore,
-    timeElapsed: live.timeElapsed ?? fixture.timeElapsed,
+    // Live score and clock are socket-owned; persisted fixture snapshots
+    // must never be used as a fallback for these fields.
+    homeScore: live.homeScore,
+    awayScore: live.awayScore,
+    timeElapsed: live.timeElapsed,
   };
   const displayedLiveCommentary = live.commentary ?? liveCommentary;
   useEffect(() => {
