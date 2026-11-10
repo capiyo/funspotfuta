@@ -1,6 +1,6 @@
 import React from 'react';
 import { hydrateRoot } from 'react-dom/client';
-import PublicDocument, { type PublicMatchPreviewFixture } from './screens/PublicDocument';
+import PublicDocument from './screens/PublicDocument';
 import { NotFoundPage } from './screens/PublicHome';
 import './styles.css';
 
@@ -15,19 +15,10 @@ const renderMode = root.dataset.renderMode;
 if (renderMode === 'app') {
   void import('./bootstrap-app').then(({ hydrateApp }) => hydrateApp(root));
 } else if (renderMode === 'public-document') {
-  let liveFixture: PublicMatchPreviewFixture | null = null;
-  try {
-    liveFixture = root.dataset.liveFixture
-      ? JSON.parse(root.dataset.liveFixture) as PublicMatchPreviewFixture
-      : null;
-  } catch {
-    liveFixture = null;
-  }
   hydrateRoot(root, <React.StrictMode>
     <PublicDocument
       path={root.dataset.pagePath ?? ''}
       contactEmail={root.dataset.contactEmail ?? ''}
-      liveFixture={liveFixture}
     />
   </React.StrictMode>);
 } else if (renderMode === 'not-found') {
