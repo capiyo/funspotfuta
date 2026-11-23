@@ -80,6 +80,7 @@ export interface ChannelHeaderData {
   leaderName?: string | null;
   leaderPoints?: number | null;
   unreadCount?: number;
+  memberCount?: number;
 }
 
 export interface LatestComment {
@@ -285,60 +286,53 @@ export function MatchCard({
     }
     onChannelPress?.();
   }
-  const [unreadCount, setUnreadCount] = useState(channel?.unreadCount ?? 0);
   const [latestMessageAt, setLatestMessageAt] = useState<string | null>(null);
+  const [latestMessagePreview, setLatestMessagePreview] = useState<string | null>(null);
   useEffect(() => {
     let active = true;
     const resolvedFixtureId = String(fixture.matchId || fixture.id || '');
-    // A reused card must never briefly show another fixture's unread state or time.
-    setUnreadCount(channel?.unreadCount ?? 0);
+    // Unread counts are sourced once from the canonical channel_fixtures counter
+    // query above. This request only hydrates the actual last message preview.
     setLatestMessageAt(null);
+    setLatestMessagePreview(null);
     if (!channelId || !resolvedFixtureId || !userId || !authToken) {
-      setUnreadCount(channel?.unreadCount ?? 0);
-      setLatestMessageAt(null);
       return () => { active = false; };
     }
     const refreshChatMeta = async () => {
       const base = 'https://clash-api-m5mr.onrender.com/api/channels/' +
         encodeURIComponent(channelId) + '/fixtures/' + encodeURIComponent(resolvedFixtureId);
       try {
-        const [unreadResponse, latestResponse] = await Promise.all([
-          fetch(base + '/unread/' + encodeURIComponent(userId), {
-            headers: { Authorization: 'Bearer ' + authToken, 'Cache-Control': 'no-cache' },
-          }),
-          fetch(base + '/comments/latest', {
-            headers: { Authorization: 'Bearer ' + authToken, 'Cache-Control': 'no-cache' },
-          }),
-        ]);
-        if (!active) return;
-        if (unreadResponse.ok) {
-          const data = await unreadResponse.json();
-          if (active && Number.isFinite(Number(data?.unread_count))) {
-            setUnreadCount(Math.max(0, Number(data.unread_count)));
-          }
+        const response = await fetch(base + '/comments/latest', {
+          headers: { Authorization: 'Bearer ' + authToken, 'Cache-Control': 'no-cache' },
+        });
+        if (!active || !response.ok) return;
+        const data = await response.json();
+        const latest = data?.latest_comment;
+        if (!latest || typeof latest !== 'object') return;
+        const rawTimestamp = latest.timestamp;
+        const timestamp = typeof rawTimestamp === 'string'
+          ? rawTimestamp
+          : typeof rawTimestamp?.$date === 'string'
+            ? rawTimestamp.$date
+            : typeof rawTimestamp?.$date?.$numberLong === 'string'
+              ? new Date(Number(rawTimestamp.$date.$numberLong)).toISOString()
+              : null;
+        if (active && timestamp && !Number.isNaN(Date.parse(timestamp))) {
+          setLatestMessageAt(timestamp);
         }
-        if (latestResponse.ok) {
-          const data = await latestResponse.json();
-          const rawTimestamp = data?.latest_comment?.timestamp;
-          const timestamp = typeof rawTimestamp === 'string'
-            ? rawTimestamp
-            : typeof rawTimestamp?.$date === 'string'
-              ? rawTimestamp.$date
-              : typeof rawTimestamp?.$date?.$numberLong === 'string'
-                ? new Date(Number(rawTimestamp.$date.$numberLong)).toISOString()
-                : null;
-          if (active && timestamp && !Number.isNaN(Date.parse(timestamp))) {
-            setLatestMessageAt(timestamp);
-          }
+        const sender = typeof latest.username === 'string' ? latest.username.trim() : '';
+        const message = typeof latest.comment === 'string' ? latest.comment.trim() : '';
+        if (active && (sender || message)) {
+          setLatestMessagePreview([sender, message].filter(Boolean).join(': '));
         }
       } catch {
-        // Keep the last known counters/time when the connection is unavailable.
+        // Keep the last known preview when the connection is unavailable.
       }
     };
     void refreshChatMeta();
     const interval = setInterval(() => { void refreshChatMeta(); }, 30000);
     return () => { active = false; clearInterval(interval); };
-  }, [channelId, fixture.matchId, fixture.id, userId, authToken, channel?.unreadCount]);
+  }, [channelId, fixture.matchId, fixture.id, userId, authToken]);
   const latestMessageTimeLabel = latestMessageAt
     ? new Date(latestMessageAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     : null;
@@ -656,7 +650,7 @@ export function MatchCard({
                   )}
                 </span>
                 <span className="match-card-channel-name" style={styles.channelName}>{channel.name}</span>
-                {fixtureUnreadCount > 0 && <span aria-label={`${fixtureUnreadCount} unread messages`} style={{ minWidth: 18, height: 18, marginLeft: 6, padding: '0 5px', borderRadius: 9, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#25D366', color: '#fff', fontSize: 10, fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>{fixtureUnreadCount > 99 ? '99+' : fixtureUnreadCount}</span>}
+                {fixtureUnreadCount > 0 && <span aria-label={`${fixtureUnreadCount} unread messages`} style={{ minWidth: 18, height: 18, marginLeft: 6, padding: '0 5px', borderRadius: 9, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: '#25D366', color: '#fff', fontSize: 10, fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>{fixtureUnreadCount}</span>}
               </button>
             ) : null}
 
@@ -676,7 +670,7 @@ export function MatchCard({
             </span>
           </div>
 
-          {channel?.leaderName && (
+          {channel && (channel.memberCount || channel.leaderName) && (
             <button
               type="button"
               className="match-card-weekly-leader"
@@ -684,8 +678,8 @@ export function MatchCard({
               aria-label={`Open weekly leaderboard for ${channel.name}`}
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, width: '100%', border: 0, padding: '3px 0', background: 'transparent', textAlign: 'left', cursor: 'pointer', position: 'relative', zIndex: 3, pointerEvents: 'auto' }}
             >
-              <span style={{ color: colors.textSecondary, fontSize: 11, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Leader: {channel.leaderName}</span>
-              <span style={{ color: colors.primary, fontSize: 11, fontWeight: 800, flexShrink: 0 }}>{(channel.leaderPoints ?? 0).toLocaleString()} pts</span>
+              <span style={{ color: colors.textSecondary, fontSize: 11, fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{channel.memberCount ? `${channel.memberCount.toLocaleString()} members` : 'Community'}{channel.leaderName ? ` · Leader: ${channel.leaderName}` : ''}</span>
+              {channel.leaderName && <span style={{ color: colors.primary, fontSize: 11, fontWeight: 800, flexShrink: 0 }}>{(channel.leaderPoints ?? 0).toLocaleString()} pts</span>}
             </button>
           )}
           <div className="match-card-league-line" style={{ ...styles.leagueName, marginTop: 2, marginBottom: 0 }}>{fixture.league || 'Unknown league'}</div>
@@ -702,9 +696,9 @@ export function MatchCard({
               <>
                 <MessageCircle size={ICON.sm} color={colors.textTertiary} />
                 <span className="match-card-preview-text" style={styles.previewText}>
-                  {preview
+                  {latestMessagePreview || (preview
                     ? `${preview.username}: ${preview.comment}`
-                    : 'Be the first to comment on this match'}
+                    : 'Be the first to comment on this match')}
                 </span>
               </>
             )}
