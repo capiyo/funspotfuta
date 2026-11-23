@@ -561,11 +561,7 @@ export function MatchCard({
                 {latestMessageTimeLabel}
               </Text>
             )}
-            {unreadCount > 0 && (
-              <View accessibilityRole="text" accessibilityLabel={`${unreadCount} unread messages`} style={{ width: 21, height: 21, borderRadius: 11, backgroundColor: '#25D366', alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={{ color: colors.textInverse, fontSize: 10, fontWeight: '800', fontVariant: ['tabular-nums'] }}>{unreadCount > 99 ? '99+' : unreadCount}</Text>
-              </View>
-            )}
+
             {isLive ? (
               <View style={styles.liveTimeRow}>
                 <LiveBadge colors={colors} />
