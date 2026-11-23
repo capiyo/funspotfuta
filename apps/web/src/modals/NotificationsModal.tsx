@@ -132,7 +132,7 @@ export default function NotificationsModal({ visible, onClose }: { visible: bool
                   if (data?.url) window.location.assign(String(data.url));
                 }}>
                   <span className="flex items-center gap-2 text-[12px] font-semibold">{String(item.title ?? 'Funspot notification')}{unread && <span className="h-2 w-2 rounded-full" style={{ background: '#25D366' }} />}</span>
-                  {item.body && <span className="mt-1 block text-[11px]" style={{ color: colors.textSecondary }}>{String(item.body)}</span>}
+                  {typeof item.body === 'string' && item.body.length > 0 && <span className="mt-1 block text-[11px]" style={{ color: colors.textSecondary }}>{item.body}</span>}
                 </button>;
               })}
             </section>}
