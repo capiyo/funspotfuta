@@ -193,6 +193,14 @@ export function MatchCard({
       const senderId = String(payload.sender_id ?? payload.user_id ?? '');
       if (eventChannelId !== channelId || eventFixtureId !== fixtureId || senderId === userId) return;
       queryClient.setQueryData<number>(key, (current) => Math.max(0, (current ?? 0) + 1));
+      const senderName = String(payload.sender_name ?? payload.username ?? 'Fan');
+      const messageText = payload.is_image === true
+        ? '📷 Image'
+        : payload.is_video === true
+          ? '🎥 Video'
+          : String(payload.text ?? payload.message_preview ?? '').trim();
+      setLatestMessagePreview(messageText ? `${senderName}: ${messageText}` : `${senderName} sent a message`);
+      setLatestMessageAt(new Date().toISOString());
       void queryClient.invalidateQueries({ queryKey: key });
     });
     return unsubscribe;
