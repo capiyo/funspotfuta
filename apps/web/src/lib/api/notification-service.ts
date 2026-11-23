@@ -572,7 +572,7 @@ export const NotificationService = {
         }
     },
 
-    async getPendingJoinRequests(): Promise<Record<string, any>[]> {
+    async getPendingJoinRequests(): Promise<Record<string, unknown>[]> {
         try {
             const raw = await readString(K_PENDING_JOIN_REQUESTS);
             if (!raw) return [];
@@ -1045,7 +1045,7 @@ export const NotificationService = {
             );
             if (!response.ok) return [];
             const payload: unknown = await response.json();
-            return Array.isArray(payload) ? payload as Record<string, any>[] : [];
+            return Array.isArray(payload) ? payload as Record<string, unknown>[] : [];
         } catch (error) {
             console.warn('[NotificationService] Inbox fetch failed', error);
             return [];
