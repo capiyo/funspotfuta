@@ -56,6 +56,7 @@ export default function NotificationsScreen({
   const toast = useToast();
 
   const [summary, setSummary] = useState<UnreadSummary | null>(null);
+  const [items, setItems] = useState<Record<string, any>[]>([]);
   const [prefs, setPrefs] = useState<NotificationPreferences | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -71,9 +72,10 @@ export default function NotificationsScreen({
         // NotificationService (the Dart source keeps it private and only
         // calls it from reconcileFromServer). The two counts the UI wants
         // are just the persisted totals, so read those directly.
-        const [counts, p] = await Promise.all([
+        const [counts, p, inbox] = await Promise.all([
           NotificationService.loadInitialBadgeCounts(),
           NotificationService.getNotificationPreferences(userId, authToken ?? undefined),
+          NotificationService.getUserNotifications(userId, authToken ?? undefined),
         ]);
         if (cancelled) return;
         setSummary({
@@ -81,6 +83,7 @@ export default function NotificationsScreen({
           comments: counts.unread_comments,
         });
         setPrefs(p);
+        setItems(inbox);
       } catch {
         if (!cancelled) {
           setSummary({ notifications: 0, comments: 0 });
@@ -164,6 +167,33 @@ export default function NotificationsScreen({
                     <Text style={styles.statNumber}>{summary.comments}</Text>
                     <Text style={styles.statLabel}>Unread comments</Text>
                   </View>
+                </View>
+              )}
+
+              {items.length > 0 && (
+                <View style={{ marginBottom: 16, borderRadius: 16, overflow: 'hidden' }}>
+                  <View style={{ paddingHorizontal: 14, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Text style={{ color: colors.textPrimary, fontSize: 13, fontWeight: '700' }}>Recent activity</Text>
+                    <Pressable onPress={() => {
+                      void NotificationService.markAsRead({ userId: userId!, authToken: authToken ?? undefined });
+                      setItems((current) => current.map((item) => ({ ...item, is_read: true })));
+                      setSummary({ notifications: 0, comments: 0 });
+                    }}><Text style={{ color: '#25D366', fontSize: 11, fontWeight: '700' }}>Mark all read</Text></Pressable>
+                  </View>
+                  {items.slice(0, 30).map((item, index) => {
+                    const id = String(item.id ?? item._id?.$oid ?? item._id ?? '');
+                    const unread = item.is_read !== true;
+                    return <Pressable key={id || index} onPress={() => {
+                      if (id) void NotificationService.markAsRead({ userId: userId!, authToken: authToken ?? undefined, notificationIds: [id] });
+                      setItems((current) => current.map((entry) => entry === item ? { ...entry, is_read: true } : entry));
+                    }} style={{ paddingHorizontal: 14, paddingVertical: 12, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border, backgroundColor: unread ? `${colors.primary}18` : 'transparent' }}>
+                      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                        <Text style={{ color: colors.textPrimary, fontSize: 12, fontWeight: '700', flex: 1 }}>{item.title ?? 'Funspot notification'}</Text>
+                        {unread && <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: '#25D366' }} />}
+                      </View>
+                      {!!item.body && <Text style={{ color: colors.textSecondary, fontSize: 11, marginTop: 4 }}>{item.body}</Text>}
+                    </Pressable>;
+                  })}
                 </View>
               )}
 
