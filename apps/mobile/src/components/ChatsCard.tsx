@@ -526,7 +526,7 @@ export function MatchCard({
               {fixtureUnreadCount > 0 && (
                 <View
                   accessibilityLabel={`${fixtureUnreadCount} unread messages`}
-                  style={{ minWidth: 18, height: 18, marginLeft: 6, paddingHorizontal: 5, borderRadius: 9, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' }}
+                  style={{ minWidth: 18, height: 18, marginLeft: 6, paddingHorizontal: 5, borderRadius: 9, backgroundColor: '#25D366', alignItems: 'center', justifyContent: 'center' }}
                 >
                   <Text style={{ color: '#fff', fontSize: 10, fontWeight: '700', fontVariant: ['tabular-nums'] }}>
                     {fixtureUnreadCount > 99 ? '99+' : fixtureUnreadCount}
