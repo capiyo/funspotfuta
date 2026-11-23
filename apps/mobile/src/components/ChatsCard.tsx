@@ -115,6 +115,7 @@ export interface ChannelHeaderData {
   leaderName?: string | null;
   leaderPoints?: number | null;
   unreadCount?: number;
+  memberCount?: number;
 }
 
 export interface LatestComment {
@@ -300,60 +301,53 @@ export function MatchCard({
     return () => { active = false; unsubscribe(); clearInterval(interval); };
   }, [authToken, channelId, fixture.id, fixture.matchId, liveFixture.isLive, liveFixture.status, queryClient]);
   const longChannelPressFired = useRef(false);
-  const [unreadCount, setUnreadCount] = useState(channel?.unreadCount ?? 0);
   const [latestMessageAt, setLatestMessageAt] = useState<string | null>(null);
+  const [latestMessagePreview, setLatestMessagePreview] = useState<string | null>(null);
   useEffect(() => {
     let active = true;
     const resolvedFixtureId = String(fixture.matchId || fixture.id || '');
-    // A reused card must never briefly show another fixture's unread state or time.
-    setUnreadCount(channel?.unreadCount ?? 0);
+    // Unread counts are sourced once from the canonical channel_fixtures counter
+    // query above. This request only hydrates the actual last message preview.
     setLatestMessageAt(null);
+    setLatestMessagePreview(null);
     if (!channelId || !resolvedFixtureId || !userId || !authToken) {
-      setUnreadCount(channel?.unreadCount ?? 0);
-      setLatestMessageAt(null);
       return () => { active = false; };
     }
     const refreshChatMeta = async () => {
       const base = 'https://clash-api-m5mr.onrender.com/api/channels/' +
         encodeURIComponent(channelId) + '/fixtures/' + encodeURIComponent(resolvedFixtureId);
       try {
-        const [unreadResponse, latestResponse] = await Promise.all([
-          fetch(base + '/unread/' + encodeURIComponent(userId), {
-            headers: { Authorization: 'Bearer ' + authToken, 'Cache-Control': 'no-cache' },
-          }),
-          fetch(base + '/comments/latest', {
-            headers: { Authorization: 'Bearer ' + authToken, 'Cache-Control': 'no-cache' },
-          }),
-        ]);
-        if (!active) return;
-        if (unreadResponse.ok) {
-          const data = await unreadResponse.json();
-          if (active && Number.isFinite(Number(data?.unread_count))) {
-            setUnreadCount(Math.max(0, Number(data.unread_count)));
-          }
+        const response = await fetch(base + '/comments/latest', {
+          headers: { Authorization: 'Bearer ' + authToken, 'Cache-Control': 'no-cache' },
+        });
+        if (!active || !response.ok) return;
+        const data = await response.json();
+        const latest = data?.latest_comment;
+        if (!latest || typeof latest !== 'object') return;
+        const rawTimestamp = latest.timestamp;
+        const timestamp = typeof rawTimestamp === 'string'
+          ? rawTimestamp
+          : typeof rawTimestamp?.$date === 'string'
+            ? rawTimestamp.$date
+            : typeof rawTimestamp?.$date?.$numberLong === 'string'
+              ? new Date(Number(rawTimestamp.$date.$numberLong)).toISOString()
+              : null;
+        if (active && timestamp && !Number.isNaN(Date.parse(timestamp))) {
+          setLatestMessageAt(timestamp);
         }
-        if (latestResponse.ok) {
-          const data = await latestResponse.json();
-          const rawTimestamp = data?.latest_comment?.timestamp;
-          const timestamp = typeof rawTimestamp === 'string'
-            ? rawTimestamp
-            : typeof rawTimestamp?.$date === 'string'
-              ? rawTimestamp.$date
-              : typeof rawTimestamp?.$date?.$numberLong === 'string'
-                ? new Date(Number(rawTimestamp.$date.$numberLong)).toISOString()
-                : null;
-          if (active && timestamp && !Number.isNaN(Date.parse(timestamp))) {
-            setLatestMessageAt(timestamp);
-          }
+        const sender = typeof latest.username === 'string' ? latest.username.trim() : '';
+        const message = typeof latest.comment === 'string' ? latest.comment.trim() : '';
+        if (active && (sender || message)) {
+          setLatestMessagePreview([sender, message].filter(Boolean).join(': '));
         }
       } catch {
-        // Keep the last known counters/time when the connection is unavailable.
+        // Keep the last known preview when the connection is unavailable.
       }
     };
     void refreshChatMeta();
     const interval = setInterval(() => { void refreshChatMeta(); }, 30000);
     return () => { active = false; clearInterval(interval); };
-  }, [channelId, fixture.matchId, fixture.id, userId, authToken, channel?.unreadCount]);
+  }, [channelId, fixture.matchId, fixture.id, userId, authToken]);
   const latestMessageTimeLabel = latestMessageAt
     ? new Date(latestMessageAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     : null;
@@ -529,7 +523,7 @@ export function MatchCard({
                   style={{ minWidth: 18, height: 18, marginLeft: 6, paddingHorizontal: 5, borderRadius: 9, backgroundColor: '#25D366', alignItems: 'center', justifyContent: 'center' }}
                 >
                   <Text style={{ color: '#fff', fontSize: 10, fontWeight: '700', fontVariant: ['tabular-nums'] }}>
-                    {fixtureUnreadCount > 99 ? '99+' : fixtureUnreadCount}
+                    {fixtureUnreadCount}
                   </Text>
                 </View>
               )}
@@ -569,15 +563,15 @@ export function MatchCard({
             )}
           </View>
         </View>
-        {channel?.leaderName && (
+        {channel && (channel.memberCount || channel.leaderName) && (
           <Pressable
             style={styles.weeklyLeader}
             onPress={onWeeklyLeaderboardPress}
             accessibilityRole="button"
             accessibilityLabel={`Open weekly leaderboard for ${channel.name}`}
           >
-            <Text style={[styles.weeklyLeaderName, { color: colors.textSecondary }]} numberOfLines={1}>Leader: {channel.leaderName}</Text>
-            <Text style={[styles.weeklyLeaderPoints, { color: colors.primary }]}>{(channel.leaderPoints ?? 0).toLocaleString()} pts</Text>
+            <Text style={[styles.weeklyLeaderName, { color: colors.textSecondary }]} numberOfLines={1}>{channel.memberCount ? `${channel.memberCount.toLocaleString()} members` : 'Community'}{channel.leaderName ? ` · Leader: ${channel.leaderName}` : ''}</Text>
+            {channel.leaderName && <Text style={[styles.weeklyLeaderPoints, { color: colors.primary }]}>{(channel.leaderPoints ?? 0).toLocaleString()} pts</Text>}
           </Pressable>
         )}
 
