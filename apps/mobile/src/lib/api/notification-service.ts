@@ -984,6 +984,29 @@ export const NotificationService = {
         }
     },
 
+    // Durable inbox: push delivery is best-effort, while this endpoint is the
+    // authenticated source of truth shared by web, Android and iOS.
+    async getUserNotifications(userId: string, authToken?: string): Promise<Record<string, any>[]> {
+        try {
+            const response = await fetchWithTimeout(
+                `${API_BASE_URL}/notifications/user/${encodeURIComponent(userId)}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+                    },
+                },
+            );
+            if (!response.ok) return [];
+            const payload: unknown = await response.json();
+            return Array.isArray(payload) ? payload as Record<string, any>[] : [];
+        } catch (error) {
+            console.warn('[NotificationService] Inbox fetch failed', error);
+            return [];
+        }
+    },
+
     // ─── markAsRead (server sync) ───────────────────────────────────
     async markAsRead(args: {
         userId: string;
