@@ -128,8 +128,13 @@ export default function NotificationsModal({ visible, onClose }: { visible: bool
                   if (id) await NotificationService.markAsRead({ userId: userId!, authToken: authToken ?? undefined, notificationIds: [id] });
                   await NotificationService.reconcileFromServer({ userId: userId!, authToken: authToken ?? undefined });
                   setItems((current) => current.map((entry) => entry === item ? { ...entry, is_read: true } : entry));
-                  const data = item.data as { url?: unknown } | undefined;
-                  if (data?.url) window.location.assign(String(data.url));
+                  const data = item.data as { url?: unknown; channel_id?: unknown; fixture_id?: unknown } | undefined;
+                  if (data?.url) {
+                    window.location.assign(String(data.url));
+                  } else if (typeof data?.channel_id === 'string') {
+                    const fixture = typeof data.fixture_id === 'string' ? `?fixtureId=${encodeURIComponent(data.fixture_id)}` : '';
+                    window.location.assign(`/messages/${encodeURIComponent(data.channel_id)}${fixture}`);
+                  }
                 }}>
                   <span className="flex items-center gap-2 text-[12px] font-semibold">{String(item.title ?? 'Funspot notification')}{unread && <span className="h-2 w-2 rounded-full" style={{ background: '#25D366' }} />}</span>
                   {typeof item.body === 'string' && item.body.length > 0 && <span className="mt-1 block text-[11px]" style={{ color: colors.textSecondary }}>{item.body}</span>}
