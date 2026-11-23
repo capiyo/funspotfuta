@@ -20,6 +20,7 @@ export default function NotificationsModal({ visible, onClose }: { visible: bool
   const toast = useToast();
   const dialogRef = useRef<HTMLDivElement>(null);
   const [summary, setSummary] = useState<UnreadSummary | null>(null);
+  const [items, setItems] = useState<Record<string, any>[]>([]);
   const [prefs, setPrefs] = useState<NotificationPreferences | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -46,13 +47,15 @@ export default function NotificationsModal({ visible, onClose }: { visible: bool
     (async () => {
       setLoading(true);
       try {
-        const [counts, p] = await Promise.all([
+        const [counts, p, inbox] = await Promise.all([
           NotificationService.loadInitialBadgeCounts(),
           NotificationService.getNotificationPreferences(userId, authToken ?? undefined),
+          NotificationService.getUserNotifications(userId, authToken ?? undefined),
         ]);
         if (cancelled) return;
         setSummary({ notifications: counts.unread_notifications, comments: counts.unread_comments });
         setPrefs(p);
+        setItems(inbox);
       } catch {
         if (!cancelled) setSummary({ notifications: 0, comments: 0 });
       } finally {
@@ -100,6 +103,28 @@ export default function NotificationsModal({ visible, onClose }: { visible: bool
                   <strong className="text-xl font-extrabold">{item.value}</strong><span className="text-[10px]" style={{ color: colors.textTertiary }}>{item.label}</span>
                 </div>)}
             </div>}
+            {items.length > 0 && <section className="mb-4 overflow-hidden rounded-2xl">
+              <div className="flex items-center justify-between px-4 py-3">
+                <strong className="text-[13px]">Recent activity</strong>
+                <button type="button" className="text-[11px] font-semibold" style={{ color: '#25D366' }} onClick={() => {
+                  void NotificationService.markAsRead({ userId: userId!, authToken: authToken ?? undefined });
+                  setItems((current) => current.map((item) => ({ ...item, is_read: true })));
+                  setSummary({ notifications: 0, comments: 0 });
+                }}>Mark all read</button>
+              </div>
+              {items.slice(0, 30).map((item, index) => {
+                const id = String(item.id ?? item._id?.$oid ?? item._id ?? '');
+                const unread = item.is_read !== true;
+                return <button key={id || index} type="button" className="block w-full px-4 py-3 text-left" style={{ background: unread ? `${colors.primary}12` : 'transparent', borderTop: `1px solid ${colors.border}` }} onClick={() => {
+                  if (id) void NotificationService.markAsRead({ userId: userId!, authToken: authToken ?? undefined, notificationIds: [id] });
+                  setItems((current) => current.map((entry) => entry === item ? { ...entry, is_read: true } : entry));
+                  if (item.data?.url) window.location.assign(String(item.data.url));
+                }}>
+                  <span className="flex items-center gap-2 text-[12px] font-semibold">{item.title ?? 'Funspot notification'}{unread && <span className="h-2 w-2 rounded-full" style={{ background: '#25D366' }} />}</span>
+                  {item.body && <span className="mt-1 block text-[11px]" style={{ color: colors.textSecondary }}>{item.body}</span>}
+                </button>;
+              })}
+            </section>}
             {prefs && <div className="overflow-hidden rounded-2xl">
               {(Object.keys(LABELS) as (keyof NotificationPreferences)[]).map((key, i) =>
                 <div key={key} className="flex items-center justify-between px-4 py-3.5" style={{ borderTop: i ? `1px solid ${colors.border}` : undefined }}>
