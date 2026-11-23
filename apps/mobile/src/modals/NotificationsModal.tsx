@@ -30,6 +30,13 @@ interface NotificationPreferences {
   vote_alerts: boolean;
   like_alerts: boolean;
   comment_alerts: boolean;
+  message_alerts: boolean;
+  mention_alerts: boolean;
+  reply_alerts: boolean;
+  reaction_alerts: boolean;
+  push_enabled: boolean;
+  show_preview: boolean;
+  sound_enabled: boolean;
 }
 
 interface UnreadSummary {
@@ -41,6 +48,13 @@ const LABELS: Record<keyof NotificationPreferences, string> = {
   vote_alerts: 'Vote alerts',
   like_alerts: 'Like alerts',
   comment_alerts: 'Comment alerts',
+  message_alerts: 'Chat messages',
+  mention_alerts: 'Mentions',
+  reply_alerts: 'Replies',
+  reaction_alerts: 'Reactions',
+  push_enabled: 'Push notifications',
+  show_preview: 'Show message previews',
+  sound_enabled: 'Notification sounds',
 };
 
 export default function NotificationsScreen({
@@ -109,6 +123,13 @@ export default function NotificationsScreen({
         voteAlerts: next.vote_alerts,
         likeAlerts: next.like_alerts,
         commentAlerts: next.comment_alerts,
+        messageAlerts: next.message_alerts,
+        mentionAlerts: next.mention_alerts,
+        replyAlerts: next.reply_alerts,
+        reactionAlerts: next.reaction_alerts,
+        pushEnabled: next.push_enabled,
+        showPreview: next.show_preview,
+        soundEnabled: next.sound_enabled,
         authToken: authToken ?? undefined,
       });
       if (!ok) {
