@@ -115,6 +115,7 @@ export default function NotificationsModal({ visible, onClose }: { visible: bool
                 <strong className="text-[13px]">Recent activity</strong>
                 <button type="button" className="text-[11px] font-semibold" style={{ color: '#25D366' }} onClick={() => {
                   void NotificationService.markAsRead({ userId: userId!, authToken: authToken ?? undefined });
+                  void NotificationService.reconcileFromServer({ userId: userId!, authToken: authToken ?? undefined });
                   setItems((current) => current.map((item) => ({ ...item, is_read: true })));
                   setSummary({ notifications: 0, comments: 0 });
                 }}>Mark all read</button>
@@ -125,6 +126,7 @@ export default function NotificationsModal({ visible, onClose }: { visible: bool
                 const unread = item.is_read !== true;
                 return <button key={id || index} type="button" className="block w-full px-4 py-3 text-left" style={{ background: unread ? `${colors.primary}12` : 'transparent', borderTop: `1px solid ${colors.border}` }} onClick={() => {
                   if (id) void NotificationService.markAsRead({ userId: userId!, authToken: authToken ?? undefined, notificationIds: [id] });
+                  void NotificationService.reconcileFromServer({ userId: userId!, authToken: authToken ?? undefined });
                   setItems((current) => current.map((entry) => entry === item ? { ...entry, is_read: true } : entry));
                   const data = item.data as { url?: unknown } | undefined;
                   if (data?.url) window.location.assign(String(data.url));
