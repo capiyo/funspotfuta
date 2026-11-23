@@ -70,7 +70,7 @@ export default function NotificationsScreen({
   const toast = useToast();
 
   const [summary, setSummary] = useState<UnreadSummary | null>(null);
-  const [items, setItems] = useState<Record<string, any>[]>([]);
+  const [items, setItems] = useState<Record<string, unknown>[]>([]);
   const [prefs, setPrefs] = useState<NotificationPreferences | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -202,17 +202,18 @@ export default function NotificationsScreen({
                     }}><Text style={{ color: '#25D366', fontSize: 11, fontWeight: '700' }}>Mark all read</Text></Pressable>
                   </View>
                   {items.slice(0, 30).map((item, index) => {
-                    const id = String(item.id ?? item._id?.$oid ?? item._id ?? '');
+                    const rawId = item.id ?? (item._id as { $oid?: unknown } | undefined)?.$oid ?? item._id;
+                    const id = String(rawId ?? '');
                     const unread = item.is_read !== true;
                     return <Pressable key={id || index} onPress={() => {
                       if (id) void NotificationService.markAsRead({ userId: userId!, authToken: authToken ?? undefined, notificationIds: [id] });
                       setItems((current) => current.map((entry) => entry === item ? { ...entry, is_read: true } : entry));
                     }} style={{ paddingHorizontal: 14, paddingVertical: 12, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border, backgroundColor: unread ? `${colors.primary}18` : 'transparent' }}>
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                        <Text style={{ color: colors.textPrimary, fontSize: 12, fontWeight: '700', flex: 1 }}>{item.title ?? 'Funspot notification'}</Text>
+                        <Text style={{ color: colors.textPrimary, fontSize: 12, fontWeight: '700', flex: 1 }}>{String(item.title ?? 'Funspot notification')}</Text>
                         {unread && <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: '#25D366' }} />}
                       </View>
-                      {!!item.body && <Text style={{ color: colors.textSecondary, fontSize: 11, marginTop: 4 }}>{item.body}</Text>}
+                      {!!item.body && <Text style={{ color: colors.textSecondary, fontSize: 11, marginTop: 4 }}>{String(item.body)}</Text>}
                     </Pressable>;
                   })}
                 </View>
