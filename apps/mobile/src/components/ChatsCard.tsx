@@ -40,6 +40,7 @@ import {
   type Poke,
   getOpenPokes,
   getFixtureUnreadCount,
+  webSocketService,
   mergeOpenPokes,
   queryKeys,
   hasScores,
@@ -207,12 +208,30 @@ export function MatchCard({
     queryFn: () => getFixtureUnreadCount(channelId!, fixtureId, userId!, authToken ?? undefined),
     enabled: Boolean(isLoggedIn && userId && channelId && fixtureId),
     staleTime: 15_000,
+    refetchInterval: 15_000,
+    refetchOnWindowFocus: true,
   });
   const { requireLogin } = useLoginModal();
   const [draft, setDraft] = useState('');
   const [openPokes, setOpenPokes] = useState<Poke[]>([]);
   const pokeCacheKeyRef = useRef('');
   const queryClient = useQueryClient();
+  useEffect(() => {
+    if (!isLoggedIn || !userId || !channelId || !fixtureId) return;
+    const key = queryKeys.fixtureUnreadCount(channelId, fixtureId, userId);
+    const unsubscribe = webSocketService.on('chat.message', (event) => {
+      const payload = event.payload && typeof event.payload === 'object'
+        ? event.payload as Record<string, unknown>
+        : event;
+      const eventChannelId = String(payload.channel_id ?? payload.channelId ?? '');
+      const eventFixtureId = String(payload.fixture_id ?? payload.fixtureId ?? '');
+      const senderId = String(payload.sender_id ?? payload.user_id ?? '');
+      if (eventChannelId !== channelId || eventFixtureId !== fixtureId || senderId === userId) return;
+      queryClient.setQueryData<number>(key, (current) => Math.max(0, (current ?? 0) + 1));
+      void queryClient.invalidateQueries({ queryKey: key });
+    });
+    return unsubscribe;
+  }, [channelId, fixtureId, isLoggedIn, queryClient, userId]);
   const live = useFixtureLiveUpdates({
     channelId,
     fixtureId: String(fixture.matchId || fixture.id),
