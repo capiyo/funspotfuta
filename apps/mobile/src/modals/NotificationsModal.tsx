@@ -195,9 +195,9 @@ export default function NotificationsScreen({
                 <View style={{ marginBottom: 16, borderRadius: 16, overflow: 'hidden' }}>
                   <View style={{ paddingHorizontal: 14, paddingVertical: 12, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                     <Text style={{ color: colors.textPrimary, fontSize: 13, fontWeight: '700' }}>Recent activity</Text>
-                    <Pressable onPress={() => {
-                      void NotificationService.markAsRead({ userId: userId!, authToken: authToken ?? undefined });
-                  void NotificationService.reconcileFromServer({ userId: userId!, authToken: authToken ?? undefined });
+                    <Pressable onPress={async () => {
+                      await NotificationService.markAsRead({ userId: userId!, authToken: authToken ?? undefined });
+                      await NotificationService.reconcileFromServer({ userId: userId!, authToken: authToken ?? undefined });
                       setItems((current) => current.map((item) => ({ ...item, is_read: true })));
                       setSummary({ notifications: 0, comments: 0 });
                     }}><Text style={{ color: '#25D366', fontSize: 11, fontWeight: '700' }}>Mark all read</Text></Pressable>
@@ -206,9 +206,9 @@ export default function NotificationsScreen({
                     const rawId = item.id ?? (item._id as { $oid?: unknown } | undefined)?.$oid ?? item._id;
                     const id = String(rawId ?? '');
                     const unread = item.is_read !== true;
-                    return <Pressable key={id || index} onPress={() => {
-                      if (id) void NotificationService.markAsRead({ userId: userId!, authToken: authToken ?? undefined, notificationIds: [id] });
-                  void NotificationService.reconcileFromServer({ userId: userId!, authToken: authToken ?? undefined });
+                    return <Pressable key={id || index} onPress={async () => {
+                      if (id) await NotificationService.markAsRead({ userId: userId!, authToken: authToken ?? undefined, notificationIds: [id] });
+                      await NotificationService.reconcileFromServer({ userId: userId!, authToken: authToken ?? undefined });
                       setItems((current) => current.map((entry) => entry === item ? { ...entry, is_read: true } : entry));
                     }} style={{ paddingHorizontal: 14, paddingVertical: 12, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border, backgroundColor: unread ? `${colors.primary}18` : 'transparent' }}>
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
