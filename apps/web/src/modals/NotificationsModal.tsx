@@ -23,7 +23,7 @@ export default function NotificationsModal({ visible, onClose }: { visible: bool
   const toast = useToast();
   const dialogRef = useRef<HTMLDivElement>(null);
   const [summary, setSummary] = useState<UnreadSummary | null>(null);
-  const [items, setItems] = useState<Record<string, any>[]>([]);
+  const [items, setItems] = useState<Record<string, unknown>[]>([]);
   const [prefs, setPrefs] = useState<NotificationPreferences | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -120,15 +120,17 @@ export default function NotificationsModal({ visible, onClose }: { visible: bool
                 }}>Mark all read</button>
               </div>
               {items.slice(0, 30).map((item, index) => {
-                const id = String(item.id ?? item._id?.$oid ?? item._id ?? '');
+                const rawId = item.id ?? (item._id as { $oid?: unknown } | undefined)?.$oid ?? item._id;
+                const id = String(rawId ?? '');
                 const unread = item.is_read !== true;
                 return <button key={id || index} type="button" className="block w-full px-4 py-3 text-left" style={{ background: unread ? `${colors.primary}12` : 'transparent', borderTop: `1px solid ${colors.border}` }} onClick={() => {
                   if (id) void NotificationService.markAsRead({ userId: userId!, authToken: authToken ?? undefined, notificationIds: [id] });
                   setItems((current) => current.map((entry) => entry === item ? { ...entry, is_read: true } : entry));
-                  if (item.data?.url) window.location.assign(String(item.data.url));
+                  const data = item.data as { url?: unknown } | undefined;
+                  if (data?.url) window.location.assign(String(data.url));
                 }}>
-                  <span className="flex items-center gap-2 text-[12px] font-semibold">{item.title ?? 'Funspot notification'}{unread && <span className="h-2 w-2 rounded-full" style={{ background: '#25D366' }} />}</span>
-                  {item.body && <span className="mt-1 block text-[11px]" style={{ color: colors.textSecondary }}>{item.body}</span>}
+                  <span className="flex items-center gap-2 text-[12px] font-semibold">{String(item.title ?? 'Funspot notification')}{unread && <span className="h-2 w-2 rounded-full" style={{ background: '#25D366' }} />}</span>
+                  {item.body && <span className="mt-1 block text-[11px]" style={{ color: colors.textSecondary }}>{String(item.body)}</span>}
                 </button>;
               })}
             </section>}
