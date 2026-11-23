@@ -584,7 +584,7 @@ export const NotificationService = {
         }
     },
 
-    async getPendingRequestsForChannel(channelId: string): Promise<Record<string, any>[]> {
+    async getPendingRequestsForChannel(channelId: string): Promise<Record<string, unknown>[]> {
         const all = await this.getPendingJoinRequests();
         return all.filter((r) => r.channel_id === channelId);
     },
