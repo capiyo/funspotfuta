@@ -8,6 +8,8 @@
 // every other notification code path in the app.
 
 import { useEffect, useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {
   View,
   Text,
@@ -23,6 +25,7 @@ import { useAuth } from '@/lib/auth/auth-context';
 import { useToast } from '@/lib/toast/toast-context';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { NotificationService } from '@/lib/api/notification-service';
+import type { RootStackParamList } from '@/navigation/RootNavigator';
 
 type FanColors = ReturnType<typeof useFanColors>;
 
@@ -68,6 +71,7 @@ export default function NotificationsScreen({
   const styles = createStyles(colors);
   const { userId, authToken } = useAuth();
   const toast = useToast();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const [summary, setSummary] = useState<UnreadSummary | null>(null);
   const [items, setItems] = useState<Record<string, unknown>[]>([]);
@@ -210,6 +214,13 @@ export default function NotificationsScreen({
                       if (id) await NotificationService.markAsRead({ userId: userId!, authToken: authToken ?? undefined, notificationIds: [id] });
                       await NotificationService.reconcileFromServer({ userId: userId!, authToken: authToken ?? undefined });
                       setItems((current) => current.map((entry) => entry === item ? { ...entry, is_read: true } : entry));
+                      const data = item.data && typeof item.data === 'object' ? item.data as Record<string, unknown> : {};
+                      const channelId = typeof data.channel_id === 'string' ? data.channel_id : null;
+                      const fixtureId = typeof data.fixture_id === 'string' ? data.fixture_id : undefined;
+                      if (channelId) {
+                        onClose();
+                        navigation.navigate('Chat', { channelId, ...(fixtureId ? { fixtureId } : {}) });
+                      }
                     }} style={{ paddingHorizontal: 14, paddingVertical: 12, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border, backgroundColor: unread ? `${colors.primary}18` : 'transparent' }}>
                       <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                         <Text style={{ color: colors.textPrimary, fontSize: 12, fontWeight: '700', flex: 1 }}>{String(item.title ?? 'Funspot notification')}</Text>
