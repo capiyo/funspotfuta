@@ -258,7 +258,7 @@ export default function PostCommentsModal({
     const [draft, setDraft] = useState('');
     const [error, setError] = useState('');
 
-    const listRef = useRef<FlatList<CommentData>>(null);
+    const listRef = useRef<FlatList<FlatComment>>(null);
     const inputRef = useRef<TextInput>(null);
 
     const headers = {
