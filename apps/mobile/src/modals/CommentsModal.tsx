@@ -682,6 +682,7 @@ function CommentBubble({
     comment,
     currentUserId,
     parentUsername,
+    depth,
     onReply,
 }: {
     colors: FanColors;
