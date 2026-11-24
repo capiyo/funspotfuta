@@ -121,6 +121,8 @@ export interface SimplifiedPlayer {
     number: number;
     position: string;
     captain: boolean;
+    rating?: number | null;
+    imageUrl?: string | null;
 }
 
 export function parseSimplifiedPlayer(json: any): SimplifiedPlayer {
@@ -152,8 +154,13 @@ export function parseSimplifiedPlayer(json: any): SimplifiedPlayer {
             : posField?.toString() ?? '';
 
     const captain = json?.captain === true;
+    const rawRating = json?.rating;
+    const rating = typeof rawRating === 'number' && Number.isFinite(rawRating) ? rawRating : null;
+    const imageUrl = typeof json?.imageUrl === 'string' && json.imageUrl.startsWith('https://')
+        ? json.imageUrl
+        : null;
 
-    return { name, number, position, captain };
+    return { name, number, position, captain, rating, imageUrl };
 }
 
 // ═══════════════════════════════════════════════════════════════

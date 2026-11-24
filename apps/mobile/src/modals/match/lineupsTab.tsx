@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
     View,
     Text,
+    Image,
     StyleSheet,
     Pressable,
     ActivityIndicator,
@@ -41,6 +42,7 @@ interface FormationPillProps {
     formation: string;
     color: string;
     alignRight?: boolean;
+    imageUrl?: string | null;
 }
 
 function FormationPill({
@@ -48,17 +50,21 @@ function FormationPill({
     formation,
     color,
     alignRight = false,
+    imageUrl,
 }: FormationPillProps) {
     const colors = useFanColors();
     return (
         <View style={{ alignItems: alignRight ? 'flex-end' : 'flex-start' }}>
-            <Text
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+                {imageUrl ? <Image source={{ uri: imageUrl }} style={{ width: 18, height: 18, borderRadius: 9 }} resizeMode="contain" /> : null}
+                <Text
                 numberOfLines={1}
                 ellipsizeMode="tail"
                 style={[fanText('tag', colors), { color }]}
             >
                 {teamName}
-            </Text>
+                </Text>
+            </View>
             <View style={{ height: 3 }} />
             <View
                 style={[
@@ -164,6 +170,7 @@ export function LineupsTab({
                     teamName={fixture.homeTeam}
                     formation={lineups.homeFormation}
                     color={colors.primary}
+                    imageUrl={fixture.homeTeamImageUrl}
                 />
                 <View style={{ flex: 1 }} />
                 {hasBench ? (
@@ -205,6 +212,7 @@ export function LineupsTab({
                     teamName={fixture.awayTeam}
                     formation={lineups.awayFormation}
                     color={colors.away}
+                    imageUrl={fixture.awayTeamImageUrl}
                     alignRight
                 />
             </View>
