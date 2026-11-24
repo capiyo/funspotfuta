@@ -37,8 +37,8 @@ type LoginModalProps = {
   onClose?: () => void;
   onSuccess?: (userId: string, username: string) => void;
 };
-  const TERMS_URL = 'https://www.funspot.co.ke/terms.html';
-const PRIVACY_URL = 'https://www.funspot.co.ke/privacy.html';
+const TERMS_URL = 'https://www.funspot.co.ke/terms';
+const PRIVACY_URL = 'https://www.funspot.co.ke/privacy';
   const COUNTRIES: Country[] = [
   { name: 'Kenya', iso2: 'KE', dial: '+254' },
   { name: 'United States', iso2: 'US', dial: '+1' },
