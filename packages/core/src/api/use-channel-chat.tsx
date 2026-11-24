@@ -835,10 +835,19 @@ export function useChannelChat({
                 reply_to_selection: reply?.selection ?? undefined,
                 mentioned_user_ids: extras.mentionedUserIds ?? [],
             };
-            const response = await fetch(
-                `${API_BASE_URL}/channels/${encodeURIComponent(channelId)}/messages`,
-                { method: 'POST', headers: authHeaders(), body: JSON.stringify(payload) },
-            );
+            const messageUrl = `${API_BASE_URL}/channels/${encodeURIComponent(channelId)}/messages`;
+            const requestInit: RequestInit = { method: 'POST', headers: authHeaders(), body: JSON.stringify(payload) };
+            let response: Response;
+            try {
+                response = await fetch(messageUrl, requestInit);
+            } catch (firstError) {
+                // Retry with the same temp_id. The backend treats it as an
+                // idempotency key, so a committed request with a lost response
+                // is returned instead of being inserted twice.
+                try { response = await fetch(messageUrl, requestInit); }
+                catch { throw firstError; }
+            }
+            if (response.status >= 500) response = await fetch(messageUrl, requestInit);
             const result = await response.json().catch(() => ({}));
             if (!response.ok || result?.success === false) {
                 throw new Error(result?.message ?? result?.error ?? `Message send failed (${response.status})`);
