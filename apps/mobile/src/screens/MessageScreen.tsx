@@ -1400,8 +1400,11 @@ function MessageBubble({
         ))}
 
         <Pressable
+          onPress={onLongPress}
           onLongPress={onLongPress}
           delayLongPress={350}
+          accessibilityRole="button"
+          accessibilityLabel={`Reply to ${isCommentary ? 'live commentary' : 'message'} from ${message.username}`}
           style={[
             bubbleStyles.bubble,
             effectiveIsMe ? bubbleStyles.bubbleMe : bubbleStyles.bubbleOther,
