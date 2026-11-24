@@ -664,7 +664,7 @@ export default function LoginModal({ visible, onClose, onSuccess }: LoginModalPr
                         <Text style={{ color: colors.textInverse, fontSize: 12 }}>✓</Text>
                       )}
                     </Pressable>
-                    <Text style={[fanText('caption', colors, colors.textTertiary), { flex: 1 }]}>
+                    <Text style={[fanText('caption', colors, colors.textSecondary), { flex: 1 }]}>
                       I agree to the{' '}
                       <Text style={{ color: colors.primary }} onPress={() => openLink(TERMS_URL)}>
                         Terms
@@ -973,15 +973,17 @@ function makeStyles(colors: ReturnType<typeof useFanColors>) {
     },
     termsRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 2 },
     checkbox: {
-      width: 20,
-      height: 20,
-      borderRadius: 999,
-      borderWidth: 1,
-      borderColor: colors.primary,
+      width: 22,
+      height: 22,
+      minWidth: 22,
+      borderRadius: 6,
+      borderWidth: 2,
+      borderColor: colors.textSecondary,
+      backgroundColor: colors.surfaceSunken,
       alignItems: 'center',
       justifyContent: 'center',
     },
-    checkboxOn: { backgroundColor: colors.primary, borderColor: colors.primary },
+    checkboxOn: { backgroundColor: colors.primary, borderColor: colors.primary, elevation: 2 },
     button: {
       backgroundColor: 'transparent',
       borderRadius: 999,
