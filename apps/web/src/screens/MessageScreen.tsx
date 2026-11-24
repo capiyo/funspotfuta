@@ -1020,7 +1020,12 @@ function MessageBubble({ colors, message, isMe, onLongPress, onImagePress, onRet
 </button>
         <div
       className={`rounded-2xl border px-3.5 py-2.5 shadow-sm ${mine ? 'rounded-br-md' : 'rounded-bl-md'} ${message.isPending && !failed ? 'opacity-70' : ''}`}
-      style={{ background: bubbleBackground, borderColor: failed ? colors.away : mine || commentary ? 'transparent' : colors.border, color: colors.textPrimary }}
+      role="button"
+      tabIndex={0}
+      aria-label={`Reply to ${commentary ? 'live commentary' : 'message'} from ${message.username}`}
+      style={{ background: bubbleBackground, borderColor: failed ? colors.away : mine || commentary ? 'transparent' : colors.border, color: colors.textPrimary, cursor: 'pointer' }}
+      onClick={onLongPress}
+      onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onLongPress(); } }}
       onContextMenu={(event) => { event.preventDefault(); onLongPress(); }}>
           {message.replyTo && <div
       className="mb-2 border-l-2 pl-2"
