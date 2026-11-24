@@ -1,4 +1,5 @@
 import { Avatar } from '@/components/ui/Avatar';
+import AdCarousel from '@/components/AdCarousel';
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Trophy, X } from 'lucide-react-native';
@@ -61,11 +62,14 @@ export function WeeklyLeaderboardModal({ visible, onClose, channelId, channelNam
             <View style={styles.center}><Text style={styles.emptyTitle}>No weekly gains to show yet</Text><Text style={styles.emptyCopy}>Weekly rankings show points won by channel members since Tuesday at 04:00 EAT.</Text></View>
           ) : (
             <ScrollView style={styles.list} contentContainerStyle={styles.listContent}>
-              {rows.map((row) => (
-                <View key={row.user_id || row.username} style={styles.row}>
-                  <Text style={styles.rank}>{row.rank <= 3 ? ['🥇', '🥈', '🥉'][row.rank - 1] : `#${row.rank}`}</Text>
-                  <Avatar colors={colors} size="sm" userId={row.user_id} label={row.username?.[0] ?? '?'} /><Text style={styles.name} numberOfLines={1}>{row.username}</Text>
-                  <Text style={styles.points}>+{row.weekly_points.toLocaleString()} pts</Text>
+              {rows.map((row, index) => (
+                <View key={row.user_id || row.username}>
+                  <View style={styles.row}>
+                    <Text style={styles.rank}>{row.rank <= 3 ? ['🥇', '🥈', '🥉'][row.rank - 1] : `#${row.rank}`}</Text>
+                    <Avatar colors={colors} size="sm" userId={row.user_id} label={row.username?.[0] ?? '?'} /><Text style={styles.name} numberOfLines={1}>{row.username}</Text>
+                    <Text style={styles.points}>+{row.weekly_points.toLocaleString()} pts</Text>
+                  </View>
+                  {(index + 1) % 5 === 0 && <View style={{ marginVertical: 8 }}><AdCarousel /></View>}
                 </View>
               ))}
               {me && !rows.some((row) => row.user_id === me.user_id) ? (
