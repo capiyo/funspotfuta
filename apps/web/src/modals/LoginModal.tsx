@@ -525,8 +525,9 @@ export default function LoginModal({ visible = true, onClose, onSuccess }: Login
           role="checkbox"
           aria-checked={acceptTerms}
           onClick={() => setAcceptTerms((value) => !value)}
-          className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2"
-          style={{ borderColor: colors.primary, background: acceptTerms ? colors.primary : colors.surface, color: colors.textInverse, boxShadow: acceptTerms ? 'none' : `inset 0 0 0 1px ${colors.primary}20` }}>{acceptTerms ? '✓' : ''}</button>
+          className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 transition-colors"
+          aria-label="Accept Terms and Conditions and Privacy Policy"
+          style={{ borderColor: '#75B98C', background: acceptTerms ? '#328653' : 'rgba(91, 174, 119, 0.12)', color: '#FFFFFF', boxShadow: acceptTerms ? '0 0 0 2px rgba(91, 174, 119, 0.18)' : '0 0 0 2px rgba(91, 174, 119, 0.10)' }}>{acceptTerms ? '✓' : ''}</button>
       <p
           className="flex-1 text-xs leading-5"
           style={{ color: colors.textTertiary }}>I agree to the <a
