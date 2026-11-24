@@ -359,7 +359,7 @@ export default function PostCommentsModal({
   );
 }
 
-function CommentBubble({ colors, comment, currentUserId, parentUsername, onReply }: {
+function CommentBubble({ colors, comment, currentUserId, parentUsername, depth, onReply }: {
   colors: FanColors; comment: FlatComment; currentUserId: string; parentUsername: string | null; depth: number; onReply: () => void;
 }) {
   const isMe = comment.user_id === currentUserId;
