@@ -115,7 +115,7 @@ export default function AdSenseCarousel({
   const [activeIndex, setActiveIndex] = useState(0);
 
   const slides = useMemo<CarouselSlide[]>(() => {
-    const validSlots = enabled ? [...new Set(slots.filter((slot) => /^\\d+$/.test(slot)))] : [];
+    const validSlots = enabled ? [...new Set(slots.filter((slot) => /^\d+$/.test(slot)))] : [];
     const adSlides: CarouselSlide[] = validSlots.map((slot, index) => ({
       type: 'ad',
       id: `ad-${slot}-${index}`,
