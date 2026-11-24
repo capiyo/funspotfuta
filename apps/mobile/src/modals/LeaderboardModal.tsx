@@ -1028,10 +1028,11 @@ function VotersTab({
             </Text>
           </View>
         }
-        renderItem={({ item }) => {
+        renderItem={({ item, index }) => {
           const isMe = item.userId === userId;
           const vc = voteColor(item.selection);
           return (
+            <Fragment>
             <View style={styles.voterRow}>
               <Avatar colors={colors} size="md" userId={item.userId} label={initials(item.username)} borderColor={vc} />
               <View style={styles.voterTextWrap}>
@@ -1078,6 +1079,8 @@ function VotersTab({
                 </Text>
               </View>
             </View>
+            {index === 4 && <View style={{ marginVertical: 8 }}><AdCarousel /></View>}
+            </Fragment>
           );
         }}
       />
