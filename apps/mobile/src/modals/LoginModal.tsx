@@ -619,6 +619,7 @@ export default function LoginModal({ visible, onClose, onSuccess }: LoginModalPr
             </View>
 
             <ScrollView
+              style={styles.formScroll}
               keyboardShouldPersistTaps="handled"
               contentContainerStyle={styles.scrollContent}
             >
@@ -860,7 +861,7 @@ function makeStyles(colors: ReturnType<typeof useFanColors>) {
     sheetWrap: { width: '100%', flex: 1, justifyContent: 'flex-end' },
     sheet: {
       width: '100%',
-      maxHeight: '96%',
+      maxHeight: '42%',
       backgroundColor: colors.background,
       borderTopLeftRadius: 24,
       borderTopRightRadius: 24,
@@ -868,7 +869,8 @@ function makeStyles(colors: ReturnType<typeof useFanColors>) {
       paddingTop: 12,
       paddingBottom: Platform.OS === 'android' ? 20 : 0,
     },
-    scrollContent: { flexGrow: 1, paddingTop: 8, paddingBottom: 40 },
+    formScroll: { flexShrink: 1 },
+    scrollContent: { paddingTop: 8, paddingBottom: 24 },
     pickerSheet: {
       width: '100%',
       maxHeight: '80%',
