@@ -18,10 +18,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { capCachedMessages, queryKeys } from '../queries/queryKeys';
 import { webSocketService } from './websocket-service';
-import {
-    sendChannelMessage,
-    type SendPayloadExtras,
-} from './send-channel-messages';
+import { type SendPayloadExtras } from './send-channel-messages';
 import {
     type ChatMessage,
     chatMessageFromJson,
