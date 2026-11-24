@@ -10,6 +10,7 @@ import { followUser } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { LIST_BOTTOM_INSET } from '@/theme/layout';
 import { PostCard } from '@/components/PostCard';
+import { AdSenseAd } from '@/components/AdSenseAd';
 import { EmptyState, PagingFooter, SkeletonRows } from '@/components/ui/ListsStates';
 import { useHomeList, useHome } from './home/home-context';
 import './feed-layout.css';
@@ -148,7 +149,10 @@ export default function FeedScreen() {
                       onFollow={(item) => { if (userId && item.userId && authToken) void followUser(userId, item.userId, authToken); }}
                       requireLogin={requireLogin}
                     />
-</Fragment>
+                    {(index + 1) % 3 === 0 && (
+                      <AdSenseAd slotId={['9051548379', '3164796870', '1372263706'][Math.floor(index / 3) % 3]} placement="feed" />
+                    )}
+                    </Fragment>
                   ) : null
                 ))}
               </div>

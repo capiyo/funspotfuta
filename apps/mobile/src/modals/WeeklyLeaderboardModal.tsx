@@ -1,10 +1,11 @@
 import { Avatar } from '@/components/ui/Avatar';
-import { useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Trophy, X } from 'lucide-react-native';
 import { getChannelWeeklyLeaderboardData, type WeeklyChannelLeader, type WeeklyLeaderboardMe } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useFanColors } from '@/theme/use-fan-colors';
+import AdCarousel from '@/components/AdCarousel';
 
 export function WeeklyLeaderboardModal({ visible, onClose, channelId, channelName }: {
   visible: boolean;
@@ -63,12 +64,15 @@ export function WeeklyLeaderboardModal({ visible, onClose, channelId, channelNam
             <View style={styles.center}><Text style={styles.emptyTitle}>No weekly gains to show yet</Text><Text style={styles.emptyCopy}>Weekly rankings show points won by channel members since Tuesday at 04:00 EAT.</Text></View>
           ) : (
             <ScrollView style={styles.list} contentContainerStyle={styles.listContent}>
-              {rows.map((row) => (
-                <View key={row.user_id || row.username} style={styles.row}>
-                  <Text style={styles.rank}>{row.rank <= 3 ? ['🥇', '🥈', '🥉'][row.rank - 1] : `#${row.rank}`}</Text>
-                  <Avatar colors={colors} size="sm" userId={row.user_id} label={row.username?.[0] ?? '?'} /><Text style={styles.name} numberOfLines={1}>{row.username}</Text>
-                  <Text style={styles.points}>+{row.weekly_points.toLocaleString()} pts</Text>
-                </View>
+              {rows.map((row, index) => (
+                <Fragment key={row.user_id || row.username}>
+                  <View style={styles.row}>
+                    <Text style={styles.rank}>{row.rank <= 3 ? ['🥇', '🥈', '🥉'][row.rank - 1] : `#${row.rank}`}</Text>
+                    <Avatar colors={colors} size="sm" userId={row.user_id} label={row.username?.[0] ?? '?'} /><Text style={styles.name} numberOfLines={1}>{row.username}</Text>
+                    <Text style={styles.points}>+{row.weekly_points.toLocaleString()} pts</Text>
+                  </View>
+                  {index === 4 && <View style={{ marginVertical: 8 }}><AdCarousel /></View>}
+                </Fragment>
               ))}
               {me && !rows.some((row) => row.user_id === me.user_id) ? (
                 <View key={`me-${me.user_id}`} style={[styles.row, styles.meRow]}>
