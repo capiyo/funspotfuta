@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { TeamCrest } from '@/components/TeamCrest';
 import { useFanColors } from '@/theme/use-fan-colors';
 import type { Fixture } from '@funspot/core';
@@ -132,14 +132,6 @@ export default function AdSenseCarousel({
       },
     ]);
   }, [enabled, slots, fixture]);
-
-  const scrollTo = useCallback((index: number) => {
-    const track = trackRef.current;
-    if (!track || !slides.length) return;
-    const next = (index + slides.length) % slides.length;
-    track.scrollTo({ left: next * track.clientWidth, behavior: 'smooth' });
-    setActiveIndex(next);
-  }, [slides.length]);
 
   useEffect(() => {
     setActiveIndex(0);
