@@ -806,9 +806,9 @@ export function useChannelChat({
         };
     }, []);
 
-    // ── Deliver (WebSocket, reconnect-and-retry) ────────────────
-    // The actual payload lives in ./send-channel-message so every screen
-    // sends identically.
+    // ── Deliver (REST persistence, WebSocket live echo) ──────────
+    // REST is authoritative for message creation and replies. The backend
+    // broadcasts the saved message to the room for realtime subscribers.
     const deliver = useCallback(
         async (
             tempId: string,
@@ -898,8 +898,13 @@ export function useChannelChat({
 
             insertSorted(optimistic);
 
-            const ok = await deliver(tempId, trimmed, extras);
-            if (!ok) replaceById(tempId, { status: 'failed', isPending: false });
+            try {
+                const ok = await deliver(tempId, trimmed, extras);
+                if (!ok) replaceById(tempId, { status: 'failed', isPending: false });
+            } catch (error) {
+                replaceById(tempId, { status: 'failed', isPending: false });
+                throw error;
+            }
         },
         [channelId, userId, username, deliver, insertSorted, replaceById],
     );
