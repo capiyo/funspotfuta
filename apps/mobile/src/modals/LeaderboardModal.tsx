@@ -331,7 +331,7 @@ export default function LeaderboardScreen({
                         })
                       }
                     />
-                    {index === 4 && <View style={{ marginVertical: 8 }}><AdCarousel /></View>}
+                    {(index + 1) % 5 === 0 && <View style={{ marginVertical: 8 }}><AdCarousel /></View>}
                     </Fragment>
                   ))}
                 </>
