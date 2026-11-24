@@ -20,7 +20,6 @@
 // the user can hop channels from inside this modal.
 
 import { Avatar } from '@/components/ui/Avatar';
-import { AdSenseAd } from '@/components/AdSenseAd';
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import {
@@ -338,7 +337,7 @@ export default function LeaderboardScreen({
                         })
                       }
                     />
-                    {index === 4 && <AdSenseAd slotId="1372263706" placement="leaderboard" />}
+                    
                     </Fragment>
                   ))}
                 </>
@@ -1030,11 +1029,10 @@ function VotersTab({
             </Text>
           </View>
         }
-        renderItem={({ item, index }) => {
+        renderItem={({ item }) => {
           const isMe = item.userId === userId;
           const vc = voteColor(item.selection);
           return (
-            <Fragment>
             <View style={styles.voterRow}>
               <Avatar colors={colors} size="md" userId={item.userId} label={initials(item.username)} borderColor={vc} />
               <View style={styles.voterTextWrap}>
@@ -1081,8 +1079,6 @@ function VotersTab({
                 </Text>
               </View>
             </View>
-            {index === 4 && <AdSenseAd slotId="3164796870" placement="voting" />}
-            </Fragment>
           );
         }}
       />

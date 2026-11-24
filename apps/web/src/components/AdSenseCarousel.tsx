@@ -1,5 +1,4 @@
 import { TeamCrest } from '@/components/TeamCrest';
-import { AdSenseAd } from '@/components/AdSenseAd';
 import { useFanColors } from '@/theme/use-fan-colors';
 import type { Fixture } from '@funspot/core';
 
@@ -13,20 +12,23 @@ type AdSenseCarouselProps = {
   fixture?: Fixture | null;
 };
 
-export default function AdSenseCarousel({ placement, slots = [], label = 'Current fixture', flush = false, fixture = null }: AdSenseCarouselProps) {
+export default function AdSenseCarousel({ placement, label = 'Current fixture', flush = false, fixture = null }: AdSenseCarouselProps) {
   const colors = useFanColors();
   if (placement !== 'chats' || !fixture) return null;
-  return <section className="grid w-full min-w-0 grid-cols-[0.9fr_1.1fr] items-center gap-1" aria-label={label} style={{
+  return <section className="w-full min-w-0" aria-label={label} style={{
     background: colors.surface, borderRadius: flush ? 0 : 8, padding: flush ? 0 : 3,
-    marginBottom: 0, overflow: 'hidden', minHeight: 68,
+    marginBottom: 0, overflow: 'hidden',
   }}>
-    <div className="flex min-h-[68px] min-w-0 items-center justify-center gap-1 px-1 py-2">
-      <span className="min-w-0 truncate text-right text-[10px] font-semibold" style={{ color: colors.textPrimary }}>{fixture.homeTeam}</span>
-      <TeamCrest name={fixture.homeTeam} fixture={fixture as unknown as Record<string, unknown>} side="home" size={20} />
-      <span className="shrink-0 text-[9px] font-semibold" style={{ color: colors.textTertiary }}>VS</span>
-      <TeamCrest name={fixture.awayTeam} fixture={fixture as unknown as Record<string, unknown>} side="away" size={20} />
-      <span className="min-w-0 truncate text-[10px] font-semibold" style={{ color: colors.textPrimary }}>{fixture.awayTeam}</span>
+    <div className="flex min-h-[68px] w-full items-center justify-center gap-3 px-3 py-2">
+      <span className="flex min-w-0 flex-1 items-center justify-end gap-1.5">
+        <span className="min-w-0 truncate text-right text-xs font-semibold" style={{ color: colors.textPrimary }}>{fixture.homeTeam}</span>
+        <TeamCrest name={fixture.homeTeam} fixture={fixture as unknown as Record<string, unknown>} side="home" size={24} />
+      </span>
+      <span className="shrink-0 text-[10px] font-semibold" style={{ color: colors.textTertiary }}>VS</span>
+      <span className="flex min-w-0 flex-1 items-center justify-start gap-1.5">
+        <TeamCrest name={fixture.awayTeam} fixture={fixture as unknown as Record<string, unknown>} side="away" size={24} />
+        <span className="min-w-0 truncate text-xs font-semibold" style={{ color: colors.textPrimary }}>{fixture.awayTeam}</span>
+      </span>
     </div>
-    <AdSenseAd slotId={slots[0] ?? '3164796870'} placement="chats" />
   </section>;
 }
