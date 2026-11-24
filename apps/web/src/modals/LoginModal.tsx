@@ -524,11 +524,19 @@ export default function LoginModal({ visible = true, onClose, onSuccess }: Login
           role="checkbox"
           aria-checked={acceptTerms}
           onClick={() => setAcceptTerms((value) => !value)}
-          className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2"
-          style={{ borderColor: colors.primary, background: acceptTerms ? colors.primary : colors.surface, color: colors.textInverse, boxShadow: acceptTerms ? 'none' : `inset 0 0 0 1px ${colors.primary}20` }}>{acceptTerms ? '✓' : ''}</button>
+          className="mt-0.5 flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-md border-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+          style={{
+            borderColor: acceptTerms ? colors.primary : colors.textSecondary,
+            background: acceptTerms ? colors.primary : colors.surfaceSunken,
+            color: colors.textInverse,
+            boxShadow: acceptTerms ? `0 0 0 2px ${colors.primary}30` : 'none',
+            '--tw-ring-color': colors.primary,
+            '--tw-ring-offset-color': colors.background,
+          } as React.CSSProperties}
+          aria-label="Accept Terms and Conditions and Privacy Policy">{acceptTerms ? '✓' : ''}</button>
       <p
           className="flex-1 text-xs leading-5"
-          style={{ color: colors.textTertiary }}>I agree to the <a
+          style={{ color: colors.textSecondary }}>I agree to the <a
           href={TERMS_URL}
           target="_blank"
           rel="noreferrer"
