@@ -20,6 +20,7 @@
 // the user can hop channels from inside this modal.
 
 import { Avatar } from '@/components/ui/Avatar';
+import AdSenseCarousel from '@/components/AdSenseCarousel';
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import {
@@ -337,7 +338,7 @@ export default function LeaderboardScreen({
                         })
                       }
                     />
-                    
+                    {index === 4 && <AdSenseCarousel placement="leaderboard" label="Season leaderboard advertisements" />}
                     </Fragment>
                   ))}
                 </>
