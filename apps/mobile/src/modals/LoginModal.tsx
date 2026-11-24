@@ -659,7 +659,10 @@ export default function LoginModal({ visible, onClose, onSuccess }: LoginModalPr
                     <Pressable
                       onPress={() => setAcceptTerms((v) => !v)}
                       style={[styles.checkbox, acceptTerms && styles.checkboxOn]}
-                      hitSlop={8}
+                      accessibilityRole="checkbox"
+                      accessibilityLabel="Accept Terms and Conditions and Privacy Policy"
+                      accessibilityState={{ checked: acceptTerms }}
+                      hitSlop={10}
                     >
                       {acceptTerms && (
                         <Text style={{ color: colors.textInverse, fontSize: 12 }}>✓</Text>
@@ -974,15 +977,16 @@ function makeStyles(colors: ReturnType<typeof useFanColors>) {
     },
     termsRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 2 },
     checkbox: {
-      width: 20,
-      height: 20,
-      borderRadius: 999,
-      borderWidth: 1,
-      borderColor: colors.primary,
+      width: 22,
+      height: 22,
+      borderRadius: 11,
+      borderWidth: 2,
+      borderColor: '#75B98C',
+      backgroundColor: 'rgba(91, 174, 119, 0.12)',
       alignItems: 'center',
       justifyContent: 'center',
     },
-    checkboxOn: { backgroundColor: colors.primary, borderColor: colors.primary },
+    checkboxOn: { backgroundColor: '#328653', borderColor: '#75B98C' },
     button: {
       backgroundColor: 'transparent',
       borderRadius: 999,
