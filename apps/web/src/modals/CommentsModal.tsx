@@ -322,7 +322,7 @@ export default function PostCommentsModal({
             <MessageCircle size={30} color={colors.textTertiary} />
             <strong className="text-xs">No comments yet</strong>
             <span className="text-xs" style={{ color: colors.textTertiary }}>Be the first to comment!</span>
-          </div> : flattenCommentTree(comments).map((comment) => <CommentBubble key={comment.id || `${comment.user_id}-${comment.timestamp}`
+          </div> : flattenCommentTree(comments).map((comment) => <CommentBubble key={comment.id || `${comment.user_id}-${comment.timestamp}`}
             colors={colors} comment={comment} currentUserId={userId ?? ''}
             parentUsername={comment.parentUsername}
             depth={comment.depth}
