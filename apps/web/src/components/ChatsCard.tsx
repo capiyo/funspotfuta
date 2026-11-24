@@ -361,11 +361,21 @@ export function MatchCard({
       ],
   );
 
-  const isLive = !!liveFixture.isLive || liveFixture.status?.toLowerCase() === 'live';
+  const fixtureStatus = (liveFixture.status ?? '').toLowerCase();
+  const isLive =
+    fixtureStatus === 'live' ||
+    (!['upcoming', 'soon', 'completed', 'finished'].includes(fixtureStatus) &&
+      !!liveFixture.isLive);
   const matchMinute = getFormattedMinuteDisplay(liveFixture);
-  const isHalfTime = liveFixture.status?.toLowerCase() === 'half_time';
+  const isHalfTime = fixtureStatus === 'half_time';
   const isCompleted =
-    liveFixture.status === 'completed' || liveFixture.status === 'finished';
+    fixtureStatus === 'completed' || fixtureStatus === 'finished';
+  const fixtureStatusLabel =
+    fixtureStatus === 'soon'
+      ? 'SOON'
+      : isCompleted
+        ? 'FT'
+        : kickoffLabel(fixture.date);
   const voters = fixture.voters ?? [];
   const hasVoted = voters.some((voter) => voter.userId === userId);
 
@@ -671,7 +681,7 @@ export function MatchCard({
               ) : isHalfTime && matchMinute ? (
                 <span className="match-card-minute" aria-label={`Match time ${matchMinute}`} style={{ ...styles.date, color: colors.textSecondary, whiteSpace: 'nowrap' }}>{matchMinute}</span>
               ) : (
-                <span className="match-card-date" style={styles.date}>{kickoffLabel(fixture.date)}</span>
+                <span className="match-card-date" style={styles.date}>{fixtureStatusLabel}</span>
               )}
             </span>
           </div>

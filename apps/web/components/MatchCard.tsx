@@ -28,21 +28,26 @@ import {
 import { useAuth } from '@/lib/auth/auth-context';
 import { FooterPill } from './FooterPill';
 
-function formatDate(dateString: string): string {
-  try {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffHours = (date.getTime() - now.getTime()) / 36e5;
+function formatDate(fixture: Fixture): string {
+  const status = (fixture.status ?? '').toLowerCase();
 
-    if (diffHours <= 2 && diffHours >= -2) return 'LIVE';
-    if (date.getTime() > now.getTime()) return `In ${Math.round(diffHours)}h`;
-    return `${date.getHours().toString().padStart(2, '0')}:${date
-      .getMinutes()
-      .toString()
-      .padStart(2, '0')}`;
-  } catch {
-    return 'TBD';
+  // The provider-backed fixture status is authoritative. Kickoff time is
+  // only a countdown and must never be interpreted as proof of live play.
+  if (status === 'live') return 'LIVE';
+  if (status === 'soon') return 'SOON';
+  if (status === 'completed' || status === 'finished') return 'FT';
+  if (!['upcoming', ''].includes(status) && fixture.isLive) return 'LIVE';
+
+  const date = new Date(fixture.date);
+  if (Number.isNaN(date.getTime())) return 'TBD';
+
+  const remainingMs = date.getTime() - Date.now();
+  if (remainingMs > 0 && remainingMs < 60 * 60 * 1000) {
+    return `In ${Math.ceil(remainingMs / 60000)}m`;
   }
+  if (remainingMs > 0) return `In ${Math.round(remainingMs / 36e5)}h`;
+
+  return 'Awaiting kickoff';
 }
 
 function initials(name: string): string {
@@ -182,7 +187,7 @@ export function MatchCard({
   const { userId, isLoggedIn } = useAuth();
   const [draft, setDraft] = useState('');
 
-  const badge = formatDate(fixture.date);
+  const badge = formatDate(fixture);
   const isLive = badge === 'LIVE';
   const isCompleted =
     fixture.status === 'completed' || fixture.status === 'finished';
