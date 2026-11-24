@@ -119,7 +119,7 @@ function commentaryBelongsToFixture(
 
     let eventFixture: unknown;
     for (const candidate of candidates) {
-        eventFixture = candidate.fixtureId ?? candidate.fixture_id;
+        eventFixture = candidate.fixtureId ?? candidate.fixture_id ?? candidate.matchId ?? candidate.match_id;
         if (eventFixture != null) break;
     }
     if (eventFixture == null || String(eventFixture) !== String(fixtureId)) return false;
