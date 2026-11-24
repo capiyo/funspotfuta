@@ -84,7 +84,7 @@ export default function FeedScreen() {
     const rows: FeedRow[] = [];
     posts.forEach((post, postIndex) => {
       rows.push({ type: 'post', key: post.id ?? `post-${postIndex}`, post, postIndex });
-      if ((postIndex + 1) % 3 === 0 && postIndex < posts.length - 1) {
+      if ((postIndex + 1) % 3 === 0) {
         rows.push({ type: 'ad', key: `feed-ad-after-${post.id ?? postIndex}` });
       }
     });
