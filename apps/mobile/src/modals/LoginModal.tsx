@@ -45,8 +45,8 @@ import { fanText } from '@/theme/use-fan-typography';
 type Step = 'phone' | 'otp' | 'pin' | 'username';
 type ToastKind = 'success' | 'warn' | 'error';
 
-const TERMS_URL = 'https://www.funspot.co.ke/terms.html';
-const PRIVACY_URL = 'https://www.funspot.co.ke/privacy.html';
+const TERMS_URL = 'https://www.funspot.co.ke/terms';
+const PRIVACY_URL = 'https://www.funspot.co.ke/privacy';
 
 // ============================================================================
 //  COUNTRY DATA
