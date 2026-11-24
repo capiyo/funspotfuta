@@ -168,7 +168,7 @@ export function chatMessageFromJson(json: any): ChatMessage {
     'userId' in json || 'username' in json || 'sender_name' in json || 'channel_id' in json;
 
   if (isChannelMessage) {
-    const id = (json.id ?? json.message_id ?? json._id?.toString() ?? '').toString();
+    const id = (json.messageId ?? json.message_id ?? json.id ?? json._id?.toString() ?? '').toString();
     const userId = json.userId ?? json.sender_id ?? json.user_id ?? '';
     const username = json.username ?? json.sender_name ?? json.user_name ?? 'Anonymous';
     const text = json.text ?? json.message ?? '';

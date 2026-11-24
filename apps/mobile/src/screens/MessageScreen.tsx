@@ -464,7 +464,12 @@ export default function MessageScreen() {
       : null;
 
     setReplyTo(null);
-    await sendWithReply(text, replyPayload);
+    try {
+      await sendWithReply(text, replyPayload);
+    } catch (error) {
+      setDraft(text);
+      toast.showError(error instanceof Error ? error.message : 'Failed to send message');
+    }
   }
 
   function handleDraftChange(text: string) {

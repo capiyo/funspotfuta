@@ -258,6 +258,7 @@ export function useChannelChat({
 
     const replaceById = useCallback(
         (tempId: string, patch: Partial<ChatMessage>) => {
+            if (typeof patch.id === 'string' && patch.id) seenIdsRef.current.add(patch.id);
             setMessages((prev) =>
                 prev.map((m) => (m.tempId === tempId ? { ...m, ...patch } : m)),
             );
@@ -556,14 +557,14 @@ export function useChannelChat({
         const onChatMessage = (payload: Record<string, any>) => {
             if (!belongsToConversation(payload, channelId, fixtureId)) return;
 
-            const incomingTempId = payload.tempId as string | undefined;
+            const incomingTempId = (payload.tempId ?? payload.temp_id) as string | undefined;
 
             if (
                 incomingTempId &&
                 messagesRef.current.some((m) => m.tempId === incomingTempId)
             ) {
                 const serverId =
-                    payload.messageId ?? payload.id ?? incomingTempId;
+                    payload.messageId ?? payload.message_id ?? payload.id ?? incomingTempId;
                 seenIdsRef.current.add(serverId);
                 replaceById(incomingTempId, {
                     id: serverId,
@@ -574,9 +575,13 @@ export function useChannelChat({
                 return;
             }
 
-            if (payload.userId && payload.userId === userId) return;
-
-            insertSorted({ ...chatMessageFromJson(payload), seq: nextSeq() });
+            const serverId = payload.messageId ?? payload.message_id ?? payload.id;
+            if (serverId && seenIdsRef.current.has(String(serverId))) return;
+            const senderId = payload.userId ?? payload.sender_id ?? payload.user_id;
+            if (senderId && String(senderId) === userId) return;
+            const parsed = chatMessageFromJson(payload);
+            if (!parsed.id && serverId) parsed.id = String(serverId);
+            insertSorted({ ...parsed, seq: nextSeq() });
         };
 
         // commentary.new
@@ -814,19 +819,43 @@ export function useChannelChat({
             extras: SendPayloadExtras = {},
         ): Promise<boolean> => {
             if (!channelId || !userId || !username) return false;
-            return sendChannelMessage({
-                text,
-                tempId,
-                userId,
+            const reply = extras.replyTo;
+            const payload = {
+                user_id: userId,
                 username,
-                authToken,
-                channelId,
-                fixtureId,
-                selection: userVoteSelection ?? '',
-                extras,
-            });
+                text,
+                fixture_id: fixtureId ?? undefined,
+                selection: userVoteSelection ?? undefined,
+                temp_id: tempId,
+                image_url: extras.imageUrl ?? undefined,
+                video_url: extras.videoUrl ?? undefined,
+                video_thumbnail_url: extras.videoThumbnailUrl ?? undefined,
+                is_image: extras.isImage ?? false,
+                is_video: extras.isVideo ?? false,
+                reply_to_id: reply?.messageId ?? undefined,
+                reply_to_text: reply?.text ?? undefined,
+                reply_to_username: reply?.username ?? undefined,
+                reply_to_selection: reply?.selection ?? undefined,
+                mentioned_user_ids: extras.mentionedUserIds ?? [],
+            };
+            const response = await fetch(
+                `${API_BASE_URL}/channels/${encodeURIComponent(channelId)}/messages`,
+                { method: 'POST', headers: authHeaders(), body: JSON.stringify(payload) },
+            );
+            const result = await response.json().catch(() => ({}));
+            if (!response.ok || result?.success === false) {
+                throw new Error(result?.message ?? result?.error ?? `Message send failed (${response.status})`);
+            }
+            const saved = result?.data ?? result?.message ?? result;
+            const parsed = chatMessageFromJson(saved);
+            const serverId = String(saved?.message_id ?? saved?.messageId ?? parsed.id ?? '');
+            if (serverId) {
+                seenIdsRef.current.add(serverId);
+                replaceById(tempId, { ...parsed, id: serverId, tempId: null, isPending: false, status: 'sent' });
+            }
+            return true;
         },
-        [channelId, fixtureId, userId, username, authToken, userVoteSelection],
+        [channelId, fixtureId, userId, username, authToken, userVoteSelection, authHeaders, replaceById],
     );
 
     // ── Send ────────────────────────────────────────────────────
