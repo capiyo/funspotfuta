@@ -67,6 +67,7 @@ import {
   Info,
   Lock,
   Paperclip,
+  Reply as ReplyIcon,
   Send,
   Users,
   X,
@@ -1401,7 +1402,14 @@ function MessageBubble({
         <View style={{ width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.draw + '25' }}>
           <Text style={{ fontSize: 14 }}>⚽</Text>
         </View>
-        <View style={{ position: 'relative', maxWidth: '84%', borderRadius: 18, paddingHorizontal: FAN_SPACING.md, paddingVertical: FAN_SPACING.sm, backgroundColor: colors.draw + '20', borderWidth: 1, borderColor: colors.draw + '50' }}>
+        <Pressable
+          onPress={onLongPress}
+          onLongPress={onLongPress}
+          delayLongPress={350}
+          accessibilityRole="button"
+          accessibilityLabel="Reply to live commentary"
+          style={{ position: 'relative', maxWidth: '84%', borderRadius: 18, paddingHorizontal: FAN_SPACING.md, paddingVertical: FAN_SPACING.sm, paddingRight: 42, backgroundColor: colors.draw + '20', borderWidth: 1, borderColor: colors.draw + '50' }}
+        >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: FAN_SPACING.xs }}>
             <Text style={[fanText('microLabel', colors, colors.draw), { fontWeight: '900', letterSpacing: 0.8 }]}>COMMENTARY</Text>
             <View style={{ borderRadius: 12, paddingHorizontal: 6, paddingVertical: 2, backgroundColor: colors.draw + '25' }}>
@@ -1412,7 +1420,10 @@ function MessageBubble({
           </View>
           <Text style={[fanText('body', colors, colors.textPrimary), { fontWeight: '600', lineHeight: 21 }]}>{message.text}</Text>
           <Text style={[fanText('tag', colors, colors.textTertiary), { textAlign: 'right', marginTop: 5 }]}>{timeAgo(message.timestamp)}</Text>
-        </View>
+          <View pointerEvents="none" style={{ position: 'absolute', right: 8, bottom: 7 }}>
+            <ReplyIcon size={15} color={colors.primary}/>
+          </View>
+        </Pressable>
       </View>
     );
   }
@@ -1446,6 +1457,7 @@ function MessageBubble({
         ))}
 
         <Pressable
+          onPress={onLongPress}
           onLongPress={onLongPress}
           delayLongPress={350}
           style={[
