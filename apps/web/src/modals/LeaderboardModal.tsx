@@ -20,7 +20,7 @@
 // the user can hop channels from inside this modal.
 
 import { Avatar } from '@/components/ui/Avatar';
-import { AdSenseAd } from '@/components/AdSenseAd';
+import AdSenseCarousel from '@/components/AdSenseCarousel';
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import {
@@ -344,11 +344,13 @@ export default function LeaderboardScreen({
                       }
                     />
                     {(index + 1) % 5 === 0 && (
-                      <AdSenseAd
-                        slotId={['9051548379', '3164796870', '1372263706'][Math.floor(index / 5) % 3]}
-                        placement="leaderboard"
-                      />
-                    )}
+                    <AdSenseCarousel
+                      placement="leaderboard"
+                      label="Leaderboard advertisements"
+                      enabled={visible}
+                      slots={['9051548379', '3164796870', '1372263706']}
+                    />
+                  )}
                     </Fragment>
                   ))}
                 </>
