@@ -87,6 +87,17 @@ function asDateTime(value: any): Date | null {
 // CHANNEL MEMBER
 // ============================================================================
 
+const DEMO_MEMBER_USERNAMES = new Set(['guest_john', 'mary_ochieng']);
+
+export function isDemoMemberName(username: unknown): boolean {
+    if (typeof username !== 'string') return false;
+    // Public API generations have emitted handles both with and without the
+    // leading @. Normalize that presentation detail before checking the demo
+    // account deny-list so SSR sanitization catches either representation.
+    const normalized = username.trim().toLowerCase().replace(/^@+/, '');
+    return DEMO_MEMBER_USERNAMES.has(normalized);
+}
+
 export interface ChannelMember {
     userId: string;
     username: string;
@@ -191,7 +202,7 @@ export function channelFromJson(json: Record<string, any>): Channel {
     try {
         const membersData: any[] = Array.isArray(json.members) ? json.members : [];
         const members: ChannelMember[] = membersData
-            .filter((m) => m && typeof m === 'object')
+            .filter((m) => m && typeof m === 'object' && !isDemoMemberName(m.username ?? m.user_name ?? m.userName))
             .map((m) => channelMemberFromJson(m));
 
         const isApproved = asBool(json.isApproved ?? json.is_approved ?? json.approved, false);
@@ -323,16 +334,18 @@ export async function getUserChannels(userId: string, authToken?: string): Promi
 // GET /api/channels/all — matches _fetchAllChannelsForBrowsing in
 // home_page.dart. authToken is optional (works logged-out too); filtering
 // out already-joined channels is left to the caller.
-export async function getAllChannels(authToken?: string): Promise<Channel[]> {
+export async function getAllChannels(authToken?: string, signal?: AbortSignal): Promise<Channel[]> {
     try {
         const res = await fetch(`${API_BASE_URL}/channels/all`, {
             headers: { 'Content-Type': 'application/json', ...authHeaders(authToken) },
+            signal,
         });
         if (!res.ok) return [];
         const data = await res.json();
         const list = data.channels ?? [];
         return list.map(channelFromJson);
     } catch (e) {
+        if (signal?.aborted) throw e;
         console.error('getAllChannels failed:', e);
         return [];
     }
@@ -351,6 +364,25 @@ export async function getAllChannels(authToken?: string): Promise<Channel[]> {
 //   channel['members']
 // This flattens those into a single object so callers don't have to
 // walk into `activity.*` themselves.
+
+// GET /api/channels/:channel/fixtures/:fixture/unread/:user
+// Counts unread messages for one fixture in one channel and one account.
+export async function getFixtureUnreadCount(
+    channelId: string,
+    fixtureId: string,
+    userId: string,
+    authToken?: string,
+): Promise<number> {
+    const url = `${API_BASE_URL}/channels/${encodeURIComponent(channelId)}/fixtures/${encodeURIComponent(fixtureId)}/unread/${encodeURIComponent(userId)}`;
+    const response = await fetch(url, { headers: authHeaders(authToken) });
+    if (!response.ok) {
+        throw new Error(`Unread count request failed with status ${response.status}`);
+    }
+    const payload: unknown = await response.json();
+    if (!payload || typeof payload !== 'object') return 0;
+    const count = (payload as { unread_count?: unknown }).unread_count;
+    return typeof count === 'number' && Number.isFinite(count) ? Math.max(0, Math.trunc(count)) : 0;
+}
 
 export interface ChannelDetail {
     channelId: string;

@@ -12,14 +12,15 @@
 //   - Drill-down: tapping a member opens their Activity History sheet
 //
 // What's deliberately NOT ported:
-//   - Carousel + ads (Flutter-specific; no ad SDK in this app)
+//   - Carousel + ads (now ported through the shared native AdMob carousel)
 //   - Exit Channel button + 30-point confirmation (belongs in a
 //     channel-settings surface, not the leaderboard)
 //
 // The channel picker is kept (the Flutter modal doesn't have one) so
 // the user can hop channels from inside this modal.
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Avatar } from '@/components/ui/Avatar';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -32,9 +33,8 @@ import {
   RefreshControl,
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
-import {
-  X,
-  Trophy,
+import AdCarousel from '@/components/AdCarousel';
+import {Trophy,
   Star,
   Flame,
   Target,
@@ -71,19 +71,10 @@ type FanColors = ReturnType<typeof useFanColors>;
 //  RANK HELPERS
 // ═══════════════════════════════════════════════════════════════
 
-// Gold / silver / bronze — not in the design-token palette (theme
-// colors, not rank colors), so they live here as named constants
-// rather than invented tokens.
-const RANK_COLORS = {
-  gold: '#FFD700',
-  silver: '#B0B0B0',
-  bronze: '#CD7F32',
-};
-
 function rankColor(rank: number, colors: FanColors): string {
-  if (rank === 1) return RANK_COLORS.gold;
-  if (rank === 2) return RANK_COLORS.silver;
-  if (rank === 3) return RANK_COLORS.bronze;
+  if (rank === 1) return colors.primary;
+  if (rank === 2) return colors.draw;
+  if (rank === 3) return colors.away;
   return colors.textTertiary;
 }
 
@@ -156,6 +147,14 @@ export default function LeaderboardScreen({
 
   // Two-tab layout when a fixture is present, single-tab otherwise.
   const [tab, setTab] = useState<'leaderboard' | 'votes'>('leaderboard');
+  const swipeStartX = useRef<number | null>(null);
+  const handleSwipeStart = (x: number) => { swipeStartX.current = x; };
+  const handleSwipeEnd = (x: number) => {
+    const start = swipeStartX.current;
+    swipeStartX.current = null;
+    if (!hasFixture || start === null || Math.abs(x - start) < 55) return;
+    setTab(x < start ? 'votes' : 'leaderboard');
+  };
   const hasFixture = !!fixture;
 
   // Reset to leaderboard tab whenever the modal re-opens, so a
@@ -217,7 +216,12 @@ export default function LeaderboardScreen({
       statusBarTranslucent
     >
       <Pressable style={styles.backdrop} onPress={onClose}>
-        <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
+        <Pressable
+          style={styles.sheet}
+          onPress={(e) => e.stopPropagation()}
+          onTouchStart={(event) => handleSwipeStart(event.nativeEvent.pageX)}
+          onTouchEnd={(event) => handleSwipeEnd(event.nativeEvent.pageX)}
+        >
           <View style={styles.handleWrap}>
             <View style={styles.handle} />
           </View>
@@ -233,10 +237,7 @@ export default function LeaderboardScreen({
               </Text>
               <Text style={styles.headerSub}>{rows.length} members</Text>
             </View>
-            <Pressable onPress={onClose} hitSlop={8} style={styles.closeBtn}>
-              <X size={14} color={colors.textSecondary} />
-            </Pressable>
-          </View>
+</View>
 
           {/* Channel picker — only shown when the parent didn't lock us
               to a channel via the `channelId` prop. */}
@@ -313,9 +314,9 @@ export default function LeaderboardScreen({
                       }
                     />
                   )}
-                  {members.map((row) => (
+                  {members.map((row, index) => (
+                    <Fragment key={row.id}>
                     <MemberCard
-                      key={row.id}
                       colors={colors}
                       styles={styles}
                       row={row}
@@ -330,6 +331,8 @@ export default function LeaderboardScreen({
                         })
                       }
                     />
+                    {(index + 1) % 5 === 0 && <View style={{ marginVertical: 8 }}><AdCarousel /></View>}
+                    </Fragment>
                   ))}
                 </>
               )}
@@ -379,7 +382,7 @@ function TabButton({
       <Text
         style={[
           styles.tabButtonText,
-          { color: active ? colors.textPrimary : colors.textTertiary },
+          { color: active ? colors.primary : colors.textTertiary },
         ]}
       >
         {label}
@@ -444,19 +447,7 @@ function ChampionCard({
       </View>
 
       <View style={styles.championIdentity}>
-        <View
-          style={[
-            styles.championAvatar,
-            {
-              backgroundColor: hexWithAlpha(accent, 0.08),
-              borderColor: hexWithAlpha(accent, 0.35),
-            },
-          ]}
-        >
-          <Text style={[styles.championAvatarText, { color: accent }]}>
-            {initials(row.nickname || row.username)}
-          </Text>
-        </View>
+        <Avatar colors={colors} size="xl" userId={row.id} uri={row.avatarUrl} label={initials(row.nickname || row.username)} />
         <View style={{ flex: 1 }}>
           <View style={styles.nameRow}>
             <Text style={styles.championName} numberOfLines={1}>
@@ -581,16 +572,7 @@ function MemberCard({
       ]}
     >
       <View style={styles.memberHeader}>
-        <View
-          style={[
-            styles.memberAvatar,
-            { backgroundColor: hexWithAlpha(colors.primary, 0.12) },
-          ]}
-        >
-          <Text style={[styles.memberAvatarText, { color: colors.primary }]}>
-            {initials(row.nickname || row.username)}
-          </Text>
-        </View>
+        <Avatar colors={colors} size="xl" userId={row.id} uri={row.avatarUrl} label={initials(row.nickname || row.username)} />
         <View style={{ flex: 1 }}>
           <View style={styles.nameRow}>
             <Text style={styles.memberName} numberOfLines={1}>
@@ -648,10 +630,17 @@ function MemberCard({
                   />
                 );
               })}
-              <Text style={[styles.statMuted, { color: colors.textTertiary }]}>
-                ({row.totalPoints})
-              </Text>
-            </View>
+</View>
+          }
+        />
+        <StatRow
+          colors={colors}
+          styles={styles}
+          label="Points"
+          trailing={
+            <Text style={[styles.statValue, { color: colors.primary }]}>
+              {row.totalPoints.toLocaleString()}
+            </Text>
           }
         />
         <StatRow
@@ -1046,16 +1035,7 @@ function VotersTab({
           const vc = voteColor(item.selection);
           return (
             <View style={styles.voterRow}>
-              <View
-                style={[
-                  styles.voterAvatar,
-                  { backgroundColor: hexWithAlpha(vc, 0.1) },
-                ]}
-              >
-                <Text style={[styles.voterAvatarText, { color: vc }]}>
-                  {initials(item.username)}
-                </Text>
-              </View>
+              <Avatar colors={colors} size="md" userId={item.userId} label={initials(item.username)} />
               <View style={styles.voterTextWrap}>
                 <View style={styles.nameRow}>
                   <Text
@@ -1326,16 +1306,7 @@ function ActivityHistorySheet({
 
           {/* Header */}
           <View style={styles.headerRow}>
-            <View
-              style={[
-                styles.memberAvatar,
-                { backgroundColor: hexWithAlpha(colors.primary, 0.12) },
-              ]}
-            >
-              <Text style={[styles.memberAvatarText, { color: colors.primary }]}>
-                {initials(params.displayName)}
-              </Text>
-            </View>
+            <Avatar colors={colors} size="xl" userId={params.userId} label={initials(params.displayName)} />
             <View style={styles.headerTextWrap}>
               <Text style={styles.headerTitle} numberOfLines={1}>
                 {params.displayName}
@@ -1345,10 +1316,7 @@ function ActivityHistorySheet({
                 {params.clubFan ? ` · ${params.clubFan}` : ''}
               </Text>
             </View>
-            <Pressable onPress={onClose} hitSlop={8} style={styles.closeBtn}>
-              <X size={14} color={colors.textSecondary} />
-            </Pressable>
-          </View>
+</View>
 
           {/* Filter tabs */}
           <ScrollView
@@ -1439,7 +1407,7 @@ function ActivityCard({
     <View
       style={[
         styles.activityCard,
-        { backgroundColor: colors.surface, borderColor: colors.border },
+        { backgroundColor: 'transparent', borderColor: 'transparent' },
       ]}
     >
       <View style={styles.activityHeaderRow}>
@@ -1534,9 +1502,9 @@ function createStyles(colors: FanColors) {
     },
     sheet: {
       maxHeight: '85%',
-      borderTopLeftRadius: FAN_RADIUS.xl,
-      borderTopRightRadius: FAN_RADIUS.xl,
-      backgroundColor: colors.background,
+      borderTopLeftRadius: 24,
+      borderTopRightRadius: 24,
+      backgroundColor: 'transparent',
       overflow: 'hidden',
     },
     handleWrap: {
@@ -1545,9 +1513,9 @@ function createStyles(colors: FanColors) {
       paddingBottom: FAN_SPACING.xs,
     },
     handle: {
-      width: 32,
-      height: 3,
-      borderRadius: 2,
+      width: 40,
+      height: 4,
+      borderRadius: 999,
       backgroundColor: colors.borderActive,
     },
     headerRow: {
@@ -1559,10 +1527,10 @@ function createStyles(colors: FanColors) {
     headerIcon: {
       width: 32,
       height: 32,
-      borderRadius: 10,
+      borderRadius: 14,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: hexWithAlpha(colors.primary, 0.12),
+      backgroundColor: 'transparent',
     },
     headerTextWrap: { flex: 1, marginLeft: FAN_SPACING.sm },
     headerTitle: {
@@ -1578,7 +1546,7 @@ function createStyles(colors: FanColors) {
     closeBtn: {
       borderRadius: 999,
       padding: 6,
-      backgroundColor: colors.surfaceSunken,
+      backgroundColor: 'transparent',
     },
     screen: { backgroundColor: colors.background },
     content: {
@@ -1596,10 +1564,9 @@ function createStyles(colors: FanColors) {
       textAlign: 'center',
     },
     pickerWrap: {
-      borderRadius: FAN_RADIUS.md,
-      borderWidth: 1,
-      borderColor: colors.border,
-      backgroundColor: colors.surface,
+      borderRadius: 16,
+      borderWidth: 0,
+      backgroundColor: 'transparent',
       marginHorizontal: FAN_SPACING.md,
       marginBottom: FAN_SPACING.xs,
       overflow: 'hidden',
@@ -1612,20 +1579,19 @@ function createStyles(colors: FanColors) {
       marginTop: FAN_SPACING.xs,
       marginBottom: FAN_SPACING.sm,
       padding: 3,
-      borderRadius: FAN_RADIUS.md,
-      backgroundColor: colors.surfaceSunken,
-      borderWidth: 0.5,
-      borderColor: colors.border,
+      borderRadius: 999,
+      backgroundColor: 'transparent',
+      borderWidth: 0,
     },
     tabButton: {
       flex: 1,
       alignItems: 'center',
       justifyContent: 'center',
       paddingVertical: FAN_SPACING.xs,
-      borderRadius: FAN_RADIUS.sm,
+      borderRadius: 999,
     },
     tabButtonActive: {
-      backgroundColor: colors.surface,
+      backgroundColor: 'transparent',
     },
     tabButtonText: {
       fontSize: 10,
@@ -1635,8 +1601,8 @@ function createStyles(colors: FanColors) {
 
     // ── Champion card ──────────────────────────────────
     championCard: {
-      borderRadius: FAN_RADIUS.lg,
-      borderWidth: 1,
+      borderRadius: 22,
+      borderWidth: 0,
       padding: FAN_SPACING.md,
       marginBottom: FAN_SPACING.md,
     },
@@ -1651,7 +1617,7 @@ function createStyles(colors: FanColors) {
       gap: 4,
       paddingHorizontal: 8,
       paddingVertical: 3,
-      borderRadius: 12,
+      borderRadius: 999,
     },
     championPillText: {
       fontSize: 9,
@@ -1661,7 +1627,7 @@ function createStyles(colors: FanColors) {
     rankChip: {
       paddingHorizontal: 6,
       paddingVertical: 2,
-      borderRadius: 8,
+      borderRadius: 999,
     },
     rankChipText: {
       fontSize: 10,
@@ -1676,7 +1642,7 @@ function createStyles(colors: FanColors) {
       width: 44,
       height: 44,
       borderRadius: 22,
-      borderWidth: 1.5,
+      borderWidth: 0,
       alignItems: 'center',
       justifyContent: 'center',
       marginRight: FAN_SPACING.sm,
@@ -1709,7 +1675,7 @@ function createStyles(colors: FanColors) {
     mePill: {
       paddingHorizontal: 5,
       paddingVertical: 1,
-      borderRadius: 6,
+      borderRadius: 999,
     },
     mePillText: {
       fontSize: 7,
@@ -1736,8 +1702,8 @@ function createStyles(colors: FanColors) {
 
     // ── Member card ────────────────────────────────────
     memberCard: {
-      borderRadius: FAN_RADIUS.md,
-      borderWidth: 1,
+      borderRadius: 18,
+      borderWidth: 0,
       padding: FAN_SPACING.md,
       marginBottom: FAN_SPACING.sm,
     },
@@ -1778,7 +1744,11 @@ function createStyles(colors: FanColors) {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      paddingVertical: 3,
+      paddingHorizontal: 8,
+      paddingVertical: 5,
+      borderRadius: 10,
+      backgroundColor: 'transparent',
+      marginBottom: 4,
     },
     statLabel: {
       fontSize: 10,
@@ -1830,10 +1800,9 @@ function createStyles(colors: FanColors) {
       marginBottom: FAN_SPACING.xs,
       paddingHorizontal: FAN_SPACING.md,
       paddingVertical: FAN_SPACING.sm,
-      borderRadius: FAN_RADIUS.md,
-      backgroundColor: colors.surfaceSunken,
-      borderWidth: 0.5,
-      borderColor: colors.border,
+      borderRadius: 18,
+      backgroundColor: 'transparent',
+      borderWidth: 0,
     },
     summaryRow: {
       flexDirection: 'row',
@@ -1879,7 +1848,7 @@ function createStyles(colors: FanColors) {
       paddingHorizontal: 8,
       paddingVertical: 3,
       borderRadius: 14,
-      borderWidth: 0.5,
+      borderWidth: 0,
       maxWidth: 160,
     },
     filterChipText: {
@@ -1941,8 +1910,9 @@ function createStyles(colors: FanColors) {
       fontSize: 10,
     },
     activityCard: {
-      borderRadius: FAN_RADIUS.sm,
-      borderWidth: 0.5,
+      borderRadius: 18,
+      borderWidth: 0,
+      backgroundColor: 'transparent',
       padding: FAN_SPACING.sm,
       marginBottom: FAN_SPACING.sm,
     },

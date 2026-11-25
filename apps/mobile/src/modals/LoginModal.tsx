@@ -3,13 +3,11 @@
 // 1:1 port of funspot/lib/modals/login_modal.dart
 //
 //   phone (+ accept terms) -> Firebase phone OTP
-//      codeSent / auto-verified -> otp -> signIn:
-//          existing user -> login with the Firebase ID token as session token
-//          new user      -> username -> register (username + phone)
-//      ANY Firebase failure (or non-network unexpected error) -> PIN fallback:
-//          check-user -> has PIN          -> pin-login
-//                     -> user, no PIN     -> set PIN (set-pin)
-//                     -> no user          -> set PIN -> username -> register(+pin)
+//      codeSent / auto-verified -> verify Firebase ID token with backend:
+//          existing user -> exchange for backend JWT (set PIN if missing)
+//          new user      -> Firebase-verified backend registration
+//      Firebase failure -> existing backend PIN login only; new accounts and
+//      PIN setup require successful phone verification
 import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Modal,
@@ -31,9 +29,10 @@ import {
   signOut,
   type FirebaseAuthTypes,
 } from '@react-native-firebase/auth';
-import { firebaseAuth } from '@/lib/firebase';
+import { firebaseAuth, requestFcmToken } from '@/lib/firebase';
+import { NotificationService } from '@/lib/api/notification-service';
 import { useAuth } from '@/lib/auth/auth-context';
-import { checkUser, isUsernameTaken, pinLogin, setPin, registerUser } from '@funspot/core';
+import { checkUser, isUsernameTaken, pinLogin, loginWithFirebaseToken, setPin, registerUser } from '@funspot/core';
 import {
   buildE164,
   validatePhone,
@@ -46,7 +45,8 @@ import { fanText } from '@/theme/use-fan-typography';
 type Step = 'phone' | 'otp' | 'pin' | 'username';
 type ToastKind = 'success' | 'warn' | 'error';
 
-const TERMS_URL = 'https://clash-privacy.netlify.app/';
+const TERMS_URL = 'https://www.funspot.co.ke/terms';
+const PRIVACY_URL = 'https://www.funspot.co.ke/privacy';
 
 // ============================================================================
 //  COUNTRY DATA
@@ -173,6 +173,8 @@ export default function LoginModal({ visible, onClose, onSuccess }: LoginModalPr
 
   // Prevents double-handling when Android auto-verification races with manual confirm.
   const otpHandledRef = useRef(false);
+  const verifiedFirebaseTokenRef = useRef<string | null>(null);
+  const verifiedBackendTokenRef = useRef<string | null>(null);
 
   const filteredCountries = useMemo(() => {
     if (!countrySearch.trim()) return COUNTRIES;
@@ -243,9 +245,9 @@ export default function LoginModal({ visible, onClose, onSuccess }: LoginModalPr
   //  BACKEND HELPERS
   // ─────────────────────────────────────────
   // Port of _getUserByPhoneFull: any failure counts as "no user".
-  async function getUserSafe(e164: string) {
+  async function getUserSafe(e164: string, firebaseIdToken: string) {
     try {
-      return await checkUser(e164);
+      return await checkUser(e164, firebaseIdToken);
     } catch {
       return null;
     }
@@ -259,8 +261,21 @@ export default function LoginModal({ visible, onClose, onSuccess }: LoginModalPr
       toast('Login failed. Please try again.', { error: true });
       return;
     }
-    // TODO: port _registerFcmTokenAfterLogin here (register the FCM token with the
-    // backend now that userId + token are known), same as the Flutter app.
+    // Ask for native push permission only after an explicit successful sign-in.
+    // A denied permission or FCM outage must never block account access.
+    try {
+      const fcmToken = await requestFcmToken();
+      if (fcmToken) {
+        await NotificationService.registerToken({
+          userId,
+          fcmToken,
+          platform: Platform.OS,
+          authToken: token,
+        });
+      }
+    } catch (error) {
+      if (__DEV__) console.warn('[notifications] FCM registration skipped', error);
+    }
     onSuccess?.(userId, username);
     resetAndClose();
   }
@@ -274,6 +289,11 @@ export default function LoginModal({ visible, onClose, onSuccess }: LoginModalPr
     if (validationError) return;
     if (!acceptTerms) {
       toast('Please accept Terms & Conditions', { warn: true });
+      return;
+    }
+
+    if (!firebaseAuth) {
+      toast('Phone login is unavailable in this app build. Update the app and try again.', { error: true });
       return;
     }
 
@@ -324,12 +344,12 @@ export default function LoginModal({ visible, onClose, onSuccess }: LoginModalPr
   // ─────────────────────────────────────────
   async function switchToPinFlow(e164: string) {
     setVerifiedPhone(e164);
-    const userData = await getUserSafe(e164);
-    const exists = userData != null;
-    const hasPin = userData?.has_pin === true;
-
-    setExistingUserId(exists ? (userData!.id?.toString() ?? null) : null);
-    setIsNewPinUser(!hasPin);
+    // If Firebase OTP failed, only an existing PIN can authenticate this
+    // account. Account creation and PIN setup require verified phone identity.
+    verifiedFirebaseTokenRef.current = null;
+    verifiedBackendTokenRef.current = null;
+    setExistingUserId(null);
+    setIsNewPinUser(false);
     setPinValue('');
     setPinConfirm('');
     setStep('pin');
@@ -349,10 +369,11 @@ export default function LoginModal({ visible, onClose, onSuccess }: LoginModalPr
         toast('PINs do not match', { error: true });
         return;
       }
-      if (existingUserId) {
+      if (existingUserId && verifiedBackendTokenRef.current) {
         await attachPinToExistingUser(existingUserId, value);
       } else {
-        showUsernameStep(value);
+        toast('Phone verification is required to set a PIN. Please retry OTP.', { error: true });
+        setStep('phone');
       }
       return;
     }
@@ -362,6 +383,9 @@ export default function LoginModal({ visible, onClose, onSuccess }: LoginModalPr
       const res = await pinLogin(verifiedPhone, value);
       if (res.ok && res.token && res.user) {
         await performLogin(res.user.id, res.user.username ?? 'User', res.token, verifiedPhone);
+      } else if (res.status === 400 && res.message?.includes('PIN not set')) {
+        toast('This account has no PIN yet. Verify your phone with OTP to set one.', { error: true });
+        setStep('phone');
       } else {
         toast(withStatus(res.message ?? 'Incorrect PIN', res.status), { error: true });
       }
@@ -373,10 +397,18 @@ export default function LoginModal({ visible, onClose, onSuccess }: LoginModalPr
   }
 
   async function attachPinToExistingUser(userId: string, value: string) {
+    const backendToken = verifiedBackendTokenRef.current;
+    if (!backendToken) {
+      toast('Verify your phone before setting a PIN.', { error: true });
+      setStep('phone');
+      return;
+    }
     setLoading(true);
     try {
-      const res = await setPin(userId, value);
+      const res = await setPin(userId, value, backendToken);
       if (res.ok && res.token) {
+        verifiedBackendTokenRef.current = null;
+        verifiedFirebaseTokenRef.current = null;
         const username = res.user?.username?.toString() ?? 'User';
         await performLogin(userId, username, res.token, verifiedPhone);
       } else {
@@ -422,17 +454,26 @@ export default function LoginModal({ visible, onClose, onSuccess }: LoginModalPr
   // ─────────────────────────────────────────
   async function handleFirebaseUser(fUser: FirebaseAuthTypes.User) {
     try {
-      const token = await fUser.getIdToken();
+      const firebaseIdToken = await fUser.getIdToken();
       const phone = fUser.phoneNumber ?? verifiedPhone;
+      verifiedFirebaseTokenRef.current = firebaseIdToken;
 
-      const existing = await getUserSafe(phone);
+      const existing = await getUserSafe(phone, firebaseIdToken);
       if (existing) {
-        const uid = existing.id?.toString() ?? '';
-        const username = existing.username?.toString() ?? 'User';
-        if (token) {
-          await performLogin(uid, username, token, phone);
+        const session = await loginWithFirebaseToken(phone, existing.username?.toString() ?? 'User', firebaseIdToken);
+        if (!session.ok || !session.token || !session.user) {
+          throw new Error(session.message ?? 'Could not establish a Funspot session.');
+        }
+        if (existing.has_pin !== true) {
+          verifiedBackendTokenRef.current = session.token;
+          setExistingUserId(session.user.id);
+          setIsNewPinUser(true);
+          setPinValue('');
+          setPinConfirm('');
+          setStep('pin');
         } else {
-          toast('Failed to get auth token', { error: true });
+          verifiedFirebaseTokenRef.current = null;
+          await performLogin(session.user.id, session.user.username ?? 'User', session.token, phone);
         }
       } else {
         showUsernameStep(null);
@@ -448,7 +489,7 @@ export default function LoginModal({ visible, onClose, onSuccess }: LoginModalPr
   // Android auto-verification (Flutter's verificationCompleted): Firebase may
   // sign the user in without the code being typed.
   useEffect(() => {
-    if (step !== 'otp') return;
+    if (step !== 'otp' || !firebaseAuth) return;
     const unsub = onAuthStateChanged(firebaseAuth, async (user: FirebaseAuthTypes.User | null) => {
       if (!user || otpHandledRef.current) return;
       if (user.phoneNumber && user.phoneNumber !== verifiedPhone) return;
@@ -484,8 +525,15 @@ export default function LoginModal({ visible, onClose, onSuccess }: LoginModalPr
         toast('Username already taken', { error: true });
         return;
       }
-      const res = await registerUser(name, verifiedPhone, pendingPin ?? undefined);
+      const firebaseIdToken = verifiedFirebaseTokenRef.current;
+      if (!firebaseIdToken) {
+        toast('Verify your phone before creating an account.', { error: true });
+        setStep('phone');
+        return;
+      }
+      const res = await registerUser(name, verifiedPhone, pendingPin ?? undefined, firebaseIdToken);
       if (res.ok && res.token && res.user) {
+        verifiedFirebaseTokenRef.current = null;
         await performLogin(res.user.id, name, res.token, verifiedPhone);
       } else {
         toast(withStatus(res.message ?? 'Registration failed', res.status), { error: true });
@@ -571,6 +619,7 @@ export default function LoginModal({ visible, onClose, onSuccess }: LoginModalPr
             </View>
 
             <ScrollView
+              style={styles.formScroll}
               keyboardShouldPersistTaps="handled"
               contentContainerStyle={styles.scrollContent}
             >
@@ -623,7 +672,7 @@ export default function LoginModal({ visible, onClose, onSuccess }: LoginModalPr
                         Terms
                       </Text>{' '}
                       and{' '}
-                      <Text style={{ color: colors.primary }} onPress={() => openLink(TERMS_URL)}>
+                      <Text style={{ color: colors.primary }} onPress={() => openLink(PRIVACY_URL)}>
                         Privacy Policy
                       </Text>
                     </Text>
@@ -809,17 +858,19 @@ function makeStyles(colors: ReturnType<typeof useFanColors>) {
       backgroundColor: 'rgba(0,0,0,0.5)',
       justifyContent: 'flex-end',
     },
-    sheetWrap: { width: '100%' },
+    sheetWrap: { width: '100%', flex: 1, justifyContent: 'flex-end' },
     sheet: {
       width: '100%',
-      maxHeight: '85%',
+      maxHeight: '42%',
       backgroundColor: colors.background,
-      borderTopLeftRadius: 20,
-      borderTopRightRadius: 20,
+      borderTopLeftRadius: 24,
+      borderTopRightRadius: 24,
       paddingHorizontal: 20,
       paddingTop: 12,
+      paddingBottom: Platform.OS === 'android' ? 20 : 0,
     },
-    scrollContent: { paddingTop: 8, paddingBottom: 32 },
+    formScroll: { flexShrink: 1 },
+    scrollContent: { paddingTop: 8, paddingBottom: 24 },
     pickerSheet: {
       width: '100%',
       maxHeight: '80%',
@@ -837,7 +888,7 @@ function makeStyles(colors: ReturnType<typeof useFanColors>) {
       justifyContent: 'space-between',
       alignItems: 'center',
       paddingVertical: 12,
-      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomWidth:0,
       borderBottomColor: colors.border,
     },
     grabber: {
@@ -860,9 +911,9 @@ function makeStyles(colors: ReturnType<typeof useFanColors>) {
       borderRadius: 16,
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: colors.surfaceSunken,
-      borderWidth: 1,
-      borderColor: colors.border,
+      backgroundColor: 'transparent',
+      borderWidth:0,
+      borderColor: 'transparent',
     },
     stepGap: { gap: 12 },
     centerText: { textAlign: 'center' },
@@ -871,19 +922,19 @@ function makeStyles(colors: ReturnType<typeof useFanColors>) {
     card: {
       alignItems: 'center',
       padding: 16,
-      borderRadius: 16,
-      borderWidth: 1,
-      borderColor: colors.border,
-      backgroundColor: colors.surfaceSunken,
+      borderRadius: 24,
+      borderWidth:0,
+      borderColor: 'transparent',
+      backgroundColor: 'transparent',
       gap: 6,
     },
     cardIcon: { fontSize: 40 },
     cardTitle: { textAlign: 'center', fontSize: 17 },
     input: {
-      borderWidth: 1,
+      borderWidth:0,
       borderColor: colors.border,
-      backgroundColor: colors.surfaceSunken,
-      borderRadius: 12,
+      backgroundColor: 'transparent',
+      borderRadius: 999,
       paddingHorizontal: 16,
       paddingVertical: 14,
       color: colors.textPrimary,
@@ -891,10 +942,10 @@ function makeStyles(colors: ReturnType<typeof useFanColors>) {
     phoneRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      borderWidth: 1,
+      borderWidth:0,
       borderColor: colors.border,
-      backgroundColor: colors.surfaceSunken,
-      borderRadius: 12,
+      backgroundColor: 'transparent',
+      borderRadius: 999,
     },
     dialCodeButton: { paddingHorizontal: 12, paddingVertical: 14 },
     divider: {
@@ -912,10 +963,10 @@ function makeStyles(colors: ReturnType<typeof useFanColors>) {
     pinRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      borderWidth: 1,
+      borderWidth:0,
       borderColor: colors.border,
-      backgroundColor: colors.surfaceSunken,
-      borderRadius: 12,
+      backgroundColor: 'transparent',
+      borderRadius: 999,
       paddingRight: 14,
     },
     pinField: {
@@ -926,34 +977,34 @@ function makeStyles(colors: ReturnType<typeof useFanColors>) {
     },
     termsRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 2 },
     checkbox: {
-      width: 18,
-      height: 18,
-      borderRadius: 4,
-      borderWidth: 1,
-      borderColor: colors.border,
+      width: 20,
+      height: 20,
+      borderRadius: 999,
+      borderWidth:0,
+      borderColor: colors.primary,
       alignItems: 'center',
       justifyContent: 'center',
     },
     checkboxOn: { backgroundColor: colors.primary, borderColor: colors.primary },
     button: {
-      backgroundColor: colors.primary,
+      backgroundColor: 'transparent',
       borderRadius: 999,
       paddingVertical: 14,
       alignItems: 'center',
       marginTop: 6,
     },
     buttonDisabled: { opacity: 0.6 },
-    buttonText: { fontWeight: '600' },
+    buttonText: { fontWeight: '700', color: colors.primary },
     toastWrap: { position: 'absolute', top: 60, left: 16, right: 16 },
     toast: {
       paddingHorizontal: 16,
       paddingVertical: 12,
-      borderRadius: 16,
+      borderRadius: 999,
       shadowColor: '#000',
-      shadowOpacity: 0.25,
-      shadowRadius: 12,
+      shadowOpacity: 0,
+      shadowRadius: 0,
       shadowOffset: { width: 0, height: 4 },
-      elevation: 6,
+      elevation: 0,
     },
     toastText: { color: '#fff', fontSize: 13, fontWeight: '500' },
   });

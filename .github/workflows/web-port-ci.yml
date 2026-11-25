@@ -1,0 +1,61 @@
+name: Web port validation
+on:
+  push:
+    branches: [web-port-from-master, seo-public-home-app-subpath, seo-app-at-root]
+  pull_request:
+    branches: [master]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm install --no-audit --no-fund
+      - run: npm run test:core
+      - run: npm run test:web:notification-normalizer
+      - run: npm run test:web:contact-email
+      - run: npm run typecheck:core
+      - run: npm run typecheck:web
+      - run: npm run typecheck:mobile
+      - name: Verify Android JavaScript bundle
+        run: cd apps/mobile && npx expo export --platform android --output-dir /tmp/funspot-mobile-android-export
+      - name: Verify iOS JavaScript bundle
+        run: cd apps/mobile && npx expo export --platform ios --output-dir /tmp/funspot-mobile-ios-export
+      - run: npm run lint:web
+      - run: npm run build:web
+        env:
+          FUNSPOT_CONTACT_EMAIL: ci-check@funspot.co.ke
+      - name: Package production web build
+        uses: actions/upload-artifact@v4
+        with:
+          name: funspot-web-dist
+          path: apps/web/dist/
+          if-no-files-found: error
+          retention-days: 7
+      - name: Install Playwright and Chromium
+        run: |
+          npm install --no-save --no-audit --no-fund playwright
+          npx playwright install --with-deps chromium
+      - name: Verify ChatsCard at desktop and mobile widths
+        run: |
+          set -E
+          trap 'echo "--- Vite dev server log ---"; cat /tmp/funspot-web-dev.log' ERR
+          cd apps/web
+          npm run dev -- --host 127.0.0.1 --port 4173 --strictPort > /tmp/funspot-web-dev.log 2>&1 &
+          for attempt in $(seq 1 30); do curl --fail --silent http://127.0.0.1:4173/ > /dev/null && break; sleep 1; done
+          cd ../..
+          VERIFY_BASE_URL=http://127.0.0.1:4173/ node apps/web/scripts/verify-chats-card.mjs
+      - name: Verify Match Details lineup and stats tabs
+        run: node apps/web/scripts/verify-match-details-tabs.mjs
+      - name: Verify Home shell and Feed styling
+        run: node apps/web/scripts/verify-home.mjs
+      - name: Upload ChatsCard verification screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chats-card-verification-screenshots
+          path: docs/verify/*.png
+          if-no-files-found: warn

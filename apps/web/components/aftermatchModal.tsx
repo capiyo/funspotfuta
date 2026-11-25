@@ -129,14 +129,14 @@ export function AftermatchReviewModal({
                         <ResultBanner fixture={fixture} data={data} />
 
                         {/* Tab bar */}
-                        <div className="mx-4 my-1 flex gap-0.5 overflow-x-auto rounded-fan-lg border-[0.5px] border-fan-border bg-fan-surfaceSunken p-0.5">
+                        <div className="mx-4 my-1 flex gap-0.5 overflow-x-auto rounded-fan-pill border-0 bg-transparent p-0.5">
                             {tabLabels.map(({ key, label }) => {
                                 const active = tab === key;
                                 return (
                                     <button
                                         key={key}
                                         onClick={() => setTab(key)}
-                                        className={`flex-1 whitespace-nowrap rounded-fan-md px-fan-sm py-1.5 text-fan-tag font-semibold ${active
+                                        className={`flex-1 whitespace-nowrap rounded-fan-pill px-fan-sm py-1.5 text-fan-tag font-semibold ${active
                                                 ? 'bg-fan-surface text-fan-textPrimary shadow-sm'
                                                 : 'text-fan-textTertiary'
                                             }`}
@@ -169,7 +169,7 @@ export function AftermatchReviewModal({
                         <div className="border-t border-fan-border/20 px-fan-lg pt-fan-sm pb-fan-md">
                             <button
                                 onClick={() => shareResults(fixture, data)}
-                                className="flex w-full items-center justify-center gap-fan-xs rounded-fan-md border-[0.5px] border-fan-border bg-fan-surfaceSunken py-fan-sm text-fan-tag font-bold text-fan-textSecondary"
+                                className="flex w-full items-center justify-center gap-fan-xs rounded-fan-pill border-0 bg-transparent py-fan-sm text-fan-tag font-bold text-fan-textSecondary"
                             >
                                 <span>↗</span>
                                 <span>Share Results</span>
@@ -211,10 +211,10 @@ function ResultBanner({
 
     return (
         <div
-            className={`mx-4 my-1.5 flex items-center justify-center gap-fan-sm rounded-fan-lg border px-fan-md py-fan-sm ${colorClass}`}
+            className={`mx-4 my-1.5 flex items-center justify-center gap-fan-sm rounded-fan-pill border-0 bg-transparent px-fan-md py-fan-sm ${colorClass}`}
         >
             <span className="text-fan-caption font-bold">{label}</span>
-            <span className="rounded-fan-md bg-black/10 px-fan-sm py-[2px] text-fan-caption font-bold">
+            <span className="rounded-fan-pill bg-transparent px-fan-sm py-[2px] text-fan-caption font-bold">
                 {data.homeScore} - {data.awayScore}
             </span>
         </div>
@@ -307,7 +307,7 @@ function VoterTile({ voter, isMe }: { voter: AftermatchVoter; isMe: boolean }) {
 
     return (
         <div
-            className={`mb-fan-xs flex items-center gap-fan-sm rounded-fan-md border-[0.5px] px-fan-sm py-fan-xs ${isMe
+            className={`mb-fan-xs flex items-center gap-fan-sm rounded-fan-pill border-0 bg-transparent px-fan-sm py-fan-xs ${isMe
                     ? 'border-fan-borderActive bg-fan-primaryDim'
                     : 'border-fan-border/20 bg-fan-surface'
                 }`}
@@ -493,7 +493,7 @@ function BetCard({ bet, userId }: { bet: AftermatchBet; userId: string }) {
     const finisherWon = bet.result === 'finisher_won';
 
     return (
-        <div className="mb-fan-md rounded-fan-lg border-[0.5px] border-fan-border/30 bg-fan-surface p-fan-md">
+        <div className="mb-fan-md rounded-fan-2xl border-0 bg-transparent p-fan-md">
             <div className="mb-fan-sm flex items-center justify-between">
                 <span className="text-fan-tag font-bold text-fan-textPrimary">
                     Bet #{bet.id.slice(0, 8)}
@@ -565,7 +565,7 @@ function BetSide({
 }) {
     return (
         <div
-            className={`flex-1 rounded-fan-sm p-fan-xs text-center ${isWinner
+            className={`flex-1 rounded-fan-pill bg-transparent p-fan-xs text-center ${isWinner
                     ? 'border border-fan-primary/30 bg-fan-primaryDim'
                     : 'bg-fan-surfaceSunken'
                 }`}
@@ -701,7 +701,7 @@ function SubFixtureCard({
                     return (
                         <span
                             key={o.key}
-                            className={`rounded-fan-md px-fan-sm py-[3px] text-fan-tag font-semibold ${won
+                            className={`rounded-fan-pill px-fan-sm py-[3px] text-fan-tag font-semibold ${won
                                     ? 'bg-fan-primaryDim text-fan-primary ring-1 ring-fan-primary'
                                     : 'bg-fan-surfaceSunken text-fan-textSecondary'
                                 }`}
@@ -751,7 +751,7 @@ function SubFixtureCard({
                             return (
                                 <div
                                     key={`${p.userId}-${i}`}
-                                    className={`mb-[2px] flex items-center gap-fan-xs rounded-fan-sm px-fan-sm py-fan-xs ${isMe ? 'bg-fan-primaryDim' : 'bg-fan-surfaceSunken'
+                                    className={`mb-[2px] flex items-center gap-fan-xs rounded-fan-pill bg-transparent px-fan-sm py-fan-xs ${isMe ? 'bg-fan-primaryDim' : 'bg-fan-surfaceSunken'
                                         }`}
                                 >
                                     <span className="text-[14px]">{won ? '🏆' : '•'}</span>
@@ -817,7 +817,7 @@ function FilterChip({
     return (
         <button
             onClick={onClick}
-            className={`rounded-fan-sm border-[0.5px] px-fan-sm py-[2px] text-fan-tag font-semibold ${active
+            className={`rounded-fan-pill border-0 bg-transparent px-fan-sm py-[2px] text-fan-tag font-semibold ${active
                     ? 'border-fan-primary/30 bg-fan-primaryDim text-fan-primary'
                     : 'border-fan-border/30 text-fan-textTertiary'
                 }`}
@@ -891,7 +891,7 @@ function ErrorState({ onRetry }: { onRetry: () => void }) {
             </p>
             <button
                 onClick={onRetry}
-                className="mt-fan-sm rounded-fan-md bg-fan-primary px-fan-lg py-fan-xs text-fan-tag font-semibold text-fan-textInverse"
+                className="mt-fan-sm rounded-fan-pill bg-transparent px-fan-lg py-fan-xs text-fan-tag font-semibold text-fan-textInverse"
             >
                 Retry
             </button>

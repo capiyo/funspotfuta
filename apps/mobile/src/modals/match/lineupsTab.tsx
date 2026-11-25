@@ -1,19 +1,17 @@
 // components/MatchDetailsModal/LineupsTab.tsx
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState } from 'react';
 import {
     View,
     Text,
-    Image,
+    LayoutChangeEvent,
     StyleSheet,
-    Pressable,
     ActivityIndicator,
-    Animated,
     ScrollView,
-    Easing,
+    Pressable,
 } from 'react-native';
-import { AlertCircle, CircleDot, X, ArrowLeftRight } from 'lucide-react-native';
+import { AlertCircle, CircleDot } from 'lucide-react-native';
 
-import { FAN_SPACING, FAN_RADIUS } from '@funspot/core';
+import { FAN_SPACING } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
 import type { Fixture } from '../../../../../packages/core/src/types/fixture';
@@ -31,54 +29,6 @@ function hexWithAlpha(hex: string, alpha: number): string {
     const g = parseInt(clean.substring(2, 4), 16);
     const b = parseInt(clean.substring(4, 6), 16);
     return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-}
-
-// ═══════════════════════════════════════════════════════════════
-//  FORMATION PILL
-// ═══════════════════════════════════════════════════════════════
-
-interface FormationPillProps {
-    teamName: string;
-    formation: string;
-    color: string;
-    alignRight?: boolean;
-    imageUrl?: string | null;
-}
-
-function FormationPill({
-    teamName,
-    formation,
-    color,
-    alignRight = false,
-    imageUrl,
-}: FormationPillProps) {
-    const colors = useFanColors();
-    return (
-        <View style={{ alignItems: alignRight ? 'flex-end' : 'flex-start' }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
-                {imageUrl ? <Image source={{ uri: imageUrl }} style={{ width: 18, height: 18, borderRadius: 9 }} resizeMode="contain" /> : null}
-                <Text
-                numberOfLines={1}
-                ellipsizeMode="tail"
-                style={[fanText('tag', colors), { color }]}
-            >
-                {teamName}
-                </Text>
-            </View>
-            <View style={{ height: 3 }} />
-            <View
-                style={[
-                    styles.formationPill,
-                    {
-                        backgroundColor: hexWithAlpha(color, 0.12),
-                        borderColor: hexWithAlpha(color, 0.3),
-                    },
-                ]}
-            >
-                <Text style={[styles.formationPillText, { color }]}>{formation}</Text>
-            </View>
-        </View>
-    );
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -125,17 +75,9 @@ export function LineupsTab({
     error,
 }: LineupsTabProps) {
     const colors = useFanColors();
-    const [showBench, setShowBench] = useState(false);
-    const benchAnim = useRef(new Animated.Value(0)).current;
+    const [availableHeight, setAvailableHeight] = useState(0);\n    const [showSquads, setShowSquads] = useState(false);
+    const onLayout = (event: LayoutChangeEvent) => setAvailableHeight(event.nativeEvent.layout.height);
 
-    useEffect(() => {
-        Animated.timing(benchAnim, {
-            toValue: showBench ? 1 : 0,
-            duration: 280,
-            easing: Easing.inOut(Easing.ease),
-            useNativeDriver: false,
-        }).start();
-    }, [showBench, benchAnim]);
 
     if (loading) {
         return (
@@ -153,144 +95,56 @@ export function LineupsTab({
         return <EmptyState icon="soccer" message="No lineup available" />;
     }
 
-    const hasBench =
-        lineups.homeBench.length > 0 || lineups.awayBench.length > 0;
-
-    // Animate both scaleY and opacity so the drawer reads as a
-    // SizeTransition rather than a flat grow. RN has no `transformOrigin`
-    // style prop on older versions, so we pair scaleY with a top-anchored
-    // layout (the drawer sits directly below the header row) instead.
-    const benchScaleY = benchAnim;
 
     return (
-        <View style={{ flex: 1 }}>
-            {/* Formation header row with Bench button */}
-            <View style={styles.formationRow}>
-                <FormationPill
-                    teamName={fixture.homeTeam}
-                    formation={lineups.homeFormation}
-                    color={colors.primary}
-                    imageUrl={fixture.homeTeamImageUrl}
-                />
-                <View style={{ flex: 1 }} />
-                {hasBench ? (
-                    <Pressable onPress={() => setShowBench((v) => !v)}>
-                        <View
-                            style={[
-                                styles.benchToggle,
-                                {
-                                    backgroundColor: showBench
-                                        ? colors.primary
-                                        : colors.background,
-                                    borderColor: showBench
-                                        ? colors.primary
-                                        : colors.borderActive,
-                                },
-                            ]}
-                        >
-                            {showBench ? (
-                                <X size={15} color="#FFFFFF" />
-                            ) : (
-                                <ArrowLeftRight size={15} color={colors.textSecondary} />
-                            )}
-                            <View style={{ width: 5 }} />
-                            <Text
-                                style={[
-                                    styles.benchToggleText,
-                                    {
-                                        color: showBench ? '#FFFFFF' : colors.textSecondary,
-                                    },
-                                ]}
-                            >
-                                Bench
-                            </Text>
-                        </View>
-                    </Pressable>
-                ) : null}
-                <View style={{ flex: 1 }} />
-                <FormationPill
-                    teamName={fixture.awayTeam}
-                    formation={lineups.awayFormation}
-                    color={colors.away}
-                    imageUrl={fixture.awayTeamImageUrl}
-                    alignRight
-                />
-            </View>
-
-            {/* Bench animated drawer — mirrors Flutter's SizeTransition
-          (sizeFactor driven by _benchAnimation, axisAlignment -1) */}
-            <Animated.View
-                style={{
-                    transform: [{ scaleY: benchScaleY }],
-                    opacity: benchAnim,
-                }}
-            >
-                <View
-                    style={[
-                        styles.benchDrawer,
-                        {
-                            backgroundColor: colors.background,
-                            borderBottomColor: hexWithAlpha(colors.primary, 0.25),
-                        },
-                    ]}
+        <View style={{ flex: 1 }} onLayout={onLayout}>
+            <View style={styles.toggleRow}>
+                <Pressable
+                    accessibilityRole="button"
+                    accessibilityState={{ expanded: showSquads }}
+                    onPress={() => setShowSquads((current) => !current)}
+                    style={[styles.toggleButton, { backgroundColor: hexWithAlpha(colors.primary, 0.14) }]}
                 >
-                    <View style={styles.benchHeader}>
-                        <View
-                            style={[
-                                styles.benchHeaderBar,
-                                { backgroundColor: colors.primary },
-                            ]}
-                        />
-                        <View style={{ width: 7 }} />
-                        <Text
-                            style={[
-                                fanText('tag', colors),
-                                { color: colors.primary, letterSpacing: 1.0 },
-                            ]}
-                        >
-                            BENCH
-                        </Text>
+                    <Text style={[styles.toggleText, { color: colors.primary }]}>
+                        {showSquads ? 'Less' : 'More'}
+                    </Text>
+                </Pressable>
+            </View>
+            {showSquads ? (
+                <ScrollView
+                    style={styles.pitchScroller}
+                    contentContainerStyle={styles.squadContent}
+                    showsVerticalScrollIndicator={false}
+                >
+                    <View style={styles.squadColumn}>
+                        <Text style={[fanText('body', colors), styles.teamHeading, { color: colors.textPrimary }]}>{fixture.homeTeam}</Text>
+                        <Text style={[fanText('caption', colors), styles.coachText, { color: colors.textSecondary }]}>Coach: {lineups.homeCoach}</Text>
+                        <BenchColumn players={lineups.homeBench} color={colors.primary} />
                     </View>
-                    <View style={{ height: 10 }} />
-                    <View style={styles.benchColumns}>
-                        <View style={{ flex: 1 }}>
-                            <BenchColumn
-                                players={lineups.homeBench}
-                                color={colors.primary}
-                            />
-                        </View>
-                        <View
-                            style={{
-                                width: 0.5,
-                                height: 160,
-                                backgroundColor: colors.borderActive,
-                                marginHorizontal: 10,
-                            }}
-                        />
-                        <View style={{ flex: 1 }}>
-                            <BenchColumn
-                                players={lineups.awayBench}
-                                color={colors.away}
-                            />
-                        </View>
+                    <View style={styles.squadColumn}>
+                        <Text style={[fanText('body', colors), styles.teamHeading, { color: colors.textPrimary }]}>{fixture.awayTeam}</Text>
+                        <Text style={[fanText('caption', colors), styles.coachText, { color: colors.textSecondary }]}>Coach: {lineups.awayCoach}</Text>
+                        <BenchColumn players={lineups.awayBench} color={colors.away} />
                     </View>
-                </View>
-            </Animated.View>
-
-            {/* Pitch */}
-            <ScrollView
-                style={{ flex: 1 }}
-                contentContainerStyle={styles.pitchScroll}
-            >
-                <PitchView
-                    homeTeam={fixture.homeTeam}
-                    awayTeam={fixture.awayTeam}
-                    homeFormation={lineups.homeFormation}
-                    awayFormation={lineups.awayFormation}
-                    homePlayers={lineups.homeStartingXI}
-                    awayPlayers={lineups.awayStartingXI}
-                />
-            </ScrollView>
+                </ScrollView>
+            ) : (
+                <ScrollView
+                    style={styles.pitchScroller}
+                    contentContainerStyle={styles.pitchScroll}
+                    showsVerticalScrollIndicator={false}
+                    contentInsetAdjustmentBehavior="never"
+                >
+                    <PitchView
+                        homeTeam={fixture.homeTeam}
+                        awayTeam={fixture.awayTeam}
+                        homeFormation={lineups.homeFormation}
+                        awayFormation={lineups.awayFormation}
+                        homePlayers={lineups.homeStartingXI}
+                        awayPlayers={lineups.awayStartingXI}
+                        maxHeight={Math.max(1, availableHeight)}
+                    />
+                </ScrollView>
+            )}
         </View>
     );
 }
@@ -311,60 +165,49 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         padding: FAN_SPACING.lg,
     },
-    formationRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingLeft: FAN_SPACING.base,
-        paddingRight: FAN_SPACING.base,
-        paddingTop: 10,
+    pitchScroller: {
+        flex: 1,
+        minHeight: 0,
+    },
+    toggleRow: {
+        alignItems: 'flex-end',
+        paddingHorizontal: FAN_SPACING.sm,
         paddingBottom: FAN_SPACING.xs,
     },
-    formationPill: {
-        paddingHorizontal: 8,
-        paddingVertical: 3,
-        borderRadius: 6,
-        borderWidth: 1,
+    toggleButton: {
+        paddingHorizontal: 12,
+        paddingVertical: 5,
+        borderRadius: 999,
     },
-    formationPillText: {
+    toggleText: {
         fontSize: 11,
         fontWeight: '700',
     },
-    benchToggle: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingHorizontal: 14,
-        paddingVertical: 7,
-        borderRadius: FAN_RADIUS.pill,
-        borderWidth: 1.2,
-    },
-    benchToggleText: {
-        fontSize: 12,
-        fontWeight: '600',
-    },
-    benchDrawer: {
-        borderBottomWidth: 0.8,
-        paddingLeft: 14,
-        paddingRight: 14,
-        paddingTop: 10,
-        paddingBottom: 12,
-    },
-    benchHeader: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    benchHeaderBar: {
-        width: 3,
-        height: 13,
-        borderRadius: 2,
-    },
-    benchColumns: {
+    squadContent: {
         flexDirection: 'row',
         alignItems: 'flex-start',
+        paddingHorizontal: FAN_SPACING.sm,
+        paddingBottom: FAN_SPACING.md,
+        gap: FAN_SPACING.sm,
+    },
+    squadColumn: {
+        flex: 1,
+        minWidth: 0,
+    },
+    teamHeading: {
+        fontWeight: '700',
+        marginBottom: 5,
+    },
+    coachText: {
+        marginBottom: 8,
     },
     pitchScroll: {
-        paddingLeft: FAN_SPACING.base,
-        paddingRight: FAN_SPACING.base,
-        paddingTop: FAN_SPACING.sm,
-        paddingBottom: FAN_SPACING.base,
+        flexGrow: 1,
+        alignItems: 'stretch',
+        justifyContent: 'flex-start',
+        paddingLeft: FAN_SPACING.sm,
+        paddingRight: FAN_SPACING.sm,
+        paddingTop: 0,
+        paddingBottom: FAN_SPACING.sm,
     },
 });

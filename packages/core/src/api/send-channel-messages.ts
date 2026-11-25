@@ -8,6 +8,7 @@ export interface SendPayloadExtras {
     isImage?: boolean;
     isVideo?: boolean;
     replyTo?: ChatMessage['replyTo'];
+    mentionedUserIds?: string[];
 }
 
 export interface SendChannelMessageParams {
@@ -59,6 +60,7 @@ export function sendChannelMessage({
         videoThumbnailUrl: extras.videoThumbnailUrl ?? null,
         isImage: extras.isImage ?? false,
         isVideo: extras.isVideo ?? false,
+        mentionedUserIds: extras.mentionedUserIds ?? [],
         tempId,
         onReconnectAttempt: () =>
             webSocketService.connect({

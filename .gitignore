@@ -28,18 +28,11 @@ expo-env.d.ts
 # Metro
 .metro-health-check*
 
-# === Next.js (apps/web) ===
-apps/web/.next/
-apps/web/out/
-.next/
-out/
-
 # === Turborepo ===
 .turbo/
 
 # === TypeScript build info ===
 *.tsbuildinfo
-next-env.d.ts
 
 # === Build outputs ===
 build/
@@ -68,9 +61,17 @@ ehthumbs.db
 *.swp
 *.swo
 
+apps/web/public/firebase-config.js
+
 # === Testing ===
 coverage/
 
 # === Misc ===
 *.pem
 .cache/
+
+# === Local Expo / EAS signing credentials (NEVER commit) ===
+**/credentials.json
+**/credentials/
+*.keystore
+*.pfx

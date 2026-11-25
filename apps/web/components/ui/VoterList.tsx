@@ -59,7 +59,17 @@ export function VoterList({
             <span key={v.id} className="flex min-w-0 flex-1 items-center gap-1">
               <Avatar size="sm" label={icon || initials(name)} borderColor={v.color} />
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-fan-caption text-fan-textPrimary">{name}</span>
+                <span className="flex min-w-0 items-center gap-1">
+                  <span className="block min-w-0 truncate text-fan-caption text-fan-textPrimary">{name}</span>
+                  <span
+                    aria-label="Vote mark"
+                    title="Vote"
+                    className="shrink-0 rounded border px-1 text-[9px] font-extrabold leading-4"
+                    style={{ color: v.color, borderColor: v.color, backgroundColor: 'var(--fan-surface-sunken)' }}
+                  >
+                    ✓ VOTE
+                  </span>
+                </span>
                 <span className="block truncate text-fan-tag" style={{ color: v.color }}>
                   {v.team}
                 </span>

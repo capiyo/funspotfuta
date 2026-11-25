@@ -32,6 +32,7 @@
 //   FanColors.surface                     → colors.surface
 //   FanColors.border                      → colors.border
 
+import { Avatar } from '@/components/ui/Avatar';
 import { useCallback, useEffect, useState } from 'react';
 import {
   View,
@@ -220,7 +221,7 @@ export default function AdminModal({
             {/* Header */}
             <View style={styles.headerRow}>
               <View
-                style={[styles.headerIcon, { backgroundColor: colors.drawDim }]}
+                style={[styles.headerIcon, { backgroundColor: 'transparent' }]}
               >
                 <ShieldAlert size={ICON.md} color={colors.draw} />
               </View>
@@ -239,16 +240,7 @@ export default function AdminModal({
                   </Text>
                 )}
               </View>
-              <Pressable
-                onPress={onClose}
-                hitSlop={8}
-                style={({ pressed }) => [
-                  styles.closeBtn,
-                  pressed && { opacity: PRESSED_OPACITY },
-                ]}
-              >
-                <X size={14} color={colors.textTertiary} />
-              </Pressable>
+              
             </View>
 
             {/* Content */}
@@ -423,8 +415,8 @@ export default function AdminModal({
               style={[
                 styles.confirmWarning,
                 {
-                  borderColor: colors.awayDim,
-                  backgroundColor: colors.awayDim,
+                  borderColor: 'transparent',
+                  backgroundColor: 'transparent',
                 },
               ]}
             >
@@ -444,7 +436,7 @@ export default function AdminModal({
                 onPress={() => setConfirmTarget(null)}
                 style={({ pressed }) => [
                   styles.confirmBtn,
-                  { borderWidth: 1, borderColor: colors.border },
+                  { borderWidth:0, borderColor: colors.border },
                   pressed && { opacity: PRESSED_OPACITY },
                 ]}
               >
@@ -456,11 +448,11 @@ export default function AdminModal({
                 onPress={confirmRemove}
                 style={({ pressed }) => [
                   styles.confirmBtn,
-                  { backgroundColor: colors.away },
+                  { backgroundColor: colors.awayDim, borderWidth:0, borderColor: colors.awayDim },
                   pressed && { opacity: PRESSED_OPACITY },
                 ]}
               >
-                <Text style={fanText('body', colors, colors.background)}>
+                <Text style={fanText('body', colors, colors.away)}>
                   Remove
                 </Text>
               </Pressable>
@@ -630,11 +622,13 @@ function MemberCard({
     <View style={styles.memberCard}>
       {/* Header row */}
       <View style={styles.memberHeader}>
-        <View style={[styles.memberAvatar, { backgroundColor: accentDim }]}>
-          <Text style={[fanText('title', colors, accent), { fontSize: 14 }]}>
-            {(member.username?.[0] ?? '?').toUpperCase()}
-          </Text>
-        </View>
+        <Avatar
+          colors={colors}
+          size="lg"
+          userId={String(member.userId ?? member.user_id ?? member.id ?? member._id ?? '') || undefined}
+          label={(member.username?.[0] ?? '?').toUpperCase()}
+          backgroundColor={accentDim}
+        />
         <View style={{ flex: 1, marginLeft: FAN_SPACING.md }}>
           <View style={styles.memberNameRow}>
             <Text
@@ -652,7 +646,7 @@ function MemberCard({
             </Text>
             {isAdmin && (
               <View
-                style={[styles.adminPill, { backgroundColor: colors.drawDim }]}
+                style={[styles.adminPill, { backgroundColor: 'transparent' }]}
               >
                 <Text
                   style={[fanText('tag', colors, colors.draw), { fontSize: 7 }]}
@@ -802,8 +796,8 @@ function createStyles(colors: FanColorPalette) {
     },
     sheet: {
       maxHeight: '85%',
-      borderTopLeftRadius: FAN_RADIUS.xl,
-      borderTopRightRadius: FAN_RADIUS.xl,
+      borderTopLeftRadius: 24,
+      borderTopRightRadius: 24,
       backgroundColor: colors.background,
       overflow: 'hidden',
     },
@@ -832,7 +826,7 @@ function createStyles(colors: FanColorPalette) {
     closeBtn: {
       borderRadius: 999,
       padding: FAN_SPACING.md,
-      backgroundColor: colors.inputSurface,
+      backgroundColor: 'transparent',
     },
 
     // ── Scroll view ─────────────────────────────────────
@@ -852,10 +846,10 @@ function createStyles(colors: FanColorPalette) {
     payoutCard: {
       flexDirection: 'row',
       alignItems: 'center',
-      borderRadius: FAN_RADIUS.md,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: colors.border,
-      backgroundColor: colors.surface,
+      borderRadius: 18,
+      borderWidth:0,
+      borderColor: 'transparent',
+      backgroundColor: 'transparent',
       paddingHorizontal: FAN_SPACING.base,
       paddingVertical: FAN_SPACING.base,
       marginBottom: FAN_SPACING.base,
@@ -864,9 +858,9 @@ function createStyles(colors: FanColorPalette) {
       flexDirection: 'row',
       alignItems: 'center',
       borderRadius: FAN_RADIUS.md,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: colors.draw,
-      backgroundColor: colors.drawDim,
+      borderWidth:0,
+      borderColor: 'transparent',
+      backgroundColor: 'transparent',
       paddingHorizontal: FAN_SPACING.base,
       paddingVertical: FAN_SPACING.base,
       marginBottom: FAN_SPACING.base,
@@ -880,10 +874,10 @@ function createStyles(colors: FanColorPalette) {
     },
     statCard: {
       flex: 1,
-      borderRadius: FAN_RADIUS.md,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: colors.border,
-      backgroundColor: colors.surface,
+      borderRadius: 18,
+      borderWidth:0,
+      borderColor: 'transparent',
+      backgroundColor: 'transparent',
       paddingVertical: FAN_SPACING.base,
       paddingHorizontal: FAN_SPACING.sm,
       alignItems: 'center',
@@ -900,10 +894,10 @@ function createStyles(colors: FanColorPalette) {
 
     // ── Member card ─────────────────────────────────────
     memberCard: {
-      borderRadius: FAN_RADIUS.md,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: colors.border,
-      backgroundColor: colors.surface,
+      borderRadius: 18,
+      borderWidth:0,
+      borderColor: 'transparent',
+      backgroundColor: 'transparent',
       padding: FAN_SPACING.base,
       marginBottom: FAN_SPACING.md,
     },
@@ -926,7 +920,7 @@ function createStyles(colors: FanColorPalette) {
     adminPill: {
       paddingHorizontal: 5,
       paddingVertical: 1,
-      borderRadius: FAN_RADIUS.sm,
+      borderRadius: FAN_RADIUS.pill,
     },
     removeIconBtn: {
       width: 28,
@@ -954,7 +948,7 @@ function createStyles(colors: FanColorPalette) {
     rolePill: {
       paddingHorizontal: FAN_SPACING.md,
       paddingVertical: 3,
-      borderRadius: FAN_RADIUS.md,
+      borderRadius: FAN_RADIUS.pill,
     },
     accuracyTrack: {
       flex: 1,
@@ -975,10 +969,10 @@ function createStyles(colors: FanColorPalette) {
     confirmCard: {
       width: '100%',
       maxWidth: 380,
-      borderRadius: FAN_RADIUS.lg,
-      backgroundColor: colors.surface,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: colors.border,
+      borderRadius: 24,
+      backgroundColor: 'transparent',
+      borderWidth:0,
+      borderColor: 'transparent',
       padding: FAN_SPACING.xl,
       alignItems: 'center',
     },
@@ -996,7 +990,7 @@ function createStyles(colors: FanColorPalette) {
       gap: FAN_SPACING.md,
       padding: FAN_SPACING.md,
       borderRadius: FAN_RADIUS.md,
-      borderWidth: StyleSheet.hairlineWidth,
+      borderWidth:0,
       marginBottom: FAN_SPACING.lg,
     },
     confirmActions: {

@@ -8,7 +8,7 @@ import type { Config } from 'tailwindcss';
 // defined in globals.css so they can differ between light/dark).
 const config: Config = {
   darkMode: 'media', // OS-driven, matching FanThemeController — no manual toggle
-  content: ['./app/**/*.{ts,tsx}', './components/**/*.{ts,tsx}', './lib/**/*.{ts,tsx}'],
+  content: ['./index.html', './src/**/*.{ts,tsx}', './components/**/*.{ts,tsx}', './lib/**/*.{ts,tsx}'],
   theme: {
     extend: {
       fontFamily: {

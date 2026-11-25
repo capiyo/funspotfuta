@@ -129,7 +129,7 @@ function StatusLine({
         <View
             style={[
                 styles.statusLine,
-                { backgroundColor: hexWithAlpha(accent, 0.08) },
+                { backgroundColor: 'transparent' },
             ]}
         >
             {isSuccess ? (
@@ -274,7 +274,7 @@ export function DepositDialog({
                                 {
                                     color: colors.textPrimary,
                                     borderColor: colors.border,
-                                    backgroundColor: colors.inputSurface,
+                                    backgroundColor: 'transparent',
                                 },
                             ]}
                         />
@@ -291,7 +291,7 @@ export function DepositDialog({
                                 {
                                     color: colors.textPrimary,
                                     borderColor: colors.border,
-                                    backgroundColor: colors.inputSurface,
+                                    backgroundColor: 'transparent',
                                 },
                             ]}
                         />
@@ -507,7 +507,7 @@ export function WithdrawDialog({
                                 {
                                     color: colors.textPrimary,
                                     borderColor: colors.border,
-                                    backgroundColor: colors.inputSurface,
+                                    backgroundColor: 'transparent',
                                 },
                             ]}
                         />
@@ -524,7 +524,7 @@ export function WithdrawDialog({
                                 {
                                     color: colors.textPrimary,
                                     borderColor: colors.border,
-                                    backgroundColor: colors.inputSurface,
+                                    backgroundColor: 'transparent',
                                 },
                             ]}
                         />
@@ -620,7 +620,7 @@ function createStyles(colors: FanColors) {
             maxWidth: 360,
             backgroundColor: colors.surface,
             borderRadius: FAN_RADIUS.lg,
-            borderWidth: 1,
+            borderWidth: 0,
             borderColor: colors.border,
             padding: FAN_SPACING.lg,
         },
@@ -638,16 +638,16 @@ function createStyles(colors: FanColors) {
             gap: FAN_SPACING.md,
             paddingHorizontal: FAN_SPACING.base,
             paddingVertical: FAN_SPACING.md,
-            backgroundColor: colors.surfaceSunken,
-            borderRadius: FAN_RADIUS.md,
+            backgroundColor: 'transparent',
+            borderRadius: 999,
             marginBottom: FAN_SPACING.base,
         },
         balanceStripText: { fontSize: 12, fontWeight: '600' },
 
         inputsDisabled: { opacity: 0.5 },
         input: {
-            borderWidth: 1,
-            borderRadius: FAN_RADIUS.md,
+            borderWidth: 0,
+            borderRadius: 999,
             paddingHorizontal: FAN_SPACING.base,
             paddingVertical: FAN_SPACING.md,
             fontSize: 13,
@@ -662,8 +662,8 @@ function createStyles(colors: FanColors) {
         checkbox: {
             width: 18,
             height: 18,
-            borderRadius: FAN_RADIUS.sm,
-            borderWidth: 1.5,
+            borderRadius: FAN_RADIUS.pill,
+            borderWidth: 0,
             alignItems: 'center',
             justifyContent: 'center',
         },
@@ -674,9 +674,9 @@ function createStyles(colors: FanColors) {
             alignItems: 'center',
             gap: FAN_SPACING.md,
             padding: FAN_SPACING.md,
-            borderRadius: FAN_RADIUS.sm,
-            borderWidth: 0.5,
-            backgroundColor: colors.surfaceSunken,
+            borderRadius: 999,
+            borderWidth:0,
+            backgroundColor: 'transparent',
         },
         infoBoxText: { fontSize: 9, flex: 1 },
 
@@ -685,7 +685,7 @@ function createStyles(colors: FanColors) {
             alignItems: 'center',
             gap: FAN_SPACING.md,
             padding: FAN_SPACING.md,
-            borderRadius: FAN_RADIUS.sm,
+            borderRadius: 999,
             marginTop: FAN_SPACING.md,
         },
         statusLineText: { fontSize: 11, flex: 1 },
@@ -701,7 +701,7 @@ function createStyles(colors: FanColors) {
             borderRadius: FAN_RADIUS.pill,
             alignItems: 'center',
             justifyContent: 'center',
-            borderWidth: 1,
+            borderWidth: 0,
             borderColor: 'transparent',
         },
         dialogBtnText: { fontSize: 13, fontWeight: '600' },

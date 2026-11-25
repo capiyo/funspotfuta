@@ -16,6 +16,7 @@ export interface CreatePostParams {
   image?: { uri: string; name: string; type: string };
   /** Picked video: RN asset shape. */
   video?: { uri: string; name: string; type: string };
+  onProgress?: (percent: number) => void;
 }
 
 const IMAGE_MAX_MB = 10;
@@ -74,20 +75,33 @@ export async function createPost(
     });
   }
 
-  const res = await fetch(`${API_BASE_URL}/posts`, {
-    method: 'POST',
-    body: form,
-    // Do NOT set Content-Type — fetch sets the multipart boundary itself.
+  return new Promise<Record<string, any>>((resolve, reject) => {
+    const request = new XMLHttpRequest();
+    request.open('POST', `${API_BASE_URL}/posts`);
+    request.upload.onprogress = (event) => {
+      if (event.lengthComputable && p.onProgress) {
+        p.onProgress(Math.min(100, Math.round((event.loaded / event.total) * 100)));
+      }
+    };
+    request.onerror = () => reject(new Error('Network error while uploading post'));
+    request.onabort = () => reject(new Error('Post upload was cancelled'));
+    request.onload = () => {
+      let body: Record<string, any> = {};
+      try {
+        body = request.responseText ? JSON.parse(request.responseText) : {};
+      } catch {
+        if (request.status >= 200 && request.status < 300) {
+          reject(new Error('Server returned an invalid response'));
+          return;
+        }
+      }
+      if (request.status < 200 || request.status >= 300) {
+        reject(new Error(body?.message || `Error creating post: ${request.status}`));
+        return;
+      }
+      if (p.onProgress) p.onProgress(100);
+      resolve(body);
+    };
+    request.send(form);
   });
-  if (!res.ok) {
-    let msg = `Error creating post: ${res.status}`;
-    try {
-      const body = await res.json();
-      if (body?.message) msg = body.message;
-    } catch {
-      /* body wasn't JSON */
-    }
-    throw new Error(msg);
-  }
-  return res.json();
 }

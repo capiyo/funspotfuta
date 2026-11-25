@@ -20,15 +20,45 @@
 // caller (auth-context or a bootstrap file) receives the message from
 // @react-native-firebase/messaging and passes it to pushToStream().
 
-import { mobileStorage } from '../../../../../packages/storage/src/mobile';
+import { mobileStorage, mobileStorageReady } from '../../../../../packages/storage/src/mobile';
+
+const registeredFcmTokenKeys = new Set<string>();
+const pendingFcmTokenRegistrations = new Map<string, Promise<boolean>>();
 
 const API_BASE_URL = 'https://clash-api-m5mr.onrender.com/api';
+
+const NOTIFICATION_REQUEST_TIMEOUT_MS = 10_000;
+
+async function fetchWithTimeout(url: string, init: NonNullable<Parameters<typeof fetch>[1]>) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), NOTIFICATION_REQUEST_TIMEOUT_MS);
+    try {
+        return await fetch(url, { ...init, signal: controller.signal });
+    } finally {
+        clearTimeout(timeout);
+    }
+}
 
 // ─── Storage keys (exact match to the Dart source) ─────────────────
 const K_UNREAD_NOTIFICATIONS = 'unread_notifications';
 const K_UNREAD_COUNT = 'unread_notification_count';
 const K_UNREAD_COMMENT_COUNT = 'unread_comment_count';
 const K_PENDING_JOIN_REQUESTS = 'pending_join_requests';
+const K_PROCESSED_NOTIFICATION_IDS = 'processed_notification_ids';
+const pendingNotificationIds = new Set<string>();
+
+// Reconciliation is tied to the authenticated account. A response started by a
+// previous session must not overwrite badges after logout or account switching.
+let activeNotificationUserId: string | null = null;
+let notificationSessionVersion = 0;
+
+function setActiveNotificationUser(userId: string | null): void {
+    const nextUserId = userId?.trim() || null;
+    if (activeNotificationUserId === nextUserId) return;
+    activeNotificationUserId = nextUserId;
+    notificationSessionVersion += 1;
+}
+
 
 // ─── Listener registries (replace the three StreamControllers) ─────
 type Listener = (event: Record<string, any>) => void;
@@ -56,6 +86,7 @@ function emitJoinRequest(event: Record<string, any>) {
 // ─── storage helpers (async wrappers around mobileStorage) ─────────
 async function readString(key: string): Promise<string | null> {
     try {
+        await mobileStorageReady;
         const v = await mobileStorage.getItem(key);
         return v ?? null;
     } catch {
@@ -64,6 +95,7 @@ async function readString(key: string): Promise<string | null> {
 }
 async function writeString(key: string, value: string): Promise<void> {
     try {
+        await mobileStorageReady;
         await mobileStorage.setItem(key, value);
     } catch (e) {
         console.warn('mobileStorage.setItem failed', key, e);
@@ -71,6 +103,7 @@ async function writeString(key: string, value: string): Promise<void> {
 }
 async function removeKey(key: string): Promise<void> {
     try {
+        await mobileStorageReady;
         await mobileStorage.removeItem(key);
     } catch (e) {
         console.warn('mobileStorage.removeItem failed', key, e);
@@ -91,6 +124,10 @@ async function writeInt(key: string, value: number): Promise<void> {
 // ═══════════════════════════════════════════════════════════════════
 
 export const NotificationService = {
+    setActiveUser(userId: string | null): void {
+        setActiveNotificationUser(userId);
+    },
+
     // ─── Stream subscription helpers ────────────────────────────────
     onNotification(cb: Listener): () => void {
         _notificationListeners.add(cb);
@@ -107,9 +144,46 @@ export const NotificationService = {
 
     // ─── pushToStream (called by the FCM handler) ───────────────────
     async pushToStream(payload: Record<string, any>): Promise<void> {
-        console.log('[NotificationService] 📨 Pushing to stream:', payload);
+        if (await this._isDuplicatePush(payload)) return;
         emitNotification(payload);
         await this._handleBadgeUpdate(payload);
+    },
+
+    async _isDuplicatePush(payload: Record<string, any>): Promise<boolean> {
+        const rawData = payload.data && typeof payload.data === 'object' ? payload.data : payload;
+        const nested = typeof rawData.data === 'string' ? (() => {
+            try {
+                const parsed: unknown = JSON.parse(rawData.data);
+                return parsed && typeof parsed === 'object' ? parsed as Record<string, unknown> : {};
+            } catch {
+                return {};
+            }
+        })() : {};
+        const data = { ...rawData, ...nested };
+        const messageId = [payload.messageId, payload.message_id, data.notification_id, data.event_id]
+            .find((value): value is string => typeof value === 'string' && value.length > 0);
+        if (!messageId) return false;
+        if (pendingNotificationIds.has(messageId)) return true;
+        pendingNotificationIds.add(messageId);
+        try {
+            const raw = await readString(K_PROCESSED_NOTIFICATION_IDS);
+            let ids: string[] = [];
+            if (raw) {
+                try {
+                    const parsed: unknown = JSON.parse(raw);
+                    if (Array.isArray(parsed)) ids = parsed.filter((value): value is string => typeof value === 'string');
+                } catch {
+                    ids = [];
+                }
+            }
+            if (ids.includes(messageId)) return true;
+            ids.push(messageId);
+            if (ids.length > 500) ids = ids.slice(-500);
+            await writeString(K_PROCESSED_NOTIFICATION_IDS, JSON.stringify(ids));
+            return false;
+        } finally {
+            pendingNotificationIds.delete(messageId);
+        }
     },
 
     // ─── _handleBadgeUpdate ─────────────────────────────────────────
@@ -238,7 +312,11 @@ export const NotificationService = {
                 notificationType === 'vote.cast' ||
                 notificationType === 'pledge.create' ||
                 notificationType === 'bet.matched' ||
-                notificationType === 'bet.settled'
+                notificationType === 'bet.settled' ||
+                notificationType === 'poke.create' ||
+                notificationType === 'poke.matched' ||
+                notificationType === 'poke.settled' ||
+                notificationType === 'chat.message'
             ) {
                 if (!fixtureId) {
                     console.warn(`[NotificationService] ⚠️ Missing fixture_id for ${notificationType}`);
@@ -313,6 +391,8 @@ export const NotificationService = {
         adminChannelIds?: string[];
     }): Promise<void> {
         const { userId, authToken, adminChannelIds = [] } = opts;
+        const sessionVersion = notificationSessionVersion;
+        if (activeNotificationUserId !== userId) return;
         try {
             console.log(`[NotificationService] 🔄 Reconciling with server for ${userId}`);
 
@@ -326,9 +406,13 @@ export const NotificationService = {
                 this._fetchTruePendingJoinCount(adminChannelIds, headers),
             ]);
 
+            // Both requests may complete after a logout or account switch.
+            if (sessionVersion !== notificationSessionVersion || activeNotificationUserId !== userId) return;
+
             if (unreadSummary) {
                 await writeInt(K_UNREAD_COUNT, unreadSummary.notifications ?? 0);
                 await writeInt(K_UNREAD_COMMENT_COUNT, unreadSummary.comments ?? 0);
+                if (sessionVersion !== notificationSessionVersion || activeNotificationUserId !== userId) return;
                 emitBadge({
                     type: 'notification_badge_update',
                     total_unread_notifications: unreadSummary.notifications ?? 0,
@@ -525,6 +609,13 @@ export const NotificationService = {
             }
 
             const fixtureData = unreadMap[fixtureId];
+            fixtureData.has_unread = true;
+            const previousCount = typeof fixtureData.unread_count === 'number'
+                ? fixtureData.unread_count
+                : Array.isArray(fixtureData.notification_data)
+                    ? fixtureData.notification_data.length
+                    : 0;
+            fixtureData.unread_count = Math.max(0, Math.trunc(previousCount)) + 1;
             const types: string[] = Array.isArray(fixtureData.types)
                 ? fixtureData.types
                 : [];
@@ -569,10 +660,14 @@ export const NotificationService = {
             if (!raw) return 0;
             const map = JSON.parse(raw);
             const data = map?.[fixtureId];
-            const list = Array.isArray(data?.notification_data)
+            if (data?.has_unread !== true) return 0;
+            const list = Array.isArray(data.notification_data)
                 ? data.notification_data
                 : [];
-            return list.length;
+            const unreadCount = Number(data.unread_count);
+            return Number.isFinite(unreadCount) && unreadCount >= 0
+                ? Math.trunc(unreadCount)
+                : list.length;
         } catch {
             return 0;
         }
@@ -589,8 +684,11 @@ export const NotificationService = {
                     const list = Array.isArray(data.notification_data)
                         ? data.notification_data
                         : [];
+                    const unreadCount = Number(data.unread_count);
                     result[fixtureId] = {
-                        count: list.length,
+                        count: Number.isFinite(unreadCount) && unreadCount >= 0
+                            ? Math.trunc(unreadCount)
+                            : list.length,
                         has_unread: true,
                         types: data.types ?? [],
                         last_notification_time: data.last_notification_time,
@@ -654,22 +752,27 @@ export const NotificationService = {
             const map = JSON.parse(raw);
             if (!map[fixtureId]) return;
 
-            const count = Array.isArray(map[fixtureId].notification_data)
-                ? map[fixtureId].notification_data.length
-                : 0;
+            const fixtureData = map[fixtureId];
+            const storedCount = Number(fixtureData.unread_count);
+            const count = Number.isFinite(storedCount) && storedCount >= 0
+                ? Math.trunc(storedCount)
+                : Array.isArray(fixtureData.notification_data)
+                    ? fixtureData.notification_data.length
+                    : 0;
 
-            map[fixtureId].has_unread = false;
-            map[fixtureId].types = [];
+            fixtureData.has_unread = false;
+            fixtureData.unread_count = 0;
+            fixtureData.types = [];
+            fixtureData.notification_data = [];
             await writeString(K_UNREAD_NOTIFICATIONS, JSON.stringify(map));
 
-            for (let i = 0; i < count; i++) {
-                await this._decrementUnreadCommentCount();
-            }
-
+            const currentTotal = await readInt(K_UNREAD_COMMENT_COUNT, 0);
+            const nextTotal = Math.max(0, currentTotal - count);
+            await writeInt(K_UNREAD_COMMENT_COUNT, nextTotal);
             emitBadge({
                 type: 'comment_badge_cleared',
                 fixture_id: fixtureId,
-                total_unread_comments: await this._getUnreadCommentCount(),
+                total_unread_comments: nextTotal,
             });
             console.log(`[NotificationService] ✅ Marked fixture ${fixtureId} as read (cleared ${count})`);
         } catch (e) {
@@ -751,12 +854,15 @@ export const NotificationService = {
             if (!raw) return;
             const map = JSON.parse(raw);
             if (!map[fixtureId]) return;
-            const count = Array.isArray(map[fixtureId].notification_data)
-                ? map[fixtureId].notification_data.length
-                : 0;
+            const count = typeof map[fixtureId].unread_count === 'number'
+                ? Math.max(0, Math.trunc(map[fixtureId].unread_count))
+                : Array.isArray(map[fixtureId].notification_data)
+                    ? map[fixtureId].notification_data.length
+                    : 0;
             delete map[fixtureId];
             await writeString(K_UNREAD_NOTIFICATIONS, JSON.stringify(map));
-            for (let i = 0; i < count; i++) await this._decrementUnreadCommentCount();
+            const totalUnread = await readInt(K_UNREAD_COMMENT_COUNT, 0);
+            await writeInt(K_UNREAD_COMMENT_COUNT, Math.max(0, totalUnread - count));
             console.log(`[NotificationService] ✅ Cleared all unread for fixture ${fixtureId}`);
         } catch (e) {
             console.warn('[NotificationService] ❌ Clear unread error:', e);
@@ -771,28 +877,81 @@ export const NotificationService = {
         authToken?: string;
     }): Promise<boolean> {
         const { userId, fcmToken, platform, authToken } = args;
+        const key = `${userId}:${fcmToken}`;
+        if (activeNotificationUserId !== userId) return false;
+        if (registeredFcmTokenKeys.has(key)) return true;
+        const pending = pendingFcmTokenRegistrations.get(key);
+        if (pending) return pending;
+
+        const registration = (async () => {
+            try {
+                const response = await fetchWithTimeout(`${API_BASE_URL}/notifications/register-token`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+                    },
+                    body: JSON.stringify({ user_id: userId, fcm_token: fcmToken, platform }),
+                });
+                if (!response.ok) return false;
+                const result: unknown = await response.json();
+                const success = Boolean(result && typeof result === 'object'
+                    && (result as { success?: unknown }).success === true);
+                if (success && activeNotificationUserId === userId) {
+                    registeredFcmTokenKeys.add(key);
+                    return true;
+                }
+                if (success) {
+                    // A request may finish after logout/account switching. Remove
+                    // the old owner's row without touching a new account's token.
+                    await fetchWithTimeout(`${API_BASE_URL}/notifications/unregister-token`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+                        },
+                        body: JSON.stringify({ user_id: userId, fcm_token: fcmToken }),
+                    }).catch(() => undefined);
+                }
+                return false;
+            } catch (error) {
+                console.warn('[NotificationService] Token registration failed', error);
+                return false;
+            }
+        })();
+        pendingFcmTokenRegistrations.set(key, registration);
         try {
-            console.log(`[NotificationService] 📤 Registering token for user ${userId}`);
-            const res = await fetch(`${API_BASE_URL}/notifications/register-token`, {
-                method: 'POST',
+            return await registration;
+        } finally {
+            pendingFcmTokenRegistrations.delete(key);
+        }
+    },
+
+    async unregisterToken(args: {
+        userId: string;
+        fcmToken: string;
+        authToken?: string;
+    }): Promise<void> {
+        const key = `${args.userId}:${args.fcmToken}`;
+        try {
+            // If registration is still in flight, let it settle before DELETE;
+            // otherwise its late success could resurrect a token after logout.
+            const pending = pendingFcmTokenRegistrations.get(key);
+            if (pending) await pending.catch(() => false);
+            await fetchWithTimeout(`${API_BASE_URL}/notifications/unregister-token`, {
+                method: 'DELETE',
                 headers: {
                     'Content-Type': 'application/json',
-                    ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+                    ...(args.authToken ? { Authorization: `Bearer ${args.authToken}` } : {}),
                 },
-                body: JSON.stringify({
-                    user_id: userId,
-                    fcm_token: fcmToken,
-                    platform,
-                }),
+                body: JSON.stringify({ user_id: args.userId, fcm_token: args.fcmToken }),
             });
-            if (res.status === 200 || res.status === 201) {
-                const data = await res.json();
-                return data?.success === true;
-            }
-            return false;
-        } catch (e) {
-            console.warn('[NotificationService] ❌ registerToken error:', e);
-            return false;
+        } catch (error) {
+            console.warn('[NotificationService] Token unregistration skipped', error);
+        } finally {
+            // Force a future authenticated session to verify registration again,
+            // even when the network failed during logout.
+            registeredFcmTokenKeys.delete(key);
         }
     },
 
@@ -828,14 +987,22 @@ export const NotificationService = {
     // ─── markAsRead (server sync) ───────────────────────────────────
     async markAsRead(args: {
         userId: string;
+        authToken?: string;
         notificationIds?: string[];
+        fixtureId?: string;
+        channelId?: string;
     }): Promise<void> {
         try {
             const body: Record<string, any> = { user_id: args.userId };
             if (args.notificationIds) body.notification_ids = args.notificationIds;
+            if (args.fixtureId) body.fixture_id = args.fixtureId;
+            if (args.channelId) body.channel_id = args.channelId;
             await fetch(`${API_BASE_URL}/notifications/mark-read`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...(args.authToken ? { Authorization: `Bearer ${args.authToken}` } : {}),
+                },
                 body: JSON.stringify(body),
             });
         } catch (e) {
@@ -885,6 +1052,7 @@ export const NotificationService = {
     // ─── preferences ────────────────────────────────────────────────
     async getNotificationPreferences(
         userId: string,
+        authToken?: string,
     ): Promise<{ vote_alerts: boolean; like_alerts: boolean; comment_alerts: boolean }> {
         const defaults = {
             vote_alerts: true,
@@ -894,6 +1062,7 @@ export const NotificationService = {
         try {
             const res = await fetch(
                 `${API_BASE_URL}/notifications/preferences/${userId}`,
+                { headers: authToken ? { Authorization: `Bearer ${authToken}` } : {} },
             );
             if (res.status === 200) {
                 const data = await res.json();
@@ -919,7 +1088,7 @@ export const NotificationService = {
         const { userId, voteAlerts, likeAlerts, commentAlerts, authToken } = args;
         try {
             const res = await fetch(`${API_BASE_URL}/notifications/preferences`, {
-                method: 'POST',
+                method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
                     ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),

@@ -119,10 +119,12 @@ export function chatMessageCommentary(params: {
   text: string;
   type: string;
   createdAt: Date;
+  identity?: string;
   seq?: number;
 }): ChatMessage {
   const hash = Array.from(params.text).reduce((h, c) => (Math.imul(31, h) + c.charCodeAt(0)) | 0, 0);
-  const uniqueId = `commentary_${params.createdAt.getTime()}_${params.minute}_${params.type}_${hash}`;
+  const stableIdentity = params.identity ?? `event:${params.minute}:${params.type}:${hash}`;
+  const uniqueId = `commentary_${stableIdentity}`;
   return {
     id: uniqueId,
     tempId: null,

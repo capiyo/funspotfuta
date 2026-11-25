@@ -1,0 +1,99 @@
+name: Public crawlability validation
+on:
+  push:
+    branches: [web-port-from-master, seo-public-home-app-subpath, seo-app-at-root]
+  pull_request:
+    branches: [master]
+jobs:
+  validate-public-pages:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm install --no-audit --no-fund
+      - run: npm run typecheck:web
+      - run: npm run test:web:notification-normalizer
+      - run: npm run test:web:contact-email
+      - run: npm run lint:web
+      - run: npm run build:web
+        env:
+          FUNSPOT_CONTACT_EMAIL: ci-check@funspot.co.ke
+      - name: Verify visitors and crawlers receive the same rendered homepage
+        run: |
+          node --input-type=module <<'NODE'
+          import handler from './netlify/functions/ssr.mjs';
+
+          const makeRequest = (userAgent) => new Request(
+            'https://www.funspot.co.ke/.netlify/functions/ssr?path=%2F',
+            { headers: { 'user-agent': userAgent } },
+          );
+
+          const [humanResponse, crawlerResponse] = await Promise.all([
+            handler(makeRequest('Mozilla/5.0 FunspotVisitor')),
+            handler(makeRequest('Googlebot')),
+          ]);
+          const [humanHtml, crawlerHtml] = await Promise.all([
+            humanResponse.text(),
+            crawlerResponse.text(),
+          ]);
+
+          if (humanResponse.status !== 200 || crawlerResponse.status !== 200) {
+            throw new Error('Rendered application did not return HTTP 200 for both request types.');
+          }
+          const requiredMarkup = ['home-screen', 'home-columns', 'Chats', 'Feed'];
+          for (const marker of requiredMarkup) {
+            if (!humanHtml.includes(marker) || !crawlerHtml.includes(marker)) {
+              throw new Error('Visitor and crawler did not receive the same real Funspot application component: ' + marker);
+            }
+          }
+          if (humanResponse.headers.get('x-funspot-render') !== 'react-ssr') {
+            throw new Error('React SSR response marker is missing.');
+          }
+          if (!humanHtml.includes('<div id="root" data-render-mode="app">') ||
+              !humanHtml.includes('home-screen') ||
+              !humanHtml.includes('home-columns')) {
+            throw new Error('Homepage response does not contain the rendered Funspot application.');
+          }
+          if (/crawler-only|Googlebot/i.test(humanHtml)) {
+            throw new Error('Crawler-specific homepage content remains.');
+          }
+          console.log('Passed: visitors and Googlebot receive the same real Funspot application renderer and public workspace.');
+          NODE
+      - name: Verify generated crawl files and public output tree
+        run: |
+          set -euxo pipefail
+          test -s apps/web/dist/index.html
+          test -s apps/web/dist/404.html
+          grep -Fq 'data-render-mode="not-found"' apps/web/dist/404.html
+          grep -Fq 'noindex,follow' apps/web/dist/404.html
+          test -s apps/web/dist/robots.txt
+          test -s apps/web/dist/sitemap.xml
+          for page in about how-it-works contact terms privacy; do
+            test -s "apps/web/dist/$page.html"
+            grep -Eiq '<h1[^>]*>.*</h1>' "apps/web/dist/$page.html"
+            grep -Fq "https://www.funspot.co.ke/$page.html" "apps/web/dist/$page.html"
+          done
+          test -s netlify/functions/ssr.mjs
+          grep -Fq 'react-ssr' netlify/functions/ssr.mjs
+          ! grep -Eiq 'public-home|PublicHomeContent' apps/web/dist/index.html
+          grep -Eiq '<title>.*</title>' apps/web/dist/index.html
+          grep -Eiq '<meta[^>]+name="description"' apps/web/dist/index.html
+          grep -Fq 'google-adsense-account' apps/web/dist/index.html
+          ! grep -Fq 'pagead/js/adsbygoogle.js' apps/web/dist/index.html
+          grep -Fq 'ci-check@funspot.co.ke' apps/web/dist/contact.html
+          grep -Fq 'https://www.funspot.co.ke/sitemap.xml' apps/web/dist/robots.txt
+          grep -Fq 'https://www.funspot.co.ke/' apps/web/dist/sitemap.xml
+          ! grep -Eiq '/app/|/messages/|/comments/|/login' apps/web/dist/sitemap.xml
+          echo '--- generated robots.txt ---'
+          cat apps/web/dist/robots.txt
+          echo '--- generated sitemap.xml ---'
+          cat apps/web/dist/sitemap.xml
+          grep -Fq 'Allow: /' apps/web/dist/robots.txt
+          grep -Fq 'Disallow: /messages' apps/web/dist/robots.txt
+          grep -Fq 'Disallow: /comments' apps/web/dist/robots.txt
+          grep -Fq 'Disallow: /login' apps/web/dist/robots.txt
+          echo '--- dist file tree ---'
+          find apps/web/dist -maxdepth 2 -type f | sort

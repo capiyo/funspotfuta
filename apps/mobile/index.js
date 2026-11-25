@@ -1,14 +1,11 @@
 import { registerRootComponent } from 'expo';
-import { registerBackgroundMessageHandler } from './src/lib/firebase';
 import App from './App';
 
-// Must run outside any component, at module scope — mirrors
-// FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler)
-// registered in main.dart before runApp().
-registerBackgroundMessageHandler(async (remoteMessage) => {
-    console.log('Background FCM message:', remoteMessage);
-    // Mirror the Dart handler: stash comrade_added notifications for
-    // pickup on next foreground launch, if you want that behavior ported too.
-});
+// FCM payloads from the backend include a native notification block. Android
+// and iOS display those while the app is backgrounded or terminated. Do not
+// mutate the shared local notification cache from a headless JS context:
+// AuthProvider is not mounted there, so no authenticated account namespace is
+// available. On resume, NotificationRuntime reconciles unread state from the
+// authenticated backend session and handles notification-open deep links.
 
 registerRootComponent(App);

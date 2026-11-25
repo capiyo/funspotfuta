@@ -1,0 +1,3 @@
+# Branch policy
+
+Use `master` as the sole authoritative branch. Never create, rename, or switch branches. Preserve existing history; never force-push or reset. Inspect before editing, reconcile overlapping changes semantically, and validate affected web/mobile/shared packages. Do not deploy, change hosting settings, edit the separate backend repository, or modify Flutter reference sources without explicit authorization.

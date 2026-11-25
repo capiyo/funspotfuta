@@ -104,6 +104,7 @@ type HomeCtx = {
     setActiveTab: (tab: TabName) => void;
 
     headerVisible: boolean;
+    isScrolling: boolean;
     /** Legacy entry point; prefer spreading `scrollProps` onto the list. */
     reportScroll: (offsetY: number) => void;
     scrollProps: HomeScrollProps;
@@ -134,6 +135,7 @@ const Ctx = createContext<HomeCtx>({
     activeTab: 'Chats',
     setActiveTab: () => { },
     headerVisible: true,
+    isScrolling: false,
     reportScroll: () => { },
     scrollProps: noopScrollProps,
     resetHeaderOnTabChange: () => { },
@@ -257,39 +259,47 @@ export function HomeProvider({ children }: { children: ReactNode }) {
 
     // ── header/chip-row visibility, driven by USER scrolling ─────
     const [headerVisible, setHeaderVisible] = useState(true);
+    const [isScrolling, setIsScrolling] = useState(false);
     const lastScrollY = useRef(0);
     const dragging = useRef(false);
     const momentum = useRef(false);
     const gestureAware = useRef(false);
+    const lastDirection = useRef<'up' | 'down' | 'still'>('still');
 
     const reportScroll = useCallback((offsetY: number) => {
-        if (offsetY <= 0) {
-            setHeaderVisible(true);
+        const offset = Math.max(0, offsetY);
+        if (offset <= 0) {
+            lastDirection.current = 'still';
             lastScrollY.current = 0;
+            setHeaderVisible(true);
             return;
         }
 
         const userDriven = !gestureAware.current || dragging.current || momentum.current;
-        if (!userDriven) {
-            lastScrollY.current = offsetY;
-            return;
-        }
+        const diff = offset - lastScrollY.current;
+        // Always advance the baseline. Comparing against an old threshold
+        // anchor makes a short upward reversal appear to do nothing.
+        lastScrollY.current = offset;
+        if (!userDriven || Math.abs(diff) < 1) return;
 
-        const diff = offsetY - lastScrollY.current;
-        if (diff > SCROLL_THRESHOLD) {
-            setHeaderVisible(false);
-            lastScrollY.current = offsetY;
-        } else if (diff < -SCROLL_THRESHOLD) {
+        if (diff < 0) {
+            lastDirection.current = 'up';
+            // Reveal on the first genuine upward movement so the user never
+            // has to scroll down again to recover the header and tab controls.
             setHeaderVisible(true);
-            lastScrollY.current = offsetY;
+        } else {
+            lastDirection.current = 'down';
+            if (diff >= SCROLL_THRESHOLD) setHeaderVisible(false);
         }
     }, []);
 
     const resetHeaderOnTabChange = useCallback(() => {
         lastScrollY.current = 0;
+        lastDirection.current = 'still';
         dragging.current = false;
         momentum.current = false;
         setHeaderVisible(true);
+        setIsScrolling(false);
     }, []);
 
     // ── active tab (persisted) ───────────────────────────────────
@@ -310,16 +320,22 @@ export function HomeProvider({ children }: { children: ReactNode }) {
             onScrollBeginDrag: (e) => {
                 gestureAware.current = true;
                 dragging.current = true;
+                setIsScrolling(true);
                 lastScrollY.current = Math.max(0, e.nativeEvent.contentOffset.y);
             },
             onScrollEndDrag: () => {
                 dragging.current = false;
+                setIsScrolling(false);
+                if (lastDirection.current === 'up') setHeaderVisible(true);
             },
             onMomentumScrollBegin: () => {
                 momentum.current = true;
+                setIsScrolling(true);
             },
             onMomentumScrollEnd: () => {
                 momentum.current = false;
+                setIsScrolling(false);
+                if (lastDirection.current === 'up') setHeaderVisible(true);
             },
             scrollEventThrottle: 16,
         }),
@@ -345,6 +361,7 @@ export function HomeProvider({ children }: { children: ReactNode }) {
             activeTab,
             setActiveTab,
             headerVisible,
+            isScrolling,
             reportScroll,
             scrollProps,
             resetHeaderOnTabChange,
@@ -364,6 +381,7 @@ export function HomeProvider({ children }: { children: ReactNode }) {
             activeTab,
             setActiveTab,
             headerVisible,
+            isScrolling,
             reportScroll,
             scrollProps,
             resetHeaderOnTabChange,

@@ -155,15 +155,68 @@ export async function fetchVoters(
   fixtureId: string,
   authToken?: Token,
 ): Promise<any[]> {
-  const data = await getJson(`${API_BASE_URL}/actions/vote/fixture/${fixtureId}/voters`, authToken);
-  const list: any[] = data?.voters ?? [];
-  return list.map((v) => ({
-    ...v,
-    userId: str(v.userId ?? v.user_id),
-    userName: str(v.userName ?? v.user_name ?? v.username ?? 'Anonymous'),
-    selection: str(v.selection),
-    isComrade: v.isComrade ?? v.is_comrade ?? false,
+  const unwrap = (data: any): any[] => {
+    if (Array.isArray(data)) return data;
+    for (const key of ['voters', 'votes', 'data', 'results']) {
+      if (Array.isArray(data?.[key])) return data[key];
+    }
+    for (const parent of ['data', 'result']) {
+      const nested = data?.[parent];
+      if (nested && typeof nested === 'object') {
+        for (const key of ['voters', 'votes', 'results']) {
+          if (Array.isArray(nested[key])) return nested[key];
+        }
+      }
+    }
+    return [];
+  };
+
+  // Prefer the same voters endpoint used by the action UI, then fall back to
+  // the fixture-votes endpoint used by chat statistics. Some API deployments
+  // expose one route but not the other.
+  const endpoints = [
+    `${API_BASE_URL}/actions/vote/fixture/${encodeURIComponent(fixtureId)}/voters`,
+    `${API_BASE_URL}/votes/votes/fixture/${encodeURIComponent(fixtureId)}`,
+  ];
+
+  // These routes are not guaranteed to be equivalent: one deployment may
+  // return only the authenticated user's vote from the action route while the
+  // legacy votes route contains the complete fixture voter list. Never stop at
+  // the first non-empty response; combine both sources so ChatCard gets the
+  // same complete list without needing the Action modal to open first.
+  const responses = await Promise.all(endpoints.map(async (endpoint) => {
+    try {
+      return unwrap(await getJson(endpoint, authToken));
+    } catch {
+      // A route may be unavailable in a particular API deployment.
+      return [];
+    }
   }));
+
+  const votersById = new Map<string, any>();
+  for (const raw of responses.flat()) {
+    if (!raw || typeof raw !== 'object') continue;
+    const voter = {
+      ...raw,
+      userId: str(raw.userId ?? raw.user_id ?? raw.voter_id ?? raw.id),
+      userName: str(raw.userName ?? raw.user_name ?? raw.username ?? raw.name ?? 'Anonymous'),
+      selection: str(raw.selection ?? raw.vote ?? raw.pick),
+      uri: raw.uri ?? raw.avatar_url ?? raw.avatarUrl ?? raw.profile_image_url ?? raw.profileImageUrl ?? raw.photo_url ?? raw.photoUrl ?? raw.image_url ?? raw.imageUrl ?? null,
+      isComrade: raw.isComrade ?? raw.is_comrade ?? false,
+    };
+    if (!voter.userId) continue;
+    const previous = votersById.get(voter.userId);
+    votersById.set(voter.userId, {
+      ...previous,
+      ...voter,
+      userName: voter.userName !== 'Anonymous' ? voter.userName : previous?.userName ?? voter.userName,
+      selection: voter.selection || previous?.selection || '',
+      uri: voter.uri ?? previous?.uri ?? null,
+      isComrade: voter.isComrade || previous?.isComrade || false,
+    });
+  }
+
+  return [...votersById.values()];
 }
 
 // ── Pledges (main fixture) ──────────────────────────────────────────

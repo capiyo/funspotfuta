@@ -13,8 +13,11 @@ import { Fixture, fixtureFromJson } from '../types/fixture';
 const REQUEST_TIMEOUT_MS = 8000;
 
 /** GET + JSON with a timeout. Throws on network error, timeout or non-2xx. */
-async function fetchJson(url: string, ms: number = REQUEST_TIMEOUT_MS): Promise<any> {
+async function fetchJson(url: string, ms: number = REQUEST_TIMEOUT_MS, externalSignal?: AbortSignal): Promise<any> {
   const ctrl = new AbortController();
+  const forwardAbort = () => ctrl.abort(externalSignal?.reason);
+  if (externalSignal?.aborted) forwardAbort();
+  else externalSignal?.addEventListener('abort', forwardAbort, { once: true });
   const timer = setTimeout(() => ctrl.abort(), ms);
   try {
     const res = await fetch(url, {
@@ -25,19 +28,31 @@ async function fetchJson(url: string, ms: number = REQUEST_TIMEOUT_MS): Promise<
     return await res.json();
   } finally {
     clearTimeout(timer);
+    externalSignal?.removeEventListener('abort', forwardAbort);
   }
 }
 
-function asArray(json: any): any[] {
+function asArray(json: unknown): unknown[] {
   if (Array.isArray(json)) return json;
-  if (json && Array.isArray(json.data)) return json.data;
-  return [];
+  if (!json || typeof json !== 'object') return [];
+  const record = json as Record<string, unknown>;
+  for (const key of ['data', 'fixtures', 'games']) {
+    const value = record[key];
+    if (Array.isArray(value)) return value;
+    if (value && typeof value === 'object') {
+      const nested = value as Record<string, unknown>;
+      for (const nestedKey of ['data', 'fixtures', 'games']) {
+        if (Array.isArray(nested[nestedKey])) return nested[nestedKey] as unknown[];
+      }
+    }
+  }
+  throw new Error('Invalid list response: expected an array or data/fixtures/games array');
 }
 
 // ── Fixtures (queryFn: throws on failure) ──────────────────────
 
-export async function getAllFixtures(): Promise<Fixture[]> {
-  const json = await fetchJson(`${API_BASE}/games`);
+export async function getAllFixtures(signal?: AbortSignal): Promise<Fixture[]> {
+  const json = await fetchJson(`${API_BASE}/games`, REQUEST_TIMEOUT_MS, signal);
   return asArray(json).map(fixtureFromJson);
 }
 
@@ -45,12 +60,19 @@ export async function getAllFixtures(): Promise<Fixture[]> {
 // Strict versions throw; the exported ones keep the old tolerant
 // behaviour (return []) for any existing callers that rely on it.
 
+function asRecordArray(value: unknown): Record<string, any>[] {
+  return asArray(value).filter(
+    (item): item is Record<string, any> =>
+      item !== null && typeof item === 'object' && !Array.isArray(item),
+  );
+}
+
 async function fetchVotesByUser(userId: string): Promise<Record<string, any>[]> {
-  return asArray(await fetchJson(`${API_BASE}/votes/votes/user/${userId}`));
+  return asRecordArray(await fetchJson(`${API_BASE}/votes/votes/user/${userId}`));
 }
 
 async function fetchCommentsByUser(userId: string): Promise<Record<string, any>[]> {
-  return asArray(await fetchJson(`${API_BASE}/votes/comments/user/${userId}`));
+  return asRecordArray(await fetchJson(`${API_BASE}/votes/comments/user/${userId}`));
 }
 
 export async function getVotesByUser(userId: string): Promise<Record<string, any>[]> {
@@ -60,6 +82,11 @@ export async function getVotesByUser(userId: string): Promise<Record<string, any
     console.error('Error fetching votes:', e);
     return [];
   }
+}
+
+/** Strict query-function variant: failures must not be cached as an empty vote list. */
+export async function getVotesByUserStrict(userId: string): Promise<Record<string, any>[]> {
+  return fetchVotesByUser(userId);
 }
 
 export async function getCommentsByUser(userId: string): Promise<Record<string, any>[]> {

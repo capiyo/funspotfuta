@@ -201,16 +201,7 @@ export default function HistoryModal({
                     : 'Completed matches'}
                 </Text>
               </View>
-              <Pressable
-                onPress={onClose}
-                hitSlop={8}
-                style={({ pressed }) => [
-                  styles.closeBtn,
-                  pressed && { opacity: PRESSED_OPACITY },
-                ]}
-              >
-                <X size={14} color={colors.textTertiary} />
-              </Pressable>
+              
             </View>
 
             {/* List */}
@@ -418,8 +409,8 @@ function createStyles(colors: ReturnType<typeof useFanColors>) {
     },
     sheet: {
       maxHeight: '88%',
-      borderTopLeftRadius: FAN_RADIUS.xl,
-      borderTopRightRadius: FAN_RADIUS.xl,
+      borderTopLeftRadius: 24,
+      borderTopRightRadius: 24,
       backgroundColor: colors.background,
       overflow: 'hidden',
     },
@@ -440,8 +431,8 @@ function createStyles(colors: ReturnType<typeof useFanColors>) {
     closeBtn: {
       width: 32,
       height: 32,
-      borderRadius: 16,
-      backgroundColor: colors.inputSurface,
+      borderRadius: 999,
+      backgroundColor: 'transparent',
       alignItems: 'center',
       justifyContent: 'center',
     },
