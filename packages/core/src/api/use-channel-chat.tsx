@@ -884,8 +884,13 @@ export function useChannelChat({
 
             insertSorted(optimistic);
 
-            const ok = await deliver(tempId, trimmed, extras);
-            if (!ok) replaceById(tempId, { status: 'failed', isPending: false });
+            try {
+                const ok = await deliver(tempId, trimmed, extras);
+                if (!ok) replaceById(tempId, { status: 'failed', isPending: false });
+            } catch (error) {
+                replaceById(tempId, { status: 'failed', isPending: false });
+                throw error;
+            }
         },
         [channelId, userId, username, deliver, insertSorted, replaceById],
     );

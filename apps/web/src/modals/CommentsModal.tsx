@@ -47,6 +47,44 @@ function parseCommentFromJson(json: any): CommentData {
     timestamp: Number(json?.timestamp ?? 0),
   };
 }
+type FlatComment = CommentData & { depth: number; parentUsername: string | null };
+
+function flattenCommentTree(items: CommentData[], depth = 0, parentUsername: string | null = null): FlatComment[] {
+  const flattened: FlatComment[] = [];
+  for (const item of items) {
+    flattened.push({ ...item, depth, parentUsername });
+    if (item.replies?.length) flattened.push(...flattenCommentTree(item.replies, depth + 1, item.user_name));
+  }
+  return flattened;
+}
+
+function findCommentInTree(items: CommentData[], targetId: string): CommentData | null {
+  for (const item of items) {
+    if (item.id === targetId) return item;
+    const nested = findCommentInTree(item.replies ?? [], targetId);
+    if (nested) return nested;
+  }
+  return null;
+}
+
+function insertReplyIntoTree(items: CommentData[], parentId: string, reply: CommentData): { items: CommentData[]; found: boolean } {
+  let found = false;
+  const next = items.map((item) => {
+    if (item.id === parentId) {
+      found = true;
+      return { ...item, replies: [reply, ...(item.replies ?? [])], reply_count: (item.reply_count ?? 0) + 1 };
+    }
+    const nested = insertReplyIntoTree(item.replies ?? [], parentId, reply);
+    if (nested.found) {
+      found = true;
+      return { ...item, replies: nested.items };
+    }
+    return item;
+  });
+  return { items: next, found };
+}
+
+
 function isReply(comment: CommentData): boolean {
   return !!comment.parent_comment_id && comment.parent_comment_id.length > 0;
 }
@@ -134,7 +172,7 @@ export default function PostCommentsModal({
     return () => { window.clearTimeout(focusTimer); document.removeEventListener('keydown', onKeyDown); previous?.focus(); };
   }, [visible, onClose]);
 
-  const loadComments = useCallback(async () => {
+  const loadComments = useCallback(async (force = false) => {
     if (!postId) return;
     const requestId = ++loadRequestId.current;
     setLoading(true);
@@ -144,7 +182,7 @@ export default function PostCommentsModal({
     const cachedAt = queryClient.getQueryState(commentsKey)?.dataUpdatedAt ?? 0;
     setComments(cachedComments ?? []);
     if (cachedComments) {
-      if (Date.now() - cachedAt < 30_000) { setLoading(false); return; }
+      if (!force && Date.now() - cachedAt < 30_000) { setLoading(false); return; }
     }
     try {
       const response = await fetch(`${API_BASE}/posts/${postId}/comments`, { headers });
@@ -171,7 +209,7 @@ export default function PostCommentsModal({
     try {
       const commentText = newComment.comment ?? '';
       if (parentCommentId) {
-        const parent = comments.find((comment) => comment.id === parentCommentId);
+        const parent = findCommentInTree(comments, parentCommentId);
         const parentUserId = parent?.user_id;
         if (parentUserId && parentUserId !== userId && parentUserId !== postUserId) {
           await trySendPushNotification({
@@ -231,19 +269,17 @@ export default function PostCommentsModal({
       const raw = data?.success === true && data?.data ? data.data : data?.comment ?? data;
       const newComment = parseCommentFromJson(raw);
       const commentsKey = queryKeys.postComments(postId);
-      const next = queryClient.setQueryData<CommentData[]>(commentsKey, (previous = []) => {
-        if (parentCommentId) {
-          const index = previous.findIndex((comment) => comment.id === parentCommentId);
-          if (index !== -1) {
-            const updated = previous.slice();
-            const parent = updated[index];
-            updated[index] = { ...parent, replies: [newComment, ...(parent.replies ?? [])], reply_count: (parent.reply_count ?? 0) + 1 };
-            return updated;
-          }
-        }
-        return [newComment, ...previous];
-      }) ?? [];
+      let parentFound = false;
+            const next = queryClient.setQueryData<CommentData[]>(commentsKey, (previous = []) => {
+                if (parentCommentId) {
+                    const inserted = insertReplyIntoTree(previous, parentCommentId, newComment);
+                    parentFound = inserted.found;
+                    return inserted.items;
+                }
+                return [newComment, ...previous];
+            }) ?? [];
       setComments(next);
+            if (parentCommentId && !parentFound) await loadComments(true);
       void sendPushNotification(newComment, parentCommentId);
       setDraft('');
       setReplyingTo(null);
@@ -294,9 +330,9 @@ export default function PostCommentsModal({
             <MessageCircle size={30} color={colors.textTertiary} />
             <strong className="text-xs">No comments yet</strong>
             <span className="text-xs" style={{ color: colors.textTertiary }}>Be the first to comment!</span>
-          </div> : comments.map((comment) => <CommentBubble key={comment.id || `${comment.user_id}-${comment.timestamp}`}
+          </div> : flattenCommentTree(comments).map((comment) => <CommentBubble key={comment.id || `${comment.user_id}-${comment.timestamp}`}
             colors={colors} comment={comment} currentUserId={userId ?? ''}
-            parentUsername={isReply(comment) ? comments.find((item) => item.id === comment.parent_comment_id)?.user_name ?? null : null}
+            parentUsername={comment.parentUsername} depth={comment.depth}
             onReply={() => { setReplyingTo(comment); inputRef.current?.focus(); }} />)}
         </div>
         {error && <div className="mx-5 mb-3 flex items-center gap-2 rounded-lg px-3 py-2 text-xs" style={{ background: 'transparent', color: colors.away }}>
@@ -330,12 +366,12 @@ export default function PostCommentsModal({
   );
 }
 
-function CommentBubble({ colors, comment, currentUserId, parentUsername, onReply }: {
-  colors: FanColors; comment: CommentData; currentUserId: string; parentUsername: string | null; onReply: () => void;
+function CommentBubble({ colors, comment, currentUserId, parentUsername, onReply, depth }: {
+  colors: FanColors; comment: FlatComment; depth: number; currentUserId: string; parentUsername: string | null; onReply: () => void;
 }) {
   const isMe = comment.user_id === currentUserId;
   const reply = isReply(comment);
-  return <article className={`mb-4 ${reply ? 'pl-10' : ''}`}>
+  return <article className="mb-4" style={{ marginLeft: `${Math.min(depth, 4) * 24}px` }}>
     {reply && parentUsername && <div className="mb-2 ml-11 flex items-center gap-1 text-[9px] italic" style={{ color: colors.textTertiary }}>
       <Reply size={10} /> Reply to @{parentUsername}
     </div>}
