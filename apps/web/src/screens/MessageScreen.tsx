@@ -1048,7 +1048,9 @@ function MessageBubble({ colors, message, isMe, onLongPress, onImagePress, onRet
       <span className="mb-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm"
         style={{ background: dimColor(colors.draw, .2), color: colors.draw }}>⚽</span>
       <div className="relative max-w-[min(82%,560px)] rounded-2xl px-3.5 py-2.5 shadow-sm"
-        style={{ background: dimColor(colors.draw, .15), border: `1px solid ${dimColor(colors.draw, .3)}`, color: colors.textPrimary }}>
+        style={{ background: dimColor(colors.draw, .15), border: `1px solid ${dimColor(colors.draw, .3)}`, color: colors.textPrimary, cursor: 'pointer' }}
+        onClick={onLongPress}
+        onContextMenu={(event) => { event.preventDefault(); onLongPress(); }}>
           <div className="mb-1.5 flex items-center gap-2">
           <span className="text-[9px] font-extrabold tracking-[.1em]" style={{ color: colors.draw }}>COMMENTARY</span>
           <span className="rounded-full px-1.5 py-0.5 text-[9px] font-bold" style={{ background: dimColor(colors.draw, .2), color: colors.draw }}>{eventLabel}</span>
@@ -1056,6 +1058,7 @@ function MessageBubble({ colors, message, isMe, onLongPress, onImagePress, onRet
         </div>
         <p className="whitespace-pre-wrap break-words text-[14px] leading-[20px]">{message.text}</p>
         <time className="mt-1.5 block text-right text-[10px]" style={{ color: colors.textTertiary }}>{timeAgo(message.timestamp)}</time>
+        <span aria-hidden="true" className="absolute bottom-1 right-2"><ReplyIcon size={13} color={colors.primary}/></span>
       </div>
     </article>;
   }
@@ -1082,7 +1085,8 @@ function MessageBubble({ colors, message, isMe, onLongPress, onImagePress, onRet
 </button>
         <div
       className={`rounded-2xl border px-3.5 py-2.5 shadow-sm ${mine ? 'rounded-br-md' : 'rounded-bl-md'} ${message.isPending && !failed ? 'opacity-70' : ''}`}
-      style={{ background: bubbleBackground, borderColor: failed ? colors.away : mine || commentary ? 'transparent' : colors.border, color: colors.textPrimary }}
+      style={{ background: bubbleBackground, borderColor: failed ? colors.away : mine || commentary ? 'transparent' : colors.border, color: colors.textPrimary, cursor: 'pointer' }}
+      onClick={onLongPress}
       onContextMenu={(event) => { event.preventDefault(); onLongPress(); }}>
           {message.replyTo && <div
       className="mb-2 border-l-2 pl-2"
