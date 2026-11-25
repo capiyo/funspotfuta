@@ -4,6 +4,8 @@ Funspot is a TypeScript monorepo for a football-fan community app. It contains a
 
 > **Project status:** Active development. The web app is a work in progress, not yet verified as fully feature- or visually equivalent to the mobile app. A matching file path or a successful TypeScript/build check does not prove feature parity. Check the current branch and CI results before relying on any feature in production.
 
+> **Permanent branch policy:** `seo-app-at-root` is the final and only working branch for this repository. All agents and contributors must work directly on it. Do not create, rename, switch to, or propose another branch. See [AGENTS.md](AGENTS.md) for the mandatory agent instructions.
+
 ## Repository layout
 
 - `apps/mobile` — Expo and React Native app; the established mobile implementation is the reference for intended behavior.
