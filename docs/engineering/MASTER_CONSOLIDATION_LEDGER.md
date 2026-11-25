@@ -81,7 +81,8 @@ The C++ worker, Zig gateway, SRS configuration, Nginx playback configuration, Co
 - Repository branch inventory: completed (22 branches).
 - Main source trees: compared and reconciled at branch heads.
 - Targeted static routing, lineup, comment, consent, and chat failure-state changes: implemented.
-- Local TypeScript, web build, mobile export, lint, unit, integration, and Playwright checks: NOT RUN in this remote GitHub editing environment. Do not treat them as passed.
+- The first master CI run exposed a stale root lockfile and two unsupported snake-case fixture fields. CI regenerated and committed the workspace lockfile; the unsupported fields were removed from both lineup files. The workflows now use deterministic `npm ci` against the committed lockfile.
+- Local TypeScript, web build, mobile export, lint, unit, integration, and Playwright checks are not run in this remote editing environment. GitHub Actions is the verification source; do not treat checks as passed until the post-fix runs finish.
 - Master CI workflows: configured to run on push/pull request to `master`; their post-update results must be inspected before claiming validation.
 - The web build requires a real `FUNSPOT_CONTACT_EMAIL` in the local environment. CI uses `ci-check@funspot.co.ke`.
 
