@@ -45,9 +45,8 @@ if [[ ! -d .git ]]; then
   echo "ERROR: Repository not found at $REPO"
   exit 1
 fi
-# Build outputs are expected to appear in the working tree before deployment.
-# Preserve the user's package lock and allow the generated SSR artifacts, while
-# refusing to deploy unrelated uncommitted source changes.
+# Allow only generated SSR artifacts from an earlier local build.
+# All source files and lockfiles must be clean before pulling production code.
 unexpected_changes=()
 while IFS= read -r status_line; do
   [[ -z "$status_line" ]] && continue
