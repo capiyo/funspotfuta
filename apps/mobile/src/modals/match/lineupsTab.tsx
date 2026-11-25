@@ -83,8 +83,6 @@ export function LineupsTab({
       awayTeamImageUrl: fixture.awayTeamImageUrl,
       homeCompetitorId: fixture.homeCompetitorId,
       awayCompetitorId: fixture.awayCompetitorId,
-      home_competitor_id: fixture.home_competitor_id,
-      away_competitor_id: fixture.away_competitor_id,
     };
     const onLayout = (event: LayoutChangeEvent) => setAvailableHeight(event.nativeEvent.layout.height);
 

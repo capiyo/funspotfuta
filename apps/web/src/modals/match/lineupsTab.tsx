@@ -44,8 +44,6 @@ export function LineupsTab({ fixture, lineups, loading, error }: LineupsTabProps
       awayTeamImageUrl: fixture.awayTeamImageUrl,
       homeCompetitorId: fixture.homeCompetitorId,
       awayCompetitorId: fixture.awayCompetitorId,
-      home_competitor_id: fixture.home_competitor_id,
-      away_competitor_id: fixture.away_competitor_id,
     };
 
   if (loading) {
