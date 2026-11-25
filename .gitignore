@@ -69,3 +69,9 @@ coverage/
 # === Misc ===
 *.pem
 .cache/
+# === Local Expo / EAS signing credentials (NEVER commit) ===
+**/credentials.json
+**/credentials/
+*.keystore
+*.p12
+*.pfx
