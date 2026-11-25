@@ -70,17 +70,21 @@ export default function AdCarousel({ showDots = false, flush = false, fixture = 
     if (index >= slides.length) setIndex(0);
   }, [index, slides.length, fixture?.matchId, fixture?.id]);
 
+  const directionRef = useRef<1 | -1>(1);
+
   useEffect(() => {
     if (slides.length < 2) return;
-    const timer = setInterval(() => {
-      setIndex((current) => {
-        const next = (current + 1) % slides.length;
-        listRef.current?.scrollToIndex({ index: next, animated: true });
-        return next;
-      });
+    const timer = setTimeout(() => {
+      let direction = directionRef.current;
+      if (index >= slides.length - 1) direction = -1;
+      else if (index <= 0) direction = 1;
+      directionRef.current = direction;
+      const next = index + direction;
+      listRef.current?.scrollToIndex({ index: next, animated: true });
+      setIndex(next);
     }, 6000);
-    return () => clearInterval(timer);
-  }, [slides.length]);
+    return () => clearTimeout(timer);
+  }, [index, slides.length]);
   if (slides.length === 0) return null;
 
   const NativeAdView = adsModule?.NativeAdView;
