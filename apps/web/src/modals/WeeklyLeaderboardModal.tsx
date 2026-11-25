@@ -1,5 +1,5 @@
 import { Avatar } from '@/components/ui/Avatar';
-import { AdSenseAd } from '@/components/AdSenseAd';
+import AdSenseCarousel from '@/components/AdSenseCarousel';
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Modal, Pressable, ScrollView, StyleSheet, Text, View } from '@/lib/native-web-compat';
 import { Trophy, X } from 'lucide-react';
@@ -72,9 +72,11 @@ export function WeeklyLeaderboardModal({ visible, onClose, channelId, channelNam
                     <Text style={styles.points}>+{row.weekly_points.toLocaleString()} pts</Text>
                   </View>
                   {(index + 1) % 5 === 0 && (
-                    <AdSenseAd
-                      slotId={['9051548379', '3164796870', '1372263706'][Math.floor(index / 5) % 3]}
+                    <AdSenseCarousel
                       placement="leaderboard"
+                      label="Leaderboard advertisements"
+                      enabled={visible}
+                      slots={['9051548379', '3164796870', '1372263706']}
                     />
                   )}
                 </Fragment>
