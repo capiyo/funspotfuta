@@ -1107,7 +1107,7 @@ function MessageBubble({ colors, message, isMe, onLongPress, onImagePress, onRet
 </div>}
           {hasImage && !mediaFailed && <button
       type="button"
-      onClick={() => onImagePress(message.imageUrl as string)}
+      onClick={(event) => { event.stopPropagation(); onImagePress(message.imageUrl as string); }}
       className="mb-2 block max-w-full">
 <img
       key={mediaAttempt}
@@ -1126,6 +1126,7 @@ function MessageBubble({ colors, message, isMe, onLongPress, onImagePress, onRet
       playsInline
       preload="metadata"
       onError={() => setMediaFailed(true)}
+      onClick={(event) => event.stopPropagation()}
       className="mb-2 max-h-80 max-w-full rounded-xl bg-transparent"/>}
           {(mediaFailed || ((hasImage || hasVideo) && mediaFailed)) && <button
       type="button"
