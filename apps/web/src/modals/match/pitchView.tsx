@@ -140,6 +140,7 @@ export function BenchColumn({ players, color }: { players: SimplifiedPlayer[]; c
       {(p.photoUrl || p.imageUrl || benchHeadshots[playerHeadshotKey(p, p.teamName ?? '')]) ? <img src={p.photoUrl || p.imageUrl || benchHeadshots[playerHeadshotKey(p, p.teamName ?? '')]} alt="" className="h-5 w-5 rounded-full object-cover" loading="lazy"/> : null}
       <span className="flex h-5 w-5 items-center justify-center rounded-full text-[10px] font-bold" style={{backgroundColor:hexWithAlpha(color,.18),color}}>{p.number}</span>
       <span className="min-w-0 flex-1 truncate" style={fanText('caption',colors,colors.textPrimary)}>{shortName(p.name)}</span>
+      {typeof p.rating === 'number' && <span className="shrink-0 text-[9px] font-semibold" style={{ color: '#B88722' }}>{p.rating.toFixed(1)}</span>}
       {p.captain && <span className="ml-0.5 text-[8px] font-bold" style={{color}}>C</span>}
     </div>)}
   </div>;
@@ -197,6 +198,7 @@ export function PitchView({ homeTeam, awayTeam, homeFormation, awayFormation, ho
         paintOrder="stroke"
         strokeLinejoin="round"
       >{shortName(player.name)}</text>
+      {typeof player.rating === 'number' && <text x="0" y="43" textAnchor="middle" fontSize="9" fontWeight="700" fill="#F8D66D" stroke="rgba(0,0,0,.8)" strokeWidth="2" paintOrder="stroke">{player.rating.toFixed(1)}</text>}
     </g>;
   });
   return <div className="h-full min-h-0 w-full overflow-hidden">

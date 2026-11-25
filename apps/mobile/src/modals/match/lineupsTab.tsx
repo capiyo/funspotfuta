@@ -17,6 +17,7 @@ import { fanText } from '@/theme/use-fan-typography';
 import type { Fixture } from '../../../../../packages/core/src/types/fixture';
 import type { LineupsData } from '../../../../../packages/core/src/types/matchDetails';
 import { BenchColumn, PitchView } from './pitchView';
+import { TeamCrest } from '@/components/TeamCrest';
 
 // ═══════════════════════════════════════════════════════════════
 //  HELPERS
@@ -75,7 +76,9 @@ export function LineupsTab({
     error,
 }: LineupsTabProps) {
     const colors = useFanColors();
-    const [availableHeight, setAvailableHeight] = useState(0);\n    const [showSquads, setShowSquads] = useState(false);
+    const [availableHeight, setAvailableHeight] = useState(0);
+    const [showSquads, setShowSquads] = useState(false);
+    const crestFixture = { homeTeamImageUrl: fixture.homeTeamImageUrl, awayTeamImageUrl: fixture.awayTeamImageUrl };
     const onLayout = (event: LayoutChangeEvent) => setAvailableHeight(event.nativeEvent.layout.height);
 
 
@@ -110,6 +113,24 @@ export function LineupsTab({
                     </Text>
                 </Pressable>
             </View>
+            {!showSquads ? (
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 12, paddingBottom: 8, gap: 8 }}>
+                    <View style={{ flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                        <TeamCrest name={fixture.homeTeam} fixture={crestFixture} side="home" size={20} />
+                        <View style={{ flex: 1, minWidth: 0 }}>
+                            <Text numberOfLines={1} style={[fanText('caption', colors), { color: colors.textPrimary }]}>{fixture.homeTeam}</Text>
+                            <Text style={[fanText('tag', colors), { color: colors.textSecondary }]}>{lineups.homeFormation}</Text>
+                        </View>
+                    </View>
+                    <View style={{ flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 6 }}>
+                        <View style={{ flex: 1, minWidth: 0, alignItems: 'flex-end' }}>
+                            <Text numberOfLines={1} style={[fanText('caption', colors), { color: colors.textPrimary }]}>{fixture.awayTeam}</Text>
+                            <Text style={[fanText('tag', colors), { color: colors.textSecondary }]}>{lineups.awayFormation}</Text>
+                        </View>
+                        <TeamCrest name={fixture.awayTeam} fixture={crestFixture} side="away" size={20} />
+                    </View>
+                </View>
+            ) : null}
             {showSquads ? (
                 <ScrollView
                     style={styles.pitchScroller}
@@ -117,12 +138,18 @@ export function LineupsTab({
                     showsVerticalScrollIndicator={false}
                 >
                     <View style={styles.squadColumn}>
-                        <Text style={[fanText('body', colors), styles.teamHeading, { color: colors.textPrimary }]}>{fixture.homeTeam}</Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                            <TeamCrest name={fixture.homeTeam} fixture={crestFixture} side="home" size={20} />
+                            <Text style={[fanText('body', colors), styles.teamHeading, { color: colors.textPrimary }]}>{fixture.homeTeam}</Text>
+                        </View>
                         <Text style={[fanText('caption', colors), styles.coachText, { color: colors.textSecondary }]}>Coach: {lineups.homeCoach}</Text>
                         <BenchColumn players={lineups.homeBench} color={colors.primary} />
                     </View>
                     <View style={styles.squadColumn}>
-                        <Text style={[fanText('body', colors), styles.teamHeading, { color: colors.textPrimary }]}>{fixture.awayTeam}</Text>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                            <TeamCrest name={fixture.awayTeam} fixture={crestFixture} side="away" size={20} />
+                            <Text style={[fanText('body', colors), styles.teamHeading, { color: colors.textPrimary }]}>{fixture.awayTeam}</Text>
+                        </View>
                         <Text style={[fanText('caption', colors), styles.coachText, { color: colors.textSecondary }]}>Coach: {lineups.awayCoach}</Text>
                         <BenchColumn players={lineups.awayBench} color={colors.away} />
                     </View>

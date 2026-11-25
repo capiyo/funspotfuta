@@ -6,6 +6,7 @@ import { fanText } from '@/theme/use-fan-typography';
 import type { Fixture } from '../../../../../packages/core/src/types/fixture';
 import type { LineupsData } from '../../../../../packages/core/src/types/matchDetails';
 import { BenchColumn, PitchView } from './pitchView';
+import { TeamCrest } from '@/components/TeamCrest';
 
 function hexWithAlpha(hex: string, alpha: number): string {
   const clean = hex.replace('#', '');
@@ -37,6 +38,8 @@ export interface LineupsTabProps {
 
 export function LineupsTab({ fixture, lineups, loading, error }: LineupsTabProps) {
   const colors = useFanColors();
+  const [showSquads, setShowSquads] = useState(false);
+  const crestFixture = { homeTeamImageUrl: fixture.homeTeamImageUrl, awayTeamImageUrl: fixture.awayTeamImageUrl };
 
   if (loading) {
     return (
@@ -66,15 +69,27 @@ export function LineupsTab({ fixture, lineups, loading, error }: LineupsTabProps
           {showSquads ? 'Less' : 'More'}
         </button>
       </div>
+      {!showSquads && (
+        <div className="flex shrink-0 items-center justify-between gap-3 px-3 pb-2">
+          <div className="flex min-w-0 items-center gap-2">
+            <TeamCrest name={fixture.homeTeam} fixture={crestFixture} side="home" size={20} />
+            <div className="min-w-0"><div className="truncate text-xs font-semibold" style={{ color: colors.textPrimary }}>{fixture.homeTeam}</div><div className="text-[10px]" style={{ color: colors.textSecondary }}>{lineups.homeFormation}</div></div>
+          </div>
+          <div className="flex min-w-0 items-center gap-2">
+            <div className="min-w-0 text-right"><div className="truncate text-xs font-semibold" style={{ color: colors.textPrimary }}>{fixture.awayTeam}</div><div className="text-[10px]" style={{ color: colors.textSecondary }}>{lineups.awayFormation}</div></div>
+            <TeamCrest name={fixture.awayTeam} fixture={crestFixture} side="away" size={20} />
+          </div>
+        </div>
+      )}
       {showSquads ? (
         <div className="grid min-h-0 flex-1 grid-cols-2 gap-3 overflow-y-auto px-2 pb-3">
           <section className="min-w-0">
-            <h3 className="mb-2 truncate text-sm font-semibold" style={fanText('body', colors, colors.textPrimary)}>{fixture.homeTeam}</h3>
+            <h3 className="mb-2 flex min-w-0 items-center gap-2 text-sm font-semibold" style={fanText('body', colors, colors.textPrimary)}><TeamCrest name={fixture.homeTeam} fixture={crestFixture} side="home" size={20} /><span className="truncate">{fixture.homeTeam}</span></h3>
             <p className="mb-2 text-xs" style={fanText('caption', colors, colors.textSecondary)}>Coach: {lineups.homeCoach}</p>
             <BenchColumn players={lineups.homeBench} color={colors.primary} />
           </section>
           <section className="min-w-0">
-            <h3 className="mb-2 truncate text-sm font-semibold" style={fanText('body', colors, colors.textPrimary)}>{fixture.awayTeam}</h3>
+            <h3 className="mb-2 flex min-w-0 items-center gap-2 text-sm font-semibold" style={fanText('body', colors, colors.textPrimary)}><TeamCrest name={fixture.awayTeam} fixture={crestFixture} side="away" size={20} /><span className="truncate">{fixture.awayTeam}</span></h3>
             <p className="mb-2 text-xs" style={fanText('caption', colors, colors.textSecondary)}>Coach: {lineups.awayCoach}</p>
             <BenchColumn players={lineups.awayBench} color={colors.away} />
           </section>

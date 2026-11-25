@@ -526,7 +526,7 @@ export default function LoginModal({ visible = true, onClose, onSuccess }: Login
           aria-checked={acceptTerms}
           onClick={() => setAcceptTerms((value) => !value)}
           className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2"
-          style={{ borderColor: colors.primary, background: acceptTerms ? colors.primary : colors.surface, color: colors.textInverse, boxShadow: acceptTerms ? 'none' : `inset 0 0 0 1px ${colors.primary}20` }}>{acceptTerms ? '✓' : ''}</button>
+          style={{ borderColor: '#75B98C', background: acceptTerms ? '#328653' : 'rgba(91,174,119,0.12)', color: '#FFFFFF', boxShadow: acceptTerms ? 'none' : 'inset 0 0 0 1px rgba(91,174,119,0.18)' }}>{acceptTerms ? '✓' : ''}</button>
       <p
           className="flex-1 text-xs leading-5"
           style={{ color: colors.textTertiary }}>I agree to the <a

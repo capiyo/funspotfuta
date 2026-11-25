@@ -535,6 +535,9 @@ function PlayerDot({ player, position, color, photoUrl }: PlayerDotProps) {
                 <Text numberOfLines={1} ellipsizeMode="tail" style={styles.playerNameText}>
                     {shortName(player.name)}
                 </Text>
+                {typeof player.rating === 'number' ? (
+                    <Text style={{ fontSize: 8, fontWeight: '700', color: '#F8D66D' }}>{player.rating.toFixed(1)}</Text>
+                ) : null}
             </View>
         </View>
     );
@@ -615,6 +618,7 @@ export function BenchColumn({ players, color }: BenchColumnProps) {
                     >
                         {shortName(p.name)}
                     </Text>
+                    {typeof p.rating === 'number' ? <Text style={[fanText('tag', colors), { color: '#B88722' }]}>{p.rating.toFixed(1)}</Text> : null}
                     {p.captain ? (
                         <>
                             <View style={{ width: 4 }} />
