@@ -155,7 +155,7 @@ export default function AdSenseCarousel({
     return () => window.clearTimeout(timer);
   }, [activeIndex, slides.length]);
 
-  if (placement !== 'chats' || !slides.length) return null;
+  if (!slides.length) return null;
 
   return (
     <section
