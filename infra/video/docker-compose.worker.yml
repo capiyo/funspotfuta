@@ -1,0 +1,34 @@
+services:
+  media-worker:
+    build:
+      context: ./cpp-worker
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    command:
+      - --input-file
+      - /run/secrets/ingest_source
+      - --stream
+      - ${VIDEO_STREAM_KEY:?Set VIDEO_STREAM_KEY for the selected Funspot fixture}
+    secrets:
+      - ingest_source
+    environment:
+      VIDEO_ALLOWED_SOURCE_HOSTS: ${VIDEO_ALLOWED_SOURCE_HOSTS:?Set an exact comma-separated source host allowlist}
+    networks:
+      - funspot-video
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    pids_limit: 64
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,noexec,nosuid
+
+networks:
+  funspot-video:
+    external: true
+    name: funspot-video
+
+secrets:
+  ingest_source:
+    file: ${VIDEO_INGEST_SOURCE_FILE:?Set VIDEO_INGEST_SOURCE_FILE to a protected file containing the authorized source URL}

@@ -1,7 +1,7 @@
 name: Web port validation
 on:
   push:
-    branches: [web-port-from-master, seo-public-home-app-subpath, seo-app-at-root]
+    branches: [master]
   pull_request:
     branches: [master]
 jobs:
@@ -13,7 +13,7 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - run: npm install --no-audit --no-fund
+      - run: npm ci --no-audit --no-fund
       - run: npm run test:core
       - run: npm run test:web:notification-normalizer
       - run: npm run test:web:contact-email
@@ -45,13 +45,13 @@ jobs:
           trap 'echo "--- Vite dev server log ---"; cat /tmp/funspot-web-dev.log' ERR
           cd apps/web
           npm run dev -- --host 127.0.0.1 --port 4173 --strictPort > /tmp/funspot-web-dev.log 2>&1 &
-          for attempt in $(seq 1 30); do curl --fail --silent http://127.0.0.1:4173/ > /dev/null && break; sleep 1; done
+          for attempt in $(seq 1 30); do curl --fail --silent http://127.0.0.1:4173/app/ > /dev/null && break; sleep 1; done
           cd ../..
-          VERIFY_BASE_URL=http://127.0.0.1:4173/ node apps/web/scripts/verify-chats-card.mjs
+          VERIFY_BASE_URL=http://127.0.0.1:4173/app/ node apps/web/scripts/verify-chats-card.mjs
       - name: Verify Match Details lineup and stats tabs
-        run: node apps/web/scripts/verify-match-details-tabs.mjs
+        run: VERIFY_BASE_URL=http://127.0.0.1:4173/app/ node apps/web/scripts/verify-match-details-tabs.mjs
       - name: Verify Home shell and Feed styling
-        run: node apps/web/scripts/verify-home.mjs
+        run: VERIFY_BASE_URL=http://127.0.0.1:4173/app/ node apps/web/scripts/verify-home.mjs
       - name: Upload ChatsCard verification screenshots
         if: always()
         uses: actions/upload-artifact@v4
