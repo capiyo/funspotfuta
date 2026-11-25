@@ -7,6 +7,7 @@ import {
     StyleSheet,
     ActivityIndicator,
     ScrollView,
+    Pressable,
 } from 'react-native';
 import { AlertCircle, CircleDot } from 'lucide-react-native';
 
