@@ -1,0 +1,309 @@
+{
+  "baseBranch": "seo-app-at-root",
+  "note": "File-level branch comparison; paths are relative to the merge-base comparison returned by GitHub. tooLarge=true means the provider limited the returned file list.",
+  "branches": [
+    {
+      "branch": "fix-live-status-transition-web-port",
+      "head": "b0fc8f5e5e197fafe85c31dc0115f2acf31635e6",
+      "status": "diverged",
+      "ahead": 4,
+      "behind": 529,
+      "totalCommits": 4,
+      "tooLarge": false,
+      "files": [
+        {
+          "path": "apps/mobile/src/components/ChatsCard.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 14,
+          "deletions": 4,
+          "changes": 18
+        },
+        {
+          "path": "apps/mobile/src/modals/actionModal.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 1,
+          "deletions": 1,
+          "changes": 2
+        },
+        {
+          "path": "apps/web/components/MatchCard.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 20,
+          "deletions": 15,
+          "changes": 35
+        },
+        {
+          "path": "apps/web/src/components/ChatsCard.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 14,
+          "deletions": 4,
+          "changes": 18
+        }
+      ]
+    },
+    {
+      "branch": "master",
+      "head": "4510ea6c753b66d43b2deaff5191015631098c89",
+      "status": "diverged",
+      "ahead": 1,
+      "behind": 2511,
+      "totalCommits": 1,
+      "tooLarge": false,
+      "files": [
+        {
+          "path": "apps/mobile/src/modals/match/lineupsTab.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 10,
+          "deletions": 2,
+          "changes": 12
+        },
+        {
+          "path": "apps/mobile/src/modals/match/pitchView.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 12,
+          "deletions": 1,
+          "changes": 13
+        },
+        {
+          "path": "packages/core/src/types/fixture.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 4,
+          "deletions": 0,
+          "changes": 4
+        },
+        {
+          "path": "packages/core/src/types/matchDetails.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 8,
+          "deletions": 1,
+          "changes": 9
+        }
+      ]
+    },
+    {
+      "branch": "player-ratings-and-assets",
+      "head": "00bd638023020087d89ff2cec5c1f6e31e329c41",
+      "status": "diverged",
+      "ahead": 12,
+      "behind": 2511,
+      "totalCommits": 12,
+      "tooLarge": false,
+      "files": [
+        {
+          "path": "apps/mobile/src/modals/match/lineupsTab.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 10,
+          "deletions": 2,
+          "changes": 12
+        },
+        {
+          "path": "apps/mobile/src/modals/match/pitchView.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 12,
+          "deletions": 1,
+          "changes": 13
+        },
+        {
+          "path": "packages/core/src/types/fixture.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 4,
+          "deletions": 0,
+          "changes": 4
+        },
+        {
+          "path": "packages/core/src/types/matchDetails.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 8,
+          "deletions": 1,
+          "changes": 9
+        }
+      ]
+    },
+    {
+      "branch": "seo-public-home-app-subpath",
+      "head": "753bf744aac0a2d7361e3f502fef893bd286595d",
+      "status": "diverged",
+      "ahead": 17,
+      "behind": 507,
+      "totalCommits": 17,
+      "tooLarge": false,
+      "files": [
+        {
+          "path": "apps/mobile/src/modals/CommentsModal.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 48,
+          "deletions": 25,
+          "changes": 73
+        },
+        {
+          "path": "apps/mobile/src/modals/LeaderboardModal.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 4,
+          "deletions": 1,
+          "changes": 5
+        },
+        {
+          "path": "apps/mobile/src/modals/LoginModal.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 11,
+          "deletions": 7,
+          "changes": 18
+        },
+        {
+          "path": "apps/mobile/src/modals/WeeklyLeaderboardModal.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 11,
+          "deletions": 7,
+          "changes": 18
+        },
+        {
+          "path": "apps/mobile/src/screens/FeedScreen.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 1,
+          "deletions": 1,
+          "changes": 2
+        },
+        {
+          "path": "apps/mobile/src/screens/MessageScreen.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 9,
+          "deletions": 1,
+          "changes": 10
+        },
+        {
+          "path": "apps/web/src/components/AdSenseCarousel.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 21,
+          "deletions": 1,
+          "changes": 22
+        },
+        {
+          "path": "apps/web/src/modals/CommentsModal.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 46,
+          "deletions": 15,
+          "changes": 61
+        },
+        {
+          "path": "apps/web/src/modals/LeaderboardModal.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 2,
+          "deletions": 1,
+          "changes": 3
+        },
+        {
+          "path": "apps/web/src/modals/LoginModal.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 3,
+          "deletions": 2,
+          "changes": 5
+        },
+        {
+          "path": "apps/web/src/modals/WeeklyLeaderboardModal.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 11,
+          "deletions": 7,
+          "changes": 18
+        },
+        {
+          "path": "apps/web/src/modals/profile/ChannelLeaderboard.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 2,
+          "deletions": 1,
+          "changes": 3
+        },
+        {
+          "path": "apps/web/src/screens/MessageScreen.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 6,
+          "deletions": 1,
+          "changes": 7
+        },
+        {
+          "path": "packages/core/src/api/use-channel-chat.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 66,
+          "deletions": 26,
+          "changes": 92
+        },
+        {
+          "path": "packages/core/src/types/chat-message.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 1,
+          "deletions": 1,
+          "changes": 2
+        }
+      ]
+    },
+    {
+      "branch": "web-port-from-master",
+      "head": "edf0f4739e22d81dd965ab87a6f28b941aeb292",
+      "status": "diverged",
+      "ahead": 1,
+      "behind": 529,
+      "totalCommits": 1,
+      "tooLarge": false,
+      "files": [
+        {
+          "path": "apps/mobile/src/components/ChatsCard.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 14,
+          "deletions": 4,
+          "changes": 18
+        },
+        {
+          "path": "apps/mobile/src/modals/actionModal.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 1,
+          "deletions": 1,
+          "changes": 2
+        },
+        {
+          "path": "apps/web/components/MatchCard.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 20,
+          "deletions": 15,
+          "changes": 35
+        },
+        {
+          "path": "apps/web/src/components/ChatsCard.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 14,
+          "deletions": 4,
+          "changes": 18
+        }
+      ]
+    }
+  ]
+}
