@@ -138,17 +138,22 @@ export default function AdSenseCarousel({
     trackRef.current?.scrollTo({ left: 0 });
   }, [slides.length, fixture?.matchId, fixture?.id]);
 
+  const directionRef = useRef<1 | -1>(1);
+
   useEffect(() => {
     if (slides.length < 2) return;
-    const timer = window.setInterval(() => {
-      setActiveIndex((current) => {
-        const next = (current + 1) % slides.length;
-        trackRef.current?.scrollTo({ left: next * (trackRef.current?.clientWidth ?? 0), behavior: 'smooth' });
-        return next;
-      });
+    const timer = window.setTimeout(() => {
+      let direction = directionRef.current;
+      if (activeIndex >= slides.length - 1) direction = -1;
+      else if (activeIndex <= 0) direction = 1;
+      directionRef.current = direction;
+      const next = activeIndex + direction;
+      const track = trackRef.current;
+      track?.scrollTo({ left: next * (track.clientWidth || 0), behavior: 'smooth' });
+      setActiveIndex(next);
     }, 6000);
-    return () => window.clearInterval(timer);
-  }, [slides.length]);
+    return () => window.clearTimeout(timer);
+  }, [activeIndex, slides.length]);
 
   if (placement !== 'chats' || !slides.length) return null;
 
