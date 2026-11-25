@@ -1,0 +1,2337 @@
+{
+  "baseBranch": "seo-app-at-root",
+  "note": "File-level branch comparison; paths are relative to the merge-base comparison returned by GitHub. tooLarge=true means the provider limited the returned file list.",
+  "branches": [
+    {
+      "branch": "adsense-web-integration",
+      "head": "ee291e6d81e2669d851fd910a0640d60ad37e6dc",
+      "status": "behind",
+      "ahead": 0,
+      "behind": 1637,
+      "totalCommits": 0,
+      "tooLarge": false,
+      "files": []
+    },
+    {
+      "branch": "chore/monorepo-clean-mobile-parity",
+      "head": "84c8508b579bbc1e20f73f08f5e58aa285212216",
+      "status": "diverged",
+      "ahead": 227,
+      "behind": 2523,
+      "totalCommits": 227,
+      "tooLarge": false,
+      "files": [
+        {
+          "path": ".github/workflows/typecheck.yml",
+          "status": "added",
+          "previousPath": null,
+          "additions": 22,
+          "deletions": 0,
+          "changes": 22
+        },
+        {
+          "path": "README.md",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 65,
+          "deletions": 88,
+          "changes": 153
+        },
+        {
+          "path": "apps/mobile/src/components/FloatingPillTabBar.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 7,
+          "deletions": 7,
+          "changes": 14
+        },
+        {
+          "path": "apps/mobile/src/navigation/RootNavigator.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 6,
+          "deletions": 0,
+          "changes": 6
+        },
+        {
+          "path": "apps/mobile/src/screens/ChatsScreen.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 4,
+          "deletions": 3,
+          "changes": 7
+        },
+        {
+          "path": "apps/mobile/src/screens/FixtureDetailScreen.tsx",
+          "status": "added",
+          "previousPath": null,
+          "additions": 63,
+          "deletions": 0,
+          "changes": 63
+        },
+        {
+          "path": "apps/mobile/src/screens/HistoryScreen.tsx",
+          "status": "added",
+          "previousPath": null,
+          "additions": 57,
+          "deletions": 0,
+          "changes": 57
+        },
+        {
+          "path": "apps/mobile/src/screens/TrendingScreen.tsx",
+          "status": "added",
+          "previousPath": null,
+          "additions": 91,
+          "deletions": 0,
+          "changes": 91
+        },
+        {
+          "path": "apps/mobile/src/screens/home/HomeScreen.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 5,
+          "deletions": 3,
+          "changes": 8
+        },
+        {
+          "path": "apps/mobile/src/screens/home/home-context.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 3,
+          "deletions": 3,
+          "changes": 6
+        },
+        {
+          "path": "apps/web/.env.example",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 1,
+          "deletions": 0,
+          "changes": 1
+        },
+        {
+          "path": "apps/web/App.tsx",
+          "status": "added",
+          "previousPath": null,
+          "additions": 108,
+          "deletions": 0,
+          "changes": 108
+        },
+        {
+          "path": "apps/web/QueryProvider.tsx",
+          "status": "added",
+          "previousPath": null,
+          "additions": 15,
+          "deletions": 0,
+          "changes": 15
+        },
+        {
+          "path": "apps/web/README.md",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 65,
+          "deletions": 88,
+          "changes": 153
+        },
+        {
+          "path": "apps/web/WEB_PARITY_AUDIT.md",
+          "status": "added",
+          "previousPath": null,
+          "additions": 53,
+          "deletions": 0,
+          "changes": 53
+        },
+        {
+          "path": "apps/web/app/(app)/admin/[channelId]/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 118,
+          "changes": 118
+        },
+        {
+          "path": "apps/web/app/(app)/aftermatchModal.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 936,
+          "changes": 936
+        },
+        {
+          "path": "apps/web/app/(app)/chat/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 632,
+          "changes": 632
+        },
+        {
+          "path": "apps/web/app/(app)/comrades/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 163,
+          "changes": 163
+        },
+        {
+          "path": "apps/web/app/(app)/feed/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 159,
+          "changes": 159
+        },
+        {
+          "path": "apps/web/app/(app)/history/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 401,
+          "changes": 401
+        },
+        {
+          "path": "apps/web/app/(app)/home/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 491,
+          "changes": 491
+        },
+        {
+          "path": "apps/web/app/(app)/layout.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 31,
+          "changes": 31
+        },
+        {
+          "path": "apps/web/app/(app)/leaderboard/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 112,
+          "changes": 112
+        },
+        {
+          "path": "apps/web/app/(app)/notifications/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 107,
+          "changes": 107
+        },
+        {
+          "path": "apps/web/app/(app)/profile/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 68,
+          "changes": 68
+        },
+        {
+          "path": "apps/web/app/layout.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 39,
+          "changes": 39
+        },
+        {
+          "path": "apps/web/app/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 23,
+          "changes": 23
+        },
+        {
+          "path": "apps/web/app/provider.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 14,
+          "changes": 14
+        },
+        {
+          "path": "apps/web/components/BottomNav.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 7,
+          "deletions": 22,
+          "changes": 29
+        },
+        {
+          "path": "apps/web/components/ChannelCreationModal.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 80,
+          "changes": 80
+        },
+        {
+          "path": "apps/web/components/FloatingPillTabs.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 1,
+          "changes": 1
+        },
+        {
+          "path": "apps/web/components/FooterPill.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 2,
+          "changes": 2
+        },
+        {
+          "path": "apps/web/components/HistoryCard.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 2,
+          "changes": 2
+        },
+        {
+          "path": "apps/web/components/MatchCard.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 12,
+          "deletions": 4,
+          "changes": 16
+        },
+        {
+          "path": "apps/web/components/PostCard.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 4,
+          "deletions": 7,
+          "changes": 11
+        },
+        {
+          "path": "apps/web/components/SmartMedia.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 2,
+          "changes": 2
+        },
+        {
+          "path": "apps/web/components/WalletCard.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 85,
+          "deletions": 27,
+          "changes": 112
+        },
+        {
+          "path": "apps/web/components/WebNavbar.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 13,
+          "deletions": 15,
+          "changes": 28
+        },
+        {
+          "path": "apps/web/components/WebSidebar.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 14,
+          "deletions": 5,
+          "changes": 19
+        },
+        {
+          "path": "apps/web/components/aftermatchModal.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 936,
+          "changes": 936
+        },
+        {
+          "path": "apps/web/components/modals/PitchView.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 1,
+          "changes": 1
+        },
+        {
+          "path": "apps/web/components/modals/leaderboardModal.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 1,
+          "deletions": 3,
+          "changes": 4
+        },
+        {
+          "path": "apps/web/components/ui/MiniAvatar.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 1,
+          "changes": 1
+        },
+        {
+          "path": "apps/web/index.html",
+          "status": "added",
+          "previousPath": null,
+          "additions": 1,
+          "deletions": 0,
+          "changes": 1
+        },
+        {
+          "path": "apps/web/lib/api/use-channel-chat.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 62,
+          "deletions": 13,
+          "changes": 75
+        },
+        {
+          "path": "apps/web/lib/api/vote-modal-shims.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 1,
+          "deletions": 1,
+          "changes": 2
+        },
+        {
+          "path": "apps/web/lib/auth/auth-context.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 2,
+          "changes": 2
+        },
+        {
+          "path": "apps/web/lib/match/pitch-engine.ts",
+          "status": "added",
+          "previousPath": null,
+          "additions": 43,
+          "deletions": 0,
+          "changes": 43
+        },
+        {
+          "path": "apps/web/lib/theme/use-fan-colors.ts",
+          "status": "added",
+          "previousPath": null,
+          "additions": 25,
+          "deletions": 0,
+          "changes": 25
+        },
+        {
+          "path": "apps/web/lib/toast/toast-context.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 2,
+          "changes": 2
+        },
+        {
+          "path": "apps/web/main.tsx",
+          "status": "added",
+          "previousPath": null,
+          "additions": 5,
+          "deletions": 0,
+          "changes": 5
+        },
+        {
+          "path": "apps/web/next-env.d.ts",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 5,
+          "changes": 5
+        },
+        {
+          "path": "apps/web/next.config.mjs",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 15,
+          "changes": 15
+        },
+        {
+          "path": "apps/web/package-lock.json",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 1631,
+          "changes": 1631
+        },
+        {
+          "path": "apps/web/package.json",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 11,
+          "deletions": 7,
+          "changes": 18
+        },
+        {
+          "path": "apps/web/src/lib/match/pitch-engine.ts",
+          "status": "added",
+          "previousPath": null,
+          "additions": 132,
+          "deletions": 0,
+          "changes": 132
+        },
+        {
+          "path": "apps/web/src/modals/AdminModal.tsx",
+          "status": "added",
+          "previousPath": null,
+          "additions": 191,
+          "deletions": 0,
+          "changes": 191
+        },
+        {
+          "path": "apps/web/src/modals/AftermatchModal.tsx",
+          "status": "renamed",
+          "previousPath": "apps/web/testa/app/(app)/aftermatchModal.tsx",
+          "additions": 0,
+          "deletions": 2,
+          "changes": 2
+        },
+        {
+          "path": "apps/web/src/modals/ChannelCreationModal.tsx",
+          "status": "renamed",
+          "previousPath": "apps/web/testa/components/ChannelCreationModal.tsx",
+          "additions": 18,
+          "deletions": 13,
+          "changes": 31
+        },
+        {
+          "path": "apps/web/src/modals/ComradesModal.tsx",
+          "status": "renamed",
+          "previousPath": "apps/web/testa/app/(app)/comrades/page.tsx",
+          "additions": 71,
+          "deletions": 30,
+          "changes": 101
+        },
+        {
+          "path": "apps/web/src/modals/LeaderboardModal.tsx",
+          "status": "added",
+          "previousPath": null,
+          "additions": 575,
+          "deletions": 0,
+          "changes": 575
+        },
+        {
+          "path": "apps/web/src/modals/NotificationsModal.tsx",
+          "status": "renamed",
+          "previousPath": "apps/web/testa/app/(app)/notifications/page.tsx",
+          "additions": 54,
+          "deletions": 15,
+          "changes": 69
+        },
+        {
+          "path": "apps/web/src/modals/actionModal.tsx",
+          "status": "renamed",
+          "previousPath": "apps/web/components/actionsModal.tsx",
+          "additions": 1,
+          "deletions": 3,
+          "changes": 4
+        },
+        {
+          "path": "apps/web/src/modals/match/LineupsTab.tsx",
+          "status": "renamed",
+          "previousPath": "apps/web/components/modals/LineupsTab.tsx",
+          "additions": 0,
+          "deletions": 1,
+          "changes": 1
+        },
+        {
+          "path": "apps/web/src/modals/match/MatchDetailsModal.tsx",
+          "status": "renamed",
+          "previousPath": "apps/web/components/modals/MatchDetailsModal.tsx",
+          "additions": 0,
+          "deletions": 1,
+          "changes": 1
+        },
+        {
+          "path": "apps/web/src/modals/match/PitchView.tsx",
+          "status": "added",
+          "previousPath": null,
+          "additions": 196,
+          "deletions": 0,
+          "changes": 196
+        },
+        {
+          "path": "apps/web/src/modals/match/StatsTab.tsx",
+          "status": "added",
+          "previousPath": null,
+          "additions": 47,
+          "deletions": 0,
+          "changes": 47
+        },
+        {
+          "path": "apps/web/src/modals/profile/ProfileModal.tsx",
+          "status": "added",
+          "previousPath": null,
+          "additions": 188,
+          "deletions": 0,
+          "changes": 188
+        },
+        {
+          "path": "apps/web/src/screens/ChatsScreen.tsx",
+          "status": "renamed",
+          "previousPath": "apps/web/testa/app/(app)/chat/page.tsx",
+          "additions": 92,
+          "deletions": 15,
+          "changes": 107
+        },
+        {
+          "path": "apps/web/src/screens/FeedScreen.tsx",
+          "status": "added",
+          "previousPath": null,
+          "additions": 240,
+          "deletions": 0,
+          "changes": 240
+        },
+        {
+          "path": "apps/web/src/screens/FixtureDetailScreen.tsx",
+          "status": "renamed",
+          "previousPath": "apps/web/app/(app)/fixture/[matchId]/page.tsx",
+          "additions": 111,
+          "deletions": 82,
+          "changes": 193
+        },
+        {
+          "path": "apps/web/src/screens/HistoryScreen.tsx",
+          "status": "renamed",
+          "previousPath": "apps/web/testa/app/(app)/history/page.tsx",
+          "additions": 24,
+          "deletions": 13,
+          "changes": 37
+        },
+        {
+          "path": "apps/web/src/screens/LoginScreen.tsx",
+          "status": "renamed",
+          "previousPath": "apps/web/app/login/page.tsx",
+          "additions": 162,
+          "deletions": 41,
+          "changes": 203
+        },
+        {
+          "path": "apps/web/src/screens/TrendingScreen.tsx",
+          "status": "renamed",
+          "previousPath": "apps/web/app/(app)/trending/page.tsx",
+          "additions": 41,
+          "deletions": 15,
+          "changes": 56
+        },
+        {
+          "path": "apps/web/src/screens/home/HomeScreen.tsx",
+          "status": "added",
+          "previousPath": null,
+          "additions": 355,
+          "deletions": 0,
+          "changes": 355
+        },
+        {
+          "path": "apps/web/src/theme/use-fan-colors.ts",
+          "status": "added",
+          "previousPath": null,
+          "additions": 29,
+          "deletions": 0,
+          "changes": 29
+        },
+        {
+          "path": "apps/web/testa/app/(app)/admin/[channelId]/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 118,
+          "changes": 118
+        },
+        {
+          "path": "apps/web/testa/app/(app)/feed/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 159,
+          "changes": 159
+        },
+        {
+          "path": "apps/web/testa/app/(app)/fixture/[matchId]/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 656,
+          "changes": 656
+        },
+        {
+          "path": "apps/web/testa/app/(app)/home/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 491,
+          "changes": 491
+        },
+        {
+          "path": "apps/web/testa/app/(app)/layout.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 31,
+          "changes": 31
+        },
+        {
+          "path": "apps/web/testa/app/(app)/leaderboard/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 112,
+          "changes": 112
+        },
+        {
+          "path": "apps/web/testa/app/(app)/profile/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 68,
+          "changes": 68
+        },
+        {
+          "path": "apps/web/testa/app/(app)/trending/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 113,
+          "changes": 113
+        },
+        {
+          "path": "apps/web/testa/app/globals.css",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 128,
+          "changes": 128
+        },
+        {
+          "path": "apps/web/testa/app/layout.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 39,
+          "changes": 39
+        },
+        {
+          "path": "apps/web/testa/app/login/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 262,
+          "changes": 262
+        },
+        {
+          "path": "apps/web/testa/app/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 23,
+          "changes": 23
+        },
+        {
+          "path": "apps/web/testa/app/provider.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 14,
+          "changes": 14
+        },
+        {
+          "path": "apps/web/testa/components/BottomNav.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 58,
+          "changes": 58
+        },
+        {
+          "path": "apps/web/testa/components/FloatingPillTabs.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 28,
+          "changes": 28
+        },
+        {
+          "path": "apps/web/testa/components/FooterPill.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 120,
+          "changes": 120
+        },
+        {
+          "path": "apps/web/testa/components/HistoryCard.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 307,
+          "changes": 307
+        },
+        {
+          "path": "apps/web/testa/components/MainContentColumns.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 44,
+          "changes": 44
+        },
+        {
+          "path": "apps/web/testa/components/MatchCard.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 426,
+          "changes": 426
+        },
+        {
+          "path": "apps/web/testa/components/PhasePlaceholder.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 11,
+          "changes": 11
+        },
+        {
+          "path": "apps/web/testa/components/PostCard.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 168,
+          "changes": 168
+        },
+        {
+          "path": "apps/web/testa/components/SmartMedia.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 136,
+          "changes": 136
+        },
+        {
+          "path": "apps/web/testa/components/WalletCard.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 100,
+          "changes": 100
+        },
+        {
+          "path": "apps/web/testa/components/WebNavbar.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 416,
+          "changes": 416
+        },
+        {
+          "path": "apps/web/testa/components/WebSidebar.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 923,
+          "changes": 923
+        },
+        {
+          "path": "apps/web/testa/components/actionsModal.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 1843,
+          "changes": 1843
+        },
+        {
+          "path": "apps/web/testa/components/aftermatchModal.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 936,
+          "changes": 936
+        },
+        {
+          "path": "apps/web/testa/lib/api/media-service.ts",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 43,
+          "changes": 43
+        },
+        {
+          "path": "apps/web/testa/lib/api/posts-create.ts",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 43,
+          "changes": 43
+        },
+        {
+          "path": "apps/web/testa/lib/api/use-channel-chat.ts",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 247,
+          "changes": 247
+        },
+        {
+          "path": "apps/web/testa/lib/api/vote-modal-shims.ts",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 238,
+          "changes": 238
+        },
+        {
+          "path": "apps/web/testa/lib/auth/auth-context.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 226,
+          "changes": 226
+        },
+        {
+          "path": "apps/web/testa/lib/cors,json",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 8,
+          "changes": 8
+        },
+        {
+          "path": "apps/web/testa/lib/firebase.ts",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 59,
+          "changes": 59
+        },
+        {
+          "path": "apps/web/testa/lib/toast/toast-context.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 78,
+          "changes": 78
+        },
+        {
+          "path": "apps/web/theme/globals.css",
+          "status": "renamed",
+          "previousPath": "apps/web/app/globals.css",
+          "additions": 0,
+          "deletions": 0,
+          "changes": 0
+        },
+        {
+          "path": "apps/web/tsconfig.json",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 23,
+          "deletions": 9,
+          "changes": 32
+        },
+        {
+          "path": "apps/web/vite-env.d.ts",
+          "status": "added",
+          "previousPath": null,
+          "additions": 1,
+          "deletions": 0,
+          "changes": 1
+        },
+        {
+          "path": "apps/web/vite.config.ts",
+          "status": "added",
+          "previousPath": null,
+          "additions": 15,
+          "deletions": 0,
+          "changes": 15
+        },
+        {
+          "path": "package.json",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 5,
+          "deletions": 3,
+          "changes": 8
+        },
+        {
+          "path": "packages/core/package.json",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 1,
+          "deletions": 1,
+          "changes": 2
+        },
+        {
+          "path": "packages/core/src/api/channels-service.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 0,
+          "changes": 0
+        },
+        {
+          "path": "packages/core/src/index.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 0,
+          "changes": 0
+        },
+        {
+          "path": "packages/core/src/types/channels.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 0,
+          "changes": 0
+        },
+        {
+          "path": "packages/storage/src/web-entry.ts",
+          "status": "added",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 0,
+          "changes": 0
+        },
+        {
+          "path": "turbo.json",
+          "status": "added",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 0,
+          "changes": 0
+        }
+      ]
+    },
+    {
+      "branch": "chore/web-only-react-parity",
+      "head": "0adc8e0ec0d0672331da5dfd0ca709d844d16f88",
+      "status": "diverged",
+      "ahead": 94,
+      "behind": 2523,
+      "totalCommits": 94,
+      "tooLarge": false,
+      "files": [
+        {
+          "path": ".github/workflows/typecheck.yml",
+          "status": "added",
+          "previousPath": null,
+          "additions": 22,
+          "deletions": 0,
+          "changes": 22
+        },
+        {
+          "path": "README.md",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 65,
+          "deletions": 88,
+          "changes": 153
+        },
+        {
+          "path": "apps/mobile/src/components/FloatingPillTabBar.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 7,
+          "deletions": 7,
+          "changes": 14
+        },
+        {
+          "path": "apps/mobile/src/navigation/RootNavigator.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 6,
+          "deletions": 0,
+          "changes": 6
+        },
+        {
+          "path": "apps/mobile/src/screens/ChatsScreen.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 4,
+          "deletions": 3,
+          "changes": 7
+        },
+        {
+          "path": "apps/mobile/src/screens/FixtureDetailScreen.tsx",
+          "status": "added",
+          "previousPath": null,
+          "additions": 63,
+          "deletions": 0,
+          "changes": 63
+        },
+        {
+          "path": "apps/mobile/src/screens/HistoryScreen.tsx",
+          "status": "added",
+          "previousPath": null,
+          "additions": 57,
+          "deletions": 0,
+          "changes": 57
+        },
+        {
+          "path": "apps/mobile/src/screens/TrendingScreen.tsx",
+          "status": "added",
+          "previousPath": null,
+          "additions": 91,
+          "deletions": 0,
+          "changes": 91
+        },
+        {
+          "path": "apps/mobile/src/screens/home/HomeScreen.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 5,
+          "deletions": 3,
+          "changes": 8
+        },
+        {
+          "path": "apps/mobile/src/screens/home/home-context.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 3,
+          "deletions": 3,
+          "changes": 6
+        },
+        {
+          "path": "apps/web/.env.example",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 1,
+          "deletions": 0,
+          "changes": 1
+        },
+        {
+          "path": "apps/web/App.tsx",
+          "status": "added",
+          "previousPath": null,
+          "additions": 84,
+          "deletions": 0,
+          "changes": 84
+        },
+        {
+          "path": "apps/web/QueryProvider.tsx",
+          "status": "added",
+          "previousPath": null,
+          "additions": 15,
+          "deletions": 0,
+          "changes": 15
+        },
+        {
+          "path": "apps/web/README.md",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 65,
+          "deletions": 88,
+          "changes": 153
+        },
+        {
+          "path": "apps/web/WEB_PARITY_AUDIT.md",
+          "status": "added",
+          "previousPath": null,
+          "additions": 53,
+          "deletions": 0,
+          "changes": 53
+        },
+        {
+          "path": "apps/web/app/(app)/admin/[channelId]/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 118,
+          "changes": 118
+        },
+        {
+          "path": "apps/web/app/(app)/aftermatchModal.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 936,
+          "changes": 936
+        },
+        {
+          "path": "apps/web/app/(app)/chat/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 632,
+          "changes": 632
+        },
+        {
+          "path": "apps/web/app/(app)/comrades/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 163,
+          "changes": 163
+        },
+        {
+          "path": "apps/web/app/(app)/feed/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 159,
+          "changes": 159
+        },
+        {
+          "path": "apps/web/app/(app)/history/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 401,
+          "changes": 401
+        },
+        {
+          "path": "apps/web/app/(app)/home/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 491,
+          "changes": 491
+        },
+        {
+          "path": "apps/web/app/(app)/layout.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 31,
+          "changes": 31
+        },
+        {
+          "path": "apps/web/app/(app)/leaderboard/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 112,
+          "changes": 112
+        },
+        {
+          "path": "apps/web/app/(app)/notifications/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 107,
+          "changes": 107
+        },
+        {
+          "path": "apps/web/app/(app)/profile/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 68,
+          "changes": 68
+        },
+        {
+          "path": "apps/web/app/layout.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 39,
+          "changes": 39
+        },
+        {
+          "path": "apps/web/app/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 23,
+          "changes": 23
+        },
+        {
+          "path": "apps/web/app/provider.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 14,
+          "changes": 14
+        },
+        {
+          "path": "apps/web/components/BottomNav.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 7,
+          "deletions": 22,
+          "changes": 29
+        },
+        {
+          "path": "apps/web/components/ChannelCreationModal.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 80,
+          "changes": 80
+        },
+        {
+          "path": "apps/web/components/ChatsCard.tsx",
+          "status": "renamed",
+          "previousPath": "apps/web/components/MatchCard.tsx",
+          "additions": 13,
+          "deletions": 5,
+          "changes": 18
+        },
+        {
+          "path": "apps/web/components/FloatingPillTabs.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 1,
+          "changes": 1
+        },
+        {
+          "path": "apps/web/components/FooterPill.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 2,
+          "changes": 2
+        },
+        {
+          "path": "apps/web/components/HistoryCard.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 2,
+          "changes": 2
+        },
+        {
+          "path": "apps/web/components/PostCard.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 4,
+          "deletions": 7,
+          "changes": 11
+        },
+        {
+          "path": "apps/web/components/SmartMedia.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 2,
+          "changes": 2
+        },
+        {
+          "path": "apps/web/components/WalletCard.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 85,
+          "deletions": 27,
+          "changes": 112
+        },
+        {
+          "path": "apps/web/components/WebNavbar.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 13,
+          "deletions": 15,
+          "changes": 28
+        },
+        {
+          "path": "apps/web/components/WebSidebar.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 14,
+          "deletions": 5,
+          "changes": 19
+        },
+        {
+          "path": "apps/web/components/aftermatchModal.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 936,
+          "changes": 936
+        },
+        {
+          "path": "apps/web/components/modals/PitchView.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 1,
+          "changes": 1
+        },
+        {
+          "path": "apps/web/components/modals/leaderboardModal.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 1,
+          "deletions": 3,
+          "changes": 4
+        },
+        {
+          "path": "apps/web/components/ui/MiniAvatar.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 1,
+          "changes": 1
+        },
+        {
+          "path": "apps/web/index.html",
+          "status": "added",
+          "previousPath": null,
+          "additions": 1,
+          "deletions": 0,
+          "changes": 1
+        },
+        {
+          "path": "apps/web/lib/api/use-channel-chat.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 62,
+          "deletions": 13,
+          "changes": 75
+        },
+        {
+          "path": "apps/web/lib/api/vote-modal-shims.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 1,
+          "deletions": 1,
+          "changes": 2
+        },
+        {
+          "path": "apps/web/lib/auth/auth-context.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 2,
+          "changes": 2
+        },
+        {
+          "path": "apps/web/lib/match/pitch-engine.ts",
+          "status": "added",
+          "previousPath": null,
+          "additions": 43,
+          "deletions": 0,
+          "changes": 43
+        },
+        {
+          "path": "apps/web/lib/theme/use-fan-colors.ts",
+          "status": "added",
+          "previousPath": null,
+          "additions": 25,
+          "deletions": 0,
+          "changes": 25
+        },
+        {
+          "path": "apps/web/lib/toast/toast-context.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 2,
+          "changes": 2
+        },
+        {
+          "path": "apps/web/main.tsx",
+          "status": "added",
+          "previousPath": null,
+          "additions": 5,
+          "deletions": 0,
+          "changes": 5
+        },
+        {
+          "path": "apps/web/next-env.d.ts",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 5,
+          "changes": 5
+        },
+        {
+          "path": "apps/web/next.config.mjs",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 15,
+          "changes": 15
+        },
+        {
+          "path": "apps/web/package-lock.json",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 1631,
+          "changes": 1631
+        },
+        {
+          "path": "apps/web/package.json",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 11,
+          "deletions": 7,
+          "changes": 18
+        },
+        {
+          "path": "apps/web/src/lib/match/pitch-engine.ts",
+          "status": "added",
+          "previousPath": null,
+          "additions": 132,
+          "deletions": 0,
+          "changes": 132
+        },
+        {
+          "path": "apps/web/src/modals/AdminModal.tsx",
+          "status": "added",
+          "previousPath": null,
+          "additions": 191,
+          "deletions": 0,
+          "changes": 191
+        },
+        {
+          "path": "apps/web/src/modals/AftermatchModal.tsx",
+          "status": "renamed",
+          "previousPath": "apps/web/testa/app/(app)/aftermatchModal.tsx",
+          "additions": 0,
+          "deletions": 2,
+          "changes": 2
+        },
+        {
+          "path": "apps/web/src/modals/ChannelCreationModal.tsx",
+          "status": "renamed",
+          "previousPath": "apps/web/testa/components/ChannelCreationModal.tsx",
+          "additions": 18,
+          "deletions": 13,
+          "changes": 31
+        },
+        {
+          "path": "apps/web/src/modals/ComradesModal.tsx",
+          "status": "renamed",
+          "previousPath": "apps/web/testa/app/(app)/comrades/page.tsx",
+          "additions": 71,
+          "deletions": 30,
+          "changes": 101
+        },
+        {
+          "path": "apps/web/src/modals/LeaderboardModal.tsx",
+          "status": "added",
+          "previousPath": null,
+          "additions": 575,
+          "deletions": 0,
+          "changes": 575
+        },
+        {
+          "path": "apps/web/src/modals/NotificationsModal.tsx",
+          "status": "renamed",
+          "previousPath": "apps/web/testa/app/(app)/notifications/page.tsx",
+          "additions": 54,
+          "deletions": 15,
+          "changes": 69
+        },
+        {
+          "path": "apps/web/src/modals/actionModal.tsx",
+          "status": "renamed",
+          "previousPath": "apps/web/components/actionsModal.tsx",
+          "additions": 1,
+          "deletions": 3,
+          "changes": 4
+        },
+        {
+          "path": "apps/web/src/modals/match/LineupsTab.tsx",
+          "status": "renamed",
+          "previousPath": "apps/web/components/modals/LineupsTab.tsx",
+          "additions": 0,
+          "deletions": 1,
+          "changes": 1
+        },
+        {
+          "path": "apps/web/src/modals/match/MatchDetailsModal.tsx",
+          "status": "renamed",
+          "previousPath": "apps/web/components/modals/MatchDetailsModal.tsx",
+          "additions": 0,
+          "deletions": 1,
+          "changes": 1
+        },
+        {
+          "path": "apps/web/src/modals/match/PitchView.tsx",
+          "status": "added",
+          "previousPath": null,
+          "additions": 196,
+          "deletions": 0,
+          "changes": 196
+        },
+        {
+          "path": "apps/web/src/modals/match/StatsTab.tsx",
+          "status": "added",
+          "previousPath": null,
+          "additions": 47,
+          "deletions": 0,
+          "changes": 47
+        },
+        {
+          "path": "apps/web/src/modals/profile/ProfileModal.tsx",
+          "status": "added",
+          "previousPath": null,
+          "additions": 188,
+          "deletions": 0,
+          "changes": 188
+        },
+        {
+          "path": "apps/web/src/screens/ChatsScreen.tsx",
+          "status": "renamed",
+          "previousPath": "apps/web/testa/app/(app)/chat/page.tsx",
+          "additions": 92,
+          "deletions": 15,
+          "changes": 107
+        },
+        {
+          "path": "apps/web/src/screens/FeedScreen.tsx",
+          "status": "added",
+          "previousPath": null,
+          "additions": 240,
+          "deletions": 0,
+          "changes": 240
+        },
+        {
+          "path": "apps/web/src/screens/FixtureDetailScreen.tsx",
+          "status": "renamed",
+          "previousPath": "apps/web/app/(app)/fixture/[matchId]/page.tsx",
+          "additions": 111,
+          "deletions": 82,
+          "changes": 193
+        },
+        {
+          "path": "apps/web/src/screens/HistoryScreen.tsx",
+          "status": "renamed",
+          "previousPath": "apps/web/testa/app/(app)/history/page.tsx",
+          "additions": 24,
+          "deletions": 13,
+          "changes": 37
+        },
+        {
+          "path": "apps/web/src/screens/LoginScreen.tsx",
+          "status": "renamed",
+          "previousPath": "apps/web/app/login/page.tsx",
+          "additions": 162,
+          "deletions": 41,
+          "changes": 203
+        },
+        {
+          "path": "apps/web/src/screens/TrendingScreen.tsx",
+          "status": "renamed",
+          "previousPath": "apps/web/app/(app)/trending/page.tsx",
+          "additions": 41,
+          "deletions": 15,
+          "changes": 56
+        },
+        {
+          "path": "apps/web/src/screens/home/HomeScreen.tsx",
+          "status": "added",
+          "previousPath": null,
+          "additions": 363,
+          "deletions": 0,
+          "changes": 363
+        },
+        {
+          "path": "apps/web/src/theme/use-fan-colors.ts",
+          "status": "added",
+          "previousPath": null,
+          "additions": 29,
+          "deletions": 0,
+          "changes": 29
+        },
+        {
+          "path": "apps/web/testa/app/(app)/admin/[channelId]/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 118,
+          "changes": 118
+        },
+        {
+          "path": "apps/web/testa/app/(app)/feed/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 159,
+          "changes": 159
+        },
+        {
+          "path": "apps/web/testa/app/(app)/fixture/[matchId]/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 656,
+          "changes": 656
+        },
+        {
+          "path": "apps/web/testa/app/(app)/home/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 491,
+          "changes": 491
+        },
+        {
+          "path": "apps/web/testa/app/(app)/layout.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 31,
+          "changes": 31
+        },
+        {
+          "path": "apps/web/testa/app/(app)/leaderboard/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 112,
+          "changes": 112
+        },
+        {
+          "path": "apps/web/testa/app/(app)/profile/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 68,
+          "changes": 68
+        },
+        {
+          "path": "apps/web/testa/app/(app)/trending/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 113,
+          "changes": 113
+        },
+        {
+          "path": "apps/web/testa/app/globals.css",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 128,
+          "changes": 128
+        },
+        {
+          "path": "apps/web/testa/app/layout.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 39,
+          "changes": 39
+        },
+        {
+          "path": "apps/web/testa/app/login/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 262,
+          "changes": 262
+        },
+        {
+          "path": "apps/web/testa/app/page.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 23,
+          "changes": 23
+        },
+        {
+          "path": "apps/web/testa/app/provider.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 14,
+          "changes": 14
+        },
+        {
+          "path": "apps/web/testa/components/BottomNav.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 58,
+          "changes": 58
+        },
+        {
+          "path": "apps/web/testa/components/FloatingPillTabs.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 28,
+          "changes": 28
+        },
+        {
+          "path": "apps/web/testa/components/FooterPill.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 120,
+          "changes": 120
+        },
+        {
+          "path": "apps/web/testa/components/HistoryCard.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 307,
+          "changes": 307
+        },
+        {
+          "path": "apps/web/testa/components/MainContentColumns.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 44,
+          "changes": 44
+        },
+        {
+          "path": "apps/web/testa/components/MatchCard.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 426,
+          "changes": 426
+        },
+        {
+          "path": "apps/web/testa/components/PhasePlaceholder.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 11,
+          "changes": 11
+        },
+        {
+          "path": "apps/web/testa/components/PostCard.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 168,
+          "changes": 168
+        },
+        {
+          "path": "apps/web/testa/components/SmartMedia.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 136,
+          "changes": 136
+        },
+        {
+          "path": "apps/web/testa/components/WalletCard.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 100,
+          "changes": 100
+        },
+        {
+          "path": "apps/web/testa/components/WebNavbar.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 416,
+          "changes": 416
+        },
+        {
+          "path": "apps/web/testa/components/WebSidebar.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 923,
+          "changes": 923
+        },
+        {
+          "path": "apps/web/testa/components/actionsModal.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 1843,
+          "changes": 1843
+        },
+        {
+          "path": "apps/web/testa/components/aftermatchModal.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 936,
+          "changes": 936
+        },
+        {
+          "path": "apps/web/testa/lib/api/media-service.ts",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 43,
+          "changes": 43
+        },
+        {
+          "path": "apps/web/testa/lib/api/posts-create.ts",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 43,
+          "changes": 43
+        },
+        {
+          "path": "apps/web/testa/lib/api/use-channel-chat.ts",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 247,
+          "changes": 247
+        },
+        {
+          "path": "apps/web/testa/lib/api/vote-modal-shims.ts",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 238,
+          "changes": 238
+        },
+        {
+          "path": "apps/web/testa/lib/auth/auth-context.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 226,
+          "changes": 226
+        },
+        {
+          "path": "apps/web/testa/lib/cors,json",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 8,
+          "changes": 8
+        },
+        {
+          "path": "apps/web/testa/lib/firebase.ts",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 59,
+          "changes": 59
+        },
+        {
+          "path": "apps/web/testa/lib/toast/toast-context.tsx",
+          "status": "removed",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 78,
+          "changes": 78
+        },
+        {
+          "path": "apps/web/theme/globals.css",
+          "status": "renamed",
+          "previousPath": "apps/web/app/globals.css",
+          "additions": 0,
+          "deletions": 0,
+          "changes": 0
+        },
+        {
+          "path": "apps/web/tsconfig.json",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 23,
+          "deletions": 9,
+          "changes": 32
+        },
+        {
+          "path": "apps/web/vite-env.d.ts",
+          "status": "added",
+          "previousPath": null,
+          "additions": 1,
+          "deletions": 0,
+          "changes": 1
+        },
+        {
+          "path": "apps/web/vite.config.ts",
+          "status": "added",
+          "previousPath": null,
+          "additions": 15,
+          "deletions": 0,
+          "changes": 15
+        },
+        {
+          "path": "package.json",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 5,
+          "deletions": 3,
+          "changes": 8
+        },
+        {
+          "path": "packages/core/package.json",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 1,
+          "deletions": 1,
+          "changes": 2
+        },
+        {
+          "path": "packages/core/src/api/channels-service.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 0,
+          "changes": 0
+        },
+        {
+          "path": "packages/core/src/index.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 0,
+          "changes": 0
+        },
+        {
+          "path": "packages/core/src/types/channels.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 0,
+          "changes": 0
+        },
+        {
+          "path": "packages/storage/src/web-entry.ts",
+          "status": "added",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 0,
+          "changes": 0
+        },
+        {
+          "path": "turbo.json",
+          "status": "added",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 0,
+          "changes": 0
+        }
+      ]
+    },
+    {
+      "branch": "feat/react-web-mobile-parity",
+      "head": "ccecde213de6990354ff666d8a3b718c025dea14",
+      "status": "diverged",
+      "ahead": 118,
+      "behind": 2524,
+      "totalCommits": 118,
+      "tooLarge": false,
+      "files": [
+        {
+          "path": ".github/workflows/typecheck-all.yml",
+          "status": "added",
+          "previousPath": null,
+          "additions": 27,
+          "deletions": 0,
+          "changes": 27
+        },
+        {
+          "path": ".github/workflows/web-vite-migration.yml",
+          "status": "added",
+          "previousPath": null,
+          "additions": 26,
+          "deletions": 0,
+          "changes": 26
+        },
+        {
+          "path": "README.md",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 109,
+          "deletions": 91,
+          "changes": 200
+        },
+        {
+          "path": "apps/mobile/src/lib/firebase.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 2,
+          "deletions": 3,
+          "changes": 5
+        },
+        {
+          "path": "apps/mobile/src/modals/LeaderboardModal.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 2,
+          "deletions": 2,
+          "changes": 4
+        },
+        {
+          "path": "apps/mobile/src/modals/profile/ProfileModal.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 27,
+          "deletions": 8,
+          "changes": 35
+        },
+        {
+          "path": "apps/mobile/src/navigation/RootNavigator.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 14,
+          "deletions": 0,
+          "changes": 14
+        },
+        {
+          "path": "apps/mobile/src/screens/ChatScreen.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 2,
+          "deletions": 2,
+          "changes": 4
+        },
+        {
+          "path": "apps/mobile/src/screens/FeedScreen.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 2,
+          "deletions": 3,
+          "changes": 5
+        },
+        {
+          "path": "apps/mobile/src/screens/FixtureDetailScreen.tsx",
+          "status": "added",
+          "previousPath": null,
+          "additions": 260,
+          "deletions": 0,
+          "changes": 260
+        },
+        {
+          "path": "apps/mobile/src/screens/TrendingScreen.tsx",
+          "status": "added",
+          "previousPath": null,
+          "additions": 150,
+          "deletions": 0,
+          "changes": 150
+        },
+        {
+          "path": "apps/mobile/src/screens/home/HomeScreen.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 175,
+          "deletions": 0,
+          "changes": 175
+        },
+        {
+          "path": "apps/mobile/src/screens/home/home-context.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 2,
+          "deletions": 2,
+          "changes": 4
+        },
+        {
+          "path": "apps/web/README.vite-migration.md",
+          "status": "added",
+          "previousPath": null,
+          "additions": 27,
+          "deletions": 0,
+          "changes": 27
+        },
+        {
+          "path": "apps/web/app/(app)/chat/page.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 66,
+          "deletions": 13,
+          "changes": 79
+        },
+        {
+          "path": "apps/web/app/(app)/feed/page.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 46,
+          "deletions": 23,
+          "changes": 69
+        },
+        {
+          "path": "apps/web/app/(app)/fixture/[matchId]/page.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 5,
+          "deletions": 61,
+          "changes": 66
+        },
+        {
+          "path": "apps/web/app/(app)/history/page.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 28,
+          "deletions": 133,
+          "changes": 161
+        },
+        {
+          "path": "apps/web/app/(app)/home/page.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 203,
+          "deletions": 45,
+          "changes": 248
+        },
+        {
+          "path": "apps/web/app/(app)/leaderboard/page.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 2,
+          "deletions": 2,
+          "changes": 4
+        },
+        {
+          "path": "apps/web/app/provider.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 1,
+          "deletions": 1,
+          "changes": 2
+        },
+        {
+          "path": "apps/web/components/HistoryCard.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 61,
+          "changes": 61
+        },
+        {
+          "path": "apps/web/components/MatchCard.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 4,
+          "deletions": 47,
+          "changes": 51
+        },
+        {
+          "path": "apps/web/components/PostCard.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 4,
+          "deletions": 32,
+          "changes": 36
+        },
+        {
+          "path": "apps/web/components/WebNavbar.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 26,
+          "deletions": 1,
+          "changes": 27
+        },
+        {
+          "path": "apps/web/index.html",
+          "status": "added",
+          "previousPath": null,
+          "additions": 17,
+          "deletions": 0,
+          "changes": 17
+        },
+        {
+          "path": "apps/web/package.json",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 11,
+          "deletions": 3,
+          "changes": 14
+        },
+        {
+          "path": "apps/web/src/App.tsx",
+          "status": "added",
+          "previousPath": null,
+          "additions": 60,
+          "deletions": 0,
+          "changes": 60
+        },
+        {
+          "path": "apps/web/src/ChatRoute.tsx",
+          "status": "added",
+          "previousPath": null,
+          "additions": 96,
+          "deletions": 0,
+          "changes": 96
+        },
+        {
+          "path": "apps/web/src/main.tsx",
+          "status": "added",
+          "previousPath": null,
+          "additions": 28,
+          "deletions": 0,
+          "changes": 28
+        },
+        {
+          "path": "apps/web/src/next-link.tsx",
+          "status": "added",
+          "previousPath": null,
+          "additions": 8,
+          "deletions": 0,
+          "changes": 8
+        },
+        {
+          "path": "apps/web/src/next-navigation.tsx",
+          "status": "added",
+          "previousPath": null,
+          "additions": 44,
+          "deletions": 0,
+          "changes": 44
+        },
+        {
+          "path": "apps/web/tsconfig.json",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 18,
+          "deletions": 6,
+          "changes": 24
+        },
+        {
+          "path": "apps/web/vite.config.ts",
+          "status": "added",
+          "previousPath": null,
+          "additions": 21,
+          "deletions": 0,
+          "changes": 21
+        },
+        {
+          "path": "package.json",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 8,
+          "deletions": 3,
+          "changes": 11
+        },
+        {
+          "path": "packages/core/src/api/admin-service.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 2,
+          "deletions": 6,
+          "changes": 8
+        },
+        {
+          "path": "packages/core/src/index.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 69,
+          "deletions": 1,
+          "changes": 70
+        },
+        {
+          "path": "packages/core/src/types/channels.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 25,
+          "deletions": 305,
+          "changes": 330
+        },
+        {
+          "path": "packages/storage/src/web-entry.ts",
+          "status": "added",
+          "previousPath": null,
+          "additions": 2,
+          "deletions": 0,
+          "changes": 2
+        },
+        {
+          "path": "turbo.json",
+          "status": "added",
+          "previousPath": null,
+          "additions": 13,
+          "deletions": 0,
+          "changes": 13
+        }
+      ]
+    }
+  ]
+}
