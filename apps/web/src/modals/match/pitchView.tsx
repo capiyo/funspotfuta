@@ -184,6 +184,19 @@ export function PitchView({ homeTeam, awayTeam, homeFormation, awayFormation, ho
         <circle r="18" fill={color}/>
         <text textAnchor="middle" dominantBaseline="central" fontSize="14" fontWeight="600" fill="#fff">{player.number}</text>
       </>}
+      <text
+        x="0"
+        y="29"
+        textAnchor="middle"
+        dominantBaseline="hanging"
+        fontSize="11"
+        fontWeight="600"
+        fill="#fff"
+        stroke="rgba(0,0,0,.8)"
+        strokeWidth="3"
+        paintOrder="stroke"
+        strokeLinejoin="round"
+      >{shortName(player.name)}</text>
     </g>;
   });
   return <div className="h-full min-h-0 w-full overflow-hidden">
