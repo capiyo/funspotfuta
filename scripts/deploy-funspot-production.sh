@@ -41,7 +41,8 @@ printf 'Publish folder:  %s\n' "$NETLIFY_DIST_DIR"
 printf 'Functions:       %s\n' "$NETLIFY_FUNCTIONS_DIR"
 
 cd "$WEB_DIR"
-npx netlify deploy \
+npx --yes netlify-cli@latest deploy \
+  --config "$REPO_ROOT/netlify.toml" \
   --site "$SITE_ID" \
   --dir "$NETLIFY_DIST_DIR" \
   --functions "$NETLIFY_FUNCTIONS_DIR" \
