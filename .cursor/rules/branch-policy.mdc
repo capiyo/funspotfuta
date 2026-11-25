@@ -1,0 +1,12 @@
+---
+description: Mandatory Funspot repository-wide branch and agent policy
+alwaysApply: true
+---
+
+# Mandatory repository policy
+
+Read and obey the repository-root `AGENTS.md` before acting.
+
+The only permitted working branch is the existing `seo-app-at-root`. Always make changes directly on that branch. Never create, fork, rename, or switch to any other branch. If the required branch is unavailable, stop and report the blocker; do not create a replacement.
+
+Do not deploy, push, merge, or change repository settings without explicit user approval. Preserve unrelated working-tree changes.
