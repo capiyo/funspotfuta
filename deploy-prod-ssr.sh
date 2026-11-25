@@ -23,7 +23,7 @@ echo "FUNSPOT PRODUCTION DEPLOYMENT"
 echo "Started: $(date)"
 echo "Public Funspot contact email: $CONTACT_EMAIL"
 
-for command in git node npm npx bash; do
+for command in git node npm npx bash curl; do
   if ! command -v "$command" >/dev/null 2>&1; then
     echo "ERROR: Required command is missing: $command"
     exit 1
@@ -53,7 +53,7 @@ while IFS= read -r status_line; do
   [[ -z "$status_line" ]] && continue
   changed_path="${status_line:3}"
   case "$changed_path" in
-    package-lock.json|apps/web/dist-ssr/*|netlify/functions/ssr.mjs|deploy-ssr.log|FETCH_HEAD)
+    apps/web/dist-ssr/*|netlify/functions/ssr.mjs|deploy-ssr.log|FETCH_HEAD)
       echo "Keeping expected local deployment artifact/change: $changed_path"
       ;;
     *)
@@ -68,7 +68,7 @@ if (( ${#unexpected_changes[@]} > 0 )); then
   exit 1
 fi
 
-step "Fetch production branch" git fetch origin "$BRANCH"
+step "Fetch latest production branch" git fetch --prune origin "+refs/heads/$BRANCH:refs/remotes/origin/$BRANCH"
 if [[ "$(git branch --show-current)" != "$BRANCH" ]]; then
   if git show-ref --verify --quiet "refs/heads/$BRANCH"; then
     step "Switch to production branch" git switch "$BRANCH"
@@ -77,6 +77,16 @@ if [[ "$(git branch --show-current)" != "$BRANCH" ]]; then
   fi
 fi
 step "Pull latest production changes" git pull --ff-only origin "$BRANCH"
+
+LOCAL_SHA="$(git rev-parse HEAD)"
+REMOTE_SHA="$(git rev-parse "origin/$BRANCH")"
+if [[ "$LOCAL_SHA" != "$REMOTE_SHA" ]]; then
+  echo "ERROR: Local checkout is not exactly at the fetched production branch head."
+  echo "Local:  $LOCAL_SHA"
+  echo "Remote: $REMOTE_SHA"
+  exit 1
+fi
+echo "Verified production source commit: $LOCAL_SHA"
 
 step "Install locked dependencies" npm ci --no-audit --no-fund
 step "Core tests" npm run test:core
