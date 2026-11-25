@@ -15,7 +15,7 @@ import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
 import type { Fixture } from '../../../../../packages/core/src/types/fixture';
 import type { LineupsData } from '../../../../../packages/core/src/types/matchDetails';
-import { PitchView } from './pitchView';
+import { BenchColumn, PitchView } from './pitchView';
 
 // ═══════════════════════════════════════════════════════════════
 //  HELPERS
@@ -74,7 +74,7 @@ export function LineupsTab({
     error,
 }: LineupsTabProps) {
     const colors = useFanColors();
-    const [availableHeight, setAvailableHeight] = useState(0);
+    const [availableHeight, setAvailableHeight] = useState(0);\n    const [showSquads, setShowSquads] = useState(false);
     const onLayout = (event: LayoutChangeEvent) => setAvailableHeight(event.nativeEvent.layout.height);
 
 
@@ -97,23 +97,53 @@ export function LineupsTab({
 
     return (
         <View style={{ flex: 1 }} onLayout={onLayout}>
-            {/* Pitch */}
-            <ScrollView
-                style={styles.pitchScroller}
-                contentContainerStyle={styles.pitchScroll}
-                showsVerticalScrollIndicator={false}
-                contentInsetAdjustmentBehavior="never"
-            >
-                <PitchView
-                    homeTeam={fixture.homeTeam}
-                    awayTeam={fixture.awayTeam}
-                    homeFormation={lineups.homeFormation}
-                    awayFormation={lineups.awayFormation}
-                    homePlayers={lineups.homeStartingXI}
-                    awayPlayers={lineups.awayStartingXI}
-                    maxHeight={Math.max(1, availableHeight)}
-                />
-            </ScrollView>
+            <View style={styles.toggleRow}>
+                <Pressable
+                    accessibilityRole="button"
+                    accessibilityState={{ expanded: showSquads }}
+                    onPress={() => setShowSquads((current) => !current)}
+                    style={[styles.toggleButton, { backgroundColor: hexWithAlpha(colors.primary, 0.14) }]}
+                >
+                    <Text style={[styles.toggleText, { color: colors.primary }]}>
+                        {showSquads ? 'Less' : 'More'}
+                    </Text>
+                </Pressable>
+            </View>
+            {showSquads ? (
+                <ScrollView
+                    style={styles.pitchScroller}
+                    contentContainerStyle={styles.squadContent}
+                    showsVerticalScrollIndicator={false}
+                >
+                    <View style={styles.squadColumn}>
+                        <Text style={[fanText('body', colors), styles.teamHeading, { color: colors.textPrimary }]}>{fixture.homeTeam}</Text>
+                        <Text style={[fanText('caption', colors), styles.coachText, { color: colors.textSecondary }]}>Coach: {lineups.homeCoach}</Text>
+                        <BenchColumn players={lineups.homeBench} color={colors.primary} />
+                    </View>
+                    <View style={styles.squadColumn}>
+                        <Text style={[fanText('body', colors), styles.teamHeading, { color: colors.textPrimary }]}>{fixture.awayTeam}</Text>
+                        <Text style={[fanText('caption', colors), styles.coachText, { color: colors.textSecondary }]}>Coach: {lineups.awayCoach}</Text>
+                        <BenchColumn players={lineups.awayBench} color={colors.away} />
+                    </View>
+                </ScrollView>
+            ) : (
+                <ScrollView
+                    style={styles.pitchScroller}
+                    contentContainerStyle={styles.pitchScroll}
+                    showsVerticalScrollIndicator={false}
+                    contentInsetAdjustmentBehavior="never"
+                >
+                    <PitchView
+                        homeTeam={fixture.homeTeam}
+                        awayTeam={fixture.awayTeam}
+                        homeFormation={lineups.homeFormation}
+                        awayFormation={lineups.awayFormation}
+                        homePlayers={lineups.homeStartingXI}
+                        awayPlayers={lineups.awayStartingXI}
+                        maxHeight={Math.max(1, availableHeight)}
+                    />
+                </ScrollView>
+            )}
         </View>
     );
 }
@@ -137,6 +167,38 @@ const styles = StyleSheet.create({
     pitchScroller: {
         flex: 1,
         minHeight: 0,
+    },
+    toggleRow: {
+        alignItems: 'flex-end',
+        paddingHorizontal: FAN_SPACING.sm,
+        paddingBottom: FAN_SPACING.xs,
+    },
+    toggleButton: {
+        paddingHorizontal: 12,
+        paddingVertical: 5,
+        borderRadius: 999,
+    },
+    toggleText: {
+        fontSize: 11,
+        fontWeight: '700',
+    },
+    squadContent: {
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        paddingHorizontal: FAN_SPACING.sm,
+        paddingBottom: FAN_SPACING.md,
+        gap: FAN_SPACING.sm,
+    },
+    squadColumn: {
+        flex: 1,
+        minWidth: 0,
+    },
+    teamHeading: {
+        fontWeight: '700',
+        marginBottom: 5,
+    },
+    coachText: {
+        marginBottom: 8,
     },
     pitchScroll: {
         flexGrow: 1,
