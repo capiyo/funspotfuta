@@ -52,6 +52,9 @@ while IFS= read -r status_line; do
   [[ -z "$status_line" ]] && continue
   changed_path="${status_line:3}"
   case "$changed_path" in
+    credentials.json|*/credentials.json)
+      echo "Preserving local EAS credentials file without staging: $changed_path"
+      ;;
     apps/web/dist-ssr/*|netlify/functions/ssr.mjs|deploy-ssr.log|FETCH_HEAD)
       echo "Keeping expected local deployment artifact/change: $changed_path"
       ;;
