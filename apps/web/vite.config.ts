@@ -9,7 +9,7 @@ export default defineConfig({
   publicDir: path.resolve(rootDir, 'public'),
   plugins: [react()],
   resolve: { alias: { '@': path.resolve(rootDir, 'src') } },
-  server: { host: '0.0.0.0', fs: { allow: [rootDir] } },
+  server: { host: '0.0.0.0', fs: { allow: [path.resolve(rootDir, '../..')] } },
   build: {
     outDir: path.resolve(rootDir, 'dist/app'),
     emptyOutDir: true,
