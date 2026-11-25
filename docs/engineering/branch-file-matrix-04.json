@@ -1,0 +1,153 @@
+{
+  "baseBranch": "seo-app-at-root",
+  "note": "File-level branch comparison; paths are relative to the merge-base comparison returned by GitHub. tooLarge=true means the provider limited the returned file list.",
+  "branches": [
+    {
+      "branch": "feature/whatsapp-notification-parity",
+      "head": "02fcdf0378ea84f996cb6bb1f3876ce7af6244bf",
+      "status": "diverged",
+      "ahead": 36,
+      "behind": 529,
+      "totalCommits": 36,
+      "tooLarge": false,
+      "files": [
+        {
+          "path": "apps/mobile/src/components/ChatsCard.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 61,
+          "deletions": 44,
+          "changes": 105
+        },
+        {
+          "path": "apps/mobile/src/lib/api/notification-service.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 55,
+          "deletions": 4,
+          "changes": 59
+        },
+        {
+          "path": "apps/mobile/src/modals/NotificationsModal.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 66,
+          "deletions": 1,
+          "changes": 67
+        },
+        {
+          "path": "apps/mobile/src/modals/actionModal.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 1,
+          "deletions": 1,
+          "changes": 2
+        },
+        {
+          "path": "apps/mobile/src/modals/channelHeader.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 1,
+          "deletions": 0,
+          "changes": 1
+        },
+        {
+          "path": "apps/web/src/App.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 5,
+          "deletions": 2,
+          "changes": 7
+        },
+        {
+          "path": "apps/web/src/components/ChatsCard.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 62,
+          "deletions": 41,
+          "changes": 103
+        },
+        {
+          "path": "apps/web/src/lib/api/notification-service.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 55,
+          "deletions": 4,
+          "changes": 59
+        },
+        {
+          "path": "apps/web/src/modals/NotificationsModal.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 44,
+          "deletions": 3,
+          "changes": 47
+        }
+      ]
+    },
+    {
+      "branch": "fix/login-terms-messaging-ad-carousel",
+      "head": "da6c39be0ba6367b6dee784a0db103a8ab694d1b",
+      "status": "diverged",
+      "ahead": 2,
+      "behind": 529,
+      "totalCommits": 2,
+      "tooLarge": false,
+      "files": [
+        {
+          "path": "apps/mobile/src/modals/LoginModal.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 9,
+          "deletions": 7,
+          "changes": 16
+        },
+        {
+          "path": "apps/web/src/modals/LoginModal.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 11,
+          "deletions": 3,
+          "changes": 14
+        }
+      ]
+    },
+    {
+      "branch": "fix/react-web-from-master",
+      "head": "84255b277d0568b05986aba8ec54daf748871b7b",
+      "status": "behind",
+      "ahead": 0,
+      "behind": 2523,
+      "totalCommits": 0,
+      "tooLarge": false,
+      "files": []
+    },
+    {
+      "branch": "fix-live-status-transition",
+      "head": "27b7eb0104ff3ea255bb002dfded908adeedf6ec",
+      "status": "diverged",
+      "ahead": 3,
+      "behind": 2511,
+      "totalCommits": 3,
+      "tooLarge": false,
+      "files": [
+        {
+          "path": "apps/mobile/src/components/ChatsCard.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 13,
+          "deletions": 3,
+          "changes": 16
+        },
+        {
+          "path": "apps/web/components/MatchCard.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 26,
+          "deletions": 15,
+          "changes": 41
+        }
+      ]
+    }
+  ]
+}
