@@ -1,0 +1,866 @@
+{
+  "baseBranch": "seo-app-at-root",
+  "note": "File-level branch comparison; paths are relative to the merge-base comparison returned by GitHub. tooLarge=true means the provider limited the returned file list.",
+  "branches": [
+    {
+      "branch": "feature/live-possession-statistics-client",
+      "head": "b2085dddacaa25cd2f4f484393cb8f2d3c74ba6f",
+      "status": "diverged",
+      "ahead": 13,
+      "behind": 2516,
+      "totalCommits": 13,
+      "tooLarge": false,
+      "files": [
+        {
+          "path": ".github/workflows/live-statistics-client.yml",
+          "status": "added",
+          "previousPath": null,
+          "additions": 20,
+          "deletions": 0,
+          "changes": 20
+        },
+        {
+          "path": "apps/mobile/src/modals/LeaderboardModal.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 3,
+          "deletions": 3,
+          "changes": 6
+        },
+        {
+          "path": "apps/mobile/src/modals/match/matchDetailsModals.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 46,
+          "deletions": 8,
+          "changes": 54
+        },
+        {
+          "path": "packages/core/src/api/websocket-service.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 11,
+          "deletions": 1,
+          "changes": 12
+        },
+        {
+          "path": "packages/core/src/index.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 1,
+          "deletions": 0,
+          "changes": 1
+        },
+        {
+          "path": "packages/core/src/types/matchDetails.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 30,
+          "deletions": 5,
+          "changes": 35
+        },
+        {
+          "path": "packages/core/src/types/statistics.ts",
+          "status": "added",
+          "previousPath": null,
+          "additions": 67,
+          "deletions": 0,
+          "changes": 67
+        }
+      ]
+    },
+    {
+      "branch": "feature/possession-card-interaction",
+      "head": "7984f2e5e2865a3a70eaa5afd357a5a137f6be34",
+      "status": "diverged",
+      "ahead": 147,
+      "behind": 864,
+      "totalCommits": 147,
+      "tooLarge": false,
+      "files": [
+        {
+          "path": ".github/workflows/chat-unread-mentions-ci.yml",
+          "status": "added",
+          "previousPath": null,
+          "additions": 52,
+          "deletions": 0,
+          "changes": 52
+        },
+        {
+          "path": "apps/mobile/QueryProvider.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 33,
+          "deletions": 5,
+          "changes": 38
+        },
+        {
+          "path": "apps/mobile/app.json",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 2,
+          "deletions": 1,
+          "changes": 3
+        },
+        {
+          "path": "apps/mobile/package.json",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 4,
+          "deletions": 1,
+          "changes": 5
+        },
+        {
+          "path": "apps/mobile/src/components/ChatsCard.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 85,
+          "deletions": 22,
+          "changes": 107
+        },
+        {
+          "path": "apps/mobile/src/components/ui/Avatar.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 1,
+          "deletions": 1,
+          "changes": 2
+        },
+        {
+          "path": "apps/mobile/src/lib/auth/auth-context.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 149,
+          "deletions": 216,
+          "changes": 365
+        },
+        {
+          "path": "apps/mobile/src/modals/CommentsModal.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 32,
+          "deletions": 59,
+          "changes": 91
+        },
+        {
+          "path": "apps/mobile/src/modals/match/pitchView.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 25,
+          "deletions": 0,
+          "changes": 25
+        },
+        {
+          "path": "apps/mobile/src/modals/profile/ProfileModal.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 2,
+          "deletions": 1,
+          "changes": 3
+        },
+        {
+          "path": "apps/mobile/src/screens/MessageScreen.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 57,
+          "deletions": 3,
+          "changes": 60
+        },
+        {
+          "path": "apps/web/src/components/ChatsCard.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 73,
+          "deletions": 11,
+          "changes": 84
+        },
+        {
+          "path": "apps/web/src/components/ui/Avatar.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 1,
+          "deletions": 1,
+          "changes": 2
+        },
+        {
+          "path": "apps/web/src/lib/auth/auth-context.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 164,
+          "deletions": 44,
+          "changes": 208
+        },
+        {
+          "path": "apps/web/src/lib/query-persistence.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 170,
+          "deletions": 37,
+          "changes": 207
+        },
+        {
+          "path": "apps/web/src/main.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 7,
+          "changes": 7
+        },
+        {
+          "path": "apps/web/src/modals/CommentsModal.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 33,
+          "deletions": 32,
+          "changes": 65
+        },
+        {
+          "path": "apps/web/src/modals/match/pitchView.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 10,
+          "deletions": 1,
+          "changes": 11
+        },
+        {
+          "path": "apps/web/src/modals/profile/ProfileContent.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 3,
+          "deletions": 1,
+          "changes": 4
+        },
+        {
+          "path": "apps/web/src/screens/MessageScreen.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 47,
+          "deletions": 5,
+          "changes": 52
+        },
+        {
+          "path": "apps/web/src/styles.css",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 13,
+          "deletions": 0,
+          "changes": 13
+        },
+        {
+          "path": "docs/APPCACHE_PARITY_MIGRATION.md",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 35,
+          "deletions": 10,
+          "changes": 45
+        },
+        {
+          "path": "package-lock.json",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 34,
+          "deletions": 2,
+          "changes": 36
+        },
+        {
+          "path": "packages/core/src/api/send-channel-messages.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 2,
+          "deletions": 0,
+          "changes": 2
+        },
+        {
+          "path": "packages/core/src/api/use-fixture-live-updates.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 59,
+          "deletions": 39,
+          "changes": 98
+        },
+        {
+          "path": "packages/core/src/api/websocket-service.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 3,
+          "deletions": 0,
+          "changes": 3
+        },
+        {
+          "path": "packages/core/src/persistence/serialization.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 62,
+          "deletions": 45,
+          "changes": 107
+        },
+        {
+          "path": "packages/core/src/queries/queryKeys.test.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 118,
+          "deletions": 7,
+          "changes": 125
+        },
+        {
+          "path": "packages/core/src/queries/queryKeys.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 1,
+          "deletions": 0,
+          "changes": 1
+        },
+        {
+          "path": "packages/core/src/queryClient.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 99,
+          "deletions": 19,
+          "changes": 118
+        },
+        {
+          "path": "packages/core/src/types/matchDetails.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 51,
+          "deletions": 16,
+          "changes": 67
+        },
+        {
+          "path": "packages/storage/package.json",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 3,
+          "deletions": 1,
+          "changes": 4
+        },
+        {
+          "path": "packages/storage/src/index.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 1,
+          "deletions": 1,
+          "changes": 2
+        },
+        {
+          "path": "packages/storage/src/mobile.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 96,
+          "deletions": 20,
+          "changes": 116
+        }
+      ]
+    },
+    {
+      "branch": "feature/round-profile-avatars",
+      "head": "14d247807ea4ecb17afbeb44bc93f7300b245857",
+      "status": "diverged",
+      "ahead": 143,
+      "behind": 864,
+      "totalCommits": 143,
+      "tooLarge": false,
+      "files": [
+        {
+          "path": ".github/workflows/chat-unread-mentions-ci.yml",
+          "status": "added",
+          "previousPath": null,
+          "additions": 52,
+          "deletions": 0,
+          "changes": 52
+        },
+        {
+          "path": "apps/mobile/QueryProvider.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 33,
+          "deletions": 5,
+          "changes": 38
+        },
+        {
+          "path": "apps/mobile/app.json",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 2,
+          "deletions": 1,
+          "changes": 3
+        },
+        {
+          "path": "apps/mobile/package.json",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 4,
+          "deletions": 1,
+          "changes": 5
+        },
+        {
+          "path": "apps/mobile/src/components/ChatsCard.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 85,
+          "deletions": 22,
+          "changes": 107
+        },
+        {
+          "path": "apps/mobile/src/components/ui/Avatar.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 1,
+          "deletions": 1,
+          "changes": 2
+        },
+        {
+          "path": "apps/mobile/src/lib/auth/auth-context.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 149,
+          "deletions": 216,
+          "changes": 365
+        },
+        {
+          "path": "apps/mobile/src/modals/CommentsModal.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 32,
+          "deletions": 59,
+          "changes": 91
+        },
+        {
+          "path": "apps/mobile/src/modals/match/pitchView.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 25,
+          "deletions": 0,
+          "changes": 25
+        },
+        {
+          "path": "apps/mobile/src/modals/profile/ProfileModal.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 2,
+          "deletions": 1,
+          "changes": 3
+        },
+        {
+          "path": "apps/mobile/src/screens/MessageScreen.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 57,
+          "deletions": 3,
+          "changes": 60
+        },
+        {
+          "path": "apps/web/src/components/ChatsCard.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 73,
+          "deletions": 11,
+          "changes": 84
+        },
+        {
+          "path": "apps/web/src/components/ui/Avatar.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 1,
+          "deletions": 1,
+          "changes": 2
+        },
+        {
+          "path": "apps/web/src/lib/auth/auth-context.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 164,
+          "deletions": 44,
+          "changes": 208
+        },
+        {
+          "path": "apps/web/src/lib/query-persistence.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 170,
+          "deletions": 37,
+          "changes": 207
+        },
+        {
+          "path": "apps/web/src/main.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 0,
+          "deletions": 7,
+          "changes": 7
+        },
+        {
+          "path": "apps/web/src/modals/CommentsModal.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 33,
+          "deletions": 32,
+          "changes": 65
+        },
+        {
+          "path": "apps/web/src/modals/match/pitchView.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 10,
+          "deletions": 1,
+          "changes": 11
+        },
+        {
+          "path": "apps/web/src/modals/profile/ProfileContent.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 3,
+          "deletions": 1,
+          "changes": 4
+        },
+        {
+          "path": "apps/web/src/screens/MessageScreen.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 47,
+          "deletions": 5,
+          "changes": 52
+        },
+        {
+          "path": "apps/web/src/styles.css",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 13,
+          "deletions": 0,
+          "changes": 13
+        },
+        {
+          "path": "docs/APPCACHE_PARITY_MIGRATION.md",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 35,
+          "deletions": 10,
+          "changes": 45
+        },
+        {
+          "path": "package-lock.json",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 34,
+          "deletions": 2,
+          "changes": 36
+        },
+        {
+          "path": "packages/core/src/api/send-channel-messages.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 2,
+          "deletions": 0,
+          "changes": 2
+        },
+        {
+          "path": "packages/core/src/api/use-fixture-live-updates.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 59,
+          "deletions": 39,
+          "changes": 98
+        },
+        {
+          "path": "packages/core/src/api/websocket-service.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 3,
+          "deletions": 0,
+          "changes": 3
+        },
+        {
+          "path": "packages/core/src/persistence/serialization.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 62,
+          "deletions": 45,
+          "changes": 107
+        },
+        {
+          "path": "packages/core/src/queries/queryKeys.test.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 118,
+          "deletions": 7,
+          "changes": 125
+        },
+        {
+          "path": "packages/core/src/queries/queryKeys.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 1,
+          "deletions": 0,
+          "changes": 1
+        },
+        {
+          "path": "packages/core/src/queryClient.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 99,
+          "deletions": 19,
+          "changes": 118
+        },
+        {
+          "path": "packages/core/src/types/matchDetails.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 51,
+          "deletions": 16,
+          "changes": 67
+        },
+        {
+          "path": "packages/storage/package.json",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 3,
+          "deletions": 1,
+          "changes": 4
+        },
+        {
+          "path": "packages/storage/src/index.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 1,
+          "deletions": 1,
+          "changes": 2
+        },
+        {
+          "path": "packages/storage/src/mobile.ts",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 96,
+          "deletions": 20,
+          "changes": 116
+        }
+      ]
+    },
+    {
+      "branch": "feature/srs-cpp-zig-video-platform",
+      "head": "25a1be4e0ae6f0d5b353bb71bb6e1fe0cd562da7",
+      "status": "diverged",
+      "ahead": 83,
+      "behind": 864,
+      "totalCommits": 83,
+      "tooLarge": false,
+      "files": [
+        {
+          "path": ".github/workflows/video-plane-ci.yml",
+          "status": "added",
+          "previousPath": null,
+          "additions": 77,
+          "deletions": 0,
+          "changes": 77
+        },
+        {
+          "path": ".github/workflows/web-port-ci.yml",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 16,
+          "deletions": 2,
+          "changes": 18
+        },
+        {
+          "path": "apps/mobile/src/components/ChatsCard.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 4,
+          "deletions": 0,
+          "changes": 4
+        },
+        {
+          "path": "apps/mobile/src/modals/match/matchDetailsModals.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 81,
+          "deletions": 75,
+          "changes": 156
+        },
+        {
+          "path": "apps/mobile/src/screens/ChatsScreen.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 13,
+          "deletions": 0,
+          "changes": 13
+        },
+        {
+          "path": "apps/web/scripts/verify-match-details-tabs.mjs",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 26,
+          "deletions": 3,
+          "changes": 29
+        },
+        {
+          "path": "apps/web/src/components/ChatsCard.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 5,
+          "deletions": 1,
+          "changes": 6
+        },
+        {
+          "path": "apps/web/src/modals/match/matchDetailsModals.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 90,
+          "deletions": 14,
+          "changes": 104
+        },
+        {
+          "path": "apps/web/src/screens/ChatsScreen.tsx",
+          "status": "modified",
+          "previousPath": null,
+          "additions": 10,
+          "deletions": 0,
+          "changes": 10
+        },
+        {
+          "path": "infra/video/.env.example",
+          "status": "added",
+          "previousPath": null,
+          "additions": 11,
+          "deletions": 0,
+          "changes": 11
+        },
+        {
+          "path": "infra/video/LEARNING_LAB.md",
+          "status": "added",
+          "previousPath": null,
+          "additions": 87,
+          "deletions": 0,
+          "changes": 87
+        },
+        {
+          "path": "infra/video/README.md",
+          "status": "added",
+          "previousPath": null,
+          "additions": 88,
+          "deletions": 0,
+          "changes": 88
+        },
+        {
+          "path": "infra/video/RIGHTS_AND_SECURITY.md",
+          "status": "added",
+          "previousPath": null,
+          "additions": 12,
+          "deletions": 0,
+          "changes": 12
+        },
+        {
+          "path": "infra/video/STATUS.md",
+          "status": "added",
+          "previousPath": null,
+          "additions": 52,
+          "deletions": 0,
+          "changes": 52
+        },
+        {
+          "path": "infra/video/cpp-worker/CMakeLists.txt",
+          "status": "added",
+          "previousPath": null,
+          "additions": 12,
+          "deletions": 0,
+          "changes": 12
+        },
+        {
+          "path": "infra/video/cpp-worker/Dockerfile",
+          "status": "added",
+          "previousPath": null,
+          "additions": 12,
+          "deletions": 0,
+          "changes": 12
+        },
+        {
+          "path": "infra/video/cpp-worker/src/main.cpp",
+          "status": "added",
+          "previousPath": null,
+          "additions": 239,
+          "deletions": 0,
+          "changes": 239
+        },
+        {
+          "path": "infra/video/docker-compose.demo.yml",
+          "status": "added",
+          "previousPath": null,
+          "additions": 57,
+          "deletions": 0,
+          "changes": 57
+        },
+        {
+          "path": "infra/video/docker-compose.video.yml",
+          "status": "added",
+          "previousPath": null,
+          "additions": 48,
+          "deletions": 0,
+          "changes": 48
+        },
+        {
+          "path": "infra/video/docker-compose.worker.yml",
+          "status": "added",
+          "previousPath": null,
+          "additions": 34,
+          "deletions": 0,
+          "changes": 34
+        },
+        {
+          "path": "infra/video/nginx-playback.conf",
+          "status": "added",
+          "previousPath": null,
+          "additions": 70,
+          "deletions": 0,
+          "changes": 70
+        },
+        {
+          "path": "infra/video/srs.conf",
+          "status": "added",
+          "previousPath": null,
+          "additions": 45,
+          "deletions": 0,
+          "changes": 45
+        },
+        {
+          "path": "infra/video/worker.env.example",
+          "status": "added",
+          "previousPath": null,
+          "additions": 7,
+          "deletions": 0,
+          "changes": 7
+        },
+        {
+          "path": "infra/video/zig-gateway/Dockerfile",
+          "status": "added",
+          "previousPath": null,
+          "additions": 17,
+          "deletions": 0,
+          "changes": 17
+        },
+        {
+          "path": "infra/video/zig-gateway/build.zig",
+          "status": "added",
+          "previousPath": null,
+          "additions": 23,
+          "deletions": 0,
+          "changes": 23
+        },
+        {
+          "path": "infra/video/zig-gateway/build.zig.zon",
+          "status": "added",
+          "previousPath": null,
+          "additions": 7,
+          "deletions": 0,
+          "changes": 7
+        },
+        {
+          "path": "infra/video/zig-gateway/src/main.zig",
+          "status": "added",
+          "previousPath": null,
+          "additions": 66,
+          "deletions": 0,
+          "changes": 66
+        }
+      ]
+    }
+  ]
+}
