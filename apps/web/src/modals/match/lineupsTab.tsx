@@ -1,10 +1,11 @@
+import { useState } from 'react';
 import { AlertCircle, CircleDot } from 'lucide-react';
 import { FAN_SPACING } from '@funspot/core';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { fanText } from '@/theme/use-fan-typography';
 import type { Fixture } from '../../../../../packages/core/src/types/fixture';
 import type { LineupsData } from '../../../../../packages/core/src/types/matchDetails';
-import { PitchView } from './pitchView';
+import { BenchColumn, PitchView } from './pitchView';
 
 function hexWithAlpha(hex: string, alpha: number): string {
   const clean = hex.replace('#', '');
@@ -53,15 +54,43 @@ export function LineupsTab({ fixture, lineups, loading, error }: LineupsTabProps
   if (!lineups) return <EmptyState icon="soccer" message="No lineup available" />;
 
   return (
-    <div className="flex h-full min-h-0 w-full flex-1 items-center justify-center overflow-hidden">
-      <PitchView
-        homeTeam={fixture.homeTeam}
-        awayTeam={fixture.awayTeam}
-        homeFormation={lineups.homeFormation}
-        awayFormation={lineups.awayFormation}
-        homePlayers={lineups.homeStartingXI}
-        awayPlayers={lineups.awayStartingXI}
-      />
+    <div className="flex h-full min-h-0 w-full flex-1 flex-col overflow-hidden">
+      <div className="flex shrink-0 justify-end px-2 pb-2">
+        <button
+          type="button"
+          onClick={() => setShowSquads((current) => !current)}
+          aria-expanded={showSquads}
+          className="rounded-full px-3 py-1 text-xs font-semibold transition-colors"
+          style={{ backgroundColor: hexWithAlpha(colors.primary, 0.14), color: colors.primary }}
+        >
+          {showSquads ? 'Less' : 'More'}
+        </button>
+      </div>
+      {showSquads ? (
+        <div className="grid min-h-0 flex-1 grid-cols-2 gap-3 overflow-y-auto px-2 pb-3">
+          <section className="min-w-0">
+            <h3 className="mb-2 truncate text-sm font-semibold" style={fanText('body', colors, colors.textPrimary)}>{fixture.homeTeam}</h3>
+            <p className="mb-2 text-xs" style={fanText('caption', colors, colors.textSecondary)}>Coach: {lineups.homeCoach}</p>
+            <BenchColumn players={lineups.homeBench} color={colors.primary} />
+          </section>
+          <section className="min-w-0">
+            <h3 className="mb-2 truncate text-sm font-semibold" style={fanText('body', colors, colors.textPrimary)}>{fixture.awayTeam}</h3>
+            <p className="mb-2 text-xs" style={fanText('caption', colors, colors.textSecondary)}>Coach: {lineups.awayCoach}</p>
+            <BenchColumn players={lineups.awayBench} color={colors.away} />
+          </section>
+        </div>
+      ) : (
+        <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden">
+          <PitchView
+            homeTeam={fixture.homeTeam}
+            awayTeam={fixture.awayTeam}
+            homeFormation={lineups.homeFormation}
+            awayFormation={lineups.awayFormation}
+            homePlayers={lineups.homeStartingXI}
+            awayPlayers={lineups.awayStartingXI}
+          />
+        </div>
+      )}
     </div>
   );
 }
