@@ -531,6 +531,11 @@ function PlayerDot({ player, position, color, photoUrl }: PlayerDotProps) {
             ]}
         >
             {dot}
+            <View style={styles.playerNameLabel}>
+                <Text numberOfLines={1} ellipsizeMode="tail" style={styles.playerNameText}>
+                    {shortName(player.name)}
+                </Text>
+            </View>
         </View>
     );
 }
@@ -848,6 +853,23 @@ const styles = StyleSheet.create({
     },
     playerDotWrapper: {
         position: 'absolute',
+        alignItems: 'center',
+        width: 88,
+        marginLeft: -29,
+    },
+    playerNameLabel: {
+        maxWidth: 88,
+        marginTop: 3,
+        paddingHorizontal: 4,
+        paddingVertical: 1,
+        borderRadius: 4,
+        backgroundColor: 'rgba(0,0,0,0.58)',
+    },
+    playerNameText: {
+        color: '#FFFFFF',
+        fontSize: 9,
+        fontWeight: '600',
+        textAlign: 'center',
     },
     playerDotColumn: {
         alignItems: 'center',
