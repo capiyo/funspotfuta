@@ -47,6 +47,12 @@
 - Nested comment replies are rendered recursively and inserted into the correct parent tree on both platforms.
 - Lineup More/Less behavior is repaired; team crests, formations, portraits, and player ratings are displayed across web and mobile.
 - Terms consent is circular with a visible green outline and accessible checked state on both platforms.
+- The web channel leaderboard profile view now includes the contextual AdSense carousel after the fifth member; existing general and weekly leaderboard carousels retain the newer smooth-motion implementation.
+- Profile avatar upload uses the shared cross-platform multipart `userId`/`userName` contract and does not attach a Bearer header; the existing post-upload flow is preserved.
+
+## File-level comparison artifacts
+
+The complete branch-head file comparisons are stored in `branch-file-matrix-01.json` through `branch-file-matrix-05.json`. They cover all 21 non-baseline branches relative to `seo-app-at-root`; every returned comparison reported `tooLarge=false`, so the provider did not truncate those path lists. The matrix records added, modified, deleted, and renamed paths with change counts.
 
 ## File-level conflicts found and resolved
 
@@ -63,6 +69,7 @@
 | `packages/core/src/api/use-channel-chat.tsx` | A thrown delivery error could leave an optimistic message pending. | Mark the optimistic message failed and rethrow; transport remains unchanged. |
 | `apps/mobile/src/modals/LoginModal.tsx` | Consent checkbox border width was zero. | Added visible green circular border and accessibility state. |
 | `apps/web/src/modals/LoginModal.tsx` | Consent control needed the same visible green treatment. | Applied matching circular green styling. |
+| `apps/web/src/modals/profile/ChannelLeaderboard.tsx` | The profile channel leaderboard was missing its contextual ad placement. | Added the current AdSense carousel after the fifth member while retaining the newer carousel component. |
 | `apps/web/scripts/generate-crawl-files.mjs`, `apps/web/scripts/check-public-placeholders.mjs` | CI had an exception for a reserved `.invalid` email. | Removed the exception; CI uses `ci-check@funspot.co.ke`. |
 
 ## Video-plane scope
