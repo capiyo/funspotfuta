@@ -23,6 +23,8 @@ jobs:
         with:
           node-version: 20
           cache: npm
+      - name: Resolve workspace lockfile from current manifests
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
       - name: Install workspace dependencies
         run: npm ci --no-audit --no-fund
       - name: Core tests

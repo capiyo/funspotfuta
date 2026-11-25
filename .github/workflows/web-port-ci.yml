@@ -13,6 +13,8 @@ jobs:
         with:
           node-version: 20
           cache: npm
+      - name: Resolve workspace lockfile from current manifests
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
       - run: npm ci --no-audit --no-fund
       - run: npm run test:core
       - run: npm run test:web:notification-normalizer

@@ -18,6 +18,15 @@ jobs:
         with:
           node-version: 20
           cache: npm
+      - name: Resolve workspace lockfile from current manifests
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+      - name: Upload resolved workspace lockfile
+        uses: actions/upload-artifact@v4
+        with:
+          name: funspot-package-lock
+          path: package-lock.json
+          if-no-files-found: error
+          retention-days: 7
       - run: npm ci --no-audit --no-fund
       - run: npm run test:web:notification-normalizer
       - run: npm run test:web:contact-email
