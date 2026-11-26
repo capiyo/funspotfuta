@@ -182,7 +182,7 @@ export default function NotificationsModal({ visible, onClose }: { visible: bool
                     <strong className="block truncate text-[13px]">{item.title}</strong>
                     <span className="mt-1 block truncate text-[11px]" style={{ color: colors.textTertiary }}>{item.preview}</span>
                   </span>
-                  {item.count > 0 && <span className="flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-extrabold" style={{ background: colors.primary, color: colors.textInverse }}>{item.count > 99 ? '99+' : item.count}</span>}
+                  {item.count > 0 && <span className="flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[10px] font-extrabold" style={{ background: colors.primary, color: colors.textInverse }}>{item.count}</span>}
                 </button>)}
               </div>
             </section>}

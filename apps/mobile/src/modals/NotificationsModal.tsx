@@ -254,7 +254,7 @@ export default function NotificationsScreen({
                         <Text numberOfLines={1} style={{ color: colors.textTertiary, fontSize: 11, marginTop: 3 }}>{item.preview}</Text>
                       </View>
                       {item.count > 0 && <View style={{ minWidth: 22, height: 22, borderRadius: 11, paddingHorizontal: 6, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.primary }}>
-                        <Text style={{ color: colors.textInverse, fontSize: 10, fontWeight: '800' }}>{item.count > 99 ? '99+' : item.count}</Text>
+                        <Text style={{ color: colors.textInverse, fontSize: 10, fontWeight: '800' }}>{item.count}</Text>
                       </View>}
                     </Pressable>
                   ))}
