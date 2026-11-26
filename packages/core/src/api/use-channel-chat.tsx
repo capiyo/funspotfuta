@@ -598,6 +598,19 @@ export function useChannelChat({
             insertSorted({ ...chatMessageFromJson(payload), seq: nextSeq() });
         };
 
+        // chat.message.deleted — remove the persisted message on every client in this room.
+        const onChatMessageDeleted = (payload: Record<string, any>) => {
+            if (!belongsToConversation(payload, channelId, fixtureId)) return;
+            const deletedId = String(payload.messageId ?? payload.message_id ?? payload.id ?? '');
+            if (!deletedId) return;
+            seenIdsRef.current.delete(deletedId);
+            setMessages((previous) => previous.filter((message) => message.id !== deletedId && message.tempId !== deletedId));
+            queryClient.setQueryData<ChatMessage[]>(messagesQueryKey, (previous) =>
+                (previous ?? []).filter((message) => message.id !== deletedId && message.tempId !== deletedId),
+            );
+        };
+        webSocketService.on('chat.message.deleted', onChatMessageDeleted);
+
         // commentary.new
         const onCommentaryNew = (payload: Record<string, any>) => {
             const data = payload.payload && typeof payload.payload === 'object'
@@ -791,6 +804,7 @@ export function useChannelChat({
         return () => {
             unsubStatus();
             webSocketService.off('chat.message', onChatMessage);
+            webSocketService.off('chat.message.deleted', onChatMessageDeleted);
             webSocketService.off('commentary.new', onCommentaryNew);
             webSocketService.off('commentary.bulk', onCommentaryBulk);
             webSocketService.off('typing', onTyping);
