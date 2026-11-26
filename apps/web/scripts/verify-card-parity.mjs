@@ -128,7 +128,8 @@ async function inspect(width, state) {
     if (response.url().includes('clash-api-m5mr.onrender.com')) {
       browserDiagnostics.responses.push({ status: response.status(), url: response.url() });
     }
-    if (/\\.(?:tsx?|jsx?|mjs)(?:\\?|$)|@vite\\/client/.test(response.url())) {
+    const responseUrl = response.url();
+    if (responseUrl.includes('.tsx') || responseUrl.includes('.ts?') || responseUrl.includes('/@vite/client') || responseUrl.endsWith('.js')) {
       browserDiagnostics.moduleResponses.push({
         status: response.status(),
         url: response.url(),
