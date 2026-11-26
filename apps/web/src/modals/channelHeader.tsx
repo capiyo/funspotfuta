@@ -22,5 +22,6 @@ export function channelHeaderOf(channel: Channel): ChannelHeaderData {
     name: channel.name,
     imageUrl: anyChannel.imageUrl ?? `https://picsum.photos/seed/${encodeURIComponent(channel.channelId)}/96`,
     leaderName, leaderPoints, unreadCount: anyChannel.unreadCount ?? 0,
+    memberCount: anyChannel.memberCount ?? channel.members?.length ?? 0,
   };
 }

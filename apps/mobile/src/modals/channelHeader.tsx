@@ -34,5 +34,6 @@ export function channelHeaderOf(channel: Channel): ChannelHeaderData {
         leaderName,
         leaderPoints,
         unreadCount: anyChannel.unreadCount ?? 0,
+        memberCount: anyChannel.memberCount ?? channel.members?.length ?? 0,
     };
 }
