@@ -308,7 +308,7 @@ export function MatchDetailsModal({
 
     const home = fixture.homeScore ?? 0;
     const away = fixture.awayScore ?? 0;
-    const isLive = resolveFixtureIsLive(fixture.status, fixture.isLive);
+    const isLive = resolveFixtureIsLive(fixture.status, fixture.isLive, fixture.date);
     const modalHeight = windowHeight * 0.75;
 
     return (

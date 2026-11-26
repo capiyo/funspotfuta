@@ -282,7 +282,7 @@ export function MatchCard({
     refresh = () => {
       // Keep the last-known list for live fixtures; don't request a list that
       // may be empty after the fixture has moved into play.
-      if (resolveFixtureIsLive(liveFixture.status, liveFixture.isLive)) return;
+      if (resolveFixtureIsLive(liveFixture.status, liveFixture.isLive, fixture.date)) return;
       void getOpenPokes(fixtureId, authToken || undefined, channelId)
         .then((items) => {
           if (!active) return;
@@ -366,8 +366,9 @@ export function MatchCard({
       EMPTY_VOTE_PROMPTS[Math.floor(Math.random() * EMPTY_VOTE_PROMPTS.length)],
   );
 
-  const fixtureStatus = (liveFixture.status ?? '').toLowerCase();
-  const isLive = resolveFixtureIsLive(fixtureStatus, liveFixture.isLive);
+  const rawFixtureStatus = (liveFixture.status ?? '').toLowerCase();
+  const isLive = resolveFixtureIsLive(rawFixtureStatus, liveFixture.isLive, fixture.date);
+  const fixtureStatus = !isLive && resolveFixtureIsLive(rawFixtureStatus, true) ? 'soon' : rawFixtureStatus;
   const matchMinute = getFormattedMinuteDisplay(liveFixture);
   const isHalfTime = fixtureStatus === 'half_time';
   const isCompleted =

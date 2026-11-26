@@ -23,6 +23,16 @@ describe('resolveFixtureIsLive', () => {
     },
   );
 
+  it('rejects provider live status when kickoff is still an hour away', () => {
+    const kickoff = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+    expect(resolveFixtureIsLive('live', true, kickoff)).toBe(false);
+  });
+
+  it('accepts provider live status within the five-minute early-start tolerance', () => {
+    const kickoff = new Date(Date.now() + 3 * 60 * 1000).toISOString();
+    expect(resolveFixtureIsLive('live', true, kickoff)).toBe(true);
+  });
+
   it('uses the cached flag only when status is genuinely unspecified', () => {
     expect(resolveFixtureIsLive('', true)).toBe(true);
     expect(resolveFixtureIsLive('', false)).toBe(false);

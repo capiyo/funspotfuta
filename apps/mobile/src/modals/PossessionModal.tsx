@@ -28,7 +28,7 @@ type Props = {
 
 export function PossessionModal({ fixture, channelId, userId, username, authToken, isLoggedIn, onClose }: Props) {
   const colors = useFanColors();
-  const fixtureIsLive = resolveFixtureIsLive(fixture?.status, fixture?.isLive);
+  const fixtureIsLive = resolveFixtureIsLive(fixture?.status, fixture?.isLive, fixture?.date);
   const styles = createStyles(colors);
   const { height: screenH } = useWindowDimensions();
   const [tab, setTab] = useState<Tab>('vote');

@@ -26,7 +26,7 @@ type Props = {
 
 export function PossessionModal({ fixture, channelId, userId, username, authToken, isLoggedIn, onClose }: Props) {
   const colors = useFanColors();
-  const fixtureIsLive = resolveFixtureIsLive(fixture?.status, fixture?.isLive);
+  const fixtureIsLive = resolveFixtureIsLive(fixture?.status, fixture?.isLive, fixture?.date);
   const [tab, setTab] = useState<Tab>('vote');
   const [listTab, setListTab] = useState<'votes' | 'open' | 'matched'>('votes');
   const [market, setMarket] = useState<PossessionMarket | null>(null);

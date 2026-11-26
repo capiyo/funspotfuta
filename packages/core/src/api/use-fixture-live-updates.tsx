@@ -10,6 +10,8 @@ export interface FixtureLiveSeed {
   homeScore?: number | null;
   awayScore?: number | null;
   timeElapsed?: number | null;
+  date?: string | null;
+  kickoffAt?: string | null;
 }
 
 export interface LiveFixtureCommentary {
@@ -100,7 +102,7 @@ export function useFixtureLiveUpdates(params: {
       connected: false,
       commentary: queryClient.getQueryData<CachedLiveCommentary>(commentaryKey)?.events.slice(-1)[0] ?? null,
       status,
-      isLive: resolveFixtureIsLive(status, seed?.isLive),
+      isLive: resolveFixtureIsLive(status, seed?.isLive, seed?.date ?? seed?.kickoffAt),
       homeScore: null,
       awayScore: null,
       timeElapsed: null,
@@ -113,7 +115,7 @@ export function useFixtureLiveUpdates(params: {
       connected: webSocketService.getIsConnected(),
       commentary: queryClient.getQueryData<CachedLiveCommentary>(commentaryKey)?.events.slice(-1)[0] ?? null,
       status,
-      isLive: resolveFixtureIsLive(status, seed?.isLive),
+      isLive: resolveFixtureIsLive(status, seed?.isLive, seed?.date ?? seed?.kickoffAt),
       homeScore: null,
       awayScore: null,
       timeElapsed: null,
@@ -132,6 +134,10 @@ export function useFixtureLiveUpdates(params: {
       if (isFinishedStatus(status)) {
         setState((previous) => ({ ...previous, status: 'completed', isLive: false }));
       } else if (isLiveStatus(status)) {
+        if (!resolveFixtureIsLive(status, true, seed?.date ?? seed?.kickoffAt)) {
+          setState((previous) => ({ ...previous, status: 'soon', isLive: false }));
+          return;
+        }
         setState((previous) => ({
           ...previous,
           status: status.toLowerCase() === 'half_time' || status.toLowerCase() === 'halftime' ? 'half_time' : 'live',
@@ -284,7 +290,7 @@ export function useFixtureLiveUpdates(params: {
       webSocketService.off('minute.update', onMinuteUpdate);
       webSocketService.off('minute.response', onMinuteUpdate);
     };
-  }, [channelId, fixtureId, userId, username, authToken, commentaryKey, queryClient]);
+  }, [channelId, fixtureId, userId, username, authToken, commentaryKey, queryClient, seed?.date, seed?.kickoffAt]);
 
   useEffect(() => {
     if (!channelId || !fixtureId || !userId || !username) return;
