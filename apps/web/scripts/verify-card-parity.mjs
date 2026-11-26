@@ -124,14 +124,17 @@ async function inspect(width, state) {
       browserDiagnostics.requests.push({ method: request.method(), url: request.url() });
     }
   });
-  page.on('response', response => {
+  page.on('response', async response => {
     if (response.url().includes('clash-api-m5mr.onrender.com')) {
       browserDiagnostics.responses.push({ status: response.status(), url: response.url() });
     }
     const responseUrl = response.url();
     const contentType = response.headers()['content-type'] ?? '';
     if (contentType.includes('application/json') || responseUrl.includes('/node_modules/') || responseUrl.includes('/@id/') || responseUrl.includes('/@vite/')) {
-      browserDiagnostics.moduleResponses.push({ status: response.status(), url: responseUrl, contentType });
+      const bodyPreview = contentType.includes('application/json')
+        ? (await response.text().catch(() => '')).slice(0, 1200)
+        : undefined;
+      browserDiagnostics.moduleResponses.push({ status: response.status(), url: responseUrl, contentType, bodyPreview });
     }
     if (response.status() >= 400) {
       browserDiagnostics.failedResources.push({ status: response.status(), url: response.url() });
