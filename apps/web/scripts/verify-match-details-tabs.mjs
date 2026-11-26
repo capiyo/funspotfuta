@@ -9,11 +9,11 @@ const fixture = {
   away_team: 'Chelsea',
   league: 'Premier League',
   date: new Date(Date.now() + 3600000).toISOString(),
-  status: 'upcoming',
+  status: 'soon',
   is_live: false,
   home_score: null,
   away_score: null,
-  votes: 0,
+  votes: 1,
   voters: [],
   available_for_voting: true,
 };
@@ -23,6 +23,12 @@ const browser = await chromium.launch({ headless: true });
 try {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
   const page = await context.newPage();
+  const apiResponses = [];
+  const pageErrors = [];
+  page.on('response', response => {
+    if (response.url().includes('/api/games')) apiResponses.push({ status: response.status(), url: response.url(), contentType: response.headers()['content-type'] ?? '' });
+  });
+  page.on('pageerror', error => pageErrors.push(error.message));
   await page.addInitScript(() => {
     localStorage.setItem('usertoken', 'match-details-test-token');
     localStorage.setItem('user', JSON.stringify({ id: 'match-details-user', username: 'Match Details Tester' }));
@@ -74,7 +80,11 @@ try {
   }));
 
   await page.goto(baseURL, { waitUntil: 'domcontentloaded', timeout: 45000 });
-  await page.waitForSelector('.home-screen .match-card', { timeout: 45000 });
+  try {
+    await page.waitForSelector('.home-screen .match-card', { timeout: 45000 });
+  } catch (error) {
+    throw new Error(`Match card did not render. URL=${page.url()} API=${JSON.stringify(apiResponses)} PAGE_ERRORS=${JSON.stringify(pageErrors)} BODY=${(await page.locator('body').innerText().catch(() => '')).slice(0, 1000)}; ${error instanceof Error ? error.message : String(error)}`);
+  }
   const openDetails = page.getByRole('button', { name: /Open match details:/ }).first();
   await openDetails.click();
   let dialog = page.getByRole('dialog');
