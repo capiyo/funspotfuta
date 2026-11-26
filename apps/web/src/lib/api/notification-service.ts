@@ -1134,11 +1134,18 @@ export const NotificationService = {
     async getNotificationPreferences(
         userId: string,
         authToken?: string,
-    ): Promise<{ vote_alerts: boolean; like_alerts: boolean; comment_alerts: boolean }> {
+    ): Promise<{ vote_alerts: boolean; like_alerts: boolean; comment_alerts: boolean; message_alerts: boolean; mention_alerts: boolean; reply_alerts: boolean; reaction_alerts: boolean; push_enabled: boolean; show_preview: boolean; sound_enabled: boolean }> {
         const defaults = {
             vote_alerts: true,
             like_alerts: true,
             comment_alerts: true,
+            message_alerts: true,
+            mention_alerts: true,
+            reply_alerts: true,
+            reaction_alerts: true,
+            push_enabled: true,
+            show_preview: true,
+            sound_enabled: true,
         };
         try {
             const res = await fetch(
@@ -1151,6 +1158,13 @@ export const NotificationService = {
                     vote_alerts: data?.vote_alerts ?? true,
                     like_alerts: data?.like_alerts ?? true,
                     comment_alerts: data?.comment_alerts ?? true,
+                    message_alerts: data?.message_alerts ?? true,
+                    mention_alerts: data?.mention_alerts ?? true,
+                    reply_alerts: data?.reply_alerts ?? true,
+                    reaction_alerts: data?.reaction_alerts ?? true,
+                    push_enabled: data?.push_enabled ?? true,
+                    show_preview: data?.show_preview ?? true,
+                    sound_enabled: data?.sound_enabled ?? true,
                 };
             }
         } catch (e) {
@@ -1164,6 +1178,13 @@ export const NotificationService = {
         voteAlerts: boolean;
         likeAlerts: boolean;
         commentAlerts: boolean;
+        messageAlerts?: boolean;
+        mentionAlerts?: boolean;
+        replyAlerts?: boolean;
+        reactionAlerts?: boolean;
+        pushEnabled?: boolean;
+        showPreview?: boolean;
+        soundEnabled?: boolean;
         authToken?: string;
     }): Promise<boolean> {
         const { userId, voteAlerts, likeAlerts, commentAlerts, authToken } = args;
@@ -1179,6 +1200,13 @@ export const NotificationService = {
                     vote_alerts: voteAlerts,
                     like_alerts: likeAlerts,
                     comment_alerts: commentAlerts,
+                    ...(args.messageAlerts !== undefined ? { message_alerts: args.messageAlerts } : {}),
+                    ...(args.mentionAlerts !== undefined ? { mention_alerts: args.mentionAlerts } : {}),
+                    ...(args.replyAlerts !== undefined ? { reply_alerts: args.replyAlerts } : {}),
+                    ...(args.reactionAlerts !== undefined ? { reaction_alerts: args.reactionAlerts } : {}),
+                    ...(args.pushEnabled !== undefined ? { push_enabled: args.pushEnabled } : {}),
+                    ...(args.showPreview !== undefined ? { show_preview: args.showPreview } : {}),
+                    ...(args.soundEnabled !== undefined ? { sound_enabled: args.soundEnabled } : {}),
                 }),
             });
             return res.status === 200;
