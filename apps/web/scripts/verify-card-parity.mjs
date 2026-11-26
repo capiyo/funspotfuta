@@ -118,7 +118,7 @@ const sharedRequiredSelectors = [
 async function inspect(width, state) {
   const context = await browser.newContext({ viewport: { width, height: 1000 }, deviceScaleFactor: 1 });
   const page = await context.newPage();
-  const browserDiagnostics = { requests: [], responses: [], console: [], failedResources: [], pageErrors: [] };
+  const browserDiagnostics = { requests: [], responses: [], console: [], failedResources: [], pageErrors: [], moduleResponses: [] };
   page.on('request', request => {
     if (request.url().includes('clash-api-m5mr.onrender.com')) {
       browserDiagnostics.requests.push({ method: request.method(), url: request.url() });
@@ -127,6 +127,13 @@ async function inspect(width, state) {
   page.on('response', response => {
     if (response.url().includes('clash-api-m5mr.onrender.com')) {
       browserDiagnostics.responses.push({ status: response.status(), url: response.url() });
+    }
+    if (/\\.(?:tsx?|jsx?|mjs)(?:\\?|$)|@vite\\/client/.test(response.url())) {
+      browserDiagnostics.moduleResponses.push({
+        status: response.status(),
+        url: response.url(),
+        contentType: response.headers()['content-type'] ?? '',
+      });
     }
     if (response.status() >= 400) {
       browserDiagnostics.failedResources.push({ status: response.status(), url: response.url() });
