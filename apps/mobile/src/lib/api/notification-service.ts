@@ -123,6 +123,16 @@ async function writeInt(key: string, value: number): Promise<void> {
 //  PUBLIC API
 // ═══════════════════════════════════════════════════════════════════
 
+export interface StoredNotification {
+    id?: string;
+    _id?: string | { $oid?: string };
+    notification_type?: string;
+    title?: string;
+    body?: string;
+    data?: unknown;
+    is_read?: boolean;
+}
+
 export const NotificationService = {
     setActiveUser(userId: string | null): void {
         setActiveNotificationUser(userId);
@@ -981,6 +991,32 @@ export const NotificationService = {
         } catch (e) {
             console.warn('[NotificationService] ❌ sendNotification error:', e);
             return false;
+        }
+    },
+
+    // Durable server inbox: push delivery is best-effort; this endpoint
+    // provides the persisted notification history across devices.
+    async getUserNotifications(userId: string, authToken?: string): Promise<StoredNotification[]> {
+        try {
+            const response = await fetchWithTimeout(
+                `${API_BASE_URL}/notifications/user/${encodeURIComponent(userId)}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+                    },
+                },
+            );
+            if (!response.ok) return [];
+            const payload: unknown = await response.json();
+            if (!Array.isArray(payload)) return [];
+            return payload.filter((item): item is StoredNotification =>
+                item !== null && typeof item === 'object'
+            );
+        } catch (error) {
+            console.warn('[NotificationService] Inbox fetch failed:', error);
+            return [];
         }
     },
 

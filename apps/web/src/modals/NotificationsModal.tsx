@@ -5,7 +5,7 @@ import { FAN_SPACING, FAN_RADIUS, getAllFixtures, type Fixture } from '@funspot/
 import { useAuth } from '@/lib/auth/auth-context';
 import { useToast } from '@/lib/toast/toast-context';
 import { useFanColors } from '@/theme/use-fan-colors';
-import { NotificationService } from '@/lib/api/notification-service';
+import { NotificationService, type StoredNotification } from '@/lib/api/notification-service';
 
 type FanColors = ReturnType<typeof useFanColors>;
 interface NotificationPreferences { vote_alerts: boolean; like_alerts: boolean; comment_alerts: boolean }
@@ -21,6 +21,7 @@ export default function NotificationsModal({ visible, onClose }: { visible: bool
   const dialogRef = useRef<HTMLDivElement>(null);
   const [summary, setSummary] = useState<UnreadSummary | null>(null);
   const [activity, setActivity] = useState<Array<{ fixtureId: string; title: string; preview: string; count: number; time: number }>>([]);
+  const [inbox, setInbox] = useState<StoredNotification[]>([]);
   const [prefs, setPrefs] = useState<NotificationPreferences | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -47,11 +48,12 @@ export default function NotificationsModal({ visible, onClose }: { visible: bool
     (async () => {
       setLoading(true);
       try {
-        const [counts, p, unread, fixtures] = await Promise.all([
+        const [counts, p, unread, fixtures, notifications] = await Promise.all([
           NotificationService.loadInitialBadgeCounts(),
           NotificationService.getNotificationPreferences(userId, authToken ?? undefined),
           NotificationService.getAllUnreadFixturesWithDetails(),
           getAllFixtures().catch((): Fixture[] => []),
+          NotificationService.getUserNotifications(userId, authToken ?? undefined),
         ]);
         const rows = Object.entries(unread).map(([fixtureId, details]) => {
           const fixture = fixtures.find((item) => String(item.matchId ?? item.id) === fixtureId);
@@ -65,6 +67,7 @@ export default function NotificationsModal({ visible, onClose }: { visible: bool
           };
         }).sort((a, b) => b.time - a.time);
         setActivity(rows);
+        setInbox(notifications);
         if (cancelled) return;
         setSummary({ notifications: counts.unread_notifications, comments: counts.unread_comments });
         setPrefs(p);
@@ -83,7 +86,9 @@ export default function NotificationsModal({ visible, onClose }: { visible: bool
       void Promise.all([
         NotificationService.loadInitialBadgeCounts(),
         NotificationService.getAllUnreadFixturesWithDetails(),
-      ]).then(([counts, unread]) => {
+        userId ? NotificationService.getUserNotifications(userId, authToken ?? undefined) : Promise.resolve([]),
+      ]).then(([counts, unread, notifications]) => {
+        setInbox(notifications);
         setSummary({
           notifications: counts.unread_notifications,
           comments: counts.unread_comments,
@@ -99,7 +104,7 @@ export default function NotificationsModal({ visible, onClose }: { visible: bool
       });
     });
     return unsubscribe;
-  }, [visible]);
+  }, [authToken, userId, visible]);
 
   async function toggle(key: keyof NotificationPreferences) {
     if (!prefs || !userId || saving) return;
@@ -139,6 +144,23 @@ export default function NotificationsModal({ visible, onClose }: { visible: bool
                   <strong className="text-xl font-extrabold">{item.value}</strong><span className="text-[10px]" style={{ color: colors.textTertiary }}>{item.label}</span>
                 </div>)}
             </div>}
+            {inbox.length > 0 && <section className="mb-5">
+              <div className="mb-2 flex items-center justify-between">
+                <h3 className="text-[13px] font-extrabold">Inbox</h3>
+                {inbox.some((item) => item.is_read !== true) && <button type="button" className="text-[11px] font-semibold" style={{ color: '#25D366' }} onClick={async () => {
+                  if (!userId) return;
+                  await NotificationService.markAsRead({ userId, authToken: authToken ?? undefined });
+                  await NotificationService.reconcileFromServer({ userId, authToken: authToken ?? undefined });
+                  setInbox((current) => current.map((item) => ({ ...item, is_read: true })));
+                }}>Mark all read</button>}
+              </div>
+              <div className="space-y-1">
+                {inbox.slice(0, 30).map((item, index) => <div key={item.id ?? index} className="rounded-xl px-3 py-3" style={{ background: item.is_read === true ? 'transparent' : `${colors.primary}12` }}>
+                  <strong className="block truncate text-[12px]">{item.title || 'Funspot notification'}</strong>
+                  {item.body && <span className="mt-1 block text-[11px]" style={{ color: colors.textSecondary }}>{item.body}</span>}
+                </div>)}
+              </div>
+            </section>}
             {activity.length > 0 && <section className="mb-5">
               <h3 className="mb-2 text-[13px] font-extrabold">Recent activity</h3>
               <div className="space-y-1">

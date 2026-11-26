@@ -21,7 +21,7 @@ import { FAN_SPACING, FAN_RADIUS, getAllFixtures, type Fixture } from '@funspot/
 import { useAuth } from '@/lib/auth/auth-context';
 import { useToast } from '@/lib/toast/toast-context';
 import { useFanColors } from '@/theme/use-fan-colors';
-import { NotificationService } from '@/lib/api/notification-service';
+import { NotificationService, type StoredNotification } from '@/lib/api/notification-service';
 
 type FanColors = ReturnType<typeof useFanColors>;
 
@@ -56,6 +56,7 @@ export default function NotificationsScreen({
 
   const [summary, setSummary] = useState<UnreadSummary | null>(null);
   const [activity, setActivity] = useState<Array<{ fixtureId: string; title: string; preview: string; count: number; time: number }>>([]);
+  const [inbox, setInbox] = useState<StoredNotification[]>([]);
   const [prefs, setPrefs] = useState<NotificationPreferences | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -71,11 +72,12 @@ export default function NotificationsScreen({
         // NotificationService (the Dart source keeps it private and only
         // calls it from reconcileFromServer). The two counts the UI wants
         // are just the persisted totals, so read those directly.
-        const [counts, p, unread, fixtures] = await Promise.all([
+        const [counts, p, unread, fixtures, notifications] = await Promise.all([
           NotificationService.loadInitialBadgeCounts(),
           NotificationService.getNotificationPreferences(userId, authToken ?? undefined),
           NotificationService.getAllUnreadFixturesWithDetails(),
           getAllFixtures().catch((): Fixture[] => []),
+          NotificationService.getUserNotifications(userId, authToken ?? undefined),
         ]);
         const rows = Object.entries(unread).map(([fixtureId, details]) => {
           const fixture = fixtures.find((item) => String(item.matchId ?? item.id) === fixtureId);
@@ -89,6 +91,7 @@ export default function NotificationsScreen({
           };
         }).sort((a, b) => b.time - a.time);
         setActivity(rows);
+        setInbox(notifications);
         if (cancelled) return;
         setSummary({
           notifications: counts.unread_notifications,
@@ -115,7 +118,9 @@ export default function NotificationsScreen({
       void Promise.all([
         NotificationService.loadInitialBadgeCounts(),
         NotificationService.getAllUnreadFixturesWithDetails(),
-      ]).then(([counts, unread]) => {
+        userId ? NotificationService.getUserNotifications(userId, authToken ?? undefined) : Promise.resolve([]),
+      ]).then(([counts, unread, notifications]) => {
+        setInbox(notifications);
         setSummary({
           notifications: counts.unread_notifications,
           comments: counts.unread_comments,
@@ -131,7 +136,7 @@ export default function NotificationsScreen({
       });
     });
     return unsubscribe;
-  }, [visible]);
+  }, [authToken, userId, visible]);
 
   async function toggle(key: keyof NotificationPreferences) {
     if (!prefs || !userId) return;
@@ -199,6 +204,30 @@ export default function NotificationsScreen({
                     <Text style={styles.statNumber}>{summary.comments}</Text>
                     <Text style={styles.statLabel}>Unread comments</Text>
                   </View>
+                </View>
+              )}
+
+              {inbox.length > 0 && (
+                <View style={{ marginBottom: FAN_SPACING.lg, gap: FAN_SPACING.sm }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <Text style={{ color: colors.textPrimary, fontSize: 13, fontWeight: '800' }}>Inbox</Text>
+                    {inbox.some((item) => item.is_read !== true) && (
+                      <Pressable onPress={async () => {
+                        if (!userId) return;
+                        await NotificationService.markAsRead({ userId, authToken: authToken ?? undefined });
+                        await NotificationService.reconcileFromServer({ userId, authToken: authToken ?? undefined });
+                        setInbox((current) => current.map((item) => ({ ...item, is_read: true })));
+                      }}>
+                        <Text style={{ color: '#25D366', fontSize: 11, fontWeight: '700' }}>Mark all read</Text>
+                      </Pressable>
+                    )}
+                  </View>
+                  {inbox.slice(0, 30).map((item, index) => (
+                    <View key={item.id ?? index} style={{ paddingVertical: FAN_SPACING.sm, paddingHorizontal: FAN_SPACING.sm, borderRadius: FAN_RADIUS.md, backgroundColor: item.is_read === true ? 'transparent' : colors.primary + '12' }}>
+                      <Text numberOfLines={1} style={{ color: colors.textPrimary, fontSize: 12, fontWeight: '700' }}>{item.title || 'Funspot notification'}</Text>
+                      {!!item.body && <Text numberOfLines={2} style={{ color: colors.textSecondary, fontSize: 11, marginTop: 3 }}>{item.body}</Text>}
+                    </View>
+                  ))}
                 </View>
               )}
 
