@@ -147,11 +147,10 @@ function normalizePick(selection: string): string {
   return selection.trim().toLowerCase().replace(/[\s-]+/g, '_');
 }
 
-function pickKind(selection: string): 'home' | 'away' | 'draw' | 'unknown' {
+function pickKind(selection: string): 'home' | 'away' | 'unknown' {
   const value = normalizePick(selection);
   if (['home_team', 'home', 'hometeam', '1', 'team1', 'home_side'].includes(value) || /(^|\W)home(\W|$)/.test(value)) return 'home';
   if (['away_team', 'away', 'awayteam', '2', 'team2', 'away_side'].includes(value) || /(^|\W)away(\W|$)/.test(value)) return 'away';
-  if (['draw', 'tie', 'x', 'level', 'drawn'].includes(value) || /(^|\W)(draw|tie)(\W|$)/.test(value)) return 'draw';
   return 'unknown';
 }
 
@@ -406,9 +405,7 @@ export function MatchCard({
               ? fixture.homeTeam
               : kind === 'away'
                 ? fixture.awayTeam
-                : kind === 'draw'
-                  ? 'Draw'
-                  : v.selection || 'Vote recorded',
+                : 'Vote recorded',
           color: kind === 'unknown' ? colors.textTertiary : outcomeColor(kind, colors),
         };
       }),
