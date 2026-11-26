@@ -8,6 +8,8 @@
 // every other notification code path in the app.
 
 import { useEffect, useState } from 'react';
+import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {
   View,
   Text,
@@ -22,6 +24,7 @@ import { useAuth } from '@/lib/auth/auth-context';
 import { useToast } from '@/lib/toast/toast-context';
 import { useFanColors } from '@/theme/use-fan-colors';
 import { NotificationService, type StoredNotification } from '@/lib/api/notification-service';
+import type { RootStackParamList } from '@/navigation/RootNavigator';
 
 type FanColors = ReturnType<typeof useFanColors>;
 
@@ -67,6 +70,7 @@ export default function NotificationsScreen({
   const styles = createStyles(colors);
   const { userId, authToken } = useAuth();
   const toast = useToast();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const [summary, setSummary] = useState<UnreadSummary | null>(null);
   const [activity, setActivity] = useState<Array<{ fixtureId: string; title: string; preview: string; count: number; time: number }>>([]);
@@ -243,12 +247,32 @@ export default function NotificationsScreen({
                       </Pressable>
                     )}
                   </View>
-                  {inbox.slice(0, 30).map((item, index) => (
-                    <View key={item.id ?? index} style={{ paddingVertical: FAN_SPACING.sm, paddingHorizontal: FAN_SPACING.sm, borderRadius: FAN_RADIUS.md, backgroundColor: item.is_read === true ? 'transparent' : colors.primary + '12' }}>
-                      <Text numberOfLines={1} style={{ color: colors.textPrimary, fontSize: 12, fontWeight: '700' }}>{item.title || 'Funspot notification'}</Text>
-                      {!!item.body && <Text numberOfLines={2} style={{ color: colors.textSecondary, fontSize: 11, marginTop: 3 }}>{item.body}</Text>}
-                    </View>
-                  ))}
+                  {inbox.slice(0, 30).map((item, index) => {
+                    const rawId = item.id ?? (typeof item._id === 'string' ? item._id : item._id?.$oid);
+                    const id = String(rawId ?? '');
+                    const data = item.data && typeof item.data === 'object' ? item.data as Record<string, unknown> : {};
+                    const channelId = typeof data.channel_id === 'string' ? data.channel_id : null;
+                    const fixtureId = typeof data.fixture_id === 'string' ? data.fixture_id : undefined;
+                    const unread = item.is_read !== true;
+                    return (
+                      <Pressable key={id || index} onPress={async () => {
+                        if (!userId) return;
+                        if (id) await NotificationService.markAsRead({ userId, authToken: authToken ?? undefined, notificationIds: [id] });
+                        await NotificationService.reconcileFromServer({ userId, authToken: authToken ?? undefined });
+                        setInbox((current) => current.map((entry) => entry === item ? { ...entry, is_read: true } : entry));
+                        if (channelId) {
+                          onClose();
+                          navigation.navigate('Chat', { channelId, ...(fixtureId ? { fixtureId } : {}) });
+                        }
+                      }} style={{ paddingVertical: FAN_SPACING.sm, paddingHorizontal: FAN_SPACING.sm, borderRadius: FAN_RADIUS.md, backgroundColor: unread ? colors.primary + '12' : 'transparent' }}>
+                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: FAN_SPACING.sm }}>
+                          <Text numberOfLines={1} style={{ flex: 1, color: colors.textPrimary, fontSize: 12, fontWeight: '700' }}>{item.title || 'Funspot notification'}</Text>
+                          {unread && <View style={{ width: 7, height: 7, borderRadius: 4, backgroundColor: '#25D366' }} />}
+                        </View>
+                        {!!item.body && <Text numberOfLines={2} style={{ color: colors.textSecondary, fontSize: 11, marginTop: 3 }}>{item.body}</Text>}
+                      </Pressable>
+                    );
+                  })}
                 </View>
               )}
 

@@ -162,10 +162,27 @@ export default function NotificationsModal({ visible, onClose }: { visible: bool
                 }}>Mark all read</button>}
               </div>
               <div className="space-y-1">
-                {inbox.slice(0, 30).map((item, index) => <div key={item.id ?? index} className="rounded-xl px-3 py-3" style={{ background: item.is_read === true ? 'transparent' : `${colors.primary}12` }}>
-                  <strong className="block truncate text-[12px]">{item.title || 'Funspot notification'}</strong>
-                  {item.body && <span className="mt-1 block text-[11px]" style={{ color: colors.textSecondary }}>{item.body}</span>}
-                </div>)}
+                {inbox.slice(0, 30).map((item, index) => {
+                  const rawId = item.id ?? (typeof item._id === 'string' ? item._id : item._id?.$oid);
+                  const id = String(rawId ?? '');
+                  const data = item.data && typeof item.data === 'object' ? item.data as Record<string, unknown> : {};
+                  const unread = item.is_read !== true;
+                  return <button key={id || index} type="button" className="block w-full rounded-xl px-3 py-3 text-left" style={{ background: unread ? `${colors.primary}12` : 'transparent' }} onClick={async () => {
+                    if (!userId) return;
+                    if (id) await NotificationService.markAsRead({ userId, authToken: authToken ?? undefined, notificationIds: [id] });
+                    await NotificationService.reconcileFromServer({ userId, authToken: authToken ?? undefined });
+                    setInbox((current) => current.map((entry) => entry === item ? { ...entry, is_read: true } : entry));
+                    if (typeof data.url === 'string') {
+                      window.location.assign(data.url);
+                    } else if (typeof data.channel_id === 'string') {
+                      const fixture = typeof data.fixture_id === 'string' ? `?fixtureId=${encodeURIComponent(data.fixture_id)}` : '';
+                      window.location.assign(`/messages/${encodeURIComponent(data.channel_id)}${fixture}`);
+                    }
+                  }}>
+                    <span className="flex items-center gap-2 text-[12px] font-semibold">{item.title || 'Funspot notification'}{unread && <span className="h-2 w-2 rounded-full" style={{ background: '#25D366' }} />}</span>
+                    {item.body && <span className="mt-1 block text-[11px]" style={{ color: colors.textSecondary }}>{item.body}</span>}
+                  </button>;
+                })}
               </div>
             </section>}
             {activity.length > 0 && <section className="mb-5">
