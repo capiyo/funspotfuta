@@ -52,7 +52,7 @@ const LABELS: Record<keyof NotificationPreferences, string> = {
   reply_alerts: 'Replies',
   reaction_alerts: 'Reactions',
   push_enabled: 'Push notifications',
-  show_preview: 'Show message previews',
+  show_preview: 'Show push message previews',
   sound_enabled: 'Notification sounds',
 };
 

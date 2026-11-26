@@ -13,7 +13,7 @@ interface UnreadSummary { notifications: number; comments: number }
 const LABELS: Record<keyof NotificationPreferences, string> = {
   vote_alerts: 'Vote alerts', like_alerts: 'Like alerts', comment_alerts: 'Comment alerts',
   message_alerts: 'Chat messages', mention_alerts: 'Mentions', reply_alerts: 'Replies',
-  reaction_alerts: 'Reactions', push_enabled: 'Push notifications', show_preview: 'Show message previews',
+  reaction_alerts: 'Reactions', push_enabled: 'Push notifications', show_preview: 'Show push message previews',
   sound_enabled: 'Notification sounds',
 };
 
