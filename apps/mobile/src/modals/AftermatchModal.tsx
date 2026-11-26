@@ -19,7 +19,7 @@ import type {
 import { useFanColors } from '@/theme/use-fan-colors';
 
 type TabKey = 'votes' | 'pledges' | 'bets' | 'subfixtures';
-type VoterFilter = 'all' | 'home' | 'draw' | 'away';
+type VoterFilter = 'all' | 'home' | 'away';
 
 export function AftermatchReviewModal({
     visible,
@@ -214,13 +214,13 @@ function VotesTab({
     const [filter, setFilter] = useState<VoterFilter>('all');
 
     const stats = useMemo(() => {
-        let home = 0, away = 0, draw = 0;
+        let home = 0, away = 0;
         for (const v of voters) {
             if (v.selection === 'home') home++;
             else if (v.selection === 'away') away++;
-            else if (v.selection === 'draw') draw++;
+
         }
-        return { home, away, draw };
+        return { home, away };
     }, [voters]);
 
     const correct = voters.filter((v) => v.result === 'won').length;
@@ -239,9 +239,8 @@ function VotesTab({
                 <StatChip styles={styles} label={`🎯 ${accuracy}%`} tone="draw" />
             </View>
             <View style={styles.chipsRow}>
-                <FilterChip styles={styles} label="All" count={stats.home + stats.away + stats.draw} active={filter === 'all'} onPress={() => setFilter('all')} />
+                <FilterChip styles={styles} label="All" count={stats.home + stats.away} active={filter === 'all'} onPress={() => setFilter('all')} />
                 <FilterChip styles={styles} label="🏠" count={stats.home} active={filter === 'home'} onPress={() => setFilter('home')} />
-                <FilterChip styles={styles} label="🤝" count={stats.draw} active={filter === 'draw'} onPress={() => setFilter('draw')} />
                 <FilterChip styles={styles} label="✈️" count={stats.away} active={filter === 'away'} onPress={() => setFilter('away')} />
             </View>
             <View style={{ paddingHorizontal: 16, paddingTop: 8 }}>
@@ -271,7 +270,7 @@ function VoterTile({
             ? colors.primary
             : voter.selection === 'away'
                 ? colors.away
-                : colors.draw;
+                : colors.textTertiary;
 
     return (
         <View style={[styles.tile, isMe && styles.tileMe]}>
@@ -289,7 +288,7 @@ function VoterTile({
                     {lost && <Badge styles={styles} label="❌ Lost" tone="away" />}
                 </View>
                 <Text style={[styles.tileSub, { color: selColor }]}>
-                    Voted {voter.selection === 'home' ? 'Home' : voter.selection === 'away' ? 'Away' : 'Draw'}
+                    Voted {voter.selection === 'home' ? 'Home' : voter.selection === 'away' ? 'Away' : 'Vote recorded'}
                 </Text>
             </View>
             <Badge styles={styles} label={won ? 'Won' : lost ? 'Lost' : '—'} tone={won ? 'primary' : lost ? 'away' : 'muted'} />
