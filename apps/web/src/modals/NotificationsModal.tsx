@@ -181,9 +181,11 @@ export default function NotificationsModal({ visible, onClose }: { visible: bool
                     setInbox((current) => current.map((entry) => entry === item ? { ...entry, is_read: true } : entry));
                     if (typeof data.url === 'string') {
                       window.location.assign(data.url);
-                    } else if (typeof data.channel_id === 'string') {
-                      const fixture = typeof data.fixture_id === 'string' ? `?fixtureId=${encodeURIComponent(data.fixture_id)}` : '';
-                      window.location.assign(`/messages/${encodeURIComponent(data.channel_id)}${fixture}`);
+                    } else if (typeof data.channel_id === 'string' || typeof data.channelId === 'string') {
+                      const channelId = typeof data.channel_id === 'string' ? data.channel_id : data.channelId as string;
+                      const fixtureId = typeof data.fixture_id === 'string' ? data.fixture_id : typeof data.fixtureId === 'string' ? data.fixtureId : undefined;
+                      const fixture = fixtureId ? `?fixtureId=${encodeURIComponent(fixtureId)}` : '';
+                      window.location.assign(`/messages/${encodeURIComponent(channelId)}${fixture}`);
                     }
                   }}>
                     <span className="flex items-center gap-2 text-[12px] font-semibold">{item.title || 'Funspot notification'}{unread && <span className="h-2 w-2 rounded-full" style={{ background: '#25D366' }} />}</span>

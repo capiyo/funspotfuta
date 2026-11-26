@@ -254,8 +254,8 @@ export default function NotificationsScreen({
                     const rawId = item.id ?? (typeof item._id === 'string' ? item._id : item._id?.$oid);
                     const id = String(rawId ?? '');
                     const data = item.data && typeof item.data === 'object' ? item.data as Record<string, unknown> : {};
-                    const channelId = typeof data.channel_id === 'string' ? data.channel_id : null;
-                    const fixtureId = typeof data.fixture_id === 'string' ? data.fixture_id : undefined;
+                    const channelId = typeof data.channel_id === 'string' ? data.channel_id : typeof data.channelId === 'string' ? data.channelId : null;
+                    const fixtureId = typeof data.fixture_id === 'string' ? data.fixture_id : typeof data.fixtureId === 'string' ? data.fixtureId : undefined;
                     const unread = item.is_read !== true;
                     return (
                       <Pressable key={id || index} onPress={async () => {
