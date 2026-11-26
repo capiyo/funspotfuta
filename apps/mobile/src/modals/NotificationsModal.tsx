@@ -239,7 +239,8 @@ export default function NotificationsScreen({
                     {inbox.some((item) => item.is_read !== true) && (
                       <Pressable onPress={async () => {
                         if (!userId) return;
-                        await NotificationService.markAsRead({ userId, authToken: authToken ?? undefined });
+                        const marked = await NotificationService.markAsRead({ userId, authToken: authToken ?? undefined });
+                        if (!marked) return;
                         await NotificationService.reconcileFromServer({ userId, authToken: authToken ?? undefined });
                         const counts = await NotificationService.loadInitialBadgeCounts();
                         setSummary({ notifications: counts.unread_notifications, comments: counts.unread_comments });
@@ -259,7 +260,9 @@ export default function NotificationsScreen({
                     return (
                       <Pressable key={id || index} onPress={async () => {
                         if (!userId) return;
-                        if (id) await NotificationService.markAsRead({ userId, authToken: authToken ?? undefined, notificationIds: [id] });
+                        if (!id) return;
+                        const marked = await NotificationService.markAsRead({ userId, authToken: authToken ?? undefined, notificationIds: [id] });
+                        if (!marked) return;
                         await NotificationService.reconcileFromServer({ userId, authToken: authToken ?? undefined });
                         const counts = await NotificationService.loadInitialBadgeCounts();
                         setSummary({ notifications: counts.unread_notifications, comments: counts.unread_comments });

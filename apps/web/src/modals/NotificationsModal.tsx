@@ -156,7 +156,8 @@ export default function NotificationsModal({ visible, onClose }: { visible: bool
                 <h3 className="text-[13px] font-extrabold">Inbox</h3>
                 {inbox.some((item) => item.is_read !== true) && <button type="button" className="text-[11px] font-semibold" style={{ color: '#25D366' }} onClick={async () => {
                   if (!userId) return;
-                  await NotificationService.markAsRead({ userId, authToken: authToken ?? undefined });
+                  const marked = await NotificationService.markAsRead({ userId, authToken: authToken ?? undefined });
+                  if (!marked) return;
                   await NotificationService.reconcileFromServer({ userId, authToken: authToken ?? undefined });
                   const counts = await NotificationService.loadInitialBadgeCounts();
                   setSummary({ notifications: counts.unread_notifications, comments: counts.unread_comments });
@@ -171,7 +172,9 @@ export default function NotificationsModal({ visible, onClose }: { visible: bool
                   const unread = item.is_read !== true;
                   return <button key={id || index} type="button" className="block w-full rounded-xl px-3 py-3 text-left" style={{ background: unread ? `${colors.primary}12` : 'transparent' }} onClick={async () => {
                     if (!userId) return;
-                    if (id) await NotificationService.markAsRead({ userId, authToken: authToken ?? undefined, notificationIds: [id] });
+                    if (!id) return;
+                    const marked = await NotificationService.markAsRead({ userId, authToken: authToken ?? undefined, notificationIds: [id] });
+                    if (!marked) return;
                     await NotificationService.reconcileFromServer({ userId, authToken: authToken ?? undefined });
                     const counts = await NotificationService.loadInitialBadgeCounts();
                     setSummary({ notifications: counts.unread_notifications, comments: counts.unread_comments });

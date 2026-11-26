@@ -1072,13 +1072,13 @@ export const NotificationService = {
         notificationIds?: string[];
         fixtureId?: string;
         channelId?: string;
-    }): Promise<void> {
+    }): Promise<boolean> {
         try {
             const body: Record<string, any> = { user_id: args.userId };
             if (args.notificationIds) body.notification_ids = args.notificationIds;
             if (args.fixtureId) body.fixture_id = args.fixtureId;
             if (args.channelId) body.channel_id = args.channelId;
-            await fetch(`${API_BASE_URL}/notifications/mark-read`, {
+            const response = await fetch(`${API_BASE_URL}/notifications/mark-read`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -1086,8 +1086,14 @@ export const NotificationService = {
                 },
                 body: JSON.stringify(body),
             });
+            if (!response.ok) {
+                console.warn('[NotificationService] markAsRead failed:', response.status);
+                return false;
+            }
+            return true;
         } catch (e) {
             console.warn('[NotificationService] ❌ markAsRead error:', e);
+            return false;
         }
     },
 
