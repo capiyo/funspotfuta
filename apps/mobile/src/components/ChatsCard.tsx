@@ -42,6 +42,7 @@ import {
   getFixtureUnreadCount,
   mergeOpenPokes,
   queryKeys,
+  webSocketService,
   hasScores,
   getFormattedMinuteDisplay,
   resolveFixtureIsLive,
@@ -307,6 +308,30 @@ export function MatchCard({
   const longChannelPressFired = useRef(false);
   const [latestMessageAt, setLatestMessageAt] = useState<string | null>(null);
   const [latestMessagePreview, setLatestMessagePreview] = useState<string | null>(null);
+  useEffect(() => {
+    if (!isLoggedIn || !userId || !channelId || !fixtureId) return;
+    const key = queryKeys.fixtureUnreadCount(channelId, fixtureId, userId);
+    const unsubscribe = webSocketService.on('chat.message', (event) => {
+      const payload = event.payload && typeof event.payload === 'object'
+        ? event.payload as Record<string, unknown>
+        : event;
+      const eventChannelId = String(payload.channel_id ?? payload.channelId ?? '');
+      const eventFixtureId = String(payload.fixture_id ?? payload.fixtureId ?? '');
+      const senderId = String(payload.sender_id ?? payload.user_id ?? '');
+      if (eventChannelId !== channelId || eventFixtureId !== fixtureId || senderId === userId) return;
+      queryClient.setQueryData<number>(key, (current) => Math.max(0, (current ?? 0) + 1));
+      const senderName = String(payload.sender_name ?? payload.username ?? 'Fan');
+      const messageText = payload.is_image === true
+        ? '📷 Image'
+        : payload.is_video === true
+          ? '🎥 Video'
+          : String(payload.text ?? payload.message_preview ?? '').trim();
+      setLatestMessagePreview(messageText ? `${senderName}: ${messageText}` : `${senderName} sent a message`);
+      setLatestMessageAt(new Date().toISOString());
+      void queryClient.invalidateQueries({ queryKey: key });
+    });
+    return unsubscribe;
+  }, [channelId, fixtureId, isLoggedIn, queryClient, userId]);
   useEffect(() => {
     let active = true;
     const resolvedFixtureId = String(fixture.matchId || fixture.id || '');
