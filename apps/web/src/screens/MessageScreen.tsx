@@ -256,7 +256,7 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
   });
   const {
     messages, connected, loadingHistory, uploadingImage, typingUsers, send,
-    sendImage, sendVideo, sendTyping, markRead, matchStatus, homeScore, awayScore,
+    sendImage, sendVideo, sendTyping, markRead, deleteMessage, matchStatus, homeScore, awayScore,
     timeElapsed, isLive, homeVotes, awayVotes, userVoteSelection, voters,
     recordUserVote, refetchVoteCounts,
   } = chat;
@@ -836,7 +836,12 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       {optionsFor.userId === userId && !optionsFor.isCommentary && <ActionRow
       icon={<AlertCircle size={16}/>}
       label="Delete" danger
-      onClick={() => { toast.showInfo('Delete coming soon'); setOptionsFor(null); }}/>}
+      onClick={async () => {
+        const target = optionsFor;
+        setOptionsFor(null);
+        const deleted = await deleteMessage(target.id);
+        toast.showInfo(deleted ? 'Message deleted' : 'Could not delete message');
+      }}/>}
     </Dialog>}
 
     {/* (e) Vote, aftermatch, match details and comrades dialogs */}

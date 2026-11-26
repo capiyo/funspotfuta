@@ -1064,6 +1064,34 @@ export function useChannelChat({
         }, 2000);
     }, [channelId, fixtureId, username]);
 
+    // ── Delete an owned channel message ─────────────────────────
+    const deleteMessage = useCallback(async (messageId: string): Promise<boolean> => {
+        if (!channelId || !userId || !messageId) return false;
+        const target = messagesRef.current.find((message) => message.id === messageId);
+        if (!target || target.userId !== userId || target.isCommentary) return false;
+        if (target.isPending || target.status === 'pending' || target.status === 'failed') {
+            setMessages((previous) => previous.filter((message) => message.id !== messageId));
+            return true;
+        }
+        try {
+            const response = await fetch(
+                `${API_BASE_URL}/channels/${encodeURIComponent(channelId)}/messages/${encodeURIComponent(messageId)}`,
+                { method: 'DELETE', headers: authHeaders(), body: JSON.stringify({ user_id: userId }) },
+            );
+            if (!response.ok) return false;
+            const payload: unknown = await response.json().catch(() => null);
+            if (!payload || typeof payload !== 'object' || (payload as { success?: unknown }).success !== true) return false;
+            setMessages((previous) => previous.filter((message) => message.id !== messageId));
+            queryClient.setQueryData<ChatMessage[]>(messagesQueryKey, (previous) =>
+                (previous ?? []).filter((message) => message.id !== messageId),
+            );
+            return true;
+        } catch (error) {
+            console.warn('[useChannelChat] Message deletion failed:', error);
+            return false;
+        }
+    }, [channelId, userId, authHeaders, queryClient, messagesQueryKey]);
+
     // ── markRead ────────────────────────────────────────────────
     const markRead = useCallback(async () => {
         if (!channelId || !userId) return;
@@ -1089,6 +1117,7 @@ export function useChannelChat({
         sendVideo,
         sendTyping,
         markRead,
+        deleteMessage,
 
         // live match state
         matchStatus,

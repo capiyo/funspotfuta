@@ -326,6 +326,7 @@ export default function MessageScreen() {
     sendImage,
     sendVideo,
     markRead,
+    deleteMessage,
     matchStatus,
     homeScore,
     awayScore,
@@ -952,9 +953,11 @@ export default function MessageScreen() {
             )}
             {optionsFor?.userId === userId && !optionsFor?.isCommentary && (
               <Pressable
-                onPress={() => {
-                  toast.showInfo('Delete coming soon');
+                onPress={async () => {
+                  const target = optionsFor;
                   setOptionsFor(null);
+                  const deleted = target ? await deleteMessage(target.id) : false;
+                  toast.showInfo(deleted ? 'Message deleted' : 'Could not delete message');
                 }}
                 style={styles.optionsItem}
               >
