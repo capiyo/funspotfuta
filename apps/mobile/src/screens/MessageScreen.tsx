@@ -114,6 +114,7 @@ import { SmartMedia } from '@/components/SmartMedia';
 import { useToast } from '@/lib/toast/toast-context';
 import { useFanColors } from '@/theme/use-fan-colors';
 import AdCarousel from '@/components/AdCarousel';
+import { ActivityHistorySheet, type ActivityHistoryParams } from '@/modals/LeaderboardModal';
 import { fanText } from '@/theme/use-fan-typography';
 import { PRESSED_OPACITY } from '@/theme/layout';
 import { Input } from '@/components/ui/input';
@@ -182,6 +183,7 @@ export default function MessageScreen() {
   const [channelMembers, setChannelMembers] = useState<Channel['members']>([]);
   const [replyTo, setReplyTo] = useState<ChatMessage | null>(null);
   const [optionsFor, setOptionsFor] = useState<ChatMessage | null>(null);
+  const [archiveParams, setArchiveParams] = useState<ActivityHistoryParams | null>(null);
   const [showAttachMenu, setShowAttachMenu] = useState(false);
   const [voteModalOpen, setVoteModalOpen] = useState(false);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
@@ -559,6 +561,12 @@ export default function MessageScreen() {
     navigation.goBack();
   }
 
+  const openArchive = useCallback((message: ChatMessage) => {
+    if (!message.userId) return;
+    const name = message.username || 'Fan';
+    setArchiveParams({ userId: message.userId, userName: name, displayName: name, clubFan: '', authToken: authToken ?? null });
+  }, [authToken]);
+
   function handleCopy(text: string) {
     Clipboard.setString(text);
     toast.showSuccess('Copied');
@@ -647,6 +655,7 @@ export default function MessageScreen() {
                 message={item}
                 isMe={item.userId === userId}
                 onLongPress={() => setOptionsFor(item)}
+                onUsernamePress={() => openArchive(item)}
                 onImagePress={setViewerUri}
               />
             )}
@@ -1088,6 +1097,7 @@ export default function MessageScreen() {
         />
       )}
 
+      <ActivityHistorySheet params={archiveParams} onClose={() => setArchiveParams(null)} colors={colors} />
     </SafeAreaView>
   );
 }
@@ -1374,12 +1384,14 @@ function MessageBubble({
   message,
   isMe,
   onLongPress,
+  onUsernamePress,
   onImagePress,
 }: {
   colors: FanColors;
   message: ChatMessage;
   isMe: boolean;
   onLongPress: () => void;
+  onUsernamePress: () => void;
   onImagePress: (uri: string) => void;
 }) {
   const isCommentary = message.isCommentary;
@@ -1434,20 +1446,11 @@ function MessageBubble({
   return (
     <View style={bubbleStyles.column}>
       {!effectiveIsMe && (
-        <Text
-          style={[
-            fanText(
-              'tag',
-              colors,
-              isCommentary ? colors.draw : colors.primary,
-            ),
-            bubbleStyles.username,
-          ]}
-          numberOfLines={1}
-        >
-          {isCommentary ? '⚽ ' : ''}
-          {message.username}
-        </Text>
+        <Pressable onPress={onUsernamePress} accessibilityRole="button" accessibilityLabel={`Open ${message.username}'s activity archive`} hitSlop={4}>
+          <Text style={[fanText('tag', colors, isCommentary ? colors.draw : colors.primary), bubbleStyles.username]} numberOfLines={1}>
+            {isCommentary ? '⚽ ' : ''}{message.username}
+          </Text>
+        </Pressable>
       )}
 
       <View style={[bubbleStyles.row, effectiveIsMe && bubbleStyles.rowMe]}>

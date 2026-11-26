@@ -54,6 +54,7 @@ import { NotificationService } from '@/lib/api/notification-service';
 import { useToast } from '@/lib/toast/toast-context';
 import { useFanColors } from '@/theme/use-fan-colors';
 import AdSenseCarousel from '@/components/AdSenseCarousel';
+import { ActivityHistorySheet, type ActivityHistoryParams } from '@/modals/LeaderboardModal';
 import { fanText } from '@/theme/use-fan-typography';
 import { SwipeableVotePledgeModal } from '@/modals/actionModal';
 import { AftermatchReviewModal } from '@/modals/AftermatchModal';
@@ -136,6 +137,7 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
   const [channelMembers, setChannelMembers] = useState<Channel['members']>([]);
   const [replyTo, setReplyTo] = useState<ChatMessage | null>(null);
   const [optionsFor, setOptionsFor] = useState<ChatMessage | null>(null);
+  const [archiveParams, setArchiveParams] = useState<ActivityHistoryParams | null>(null);
   const [showAttachMenu, setShowAttachMenu] = useState(false);
   const [voteModalOpen, setVoteModalOpen] = useState(false);
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
@@ -489,6 +491,12 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
     if (window.history.length > 1) navigate(-1);
     else navigate('/');
   }
+  const openArchive = useCallback((message: ChatMessage) => {
+    if (!message.userId) return;
+    const name = message.username || 'Fan';
+    setArchiveParams({ userId: message.userId, userName: name, displayName: name, clubFan: '', authToken: authToken ?? null });
+  }, [authToken]);
+
   async function handleCopy(text: string) {
     try {
       await navigator.clipboard.writeText(text);
@@ -618,6 +626,7 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       message={message}
       isMe={message.userId === userId}
       onLongPress={() => setOptionsFor(message)}
+      onUsernamePress={() => openArchive(message)}
       onImagePress={setViewerUri}
       onRetry={() => retryMessage(message)}/>)}
         {loadingHistory && messages.length > 0 && <p
@@ -924,6 +933,7 @@ export default function MessageScreen(props: { channel?: Channel; userId?: strin
       username={username ?? ''}
       authToken={authToken}
       onClose={() => setMatchDetailsOpen(false)}/>}
+    <ActivityHistorySheet params={archiveParams} onClose={() => setArchiveParams(null)} colors={colors} />
   </main>;
 }
 
@@ -1032,8 +1042,8 @@ function VotersPanel({ colors, voters, userId, onClose }: { colors: FanColors; v
 /* Message bubble includes commentary, self/other alignment, reply quotes,
    media upload/error states, and web right-click/hover equivalents for
    native long-press actions. */
-function MessageBubble({ colors, message, isMe, onLongPress, onImagePress, onRetry }: {
-  colors: FanColors; message: ChatMessage; isMe: boolean; onLongPress: () => void;
+function MessageBubble({ colors, message, isMe, onLongPress, onUsernamePress, onImagePress, onRetry }: {
+  colors: FanColors; message: ChatMessage; isMe: boolean; onLongPress: () => void; onUsernamePress: () => void;
   onImagePress: (uri: string) => void; onRetry: () => void;
 }) {
   const commentary = !!message.isCommentary;
@@ -1071,9 +1081,7 @@ function MessageBubble({ colors, message, isMe, onLongPress, onImagePress, onRet
   };
   return <article
       className={`group mb-1.5 flex flex-col px-2 sm:px-3 ${mine ? 'items-end' : 'items-start'}`}>
-    {!mine && <p
-      className="mb-1 ml-9 max-w-[78%] truncate text-[10px] font-semibold"
-      style={{ color: commentary ? colors.draw : colors.primary }}>{commentary ? '⚽ ' : ''}{message.username}</p>}
+    {!mine && <button type="button" onClick={(event) => { event.stopPropagation(); onUsernamePress(); }} className="mb-1 ml-9 max-w-[78%] truncate text-left text-[10px] font-semibold" style={{ color: commentary ? colors.draw : colors.primary }}>{commentary ? '⚽ ' : ''}{message.username}</button>}
     <div
       className={`flex max-w-full items-end gap-2 ${mine ? 'flex-row-reverse' : ''}`}>
       {!mine && (commentary ? <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px]" style={{ background: dimColor(colors.draw), color: colors.draw }}>⚽</div> : <Avatar colors={colors} size="sm" userId={message.userId} label={initials(message.username ?? '')} />)}

@@ -1239,7 +1239,7 @@ function FilterChip({
 //  ACTIVITY HISTORY SHEET  (drill-down)
 // ═══════════════════════════════════════════════════════════════
 
-interface ActivityHistoryParams {
+export interface ActivityHistoryParams {
   userId: string;
   userName: string;
   displayName: string;
@@ -1280,7 +1280,7 @@ const ActivityHistoryController = (() => {
   };
 })();
 
-function ActivityHistorySheet({
+export function ActivityHistorySheet({
   params,
   onClose,
   colors,
