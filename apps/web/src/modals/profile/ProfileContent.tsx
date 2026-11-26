@@ -973,7 +973,7 @@ export default function ProfileContent({
                 {(profileQuery.data?.avatarUrl ?? profile?.avatarUrl) && failedAvatarUrl !== (profileQuery.data?.avatarUrl ?? profile?.avatarUrl)
                   ? <img src={profileQuery.data?.avatarUrl ?? profile?.avatarUrl ?? ''} alt="Profile" onError={() => setFailedAvatarUrl(profileQuery.data?.avatarUrl ?? profile?.avatarUrl ?? null)} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                   : (!isRestoringQueries && !profileQuery.isPending)
-                    ? <span style={fanText('badge', colors, colors.primary)}>{(profile?.nickname || targetUsername || 'F').trim().charAt(0).toUpperCase()}</span>
+                    ? <span style={{ fontSize: 14, fontWeight: 700, color: colors.primary }}>{(profile?.nickname || targetUsername || 'F').trim().charAt(0).toUpperCase()}</span>
                     : null}
                 {isCurrentUser && <span aria-hidden="true" style={{ position: 'absolute', right: -2, bottom: -2, width: 16, height: 16, borderRadius: 8, display: 'grid', placeItems: 'center', background: colors.primary, border: `2px solid ${colors.background}` }}><Camera size={9} color={colors.textInverse} /></span>}
                 {avatarUploading && <span className="profile-avatar-uploading">…</span>}
