@@ -58,6 +58,6 @@ export function Avatar({ colors, size = 'md', uri, userId, label, borderColor, b
           flex: '0 0 auto',
         }}
       />
-    ) : <span style={fanText('badge', colors, colors.primary)}>{label}</span>}
+    ) : <span style={fanText('badge', colors, colors.primary)}>{label || 'F'}</span>}
   </span>;
 }

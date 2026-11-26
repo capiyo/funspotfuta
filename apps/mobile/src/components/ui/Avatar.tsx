@@ -61,7 +61,7 @@ export function Avatar({
             {showImage ? (
                 <Image source={{ uri: imageUri! }} style={styles.image} resizeMode="cover" onError={() => setFailedUri(imageUri)} />
             ) : (
-                <Text style={fanText('badge', colors, colors.primary)}>{label}</Text>
+                <Text style={fanText('badge', colors, colors.primary)}>{label || 'F'}</Text>
             )}
         </View>
     );
