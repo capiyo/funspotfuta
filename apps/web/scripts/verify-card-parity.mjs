@@ -118,7 +118,7 @@ const sharedRequiredSelectors = [
 async function inspect(width, state) {
   const context = await browser.newContext({ viewport: { width, height: 1000 }, deviceScaleFactor: 1 });
   const page = await context.newPage();
-  const browserDiagnostics = { requests: [], responses: [], console: [] };
+  const browserDiagnostics = { requests: [], responses: [], console: [], failedResources: [], pageErrors: [] };
   page.on('request', request => {
     if (request.url().includes('clash-api-m5mr.onrender.com')) {
       browserDiagnostics.requests.push({ method: request.method(), url: request.url() });
@@ -128,7 +128,14 @@ async function inspect(width, state) {
     if (response.url().includes('clash-api-m5mr.onrender.com')) {
       browserDiagnostics.responses.push({ status: response.status(), url: response.url() });
     }
+    if (response.status() >= 400) {
+      browserDiagnostics.failedResources.push({ status: response.status(), url: response.url() });
+    }
   });
+  page.on('requestfailed', request => {
+    browserDiagnostics.failedResources.push({ url: request.url(), failure: request.failure()?.errorText ?? 'request failed' });
+  });
+  page.on('pageerror', error => browserDiagnostics.pageErrors.push(error.message));
   page.on('console', message => {
     if (message.type() === 'error') browserDiagnostics.console.push(message.text());
   });
