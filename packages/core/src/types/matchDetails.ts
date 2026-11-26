@@ -35,15 +35,31 @@ export interface MatchStatistics {
     passAccuracyAway: number;
 }
 
-function getInt(obj: any, field1: string, field2?: string): number {
-    const v1 = obj?.[field1];
-    const v2 = field2 ? obj?.[field2] : undefined;
+type JsonRecord = Record<string, unknown>;
+
+function asRecord(value: unknown): JsonRecord {
+    return value !== null && typeof value === 'object' && !Array.isArray(value)
+        ? value as JsonRecord
+        : {};
+}
+
+function asText(value: unknown, fallback = ''): string {
+    if (typeof value === 'string') return value;
+    if (typeof value === 'number' || typeof value === 'boolean') return String(value);
+    return fallback;
+}
+
+function getInt(obj: unknown, field1: string, field2?: string): number {
+    const record = asRecord(obj);
+    const v1 = record[field1];
+    const v2 = field2 ? record[field2] : undefined;
     const v = v1 ?? v2 ?? 0;
     return typeof v === 'number' ? v : parseInt(String(v), 10) || 0;
 }
 
-function getPercent(obj: any, field1: string, field2?: string): number {
-    const v = obj?.[field1] ?? (field2 ? obj?.[field2] : undefined);
+function getPercent(obj: unknown, field1: string, field2?: string): number {
+    const record = asRecord(obj);
+    const v = record[field1] ?? (field2 ? record[field2] : undefined);
     if (typeof v === 'number' && Number.isFinite(v)) {
         // Providers may send percentages as either 0..1 ratios or 0..100 values.
         // The live backend validates/stores the latter, including decimal values.
@@ -52,45 +68,45 @@ function getPercent(obj: any, field1: string, field2?: string): number {
     return 0;
 }
 
-export function parseMatchStatistics(json: any): MatchStatistics {
-    const data = json?.data ?? json;
-    let stats: any;
+export function parseMatchStatistics(json: unknown): MatchStatistics {
+    const root = asRecord(json);
+    const data = asRecord(root.data ?? json);
+    const rawStatistics = data.statistics;
+    let stats: JsonRecord;
 
-    if (Array.isArray(data?.statistics) && data.statistics.length > 0) {
-        const latest = data.statistics[data.statistics.length - 1];
-        stats = latest?.statistics ?? latest;
-    } else if (data?.statistics && typeof data.statistics === 'object') {
-        stats = data.statistics;
+    if (Array.isArray(rawStatistics) && rawStatistics.length > 0) {
+        const latest = asRecord(rawStatistics[rawStatistics.length - 1]);
+        stats = asRecord(latest.statistics ?? latest);
+    } else if (rawStatistics && typeof rawStatistics === 'object') {
+        stats = asRecord(rawStatistics);
     } else {
         stats = data;
     }
 
-    // The latest-statistics endpoint is a flattened snake_case object,
-    // while history and WebSocket events use nested home/away snapshots.
-    const home = stats?.home ?? {
-        possession: stats?.ball_possession_home,
-        shots: stats?.total_shots_home,
-        shotsOnTarget: stats?.shots_on_target_home,
-        shotsOffTarget: stats?.shots_off_target_home,
-        corners: stats?.corners_home,
-        fouls: stats?.fouls_home,
-        offsides: stats?.offsides_home,
-        yellowCards: stats?.yellow_cards_home,
-        redCards: stats?.red_cards_home,
-        passAccuracy: stats?.pass_accuracy_home,
-    };
-    const away = stats?.away ?? {
-        possession: stats?.ball_possession_away,
-        shots: stats?.total_shots_away,
-        shotsOnTarget: stats?.shots_on_target_away,
-        shotsOffTarget: stats?.shots_off_target_away,
-        corners: stats?.corners_away,
-        fouls: stats?.fouls_away,
-        offsides: stats?.offsides_away,
-        yellowCards: stats?.yellow_cards_away,
-        redCards: stats?.red_cards_away,
-        passAccuracy: stats?.pass_accuracy_away,
-    };
+    const home = asRecord(stats.home ?? {
+        possession: stats.ball_possession_home,
+        shots: stats.total_shots_home,
+        shotsOnTarget: stats.shots_on_target_home,
+        shotsOffTarget: stats.shots_off_target_home,
+        corners: stats.corners_home,
+        fouls: stats.fouls_home,
+        offsides: stats.offsides_home,
+        yellowCards: stats.yellow_cards_home,
+        redCards: stats.red_cards_home,
+        passAccuracy: stats.pass_accuracy_home,
+    });
+    const away = asRecord(stats.away ?? {
+        possession: stats.ball_possession_away,
+        shots: stats.total_shots_away,
+        shotsOnTarget: stats.shots_on_target_away,
+        shotsOffTarget: stats.shots_off_target_away,
+        corners: stats.corners_away,
+        fouls: stats.fouls_away,
+        offsides: stats.offsides_away,
+        yellowCards: stats.yellow_cards_away,
+        redCards: stats.red_cards_away,
+        passAccuracy: stats.pass_accuracy_away,
+    });
 
     return {
         ballPossessionHome: getPercent(home, 'possession', 'ball_possession'),
@@ -133,53 +149,44 @@ export interface SimplifiedPlayer {
     imageUrl?: string | null;
 }
 
-export function parseSimplifiedPlayer(json: any): SimplifiedPlayer {
-    const name =
-        json?.name?.toString() ??
-        json?.player?.name?.toString() ??
-        json?.athlete?.name?.toString() ??
-        json?.displayName?.toString() ??
-        json?.fullName?.toString() ??
-        `Player ${json?.competitorId ?? json?.id ?? ''}`;
+export function parseSimplifiedPlayer(json: unknown): SimplifiedPlayer {
+    const record = asRecord(json);
+    const player = asRecord(record.player);
+    const athlete = asRecord(record.athlete);
+    const name = asText(
+        record.name ?? player.name ?? athlete.name ?? record.displayName ?? record.fullName,
+        `Player ${asText(record.competitorId ?? record.id)}`,
+    );
 
-    const rawNumber =
-        json?.number ??
-        json?.player?.number ??
-        json?.player?.jerseyNumber ??
-        json?.athlete?.jerseyNumber ??
-        json?.jerseyNumber ??
-        json?.jersey_number ??
-        json?.shirtNumber ??
-        json?.shirt_number ??
-        json?.squadNumber ??
-        json?.squad_number ??
-        json?.shirtNo ??
-        json?.jerseyNo ??
-        json?.competitorId ??
-        0;
-    const number =
-        typeof rawNumber === 'number' ? rawNumber : parseInt(String(rawNumber), 10) || 0;
+    const rawNumber = record.number ?? player.number ?? player.jerseyNumber ?? athlete.jerseyNumber ??
+        record.jerseyNumber ?? record.jersey_number ?? record.shirtNumber ?? record.shirt_number ??
+        record.squadNumber ?? record.squad_number ?? record.shirtNo ?? record.jerseyNo ??
+        record.competitorId ?? 0;
+    const number = typeof rawNumber === 'number' ? rawNumber : parseInt(String(rawNumber), 10) || 0;
 
-    const posField = json?.position ?? json?.player?.position ?? json?.athlete?.position;
-    const position =
-        posField && typeof posField === 'object'
-            ? posField.shortName?.toString() ?? posField.name?.toString() ?? ''
-            : posField?.toString() ?? '';
+    const positionValue = record.position ?? player.position ?? athlete.position;
+    const positionRecord = asRecord(positionValue);
+    const position = positionValue && typeof positionValue === 'object'
+        ? asText(positionRecord.shortName ?? positionRecord.name)
+        : asText(positionValue);
 
-    const captain = json?.captain === true;
-    // 365Scores athlete images are keyed by the player/athlete ID. A
-    // competitorId can identify a team or event participant, so never use
-    // it as a fallback image key.
-    const rawProviderId = json?.athleteId ?? json?.athlete_id ?? json?.player_id ??
-        json?.playerId ?? json?.player?.id ?? json?.athlete?.id ?? json?.id ?? null;
+    const captain = record.captain === true;
+    const rawProviderId = record.athleteId ?? record.athlete_id ?? record.player_id ??
+        record.playerId ?? player.id ?? athlete.id ?? record.id ?? null;
     const providerId = rawProviderId == null ? null : String(rawProviderId).trim() || null;
-    const rawImageVersion = json?.imageVersion ?? json?.image_version ?? json?.player?.imageVersion ?? json?.player?.image_version ?? json?.athlete?.imageVersion ?? json?.athlete?.image_version ?? null;
+    const rawImageVersion = record.imageVersion ?? record.image_version ?? player.imageVersion ??
+        player.image_version ?? athlete.imageVersion ?? athlete.image_version ?? null;
     const imageVersion = rawImageVersion == null ? null : String(rawImageVersion).trim().replace(/^v/i, '') || null;
-    const photoCandidate = json?.photoUrl ?? json?.photo_url ?? json?.headshotUrl ?? json?.headshot_url ?? json?.imageUrl ?? json?.image_url ?? json?.player?.photoUrl ?? json?.player?.photo_url ?? json?.player?.headshotUrl ?? json?.player?.imageUrl ?? json?.player?.photo ?? json?.player?.image ?? json?.athlete?.photoUrl ?? json?.athlete?.photo_url ?? json?.athlete?.imageUrl ?? json?.athlete?.photo ?? json?.athlete?.image ?? json?.player?.img ?? json?.athlete?.img ?? json?.img ?? json?.photo ?? json?.image ?? json?.picture ?? null;
+    const photoCandidate = record.photoUrl ?? record.photo_url ?? record.headshotUrl ?? record.headshot_url ??
+        record.imageUrl ?? record.image_url ?? player.photoUrl ?? player.photo_url ?? player.headshotUrl ??
+        player.imageUrl ?? player.photo ?? player.image ?? athlete.photoUrl ?? athlete.photo_url ??
+        athlete.imageUrl ?? athlete.photo ?? athlete.image ?? player.img ?? athlete.img ?? record.img ??
+        record.photo ?? record.image ?? record.picture ?? null;
     const photoUrl = typeof photoCandidate === 'string' && photoCandidate.startsWith('https://') ? photoCandidate : null;
-    const rawRating = json?.rating ?? json?.ranking ?? json?.playerRating ?? null;
+    const rawRating = record.rating ?? record.ranking ?? record.playerRating ?? null;
     const rating = typeof rawRating === 'number' && Number.isFinite(rawRating) ? rawRating : null;
-    const teamCandidate = json?.teamName ?? json?.team_name ?? json?.team?.name ?? null;
+    const teamRecord = asRecord(record.team);
+    const teamCandidate = record.teamName ?? record.team_name ?? teamRecord.name ?? null;
     const teamName = typeof teamCandidate === 'string' ? teamCandidate : null;
 
     return { name, number, position, captain, providerId, imageVersion, photoUrl, teamName, rating, imageUrl: photoUrl };
@@ -200,52 +207,41 @@ export interface LineupsData {
     awayBench: SimplifiedPlayer[];
 }
 
-export function parseLineupsData(json: any): LineupsData {
-    const envelope = json?.data && typeof json.data === 'object' ? json.data : json;
-    const data = envelope?.lineups && typeof envelope.lineups === 'object'
-        ? envelope.lineups
-        : envelope;
-    const teams = data?.teams && typeof data.teams === 'object' ? data.teams : {};
-    const starting = data?.starting_xi && typeof data.starting_xi === 'object'
-        ? data.starting_xi
-        : data?.startingXI && typeof data.startingXI === 'object' ? data.startingXI : {};
-    const home = data?.home && typeof data.home === 'object'
-        ? data.home
-        : teams?.home && typeof teams.home === 'object' ? teams.home : {};
-    const away = data?.away && typeof data.away === 'object'
-        ? data.away
-        : teams?.away && typeof teams.away === 'object' ? teams.away : {};
+export function parseLineupsData(json: unknown): LineupsData {
+    const root = asRecord(json);
+    const rootData = asRecord(root.data ?? json);
+    const envelope = asRecord(rootData.lineups ?? rootData);
+    const teams = asRecord(envelope.teams);
+    const starting = asRecord(envelope.starting_xi ?? envelope.startingXI);
+    const home = asRecord(envelope.home ?? teams.home);
+    const away = asRecord(envelope.away ?? teams.away);
 
     const first = (...values: unknown[]): unknown =>
         values.find((value) => value !== undefined && value !== null);
-    const asText = (value: unknown, fallback: string): string =>
-        typeof value === 'string' && value.trim() ? value.trim() : fallback;
     const parseList = (...candidates: unknown[]): SimplifiedPlayer[] => {
-        // Prefer a populated representation over an earlier empty alias. The
-        // API has returned both flat and nested team shapes over time.
         const arrays = candidates.filter(Array.isArray) as unknown[][];
         const raw = arrays.find((items) => items.length > 0) ?? arrays[0];
         if (!raw) return [];
         return raw
-            .filter((player) => player && typeof player === 'object')
-            .map((player) => parseSimplifiedPlayer(player));
+            .filter((item) => item !== null && typeof item === 'object' && !Array.isArray(item))
+            .map((item) => parseSimplifiedPlayer(item));
     };
 
     return {
-        homeFormation: asText(first(data?.home_formation, data?.homeFormation, home?.formation), '4-3-3'),
-        awayFormation: asText(first(data?.away_formation, data?.awayFormation, away?.formation), '4-3-3'),
-        homeCoach: asText(first(data?.home_coach, data?.homeCoach, home?.coach), 'TBD'),
-        awayCoach: asText(first(data?.away_coach, data?.awayCoach, away?.coach), 'TBD'),
+        homeFormation: asText(first(envelope.home_formation, envelope.homeFormation, home.formation), '4-3-3'),
+        awayFormation: asText(first(envelope.away_formation, envelope.awayFormation, away.formation), '4-3-3'),
+        homeCoach: asText(first(envelope.home_coach, envelope.homeCoach, home.coach), 'TBD'),
+        awayCoach: asText(first(envelope.away_coach, envelope.awayCoach, away.coach), 'TBD'),
         homeStartingXI: parseList(
-            data?.home_starting_xi, data?.homeStartingXI, data?.home_starting_xi_players,
-            home?.starting_xi, home?.startingXI, home?.starting, home?.players, starting?.home,
+            envelope.home_starting_xi, envelope.homeStartingXI, envelope.home_starting_xi_players,
+            home.starting_xi, home.startingXI, home.starting, home.players, starting.home,
         ),
-        homeBench: parseList(data?.home_bench, data?.homeBench, home?.bench, home?.substitutes),
+        homeBench: parseList(envelope.home_bench, envelope.homeBench, home.bench, home.substitutes),
         awayStartingXI: parseList(
-            data?.away_starting_xi, data?.awayStartingXI, data?.away_starting_xi_players,
-            away?.starting_xi, away?.startingXI, away?.starting, away?.players, starting?.away,
+            envelope.away_starting_xi, envelope.awayStartingXI, envelope.away_starting_xi_players,
+            away.starting_xi, away.startingXI, away.starting, away.players, starting.away,
         ),
-        awayBench: parseList(data?.away_bench, data?.awayBench, away?.bench, away?.substitutes),
+        awayBench: parseList(envelope.away_bench, envelope.awayBench, away.bench, away.substitutes),
     };
 }
 
