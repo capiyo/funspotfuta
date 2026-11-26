@@ -15,6 +15,18 @@ const REQUEST_TIMEOUT_MS = 30000;
 const POLLING_INTERVAL_MS = 2000;
 const MAX_POLLING_ATTEMPTS = 90; // 3 minutes
 
+type JsonRecord = Record<string, unknown>;
+
+function asRecord(value: unknown): JsonRecord {
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
+    ? value as JsonRecord
+    : {};
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : typeof error === 'string' ? error : 'Unknown error';
+}
+
 function buildHeaders(authToken?: string): HeadersInit {
   return {
     'Content-Type': 'application/json',
@@ -88,13 +100,13 @@ export interface PaymentTransaction {
   status: string;
   amount: number;
   createdAt: Date;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // ── Display helpers ─────────────────────────────────────────────────
 // Ported from the Flutter PaymentTransaction computed getters
 // (statusDisplay / typeDisplay / statusColor). The RN model keeps the
-// raw `[key: string]: any` index signature, so any additional backend
+// raw `[key: string]: unknown` index signature, so additional backend
 // fields survive untouched — these helpers only cover what the Flutter
 // source exposed as getters.
 
@@ -161,32 +173,34 @@ export function transactionStatusColor(tx: PaymentTransaction): string {
   }
 }
 
-function paymentTransactionFromJson(json: any): PaymentTransaction {
+function paymentTransactionFromJson(json: unknown): PaymentTransaction {
+  const record = asRecord(json);
   return {
-    id: (json._id ?? json.id ?? '').toString(),
-    type: json.type ?? 'unknown',
-    status: json.status ?? 'unknown',
-    amount: Number(json.amount ?? 0),
-    createdAt: json.created_at ? new Date(json.created_at) : new Date(),
-    ...json,
+    ...record,
+    id: String(record._id ?? record.id ?? ''),
+    type: typeof record.type === 'string' ? record.type : 'unknown',
+    status: typeof record.status === 'string' ? record.status : 'unknown',
+    amount: Number(record.amount ?? 0),
+    createdAt: record.created_at ? new Date(String(record.created_at)) : new Date(),
   };
 }
 
-function stkStatusFromJson(json: any): STKStatusResult {
-  const status = (json.status ?? 'pending').toString().toLowerCase();
+function stkStatusFromJson(json: unknown): STKStatusResult {
+  const record = asRecord(json);
+  const status = String(record.status ?? 'pending').toLowerCase();
   // Normalizes to one of the four known values. Unknown server-side
   // statuses (e.g. 'expired', 'timeout') become 'pending' — the polling
   // loop keeps polling until MAX_POLLING_ATTEMPTS in that case, which
   // matches the Flutter behavior of falling through to its timeout.
   const normalized: STKStatusResult['status'] =
     status === 'completed' || status === 'failed' || status === 'cancelled'
-      ? (status as any)
+      ? status as STKStatusResult['status']
       : 'pending';
   return {
     status: normalized,
-    message: json.message,
-    transactionId: json.transaction_id?.toString(),
-    mpesaCode: json.mpesa_code?.toString(),
+    message: typeof record.message === 'string' ? record.message : undefined,
+    transactionId: record.transaction_id == null ? undefined : String(record.transaction_id),
+    mpesaCode: record.mpesa_code == null ? undefined : String(record.mpesa_code),
   };
 }
 
@@ -240,8 +254,8 @@ export async function initiateSTKPush(p: InitiateSTKPushParams): Promise<STKPush
 
     const checkoutRequestId = data.checkout_request_id?.toString() ?? '';
     return pollSTKStatus(checkoutRequestId, p.userId, p.authToken);
-  } catch (e: any) {
-    return { success: false, message: `Network error: ${e?.message ?? e}` };
+  } catch (e: unknown) {
+    return { success: false, message: `Network error: ${errorMessage(e)}` };
   }
 }
 
@@ -286,7 +300,7 @@ export async function checkSTKStatus(checkoutRequestId: string, authToken?: stri
     );
     if (res.ok) return stkStatusFromJson(await res.json());
     return { status: 'pending' };
-  } catch (e: any) {
+  } catch (e: unknown) {
     return { status: 'error', message: e?.message ?? String(e) };
   }
 }
@@ -336,8 +350,8 @@ export async function initiateB2CPayment(p: InitiateB2CPaymentParams): Promise<B
       };
     }
     return { success: false, message: data.message ?? 'B2C payment failed' };
-  } catch (e: any) {
-    return { success: false, message: `Network error: ${e?.message ?? e}` };
+  } catch (e: unknown) {
+    return { success: false, message: `Network error: ${errorMessage(e)}` };
   }
 }
 
@@ -361,8 +375,8 @@ export async function computeAdminPayout(channelId: string, authToken?: string):
       };
     }
     return { success: false, message: data.message ?? 'Failed to compute payout' };
-  } catch (e: any) {
-    return { success: false, message: `Network error: ${e?.message ?? e}` };
+  } catch (e: unknown) {
+    return { success: false, message: `Network error: ${errorMessage(e)}` };
   }
 }
 
@@ -530,7 +544,7 @@ export async function getTransactionHistory(p: GetTransactionHistoryParams): Pro
     const data = await res.json();
     const transactions: PaymentTransaction[] = Array.isArray(data.data) ? data.data.map(paymentTransactionFromJson) : [];
     return { success: true, transactions, total: data.total ?? transactions.length, hasMore: data.has_more ?? false };
-  } catch (e: any) {
-    return { success: false, transactions: [], total: 0, hasMore: false, error: `Network error: ${e?.message ?? e}` };
+  } catch (e: unknown) {
+    return { success: false, transactions: [], total: 0, hasMore: false, error: `Network error: ${errorMessage(e)}` };
   }
 }
