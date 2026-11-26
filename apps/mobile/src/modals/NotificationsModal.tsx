@@ -241,6 +241,8 @@ export default function NotificationsScreen({
                         if (!userId) return;
                         await NotificationService.markAsRead({ userId, authToken: authToken ?? undefined });
                         await NotificationService.reconcileFromServer({ userId, authToken: authToken ?? undefined });
+                        const counts = await NotificationService.loadInitialBadgeCounts();
+                        setSummary({ notifications: counts.unread_notifications, comments: counts.unread_comments });
                         setInbox((current) => current.map((item) => ({ ...item, is_read: true })));
                       }}>
                         <Text style={{ color: '#25D366', fontSize: 11, fontWeight: '700' }}>Mark all read</Text>
@@ -259,6 +261,8 @@ export default function NotificationsScreen({
                         if (!userId) return;
                         if (id) await NotificationService.markAsRead({ userId, authToken: authToken ?? undefined, notificationIds: [id] });
                         await NotificationService.reconcileFromServer({ userId, authToken: authToken ?? undefined });
+                        const counts = await NotificationService.loadInitialBadgeCounts();
+                        setSummary({ notifications: counts.unread_notifications, comments: counts.unread_comments });
                         setInbox((current) => current.map((entry) => entry === item ? { ...entry, is_read: true } : entry));
                         if (channelId) {
                           onClose();

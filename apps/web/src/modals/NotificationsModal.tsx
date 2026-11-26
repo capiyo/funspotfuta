@@ -158,6 +158,8 @@ export default function NotificationsModal({ visible, onClose }: { visible: bool
                   if (!userId) return;
                   await NotificationService.markAsRead({ userId, authToken: authToken ?? undefined });
                   await NotificationService.reconcileFromServer({ userId, authToken: authToken ?? undefined });
+                  const counts = await NotificationService.loadInitialBadgeCounts();
+                  setSummary({ notifications: counts.unread_notifications, comments: counts.unread_comments });
                   setInbox((current) => current.map((item) => ({ ...item, is_read: true })));
                 }}>Mark all read</button>}
               </div>
@@ -171,6 +173,8 @@ export default function NotificationsModal({ visible, onClose }: { visible: bool
                     if (!userId) return;
                     if (id) await NotificationService.markAsRead({ userId, authToken: authToken ?? undefined, notificationIds: [id] });
                     await NotificationService.reconcileFromServer({ userId, authToken: authToken ?? undefined });
+                    const counts = await NotificationService.loadInitialBadgeCounts();
+                    setSummary({ notifications: counts.unread_notifications, comments: counts.unread_comments });
                     setInbox((current) => current.map((entry) => entry === item ? { ...entry, is_read: true } : entry));
                     if (typeof data.url === 'string') {
                       window.location.assign(data.url);
