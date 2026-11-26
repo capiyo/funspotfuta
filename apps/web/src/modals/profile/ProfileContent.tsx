@@ -48,7 +48,6 @@ import {
   ChevronUp,
 } from 'lucide-react';
 import { FAN_SPACING, FAN_RADIUS, uploadProfileAvatar } from '@funspot/core';
-import { getFanAvatarUri } from '@/lib/avatar-uri';
 import { useAuth } from '@/lib/auth/auth-context';
 import { useToast } from '@/lib/toast/toast-context';
 import { useFanColors } from '@/theme/use-fan-colors';
@@ -151,6 +150,7 @@ export default function ProfileContent({
   const pendingSnapshot = useRef<UsersCollectionSnapshot | null>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const [avatarUploading, setAvatarUploading] = useState(false);
+  const [failedAvatarUrl, setFailedAvatarUrl] = useState<string | null>(null);
 
   const isCurrentUser = viewingMember === null;
   const targetUserId = viewingMember?.userId ?? userId ?? '';
@@ -970,10 +970,10 @@ export default function ProfileContent({
                   cursor: isCurrentUser ? 'pointer' : 'default',
                 }) }}
               >
-                {(profileQuery.data?.avatarUrl ?? profile?.avatarUrl)
-                  ? <img src={profileQuery.data?.avatarUrl ?? profile?.avatarUrl ?? ''} alt="Profile" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                {(profileQuery.data?.avatarUrl ?? profile?.avatarUrl) && failedAvatarUrl !== (profileQuery.data?.avatarUrl ?? profile?.avatarUrl)
+                  ? <img src={profileQuery.data?.avatarUrl ?? profile?.avatarUrl ?? ''} alt="Profile" onError={() => setFailedAvatarUrl(profileQuery.data?.avatarUrl ?? profile?.avatarUrl ?? null)} style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
                   : (!isRestoringQueries && !profileQuery.isPending)
-                    ? <img src={getFanAvatarUri(targetUserId)} alt="Default profile" style={{ width: '100%', height: '100%', borderRadius: '50%', objectFit: 'cover' }} />
+                    ? <span style={fanText('badge', colors, colors.primary)}>{(profile?.nickname || targetUsername || 'F').trim().charAt(0).toUpperCase()}</span>
                     : null}
                 {isCurrentUser && <span aria-hidden="true" style={{ position: 'absolute', right: -2, bottom: -2, width: 16, height: 16, borderRadius: 8, display: 'grid', placeItems: 'center', background: colors.primary, border: `2px solid ${colors.background}` }}><Camera size={9} color={colors.textInverse} /></span>}
                 {avatarUploading && <span className="profile-avatar-uploading">…</span>}

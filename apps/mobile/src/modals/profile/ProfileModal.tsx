@@ -126,6 +126,7 @@ export default function ProfileModal({
   const [saving, setSaving] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
+  const [failedAvatarUrl, setFailedAvatarUrl] = useState<string | null>(null);
 
   const [balance, setBalance] = useState(0);
   const [balanceLoading, setBalanceLoading] = useState(true);
@@ -882,11 +883,16 @@ export default function ProfileModal({
                   },
                 ]}
               >
-                <Image
-                  source={{ uri: profile?.avatarUrl ?? `https://i.pravatar.cc/150?u=${encodeURIComponent(targetUserId || 'guest')}` }}
-                  style={{ width: 36, height: 36, aspectRatio: 1, borderRadius: 18 }}
-                  resizeMode="cover"
-                />
+                {profile?.avatarUrl && failedAvatarUrl !== profile.avatarUrl ? (
+                  <Image
+                    source={{ uri: profile.avatarUrl }}
+                    style={{ width: 36, height: 36, aspectRatio: 1, borderRadius: 18 }}
+                    resizeMode="cover"
+                    onError={() => setFailedAvatarUrl(profile.avatarUrl)}
+                  />
+                ) : (
+                  <Text style={fanText('badge', colors, colors.primary)}>{(profile?.nickname || targetUsername || 'F').trim().charAt(0).toUpperCase()}</Text>
+                )}
                 {isCurrentUser && <View pointerEvents="none" style={{ position: 'absolute', right: -2, bottom: -2, width: 16, height: 16, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.primary, borderWidth: 0, borderColor: colors.background }}><Camera size={9} color={colors.textInverse} /></View>}
                 {avatarUploading && <ActivityIndicator size="small" color={colors.primary} style={{ position: 'absolute' }} />}
               </Pressable>
