@@ -39,9 +39,9 @@ const errors = [];
 try {
   const context = await browser.newContext({ viewport: { width: 1280, height: 1000 } });
   const page = await context.newPage();
-  await page.route('**/api/games**', route => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(games) }));
-  await page.route('**/api/channels/all**', route => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ channels }) }));
-  await page.route('**/api/posts**', route => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ posts, success: true, stats: {}, pagination: {} }) }));
+  await page.route(/\/api\/games(?:\/[^?]*)?(?:\?.*)?$/, route => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(games) }));
+  await page.route(/\/api\/channels\/all(?:\?.*)?$/, route => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ channels }) }));
+  await page.route(/\/api\/posts(?:\/[^?]*)?(?:\?.*)?$/, route => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ posts, success: true, stats: {}, pagination: {} }) }));
   await page.route('https://images.test/**', route => route.fulfill({
     status: 200, contentType: route.request().url().endsWith('.mp4') ? 'video/mp4' : 'image/png',
     body: route.request().url().endsWith('.mp4') ? Buffer.alloc(0) : Buffer.from(

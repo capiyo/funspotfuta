@@ -47,11 +47,11 @@ const posts = Array.from({ length: 20 }, (_, index) => {
 });
 
 async function mock(page) {
-  await page.route('**/api/games**', route => route.fulfill({
+  await page.route(/\/api\/games(?:\/[^?]*)?(?:\?.*)?$/, route => route.fulfill({
     status: 200, contentType: 'application/json',
     body: JSON.stringify([]),
   }));
-  await page.route('**/api/channels/all**', route => route.fulfill({
+  await page.route(/\/api\/channels\/all(?:\?.*)?$/, route => route.fulfill({
     status: 200, contentType: 'application/json',
     body: JSON.stringify([]),
   }));

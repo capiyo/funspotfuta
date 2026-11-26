@@ -41,7 +41,7 @@ function fulfillFor(url) {
 const browser = await chromium.launch({ headless: true });
 try {
   const page = await browser.newPage({ viewport: { width: 1280, height: 1000 }, deviceScaleFactor: 1 });
-  await page.route('**/api/**', async route => {
+  await page.route(/\/api\/(?:games|channels\/all|posts)(?:\/[^?]*)?(?:\?.*)?$/, async route => {
     const payload = fulfillFor(route.request().url());
     if (payload) {
       await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(payload) });

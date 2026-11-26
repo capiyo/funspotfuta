@@ -10,8 +10,8 @@ const widths = [1024, 1280, 1440, 1920, 390];
 fs.mkdirSync('docs/verify', { recursive: true });
 
 async function mock(page, loggedIn = false) {
-  await page.route('**/api/games**', route => route.fulfill({ status: 200, contentType: 'application/json', body: '[]' }));
-  await page.route('**/api/channels/all**', route => route.fulfill({ status: 200, contentType: 'application/json', body: '[]' }));
+  await page.route(/\/api\/games(?:\/[^?]*)?(?:\?.*)?$/, route => route.fulfill({ status: 200, contentType: 'application/json', body: '[]' }));
+  await page.route(/\/api\/channels\/all(?:\?.*)?$/, route => route.fulfill({ status: 200, contentType: 'application/json', body: '[]' }));
   await page.route('https://clash-api-m5mr.onrender.com/api/posts**', route => route.fulfill({
     status: 200, contentType: 'application/json',
     body: JSON.stringify({ posts: [], success: true, pagination: { page: 1, limit: 10 } }),

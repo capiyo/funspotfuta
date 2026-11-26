@@ -52,7 +52,7 @@ async function mock(page, state) {
   await page.route(/\/api\/games(?:\/[^?]*)?(?:\?.*)?$/, route => route.fulfill({
     status: 200, contentType: 'application/json', body: JSON.stringify(fixtures.map((fixture, index) => ({ ...fixture, voters: state === 'logged-in-voted' && index < 3 ? [{ userId: 'parity-user', userName: 'Parity User', selection: 'home_team' }] : [] }))),
   }));
-  await page.route('**/api/channels/all**', route => route.fulfill({
+  await page.route(/\/api\/channels\/all(?:\?.*)?$/, route => route.fulfill({
     status: 200, contentType: 'application/json', body: JSON.stringify({ channels }),
   }));
   await page.route('**/api/channels/user/parity-user', route => route.fulfill({

@@ -28,18 +28,18 @@ try {
     localStorage.setItem('user', JSON.stringify({ id: 'match-details-user', username: 'Match Details Tester' }));
     localStorage.setItem('isLoggedIn', 'true');
   });
-  await page.route('**/api/games**', route => route.fulfill({
+  await page.route(/\/api\/games(?:\/[^?]*)?(?:\?.*)?$/, route => route.fulfill({
     status: 200,
     contentType: 'application/json',
     body: JSON.stringify([fixture]),
   }));
-  await page.route('**/api/channels/all**', route => route.fulfill({
+  await page.route(/\/api\/channels\/all(?:\?.*)?$/, route => route.fulfill({
     status: 200, contentType: 'application/json', body: JSON.stringify({ channels: [] }),
   }));
   await page.route('**/api/channels/user/match-details-user', route => route.fulfill({
     status: 200, contentType: 'application/json', body: JSON.stringify({ channels: [] }),
   }));
-  await page.route('**/api/posts**', route => route.fulfill({
+  await page.route(/\/api\/posts(?:\/[^?]*)?(?:\?.*)?$/, route => route.fulfill({
     status: 200, contentType: 'application/json', body: JSON.stringify({ posts: [], success: true, stats: {}, pagination: {} }),
   }));
   await page.route('**/api/votes/votes/user/match-details-user', route => route.fulfill({
