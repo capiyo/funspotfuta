@@ -49,7 +49,7 @@ async function mock(page, state) {
     };
     localStorage.setItem('funspot.teamLogos.v1', JSON.stringify(entries));
   }, pairs.flat());
-  await page.route('**/api/games**', route => route.fulfill({
+  await page.route(/\/api\/games(?:\/[^?]*)?(?:\?.*)?$/, route => route.fulfill({
     status: 200, contentType: 'application/json', body: JSON.stringify(fixtures.map((fixture, index) => ({ ...fixture, voters: state === 'logged-in-voted' && index < 3 ? [{ userId: 'parity-user', userName: 'Parity User', selection: 'home_team' }] : [] }))),
   }));
   await page.route('**/api/channels/all**', route => route.fulfill({
@@ -59,7 +59,7 @@ async function mock(page, state) {
     status: 200, contentType: 'application/json',
     body: JSON.stringify({ channels: state === 'guest' ? [] : channels }),
   }));
-  await page.route('**/api/posts**', route => route.fulfill({
+  await page.route(/\/api\/posts(?:\/[^?]*)?(?:\?.*)?$/, route => route.fulfill({
     status: 200, contentType: 'application/json',
     body: JSON.stringify({ posts: [], success: true, stats: {}, pagination: {} }),
   }));
