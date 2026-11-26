@@ -180,7 +180,14 @@ export default function NotificationsModal({ visible, onClose }: { visible: bool
                     setSummary({ notifications: counts.unread_notifications, comments: counts.unread_comments });
                     setInbox((current) => current.map((entry) => entry === item ? { ...entry, is_read: true } : entry));
                     if (typeof data.url === 'string') {
-                      window.location.assign(data.url);
+                      try {
+                        const destination = new URL(data.url, window.location.origin);
+                        if (destination.origin === window.location.origin) {
+                          window.location.assign(destination.pathname + destination.search + destination.hash);
+                        }
+                      } catch {
+                        // Ignore malformed or off-site notification destinations.
+                      }
                     } else if (typeof data.channel_id === 'string' || typeof data.channelId === 'string') {
                       const channelId = typeof data.channel_id === 'string' ? data.channel_id : data.channelId as string;
                       const fixtureId = typeof data.fixture_id === 'string' ? data.fixture_id : typeof data.fixtureId === 'string' ? data.fixtureId : undefined;
