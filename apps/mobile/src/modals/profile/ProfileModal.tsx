@@ -888,10 +888,10 @@ export default function ProfileModal({
                     source={{ uri: profile.avatarUrl }}
                     style={{ width: 36, height: 36, aspectRatio: 1, borderRadius: 18 }}
                     resizeMode="cover"
-                    onError={() => setFailedAvatarUrl(profile.avatarUrl)}
+                    onError={() => setFailedAvatarUrl(profile.avatarUrl ?? null)}
                   />
                 ) : (
-                  <Text style={fanText('badge', colors, colors.primary)}>{(profile?.nickname || targetUsername || 'F').trim().charAt(0).toUpperCase()}</Text>
+                  <Text style={{ fontSize: 14, fontWeight: '700', color: colors.primary }}>{(profile?.nickname || targetUsername || 'F').trim().charAt(0).toUpperCase()}</Text>
                 )}
                 {isCurrentUser && <View pointerEvents="none" style={{ position: 'absolute', right: -2, bottom: -2, width: 16, height: 16, borderRadius: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.primary, borderWidth: 0, borderColor: colors.background }}><Camera size={9} color={colors.textInverse} /></View>}
                 {avatarUploading && <ActivityIndicator size="small" color={colors.primary} style={{ position: 'absolute' }} />}
