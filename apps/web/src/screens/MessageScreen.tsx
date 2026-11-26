@@ -21,8 +21,7 @@
  * not implement an older-message pagination control. The ChatMessage model
  * has no reaction collection or reaction endpoint, so no reaction UI/API is
  * fabricated here. Native video playback/upload and message deletion are
- * explicitly unavailable in the source screen and retain its user-facing
- * “coming soon” behavior rather than inventing backend endpoints.
+ * explicitly unavailable in the browser build.
  */
 import { Avatar } from '@/components/ui/Avatar';
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type CSSProperties, type MouseEvent, type ReactNode } from 'react';
