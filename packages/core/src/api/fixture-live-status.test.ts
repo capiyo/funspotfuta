@@ -33,8 +33,12 @@ describe('resolveFixtureIsLive', () => {
     expect(resolveFixtureIsLive('live', true, kickoff)).toBe(true);
   });
 
-  it('uses the cached flag only when status is genuinely unspecified', () => {
-    expect(resolveFixtureIsLive('', true)).toBe(true);
-    expect(resolveFixtureIsLive('', false)).toBe(false);
+  it.each(['', 'unknown', 'not available'])('does not infer live from a cached flag when status is %s', (status) => {
+    expect(resolveFixtureIsLive(status, true)).toBe(false);
+  });
+
+  it('does not infer live when provider status is missing', () => {
+    expect(resolveFixtureIsLive(undefined, true)).toBe(false);
+    expect(resolveFixtureIsLive(null, true)).toBe(false);
   });
 });

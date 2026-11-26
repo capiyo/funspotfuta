@@ -48,11 +48,13 @@ export function isFinishedStatus(status: string): boolean {
  * A provider's explicit fixture status outranks a stale boolean live flag.
  * Kickoff time and cached is_live values are not proof that a match has begun.
  */
-export function resolveFixtureIsLive(status: string | null | undefined, isLiveFlag?: boolean, kickoffAt?: string | Date | null): boolean {
+export function resolveFixtureIsLive(status: string | null | undefined, _isLiveFlag?: boolean, kickoffAt?: string | Date | null): boolean {
   const normalized = (status ?? '').trim().toLowerCase().replace(/\s+/g, '_');
   if (isFinishedStatus(normalized) || NON_LIVE_STATUSES.has(normalized)) return false;
-  const providerSaysLive = isLiveStatus(normalized) || isLiveFlag === true;
-  if (!providerSaysLive) return false;
+  // A cached boolean can remain true after a scheduled fixture has been
+  // rescheduled or when provider timestamps are normalized incorrectly.
+  // Only an explicit provider live status may transition the card to LIVE.
+  if (!isLiveStatus(normalized)) return false;
   const kickoffTime = kickoffAt instanceof Date ? kickoffAt.getTime() : kickoffAt ? Date.parse(kickoffAt) : Number.NaN;
   if (Number.isFinite(kickoffTime) && kickoffTime - Date.now() > 5 * 60 * 1000) return false;
   return true;
