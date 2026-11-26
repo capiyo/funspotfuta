@@ -1083,7 +1083,10 @@ export function useChannelChat({
         if (!channelId || !userId || !messageId) return false;
         const target = messagesRef.current.find((message) => message.id === messageId);
         if (!target || target.userId !== userId || target.isCommentary) return false;
-        if (target.isPending || target.status === 'pending' || target.status === 'failed') {
+        // Do not hide a message that may still be in the outbound socket
+        // queue: it could be delivered after the local row was removed.
+        if (target.isPending || target.status === 'pending') return false;
+        if (target.status === 'failed') {
             setMessages((previous) => previous.filter((message) => message.id !== messageId));
             return true;
         }
