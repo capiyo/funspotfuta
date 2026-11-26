@@ -60,7 +60,6 @@ import {
   isDemoMemberName,
   type WeeklyChannelLeader,
   type WeeklyLeaderboardMe,
-  isDemoMemberName,
   getUserComrades,
 } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
