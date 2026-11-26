@@ -250,7 +250,7 @@ export default function NotificationsScreen({
                       </Pressable>
                     )}
                   </View>
-                  {inbox.slice(0, 30).map((item, index) => {
+                  {inbox.slice(0, 50).map((item, index) => {
                     const rawId = item.id ?? (typeof item._id === 'string' ? item._id : item._id?.$oid);
                     const id = String(rawId ?? '');
                     const data = item.data && typeof item.data === 'object' ? item.data as Record<string, unknown> : {};

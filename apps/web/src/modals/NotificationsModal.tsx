@@ -165,7 +165,7 @@ export default function NotificationsModal({ visible, onClose }: { visible: bool
                 }}>Mark all read</button>}
               </div>
               <div className="space-y-1">
-                {inbox.slice(0, 30).map((item, index) => {
+                {inbox.slice(0, 50).map((item, index) => {
                   const rawId = item.id ?? (typeof item._id === 'string' ? item._id : item._id?.$oid);
                   const id = String(rawId ?? '');
                   const data = item.data && typeof item.data === 'object' ? item.data as Record<string, unknown> : {};
