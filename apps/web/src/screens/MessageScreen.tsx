@@ -20,7 +20,7 @@
  * The native screen currently requests at most 100 history messages; it does
  * not implement an older-message pagination control. The ChatMessage model
  * has no reaction collection or reaction endpoint, so no reaction UI/API is
- * fabricated here. Native video upload is not available in the browser build.
+ * fabricated here.
  */
 import { Avatar } from '@/components/ui/Avatar';
 import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent, type CSSProperties, type MouseEvent, type ReactNode } from 'react';
