@@ -206,6 +206,8 @@ export function MatchCard({
     queryFn: () => getFixtureUnreadCount(channelId!, fixtureId, userId!, authToken ?? undefined),
     enabled: Boolean(isLoggedIn && userId && channelId && fixtureId),
     staleTime: 15_000,
+    refetchInterval: 15_000,
+    refetchOnWindowFocus: true,
   });
   const { requireLogin } = useLoginModal();
   const [draft, setDraft] = useState('');
@@ -526,7 +528,7 @@ export function MatchCard({
                   style={{ minWidth: 18, height: 18, marginLeft: 6, paddingHorizontal: 5, borderRadius: 9, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' }}
                 >
                   <Text style={{ color: '#fff', fontSize: 10, fontWeight: '700', fontVariant: ['tabular-nums'] }}>
-                    {fixtureUnreadCount > 99 ? '99+' : fixtureUnreadCount}
+                    {fixtureUnreadCount}
                   </Text>
                 </View>
               )}

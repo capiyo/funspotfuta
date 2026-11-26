@@ -181,6 +181,8 @@ export function MatchCard({
     queryFn: () => getFixtureUnreadCount(channelId!, fixtureId, userId!, authToken ?? undefined),
     enabled: Boolean(isLoggedIn && userId && channelId && fixtureId),
     staleTime: 15_000,
+    refetchInterval: 15_000,
+    refetchOnWindowFocus: true,
   });
   const { requireLogin } = useLoginModal();
   const [draft, setDraft] = useState('');
@@ -680,7 +682,7 @@ export function MatchCard({
                   )}
                 </span>
                 <span className="match-card-channel-name" style={styles.channelName}>{channel.name}</span>
-                {fixtureUnreadCount > 0 && <span aria-label={`${fixtureUnreadCount} unread messages`} style={{ minWidth: 18, height: 18, marginLeft: 6, padding: '0 5px', borderRadius: 9, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: colors.primary, color: '#fff', fontSize: 10, fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>{fixtureUnreadCount > 99 ? '99+' : fixtureUnreadCount}</span>}
+                {fixtureUnreadCount > 0 && <span aria-label={`${fixtureUnreadCount} unread messages`} style={{ minWidth: 18, height: 18, marginLeft: 6, padding: '0 5px', borderRadius: 9, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', background: colors.primary, color: '#fff', fontSize: 10, fontWeight: 700, fontVariantNumeric: 'tabular-nums' }}>{fixtureUnreadCount}</span>}
               </button>
             ) : null}
 
