@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { CSSProperties } from 'react';
 import { useProfileAvatar, type FanColorPalette } from '@funspot/core';
 import { useAuth } from '@/lib/auth/auth-context';
@@ -19,6 +20,8 @@ export function Avatar({ colors, size = 'md', uri, userId, label, borderColor, b
   const { authToken } = useAuth();
   const profileAvatar = useProfileAvatar(userId, authToken);
   const imageUri = profileAvatar ?? uri ?? null;
+  const [failedUri, setFailedUri] = useState<string | null>(null);
+  const showImage = Boolean(imageUri) && failedUri !== imageUri;
   const style: CSSProperties = {
     width: dim,
     height: dim,
@@ -36,9 +39,10 @@ export function Avatar({ colors, size = 'md', uri, userId, label, borderColor, b
     flex: '0 0 auto',
   };
   return <span className="fan-avatar" style={style} aria-label={label ?? 'Avatar'}>
-    {imageUri ? (
+    {showImage ? (
       <img
-        src={imageUri}
+        src={imageUri!}
+        onError={() => setFailedUri(imageUri)}
         alt={label ? `${label} avatar` : 'Avatar'}
         width={dim}
         height={dim}

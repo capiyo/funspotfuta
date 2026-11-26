@@ -13,6 +13,7 @@
 // do not pass an arbitrary pixel size; if a screen needs a size that
 // isn't here, add it to SIZES below rather than overriding inline.
 
+import { useState } from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
 import { FanColorPalette, useProfileAvatar } from '@funspot/core';
 import { fanText } from '@/theme/use-fan-typography';
@@ -51,12 +52,14 @@ export function Avatar({
     const { authToken } = useAuth();
     const profileAvatar = useProfileAvatar(userId, authToken);
     const imageUri = profileAvatar ?? uri ?? null;
+    const [failedUri, setFailedUri] = useState<string | null>(null);
+    const showImage = Boolean(imageUri) && failedUri !== imageUri;
     const styles = createStyles(colors, dim, borderColor, backgroundColor);
 
     return (
         <View style={styles.circle}>
-            {imageUri ? (
-                <Image source={{ uri: imageUri }} style={styles.image} resizeMode="cover" />
+            {showImage ? (
+                <Image source={{ uri: imageUri! }} style={styles.image} resizeMode="cover" onError={() => setFailedUri(imageUri)} />
             ) : (
                 <Text style={fanText('badge', colors, colors.primary)}>{label}</Text>
             )}
