@@ -28,7 +28,7 @@
 //   - The modal's payment / phone / sub-fixture props are bound to the user id
 //     and token here (modalApi), because the shims need both.
 //
-// Remaining parity work: comrade cards.
+// Comrade cards show existing channel members from the signed-in user's comrade list.
 // Image and video media use the shared channel-chat upload pipeline.
 
 import { TeamCrest } from '@/components/TeamCrest';
