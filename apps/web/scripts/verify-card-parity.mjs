@@ -129,12 +129,9 @@ async function inspect(width, state) {
       browserDiagnostics.responses.push({ status: response.status(), url: response.url() });
     }
     const responseUrl = response.url();
-    if (responseUrl.includes('.tsx') || responseUrl.includes('.ts?') || responseUrl.includes('/@vite/client') || responseUrl.endsWith('.js')) {
-      browserDiagnostics.moduleResponses.push({
-        status: response.status(),
-        url: response.url(),
-        contentType: response.headers()['content-type'] ?? '',
-      });
+    const contentType = response.headers()['content-type'] ?? '';
+    if (contentType.includes('application/json') || responseUrl.includes('/node_modules/') || responseUrl.includes('/@id/') || responseUrl.includes('/@vite/')) {
+      browserDiagnostics.moduleResponses.push({ status: response.status(), url: responseUrl, contentType });
     }
     if (response.status() >= 400) {
       browserDiagnostics.failedResources.push({ status: response.status(), url: response.url() });
