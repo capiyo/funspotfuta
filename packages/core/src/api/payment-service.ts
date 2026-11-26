@@ -301,7 +301,7 @@ export async function checkSTKStatus(checkoutRequestId: string, authToken?: stri
     if (res.ok) return stkStatusFromJson(await res.json());
     return { status: 'pending' };
   } catch (e: unknown) {
-    return { status: 'error', message: e?.message ?? String(e) };
+    return { status: 'error', message: errorMessage(e) };
   }
 }
 
