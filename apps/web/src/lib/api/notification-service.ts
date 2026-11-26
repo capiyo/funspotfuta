@@ -572,7 +572,7 @@ export const NotificationService = {
         }
     },
 
-    async getPendingJoinRequests(): Promise<Record<string, any>[]> {
+    async getPendingJoinRequests(): Promise<Record<string, unknown>[]> {
         try {
             const raw = await readString(K_PENDING_JOIN_REQUESTS);
             if (!raw) return [];
@@ -584,7 +584,7 @@ export const NotificationService = {
         }
     },
 
-    async getPendingRequestsForChannel(channelId: string): Promise<Record<string, any>[]> {
+    async getPendingRequestsForChannel(channelId: string): Promise<Record<string, unknown>[]> {
         const all = await this.getPendingJoinRequests();
         return all.filter((r) => r.channel_id === channelId);
     },
@@ -1029,6 +1029,29 @@ export const NotificationService = {
         }
     },
 
+    // Durable inbox: push delivery is best-effort, while this endpoint is the
+    // authenticated source of truth shared by web, Android and iOS.
+    async getUserNotifications(userId: string, authToken?: string): Promise<Record<string, any>[]> {
+        try {
+            const response = await fetchWithTimeout(
+                `${API_BASE_URL}/notifications/user/${encodeURIComponent(userId)}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+                    },
+                },
+            );
+            if (!response.ok) return [];
+            const payload: unknown = await response.json();
+            return Array.isArray(payload) ? payload as Record<string, unknown>[] : [];
+        } catch (error) {
+            console.warn('[NotificationService] Inbox fetch failed', error);
+            return [];
+        }
+    },
+
     // ─── markAsRead (server sync) ───────────────────────────────────
     async markAsRead(args: {
         userId: string;
@@ -1098,11 +1121,18 @@ export const NotificationService = {
     async getNotificationPreferences(
         userId: string,
         authToken?: string,
-    ): Promise<{ vote_alerts: boolean; like_alerts: boolean; comment_alerts: boolean }> {
+    ): Promise<{ vote_alerts: boolean; like_alerts: boolean; comment_alerts: boolean; message_alerts: boolean; mention_alerts: boolean; reply_alerts: boolean; reaction_alerts: boolean; push_enabled: boolean; show_preview: boolean; sound_enabled: boolean }> {
         const defaults = {
             vote_alerts: true,
             like_alerts: true,
             comment_alerts: true,
+            message_alerts: true,
+            mention_alerts: true,
+            reply_alerts: true,
+            reaction_alerts: true,
+            push_enabled: true,
+            show_preview: true,
+            sound_enabled: true,
         };
         try {
             const res = await fetch(
@@ -1115,6 +1145,13 @@ export const NotificationService = {
                     vote_alerts: data?.vote_alerts ?? true,
                     like_alerts: data?.like_alerts ?? true,
                     comment_alerts: data?.comment_alerts ?? true,
+                    message_alerts: data?.message_alerts ?? true,
+                    mention_alerts: data?.mention_alerts ?? true,
+                    reply_alerts: data?.reply_alerts ?? true,
+                    reaction_alerts: data?.reaction_alerts ?? true,
+                    push_enabled: data?.push_enabled ?? true,
+                    show_preview: data?.show_preview ?? true,
+                    sound_enabled: data?.sound_enabled ?? true,
                 };
             }
         } catch (e) {
@@ -1128,9 +1165,16 @@ export const NotificationService = {
         voteAlerts: boolean;
         likeAlerts: boolean;
         commentAlerts: boolean;
+        messageAlerts?: boolean;
+        mentionAlerts?: boolean;
+        replyAlerts?: boolean;
+        reactionAlerts?: boolean;
+        pushEnabled?: boolean;
+        showPreview?: boolean;
+        soundEnabled?: boolean;
         authToken?: string;
     }): Promise<boolean> {
-        const { userId, voteAlerts, likeAlerts, commentAlerts, authToken } = args;
+        const { userId, voteAlerts, likeAlerts, commentAlerts, messageAlerts = true, mentionAlerts = true, replyAlerts = true, reactionAlerts = true, pushEnabled = true, showPreview = true, soundEnabled = true, authToken } = args;
         try {
             const res = await fetch(`${API_BASE_URL}/notifications/preferences`, {
                 method: 'PUT',
@@ -1143,6 +1187,13 @@ export const NotificationService = {
                     vote_alerts: voteAlerts,
                     like_alerts: likeAlerts,
                     comment_alerts: commentAlerts,
+                    message_alerts: messageAlerts,
+                    mention_alerts: mentionAlerts,
+                    reply_alerts: replyAlerts,
+                    reaction_alerts: reactionAlerts,
+                    push_enabled: pushEnabled,
+                    show_preview: showPreview,
+                    sound_enabled: soundEnabled,
                 }),
             });
             return res.status === 200;

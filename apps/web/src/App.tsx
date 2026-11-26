@@ -83,8 +83,11 @@ function AppRoutes() {
     <RootNavigator />
     <NotificationGate visible={notificationGateVisible} onRetry={continueWithoutNotifications} onSkip={continueWithoutNotifications} />
     {notice && <button className="toast" onClick={() => {
-      const target = notice.data?.url;
-      if (target) window.location.assign(target);
+      const data = notice.data ?? {};
+      const target = data.url ?? (data.channel_id
+        ? `/messages/${encodeURIComponent(String(data.channel_id))}${data.fixture_id ? `?fixtureId=${encodeURIComponent(String(data.fixture_id))}` : ''}`
+        : undefined);
+      if (target) window.location.assign(String(target));
       setNotice(null);
     }} aria-label="Open notification"><strong>{notice.title}</strong>{notice.body && <span>{notice.body}</span>}</button>}
   </>;
