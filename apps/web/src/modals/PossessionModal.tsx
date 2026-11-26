@@ -178,7 +178,7 @@ export function PossessionModal({ fixture, channelId, userId, username, authToke
         ) : (
           <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
             <label style={{ flex: 1, minWidth: 0, fontSize: 11, ...muted }}>Points to stake
-              <input type="number" min="1" step="1" inputMode="numeric" value={amount} onChange={(event) => setAmount(event.target.value)} style={{ ...control, display: 'block', width: '100%', boxSizing: 'border-box', marginTop: 5 }} />
+              <input type="number" min="5" step="1" inputMode="numeric" value={amount} onChange={(event) => setAmount(event.target.value)} style={{ ...control, display: 'block', width: '100%', boxSizing: 'border-box', marginTop: 5 }} />
             </label>
             <button type="button" disabled={busy || loading || (market !== null && market.status !== 'open')} onClick={() => void submitPoke()} style={{ ...action(true), alignSelf: 'end', padding: '12px 16px', opacity: busy ? .6 : 1 }}>Create poke</button>
           </div>
