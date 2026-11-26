@@ -56,6 +56,10 @@ import {
   comradeWithStatsFromChannelMember,
   getUserChannels,
   getChannelLeaderboard,
+  getChannelWeeklyLeaderboardData,
+  isDemoMemberName,
+  type WeeklyChannelLeader,
+  type WeeklyLeaderboardMe,
   isDemoMemberName,
   getUserComrades,
 } from '@funspot/core';
@@ -149,14 +153,16 @@ export default function LeaderboardScreen({
   const [loading, setLoading] = useState(true);
 
   // Two-tab layout when a fixture is present, single-tab otherwise.
-  const [tab, setTab] = useState<'leaderboard' | 'votes'>('leaderboard');
+  const [tab, setTab] = useState<'leaderboard' | 'weekly' | 'votes'>('leaderboard');
   const swipeStartX = useRef<number | null>(null);
   const handleSwipeStart = (x: number) => { swipeStartX.current = x; };
   const handleSwipeEnd = (x: number) => {
     const start = swipeStartX.current;
     swipeStartX.current = null;
-    if (!hasFixture || start === null || Math.abs(x - start) < 55) return;
-    setTab(x < start ? 'votes' : 'leaderboard');
+    if (start === null || Math.abs(x - start) < 55) return;
+    const order: Array<'leaderboard' | 'weekly' | 'votes'> = hasFixture ? ['leaderboard', 'weekly', 'votes'] : ['leaderboard', 'weekly'];
+    const current = order.indexOf(tab);
+    setTab(order[Math.max(0, Math.min(order.length - 1, current + (x < start ? 1 : -1)))]);
   };
   const hasFixture = !!fixture;
 
@@ -205,6 +211,33 @@ export default function LeaderboardScreen({
       cancelled = true;
     };
   }, [visible, activeChannelId, authToken, userId]);
+
+  const [weeklyRows, setWeeklyRows] = useState<WeeklyChannelLeader[]>([]);
+  const [weeklyMe, setWeeklyMe] = useState<WeeklyLeaderboardMe | null>(null);
+  const [weeklyLoading, setWeeklyLoading] = useState(false);
+  const [weekStartsAt, setWeekStartsAt] = useState<string | null>(null);
+  const [weekEndsAt, setWeekEndsAt] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!visible || tab !== 'weekly' || !activeChannelId) return;
+    let cancelled = false;
+    setWeeklyLoading(true);
+    void getChannelWeeklyLeaderboardData(activeChannelId, authToken, userId)
+      .then((result) => {
+        if (cancelled) return;
+        setWeeklyRows((result?.leaderboard ?? []).filter((row) => !isDemoMemberName(row.username)));
+        setWeeklyMe(result?.me ?? null);
+        setWeekStartsAt(result?.week_starts_at ?? null);
+        setWeekEndsAt(result?.week_ends_at ?? null);
+      })
+      .catch(() => { if (!cancelled) { setWeeklyRows([]); setWeeklyMe(null); } })
+      .finally(() => { if (!cancelled) setWeeklyLoading(false); });
+    return () => { cancelled = true; };
+  }, [visible, tab, activeChannelId, authToken, userId]);
+
+  const weeklyPeriod = weekStartsAt && weekEndsAt
+    ? `${new Date(weekStartsAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: 'Africa/Nairobi' })} – ${new Date(weekEndsAt).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: 'Africa/Nairobi' })} EAT`
+    : 'Tuesday 04:00 EAT – Tuesday 04:00 EAT';
 
   const champion = rows.length > 0 ? rows[0] : null;
   const members = rows.length > 1 ? rows.slice(1) : [];
@@ -267,25 +300,11 @@ export default function LeaderboardScreen({
             </View>
           )}
 
-          {/* Tab bar — only when a fixture is present */}
-          {hasFixture && (
-            <View style={styles.tabBar}>
-              <TabButton
-                colors={colors}
-                styles={styles}
-                active={tab === 'leaderboard'}
-                label="LEADERBOARD"
-                onPress={() => setTab('leaderboard')}
-              />
-              <TabButton
-                colors={colors}
-                styles={styles}
-                active={tab === 'votes'}
-                label="VOTES"
-                onPress={() => setTab('votes')}
-              />
-            </View>
-          )}
+          <View style={styles.tabBar}>
+            <TabButton colors={colors} styles={styles} active={tab === 'leaderboard'} label="SEASON" onPress={() => setTab('leaderboard')} />
+            <TabButton colors={colors} styles={styles} active={tab === 'weekly'} label="WEEKLY" onPress={() => setTab('weekly')} />
+            {hasFixture && <TabButton colors={colors} styles={styles} active={tab === 'votes'} label="VOTES" onPress={() => setTab('votes')} />}
+          </View>
 
           {/* Content */}
           {channels.length === 0 && !loading ? (
@@ -294,7 +313,7 @@ export default function LeaderboardScreen({
                 Join or create a channel to see its leaderboard.
               </Text>
             </View>
-          ) : tab === 'leaderboard' || !hasFixture ? (
+          ) : tab === 'leaderboard' ? (
             <ScrollView
               className="leaderboard-scroll"
               style={[styles.screen, { flex: 1, minHeight: 0, minWidth: 0, width: '100%', alignSelf: 'stretch' }]}
@@ -353,6 +372,32 @@ export default function LeaderboardScreen({
                   )}
                     </Fragment>
                   ))}
+                </>
+              )}
+            </ScrollView>
+          ) : tab === 'weekly' ? (
+            <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
+              <Text style={[fanText('caption', colors, colors.textSecondary), { marginBottom: 10 }]}>Points won this week · {weeklyPeriod}</Text>
+              {weeklyLoading ? <ActivityIndicator color={colors.primary} style={{ marginTop: 36 }} /> : weeklyRows.length === 0 && !weeklyMe ? (
+                <Text style={styles.empty}>No weekly gains to show yet. Rankings reset Tuesday at 04:00 EAT.</Text>
+              ) : (
+                <>
+                  {weeklyRows.map((row) => (
+                    <View key={row.user_id || row.username} style={{ minHeight: 54, flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 4 }}>
+                      <Text style={{ width: 30, color: colors.textSecondary, fontSize: 12, fontWeight: '700', textAlign: 'center' }}>{row.rank <= 3 ? ['🥇', '🥈', '🥉'][row.rank - 1] : `#${row.rank}`}</Text>
+                      <Avatar colors={colors} size="sm" userId={row.user_id} label={row.username?.[0] ?? '?'} />
+                      <Text numberOfLines={1} style={{ flex: 1, color: colors.textPrimary, fontSize: 12, fontWeight: '600' }}>{row.username}</Text>
+                      <Text style={{ color: colors.primary, fontSize: 12, fontWeight: '800' }}>+{row.weekly_points.toLocaleString()} pts</Text>
+                    </View>
+                  ))}
+                  {weeklyMe && !weeklyRows.some((row) => row.user_id === weeklyMe.user_id) && (
+                    <View key={`me-${weeklyMe.user_id}`} style={{ minHeight: 54, flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 4, backgroundColor: colors.surfaceSunken, borderRadius: 999 }}>
+                      <Text style={{ width: 30, color: colors.textSecondary, fontSize: 12, fontWeight: '700', textAlign: 'center' }}>{weeklyMe.rank ? `#${weeklyMe.rank}` : '—'}</Text>
+                      <Avatar colors={colors} size="sm" userId={weeklyMe.user_id} label={weeklyMe.username?.[0] ?? '?'} />
+                      <Text numberOfLines={1} style={{ flex: 1, color: colors.textPrimary, fontSize: 12, fontWeight: '600' }}>{weeklyMe.username || 'You'} · You</Text>
+                      <Text style={{ color: colors.primary, fontSize: 12, fontWeight: '800' }}>+{weeklyMe.weekly_points.toLocaleString()} pts</Text>
+                    </View>
+                  )}
                 </>
               )}
             </ScrollView>
