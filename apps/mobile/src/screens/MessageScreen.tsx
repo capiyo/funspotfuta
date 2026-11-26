@@ -32,6 +32,8 @@
 // Image and video media use the shared channel-chat upload pipeline.
 
 import { TeamCrest } from '@/components/TeamCrest';
+import { ComradeCard } from '@/modals/comradelist/comradeCard';
+import type { ComradeProfile } from '@/modals/comradelist/types';
 import {
   useCallback,
   useEffect,
@@ -47,6 +49,7 @@ import {
   Modal,
   Platform,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -74,6 +77,7 @@ import {
 } from 'lucide-react-native';
 import {
   getUserChannels,
+  getUserComrades,
   getAllFixtures,
   queryKeys,
   Channel,
@@ -181,6 +185,7 @@ export default function MessageScreen() {
   const [loadedRouteFixture, setLoadedRouteFixture] = useState<Fixture | null>(null);
   const [draft, setDraft] = useState('');
   const [channelMembers, setChannelMembers] = useState<Channel['members']>([]);
+  const [comradeCards, setComradeCards] = useState<ComradeProfile[]>([]);
   const [replyTo, setReplyTo] = useState<ChatMessage | null>(null);
   const [optionsFor, setOptionsFor] = useState<ChatMessage | null>(null);
   const [archiveParams, setArchiveParams] = useState<ActivityHistoryParams | null>(null);
@@ -225,6 +230,44 @@ export default function MessageScreen() {
       .catch(() => { if (alive) setChannelMembers([]); });
     return () => { alive = false; };
   }, [activeChannelId, userId, authToken]);
+
+  useEffect(() => {
+    if (!userId || !authToken || channelMembers.length === 0) {
+      setComradeCards([]);
+      return;
+    }
+    let alive = true;
+    getUserComrades(userId, authToken)
+      .then((relations) => {
+        if (!alive) return;
+        const channelUserIds = new Set(channelMembers.map((member) => member.userId));
+        const seen = new Set<string>();
+        const cards = relations
+          .filter((relation) => relation.status !== 'pending' && channelUserIds.has(String(relation.comrade_id ?? '')))
+          .map((relation): ComradeProfile => {
+            const id = String(relation.comrade_id ?? '');
+            const member = channelMembers.find((candidate) => candidate.userId === id);
+            return {
+              id,
+              username: String(relation.comrade_username ?? member?.username ?? 'Fan'),
+              nickname: String(relation.comrade_nickname ?? relation.comrade_username ?? member?.username ?? 'Fan'),
+              clubFan: String(relation.comrade_club ?? '⚽ Football Fan'),
+              countryFan: String(relation.comrade_country ?? '🌍 World'),
+              phone: '',
+              balance: 0,
+              numberOfBets: member?.totalVotes ?? 0,
+            };
+          })
+          .filter((card) => {
+            if (!card.id || seen.has(card.id)) return false;
+            seen.add(card.id);
+            return true;
+          });
+        setComradeCards(cards);
+      })
+      .catch(() => { if (alive) setComradeCards([]); });
+    return () => { alive = false; };
+  }, [userId, authToken, channelMembers]);
 
   // ── Remote flag: pledges / bets / sub-fixture tabs ─────────
   useEffect(() => {
@@ -629,6 +672,22 @@ export default function MessageScreen() {
               userId={userId}
               onClose={() => setShowVoters(false)}
             />
+          )}
+
+          {comradeCards.length > 0 && (
+            <View style={{ paddingBottom: FAN_SPACING.xs }}>
+              <Text style={[fanText('microLabel', colors, colors.textTertiary), { paddingHorizontal: FAN_SPACING.md, marginBottom: FAN_SPACING.xs }]}>COMRADES HERE</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: FAN_SPACING.sm, gap: FAN_SPACING.xs }}>
+                {comradeCards.map((comrade) => (
+                  <View key={comrade.id} style={{ width: 280 }}>
+                    <ComradeCard comrade={comrade} isAdded isFull={false} hasAdminChannels={false}
+                      onProfile={() => setArchiveParams({ userId: comrade.id, userName: comrade.username, displayName: comrade.nickname, clubFan: comrade.clubFan, authToken: authToken ?? null })}
+                      onAction={() => undefined}
+                    />
+                  </View>
+                ))}
+              </ScrollView>
+            </View>
           )}
 
           <FlatList
